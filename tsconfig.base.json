@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "exactOptionalPropertyTypes": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "target": "ES2022",
+    "verbatimModuleSyntax": true
+  }
+}

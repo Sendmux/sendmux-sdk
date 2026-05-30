@@ -1,0 +1,24 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../mailbox"
+    },
+    {
+      "path": "../management"
+    },
+    {
+      "path": "../sending"
+    }
+  ]
+}

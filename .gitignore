@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
+*.codegen.json
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+vendor/
+.bundle/

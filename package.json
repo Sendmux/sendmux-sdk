@@ -1,0 +1,17 @@
+{
+  "name": "sendmux-sdk-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.22.0",
+  "scripts": {
+    "build": "pnpm -r --if-present build && pnpm verify:layout && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby",
+    "build:go": "cd packages/go && go test ./...",
+    "build:php": "find packages/php -name '*.php' -print0 | xargs -0 -n 1 php -l",
+    "build:python": "python3 -m compileall -q packages/python",
+    "build:ruby": "find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ruby -c",
+    "verify:layout": "node scripts/verify-layout.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

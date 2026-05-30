@@ -3,23 +3,26 @@
 import { execFileSync } from "node:child_process";
 
 const generatedPackageDirs = [
-  "packages/go",
-  "packages/php",
-  "packages/python",
-  "packages/ruby",
-  "packages/ts",
+  "packages/ts/mailbox/src/generated",
+  "packages/ts/management/src/generated",
+  "packages/ts/sending/src/generated",
 ];
 
-const diff = execFileSync("git", ["status", "--porcelain", "--", ...generatedPackageDirs], {
+const unstagedDiff = execFileSync("git", ["diff", "--name-status", "--", ...generatedPackageDirs], {
+  encoding: "utf8",
+});
+const untracked = execFileSync("git", ["ls-files", "--others", "--exclude-standard", "--", ...generatedPackageDirs], {
   encoding: "utf8",
 });
 
-if (diff.trim()) {
+const drift = [unstagedDiff.trim(), untracked.trim()].filter(Boolean).join("\n");
+
+if (drift) {
   throw new Error(
     [
       "Generated SDK package directories are stale.",
-      diff.trim(),
-      "Regenerate the SDKs from the current snapshots and commit the resulting package changes.",
+      drift,
+      "Regenerate the SDKs from the current snapshots and stage or commit the resulting package changes.",
     ].join("\n"),
   );
 }

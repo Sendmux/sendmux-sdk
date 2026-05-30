@@ -4,23 +4,30 @@
   "private": true,
   "packageManager": "pnpm@10.22.0",
   "scripts": {
-    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby",
+    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:ts-helpers && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby",
     "build:go": "cd packages/go && go test ./...",
     "build:php": "find packages/php -name '*.php' -print0 | xargs -0 -n 1 php -l",
     "build:python": "python3 -m compileall -q packages/python",
     "build:ruby": "find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ruby -c",
     "canary:openapi": "node scripts/check-openapi-canary.mjs",
-    "drift:check": "pnpm normalize:check && pnpm verify:sdk-staleness",
+    "drift:check": "pnpm normalize:check && pnpm generate:ts && pnpm verify:sdk-staleness",
+    "generate:ts": "openapi-ts",
     "hooks:install": "git config core.hooksPath .githooks",
     "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && redocly lint --extends=spec .codegen/*.json",
     "normalize:codegen": "node scripts/normalize-openapi-for-codegen.mjs",
+    "smoke:ts-staging": "node scripts/smoke-ts-staging.mjs",
+    "test:ts-helpers": "node scripts/test-ts-helpers.mjs",
     "verify:codegen": "node scripts/verify-normalized-openapi.mjs",
     "verify:layout": "node scripts/verify-layout.mjs",
-    "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs"
+    "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs",
+    "verify:tree-shaking": "node scripts/verify-tree-shaking.mjs",
+    "verify:ts-public-api": "node scripts/verify-ts-public-api.mjs"
   },
   "devDependencies": {
     "@apiture/openapi-down-convert": "0.14.2",
+    "@hey-api/openapi-ts": "0.97.3",
     "@redocly/cli": "2.31.5",
+    "esbuild": "0.27.1",
     "typescript": "5.9.3"
   }
 }

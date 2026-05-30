@@ -1,6 +1,9 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    // Hey API v0.97.3 generated source passes explicit undefined to optional fields.
+    // Keep this relaxation scoped to generated surface packages; core and umbrella remain exact-optional strict.
+    "exactOptionalPropertyTypes": false,
     "outDir": "dist",
     "rootDir": "src"
   },

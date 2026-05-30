@@ -4,15 +4,19 @@
   "private": true,
   "packageManager": "pnpm@10.22.0",
   "scripts": {
-    "build": "pnpm normalize:check && pnpm -r --if-present build && pnpm verify:layout && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby",
+    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby",
     "build:go": "cd packages/go && go test ./...",
     "build:php": "find packages/php -name '*.php' -print0 | xargs -0 -n 1 php -l",
     "build:python": "python3 -m compileall -q packages/python",
     "build:ruby": "find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ruby -c",
+    "canary:openapi": "node scripts/check-openapi-canary.mjs",
+    "drift:check": "pnpm normalize:check && pnpm verify:sdk-staleness",
+    "hooks:install": "git config core.hooksPath .githooks",
     "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && redocly lint --extends=spec .codegen/*.json",
     "normalize:codegen": "node scripts/normalize-openapi-for-codegen.mjs",
     "verify:codegen": "node scripts/verify-normalized-openapi.mjs",
-    "verify:layout": "node scripts/verify-layout.mjs"
+    "verify:layout": "node scripts/verify-layout.mjs",
+    "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs"
   },
   "devDependencies": {
     "@apiture/openapi-down-convert": "0.14.2",

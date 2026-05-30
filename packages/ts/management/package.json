@@ -2,7 +2,6 @@
   "name": "@sendmux/management",
   "version": "0.0.0",
   "type": "module",
-  "private": true,
   "exports": {
     ".": "./dist/index.js"
   },
@@ -15,5 +14,14 @@
   },
   "dependencies": {
     "@sendmux/core": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sendmux/sendmux-sdk.git",
+    "directory": "packages/ts/management"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

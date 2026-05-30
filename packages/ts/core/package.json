@@ -2,7 +2,6 @@
   "name": "@sendmux/core",
   "version": "0.0.0",
   "type": "module",
-  "private": true,
   "exports": {
     ".": "./dist/index.js"
   },
@@ -12,5 +11,14 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sendmux/sendmux-sdk.git",
+    "directory": "packages/ts/core"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

@@ -2,7 +2,6 @@
   "name": "@sendmux/sdk",
   "version": "0.0.0",
   "type": "module",
-  "private": true,
   "exports": {
     ".": "./dist/index.js"
   },
@@ -18,5 +17,14 @@
     "@sendmux/mailbox": "workspace:*",
     "@sendmux/management": "workspace:*",
     "@sendmux/sending": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sendmux/sendmux-sdk.git",
+    "directory": "packages/ts/sdk"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": true,
+  "include-v-in-tag": true,
+  "tag-separator": "-",
+  "sequential-calls": true,
+  "always-link-local": true,
+  "plugins": [
+    {
+      "type": "node-workspace"
+    }
+  ],
+  "group-pull-request-title-pattern": "chore: release SDK packages",
+  "packages": {
+    "packages/ts/core": {
+      "component": "ts-core",
+      "package-name": "@sendmux/core",
+      "initial-version": "1.0.0"
+    },
+    "packages/ts/sending": {
+      "component": "ts-sending",
+      "package-name": "@sendmux/sending",
+      "initial-version": "1.0.0"
+    },
+    "packages/ts/mailbox": {
+      "component": "ts-mailbox",
+      "package-name": "@sendmux/mailbox",
+      "initial-version": "1.0.0"
+    },
+    "packages/ts/management": {
+      "component": "ts-management",
+      "package-name": "@sendmux/management",
+      "initial-version": "1.0.0"
+    },
+    "packages/ts/sdk": {
+      "component": "ts-sdk",
+      "package-name": "@sendmux/sdk",
+      "initial-version": "1.0.0"
+    }
+  }
+}

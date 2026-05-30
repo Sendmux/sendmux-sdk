@@ -21,7 +21,8 @@
     "verify:layout": "node scripts/verify-layout.mjs",
     "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs",
     "verify:tree-shaking": "node scripts/verify-tree-shaking.mjs",
-    "verify:ts-public-api": "node scripts/verify-ts-public-api.mjs"
+    "verify:ts-public-api": "node scripts/verify-ts-public-api.mjs",
+    "publish:npm:ts": "node scripts/publish-npm-ts.mjs"
   },
   "devDependencies": {
     "@apiture/openapi-down-convert": "0.14.2",

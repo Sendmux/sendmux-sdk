@@ -4,6 +4,7 @@ coverage/
 .DS_Store
 *.log
 *.codegen.json
+.codegen/
 *.tsbuildinfo
 __pycache__/
 *.py[cod]

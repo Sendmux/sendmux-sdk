@@ -16,3 +16,5 @@ The umbrella package re-exports:
 - `management` from `@sendmux/management`
 
 For smaller installs, prefer the per-surface packages directly.
+
+Use this package when an integration needs more than one Sendmux API surface and a single import point is simpler than managing surface packages individually.

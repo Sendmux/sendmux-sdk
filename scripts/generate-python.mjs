@@ -1,0 +1,260 @@
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+
+const root = process.cwd();
+const outputRoot = join(root, ".tmp", "python-codegen");
+
+const surfaces = [
+  {
+    name: "sending",
+    projectName: "sendmux-sending",
+    packageName: "sendmux_sending",
+    spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
+    tags: ["Emails"],
+  },
+  {
+    name: "mailbox",
+    projectName: "sendmux-mailbox",
+    packageName: "sendmux_mailbox",
+    spec: ".codegen/openapi-app.openapi-generator.codegen.json",
+    tags: ["Mailbox API"],
+  },
+  {
+    name: "management",
+    projectName: "sendmux-management",
+    packageName: "sendmux_management",
+    spec: ".codegen/openapi-app.openapi-generator.codegen.json",
+    tags: [
+      "Billing",
+      "Domain Filters",
+      "Domains",
+      "Emails",
+      "Inboxes",
+      "Mailbox Filters",
+      "Mailboxes",
+      "Sending accounts",
+      "Webhooks",
+    ],
+  },
+];
+
+run("pnpm", ["normalize:codegen"]);
+rmSync(outputRoot, { force: true, recursive: true });
+mkdirSync(outputRoot, { recursive: true });
+
+for (const surface of surfaces) {
+  const packageDir = join(root, "packages", "python", surface.name);
+  const generatedRoot = join(outputRoot, surface.name);
+  const inputSpec = surface.tags ? writeFilteredSpec(surface) : join(root, surface.spec);
+
+  run("pnpm", [
+    "openapi-generator-cli",
+    "generate",
+    "-g",
+    "python",
+    "-i",
+    inputSpec,
+    "-o",
+    generatedRoot,
+    `--additional-properties=packageName=${surface.packageName},projectName=${surface.projectName},packageVersion=1.0.0,generateSourceCodeOnly=true,hideGenerationTimestamp=true`,
+    "--global-property=models,supportingFiles,apis,apiTests=false,modelTests=false,apiDocs=false,modelDocs=false",
+  ]);
+
+  rmSync(join(packageDir, surface.packageName), { force: true, recursive: true });
+  cpSync(join(generatedRoot, surface.packageName), join(packageDir, surface.packageName), { recursive: true });
+  writeSurfaceClient(surface);
+}
+
+console.log("Generated Python SDK packages");
+
+function writeFilteredSpec(surface) {
+  const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
+  const allowed = new Set(surface.tags);
+  const paths = {};
+
+  for (const [path, pathItem] of Object.entries(source.paths ?? {})) {
+    const nextPathItem = {};
+    for (const [method, operation] of Object.entries(pathItem)) {
+      if (!["get", "post", "put", "patch", "delete", "head", "options"].includes(method)) {
+        nextPathItem[method] = operation;
+        continue;
+      }
+
+      if ((operation.tags ?? []).some((tag) => allowed.has(tag))) {
+        nextPathItem[method] = operation;
+      }
+    }
+
+    if (Object.keys(nextPathItem).some((key) => key !== "parameters")) {
+      paths[path] = nextPathItem;
+    }
+  }
+
+  const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
+  writeFileSync(outputPath, `${JSON.stringify(pruneComponents({ ...source, paths }), null, 2)}\n`);
+  return outputPath;
+}
+
+function pruneComponents(document) {
+  const refs = new Set();
+  collectRefs(document.paths, refs);
+
+  for (const ref of refs) {
+    collectTransitiveRefs(document, ref, refs);
+  }
+
+  const components = {};
+  for (const ref of refs) {
+    const parts = ref.split("/");
+    if (parts.length !== 4 || parts[0] !== "#" || parts[1] !== "components") {
+      continue;
+    }
+
+    const [, , section, encodedName] = parts;
+    const name = decodeURIComponent(encodedName);
+    const value = document.components?.[section]?.[name];
+    if (value === undefined) {
+      throw new Error(`Missing component referenced by filtered spec: ${ref}`);
+    }
+
+    components[section] ??= {};
+    components[section][name] = value;
+  }
+
+  if (document.components?.securitySchemes) {
+    components.securitySchemes = document.components.securitySchemes;
+  }
+
+  return { ...document, components };
+}
+
+function collectTransitiveRefs(document, ref, refs) {
+  const parts = ref.split("/");
+  if (parts.length !== 4 || parts[0] !== "#" || parts[1] !== "components") {
+    return;
+  }
+
+  const [, , section, encodedName] = parts;
+  const name = decodeURIComponent(encodedName);
+  const value = document.components?.[section]?.[name];
+  if (value === undefined) {
+    throw new Error(`Missing component referenced by filtered spec: ${ref}`);
+  }
+
+  const before = refs.size;
+  collectRefs(value, refs);
+  if (refs.size !== before) {
+    for (const nextRef of refs) {
+      collectTransitiveRefs(document, nextRef, refs);
+    }
+  }
+}
+
+function collectRefs(value, refs) {
+  if (Array.isArray(value)) {
+    for (const child of value) {
+      collectRefs(child, refs);
+    }
+    return;
+  }
+
+  if (!value || typeof value !== "object") {
+    return;
+  }
+
+  if (typeof value.$ref === "string") {
+    refs.add(value.$ref);
+  }
+
+  for (const child of Object.values(value)) {
+    collectRefs(child, refs);
+  }
+}
+
+function writeSurfaceClient(surface) {
+  const packageDir = join(root, "packages", "python", surface.name, surface.packageName);
+  const className = toPascal(surface.name);
+  const keySurface = surface.name === "mailbox" ? "mailbox" : "root";
+  const defaultBaseUrl =
+    surface.name === "sending" ? "https://smtp.sendmux.ai/api/v1" : "https://app.sendmux.ai/api/v1";
+
+  writeFileSync(
+    join(packageDir, "client.py"),
+    `from __future__ import annotations
+
+from typing import Any, cast
+
+from sendmux_core import RetryOptions, configure_auth, validate_api_key
+from sendmux_core.errors import map_api_exception
+from sendmux_core.retry import RetryingRestClient
+
+from ${surface.packageName}.api_client import ApiClient
+from ${surface.packageName}.configuration import Configuration
+from ${surface.packageName}.exceptions import ApiException
+
+DEFAULT_BASE_URL = "${defaultBaseUrl}"
+
+
+class Sendmux${className}ApiClient(ApiClient):
+    def __init__(self, configuration: Configuration, *, retry_options: RetryOptions | None = None) -> None:
+        super().__init__(configuration=configuration)
+        self.rest_client = cast(Any, RetryingRestClient(self.rest_client, retry_options=retry_options))
+
+    def call_api(self, *args: Any, **kwargs: Any) -> Any:
+        try:
+            return super().call_api(*args, **kwargs)
+        except ApiException as exc:
+            raise map_api_exception(exc) from exc
+
+    def response_deserialize(self, *args: Any, **kwargs: Any) -> Any:
+        try:
+            return super().response_deserialize(*args, **kwargs)
+        except ApiException as exc:
+            raise map_api_exception(exc) from exc
+
+
+def create_${surface.name}_client(
+    *,
+    api_key: str,
+    base_url: str | None = None,
+    retry_options: RetryOptions | None = None,
+) -> Sendmux${className}ApiClient:
+    validate_api_key(api_key, surface="${keySurface}")
+    configuration = Configuration(host=base_url or DEFAULT_BASE_URL)
+    configure_auth(configuration, api_key=api_key)
+    return Sendmux${className}ApiClient(configuration, retry_options=retry_options)
+
+
+configure_${surface.name} = create_${surface.name}_client
+`,
+  );
+
+  const initPath = join(packageDir, "__init__.py");
+  const existing = readFileSync(initPath, "utf8");
+  writeFileSync(
+    initPath,
+    `${existing}
+from ${surface.packageName}.client import (
+    DEFAULT_BASE_URL,
+    Sendmux${className}ApiClient,
+    configure_${surface.name},
+    create_${surface.name}_client,
+)
+`,
+  );
+}
+
+function run(command, args) {
+  const result = spawnSync(command, args, { cwd: root, encoding: "utf8", stdio: "inherit" });
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status}`);
+  }
+}
+
+function toPascal(value) {
+  return value
+    .split(/[-_]/g)
+    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
+    .join("");
+}

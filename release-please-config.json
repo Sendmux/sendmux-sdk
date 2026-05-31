@@ -11,7 +11,7 @@
       "type": "node-workspace"
     }
   ],
-  "group-pull-request-title-pattern": "chore${scope}: release${component} ${version}",
+  "group-pull-request-title-pattern": "chore: release ${branch}",
   "packages": {
     "packages/ts/core": {
       "component": "ts-core",

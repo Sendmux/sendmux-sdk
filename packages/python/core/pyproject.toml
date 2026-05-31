@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sendmux-core"
+version = "1.0.0"
+description = "Shared runtime helpers for the Sendmux Python SDK packages."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "urllib3>=2.3.0,<3",
+]
+
+[project.urls]
+Repository = "https://github.com/Sendmux/sendmux-sdk"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sendmux_core"]
+

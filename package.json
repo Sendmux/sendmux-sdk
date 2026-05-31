@@ -7,10 +7,12 @@
     "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:ts-helpers && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby",
     "build:go": "cd packages/go && go test ./...",
     "build:php": "find packages/php -name '*.php' -print0 | xargs -0 -n 1 php -l",
-    "build:python": "python3 -m compileall -q packages/python",
+    "build:python": "pnpm generate:python && node scripts/check-python.mjs",
+    "build:python:dists": "node scripts/build-python-dists.mjs",
     "build:ruby": "find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ruby -c",
     "canary:openapi": "node scripts/check-openapi-canary.mjs",
     "drift:check": "pnpm normalize:check && pnpm generate:ts && pnpm verify:sdk-staleness",
+    "generate:python": "node scripts/generate-python.mjs",
     "generate:ts": "openapi-ts",
     "hooks:install": "git config core.hooksPath .githooks",
     "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && redocly lint --extends=spec .codegen/*.json",
@@ -22,11 +24,13 @@
     "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs",
     "verify:tree-shaking": "node scripts/verify-tree-shaking.mjs",
     "verify:ts-public-api": "node scripts/verify-ts-public-api.mjs",
+    "prepare:publish:pypi": "node scripts/prepare-pypi-publish.mjs",
     "publish:npm:ts": "node scripts/publish-npm-ts.mjs"
   },
   "devDependencies": {
     "@apiture/openapi-down-convert": "0.14.2",
     "@hey-api/openapi-ts": "0.97.3",
+    "@openapitools/openapi-generator-cli": "2.32.0",
     "@redocly/cli": "2.31.5",
     "esbuild": "0.27.1",
     "typescript": "5.9.3"

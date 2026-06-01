@@ -37,7 +37,7 @@ jobs:
           cache-dependency-path: go/go.sum
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
+        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
         with:
           ruby-version: "3.4.1"
           bundler-cache: false

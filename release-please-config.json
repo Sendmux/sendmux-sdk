@@ -72,6 +72,15 @@
       "release-type": "python",
       "initial-version": "1.0.0",
       "release-as": "1.0.0"
+    },
+    "go": {
+      "component": "go",
+      "package-name": "sendmux.ai/go",
+      "release-type": "go",
+      "include-component-in-tag": true,
+      "include-v-in-tag": true,
+      "tag-separator": "/",
+      "initial-version": "1.0.0"
     }
   }
 }

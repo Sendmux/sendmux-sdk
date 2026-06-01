@@ -3,6 +3,9 @@
 import { execFileSync } from "node:child_process";
 
 const generatedPackageDirs = [
+  "go/mailbox",
+  "go/management",
+  "go/sending",
   "packages/ts/mailbox/src/generated",
   "packages/ts/management/src/generated",
   "packages/ts/sending/src/generated",

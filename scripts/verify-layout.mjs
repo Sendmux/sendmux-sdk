@@ -3,12 +3,15 @@ import { join } from "node:path";
 
 const languages = ["ts", "python", "go", "php", "ruby"];
 const surfaces = ["core", "sending", "mailbox", "management", "sdk"];
+const roots = {
+  go: "go",
+};
 
 const missing = [];
 
 for (const language of languages) {
   for (const surface of surfaces) {
-    const path = join("packages", language, surface);
+    const path = join(roots[language] ?? join("packages", language), surface);
     if (!existsSync(path)) {
       missing.push(path);
     }

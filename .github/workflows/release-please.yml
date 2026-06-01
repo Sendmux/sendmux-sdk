@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      publish_existing_python:
+        description: Publish unpublished Python dists for existing release tags
+        required: false
+        default: false
+        type: boolean
 
 permissions: {}
 
@@ -48,7 +54,7 @@ jobs:
           path: sendmux-docs
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
         with:
           version: 10.22.0
 
@@ -73,7 +79,7 @@ jobs:
 
   publish-pypi:
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    if: ${{ needs.release-please.outputs.releases_created == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish_existing_python) }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -90,7 +96,7 @@ jobs:
           path: sendmux-docs
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
         with:
           version: 10.22.0
 

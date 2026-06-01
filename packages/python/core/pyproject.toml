@@ -15,6 +15,9 @@ dependencies = [
 [project.urls]
 Repository = "https://github.com/Sendmux/sendmux-sdk"
 
-[tool.hatch.build.targets.wheel]
-packages = ["sendmux_core"]
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
 
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+packages = ["sendmux_core"]

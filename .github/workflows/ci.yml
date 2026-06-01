@@ -36,6 +36,12 @@ jobs:
           go-version: "1.23.x"
           cache-dependency-path: go/go.sum
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
+        with:
+          ruby-version: "3.4.1"
+          bundler-cache: false
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

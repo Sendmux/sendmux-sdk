@@ -42,36 +42,31 @@
       "component": "python-core",
       "package-name": "sendmux-core",
       "release-type": "python",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     },
     "packages/python/sending": {
       "component": "python-sending",
       "package-name": "sendmux-sending",
       "release-type": "python",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     },
     "packages/python/mailbox": {
       "component": "python-mailbox",
       "package-name": "sendmux-mailbox",
       "release-type": "python",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     },
     "packages/python/management": {
       "component": "python-management",
       "package-name": "sendmux-management",
       "release-type": "python",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     },
     "packages/python/sdk": {
       "component": "python-sdk",
       "package-name": "sendmux-sdk",
       "release-type": "python",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     },
     "go": {
       "component": "go",

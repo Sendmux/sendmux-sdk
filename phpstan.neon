@@ -1,0 +1,33 @@
+parameters:
+  level: max
+  paths:
+    - packages/php/core/src
+    - packages/php/sending/src
+    - packages/php/mailbox/src
+    - packages/php/management/src
+    - packages/php/sdk/src
+    - packages/php/tests
+  excludePaths:
+    analyse:
+      - packages/php/sending/src/Api
+      - packages/php/sending/src/Model
+      - packages/php/sending/src/ApiException.php
+      - packages/php/sending/src/Configuration.php
+      - packages/php/sending/src/FormDataProcessor.php
+      - packages/php/sending/src/HeaderSelector.php
+      - packages/php/sending/src/ObjectSerializer.php
+      - packages/php/mailbox/src/Api
+      - packages/php/mailbox/src/Model
+      - packages/php/mailbox/src/ApiException.php
+      - packages/php/mailbox/src/Configuration.php
+      - packages/php/mailbox/src/FormDataProcessor.php
+      - packages/php/mailbox/src/HeaderSelector.php
+      - packages/php/mailbox/src/ObjectSerializer.php
+      - packages/php/management/src/Api
+      - packages/php/management/src/Model
+      - packages/php/management/src/ApiException.php
+      - packages/php/management/src/Configuration.php
+      - packages/php/management/src/FormDataProcessor.php
+      - packages/php/management/src/HeaderSelector.php
+      - packages/php/management/src/ObjectSerializer.php
+  tmpDir: .tmp/phpstan

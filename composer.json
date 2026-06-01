@@ -1,0 +1,79 @@
+{
+  "name": "sendmux/sdk-monorepo",
+  "description": "Development workspace for Sendmux PHP SDK packages.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.5",
+    "sendmux/core": "1.0.0",
+    "sendmux/mailbox": "1.0.0",
+    "sendmux/management": "1.0.0",
+    "sendmux/sdk": "1.0.0",
+    "sendmux/sending": "1.0.0",
+    "squizlabs/php_codesniffer": "^3.11"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Sendmux\\Tests\\": "packages/php/tests/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "packages/php/core",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "sendmux/core": "1.0.0"
+        }
+      }
+    },
+    {
+      "type": "path",
+      "url": "packages/php/sending",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "sendmux/sending": "1.0.0"
+        }
+      }
+    },
+    {
+      "type": "path",
+      "url": "packages/php/mailbox",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "sendmux/mailbox": "1.0.0"
+        }
+      }
+    },
+    {
+      "type": "path",
+      "url": "packages/php/management",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "sendmux/management": "1.0.0"
+        }
+      }
+    },
+    {
+      "type": "path",
+      "url": "packages/php/sdk",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "sendmux/sdk": "1.0.0"
+        }
+      }
+    }
+  ],
+  "config": {
+    "sort-packages": true
+  }
+}

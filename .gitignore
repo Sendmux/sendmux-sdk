@@ -7,6 +7,7 @@ coverage/
 *.codegen.json
 .codegen/
 *.tsbuildinfo
+.phpunit.result.cache
 __pycache__/
 *.py[cod]
 vendor/

@@ -80,8 +80,7 @@
       "include-component-in-tag": true,
       "include-v-in-tag": true,
       "tag-separator": "/",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     }
   }
 }

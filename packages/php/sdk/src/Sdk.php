@@ -6,5 +6,5 @@ namespace Sendmux\Sdk;
 
 final class Sdk
 {
-    public const SURFACE = 'sdk';
+    public const VERSION = '1.0.0';
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="Sendmux PHP SDK">
+  <description>PSR-12 checks for Sendmux PHP SDK packages.</description>
+  <file>packages/php</file>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <rule ref="PSR12"/>
+  <rule ref="Generic.Files.LineLength">
+    <exclude-pattern>*/packages/php/(mailbox|management|sending)/src/(Api|Model)/*</exclude-pattern>
+    <exclude-pattern>*/packages/php/(mailbox|management|sending)/src/(ApiException|Configuration|FormDataProcessor|HeaderSelector|ObjectSerializer)\.php$</exclude-pattern>
+  </rule>
+  <rule ref="Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase">
+    <exclude-pattern>*/packages/php/(mailbox|management|sending)/src/Api/*</exclude-pattern>
+  </rule>
+</ruleset>

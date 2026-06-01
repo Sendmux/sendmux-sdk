@@ -1,0 +1,16 @@
+{
+  "name": "sendmux/core",
+  "description": "Shared runtime helpers for Sendmux PHP SDK packages.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "guzzlehttp/guzzle": "^7.10",
+    "psr/http-message": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sendmux\\Core\\": "src/"
+    }
+  }
+}

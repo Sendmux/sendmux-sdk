@@ -27,6 +27,7 @@ jobs:
       issues: write
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
     steps:
       - name: Run release-please
         id: release
@@ -37,7 +38,17 @@ jobs:
 
   publish-npm:
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    if: >-
+      ${{
+        needs.release-please.outputs.releases_created == 'true' &&
+        (
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/core') ||
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/sending') ||
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/mailbox') ||
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/management') ||
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/sdk')
+        )
+      }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -85,7 +96,20 @@ jobs:
 
   publish-pypi:
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish_existing_python) }}
+    if: >-
+      ${{
+        (
+          needs.release-please.outputs.releases_created == 'true' &&
+          (
+            contains(needs.release-please.outputs.paths_released, 'packages/python/core') ||
+            contains(needs.release-please.outputs.paths_released, 'packages/python/sending') ||
+            contains(needs.release-please.outputs.paths_released, 'packages/python/mailbox') ||
+            contains(needs.release-please.outputs.paths_released, 'packages/python/management') ||
+            contains(needs.release-please.outputs.paths_released, 'packages/python/sdk')
+          )
+        ) ||
+        (github.event_name == 'workflow_dispatch' && inputs.publish_existing_python)
+      }}
     runs-on: ubuntu-latest
     environment: release
     permissions:

@@ -1,5 +1,12 @@
+# frozen_string_literal: true
+
+require 'sendmux/core'
+
 module Sendmux
   module Mailbox
-    SURFACE = "mailbox".freeze
   end
 end
+
+require 'sendmux/mailbox/version'
+require 'sendmux_mailbox_generated'
+require 'sendmux/mailbox/client'

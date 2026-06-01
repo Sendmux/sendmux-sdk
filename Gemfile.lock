@@ -1,0 +1,117 @@
+PATH
+  remote: packages/ruby/core
+  specs:
+    sendmux-core (1.0.0)
+      faraday (~> 2.0)
+      faraday-retry (>= 2.4, < 3.0)
+
+PATH
+  remote: packages/ruby/mailbox
+  specs:
+    sendmux-mailbox (1.0.0)
+      faraday (~> 2.0)
+      faraday-multipart (~> 1.0)
+      faraday-retry (>= 2.4, < 3.0)
+      marcel (~> 1.0)
+      sendmux-core (~> 1.0)
+
+PATH
+  remote: packages/ruby/management
+  specs:
+    sendmux-management (1.0.0)
+      faraday (~> 2.0)
+      faraday-multipart (~> 1.0)
+      faraday-retry (>= 2.4, < 3.0)
+      marcel (~> 1.0)
+      sendmux-core (~> 1.0)
+
+PATH
+  remote: packages/ruby/sdk
+  specs:
+    sendmux-sdk (1.0.0)
+      sendmux-core (~> 1.0)
+      sendmux-mailbox (~> 1.0)
+      sendmux-management (~> 1.0)
+      sendmux-sending (~> 1.0)
+
+PATH
+  remote: packages/ruby/sending
+  specs:
+    sendmux-sending (1.0.0)
+      faraday (~> 2.0)
+      faraday-multipart (~> 1.0)
+      faraday-retry (>= 2.4, < 3.0)
+      marcel (~> 1.0)
+      sendmux-core (~> 1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ast (2.4.3)
+    faraday (2.14.2)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-multipart (1.2.0)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.3)
+      net-http (~> 0.5)
+    faraday-retry (2.4.0)
+      faraday (~> 2.0)
+    json (2.19.7)
+    language_server-protocol (3.17.0.5)
+    lint_roller (1.1.0)
+    logger (1.7.0)
+    marcel (1.2.1)
+    minitest (5.27.0)
+    multipart-post (2.4.1)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
+    parallel (2.1.0)
+    parser (3.3.11.1)
+      ast (~> 2.4.1)
+      racc
+    prism (1.9.0)
+    racc (1.8.1)
+    rainbow (3.1.1)
+    rake (13.4.2)
+    regexp_parser (2.12.0)
+    rubocop (1.87.0)
+      json (~> 2.3)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
+      parallel (>= 1.10)
+      parser (>= 3.3.0.2)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 2.9.3, < 3.0)
+      rubocop-ast (>= 1.49.0, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 2.4.0, < 4.0)
+    rubocop-ast (1.49.1)
+      parser (>= 3.3.7.2)
+      prism (~> 1.7)
+    ruby-progressbar (1.13.0)
+    unicode-display_width (3.2.0)
+      unicode-emoji (~> 4.1)
+    unicode-emoji (4.2.0)
+    uri (1.1.1)
+
+PLATFORMS
+  arm64-darwin-24
+  ruby
+
+DEPENDENCIES
+  minitest (~> 5.25)
+  rake (~> 13.2)
+  rubocop (~> 1.81)
+  sendmux-core!
+  sendmux-mailbox!
+  sendmux-management!
+  sendmux-sdk!
+  sendmux-sending!
+
+RUBY VERSION
+   ruby 3.4.1p0
+
+BUNDLED WITH
+   2.6.3

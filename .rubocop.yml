@@ -1,0 +1,35 @@
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.1
+  Exclude:
+    - ".tmp/**/*"
+    - "vendor/**/*"
+    - "packages/ruby/*/lib/sendmux_*_generated/**/*"
+    - "packages/ruby/*/lib/sendmux_*_generated.rb"
+
+Gemspec/RequireMFA:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/AbcSize:
+  Max: 28
+
+Metrics/CyclomaticComplexity:
+  Max: 9
+
+Metrics/ParameterLists:
+  Max: 9
+
+Metrics/BlockLength:
+  Exclude:
+    - "packages/ruby/**/*.gemspec"
+    - "packages/ruby/tests/**/*"
+
+Metrics/MethodLength:
+  Max: 28

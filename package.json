@@ -9,12 +9,13 @@
     "build:php": "pnpm generate:php && node scripts/check-php.mjs && node scripts/check-php-splits.mjs",
     "build:python": "pnpm generate:python && node scripts/check-python.mjs",
     "build:python:dists": "node scripts/build-python-dists.mjs",
-    "build:ruby": "find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ruby -c",
+    "build:ruby": "pnpm generate:ruby && node scripts/check-ruby.mjs && node scripts/build-ruby-gems.mjs",
     "canary:openapi": "node scripts/check-openapi-canary.mjs",
-    "drift:check": "pnpm normalize:check && pnpm generate:ts && pnpm generate:go && pnpm generate:php && pnpm verify:sdk-staleness",
+    "drift:check": "pnpm normalize:check && pnpm generate:ts && pnpm generate:go && pnpm generate:php && pnpm generate:ruby && pnpm verify:sdk-staleness",
     "generate:go": "node scripts/generate-go.mjs",
     "generate:php": "node scripts/generate-php.mjs",
     "generate:python": "node scripts/generate-python.mjs",
+    "generate:ruby": "node scripts/generate-ruby.mjs",
     "generate:ts": "openapi-ts",
     "hooks:install": "git config core.hooksPath .githooks",
     "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && redocly lint --extends=spec .codegen/*.json",
@@ -27,6 +28,7 @@
     "verify:tree-shaking": "node scripts/verify-tree-shaking.mjs",
     "verify:ts-public-api": "node scripts/verify-ts-public-api.mjs",
     "prepare:publish:pypi": "node scripts/prepare-pypi-publish.mjs",
+    "publish:rubygems": "node scripts/publish-rubygems.mjs",
     "publish:npm:ts": "node scripts/publish-npm-ts.mjs"
   },
   "devDependencies": {

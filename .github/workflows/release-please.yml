@@ -39,13 +39,14 @@ jobs:
           contains(needs.release-please.outputs.paths_released, 'packages/ts/sending') ||
           contains(needs.release-please.outputs.paths_released, 'packages/ts/mailbox') ||
           contains(needs.release-please.outputs.paths_released, 'packages/ts/management') ||
-          contains(needs.release-please.outputs.paths_released, 'packages/ts/sdk')
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/sdk') ||
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/cli')
         )
       }}
     runs-on: ubuntu-latest
     environment: release
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Check out SDK
@@ -86,6 +87,23 @@ jobs:
 
       - name: Publish TypeScript packages to npm
         run: pnpm publish:npm:ts
+
+      - name: Pack CLI tarballs
+        if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
+        run: pnpm --filter @sendmux/cli pack:tarballs
+
+      - name: Attach CLI tarballs to GitHub Release
+        if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="ts-cli-v$(node -p "require('./packages/ts/cli/package.json').version")"
+          mapfile -t assets < <(find packages/ts/cli/dist -type f \( -name "*.tar.gz" -o -name "*.tar.xz" -o -name "*.sha256" \) -print)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "No CLI tarballs found under packages/ts/cli/dist" >&2
+            exit 1
+          fi
+          gh release upload "$tag" "${assets[@]}" --clobber
 
   publish-pypi:
     needs: release-please

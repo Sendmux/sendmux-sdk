@@ -8,6 +8,8 @@ coverage/
 .codegen/
 .codegraph/
 *.tsbuildinfo
+packages/ts/cli/oclif.manifest.json
+packages/ts/cli/tmp/
 .phpunit.result.cache
 __pycache__/
 *.py[cod]

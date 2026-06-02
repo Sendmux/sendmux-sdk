@@ -19,6 +19,7 @@ const generatedPackageDirs = [
   "packages/ts/mailbox/src/generated",
   "packages/ts/management/src/generated",
   "packages/ts/sending/src/generated",
+  "packages/ts/cli/src/generated",
 ];
 
 const unstagedDiff = execFileSync("git", ["diff", "--name-status", "--", ...generatedPackageDirs], {

@@ -1,0 +1,60 @@
+{
+  "name": "@sendmux/cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "sendmux": "./bin/run.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json && oclif manifest",
+    "pack:tarballs": "node ../../../scripts/pack-cli-tarballs.mjs"
+  },
+  "dependencies": {
+    "@oclif/core": "4.11.4",
+    "@sendmux/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.19",
+    "oclif": "4.23.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sendmux/sendmux-sdk.git",
+    "directory": "packages/ts/cli"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "oclif": {
+    "bin": "sendmux",
+    "dirname": "sendmux",
+    "commands": "./dist/commands",
+    "topicSeparator": ":",
+    "topics": {
+      "mailbox": {
+        "description": "Mailbox API commands"
+      },
+      "management": {
+        "description": "Management API commands"
+      },
+      "profiles": {
+        "description": "Manage local Sendmux CLI profiles"
+      },
+      "sending": {
+        "description": "Sending API commands"
+      }
+    }
+  }
+}

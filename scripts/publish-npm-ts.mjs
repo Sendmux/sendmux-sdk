@@ -8,6 +8,7 @@ const packages = [
   "packages/ts/mailbox",
   "packages/ts/management",
   "packages/ts/sdk",
+  "packages/ts/cli",
 ];
 
 const dryRun = process.env.NPM_PUBLISH_DRY_RUN === "true";

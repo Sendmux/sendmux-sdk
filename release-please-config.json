@@ -6,6 +6,7 @@
   "tag-separator": "-",
   "sequential-calls": true,
   "separate-pull-requests": true,
+  "always-update": true,
   "always-link-local": true,
   "plugins": [
     {

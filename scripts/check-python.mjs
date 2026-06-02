@@ -27,6 +27,8 @@ run(python, [
   "packages/python/management",
   "-e",
   "packages/python/sdk",
+  "-e",
+  "packages/python/mcp",
 ]);
 run(python, ["-m", "compileall", "-q", "packages/python"]);
 run(python, ["-m", "mypy", "packages/python"]);
@@ -38,4 +40,3 @@ function run(command, args) {
     throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status}`);
   }
 }
-

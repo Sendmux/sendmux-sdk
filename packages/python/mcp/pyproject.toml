@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sendmux-mcp"
+version = "1.0.0"
+description = "Curated MCP servers for the Sendmux API surfaces."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "fastmcp==3.3.1",
+  "httpx>=0.28.1,<1",
+  "sendmux-core>=1.0.0,<2.0.0",
+]
+
+[project.scripts]
+sendmux-mcp = "sendmux_mcp.cli:main"
+sendmux-mcp-mailbox = "sendmux_mcp.cli:main_mailbox"
+sendmux-mcp-management = "sendmux_mcp.cli:main_management"
+sendmux-mcp-sending = "sendmux_mcp.cli:main_sending"
+
+[project.urls]
+Repository = "https://github.com/Sendmux/sendmux-sdk"
+
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+include = [
+  "README.md",
+  "evals.xml",
+  "sendmux_mcp",
+]
+
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+packages = ["sendmux_mcp"]
+artifacts = ["sendmux_mcp/openapi/*.json"]

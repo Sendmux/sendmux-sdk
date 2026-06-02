@@ -6,6 +6,7 @@ coverage/
 *.log
 *.codegen.json
 .codegen/
+.codegraph/
 *.tsbuildinfo
 .phpunit.result.cache
 __pycache__/

@@ -1,0 +1,42 @@
+<evals>
+  <eval id="1">
+    <question>Send a short message from the authenticated mailbox to a supplied recipient, then list recent mailbox messages to confirm the mailbox can still be read.</question>
+    <expected>Call mailbox_send_message with an idempotency key, then mailbox_list_messages with a small limit.</expected>
+  </eval>
+  <eval id="2">
+    <question>Find the latest message matching a subject fragment and read its body.</question>
+    <expected>Call mailbox_search_message_snippets, choose a message_id, then call mailbox_list_body or mailbox_list_content.</expected>
+  </eval>
+  <eval id="3">
+    <question>Show unread message volume and list the first page of messages without fetching full bodies.</question>
+    <expected>Call mailbox_count_messages, then mailbox_list_messages with a small limit.</expected>
+  </eval>
+  <eval id="4">
+    <question>Archive or mark a set of mailbox messages after the user supplies message IDs.</question>
+    <expected>Call mailbox_batch_update_messages with the supplied IDs and desired flag or folder changes.</expected>
+  </eval>
+  <eval id="5">
+    <question>Summarise the current mailbox identity and the folders available for filing messages.</question>
+    <expected>Call mailbox_get_identity and mailbox_list_folders.</expected>
+  </eval>
+  <eval id="6">
+    <question>Prepare a domain for sending and return the DNS records the user should configure.</question>
+    <expected>Call management_create_domain if needed, then management_get_domain_zone_file.</expected>
+  </eval>
+  <eval id="7">
+    <question>Create a mailbox and produce a mailbox API key for an agent that should only access that mailbox.</question>
+    <expected>Call management_create_mailbox, then management_create_mailbox_key for the new mailbox.</expected>
+  </eval>
+  <eval id="8">
+    <question>Investigate a delivery issue for a known email log ID.</question>
+    <expected>Call management_get_email_log and use the structured result to explain the delivery status.</expected>
+  </eval>
+  <eval id="9">
+    <question>Send one transactional email through the sending surface and include an idempotency key.</question>
+    <expected>Call sending_send_email with a complete message body and Idempotency-Key.</expected>
+  </eval>
+  <eval id="10">
+    <question>Explain why a mailbox-key MCP server cannot manage domains or create mailbox keys.</question>
+    <expected>List mailbox tools only; management tools are absent and management startup rejects smx_mbx_ credentials.</expected>
+  </eval>
+</evals>

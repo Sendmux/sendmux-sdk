@@ -19,6 +19,7 @@ module = [
   "sendmux_sending.*",
   "sendmux_mailbox.*",
   "sendmux_management.*",
+  "fastmcp.*",
+  "starlette.*",
 ]
 ignore_missing_imports = true
-

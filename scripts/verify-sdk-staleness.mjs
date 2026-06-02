@@ -9,6 +9,7 @@ const generatedPackageDirs = [
   "packages/php/mailbox/src",
   "packages/php/management/src",
   "packages/php/sending/src",
+  "packages/python/mcp/sendmux_mcp/openapi",
   "packages/ruby/mailbox/lib/sendmux_mailbox_generated",
   "packages/ruby/mailbox/lib/sendmux_mailbox_generated.rb",
   "packages/ruby/management/lib/sendmux_management_generated",

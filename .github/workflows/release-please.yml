@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      publish_existing_python:
-        description: Publish unpublished Python dists for existing release tags
-        required: false
-        default: false
-        type: boolean
 
 permissions: {}
 
@@ -107,8 +100,7 @@ jobs:
             contains(needs.release-please.outputs.paths_released, 'packages/python/management') ||
             contains(needs.release-please.outputs.paths_released, 'packages/python/sdk')
           )
-        ) ||
-        (github.event_name == 'workflow_dispatch' && inputs.publish_existing_python)
+        )
       }}
     runs-on: ubuntu-latest
     environment: release
@@ -162,9 +154,6 @@ jobs:
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
         with:
           packages-dir: .tmp/python-publish
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          attestations: false
 
   publish-rubygems:
     needs: release-please

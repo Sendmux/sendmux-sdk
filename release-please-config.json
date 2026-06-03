@@ -43,8 +43,7 @@
     "packages/ts/cli": {
       "component": "ts-cli",
       "package-name": "@sendmux/cli",
-      "initial-version": "1.0.0",
-      "release-as": "1.0.0"
+      "initial-version": "1.0.0"
     },
     "packages/python/core": {
       "component": "python-core",

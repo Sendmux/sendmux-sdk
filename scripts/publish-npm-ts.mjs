@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 
-const packages = [
+const defaultPackages = [
   "packages/ts/core",
   "packages/ts/sending",
   "packages/ts/mailbox",
@@ -12,6 +12,7 @@ const packages = [
 ];
 
 const dryRun = process.env.NPM_PUBLISH_DRY_RUN === "true";
+const packages = selectPackages();
 const outputDir = resolve(process.env.RUNNER_TEMP ?? ".tmp", "sendmux-npm-packages");
 
 rmSync(outputDir, { recursive: true, force: true });
@@ -44,6 +45,23 @@ for (const packageDir of packages) {
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+function selectPackages() {
+  const requested = process.env.SENDMUX_NPM_PUBLISH_PACKAGES?.split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (!requested?.length) {
+    return defaultPackages;
+  }
+
+  const unknown = requested.filter((packageDir) => !defaultPackages.includes(packageDir));
+  if (unknown.length > 0) {
+    throw new Error(`Unknown npm package directories: ${unknown.join(", ")}`);
+  }
+
+  return requested;
 }
 
 function assertPublishable(manifest, packageDir) {

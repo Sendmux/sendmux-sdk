@@ -116,7 +116,8 @@ jobs:
             contains(needs.release-please.outputs.paths_released, 'packages/python/sending') ||
             contains(needs.release-please.outputs.paths_released, 'packages/python/mailbox') ||
             contains(needs.release-please.outputs.paths_released, 'packages/python/management') ||
-            contains(needs.release-please.outputs.paths_released, 'packages/python/sdk')
+            contains(needs.release-please.outputs.paths_released, 'packages/python/sdk') ||
+            contains(needs.release-please.outputs.paths_released, 'packages/python/mcp')
           )
         )
       }}

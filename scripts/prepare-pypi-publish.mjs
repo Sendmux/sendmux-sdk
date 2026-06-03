@@ -4,7 +4,7 @@ import { basename, join } from "node:path";
 const root = process.cwd();
 const distDir = join(root, ".tmp", "python-dist");
 const publishDir = join(root, ".tmp", "python-publish");
-const packages = ["core", "sending", "mailbox", "management", "sdk"];
+const packages = ["core", "sending", "mailbox", "management", "sdk", "mcp"];
 
 rmSync(publishDir, { force: true, recursive: true });
 mkdirSync(publishDir, { recursive: true });

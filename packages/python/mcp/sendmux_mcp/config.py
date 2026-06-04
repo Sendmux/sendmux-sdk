@@ -23,7 +23,7 @@ class RetryConfig:
 @dataclass(frozen=True)
 class ServerConfig:
     surface: Surface
-    api_key: str
+    api_key: str | None = None
     app_base_url: str = DEFAULT_APP_BASE_URL
     sending_base_url: str = DEFAULT_SENDING_BASE_URL
     transport: Transport = "stdio"
@@ -48,8 +48,11 @@ class ServerConfig:
     def api_base_url(self) -> str:
         return self.sending_base_url if self.surface == "sending" else self.app_base_url
 
-    def validate(self) -> None:
-        validate_api_key(self.api_key, surface=self.required_key_surface)
+    def validate(self, *, require_api_key: bool = True) -> None:
+        if self.api_key:
+            validate_api_key(self.api_key, surface=self.required_key_surface)
+        elif require_api_key:
+            raise ValueError("SENDMUX_API_KEY is required for local/self-hosted upstream API calls.")
         if self.transport in {"http", "streamable-http"} and not self.allow_unauthenticated_http:
             if not self.http_bearer_token:
                 raise ValueError(
@@ -57,11 +60,11 @@ class ServerConfig:
                 )
 
 
-def config_from_env(surface: Surface, *, api_key: str | None = None) -> ServerConfig:
+def config_from_env(surface: Surface, *, api_key: str | None = None, require_api_key: bool = True) -> ServerConfig:
     transport = normalise_transport(os.environ.get("SENDMUX_MCP_TRANSPORT", "stdio"))
     return ServerConfig(
         surface=surface,
-        api_key=api_key or require_env("SENDMUX_API_KEY"),
+        api_key=api_key or (require_env("SENDMUX_API_KEY") if require_api_key else None),
         app_base_url=os.environ.get("SENDMUX_APP_BASE_URL", DEFAULT_APP_BASE_URL),
         sending_base_url=os.environ.get("SENDMUX_SENDING_BASE_URL", DEFAULT_SENDING_BASE_URL),
         transport=transport,

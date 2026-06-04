@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 sendmux-mcp = "sendmux_mcp.cli:main"
+sendmux-mcp-hosted = "sendmux_mcp.hosted:run_hosted"
 sendmux-mcp-mailbox = "sendmux_mcp.cli:main_mailbox"
 sendmux-mcp-management = "sendmux_mcp.cli:main_management"
 sendmux-mcp-sending = "sendmux_mcp.cli:main_sending"

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import asyncio
 
+import httpx
 import pytest
 
 from sendmux_mcp.hosted import (
     HOSTED_SURFACES,
     HostedServerRuntimeConfig,
     create_hosted_server,
+    hosted_http_middleware,
     hosted_runtime_config_from_env,
     hosted_surface_config,
     origin_from_url,
@@ -42,6 +44,57 @@ def test_hosted_server_mounts_all_surfaces_without_process_api_key(monkeypatch: 
 
         assert server.auth is not None
         assert unauthenticated_tools == []
+
+    asyncio.run(run())
+
+
+def test_hosted_server_allows_browser_preflight_to_mcp_endpoint() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.options(
+                "/mcp",
+                headers={
+                    "Origin": "http://localhost:6274",
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "authorization,content-type,mcp-protocol-version",
+                },
+            )
+
+        assert response.status_code == 200
+        assert response.headers["access-control-allow-origin"] == "*"
+        assert "authorization" in response.headers["access-control-allow-headers"].lower()
+        assert "mcp-protocol-version" in response.headers["access-control-allow-headers"].lower()
+        assert "post" in response.headers["access-control-allow-methods"].lower()
+        assert "access-control-allow-credentials" not in response.headers
+
+    asyncio.run(run())
+
+
+def test_hosted_server_exposes_mcp_headers_to_browser_requests() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.post(
+                "/mcp",
+                headers={
+                    "Origin": "http://localhost:6274",
+                    "Content-Type": "application/json",
+                    "MCP-Protocol-Version": "2025-11-25",
+                },
+                json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+            )
+
+        assert response.headers["access-control-allow-origin"] == "*"
+        assert "mcp-protocol-version" in response.headers["access-control-expose-headers"].lower()
+        assert "mcp-session-id" in response.headers["access-control-expose-headers"].lower()
+        assert "access-control-allow-credentials" not in response.headers
 
     asyncio.run(run())
 

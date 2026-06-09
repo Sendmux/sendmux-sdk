@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 
 from fastmcp import FastMCP
 from fastmcp.server.middleware import AuthMiddleware
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -19,6 +21,16 @@ HOSTED_SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 DEFAULT_MCP_RESOURCE_BASE_URL = "https://mcp.sendmux.ai"
 DEFAULT_MCP_APP_ORIGIN = "https://app.sendmux.ai"
 DEFAULT_MCP_PATH = "/mcp"
+HOSTED_CORS_ALLOWED_HEADERS = (
+    "Accept",
+    "Authorization",
+    "Content-Type",
+    "Last-Event-ID",
+    "Mcp-Session-Id",
+    "MCP-Protocol-Version",
+)
+HOSTED_CORS_EXPOSE_HEADERS = ("Mcp-Session-Id", "MCP-Protocol-Version")
+HOSTED_CORS_ALLOWED_METHODS = ("GET", "POST", "DELETE", "OPTIONS")
 
 
 @dataclass(frozen=True)
@@ -108,9 +120,23 @@ def run_hosted() -> None:
         host=runtime.host,
         port=runtime.port,
         path=runtime.mcp_path,
+        middleware=hosted_http_middleware(),
         stateless_http=runtime.stateless_http,
         show_banner=False,
     )
+
+
+def hosted_http_middleware() -> list[Middleware]:
+    return [
+        Middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_methods=HOSTED_CORS_ALLOWED_METHODS,
+            allow_headers=HOSTED_CORS_ALLOWED_HEADERS,
+            expose_headers=HOSTED_CORS_EXPOSE_HEADERS,
+            allow_credentials=False,
+        )
+    ]
 
 
 def hosted_surface_config(surface: Surface, runtime: HostedServerRuntimeConfig) -> ServerConfig:

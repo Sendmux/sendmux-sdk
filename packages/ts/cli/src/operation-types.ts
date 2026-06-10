@@ -6,7 +6,16 @@ export interface OperationParameter {
   schema: OperationParameterSchema;
 }
 
-export interface OperationParameterSchema {
+export type OperationParameterSchema = OperationParameterArraySchema | OperationParameterScalarSchema;
+
+export interface OperationParameterArraySchema {
+  items: OperationParameterScalarSchema;
+  maxItems?: number;
+  minItems?: number;
+  type: "array";
+}
+
+export interface OperationParameterScalarSchema {
   enum?: readonly (number | string)[];
   maximum?: number;
   maxLength?: number;

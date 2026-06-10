@@ -176,6 +176,10 @@ function normaliseSchema(spec, schema) {
     type: typeof type === "string" ? type : "string",
   };
 
+  if (normalised.type === "array") {
+    normalised.items = normaliseArrayItemSchema(spec, resolved.items);
+  }
+
   if (Array.isArray(resolved.enum)) {
     normalised.enum = resolved.enum.filter((value) => typeof value === "string" || typeof value === "number");
   }
@@ -196,10 +200,26 @@ function normaliseSchema(spec, schema) {
     normalised.maxLength = resolved.maxLength;
   }
 
+  if (typeof resolved.minItems === "number") {
+    normalised.minItems = resolved.minItems;
+  }
+
+  if (typeof resolved.maxItems === "number") {
+    normalised.maxItems = resolved.maxItems;
+  }
+
   if (typeof resolved.pattern === "string") {
     normalised.pattern = resolved.pattern;
   }
 
+  return normalised;
+}
+
+function normaliseArrayItemSchema(spec, schema) {
+  const normalised = normaliseSchema(spec, schema);
+  if (normalised.type === "array") {
+    return { type: "string" };
+  }
   return normalised;
 }
 

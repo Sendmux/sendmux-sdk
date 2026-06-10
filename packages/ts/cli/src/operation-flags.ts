@@ -9,6 +9,7 @@ import {
 import type {
   OperationDefinition,
   OperationParameter,
+  OperationParameterScalarSchema,
 } from "./operation-types.js";
 
 export interface OperationFlags extends AuthFlags {
@@ -114,12 +115,36 @@ function parseParameterPairs(
       });
     }
 
-    pairs[parameter.name] = parseParameterValue(command, parameter, value.slice(separator + 1), flagName);
+    const parsedValue = parseParameterValue(command, parameter, value.slice(separator + 1), flagName);
+    if (parameter.schema.type === "array") {
+      const existing = pairs[parameter.name];
+      const nextValue = Array.isArray(existing) ? [...existing, parsedValue] : [parsedValue];
+      if (parameter.schema.maxItems !== undefined && nextValue.length > parameter.schema.maxItems) {
+        command.error(`${labelForFlag(flagName)} parameter "${parameter.name}" accepts at most ${parameter.schema.maxItems} values.`, {
+          exit: 2,
+        });
+      }
+      pairs[parameter.name] = nextValue;
+      continue;
+    }
+
+    pairs[parameter.name] = parsedValue;
   }
 
   for (const parameter of parameters) {
     if (parameter.required && pairs[parameter.name] === undefined) {
       command.error(`Missing ${labelForFlag(flagName)} parameter "${parameter.name}". Pass ${flagName} ${parameter.name}=<value>.`, {
+        exit: 2,
+      });
+    }
+    const parsed = pairs[parameter.name];
+    if (
+      parameter.schema.type === "array" &&
+      parameter.schema.minItems !== undefined &&
+      Array.isArray(parsed) &&
+      parsed.length < parameter.schema.minItems
+    ) {
+      command.error(`${labelForFlag(flagName)} parameter "${parameter.name}" requires at least ${parameter.schema.minItems} values.`, {
         exit: 2,
       });
     }
@@ -199,17 +224,18 @@ function parseParameterValue(
   flagName: string,
 ): boolean | number | string {
   const label = `${labelForFlag(flagName)} parameter "${parameter.name}"`;
+  const schema = scalarSchemaForParameter(parameter);
   let value: boolean | number | string = raw;
 
-  if (parameter.schema.type === "integer" || parameter.schema.type === "number") {
+  if (schema.type === "integer" || schema.type === "number") {
     const parsed = Number(raw);
-    if (!Number.isFinite(parsed) || (parameter.schema.type === "integer" && !Number.isInteger(parsed))) {
-      command.error(`${label} must be ${articleForType(parameter.schema.type)}.`, { exit: 2 });
+    if (!Number.isFinite(parsed) || (schema.type === "integer" && !Number.isInteger(parsed))) {
+      command.error(`${label} must be ${articleForType(schema.type)}.`, { exit: 2 });
     }
     value = parsed;
   }
 
-  if (parameter.schema.type === "boolean") {
+  if (schema.type === "boolean") {
     if (raw !== "true" && raw !== "false") {
       command.error(`${label} must be true or false.`, { exit: 2 });
     }
@@ -217,38 +243,42 @@ function parseParameterValue(
   }
 
   if (typeof value === "number") {
-    if (parameter.schema.minimum !== undefined && value < parameter.schema.minimum) {
-      command.error(`${label} must be at least ${parameter.schema.minimum}.`, { exit: 2 });
+    if (schema.minimum !== undefined && value < schema.minimum) {
+      command.error(`${label} must be at least ${schema.minimum}.`, { exit: 2 });
     }
 
-    if (parameter.schema.maximum !== undefined && value > parameter.schema.maximum) {
-      command.error(`${label} must be at most ${parameter.schema.maximum}.`, { exit: 2 });
+    if (schema.maximum !== undefined && value > schema.maximum) {
+      command.error(`${label} must be at most ${schema.maximum}.`, { exit: 2 });
     }
   }
 
   if (typeof value === "string") {
-    if (parameter.schema.minLength !== undefined && value.length < parameter.schema.minLength) {
-      command.error(`${label} must be at least ${parameter.schema.minLength} characters.`, { exit: 2 });
+    if (schema.minLength !== undefined && value.length < schema.minLength) {
+      command.error(`${label} must be at least ${schema.minLength} characters.`, { exit: 2 });
     }
 
-    if (parameter.schema.maxLength !== undefined && value.length > parameter.schema.maxLength) {
-      command.error(`${label} must be at most ${parameter.schema.maxLength} characters.`, { exit: 2 });
+    if (schema.maxLength !== undefined && value.length > schema.maxLength) {
+      command.error(`${label} must be at most ${schema.maxLength} characters.`, { exit: 2 });
     }
 
-    if (parameter.schema.pattern && !new RegExp(parameter.schema.pattern).test(value)) {
+    if (schema.pattern && !new RegExp(schema.pattern).test(value)) {
       command.error(`${label} does not match the required format.`, { exit: 2 });
     }
   }
 
   if (
-    parameter.schema.enum &&
+    schema.enum &&
     (typeof value === "string" || typeof value === "number") &&
-    !parameter.schema.enum.includes(value)
+    !schema.enum.includes(value)
   ) {
-    command.error(`${label} must be one of: ${parameter.schema.enum.join(", ")}.`, { exit: 2 });
+    command.error(`${label} must be one of: ${schema.enum.join(", ")}.`, { exit: 2 });
   }
 
   return value;
+}
+
+function scalarSchemaForParameter(parameter: OperationParameter): OperationParameterScalarSchema {
+  return parameter.schema.type === "array" ? parameter.schema.items : parameter.schema;
 }
 
 function keyForParameter(flagName: string, name: string): string {

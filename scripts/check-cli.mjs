@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { once } from "node:events";
@@ -48,6 +48,7 @@ await once(server, "listening");
 
 try {
   assertCliCommandCoverage();
+  await assertCliArrayParameterSupport();
 
   const address = server.address();
   if (!address || typeof address === "string") {
@@ -400,6 +401,124 @@ function assertCliCommandCoverage() {
   if (missing.length > 0) {
     throw new Error(`CLI command modules are missing for generated operations:\n${missing.join("\n")}`);
   }
+}
+
+async function assertCliArrayParameterSupport() {
+  const fixtureDir = mkdtempSync(join(tmpdir(), "sendmux-cli-array-spec-"));
+  try {
+    writeFileSync(
+      join(fixtureDir, "openapi-app.json"),
+      JSON.stringify({
+        openapi: "3.1.0",
+        info: { title: "CLI array parameter fixture", version: "1.0.0" },
+        paths: {
+          "/array-probe": {
+            get: {
+              operationId: "managementArrayProbe",
+              summary: "Array probe",
+              parameters: [
+                {
+                  in: "query",
+                  name: "event_types",
+                  required: false,
+                  schema: {
+                    type: "array",
+                    minItems: 1,
+                    maxItems: 3,
+                    items: {
+                      type: "string",
+                      enum: ["message.received", "sync_required"],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+    writeFileSync(
+      join(fixtureDir, "openapi-sending.json"),
+      JSON.stringify({
+        openapi: "3.1.0",
+        info: { title: "Empty Sending fixture", version: "1.0.0" },
+        paths: {},
+      }),
+    );
+
+    const generatedPath = join(fixtureDir, "operations.ts");
+    const generateResult = spawnSync(
+      process.execPath,
+      [
+        "scripts/generate-cli.mjs",
+        "--input-dir",
+        fixtureDir,
+        "--output",
+        generatedPath,
+        "--cli-source-dir",
+        join(fixtureDir, "cli-src"),
+        "--commands-dir",
+        join(fixtureDir, "commands"),
+      ],
+      { encoding: "utf8" },
+    );
+    if (generateResult.status !== 0) {
+      throw new Error(`CLI generator array-parameter fixture failed:\n${generateResult.stderr}`);
+    }
+
+    const generated = readFileSync(generatedPath, "utf8");
+    for (const expected of ['"type": "array"', '"items"', '"enum"', '"minItems": 1', '"maxItems": 3']) {
+      if (!generated.includes(expected)) {
+        throw new Error(`CLI generator dropped array parameter metadata: missing ${expected}`);
+      }
+    }
+
+    const { parseOperationOptions } = await import("../packages/ts/cli/dist/operation-flags.js");
+    const parsed = await parseOperationOptions(errorOnlyCommand(), {
+      bodyKind: "none",
+      command: "management:array-probe",
+      description: "Array probe",
+      headerParams: [],
+      method: "get",
+      operationId: "managementArrayProbe",
+      path: "/array-probe",
+      pathParams: [],
+      queryParams: [
+        {
+          name: "event_types",
+          required: false,
+          schema: {
+            type: "array",
+            minItems: 1,
+            maxItems: 3,
+            items: {
+              type: "string",
+              enum: ["message.received", "sync_required"],
+            },
+          },
+        },
+      ],
+      requestBodyRequired: false,
+      requiredKeyKind: "root",
+      surface: "management",
+    }, {
+      query: ["event_types=message.received", "event_types=sync_required"],
+    });
+
+    assertDeepEqual(parsed.query?.event_types, ["message.received", "sync_required"], "Repeated array query flags must append instead of overwrite");
+  } finally {
+    rmSync(fixtureDir, { force: true, recursive: true });
+  }
+}
+
+function errorOnlyCommand() {
+  return {
+    error(message, options) {
+      const error = new Error(message);
+      error.exit = options?.exit;
+      throw error;
+    },
+  };
 }
 
 function latestRequest() {

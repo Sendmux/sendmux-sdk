@@ -190,11 +190,15 @@ function normaliseSchema(spec, schema) {
     type: typeof type === "string" ? type : "string",
   };
 
+  if (normalised.type === "array") {
+    normalised.items = normaliseArrayItemSchema(spec, resolved.items);
+  }
+
   if (Array.isArray(resolved.enum)) {
     normalised.enum = resolved.enum.filter((value) => typeof value === "string" || typeof value === "number");
   }
 
-  for (const key of ["maximum", "maxLength", "minimum", "minLength"]) {
+  for (const key of ["maximum", "maxItems", "maxLength", "minimum", "minItems", "minLength"]) {
     if (typeof resolved[key] === "number") {
       normalised[key] = resolved[key];
     }
@@ -204,6 +208,14 @@ function normaliseSchema(spec, schema) {
     normalised.pattern = resolved.pattern;
   }
 
+  return normalised;
+}
+
+function normaliseArrayItemSchema(spec, schema) {
+  const normalised = normaliseSchema(spec, schema);
+  if (normalised.type === "array") {
+    return { type: "string" };
+  }
   return normalised;
 }
 

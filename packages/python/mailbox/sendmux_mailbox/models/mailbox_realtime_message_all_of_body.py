@@ -100,5 +100,3 @@ class MailboxRealtimeMessageAllOfBody(BaseModel):
             "text": obj.get("text")
         })
         return _obj
-
-

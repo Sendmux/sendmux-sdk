@@ -91,5 +91,3 @@ class MailboxAddress(BaseModel):
             "name": obj.get("name")
         })
         return _obj
-
-

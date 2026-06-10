@@ -1,35 +1,46 @@
 from __future__ import annotations
 
 import argparse
+import os
 
-from sendmux_mcp.config import RetryConfig, ServerConfig, Surface, config_from_env, normalise_transport, parse_csv
+from sendmux_mcp.config import (
+    RetryConfig,
+    SURFACES,
+    ServerConfig,
+    Surface,
+    config_from_env,
+    normalise_surfaces,
+    normalise_transport,
+    parse_csv,
+    parse_surfaces,
+)
 from sendmux_mcp.server import run
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parser(prog="sendmux-mcp").parse_args(argv)
-    surface = args.surface
-    if surface is None:
-        raise SystemExit("--surface is required when using sendmux-mcp")
-    run(config_from_args(surface, args))
+    surfaces = surfaces_from_args(args)
+    if surfaces is None:
+        raise SystemExit("--surfaces is required when using sendmux-mcp, or set SENDMUX_MCP_SURFACES.")
+    run(config_from_args(surfaces, args))
     return 0
 
 
 def main_mailbox(argv: list[str] | None = None) -> int:
     args = parser(default_surface="mailbox", prog="sendmux-mcp-mailbox").parse_args(argv)
-    run(config_from_args("mailbox", args))
+    run(config_from_args(("mailbox",), args))
     return 0
 
 
 def main_management(argv: list[str] | None = None) -> int:
     args = parser(default_surface="management", prog="sendmux-mcp-management").parse_args(argv)
-    run(config_from_args("management", args))
+    run(config_from_args(("management",), args))
     return 0
 
 
 def main_sending(argv: list[str] | None = None) -> int:
     args = parser(default_surface="sending", prog="sendmux-mcp-sending").parse_args(argv)
-    run(config_from_args("sending", args))
+    run(config_from_args(("sending",), args))
     return 0
 
 
@@ -37,7 +48,14 @@ def parser(*, default_surface: Surface | None = None, prog: str) -> argparse.Arg
     command = argparse.ArgumentParser(prog=prog)
     if default_surface is None:
         command.add_argument("--surface", choices=["mailbox", "management", "sending"])
+        command.add_argument(
+            "--surfaces",
+            help="Comma-separated product lines to expose: mailbox, management, sending.",
+        )
     command.add_argument("--api-key")
+    command.add_argument("--mailbox-api-key")
+    command.add_argument("--management-api-key")
+    command.add_argument("--sending-api-key")
     command.add_argument("--transport", choices=["stdio", "http", "streamable-http"])
     command.add_argument("--host")
     command.add_argument("--port", type=int)
@@ -58,13 +76,29 @@ def parser(*, default_surface: Surface | None = None, prog: str) -> argparse.Arg
     return command
 
 
-def config_from_args(surface: Surface, args: argparse.Namespace) -> ServerConfig:
-    base = config_from_env(surface, api_key=args.api_key)
+def surfaces_from_args(args: argparse.Namespace) -> tuple[Surface, ...] | None:
+    if getattr(args, "surfaces", None):
+        return parse_surfaces(args.surfaces)
+    if getattr(args, "surface", None):
+        return normalise_surfaces((args.surface,))
+    env_surfaces = parse_surfaces(os.environ.get("SENDMUX_MCP_SURFACES"))
+    if env_surfaces:
+        return env_surfaces
+    return None
+
+
+def config_from_args(surfaces: tuple[Surface, ...], args: argparse.Namespace) -> ServerConfig:
+    base = config_from_env(surfaces, api_key=args.api_key)
     allowed_origins = tuple(args.allowed_origin) or parse_csv(None)
     transport = normalise_transport(args.transport) if args.transport else base.transport
+    api_keys = {
+        **base.api_keys,
+        **surface_api_keys_from_args(args),
+    }
     return ServerConfig(
-        surface=surface,
+        surfaces=surfaces,
         api_key=base.api_key,
+        api_keys=api_keys,
         app_base_url=args.app_base_url or base.app_base_url,
         sending_base_url=args.sending_base_url or base.sending_base_url,
         transport=transport,
@@ -85,3 +119,12 @@ def config_from_args(surface: Surface, args: argparse.Namespace) -> ServerConfig
             max_delay_seconds=args.retry_max_delay_seconds or base.retry.max_delay_seconds,
         ),
     )
+
+
+def surface_api_keys_from_args(args: argparse.Namespace) -> dict[Surface, str]:
+    keys: dict[Surface, str] = {}
+    for surface in SURFACES:
+        value = getattr(args, f"{surface}_api_key", None)
+        if value:
+            keys[surface] = value
+    return keys

@@ -103,5 +103,3 @@ class MailboxContentHeadersSelected(BaseModel):
             "reply_to": [MailboxAddress.from_dict(_item) for _item in obj["reply_to"]] if obj.get("reply_to") is not None else None
         })
         return _obj
-
-

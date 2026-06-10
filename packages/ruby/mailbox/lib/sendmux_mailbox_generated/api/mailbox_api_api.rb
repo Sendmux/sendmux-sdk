@@ -398,7 +398,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Delete a mailbox folder
-    # Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+    # Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
@@ -409,7 +409,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Delete a mailbox folder
-    # Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send &#x60;If-Match&#x60; with a prior ETag to reject stale deletes.
+    # Deletes an empty custom folder unconditionally unless &#x60;If-Match&#x60; is supplied. Built-in folders and non-empty folders cannot be deleted. Send &#x60;If-Match&#x60; with a prior ETag to reject stale deletes.
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
@@ -464,7 +464,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Delete a mailbox message
-    # Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+    # Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [Boolean] :permanent
@@ -476,7 +476,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Delete a mailbox message
-    # Moves a message to Trash by default with state-safe conflict handling. Set &#x60;permanent&#x3D;true&#x60; to permanently delete it. Send &#x60;If-Match&#x60; with a prior ETag to reject stale deletes.
+    # Moves a message to Trash by default, unconditionally unless &#x60;If-Match&#x60; is supplied. Set &#x60;permanent&#x3D;true&#x60; to permanently delete it. Send &#x60;If-Match&#x60; with a prior ETag to reject stale deletes.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [Boolean] :permanent
@@ -2943,7 +2943,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Update a mailbox folder
-    # Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+    # Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
@@ -2955,7 +2955,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Update a mailbox folder
-    # Updates a folder with state-safe conflict handling. Send &#x60;If-Match&#x60; with a prior ETag to reject stale edits.
+    # Updates a folder unconditionally unless &#x60;If-Match&#x60; is supplied. Send &#x60;If-Match&#x60; with a prior ETag to reject stale edits.
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
@@ -3080,7 +3080,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Update mailbox message flags
-    # Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+    # Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
@@ -3092,7 +3092,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Update mailbox message flags
-    # Updates mutable message flags and keywords with state-safe conflict handling. Send &#x60;If-Match&#x60; with a prior ETag to reject stale edits.
+    # Updates mutable message flags and keywords unconditionally unless &#x60;If-Match&#x60; is supplied. Send &#x60;If-Match&#x60; with a prior ETag to reject stale edits.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match

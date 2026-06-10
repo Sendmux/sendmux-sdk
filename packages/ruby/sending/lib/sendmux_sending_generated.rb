@@ -1,7 +1,7 @@
 =begin
-#SendMux Sending API
+#Sendmux Sending API
 
-#Send emails programmatically via the SendMux email infrastructure. Every response carries an `X-Request-Id` header; errors include a `retryable` flag. 429 and 503 responses include `Retry-After`. Mutating endpoints accept an `Idempotency-Key` header for safe retries.
+#Send emails programmatically via the Sendmux email infrastructure. Every response carries an `X-Request-Id` header; errors include a `retryable` flag. 429 and 503 responses include `Retry-After`. Mutating endpoints accept an `Idempotency-Key` header for safe retries.
 
 The version of the OpenAPI document: 1.0.0
 
@@ -37,6 +37,7 @@ require 'sendmux_sending_generated/models/success_envelope'
 
 # APIs
 require 'sendmux_sending_generated/api/emails_api'
+require 'sendmux_sending_generated/api/meta_api'
 
 module Sendmux::Sending::Generated
   class << self

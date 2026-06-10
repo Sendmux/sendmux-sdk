@@ -103,5 +103,3 @@ class ProviderCreateBodyQuotas(BaseModel):
             "per_second": ProviderCreateBodyQuotasPerDay.from_dict(obj["per_second"]) if obj.get("per_second") is not None else None
         })
         return _obj
-
-

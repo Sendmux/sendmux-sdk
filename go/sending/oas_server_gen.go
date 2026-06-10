@@ -8,6 +8,13 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// SendingGetOpenApiSpec implements sendingGetOpenApiSpec operation.
+	//
+	// Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).
+	// Emits a weak ETag; clients may send `If-None-Match` to receive 304 Not Modified.
+	//
+	// GET /openapi.json
+	SendingGetOpenApiSpec(ctx context.Context, params SendingGetOpenApiSpecParams) (SendingGetOpenApiSpecRes, error)
 	// SendingSendEmail implements sendingSendEmail operation.
 	//
 	// Queue a single email for delivery. Requires `email.send` permission.

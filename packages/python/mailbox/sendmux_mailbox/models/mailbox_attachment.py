@@ -116,5 +116,3 @@ class MailboxAttachment(BaseModel):
             "size_bytes": obj.get("size_bytes")
         })
         return _obj
-
-

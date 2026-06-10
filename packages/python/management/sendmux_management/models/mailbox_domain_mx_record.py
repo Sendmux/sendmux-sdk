@@ -86,5 +86,3 @@ class MailboxDomainMxRecord(BaseModel):
             "target": obj.get("target")
         })
         return _obj
-
-

@@ -94,5 +94,3 @@ class MailboxSessionCapabilitiesAttachments(BaseModel):
             "upload": obj.get("upload")
         })
         return _obj
-
-

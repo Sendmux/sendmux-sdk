@@ -105,5 +105,3 @@ class MailboxSubmissionDeliveryStatus(BaseModel):
             "smtp_reply": obj.get("smtp_reply")
         })
         return _obj
-
-

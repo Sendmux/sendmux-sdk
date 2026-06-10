@@ -98,5 +98,3 @@ class UpdateMailboxBody(BaseModel):
             "send_scope": ManagementCreateMailboxRequestSendScope.from_dict(obj["send_scope"]) if obj.get("send_scope") is not None else None
         })
         return _obj
-
-

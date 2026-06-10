@@ -16,12 +16,22 @@ OPENAPI_INPUT_DIR=/path/to/sendmux-docs pnpm build:mcp
 
 ## Run
 
-Each surface is a separate server so credentials and tools stay isolated.
+Run one surface, a selected combination, or all three surfaces from one MCP setup.
 
 ```bash
 SENDMUX_API_KEY=smx_mbx_... sendmux-mcp-mailbox
 SENDMUX_API_KEY=smx_root_... sendmux-mcp-management
-SENDMUX_API_KEY=smx_root_... sendmux-mcp-sending
+SENDMUX_API_KEY=smx_mbx_... sendmux-mcp-sending
+
+SENDMUX_MCP_SURFACES=mailbox,sending \
+SENDMUX_MAILBOX_API_KEY=smx_mbx_... \
+sendmux-mcp
+
+SENDMUX_MCP_SURFACES=mailbox,management,sending \
+SENDMUX_MAILBOX_API_KEY=smx_mbx_... \
+SENDMUX_MANAGEMENT_API_KEY=smx_root_... \
+SENDMUX_SENDING_API_KEY=smx_mbx_... \
+sendmux-mcp
 ```
 
 Use HTTP transport for hosted or remote clients. HTTP requires a separate MCP bearer token unless you explicitly opt out.
@@ -38,7 +48,11 @@ The MCP endpoint defaults to `/mcp`; `/health` returns a small JSON health respo
 
 | Setting | Environment | Default |
 | --- | --- | --- |
-| API key | `SENDMUX_API_KEY` | required |
+| Tool surfaces | `SENDMUX_MCP_SURFACES` | required for `sendmux-mcp`; wrapper commands select one product line |
+| API key fallback | `SENDMUX_API_KEY` | accepted for compatible single-key setups |
+| Mailbox API key | `SENDMUX_MAILBOX_API_KEY` | required when mailbox is selected unless a compatible fallback is provided |
+| Management API key | `SENDMUX_MANAGEMENT_API_KEY` | required when management is selected unless a compatible fallback is provided |
+| Sending API key | `SENDMUX_SENDING_API_KEY` | required when sending is selected unless a compatible mailbox key is provided |
 | App API base URL | `SENDMUX_APP_BASE_URL` | `https://app.sendmux.ai/api/v1` |
 | Sending API base URL | `SENDMUX_SENDING_BASE_URL` | `https://smtp.sendmux.ai/api/v1` |
 | Transport | `SENDMUX_MCP_TRANSPORT` | `stdio` |
@@ -57,6 +71,6 @@ Packaged OpenAPI snapshots are the default so released tool names, schemas, and 
 
 - Mailbox: message read/send, threads, folders, identity, and mailbox state tools. Requires an `smx_mbx_` key.
 - Management: domains, mailboxes, logs, metrics, and webhook tools. Requires an `smx_root_` key.
-- Sending: send and batch send tools. Requires an `smx_root_` key.
+- Sending: send and batch send tools. Requires an `smx_mbx_` key.
 
 The server rejects keys with the wrong prefix before starting.

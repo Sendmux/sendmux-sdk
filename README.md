@@ -22,7 +22,7 @@ npm install @sendmux/sdk
 
 | Package | API surface | API key |
 | --- | --- | --- |
-| `@sendmux/sending` | Send email | `smx_root_*` |
+| `@sendmux/sending` | Send email | `smx_mbx_*` |
 | `@sendmux/mailbox` | Read and manage one mailbox | `smx_mbx_*` |
 | `@sendmux/management` | Manage domains, mailboxes, sending accounts, billing, and webhooks | `smx_root_*` |
 | `@sendmux/core` | Shared runtime helpers and types | n/a |
@@ -39,7 +39,7 @@ import {
 } from "@sendmux/sending";
 
 const client = createSendingClient({
-  apiKey: process.env.SENDMUX_API_KEY!,
+  apiKey: process.env.SENDMUX_SENDING_API_KEY!,
 });
 
 const response = await sendingSendEmail({

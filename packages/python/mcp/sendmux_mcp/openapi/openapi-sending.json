@@ -243,7 +243,7 @@
           },
           "subject": {
             "description": "Email subject line (max 998 chars, RFC 5322)",
-            "example": "Welcome to SendMux",
+            "example": "Welcome to Sendmux",
             "maxLength": 998,
             "minLength": 1,
             "pattern": "^[^\\r\\n]*$",
@@ -459,15 +459,15 @@
     },
     "securitySchemes": {
       "BearerAuth": {
-        "description": "SendMux API key (smx_...)",
+        "description": "Sendmux API key (smx_...)",
         "scheme": "bearer",
         "type": "http"
       }
     }
   },
   "info": {
-    "description": "Send emails programmatically via the SendMux email infrastructure. Every response carries an `X-Request-Id` header; errors include a `retryable` flag. 429 and 503 responses include `Retry-After`. Mutating endpoints accept an `Idempotency-Key` header for safe retries.",
-    "title": "SendMux Sending API",
+    "description": "Send emails programmatically via the Sendmux email infrastructure. Every response carries an `X-Request-Id` header; errors include a `retryable` flag. 429 and 503 responses include `Retry-After`. Mutating endpoints accept an `Idempotency-Key` header for safe retries.",
+    "title": "Sendmux Sending API",
     "version": "1.0.0"
   },
   "openapi": "3.1.0",
@@ -485,8 +485,6 @@
             "required": false,
             "schema": {
               "maxLength": 255,
-              "minLength": 1,
-              "pattern": "^[a-zA-Z0-9_-]+$",
               "type": "string"
             }
           }
@@ -627,8 +625,6 @@
             "required": false,
             "schema": {
               "maxLength": 255,
-              "minLength": 1,
-              "pattern": "^[a-zA-Z0-9_-]+$",
               "type": "string"
             }
           }
@@ -758,7 +754,7 @@
     },
     "/openapi.json": {
       "get": {
-        "description": "Auto-generated OpenAPI 3.1 spec for the SendMux Sending API. Public endpoint (no authentication). Emits a weak ETag; clients may send `If-None-Match` to receive 304 Not Modified.",
+        "description": "Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication). Emits a weak ETag; clients may send `If-None-Match` to receive 304 Not Modified.",
         "operationId": "sendingGetOpenApiSpec",
         "parameters": [
           {

@@ -1788,7 +1788,7 @@ class MailboxAPIApi:
     ) -> MailboxFolderDeletedResponse:
         """Delete a mailbox folder
 
-        Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+        Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 
         :param folder_id: (required)
         :type folder_id: str
@@ -1860,7 +1860,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxFolderDeletedResponse]:
         """Delete a mailbox folder
 
-        Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+        Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 
         :param folder_id: (required)
         :type folder_id: str
@@ -1932,7 +1932,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Delete a mailbox folder
 
-        Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+        Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 
         :param folder_id: (required)
         :type folder_id: str
@@ -2068,7 +2068,7 @@ class MailboxAPIApi:
     ) -> MailboxMessageDeletedResponse:
         """Delete a mailbox message
 
-        Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+        Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
 
         :param message_id: (required)
         :type message_id: str
@@ -2145,7 +2145,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxMessageDeletedResponse]:
         """Delete a mailbox message
 
-        Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+        Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
 
         :param message_id: (required)
         :type message_id: str
@@ -2222,7 +2222,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Delete a mailbox message
 
-        Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+        Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
 
         :param message_id: (required)
         :type message_id: str
@@ -12260,7 +12260,7 @@ class MailboxAPIApi:
     ) -> MailboxFolderResponse:
         """Update a mailbox folder
 
-        Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+        Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
 
         :param folder_id: (required)
         :type folder_id: str
@@ -12338,7 +12338,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxFolderResponse]:
         """Update a mailbox folder
 
-        Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+        Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
 
         :param folder_id: (required)
         :type folder_id: str
@@ -12416,7 +12416,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Update a mailbox folder
 
-        Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+        Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
 
         :param folder_id: (required)
         :type folder_id: str
@@ -12862,7 +12862,7 @@ class MailboxAPIApi:
     ) -> MailboxMessageDetailResponse:
         """Update mailbox message flags
 
-        Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+        Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
 
         :param message_id: (required)
         :type message_id: str
@@ -12940,7 +12940,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxMessageDetailResponse]:
         """Update mailbox message flags
 
-        Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+        Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
 
         :param message_id: (required)
         :type message_id: str
@@ -13018,7 +13018,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Update mailbox message flags
 
-        Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+        Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
 
         :param message_id: (required)
         :type message_id: str
@@ -13458,5 +13458,3 @@ class MailboxAPIApi:
             _host=_host,
             _request_auth=_request_auth
         )
-
-

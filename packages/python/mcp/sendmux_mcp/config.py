@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
-from typing import Literal
+from dataclasses import dataclass, field
+from typing import Literal, Mapping, Sequence, cast
 
 from sendmux_core import validate_api_key
 
 Surface = Literal["mailbox", "management", "sending"]
 Transport = Literal["stdio", "http", "streamable-http"]
+KeySurface = Literal["root", "mailbox"]
+
+SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 
 DEFAULT_APP_BASE_URL = "https://app.sendmux.ai/api/v1"
 DEFAULT_SENDING_BASE_URL = "https://smtp.sendmux.ai/api/v1"
@@ -22,8 +25,9 @@ class RetryConfig:
 
 @dataclass(frozen=True)
 class ServerConfig:
-    surface: Surface
+    surfaces: tuple[Surface, ...] = ("mailbox",)
     api_key: str | None = None
+    api_keys: Mapping[Surface, str] = field(default_factory=dict)
     app_base_url: str = DEFAULT_APP_BASE_URL
     sending_base_url: str = DEFAULT_SENDING_BASE_URL
     transport: Transport = "stdio"
@@ -41,18 +45,47 @@ class ServerConfig:
     retry: RetryConfig = RetryConfig()
 
     @property
-    def required_key_surface(self) -> Literal["root", "mailbox"]:
-        return "mailbox" if self.surface == "mailbox" else "root"
+    def selected_surfaces(self) -> tuple[Surface, ...]:
+        return normalise_surfaces(self.surfaces)
+
+    @property
+    def required_key_surface(self) -> KeySurface:
+        return self.required_key_surface_for(self.only_surface())
+
+    @staticmethod
+    def required_key_surface_for(surface: Surface) -> KeySurface:
+        return "root" if surface == "management" else "mailbox"
 
     @property
     def api_base_url(self) -> str:
-        return self.sending_base_url if self.surface == "sending" else self.app_base_url
+        return self.api_base_url_for(self.only_surface())
+
+    def api_base_url_for(self, surface: Surface) -> str:
+        return self.sending_base_url if surface == "sending" else self.app_base_url
+
+    def api_key_for(self, surface: Surface) -> str | None:
+        if surface in self.api_keys:
+            return self.api_keys[surface]
+        if surface == "sending" and "mailbox" in self.api_keys:
+            return self.api_keys["mailbox"]
+        return self.api_key
+
+    def only_surface(self) -> Surface:
+        surfaces = self.selected_surfaces
+        if len(surfaces) != 1:
+            raise ValueError("This operation requires exactly one selected surface.")
+        return surfaces[0]
 
     def validate(self, *, require_api_key: bool = True) -> None:
-        if self.api_key:
-            validate_api_key(self.api_key, surface=self.required_key_surface)
-        elif require_api_key:
-            raise ValueError("SENDMUX_API_KEY is required for local/self-hosted upstream API calls.")
+        for surface in self.selected_surfaces:
+            api_key = self.api_key_for(surface)
+            if api_key:
+                validate_api_key(api_key, surface=self.required_key_surface_for(surface))
+            elif require_api_key:
+                raise ValueError(
+                    f"API key for {surface} is required. Set SENDMUX_{surface.upper()}_API_KEY"
+                    " or SENDMUX_API_KEY for a compatible single-key setup."
+                )
         if self.transport in {"http", "streamable-http"} and not self.allow_unauthenticated_http:
             if not self.http_bearer_token:
                 raise ValueError(
@@ -60,11 +93,21 @@ class ServerConfig:
                 )
 
 
-def config_from_env(surface: Surface, *, api_key: str | None = None, require_api_key: bool = True) -> ServerConfig:
+def config_from_env(
+    surfaces: Surface | Sequence[Surface] | None = None,
+    *,
+    api_key: str | None = None,
+    require_api_key: bool = True,
+) -> ServerConfig:
     transport = normalise_transport(os.environ.get("SENDMUX_MCP_TRANSPORT", "stdio"))
+    selected_surfaces = normalise_surfaces(
+        surfaces if surfaces is not None else parse_surfaces(os.environ.get("SENDMUX_MCP_SURFACES"), default=("mailbox",))
+    )
+    env_api_keys = surface_api_keys_from_env()
     return ServerConfig(
-        surface=surface,
-        api_key=api_key or (require_env("SENDMUX_API_KEY") if require_api_key else None),
+        surfaces=selected_surfaces,
+        api_key=api_key or os.environ.get("SENDMUX_API_KEY") or None,
+        api_keys=env_api_keys,
         app_base_url=os.environ.get("SENDMUX_APP_BASE_URL", DEFAULT_APP_BASE_URL),
         sending_base_url=os.environ.get("SENDMUX_SENDING_BASE_URL", DEFAULT_SENDING_BASE_URL),
         transport=transport,
@@ -99,6 +142,40 @@ def parse_csv(value: str | None) -> tuple[str, ...]:
     if not value:
         return ()
     return tuple(item.strip() for item in value.split(",") if item.strip())
+
+
+def parse_surfaces(value: str | None, *, default: tuple[Surface, ...] = ()) -> tuple[Surface, ...]:
+    if not value:
+        return default
+    return normalise_surfaces(parse_csv(value))
+
+
+def normalise_surfaces(values: Surface | Sequence[str]) -> tuple[Surface, ...]:
+    if isinstance(values, str):
+        candidates: Sequence[str] = parse_csv(values)
+    else:
+        candidates = values
+
+    selected: list[Surface] = []
+    for candidate in candidates:
+        if candidate not in SURFACES:
+            raise ValueError("surfaces must contain only: mailbox, management, sending")
+        surface = cast(Surface, candidate)
+        if surface not in selected:
+            selected.append(surface)
+
+    if not selected:
+        raise ValueError("At least one Sendmux MCP surface must be selected.")
+    return tuple(selected)
+
+
+def surface_api_keys_from_env() -> dict[Surface, str]:
+    keys: dict[Surface, str] = {}
+    for surface in SURFACES:
+        value = os.environ.get(f"SENDMUX_{surface.upper()}_API_KEY")
+        if value:
+            keys[surface] = value
+    return keys
 
 
 def parse_bool(value: str | None, *, default: bool = False) -> bool:

@@ -37,7 +37,7 @@ def create_sending_client(
     base_url: str | None = None,
     retry_options: RetryOptions | None = None,
 ) -> SendmuxSendingApiClient:
-    validate_api_key(api_key, surface="root")
+    validate_api_key(api_key, surface="mailbox")
     configuration = Configuration(host=base_url or DEFAULT_BASE_URL)
     configure_auth(configuration, api_key=api_key)
     return SendmuxSendingApiClient(configuration, retry_options=retry_options)

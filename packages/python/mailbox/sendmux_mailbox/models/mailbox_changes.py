@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,9 +32,10 @@ class MailboxChanges(BaseModel):
     has_more: StrictBool
     new_state: StrictStr
     old_state: Optional[StrictStr]
+    sync_required: Optional[StrictBool] = Field(default=None, description="When true, refetch this resource list instead of applying the incremental arrays.")
     updated: List[StrictStr]
     updated_properties: Optional[List[StrictStr]] = None
-    __properties: ClassVar[List[str]] = ["created", "destroyed", "has_more", "new_state", "old_state", "updated", "updated_properties"]
+    __properties: ClassVar[List[str]] = ["created", "destroyed", "has_more", "new_state", "old_state", "sync_required", "updated", "updated_properties"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -97,9 +98,8 @@ class MailboxChanges(BaseModel):
             "has_more": obj.get("has_more"),
             "new_state": obj.get("new_state"),
             "old_state": obj.get("old_state"),
+            "sync_required": obj.get("sync_required"),
             "updated": obj.get("updated"),
             "updated_properties": obj.get("updated_properties")
         })
         return _obj
-
-

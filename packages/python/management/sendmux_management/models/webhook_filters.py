@@ -84,5 +84,3 @@ class WebhookFilters(BaseModel):
             "mailbox_ids": obj.get("mailbox_ids")
         })
         return _obj
-
-

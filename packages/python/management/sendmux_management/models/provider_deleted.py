@@ -86,5 +86,3 @@ class ProviderDeleted(BaseModel):
             "id": obj.get("id")
         })
         return _obj
-
-

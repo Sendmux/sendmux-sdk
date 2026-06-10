@@ -86,5 +86,3 @@ class MailboxDomainNameValueRecord(BaseModel):
             "value": obj.get("value")
         })
         return _obj
-
-

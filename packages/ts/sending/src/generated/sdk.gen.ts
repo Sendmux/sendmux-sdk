@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { SendingSendEmailBatchData, SendingSendEmailBatchErrors, SendingSendEmailBatchResponses, SendingSendEmailData, SendingSendEmailErrors, SendingSendEmailResponses } from './types.gen.js';
+import type { SendingGetOpenApiSpecData, SendingGetOpenApiSpecResponses, SendingSendEmailBatchData, SendingSendEmailBatchErrors, SendingSendEmailBatchResponses, SendingSendEmailData, SendingSendEmailErrors, SendingSendEmailResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -47,3 +47,10 @@ export const sendingSendEmailBatch = <ThrowOnError extends boolean = false>(opti
         ...options.headers
     }
 });
+
+/**
+ * OpenAPI 3.1 specification
+ *
+ * Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication). Emits a weak ETag; clients may send `If-None-Match` to receive 304 Not Modified.
+ */
+export const sendingGetOpenApiSpec = <ThrowOnError extends boolean = false>(options?: Options<SendingGetOpenApiSpecData, ThrowOnError>) => (options?.client ?? client).get<SendingGetOpenApiSpecResponses, unknown, ThrowOnError>({ url: '/openapi.json', ...options });

@@ -94,5 +94,3 @@ class SharedAmazonSesLimitRequestCreate(BaseModel):
             "request": SharedAmazonSesLimitRequestCreateRequest.from_dict(obj["request"]) if obj.get("request") is not None else None
         })
         return _obj
-
-

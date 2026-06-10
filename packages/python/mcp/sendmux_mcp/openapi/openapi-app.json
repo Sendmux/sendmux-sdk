@@ -1521,6 +1521,10 @@
               "null"
             ]
           },
+          "sync_required": {
+            "description": "When true, refetch this resource list instead of applying the incremental arrays.",
+            "type": "boolean"
+          },
           "updated": {
             "items": {
               "type": "string"
@@ -9103,7 +9107,7 @@
     },
     "/mailbox/folders/{folder_id}": {
       "delete": {
-        "description": "Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.",
+        "description": "Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.",
         "operationId": "mailboxDeleteFolder",
         "parameters": [
           {
@@ -9212,7 +9216,7 @@
         ]
       },
       "patch": {
-        "description": "Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.",
+        "description": "Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.",
         "operationId": "mailboxUpdateFolder",
         "parameters": [
           {
@@ -10143,7 +10147,7 @@
     },
     "/mailbox/messages/{message_id}": {
       "delete": {
-        "description": "Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.",
+        "description": "Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.",
         "operationId": "mailboxDeleteMessage",
         "parameters": [
           {
@@ -10270,7 +10274,7 @@
         ]
       },
       "patch": {
-        "description": "Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.",
+        "description": "Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.",
         "operationId": "mailboxUpdateMessage",
         "parameters": [
           {

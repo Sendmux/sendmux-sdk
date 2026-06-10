@@ -118,5 +118,3 @@ class MailboxSessionCapabilitiesMessages(BaseModel):
             "update_fields": obj.get("update_fields")
         })
         return _obj
-
-

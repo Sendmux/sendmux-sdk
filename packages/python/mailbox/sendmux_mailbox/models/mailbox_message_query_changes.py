@@ -112,5 +112,3 @@ class MailboxMessageQueryChanges(BaseModel):
             "total": obj.get("total")
         })
         return _obj
-
-

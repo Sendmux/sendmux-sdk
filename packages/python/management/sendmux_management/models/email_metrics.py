@@ -104,5 +104,3 @@ class EmailMetrics(BaseModel):
             "timeseries": [EmailMetricsTimeseriesInner.from_dict(_item) for _item in obj["timeseries"]] if obj.get("timeseries") is not None else None
         })
         return _obj
-
-

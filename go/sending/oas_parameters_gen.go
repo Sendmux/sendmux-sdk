@@ -14,6 +14,70 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
+// SendingGetOpenApiSpecParams is parameters of sendingGetOpenApiSpec operation.
+type SendingGetOpenApiSpecParams struct {
+	// Weak ETag from a previous response. When it matches the current resource, the server returns 304
+	// Not Modified with no body.
+	IfNoneMatch OptString
+}
+
+func unpackSendingGetOpenApiSpecParams(packed middleware.Parameters) (params SendingGetOpenApiSpecParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "If-None-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfNoneMatch = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeSendingGetOpenApiSpecParams(args [0]string, argsEscaped bool, r *http.Request) (params SendingGetOpenApiSpecParams, _ error) {
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: If-None-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfNoneMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfNoneMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfNoneMatch.SetTo(paramsDotIfNoneMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-None-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // SendingSendEmailParams is parameters of sendingSendEmail operation.
 type SendingSendEmailParams struct {
 	// Optional client-generated key to make the request idempotent for 24 hours. Replays under the same
@@ -71,13 +135,13 @@ func decodeSendingSendEmailParams(args [0]string, argsEscaped bool, r *http.Requ
 				if value, ok := params.IdempotencyKey.Get(); ok {
 					if err := func() error {
 						if err := (validate.String{
-							MinLength:    1,
-							MinLengthSet: true,
+							MinLength:    0,
+							MinLengthSet: false,
 							MaxLength:    255,
 							MaxLengthSet: true,
 							Email:        false,
 							Hostname:     false,
-							Regex:        regexMap["^[a-zA-Z0-9_-]+$"],
+							Regex:        nil,
 						}).Validate(string(value)); err != nil {
 							return errors.Wrap(err, "string")
 						}
@@ -159,13 +223,13 @@ func decodeSendingSendEmailBatchParams(args [0]string, argsEscaped bool, r *http
 				if value, ok := params.IdempotencyKey.Get(); ok {
 					if err := func() error {
 						if err := (validate.String{
-							MinLength:    1,
-							MinLengthSet: true,
+							MinLength:    0,
+							MinLengthSet: false,
 							MaxLength:    255,
 							MaxLengthSet: true,
 							Email:        false,
 							Hostname:     false,
-							Regex:        regexMap["^[a-zA-Z0-9_-]+$"],
+							Regex:        nil,
 						}).Validate(string(value)); err != nil {
 							return errors.Wrap(err, "string")
 						}

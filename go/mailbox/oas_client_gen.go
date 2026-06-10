@@ -64,15 +64,16 @@ type Invoker interface {
 	MailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody) (MailboxCreateFolderRes, error)
 	// MailboxDeleteFolder invokes mailboxDeleteFolder operation.
 	//
-	// Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty
-	// folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+	// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
+	// non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 	//
 	// DELETE /mailbox/folders/{folder_id}
 	MailboxDeleteFolder(ctx context.Context, params MailboxDeleteFolderParams) (MailboxDeleteFolderRes, error)
 	// MailboxDeleteMessage invokes mailboxDeleteMessage operation.
 	//
-	// Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to
-	// permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+	// Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set
+	// `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale
+	// deletes.
 	//
 	// DELETE /mailbox/messages/{message_id}
 	MailboxDeleteMessage(ctx context.Context, params MailboxDeleteMessageParams) (MailboxDeleteMessageRes, error)
@@ -268,8 +269,8 @@ type Invoker interface {
 	MailboxStreamEvents(ctx context.Context, params MailboxStreamEventsParams) (MailboxStreamEventsRes, error)
 	// MailboxUpdateFolder invokes mailboxUpdateFolder operation.
 	//
-	// Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject
-	// stale edits.
+	// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag
+	// to reject stale edits.
 	//
 	// PATCH /mailbox/folders/{folder_id}
 	MailboxUpdateFolder(ctx context.Context, request OptPatchMailboxFolderBody, params MailboxUpdateFolderParams) (MailboxUpdateFolderRes, error)
@@ -282,8 +283,8 @@ type Invoker interface {
 	MailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody) (MailboxUpdateIdentityRes, error)
 	// MailboxUpdateMessage invokes mailboxUpdateMessage operation.
 	//
-	// Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with
-	// a prior ETag to reject stale edits.
+	// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send
+	// `If-Match` with a prior ETag to reject stale edits.
 	//
 	// PATCH /mailbox/messages/{message_id}
 	MailboxUpdateMessage(ctx context.Context, request OptPatchMailboxMessageBody, params MailboxUpdateMessageParams) (MailboxUpdateMessageRes, error)
@@ -1210,8 +1211,8 @@ func (c *Client) sendMailboxCreateFolder(ctx context.Context, request OptCreateM
 
 // MailboxDeleteFolder invokes mailboxDeleteFolder operation.
 //
-// Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty
-// folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
+// non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 //
 // DELETE /mailbox/folders/{folder_id}
 func (c *Client) MailboxDeleteFolder(ctx context.Context, params MailboxDeleteFolderParams) (MailboxDeleteFolderRes, error) {
@@ -1351,8 +1352,9 @@ func (c *Client) sendMailboxDeleteFolder(ctx context.Context, params MailboxDele
 
 // MailboxDeleteMessage invokes mailboxDeleteMessage operation.
 //
-// Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to
-// permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+// Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set
+// `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale
+// deletes.
 //
 // DELETE /mailbox/messages/{message_id}
 func (c *Client) MailboxDeleteMessage(ctx context.Context, params MailboxDeleteMessageParams) (MailboxDeleteMessageRes, error) {
@@ -7401,8 +7403,8 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 
 // MailboxUpdateFolder invokes mailboxUpdateFolder operation.
 //
-// Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject
-// stale edits.
+// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag
+// to reject stale edits.
 //
 // PATCH /mailbox/folders/{folder_id}
 func (c *Client) MailboxUpdateFolder(ctx context.Context, request OptPatchMailboxFolderBody, params MailboxUpdateFolderParams) (MailboxUpdateFolderRes, error) {
@@ -7654,8 +7656,8 @@ func (c *Client) sendMailboxUpdateIdentity(ctx context.Context, request OptUpdat
 
 // MailboxUpdateMessage invokes mailboxUpdateMessage operation.
 //
-// Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with
-// a prior ETag to reject stale edits.
+// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send
+// `If-Match` with a prior ETag to reject stale edits.
 //
 // PATCH /mailbox/messages/{message_id}
 func (c *Client) MailboxUpdateMessage(ctx context.Context, request OptPatchMailboxMessageBody, params MailboxUpdateMessageParams) (MailboxUpdateMessageRes, error) {

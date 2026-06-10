@@ -73,7 +73,7 @@ def test_create_server_accepts_hosted_remote_auth_provider() -> None:
             mcp_path="/mcp",
         )
     )
-    config = ServerConfig(surface="management", api_key="smx_root_test")
+    config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
 
     server = create_server(config, auth_provider=auth_provider)
 

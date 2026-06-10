@@ -1626,13 +1626,15 @@ func (MailboxBatchUpdateMessagesResultResponseOk) AllValues() []MailboxBatchUpda
 
 // Ref: #/components/schemas/MailboxChanges
 type MailboxChanges struct {
-	Created           []string  `json:"created"`
-	Destroyed         []string  `json:"destroyed"`
-	HasMore           bool      `json:"has_more"`
-	NewState          string    `json:"new_state"`
-	OldState          NilString `json:"old_state"`
-	Updated           []string  `json:"updated"`
-	UpdatedProperties []string  `json:"updated_properties"`
+	Created   []string  `json:"created"`
+	Destroyed []string  `json:"destroyed"`
+	HasMore   bool      `json:"has_more"`
+	NewState  string    `json:"new_state"`
+	OldState  NilString `json:"old_state"`
+	// When true, refetch this resource list instead of applying the incremental arrays.
+	SyncRequired      OptBool  `json:"sync_required"`
+	Updated           []string `json:"updated"`
+	UpdatedProperties []string `json:"updated_properties"`
 }
 
 // GetCreated returns the value of Created.
@@ -1658,6 +1660,11 @@ func (s *MailboxChanges) GetNewState() string {
 // GetOldState returns the value of OldState.
 func (s *MailboxChanges) GetOldState() NilString {
 	return s.OldState
+}
+
+// GetSyncRequired returns the value of SyncRequired.
+func (s *MailboxChanges) GetSyncRequired() OptBool {
+	return s.SyncRequired
 }
 
 // GetUpdated returns the value of Updated.
@@ -1693,6 +1700,11 @@ func (s *MailboxChanges) SetNewState(val string) {
 // SetOldState sets the value of OldState.
 func (s *MailboxChanges) SetOldState(val NilString) {
 	s.OldState = val
+}
+
+// SetSyncRequired sets the value of SyncRequired.
+func (s *MailboxChanges) SetSyncRequired(val OptBool) {
+	s.SyncRequired = val
 }
 
 // SetUpdated sets the value of Updated.

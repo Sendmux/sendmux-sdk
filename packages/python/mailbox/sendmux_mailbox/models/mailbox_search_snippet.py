@@ -98,5 +98,3 @@ class MailboxSearchSnippet(BaseModel):
             "subject": obj.get("subject")
         })
         return _obj
-
-

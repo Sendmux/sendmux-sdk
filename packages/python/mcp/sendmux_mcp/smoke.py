@@ -18,7 +18,7 @@ async def main() -> None:
 
     mailbox_server = create_server(
         ServerConfig(
-            surface="mailbox",
+            surfaces=("mailbox",),
             api_key=mailbox_key,
             app_base_url=app_base_url,
         )
@@ -50,7 +50,7 @@ async def main() -> None:
             raise AssertionError("mailbox_list_messages did not return ok=true")
 
     try:
-        create_server(ServerConfig(surface="management", api_key=mailbox_key, app_base_url=app_base_url))
+        create_server(ServerConfig(surfaces=("management",), api_key=mailbox_key, app_base_url=app_base_url))
     except ValueError:
         pass
     else:

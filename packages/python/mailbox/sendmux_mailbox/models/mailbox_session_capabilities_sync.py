@@ -104,5 +104,3 @@ class MailboxSessionCapabilitiesSync(BaseModel):
             "types": obj.get("types")
         })
         return _obj
-
-

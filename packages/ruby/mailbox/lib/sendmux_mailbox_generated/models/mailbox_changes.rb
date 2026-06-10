@@ -25,6 +25,9 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :old_state
 
+    # When true, refetch this resource list instead of applying the incremental arrays.
+    attr_accessor :sync_required
+
     attr_accessor :updated
 
     attr_accessor :updated_properties
@@ -37,6 +40,7 @@ module Sendmux::Mailbox::Generated
         :'has_more' => :'has_more',
         :'new_state' => :'new_state',
         :'old_state' => :'old_state',
+        :'sync_required' => :'sync_required',
         :'updated' => :'updated',
         :'updated_properties' => :'updated_properties'
       }
@@ -60,6 +64,7 @@ module Sendmux::Mailbox::Generated
         :'has_more' => :'Boolean',
         :'new_state' => :'String',
         :'old_state' => :'String',
+        :'sync_required' => :'Boolean',
         :'updated' => :'Array<String>',
         :'updated_properties' => :'Array<String>'
       }
@@ -120,6 +125,10 @@ module Sendmux::Mailbox::Generated
         self.old_state = attributes[:'old_state']
       else
         self.old_state = nil
+      end
+
+      if attributes.key?(:'sync_required')
+        self.sync_required = attributes[:'sync_required']
       end
 
       if attributes.key?(:'updated')
@@ -237,6 +246,7 @@ module Sendmux::Mailbox::Generated
           has_more == o.has_more &&
           new_state == o.new_state &&
           old_state == o.old_state &&
+          sync_required == o.sync_required &&
           updated == o.updated &&
           updated_properties == o.updated_properties
     end
@@ -250,7 +260,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [created, destroyed, has_more, new_state, old_state, updated, updated_properties].hash
+      [created, destroyed, has_more, new_state, old_state, sync_required, updated, updated_properties].hash
     end
 
     # Builds the object from hash

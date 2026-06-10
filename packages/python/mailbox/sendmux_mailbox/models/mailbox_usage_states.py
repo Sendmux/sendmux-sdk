@@ -89,5 +89,3 @@ class MailboxUsageStates(BaseModel):
             "quota_state": obj.get("quota_state")
         })
         return _obj
-
-

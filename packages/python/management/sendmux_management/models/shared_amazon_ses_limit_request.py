@@ -121,5 +121,3 @@ class SharedAmazonSesLimitRequest(BaseModel):
             "status": obj.get("status")
         })
         return _obj
-
-

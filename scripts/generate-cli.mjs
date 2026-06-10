@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve, sep } from "node:path";
 
 const specs = [
   { file: "openapi-app.json" },
@@ -24,6 +24,8 @@ const httpMethods = new Set(["get", "put", "post", "delete", "patch"]);
 const options = parseArgs(process.argv.slice(2));
 const inputDir = resolve(options.inputDir ?? process.env.OPENAPI_INPUT_DIR ?? findDefaultInputDir());
 const outputPath = resolve(options.output ?? "packages/ts/cli/src/generated/operations.ts");
+const cliSourceDir = resolve(options.cliSourceDir ?? "packages/ts/cli/src");
+const commandsDir = resolve(options.commandsDir ?? join(cliSourceDir, "commands"));
 const operations = [];
 
 for (const { file } of specs) {
@@ -34,15 +36,16 @@ for (const { file } of specs) {
 
   const spec = readJson(specPath);
   for (const [path, pathItem] of Object.entries(spec.paths ?? {})) {
-    const pathParameters = normalizeParameters(pathItem.parameters);
+      const pathParameters = normalizeParameters(spec, pathItem.parameters);
     for (const [method, operation] of Object.entries(pathItem)) {
       if (!httpMethods.has(method) || !operation?.operationId) {
         continue;
       }
 
       const surface = surfaceForOperationId(operation.operationId);
-      const parameters = [...pathParameters, ...normalizeParameters(operation.parameters)];
+      const parameters = [...pathParameters, ...normalizeParameters(spec, operation.parameters)];
       operations.push({
+        bodyKind: bodyKindForOperation(operation),
         command: curatedCommands[operation.operationId] ?? defaultCommand(surface, operation.operationId),
         description: oneLine(operation.summary ?? operation.description ?? operation.operationId),
         headerParams: parameters.filter((parameter) => parameter.in === "header").map(toPublicParameter),
@@ -52,7 +55,7 @@ for (const { file } of specs) {
         pathParams: parameters.filter((parameter) => parameter.in === "path").map(toPublicParameter),
         queryParams: parameters.filter((parameter) => parameter.in === "query").map(toPublicParameter),
         requestBodyRequired: Boolean(operation.requestBody?.required),
-        requiredKeyKind: surface === "mailbox" ? "mailbox" : "root",
+        requiredKeyKind: requiredKeyKindForSurface(surface),
         surface,
       });
     }
@@ -61,7 +64,9 @@ for (const { file } of specs) {
 
 operations.sort((left, right) => left.operationId.localeCompare(right.operationId));
 writeOperations(outputPath, operations);
+writeCommandModules({ commandsDir, cliSourceDir, operations });
 console.log(`Wrote CLI operation manifest to ${outputPath}`);
+console.log(`Wrote ${operations.length} CLI command modules to ${commandsDir}`);
 
 function parseArgs(args) {
   const parsed = {};
@@ -77,6 +82,18 @@ function parseArgs(args) {
 
     if (arg === "--output") {
       parsed.output = requireValue({ args, index, arg });
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--cli-source-dir") {
+      parsed.cliSourceDir = requireValue({ args, index, arg });
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--commands-dir") {
+      parsed.commandsDir = requireValue({ args, index, arg });
       index += 1;
       continue;
     }
@@ -110,17 +127,19 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
-function normalizeParameters(parameters) {
+function normalizeParameters(spec, parameters) {
   if (!Array.isArray(parameters)) {
     return [];
   }
 
   return parameters
-    .filter((parameter) => parameter && typeof parameter === "object" && !parameter.$ref)
+    .filter((parameter) => parameter && typeof parameter === "object")
+    .map((parameter) => resolveParameter(spec, parameter))
     .map((parameter) => ({
       in: parameter.in,
       name: parameter.name,
       required: Boolean(parameter.required),
+      schema: normaliseSchema(spec, parameter.schema),
     }))
     .filter((parameter) => typeof parameter.in === "string" && typeof parameter.name === "string");
 }
@@ -129,7 +148,89 @@ function toPublicParameter(parameter) {
   return {
     name: parameter.name,
     required: parameter.required,
+    schema: parameter.schema,
   };
+}
+
+function resolveParameter(spec, parameter) {
+  if (!parameter.$ref) {
+    return parameter;
+  }
+
+  const name = parameter.$ref.split("/").pop();
+  const resolved = spec.components?.parameters?.[name];
+  if (!resolved) {
+    throw new Error(`Unresolved OpenAPI parameter reference: ${parameter.$ref}`);
+  }
+  return resolved;
+}
+
+function normaliseSchema(spec, schema) {
+  const resolved = resolveSchema(spec, schema);
+  if (!resolved || typeof resolved !== "object") {
+    return { type: "string" };
+  }
+
+  const type = Array.isArray(resolved.type) ? resolved.type.find((value) => value !== "null") : resolved.type;
+  const normalised = {
+    type: typeof type === "string" ? type : "string",
+  };
+
+  if (Array.isArray(resolved.enum)) {
+    normalised.enum = resolved.enum.filter((value) => typeof value === "string" || typeof value === "number");
+  }
+
+  if (typeof resolved.minimum === "number") {
+    normalised.minimum = resolved.minimum;
+  }
+
+  if (typeof resolved.maximum === "number") {
+    normalised.maximum = resolved.maximum;
+  }
+
+  if (typeof resolved.minLength === "number") {
+    normalised.minLength = resolved.minLength;
+  }
+
+  if (typeof resolved.maxLength === "number") {
+    normalised.maxLength = resolved.maxLength;
+  }
+
+  if (typeof resolved.pattern === "string") {
+    normalised.pattern = resolved.pattern;
+  }
+
+  return normalised;
+}
+
+function resolveSchema(spec, schema) {
+  if (!schema?.$ref) {
+    return schema;
+  }
+
+  const name = schema.$ref.split("/").pop();
+  const resolved = spec.components?.schemas?.[name];
+  if (!resolved) {
+    throw new Error(`Unresolved OpenAPI schema reference: ${schema.$ref}`);
+  }
+  return resolveSchema(spec, resolved);
+}
+
+function bodyKindForOperation(operation) {
+  const contentTypes = Object.keys(operation.requestBody?.content ?? {});
+  if (contentTypes.length === 0) {
+    return "none";
+  }
+
+  if (contentTypes.includes("application/json")) {
+    return "json";
+  }
+
+  if (contentTypes.includes("application/octet-stream")) {
+    return "binary";
+  }
+
+  throw new Error(`Unsupported CLI request body content type for ${operation.operationId}: ${contentTypes.join(", ")}`);
 }
 
 function surfaceForOperationId(operationId) {
@@ -146,6 +247,10 @@ function surfaceForOperationId(operationId) {
   }
 
   throw new Error(`Operation ${operationId} does not use a known Sendmux surface prefix`);
+}
+
+function requiredKeyKindForSurface(surface) {
+  return surface === "management" ? "root" : "mailbox";
 }
 
 function defaultCommand(surface, operationId) {
@@ -195,6 +300,60 @@ function writeOperations(path, operationDefinitions) {
       "",
     ].join("\n"),
   );
+}
+
+function writeCommandModules({ commandsDir, cliSourceDir, operations }) {
+  for (const surface of ["mailbox", "management", "sending"]) {
+    rmSync(join(commandsDir, surface), { force: true, recursive: true });
+  }
+
+  const seen = new Map();
+  for (const operation of operations) {
+    if (seen.has(operation.command)) {
+      throw new Error(
+        `CLI command collision for ${operation.command}: ${seen.get(operation.command)} and ${operation.operationId}`,
+      );
+    }
+    seen.set(operation.command, operation.operationId);
+
+    const filePath = join(commandsDir, ...operation.command.split(":")) + ".ts";
+    mkdirSync(dirname(filePath), { recursive: true });
+
+    const operationsImport = relativeImport(dirname(filePath), join(cliSourceDir, "generated", "operations.js"));
+    const commandImport = relativeImport(dirname(filePath), join(cliSourceDir, "operation-command.js"));
+    const className = `${toPascal(operation.operationId)}Command`;
+
+    writeFileSync(
+      filePath,
+      [
+        "// This file is generated by scripts/generate-cli.mjs",
+        "",
+        `import { operations } from "${operationsImport}";`,
+        `import { OperationCommand } from "${commandImport}";`,
+        "",
+        `export default class ${className} extends OperationCommand {`,
+        `  static description = operations.${operation.operationId}.description;`,
+        `  static operation = operations.${operation.operationId};`,
+        "}",
+        "",
+      ].join("\n"),
+    );
+  }
+}
+
+function relativeImport(fromDir, target) {
+  let value = relative(fromDir, target).split(sep).join("/");
+  if (!value.startsWith(".")) {
+    value = `./${value}`;
+  }
+  return value;
+}
+
+function toPascal(value) {
+  return value
+    .replace(/[^A-Za-z0-9]+/g, " ")
+    .replace(/(^| )([A-Za-z0-9])/g, (_, __, character) => character.toUpperCase())
+    .replace(/ /g, "");
 }
 
 function json(value) {

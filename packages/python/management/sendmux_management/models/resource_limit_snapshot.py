@@ -108,5 +108,3 @@ class ResourceLimitSnapshot(BaseModel):
             "usage_ratio": obj.get("usage_ratio")
         })
         return _obj
-
-

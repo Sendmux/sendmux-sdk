@@ -93,5 +93,3 @@ class PatchMailboxFolderBody(BaseModel):
             "sort_order": obj.get("sort_order")
         })
         return _obj
-
-

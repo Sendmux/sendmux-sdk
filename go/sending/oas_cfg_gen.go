@@ -18,7 +18,6 @@ import (
 
 var regexMap = map[string]ogenregex.Regexp{
 	"^[^\\r\\n]*$":       ogenregex.MustCompile("^[^\\r\\n]*$"),
-	"^[a-zA-Z0-9_-]+$":   ogenregex.MustCompile("^[a-zA-Z0-9_-]+$"),
 	"^eml_[a-z0-9]{24}$": ogenregex.MustCompile("^eml_[a-z0-9]{24}$"),
 }
 var (

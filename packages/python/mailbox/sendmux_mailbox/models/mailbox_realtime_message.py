@@ -195,5 +195,3 @@ class MailboxRealtimeMessage(BaseModel):
             "rfc5322_message_id": obj.get("rfc5322_message_id")
         })
         return _obj
-
-

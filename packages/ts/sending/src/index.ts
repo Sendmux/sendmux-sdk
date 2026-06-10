@@ -15,7 +15,7 @@ const DEFAULT_BASE_URL = "https://smtp.sendmux.ai/api/v1";
 
 export function createSendingClient(config: SurfaceClientConfig): Client {
   const client = createClient({ baseUrl: config.baseUrl ?? DEFAULT_BASE_URL });
-  return configureGeneratedClient(client, config, "root");
+  return configureGeneratedClient(client, config, "mailbox");
 }
 
 export const configureSending = createSendingClient;

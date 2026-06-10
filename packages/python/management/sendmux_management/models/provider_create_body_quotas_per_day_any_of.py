@@ -87,5 +87,3 @@ class ProviderCreateBodyQuotasPerDayAnyOf(BaseModel):
             "min": obj.get("min")
         })
         return _obj
-
-

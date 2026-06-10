@@ -94,5 +94,3 @@ class ProviderLimits(BaseModel):
             "shared_amazon_ses": SharedAmazonSesLimit.from_dict(obj["shared_amazon_ses"]) if obj.get("shared_amazon_ses") is not None else None
         })
         return _obj
-
-

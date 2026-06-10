@@ -19,7 +19,7 @@ module Sendmux
         @configuration = Sendmux::Core::Auth.configure_bearer(
           Generated::Configuration.new,
           api_key,
-          Sendmux::Core::ApiKeySurface::ROOT,
+          Sendmux::Core::ApiKeySurface::MAILBOX,
           base_url: base_url
         )
         Sendmux::Core::Retry.configure(@configuration, retry_options)
@@ -28,6 +28,10 @@ module Sendmux
 
       def emails
         @emails ||= Generated::EmailsApi.new(@api_client)
+      end
+
+      def meta
+        @meta ||= Generated::MetaApi.new(@api_client)
       end
     end
   end

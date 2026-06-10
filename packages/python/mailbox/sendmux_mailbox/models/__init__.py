@@ -138,4 +138,3 @@ from sendmux_mailbox.models.send_mailbox_message_body_attachments_inner_any_of1 
 from sendmux_mailbox.models.send_mailbox_message_result import SendMailboxMessageResult
 from sendmux_mailbox.models.success_envelope import SuccessEnvelope
 from sendmux_mailbox.models.update_mailbox_identity_body import UpdateMailboxIdentityBody
-

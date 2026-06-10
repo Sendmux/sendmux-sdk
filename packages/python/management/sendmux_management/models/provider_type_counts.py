@@ -90,5 +90,3 @@ class ProviderTypeCounts(BaseModel):
             "smtp": obj.get("smtp")
         })
         return _obj
-
-

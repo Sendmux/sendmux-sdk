@@ -90,5 +90,3 @@ class MailboxMessageFlags(BaseModel):
             "seen": obj.get("seen")
         })
         return _obj
-
-

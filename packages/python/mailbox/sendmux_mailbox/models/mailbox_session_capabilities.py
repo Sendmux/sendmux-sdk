@@ -130,5 +130,3 @@ class MailboxSessionCapabilities(BaseModel):
             "threads": MailboxSessionCapabilitiesThreads.from_dict(obj["threads"]) if obj.get("threads") is not None else None
         })
         return _obj
-
-

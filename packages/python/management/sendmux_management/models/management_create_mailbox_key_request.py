@@ -85,5 +85,3 @@ class ManagementCreateMailboxKeyRequest(BaseModel):
             "app_name": obj.get("app_name")
         })
         return _obj
-
-

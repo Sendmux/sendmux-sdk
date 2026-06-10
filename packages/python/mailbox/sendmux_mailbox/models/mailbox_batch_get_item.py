@@ -110,5 +110,3 @@ class MailboxBatchGetItem(BaseModel):
             "raw_body": MailboxRawBody.from_dict(obj["raw_body"]) if obj.get("raw_body") is not None else None
         })
         return _obj
-
-

@@ -101,5 +101,3 @@ class MailboxSearchSnippetsResult(BaseModel):
             "sync_state": obj.get("sync_state")
         })
         return _obj
-
-

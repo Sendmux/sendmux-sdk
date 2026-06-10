@@ -99,5 +99,3 @@ class SpendSummary(BaseModel):
             "transaction_count": obj.get("transaction_count")
         })
         return _obj
-
-

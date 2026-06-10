@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sendmux\Sending;
 
 use Sendmux\Sending\Api\EmailsApi;
+use Sendmux\Sending\Api\MetaApi;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
@@ -23,7 +24,7 @@ final class ClientFactory
         }
 
         /** @var Configuration $configured */
-        $configured = Auth::configureBearer($configuration, $apiKey, ApiKeySurface::Root);
+        $configured = Auth::configureBearer($configuration, $apiKey, ApiKeySurface::Mailbox);
         return $configured;
     }
 
@@ -41,6 +42,17 @@ final class ClientFactory
         ?RetryOptions $retryOptions = null
     ): EmailsApi {
         return new EmailsApi(
+            self::httpClient($retryOptions),
+            self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    public static function createMetaApi(
+        string $apiKey,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): MetaApi {
+        return new MetaApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
         );

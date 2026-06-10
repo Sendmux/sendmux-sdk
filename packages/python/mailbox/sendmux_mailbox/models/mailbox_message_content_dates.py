@@ -96,5 +96,3 @@ class MailboxMessageContentDates(BaseModel):
             "sent_at": obj.get("sent_at")
         })
         return _obj
-
-

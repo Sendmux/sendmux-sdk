@@ -107,5 +107,3 @@ class BalanceAutoTopup(BaseModel):
             "threshold": obj.get("threshold")
         })
         return _obj
-
-

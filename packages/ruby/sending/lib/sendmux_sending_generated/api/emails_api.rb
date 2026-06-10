@@ -1,7 +1,7 @@
 =begin
-#SendMux Sending API
+#Sendmux Sending API
 
-#Send emails programmatically via the SendMux email infrastructure. Every response carries an `X-Request-Id` header; errors include a `retryable` flag. 429 and 503 responses include `Retry-After`. Mutating endpoints accept an `Idempotency-Key` header for safe retries.
+#Send emails programmatically via the Sendmux email infrastructure. Every response carries an `X-Request-Id` header; errors include a `retryable` flag. 429 and 503 responses include `Retry-After`. Mutating endpoints accept an `Idempotency-Key` header for safe retries.
 
 The version of the OpenAPI document: 1.0.0
 
@@ -46,15 +46,6 @@ module Sendmux::Sending::Generated
       end
       if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'].to_s.length > 255
         fail ArgumentError, 'invalid value for "opts[:"idempotency_key"]" when calling EmailsApi.sending_send_email, the character length must be smaller than or equal to 255.'
-      end
-
-      if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'].to_s.length < 1
-        fail ArgumentError, 'invalid value for "opts[:"idempotency_key"]" when calling EmailsApi.sending_send_email, the character length must be greater than or equal to 1.'
-      end
-
-      pattern = Regexp.new(/^[a-zA-Z0-9_-]+$/)
-      if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'] !~ pattern
-        fail ArgumentError, "invalid value for 'opts[:\"idempotency_key\"]' when calling EmailsApi.sending_send_email, must conform to the pattern #{pattern}."
       end
 
       # resource path
@@ -130,15 +121,6 @@ module Sendmux::Sending::Generated
       end
       if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'].to_s.length > 255
         fail ArgumentError, 'invalid value for "opts[:"idempotency_key"]" when calling EmailsApi.sending_send_email_batch, the character length must be smaller than or equal to 255.'
-      end
-
-      if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'].to_s.length < 1
-        fail ArgumentError, 'invalid value for "opts[:"idempotency_key"]" when calling EmailsApi.sending_send_email_batch, the character length must be greater than or equal to 1.'
-      end
-
-      pattern = Regexp.new(/^[a-zA-Z0-9_-]+$/)
-      if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'] !~ pattern
-        fail ArgumentError, "invalid value for 'opts[:\"idempotency_key\"]' when calling EmailsApi.sending_send_email_batch, must conform to the pattern #{pattern}."
       end
 
       # resource path

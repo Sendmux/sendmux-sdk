@@ -91,5 +91,3 @@ class MailboxMessageSummaryFrom(BaseModel):
             "name": obj.get("name")
         })
         return _obj
-
-

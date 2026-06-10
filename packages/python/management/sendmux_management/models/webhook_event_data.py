@@ -202,5 +202,3 @@ class WebhookEventData(BaseModel):
             "webhook_id": obj.get("webhook_id")
         })
         return _obj
-
-

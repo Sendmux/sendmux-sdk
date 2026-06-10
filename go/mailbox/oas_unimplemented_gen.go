@@ -63,8 +63,8 @@ func (UnimplementedHandler) MailboxCreateFolder(ctx context.Context, req OptCrea
 
 // MailboxDeleteFolder implements mailboxDeleteFolder operation.
 //
-// Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty
-// folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
+// non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 //
 // DELETE /mailbox/folders/{folder_id}
 func (UnimplementedHandler) MailboxDeleteFolder(ctx context.Context, params MailboxDeleteFolderParams) (r MailboxDeleteFolderRes, _ error) {
@@ -73,8 +73,9 @@ func (UnimplementedHandler) MailboxDeleteFolder(ctx context.Context, params Mail
 
 // MailboxDeleteMessage implements mailboxDeleteMessage operation.
 //
-// Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to
-// permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+// Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set
+// `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale
+// deletes.
 //
 // DELETE /mailbox/messages/{message_id}
 func (UnimplementedHandler) MailboxDeleteMessage(ctx context.Context, params MailboxDeleteMessageParams) (r MailboxDeleteMessageRes, _ error) {
@@ -357,8 +358,8 @@ func (UnimplementedHandler) MailboxStreamEvents(ctx context.Context, params Mail
 
 // MailboxUpdateFolder implements mailboxUpdateFolder operation.
 //
-// Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject
-// stale edits.
+// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag
+// to reject stale edits.
 //
 // PATCH /mailbox/folders/{folder_id}
 func (UnimplementedHandler) MailboxUpdateFolder(ctx context.Context, req OptPatchMailboxFolderBody, params MailboxUpdateFolderParams) (r MailboxUpdateFolderRes, _ error) {
@@ -377,8 +378,8 @@ func (UnimplementedHandler) MailboxUpdateIdentity(ctx context.Context, req OptUp
 
 // MailboxUpdateMessage implements mailboxUpdateMessage operation.
 //
-// Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with
-// a prior ETag to reject stale edits.
+// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send
+// `If-Match` with a prior ETag to reject stale edits.
 //
 // PATCH /mailbox/messages/{message_id}
 func (UnimplementedHandler) MailboxUpdateMessage(ctx context.Context, req OptPatchMailboxMessageBody, params MailboxUpdateMessageParams) (r MailboxUpdateMessageRes, _ error) {

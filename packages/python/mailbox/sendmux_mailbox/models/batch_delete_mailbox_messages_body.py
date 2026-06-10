@@ -89,5 +89,3 @@ class BatchDeleteMailboxMessagesBody(BaseModel):
             "permanent": obj.get("permanent")
         })
         return _obj
-
-

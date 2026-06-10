@@ -121,5 +121,3 @@ class MailboxThreadSummary(BaseModel):
             "unread_count": obj.get("unread_count")
         })
         return _obj
-
-

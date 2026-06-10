@@ -84,5 +84,3 @@ class WebhookTestResponse(BaseModel):
             "event_id": obj.get("event_id")
         })
         return _obj
-
-

@@ -97,5 +97,3 @@ class ProviderUsageItem(BaseModel):
             "total_7d": obj.get("total_7d")
         })
         return _obj
-
-

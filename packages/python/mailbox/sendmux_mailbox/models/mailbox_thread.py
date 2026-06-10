@@ -123,5 +123,3 @@ class MailboxThread(BaseModel):
             "message_ids": obj.get("message_ids")
         })
         return _obj
-
-

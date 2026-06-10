@@ -6,6 +6,7 @@ package sending
 type OperationName = string
 
 const (
+	SendingGetOpenApiSpecOperation OperationName = "SendingGetOpenApiSpec"
 	SendingSendEmailOperation      OperationName = "SendingSendEmail"
 	SendingSendEmailBatchOperation OperationName = "SendingSendEmailBatch"
 )

@@ -196,5 +196,3 @@ class MailboxMessage(BaseModel):
             "text_body": obj.get("text_body")
         })
         return _obj
-
-

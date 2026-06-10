@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -11,7 +11,7 @@ const surfaces = [
     projectName: "sendmux-sending",
     packageName: "sendmux_sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
-    tags: ["Emails"],
+    tags: ["Emails", "Meta"],
   },
   {
     name: "mailbox",
@@ -64,6 +64,7 @@ for (const surface of surfaces) {
   rmSync(join(packageDir, surface.packageName), { force: true, recursive: true });
   cpSync(join(generatedRoot, surface.packageName), join(packageDir, surface.packageName), { recursive: true });
   writeSurfaceClient(surface);
+  normalizePythonFiles(join(packageDir, surface.packageName));
 }
 
 console.log("Generated Python SDK packages");
@@ -172,10 +173,30 @@ function collectRefs(value, refs) {
   }
 }
 
+function normalizePythonFiles(directory) {
+  for (const entry of readdirSync(directory)) {
+    const path = join(directory, entry);
+    if (statSync(path).isDirectory()) {
+      normalizePythonFiles(path);
+      continue;
+    }
+
+    if (!path.endsWith(".py")) {
+      continue;
+    }
+
+    const current = readFileSync(path, "utf8");
+    const next = `${current.replace(/[ \t\r\n]*$/u, "")}\n`;
+    if (next !== current) {
+      writeFileSync(path, next);
+    }
+  }
+}
+
 function writeSurfaceClient(surface) {
   const packageDir = join(root, "packages", "python", surface.name, surface.packageName);
   const className = toPascal(surface.name);
-  const keySurface = surface.name === "mailbox" ? "mailbox" : "root";
+  const keySurface = surface.name === "management" ? "root" : "mailbox";
   const defaultBaseUrl =
     surface.name === "sending" ? "https://smtp.sendmux.ai/api/v1" : "https://app.sendmux.ai/api/v1";
 

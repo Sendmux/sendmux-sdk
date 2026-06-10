@@ -113,5 +113,3 @@ class MailboxFolder(BaseModel):
             "unread_messages": obj.get("unread_messages")
         })
         return _obj
-
-

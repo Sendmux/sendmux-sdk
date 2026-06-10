@@ -96,5 +96,3 @@ class ManagementTestWebhook200Response(BaseModel):
             "data": WebhookTestResponse.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj
-
-

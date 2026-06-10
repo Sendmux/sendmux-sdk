@@ -117,5 +117,3 @@ class MailboxContentHeaders(BaseModel):
             "selected": MailboxContentHeadersSelected.from_dict(obj["selected"]) if obj.get("selected") is not None else None
         })
         return _obj
-
-

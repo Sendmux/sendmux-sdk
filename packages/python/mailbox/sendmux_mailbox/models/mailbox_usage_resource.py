@@ -126,5 +126,3 @@ class MailboxUsageResource(BaseModel):
             "warn_limit": obj.get("warn_limit")
         })
         return _obj
-
-

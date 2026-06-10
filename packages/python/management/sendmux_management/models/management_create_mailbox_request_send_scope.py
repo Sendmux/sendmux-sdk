@@ -96,5 +96,3 @@ class ManagementCreateMailboxRequestSendScope(BaseModel):
             "type": obj.get("type")
         })
         return _obj
-
-

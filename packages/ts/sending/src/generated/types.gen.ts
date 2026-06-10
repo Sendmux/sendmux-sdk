@@ -332,3 +332,27 @@ export type SendingSendEmailBatchResponses = {
 };
 
 export type SendingSendEmailBatchResponse = SendingSendEmailBatchResponses[keyof SendingSendEmailBatchResponses];
+
+export type SendingGetOpenApiSpecData = {
+    body?: never;
+    headers?: {
+        /**
+         * Weak ETag from a previous response. When it matches the current resource, the server returns 304 Not Modified with no body.
+         */
+        'If-None-Match'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/openapi.json';
+};
+
+export type SendingGetOpenApiSpecResponses = {
+    /**
+     * OpenAPI 3.1 document
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type SendingGetOpenApiSpecResponse = SendingGetOpenApiSpecResponses[keyof SendingGetOpenApiSpecResponses];

@@ -4,6 +4,7 @@ import type { OperationDefinition } from "../operation-types.js";
 
 export const operations = {
   mailboxBatchDeleteMessages: {
+    "bodyKind": "json",
     "command": "mailbox:batch-delete-messages",
     "description": "Batch delete mailbox messages",
     "headerParams": [],
@@ -17,6 +18,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxBatchGetMessages: {
+    "bodyKind": "json",
     "command": "mailbox:batch-get-messages",
     "description": "Batch get mailbox messages",
     "headerParams": [],
@@ -30,6 +32,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxBatchUpdateMessages: {
+    "bodyKind": "json",
     "command": "mailbox:batch-update-messages",
     "description": "Batch update mailbox messages",
     "headerParams": [],
@@ -43,6 +46,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxCountMessages: {
+    "bodyKind": "none",
     "command": "mailbox:count-messages",
     "description": "Count mailbox messages",
     "headerParams": [],
@@ -53,79 +57,138 @@ export const operations = {
     "queryParams": [
       {
         "name": "folder_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "thread_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "q",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "from",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "cc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "bcc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "subject",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "body",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_name",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_value",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "min_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "max_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "not_keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "before",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "has_attachment",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "is_unread",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -133,6 +196,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxCreateFolder: {
+    "bodyKind": "json",
     "command": "mailbox:create-folder",
     "description": "Create a mailbox folder",
     "headerParams": [],
@@ -146,12 +210,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxDeleteFolder: {
+    "bodyKind": "none",
     "command": "mailbox:delete-folder",
     "description": "Delete a mailbox folder",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "delete",
@@ -160,7 +228,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "folder_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -169,12 +240,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxDeleteMessage: {
+    "bodyKind": "none",
     "command": "mailbox:delete-message",
     "description": "Delete a mailbox message",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "delete",
@@ -183,13 +258,19 @@ export const operations = {
     "pathParams": [
       {
         "name": "message_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [
       {
         "name": "permanent",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -197,6 +278,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetChanges: {
+    "bodyKind": "none",
     "command": "mailbox:get-changes",
     "description": "Get mailbox changes",
     "headerParams": [],
@@ -207,39 +289,68 @@ export const operations = {
     "queryParams": [
       {
         "name": "since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "types",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "messages_since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "folders_since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "threads_since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "submissions_since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "identities_since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "quotas_since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -247,12 +358,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetFolder: {
+    "bodyKind": "none",
     "command": "mailbox:get-folder",
     "description": "Get a mailbox folder",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -261,7 +376,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "folder_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -270,6 +388,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetFolderChanges: {
+    "bodyKind": "none",
     "command": "mailbox:get-folder-changes",
     "description": "Get folder changes",
     "headerParams": [],
@@ -280,11 +399,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -292,6 +419,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetIdentity: {
+    "bodyKind": "none",
     "command": "mailbox:get-identity",
     "description": "Get mailbox sender identity",
     "headerParams": [],
@@ -305,12 +433,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetMe: {
+    "bodyKind": "none",
     "command": "mailbox:me:get",
     "description": "Self-introspect the calling mailbox",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -323,12 +455,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetMessage: {
+    "bodyKind": "none",
     "command": "mailbox:messages:get",
     "description": "Get a mailbox message",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -337,7 +473,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "message_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -346,12 +485,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetMessageAttachment: {
+    "bodyKind": "none",
     "command": "mailbox:get-message-attachment",
     "description": "Download a message attachment",
     "headerParams": [
       {
         "name": "Range",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -360,11 +503,17 @@ export const operations = {
     "pathParams": [
       {
         "name": "message_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "attachment_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -373,6 +522,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetQuotaChanges: {
+    "bodyKind": "none",
     "command": "mailbox:get-quota-changes",
     "description": "Get quota changes",
     "headerParams": [],
@@ -383,11 +533,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -395,12 +553,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetSession: {
+    "bodyKind": "none",
     "command": "mailbox:get-session",
     "description": "Get mailbox API session",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -413,12 +575,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetSubmission: {
+    "bodyKind": "none",
     "command": "mailbox:get-submission",
     "description": "Get a mailbox submission",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -427,7 +593,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "submission_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -436,6 +605,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetSubmissionChanges: {
+    "bodyKind": "none",
     "command": "mailbox:get-submission-changes",
     "description": "Get submission changes",
     "headerParams": [],
@@ -446,11 +616,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "since_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -458,12 +636,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetThread: {
+    "bodyKind": "none",
     "command": "mailbox:get-thread",
     "description": "Get a mailbox thread",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -472,7 +654,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "thread_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -481,12 +666,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxGetThreadContent: {
+    "bodyKind": "none",
     "command": "mailbox:get-thread-content",
     "description": "Get clean thread content",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -495,53 +684,111 @@ export const operations = {
     "pathParams": [
       {
         "name": "thread_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [
       {
         "name": "part",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "text",
+            "html"
+          ]
+        }
       },
       {
         "name": "max_body_chars",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        }
       },
       {
         "name": "strip_signature",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "strip_quotes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "include_links",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "include_html",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "include_headers",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "none",
+            "selected",
+            "full"
+          ]
+        }
       },
       {
         "name": "include_attachments",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "none",
+            "metadata"
+          ]
+        }
       },
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "sort",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -549,12 +796,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListBody: {
+    "bodyKind": "none",
     "command": "mailbox:list-body",
     "description": "Get raw message body",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -563,17 +814,33 @@ export const operations = {
     "pathParams": [
       {
         "name": "message_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [
       {
         "name": "part",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "text",
+            "html",
+            "both"
+          ]
+        }
       },
       {
         "name": "max_body_chars",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -581,12 +848,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListContent: {
+    "bodyKind": "none",
     "command": "mailbox:list-content",
     "description": "Get clean message content",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -595,41 +866,84 @@ export const operations = {
     "pathParams": [
       {
         "name": "message_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [
       {
         "name": "part",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "text",
+            "html"
+          ]
+        }
       },
       {
         "name": "max_body_chars",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        }
       },
       {
         "name": "strip_signature",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "strip_quotes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "include_links",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "include_html",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "include_headers",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "none",
+            "selected",
+            "full"
+          ]
+        }
       },
       {
         "name": "include_attachments",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "none",
+            "metadata"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -637,6 +951,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListFolders: {
+    "bodyKind": "none",
     "command": "mailbox:folders:list",
     "description": "List mailbox folders",
     "headerParams": [],
@@ -647,11 +962,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -659,6 +982,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListIdentities: {
+    "bodyKind": "none",
     "command": "mailbox:list-identities",
     "description": "List mailbox sender identities",
     "headerParams": [],
@@ -669,11 +993,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -681,6 +1013,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListMessages: {
+    "bodyKind": "none",
     "command": "mailbox:messages:list",
     "description": "List mailbox messages",
     "headerParams": [],
@@ -691,95 +1024,180 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "folder_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "thread_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "q",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "from",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "cc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "bcc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "subject",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "body",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_name",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_value",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "min_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "max_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "not_keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "before",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "has_attachment",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "is_unread",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "sort_by",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "received_at",
+            "sent_at",
+            "subject",
+            "from",
+            "to",
+            "size_bytes"
+          ]
+        }
       },
       {
         "name": "sort_direction",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -787,6 +1205,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListQuotas: {
+    "bodyKind": "none",
     "command": "mailbox:list-quotas",
     "description": "List mailbox quotas",
     "headerParams": [],
@@ -797,35 +1216,78 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "name",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "scope",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "account",
+            "domain",
+            "global"
+          ]
+        }
       },
       {
         "name": "resource_type",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "count",
+            "octets"
+          ]
+        }
       },
       {
         "name": "type",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "sort_by",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "name",
+            "used"
+          ]
+        }
       },
       {
         "name": "sort_direction",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -833,6 +1295,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListSubmissions: {
+    "bodyKind": "none",
     "command": "mailbox:list-submissions",
     "description": "List mailbox submissions",
     "headerParams": [],
@@ -843,43 +1306,89 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "identity_ids",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "email_ids",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "thread_ids",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "undo_status",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "final",
+            "canceled"
+          ]
+        }
       },
       {
         "name": "after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "before",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "sort_by",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "send_at",
+            "email_id",
+            "thread_id"
+          ]
+        }
       },
       {
         "name": "sort_direction",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -887,6 +1396,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListThreadMessages: {
+    "bodyKind": "none",
     "command": "mailbox:list-thread-messages",
     "description": "List thread messages",
     "headerParams": [],
@@ -896,21 +1406,39 @@ export const operations = {
     "pathParams": [
       {
         "name": "thread_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "sort",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -918,6 +1446,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListThreads: {
+    "bodyKind": "none",
     "command": "mailbox:list-threads",
     "description": "List mailbox threads",
     "headerParams": [],
@@ -928,43 +1457,79 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "q",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "participant",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "folder_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "before",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "has_attachment",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "is_unread",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "sort_direction",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -972,12 +1537,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxListUsage: {
+    "bodyKind": "none",
     "command": "mailbox:list-usage",
     "description": "Get mailbox usage",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -990,6 +1559,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxQueryFolderChanges: {
+    "bodyKind": "none",
     "command": "mailbox:query-folder-changes",
     "description": "Get folder query changes",
     "headerParams": [],
@@ -1000,11 +1570,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "since_query_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1012,6 +1590,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxQueryMessageChanges: {
+    "bodyKind": "none",
     "command": "mailbox:query-message-changes",
     "description": "Get message query changes",
     "headerParams": [],
@@ -1022,99 +1601,187 @@ export const operations = {
     "queryParams": [
       {
         "name": "since_query_state",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        }
       },
       {
         "name": "up_to_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "calculate_total",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "folder_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "q",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "from",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "cc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "bcc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "subject",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "body",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_name",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_value",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "min_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "max_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "not_keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "before",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "has_attachment",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "is_unread",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "sort_by",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "received_at",
+            "sent_at",
+            "subject",
+            "from",
+            "to",
+            "size_bytes"
+          ]
+        }
       },
       {
         "name": "sort_direction",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1122,6 +1789,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxSearchMessageSnippets: {
+    "bodyKind": "none",
     "command": "mailbox:search-message-snippets",
     "description": "Get message search snippets",
     "headerParams": [],
@@ -1132,83 +1800,147 @@ export const operations = {
     "queryParams": [
       {
         "name": "folder_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "from",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "cc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "bcc",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "subject",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "body",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_name",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "header_value",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "min_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "max_size_bytes",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       {
         "name": "keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "not_keyword",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "before",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "has_attachment",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "is_unread",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
       },
       {
         "name": "q",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "message_ids",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1216,12 +1948,17 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxSendMessage: {
+    "bodyKind": "json",
     "command": "mailbox:send-message",
     "description": "Send a mailbox message",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1234,12 +1971,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxStreamEvents: {
+    "bodyKind": "none",
     "command": "mailbox:stream-events",
     "description": "Stream mailbox events",
     "headerParams": [
       {
         "name": "Last-Event-ID",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1249,19 +1990,35 @@ export const operations = {
     "queryParams": [
       {
         "name": "event_types",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "last_event_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "ping",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 300
+        }
       },
       {
         "name": "close_after",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3600
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1269,12 +2026,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxUpdateFolder: {
+    "bodyKind": "json",
     "command": "mailbox:update-folder",
     "description": "Update a mailbox folder",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "patch",
@@ -1283,7 +2044,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "folder_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1292,6 +2056,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxUpdateIdentity: {
+    "bodyKind": "json",
     "command": "mailbox:update-identity",
     "description": "Update mailbox sender identity",
     "headerParams": [],
@@ -1305,12 +2070,16 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxUpdateMessage: {
+    "bodyKind": "json",
     "command": "mailbox:update-message",
     "description": "Update mailbox message flags",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "patch",
@@ -1319,7 +2088,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "message_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1328,6 +2100,7 @@ export const operations = {
     "surface": "mailbox"
   },
   mailboxUploadAttachment: {
+    "bodyKind": "binary",
     "command": "mailbox:upload-attachment",
     "description": "Upload a mailbox attachment",
     "headerParams": [],
@@ -1338,7 +2111,10 @@ export const operations = {
     "queryParams": [
       {
         "name": "filename",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1346,12 +2122,17 @@ export const operations = {
     "surface": "mailbox"
   },
   managementActivateProvider: {
+    "bodyKind": "none",
     "command": "management:activate-provider",
     "description": "Activate a sending account",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1360,7 +2141,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1369,12 +2153,17 @@ export const operations = {
     "surface": "management"
   },
   managementCreateDomain: {
+    "bodyKind": "json",
     "command": "management:create-domain",
     "description": "Add a mailbox domain",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1387,12 +2176,17 @@ export const operations = {
     "surface": "management"
   },
   managementCreateMailbox: {
+    "bodyKind": "json",
     "command": "management:create-mailbox",
     "description": "Create a mailbox",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1405,12 +2199,17 @@ export const operations = {
     "surface": "management"
   },
   managementCreateMailboxKey: {
+    "bodyKind": "json",
     "command": "management:create-mailbox-key",
     "description": "Create a mailbox API key",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1419,7 +2218,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1428,12 +2230,17 @@ export const operations = {
     "surface": "management"
   },
   managementCreateProvider: {
+    "bodyKind": "json",
     "command": "management:create-provider",
     "description": "Create an SMTP sending account",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1446,12 +2253,17 @@ export const operations = {
     "surface": "management"
   },
   managementCreateSharedAmazonSesLimitRequest: {
+    "bodyKind": "none",
     "command": "management:create-shared-amazon-ses-limit-request",
     "description": "Request a shared Amazon SES daily limit increase",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1464,12 +2276,17 @@ export const operations = {
     "surface": "management"
   },
   managementCreateWebhook: {
+    "bodyKind": "json",
     "command": "management:create-webhook",
     "description": "Create a webhook subscription",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1482,12 +2299,17 @@ export const operations = {
     "surface": "management"
   },
   managementDeactivateProvider: {
+    "bodyKind": "none",
     "command": "management:deactivate-provider",
     "description": "Deactivate a sending account",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -1496,7 +2318,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1505,6 +2330,7 @@ export const operations = {
     "surface": "management"
   },
   managementDeleteDomain: {
+    "bodyKind": "none",
     "command": "management:delete-domain",
     "description": "Delete a mailbox domain",
     "headerParams": [],
@@ -1514,7 +2340,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1523,6 +2352,7 @@ export const operations = {
     "surface": "management"
   },
   managementDeleteMailbox: {
+    "bodyKind": "none",
     "command": "management:delete-mailbox",
     "description": "Delete a mailbox",
     "headerParams": [],
@@ -1532,7 +2362,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1541,6 +2374,7 @@ export const operations = {
     "surface": "management"
   },
   managementDeleteMailboxKey: {
+    "bodyKind": "none",
     "command": "management:delete-mailbox-key",
     "description": "Revoke a mailbox API key",
     "headerParams": [],
@@ -1550,11 +2384,17 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "key_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1563,6 +2403,7 @@ export const operations = {
     "surface": "management"
   },
   managementDeleteProvider: {
+    "bodyKind": "none",
     "command": "management:delete-provider",
     "description": "Delete a sending account",
     "headerParams": [],
@@ -1572,7 +2413,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1581,6 +2425,7 @@ export const operations = {
     "surface": "management"
   },
   managementDeleteWebhook: {
+    "bodyKind": "none",
     "command": "management:delete-webhook",
     "description": "Delete a webhook subscription",
     "headerParams": [],
@@ -1590,7 +2435,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1599,6 +2447,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetDeliveryPayload: {
+    "bodyKind": "none",
     "command": "management:get-delivery-payload",
     "description": "Get a webhook delivery payload",
     "headerParams": [],
@@ -1608,11 +2457,17 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "delivery_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1621,12 +2476,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetDomain: {
+    "bodyKind": "none",
     "command": "management:domains:get",
     "description": "Get a mailbox domain",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1635,7 +2494,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1644,12 +2506,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetDomainFilters: {
+    "bodyKind": "none",
     "command": "management:get-domain-filters",
     "description": "Get domain-wide sender filters",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1658,7 +2524,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1667,6 +2536,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetDomainZoneFile: {
+    "bodyKind": "none",
     "command": "management:get-domain-zone-file",
     "description": "Download a domain as a zone file",
     "headerParams": [],
@@ -1676,7 +2546,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1685,12 +2558,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetEmailLog: {
+    "bodyKind": "none",
     "command": "management:get-email-log",
     "description": "Get delivery log",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1699,7 +2576,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1708,6 +2588,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetEmailMetrics: {
+    "bodyKind": "none",
     "command": "management:get-email-metrics",
     "description": "Get email metrics",
     "headerParams": [],
@@ -1718,23 +2599,47 @@ export const operations = {
     "queryParams": [
       {
         "name": "window",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "24h",
+            "7d",
+            "30d"
+          ]
+        }
       },
       {
         "name": "from_date",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to_date",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "granularity",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "hourly",
+            "daily"
+          ]
+        }
       },
       {
         "name": "provider_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1742,6 +2647,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetInboxLog: {
+    "bodyKind": "none",
     "command": "management:get-inbox-log",
     "description": "Get incoming log",
     "headerParams": [],
@@ -1751,7 +2657,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1760,12 +2669,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetMailbox: {
+    "bodyKind": "none",
     "command": "management:get-mailbox",
     "description": "Get a mailbox",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1774,7 +2687,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1783,12 +2699,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetMailboxFilters: {
+    "bodyKind": "none",
     "command": "management:get-mailbox-filters",
     "description": "Get mailbox sender filters",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1797,7 +2717,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1806,12 +2729,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetProvider: {
+    "bodyKind": "none",
     "command": "management:get-provider",
     "description": "Get a sending account",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1820,7 +2747,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1829,6 +2759,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetProviderLimits: {
+    "bodyKind": "none",
     "command": "management:get-provider-limits",
     "description": "Get sending account limits",
     "headerParams": [],
@@ -1842,6 +2773,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetProviderStats: {
+    "bodyKind": "none",
     "command": "management:get-provider-stats",
     "description": "Get sending account statistics",
     "headerParams": [],
@@ -1855,6 +2787,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetProviderUsage: {
+    "bodyKind": "none",
     "command": "management:get-provider-usage",
     "description": "Get sending account usage",
     "headerParams": [],
@@ -1868,6 +2801,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetSharedAmazonSesLimitRequest: {
+    "bodyKind": "none",
     "command": "management:get-shared-amazon-ses-limit-request",
     "description": "Get shared Amazon SES limit request state",
     "headerParams": [],
@@ -1881,6 +2815,7 @@ export const operations = {
     "surface": "management"
   },
   managementGetSpendSummary: {
+    "bodyKind": "none",
     "command": "management:get-spend-summary",
     "description": "Get spend summary",
     "headerParams": [],
@@ -1891,7 +2826,15 @@ export const operations = {
     "queryParams": [
       {
         "name": "days",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "7",
+            "30",
+            "90"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1899,12 +2842,16 @@ export const operations = {
     "surface": "management"
   },
   managementGetWebhook: {
+    "bodyKind": "none",
     "command": "management:get-webhook",
     "description": "Get a webhook subscription",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -1913,7 +2860,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -1922,6 +2872,7 @@ export const operations = {
     "surface": "management"
   },
   managementListBalance: {
+    "bodyKind": "none",
     "command": "management:list-balance",
     "description": "Get current balance",
     "headerParams": [],
@@ -1935,6 +2886,7 @@ export const operations = {
     "surface": "management"
   },
   managementListDelivery: {
+    "bodyKind": "none",
     "command": "management:list-delivery",
     "description": "List webhook delivery attempts",
     "headerParams": [],
@@ -1944,25 +2896,58 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "event_type",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "message.delivered",
+            "message.bounced",
+            "message.complained",
+            "message.rejected",
+            "message.delivery_delayed",
+            "message.received",
+            "message.received.spam",
+            "sendmux.test"
+          ]
+        }
       },
       {
         "name": "result",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "success",
+            "retrying",
+            "failed",
+            "permanent_failure"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1970,6 +2955,7 @@ export const operations = {
     "surface": "management"
   },
   managementListDomains: {
+    "bodyKind": "none",
     "command": "management:domains:list",
     "description": "List mailbox domains",
     "headerParams": [],
@@ -1980,11 +2966,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1992,6 +2986,7 @@ export const operations = {
     "surface": "management"
   },
   managementListEmailLogs: {
+    "bodyKind": "none",
     "command": "management:list-email-logs",
     "description": "List delivery logs",
     "headerParams": [],
@@ -2002,31 +2997,60 @@ export const operations = {
     "queryParams": [
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "status",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "sent",
+            "failed",
+            "rejected"
+          ]
+        }
       },
       {
         "name": "from_date",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to_date",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "provider_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "search",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2034,6 +3058,7 @@ export const operations = {
     "surface": "management"
   },
   managementListInboxLogs: {
+    "bodyKind": "none",
     "command": "management:list-inbox-logs",
     "description": "List incoming logs",
     "headerParams": [],
@@ -2044,31 +3069,58 @@ export const operations = {
     "queryParams": [
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "mailbox_id",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "event_type",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "message.received",
+            "message.received.spam"
+          ]
+        }
       },
       {
         "name": "from_date",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "to_date",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "search",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2076,6 +3128,7 @@ export const operations = {
     "surface": "management"
   },
   managementListMailboxes: {
+    "bodyKind": "none",
     "command": "management:mailboxes:list",
     "description": "List mailboxes",
     "headerParams": [],
@@ -2086,15 +3139,29 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "include_deleted",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "true"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2102,6 +3169,7 @@ export const operations = {
     "surface": "management"
   },
   managementListProviders: {
+    "bodyKind": "none",
     "command": "management:providers:list",
     "description": "List sending accounts",
     "headerParams": [],
@@ -2112,19 +3180,45 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "status",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive",
+            "error",
+            "pending"
+          ]
+        }
       },
       {
         "name": "type",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "smtp",
+            "gmail_api",
+            "outlook_api",
+            "amazon_ses"
+          ]
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2132,6 +3226,7 @@ export const operations = {
     "surface": "management"
   },
   managementListTransactions: {
+    "bodyKind": "none",
     "command": "management:list-transactions",
     "description": "List transactions",
     "headerParams": [],
@@ -2142,15 +3237,33 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       },
       {
         "name": "type",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "PURCHASE",
+            "USAGE",
+            "AUTO_TOPUP",
+            "REFUND",
+            "ADJUSTMENT"
+          ]
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2158,6 +3271,7 @@ export const operations = {
     "surface": "management"
   },
   managementListWebhooks: {
+    "bodyKind": "none",
     "command": "management:list-webhooks",
     "description": "List webhook subscriptions",
     "headerParams": [],
@@ -2168,11 +3282,19 @@ export const operations = {
     "queryParams": [
       {
         "name": "cursor",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       },
       {
         "name": "limit",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2180,12 +3302,17 @@ export const operations = {
     "surface": "management"
   },
   managementRequestSendingAccountLimitIncrease: {
+    "bodyKind": "none",
     "command": "management:request-sending-account-limit-increase",
     "description": "Request a sending account limit increase",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2198,12 +3325,17 @@ export const operations = {
     "surface": "management"
   },
   managementResumeMailbox: {
+    "bodyKind": "none",
     "command": "management:resume-mailbox",
     "description": "Resume a mailbox",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2212,7 +3344,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2221,12 +3356,17 @@ export const operations = {
     "surface": "management"
   },
   managementRotateWebhookSecret: {
+    "bodyKind": "none",
     "command": "management:rotate-webhook-secret",
     "description": "Rotate the signing secret",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2235,7 +3375,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2244,12 +3387,16 @@ export const operations = {
     "surface": "management"
   },
   managementSetDomainFilters: {
+    "bodyKind": "json",
     "command": "management:set-domain-filters",
     "description": "Replace domain-wide sender filters",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "put",
@@ -2258,7 +3405,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2267,12 +3417,16 @@ export const operations = {
     "surface": "management"
   },
   managementSetMailboxFilters: {
+    "bodyKind": "json",
     "command": "management:set-mailbox-filters",
     "description": "Replace mailbox sender filters",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "put",
@@ -2281,7 +3435,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2290,12 +3447,17 @@ export const operations = {
     "surface": "management"
   },
   managementSuspendMailbox: {
+    "bodyKind": "none",
     "command": "management:suspend-mailbox",
     "description": "Suspend a mailbox",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2304,7 +3466,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2313,12 +3478,17 @@ export const operations = {
     "surface": "management"
   },
   managementTestProvider: {
+    "bodyKind": "none",
     "command": "management:test-provider",
     "description": "Test an SMTP sending account",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2327,7 +3497,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2336,12 +3509,17 @@ export const operations = {
     "surface": "management"
   },
   managementTestWebhook: {
+    "bodyKind": "none",
     "command": "management:test-webhook",
     "description": "Send a synthetic test event",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2350,7 +3528,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2359,12 +3540,16 @@ export const operations = {
     "surface": "management"
   },
   managementUpdateMailbox: {
+    "bodyKind": "json",
     "command": "management:update-mailbox",
     "description": "Update a mailbox",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "patch",
@@ -2373,7 +3558,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2382,12 +3570,16 @@ export const operations = {
     "surface": "management"
   },
   managementUpdateProvider: {
+    "bodyKind": "json",
     "command": "management:update-provider",
     "description": "Update a sending account",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "patch",
@@ -2396,7 +3588,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2405,12 +3600,16 @@ export const operations = {
     "surface": "management"
   },
   managementUpdateWebhook: {
+    "bodyKind": "json",
     "command": "management:update-webhook",
     "description": "Update a webhook subscription",
     "headerParams": [
       {
         "name": "If-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "patch",
@@ -2419,7 +3618,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2428,6 +3630,7 @@ export const operations = {
     "surface": "management"
   },
   managementVerifyDomain: {
+    "bodyKind": "none",
     "command": "management:verify-domain",
     "description": "Verify a mailbox domain",
     "headerParams": [],
@@ -2437,7 +3640,10 @@ export const operations = {
     "pathParams": [
       {
         "name": "public_id",
-        "required": true
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "queryParams": [],
@@ -2446,12 +3652,16 @@ export const operations = {
     "surface": "management"
   },
   sendingGetOpenApiSpec: {
+    "bodyKind": "none",
     "command": "sending:get-open-api-spec",
     "description": "OpenAPI 3.1 specification",
     "headerParams": [
       {
         "name": "If-None-Match",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "method": "get",
@@ -2460,16 +3670,21 @@ export const operations = {
     "pathParams": [],
     "queryParams": [],
     "requestBodyRequired": false,
-    "requiredKeyKind": "root",
+    "requiredKeyKind": "mailbox",
     "surface": "sending"
   },
   sendingSendEmail: {
+    "bodyKind": "json",
     "command": "sending:send",
     "description": "Send a single email",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2478,16 +3693,21 @@ export const operations = {
     "pathParams": [],
     "queryParams": [],
     "requestBodyRequired": true,
-    "requiredKeyKind": "root",
+    "requiredKeyKind": "mailbox",
     "surface": "sending"
   },
   sendingSendEmailBatch: {
+    "bodyKind": "json",
     "command": "sending:send:batch",
     "description": "Send a batch of emails",
     "headerParams": [
       {
         "name": "Idempotency-Key",
-        "required": false
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
       }
     ],
     "method": "post",
@@ -2496,7 +3716,7 @@ export const operations = {
     "pathParams": [],
     "queryParams": [],
     "requestBodyRequired": true,
-    "requiredKeyKind": "root",
+    "requiredKeyKind": "mailbox",
     "surface": "sending"
   },
 } as const satisfies Record<string, OperationDefinition>;

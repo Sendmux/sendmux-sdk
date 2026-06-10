@@ -102,5 +102,3 @@ class MailboxBatchUpdateMessagesResult(BaseModel):
             "updated": obj.get("updated")
         })
         return _obj
-
-

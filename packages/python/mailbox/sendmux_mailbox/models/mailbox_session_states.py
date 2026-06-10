@@ -94,5 +94,3 @@ class MailboxSessionStates(BaseModel):
             "threads": obj.get("threads")
         })
         return _obj
-
-

@@ -102,5 +102,3 @@ class SetFilterStateBody(BaseModel):
             "rules": [FilterRule.from_dict(_item) for _item in obj["rules"]] if obj.get("rules") is not None else None
         })
         return _obj
-
-

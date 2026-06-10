@@ -96,5 +96,3 @@ class MailboxThreadSummaryStates(BaseModel):
             "thread_state": obj.get("thread_state")
         })
         return _obj
-
-

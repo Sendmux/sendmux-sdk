@@ -112,5 +112,3 @@ class MailboxRawBody(BaseModel):
             "thread_id": obj.get("thread_id")
         })
         return _obj
-
-

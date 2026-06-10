@@ -4688,6 +4688,12 @@ func (s *MailboxChanges) encodeFields(e *jx.Encoder) {
 		s.OldState.Encode(e)
 	}
 	{
+		if s.SyncRequired.Set {
+			e.FieldStart("sync_required")
+			s.SyncRequired.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("updated")
 		e.ArrStart()
 		for _, elem := range s.Updated {
@@ -4707,14 +4713,15 @@ func (s *MailboxChanges) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxChanges = [7]string{
+var jsonFieldsNameOfMailboxChanges = [8]string{
 	0: "created",
 	1: "destroyed",
 	2: "has_more",
 	3: "new_state",
 	4: "old_state",
-	5: "updated",
-	6: "updated_properties",
+	5: "sync_required",
+	6: "updated",
+	7: "updated_properties",
 }
 
 // Decode decodes MailboxChanges from json.
@@ -4800,8 +4807,18 @@ func (s *MailboxChanges) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"old_state\"")
 			}
+		case "sync_required":
+			if err := func() error {
+				s.SyncRequired.Reset()
+				if err := s.SyncRequired.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sync_required\"")
+			}
 		case "updated":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				s.Updated = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -4849,7 +4866,7 @@ func (s *MailboxChanges) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00111111,
+		0b01011111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

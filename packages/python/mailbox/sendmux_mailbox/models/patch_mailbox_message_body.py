@@ -88,5 +88,3 @@ class PatchMailboxMessageBody(BaseModel):
             "seen": obj.get("seen")
         })
         return _obj
-
-

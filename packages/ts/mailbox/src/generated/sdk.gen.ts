@@ -85,7 +85,7 @@ export const mailboxCreateFolder = <ThrowOnError extends boolean = false>(option
 /**
  * Delete a mailbox folder
  *
- * Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+ * Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
  */
 export const mailboxDeleteFolder = <ThrowOnError extends boolean = false>(options: Options<MailboxDeleteFolderData, ThrowOnError>) => (options.client ?? client).delete<MailboxDeleteFolderResponses, MailboxDeleteFolderErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -107,7 +107,7 @@ export const mailboxGetFolder = <ThrowOnError extends boolean = false>(options: 
 /**
  * Update a mailbox folder
  *
- * Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+ * Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
  */
 export const mailboxUpdateFolder = <ThrowOnError extends boolean = false>(options: Options<MailboxUpdateFolderData, ThrowOnError>) => (options.client ?? client).patch<MailboxUpdateFolderResponses, MailboxUpdateFolderErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -250,7 +250,7 @@ export const mailboxBatchUpdateMessages = <ThrowOnError extends boolean = false>
 /**
  * Delete a mailbox message
  *
- * Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+ * Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
  */
 export const mailboxDeleteMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxDeleteMessageData, ThrowOnError>) => (options.client ?? client).delete<MailboxDeleteMessageResponses, MailboxDeleteMessageErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -272,7 +272,7 @@ export const mailboxGetMessage = <ThrowOnError extends boolean = false>(options:
 /**
  * Update mailbox message flags
  *
- * Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with a prior ETag to reject stale edits.
+ * Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
  */
 export const mailboxUpdateMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxUpdateMessageData, ThrowOnError>) => (options.client ?? client).patch<MailboxUpdateMessageResponses, MailboxUpdateMessageErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

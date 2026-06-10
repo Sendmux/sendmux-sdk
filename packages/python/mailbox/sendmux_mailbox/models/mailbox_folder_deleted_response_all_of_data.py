@@ -86,5 +86,3 @@ class MailboxFolderDeletedResponseAllOfData(BaseModel):
             "id": obj.get("id")
         })
         return _obj
-
-

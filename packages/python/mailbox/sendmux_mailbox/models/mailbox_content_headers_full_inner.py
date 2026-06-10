@@ -86,5 +86,3 @@ class MailboxContentHeadersFullInner(BaseModel):
             "value": obj.get("value")
         })
         return _obj
-
-

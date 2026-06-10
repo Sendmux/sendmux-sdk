@@ -172,5 +172,3 @@ class MailboxThreadSummaryLastMessage(BaseModel):
             "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None
         })
         return _obj
-
-

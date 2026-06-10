@@ -154,5 +154,3 @@ class WebhookDeliveryAttempt(BaseModel):
             "result": obj.get("result")
         })
         return _obj
-
-

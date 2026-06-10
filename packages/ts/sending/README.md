@@ -17,7 +17,7 @@ import {
 } from "@sendmux/sending";
 
 const client = createSendingClient({
-  apiKey: process.env.SENDMUX_API_KEY!,
+  apiKey: process.env.SENDMUX_SENDING_API_KEY!,
 });
 
 await sendingSendEmail({
@@ -31,4 +31,4 @@ await sendingSendEmail({
 });
 ```
 
-Use an `smx_root_*` API key.
+Use an `smx_mbx_*` API key.

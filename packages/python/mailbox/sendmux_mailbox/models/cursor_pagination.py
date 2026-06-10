@@ -86,5 +86,3 @@ class CursorPagination(BaseModel):
             "next_cursor": obj.get("next_cursor")
         })
         return _obj
-
-

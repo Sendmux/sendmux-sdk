@@ -90,5 +90,3 @@ class ProviderStatusCounts(BaseModel):
             "pending": obj.get("pending")
         })
         return _obj
-
-

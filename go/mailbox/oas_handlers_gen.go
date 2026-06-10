@@ -1017,8 +1017,8 @@ func (s *Server) handleMailboxCreateFolderRequest(args [0]string, argsEscaped bo
 
 // handleMailboxDeleteFolderRequest handles mailboxDeleteFolder operation.
 //
-// Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty
-// folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
+// non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 //
 // DELETE /mailbox/folders/{folder_id}
 func (s *Server) handleMailboxDeleteFolderRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1204,8 +1204,9 @@ func (s *Server) handleMailboxDeleteFolderRequest(args [1]string, argsEscaped bo
 
 // handleMailboxDeleteMessageRequest handles mailboxDeleteMessage operation.
 //
-// Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to
-// permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+// Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set
+// `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale
+// deletes.
 //
 // DELETE /mailbox/messages/{message_id}
 func (s *Server) handleMailboxDeleteMessageRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -7073,8 +7074,8 @@ func (s *Server) handleMailboxStreamEventsRequest(args [0]string, argsEscaped bo
 
 // handleMailboxUpdateFolderRequest handles mailboxUpdateFolder operation.
 //
-// Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject
-// stale edits.
+// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag
+// to reject stale edits.
 //
 // PATCH /mailbox/folders/{folder_id}
 func (s *Server) handleMailboxUpdateFolderRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -7458,8 +7459,8 @@ func (s *Server) handleMailboxUpdateIdentityRequest(args [0]string, argsEscaped 
 
 // handleMailboxUpdateMessageRequest handles mailboxUpdateMessage operation.
 //
-// Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with
-// a prior ETag to reject stale edits.
+// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send
+// `If-Match` with a prior ETag to reject stale edits.
 //
 // PATCH /mailbox/messages/{message_id}
 func (s *Server) handleMailboxUpdateMessageRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {

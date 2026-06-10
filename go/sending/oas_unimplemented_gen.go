@@ -13,6 +13,16 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// SendingGetOpenApiSpec implements sendingGetOpenApiSpec operation.
+//
+// Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).
+// Emits a weak ETag; clients may send `If-None-Match` to receive 304 Not Modified.
+//
+// GET /openapi.json
+func (UnimplementedHandler) SendingGetOpenApiSpec(ctx context.Context, params SendingGetOpenApiSpecParams) (r SendingGetOpenApiSpecRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // SendingSendEmail implements sendingSendEmail operation.
 //
 // Queue a single email for delivery. Requires `email.send` permission.

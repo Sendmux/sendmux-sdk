@@ -108,5 +108,3 @@ class WebhookDeliveryPayload(BaseModel):
             "payload": WebhookEventPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None
         })
         return _obj
-
-

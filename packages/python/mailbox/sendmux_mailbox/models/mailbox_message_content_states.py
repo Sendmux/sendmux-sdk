@@ -91,5 +91,3 @@ class MailboxMessageContentStates(BaseModel):
             "option_hash": obj.get("option_hash")
         })
         return _obj
-
-

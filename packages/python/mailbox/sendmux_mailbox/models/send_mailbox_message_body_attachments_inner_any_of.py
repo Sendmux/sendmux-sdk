@@ -88,5 +88,3 @@ class SendMailboxMessageBodyAttachmentsInnerAnyOf(BaseModel):
             "filename": obj.get("filename")
         })
         return _obj
-
-

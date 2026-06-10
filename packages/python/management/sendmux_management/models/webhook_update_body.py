@@ -113,5 +113,3 @@ class WebhookUpdateBody(BaseModel):
             "url": obj.get("url")
         })
         return _obj
-
-

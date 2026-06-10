@@ -10,4 +10,3 @@ from sendmux_management.api.mailbox_filters_api import MailboxFiltersApi
 from sendmux_management.api.mailboxes_api import MailboxesApi
 from sendmux_management.api.sending_accounts_api import SendingAccountsApi
 from sendmux_management.api.webhooks_api import WebhooksApi
-

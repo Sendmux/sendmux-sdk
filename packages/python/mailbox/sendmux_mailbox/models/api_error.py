@@ -96,5 +96,3 @@ class ApiError(BaseModel):
             "ok": obj.get("ok")
         })
         return _obj
-
-

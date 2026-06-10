@@ -128,5 +128,3 @@ class MailboxMessageContentBody(BaseModel):
             "truncated_at_chars": obj.get("truncated_at_chars")
         })
         return _obj
-
-

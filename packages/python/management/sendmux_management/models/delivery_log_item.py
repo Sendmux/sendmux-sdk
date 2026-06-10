@@ -167,5 +167,3 @@ class DeliveryLogItem(BaseModel):
             "to_email": obj.get("to_email")
         })
         return _obj
-
-

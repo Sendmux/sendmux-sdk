@@ -48,28 +48,62 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/emails/send"
+		case '/': // Prefix: "/"
 
-			if l := len("/emails/send"); len(elem) >= l && elem[0:l] == "/emails/send" {
+			if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				switch r.Method {
-				case "POST":
-					s.handleSendingSendEmailRequest([0]string{}, elemIsEscaped, w, r)
-				default:
-					s.notAllowed(w, r, "POST")
-				}
-
-				return
+				break
 			}
 			switch elem[0] {
-			case '/': // Prefix: "/batch"
+			case 'e': // Prefix: "emails/send"
 
-				if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+				if l := len("emails/send"); len(elem) >= l && elem[0:l] == "emails/send" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "POST":
+						s.handleSendingSendEmailRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/batch"
+
+					if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleSendingSendEmailBatchRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				}
+
+			case 'o': // Prefix: "openapi.json"
+
+				if l := len("openapi.json"); len(elem) >= l && elem[0:l] == "openapi.json" {
 					elem = elem[l:]
 				} else {
 					break
@@ -78,10 +112,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if len(elem) == 0 {
 					// Leaf node.
 					switch r.Method {
-					case "POST":
-						s.handleSendingSendEmailBatchRequest([0]string{}, elemIsEscaped, w, r)
+					case "GET":
+						s.handleSendingGetOpenApiSpecRequest([0]string{}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "POST")
+						s.notAllowed(w, r, "GET")
 					}
 
 					return
@@ -169,32 +203,70 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/emails/send"
+		case '/': // Prefix: "/"
 
-			if l := len("/emails/send"); len(elem) >= l && elem[0:l] == "/emails/send" {
+			if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				switch method {
-				case "POST":
-					r.name = SendingSendEmailOperation
-					r.summary = "Send a single email"
-					r.operationID = "sendingSendEmail"
-					r.pathPattern = "/emails/send"
-					r.args = args
-					r.count = 0
-					return r, true
-				default:
-					return
-				}
+				break
 			}
 			switch elem[0] {
-			case '/': // Prefix: "/batch"
+			case 'e': // Prefix: "emails/send"
 
-				if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+				if l := len("emails/send"); len(elem) >= l && elem[0:l] == "emails/send" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "POST":
+						r.name = SendingSendEmailOperation
+						r.summary = "Send a single email"
+						r.operationID = "sendingSendEmail"
+						r.pathPattern = "/emails/send"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/batch"
+
+					if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = SendingSendEmailBatchOperation
+							r.summary = "Send a batch of emails"
+							r.operationID = "sendingSendEmailBatch"
+							r.pathPattern = "/emails/send/batch"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
+			case 'o': // Prefix: "openapi.json"
+
+				if l := len("openapi.json"); len(elem) >= l && elem[0:l] == "openapi.json" {
 					elem = elem[l:]
 				} else {
 					break
@@ -203,11 +275,11 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				if len(elem) == 0 {
 					// Leaf node.
 					switch method {
-					case "POST":
-						r.name = SendingSendEmailBatchOperation
-						r.summary = "Send a batch of emails"
-						r.operationID = "sendingSendEmailBatch"
-						r.pathPattern = "/emails/send/batch"
+					case "GET":
+						r.name = SendingGetOpenApiSpecOperation
+						r.summary = "OpenAPI 3.1 specification"
+						r.operationID = "sendingGetOpenApiSpec"
+						r.pathPattern = "/openapi.json"
 						r.args = args
 						r.count = 0
 						return r, true

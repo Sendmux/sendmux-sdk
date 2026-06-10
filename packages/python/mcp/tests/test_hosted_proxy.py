@@ -19,7 +19,7 @@ from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 
 
 def test_operation_manifest_resolves_curated_route_to_operation_id() -> None:
-    config = ServerConfig(surface="management", api_key="smx_root_test")
+    config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
     spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
     manifest = build_hosted_operation_manifest(spec, "management")
 
@@ -56,7 +56,7 @@ def test_proxy_transport_sends_operation_envelope_without_token_passthrough(
             ),
         )
 
-        config = ServerConfig(surface="management", api_key="smx_root_test")
+        config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
         spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
         manifest = build_hosted_operation_manifest(spec, "management")
         transport = HostedProxyTransport(
@@ -115,7 +115,7 @@ def test_hosted_proxy_server_does_not_require_process_upstream_api_key() -> None
             mcp_path="/mcp",
         )
     )
-    config = ServerConfig(surface="management", api_key=None)
+    config = ServerConfig(surfaces=("management",), api_key=None)
 
     server = create_server(
         config,
@@ -134,7 +134,7 @@ def test_proxy_transport_fails_closed_without_grant_claim(monkeypatch: pytest.Mo
     async def run() -> None:
         monkeypatch.setattr("sendmux_mcp.hosted_proxy.get_access_token", lambda: None)
 
-        config = ServerConfig(surface="management", api_key="smx_root_test")
+        config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
         spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
         transport = HostedProxyTransport(
             HostedProxyConfig(proxy_url="https://app.sendmux.ai/api/internal/mcp/proxy", upstream_base_url=config.api_base_url),
@@ -164,7 +164,7 @@ def test_proxy_transport_fails_closed_for_non_curated_operation(monkeypatch: pyt
             ),
         )
 
-        config = ServerConfig(surface="management", api_key="smx_root_test")
+        config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
         spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
         transport = HostedProxyTransport(
             HostedProxyConfig(proxy_url="https://app.sendmux.ai/api/internal/mcp/proxy", upstream_base_url=config.api_base_url),

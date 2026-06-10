@@ -84,5 +84,3 @@ class ManagementCreateDomainRequest(BaseModel):
             "domain": obj.get("domain")
         })
         return _obj
-
-

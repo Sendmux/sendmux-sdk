@@ -91,5 +91,3 @@ class MailboxSubmissionEnvelopeAddress(BaseModel):
             "parameters": obj.get("parameters")
         })
         return _obj
-
-

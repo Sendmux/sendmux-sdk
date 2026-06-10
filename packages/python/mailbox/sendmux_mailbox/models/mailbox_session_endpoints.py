@@ -96,5 +96,3 @@ class MailboxSessionEndpoints(BaseModel):
             "usage": obj.get("usage")
         })
         return _obj
-
-

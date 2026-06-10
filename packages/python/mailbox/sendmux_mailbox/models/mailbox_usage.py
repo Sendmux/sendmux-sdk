@@ -98,5 +98,3 @@ class MailboxUsage(BaseModel):
             "states": MailboxUsageStates.from_dict(obj["states"]) if obj.get("states") is not None else None
         })
         return _obj
-
-

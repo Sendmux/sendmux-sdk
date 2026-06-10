@@ -103,5 +103,3 @@ class MailboxSubmissionEnvelope(BaseModel):
             "rcpt_to": [MailboxSubmissionEnvelopeRcptToInner.from_dict(_item) for _item in obj["rcpt_to"]] if obj.get("rcpt_to") is not None else None
         })
         return _obj
-
-

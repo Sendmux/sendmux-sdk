@@ -145,5 +145,3 @@ class ProviderCreateBody(BaseModel):
             "tracking_domain": obj.get("tracking_domain")
         })
         return _obj
-
-

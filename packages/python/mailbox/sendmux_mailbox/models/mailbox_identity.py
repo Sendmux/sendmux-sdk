@@ -113,5 +113,3 @@ class MailboxIdentity(BaseModel):
             "text_signature": obj.get("text_signature")
         })
         return _obj
-
-

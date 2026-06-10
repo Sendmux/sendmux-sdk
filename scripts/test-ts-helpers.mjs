@@ -210,7 +210,7 @@ assert.equal(generatedClient.interceptors.request.fns.length, 1);
 
 const seenConfiguredRequests = [];
 const sendingA = createSendingClient({
-  apiKey: "smx_root_test_a",
+  apiKey: "smx_mbx_test_a",
   baseUrl: "https://sdk-a.test",
   fetch: async (request) => {
     seenConfiguredRequests.push({
@@ -221,7 +221,7 @@ const sendingA = createSendingClient({
   },
 });
 const sendingB = createSendingClient({
-  apiKey: "smx_root_test_b",
+  apiKey: "smx_mbx_test_b",
   baseUrl: "https://sdk-b.test",
   fetch: async (request) => {
     seenConfiguredRequests.push({
@@ -241,8 +241,8 @@ await sendingB.get({
   url: "/auth-check",
 });
 assert.deepEqual(seenConfiguredRequests, [
-  { authorization: "Bearer smx_root_test_a", url: "https://sdk-a.test/auth-check" },
-  { authorization: "Bearer smx_root_test_b", url: "https://sdk-b.test/auth-check" },
+  { authorization: "Bearer smx_mbx_test_a", url: "https://sdk-a.test/auth-check" },
+  { authorization: "Bearer smx_mbx_test_b", url: "https://sdk-b.test/auth-check" },
 ]);
 
 console.log("TypeScript core helper tests passed.");

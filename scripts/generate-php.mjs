@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "php-codegen");
+const templateDir = join(root, "codegen", "templates", "php-nextgen");
 const generatedSourceDirs = ["mailbox", "management", "sending"].map((name) =>
   join("packages", "php", name, "src"),
 );
@@ -14,8 +15,8 @@ const surfaces = [
     composerName: "sendmux/sending",
     namespace: "Sendmux\\Sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
-    tags: ["Emails"],
-    keySurface: "Root",
+    tags: ["Emails", "Meta"],
+    keySurface: "Mailbox",
   },
   {
     name: "mailbox",
@@ -63,6 +64,8 @@ for (const surface of surfaces) {
     inputSpec,
     "-o",
     generatedRoot,
+    "-t",
+    templateDir,
     `--additional-properties=${[
       `composerPackageName=${surface.composerName}`,
       `invokerPackage=${surface.namespace.replaceAll("\\", "\\\\")}`,
@@ -97,7 +100,7 @@ function writeFilteredSpec(surface) {
       }
 
       if ((operation.tags ?? []).some((tag) => allowed.has(tag))) {
-        nextPathItem[method] = operation;
+        nextPathItem[method] = markBodylessSuccessResponses(operation);
       }
     }
 
@@ -109,6 +112,23 @@ function writeFilteredSpec(surface) {
   const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
   writeFileSync(outputPath, `${JSON.stringify(pruneComponents({ ...source, paths }), null, 2)}\n`);
   return outputPath;
+}
+
+function markBodylessSuccessResponses(operation) {
+  if (!operation.responses?.["304"]) {
+    return operation;
+  }
+
+  return {
+    ...operation,
+    responses: {
+      ...operation.responses,
+      304: {
+        ...operation.responses["304"],
+        "x-sendmux-bodyless-success": true,
+      },
+    },
+  };
 }
 
 function pruneComponents(document) {

@@ -102,5 +102,3 @@ class MailboxSessionLimits(BaseModel):
             "thread_body_chars_default": obj.get("thread_body_chars_default")
         })
         return _obj
-
-

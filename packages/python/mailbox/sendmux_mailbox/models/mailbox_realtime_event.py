@@ -143,5 +143,3 @@ class MailboxRealtimeEvent(BaseModel):
             "team_public_id": obj.get("team_public_id")
         })
         return _obj
-
-

@@ -88,5 +88,3 @@ class MailboxAppPasswordResult(BaseModel):
             "credential": MailboxAppPasswordResultCredential.from_dict(obj["credential"]) if obj.get("credential") is not None else None
         })
         return _obj
-
-

@@ -106,5 +106,3 @@ class MailboxSessionGated(BaseModel):
             "vacation_response": obj.get("vacation_response")
         })
         return _obj
-
-

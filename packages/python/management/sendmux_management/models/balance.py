@@ -103,5 +103,3 @@ class Balance(BaseModel):
             "currency": obj.get("currency")
         })
         return _obj
-
-

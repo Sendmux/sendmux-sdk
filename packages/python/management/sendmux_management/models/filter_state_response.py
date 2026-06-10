@@ -96,5 +96,3 @@ class FilterStateResponse(BaseModel):
             "data": FilterState.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj
-
-

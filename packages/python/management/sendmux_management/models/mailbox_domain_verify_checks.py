@@ -90,5 +90,3 @@ class MailboxDomainVerifyChecks(BaseModel):
             "verification_txt": obj.get("verification_txt")
         })
         return _obj
-
-

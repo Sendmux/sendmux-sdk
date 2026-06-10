@@ -112,5 +112,3 @@ class MailboxFolderQueryChanges(BaseModel):
             "total": obj.get("total")
         })
         return _obj
-
-

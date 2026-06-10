@@ -144,5 +144,3 @@ class MailboxSubmission(BaseModel):
             "undo_status": obj.get("undo_status")
         })
         return _obj
-
-

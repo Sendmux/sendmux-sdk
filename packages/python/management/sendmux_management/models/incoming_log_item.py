@@ -154,5 +154,3 @@ class IncomingLogItem(BaseModel):
             "unit_amount": obj.get("unit_amount")
         })
         return _obj
-
-

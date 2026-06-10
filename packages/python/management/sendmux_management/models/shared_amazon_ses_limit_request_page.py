@@ -99,5 +99,3 @@ class SharedAmazonSesLimitRequestPage(BaseModel):
             "pending_request": SharedAmazonSesLimitRequest.from_dict(obj["pending_request"]) if obj.get("pending_request") is not None else None
         })
         return _obj
-
-

@@ -91,5 +91,3 @@ class ProviderTestResult(BaseModel):
             "tested_at": obj.get("tested_at")
         })
         return _obj
-
-

@@ -86,5 +86,3 @@ class SuccessEnvelope(BaseModel):
             "ok": obj.get("ok")
         })
         return _obj
-
-

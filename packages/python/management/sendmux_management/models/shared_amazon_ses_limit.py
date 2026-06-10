@@ -124,5 +124,3 @@ class SharedAmazonSesLimit(BaseModel):
             "usage_ratio": obj.get("usage_ratio")
         })
         return _obj
-
-

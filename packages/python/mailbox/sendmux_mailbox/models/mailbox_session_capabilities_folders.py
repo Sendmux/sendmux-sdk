@@ -96,5 +96,3 @@ class MailboxSessionCapabilitiesFolders(BaseModel):
             "update": obj.get("update")
         })
         return _obj
-
-

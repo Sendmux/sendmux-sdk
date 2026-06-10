@@ -109,5 +109,3 @@ class ApiErrorError(BaseModel):
             "retryable": obj.get("retryable")
         })
         return _obj
-
-

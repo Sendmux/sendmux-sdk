@@ -123,5 +123,3 @@ class ProviderQuotas(BaseModel):
             "per_second": ProviderQuotaRange.from_dict(obj["per_second"]) if obj.get("per_second") is not None else None
         })
         return _obj
-
-

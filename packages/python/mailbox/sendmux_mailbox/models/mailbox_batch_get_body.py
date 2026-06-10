@@ -143,5 +143,3 @@ class MailboxBatchGetBody(BaseModel):
             "strip_signature": obj.get("strip_signature")
         })
         return _obj
-
-

@@ -106,5 +106,3 @@ class MailboxSubmissionCursorListResponse(BaseModel):
             "pagination": CursorPagination.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj
-
-

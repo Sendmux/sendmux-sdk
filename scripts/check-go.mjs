@@ -20,8 +20,8 @@ for (const surface of surfaces) {
   const schemas = readFileSync(schemasPath, "utf8");
   const spec = JSON.parse(readFileSync(specPath, "utf8"));
 
-  if (client.includes("GetOpenApiSpec")) {
-    failures.push(`${surface} generated client still contains Meta /openapi.json operations`);
+  if (surface === "sending" && !client.includes("GetOpenApiSpec")) {
+    failures.push("sending generated client is missing Meta /openapi.json operation");
   }
 
   for (const signature of client.matchAll(/func \(c \*Client\) ([A-Z]\w+)\(([^)]*)\)/g)) {

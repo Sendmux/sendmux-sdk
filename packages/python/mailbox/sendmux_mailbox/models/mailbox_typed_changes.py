@@ -88,5 +88,3 @@ class MailboxTypedChanges(BaseModel):
             "types": MailboxTypedChangesTypes.from_dict(obj["types"]) if obj.get("types") is not None else None
         })
         return _obj
-
-

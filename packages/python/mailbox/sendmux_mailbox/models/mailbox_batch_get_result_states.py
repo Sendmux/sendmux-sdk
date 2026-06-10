@@ -89,5 +89,3 @@ class MailboxBatchGetResultStates(BaseModel):
             "email_state": obj.get("email_state")
         })
         return _obj
-
-

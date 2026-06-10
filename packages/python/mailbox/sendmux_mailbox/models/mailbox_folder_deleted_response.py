@@ -96,5 +96,3 @@ class MailboxFolderDeletedResponse(BaseModel):
             "data": MailboxFolderDeletedResponseAllOfData.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj
-
-

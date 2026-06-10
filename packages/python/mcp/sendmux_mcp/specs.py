@@ -14,8 +14,8 @@ APP_SPEC = "openapi-app.json"
 SENDING_SPEC = "openapi-sending.json"
 
 
-def load_spec(config: ServerConfig) -> dict[str, Any]:
-    source = spec_source(config)
+def load_spec(config: ServerConfig, surface: str | None = None) -> dict[str, Any]:
+    source = spec_source(config, surface)
     if is_url(source):
         response = httpx.get(source, timeout=config.timeout_seconds)
         response.raise_for_status()
@@ -28,8 +28,9 @@ def load_spec(config: ServerConfig) -> dict[str, Any]:
     return document
 
 
-def spec_source(config: ServerConfig) -> str:
-    if config.surface == "sending":
+def spec_source(config: ServerConfig, surface: str | None = None) -> str:
+    selected_surface = surface or config.only_surface()
+    if selected_surface == "sending":
         if config.sending_openapi:
             return config.sending_openapi
         filename = SENDING_SPEC

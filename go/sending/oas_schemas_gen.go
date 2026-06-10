@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/go-faster/errors"
+	"github.com/go-faster/jx"
 )
 
 // Sender address.
@@ -1299,6 +1300,73 @@ func (SendSuccessResponseOk) AllValues() []SendSuccessResponseOk {
 		SendSuccessResponseOkTrue,
 	}
 }
+
+// SendingGetOpenApiSpecNotModified is response for SendingGetOpenApiSpec operation.
+type SendingGetOpenApiSpecNotModified struct {
+	ETag OptString
+}
+
+// GetETag returns the value of ETag.
+func (s *SendingGetOpenApiSpecNotModified) GetETag() OptString {
+	return s.ETag
+}
+
+// SetETag sets the value of ETag.
+func (s *SendingGetOpenApiSpecNotModified) SetETag(val OptString) {
+	s.ETag = val
+}
+
+func (*SendingGetOpenApiSpecNotModified) sendingGetOpenApiSpecRes() {}
+
+type SendingGetOpenApiSpecOK map[string]jx.Raw
+
+func (s *SendingGetOpenApiSpecOK) init() SendingGetOpenApiSpecOK {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// SendingGetOpenApiSpecOKHeaders wraps SendingGetOpenApiSpecOK with response headers.
+type SendingGetOpenApiSpecOKHeaders struct {
+	CacheControl OptString
+	ETag         OptString
+	Response     SendingGetOpenApiSpecOK
+}
+
+// GetCacheControl returns the value of CacheControl.
+func (s *SendingGetOpenApiSpecOKHeaders) GetCacheControl() OptString {
+	return s.CacheControl
+}
+
+// GetETag returns the value of ETag.
+func (s *SendingGetOpenApiSpecOKHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *SendingGetOpenApiSpecOKHeaders) GetResponse() SendingGetOpenApiSpecOK {
+	return s.Response
+}
+
+// SetCacheControl sets the value of CacheControl.
+func (s *SendingGetOpenApiSpecOKHeaders) SetCacheControl(val OptString) {
+	s.CacheControl = val
+}
+
+// SetETag sets the value of ETag.
+func (s *SendingGetOpenApiSpecOKHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *SendingGetOpenApiSpecOKHeaders) SetResponse(val SendingGetOpenApiSpecOK) {
+	s.Response = val
+}
+
+func (*SendingGetOpenApiSpecOKHeaders) sendingGetOpenApiSpecRes() {}
 
 type SendingSendEmailBadRequest ErrorResponse
 

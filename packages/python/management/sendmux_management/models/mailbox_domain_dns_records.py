@@ -117,5 +117,3 @@ class MailboxDomainDnsRecords(BaseModel):
             "verification": MailboxDomainNameValueRecord.from_dict(obj["verification"]) if obj.get("verification") is not None else None
         })
         return _obj
-
-

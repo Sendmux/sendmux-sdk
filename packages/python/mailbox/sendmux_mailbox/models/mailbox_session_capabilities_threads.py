@@ -92,5 +92,3 @@ class MailboxSessionCapabilitiesThreads(BaseModel):
             "messages": obj.get("messages")
         })
         return _obj
-
-

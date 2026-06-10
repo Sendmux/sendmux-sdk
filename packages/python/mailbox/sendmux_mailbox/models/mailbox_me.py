@@ -117,5 +117,3 @@ class MailboxMe(BaseModel):
             "quota_used_bytes": obj.get("quota_used_bytes")
         })
         return _obj
-
-

@@ -84,18 +84,18 @@ class SendmuxRubyCoreTest < Minitest::Test
   end
 
   def test_surface_clients_configure_auth_and_generated_apis
-    sending = Sendmux::Sending::Client.new(api_key: 'smx_root_test')
+    sending = Sendmux::Sending::Client.new(api_key: 'smx_mbx_test')
     management = Sendmux::Management::Client.new(api_key: 'smx_root_test')
     mailbox = Sendmux::Mailbox::Client.new(api_key: 'smx_mbx_test')
 
-    assert_equal 'smx_root_test', sending.configuration.access_token
+    assert_equal 'smx_mbx_test', sending.configuration.access_token
     assert_instance_of Sendmux::Sending::Generated::EmailsApi, sending.emails
     assert_equal 'smx_root_test', management.configuration.access_token
     assert_equal 'smx_mbx_test', mailbox.configuration.access_token
   end
 
   def test_umbrella_factories_validate_profile_surfaces
-    assert_instance_of Sendmux::Sending::Client, Sendmux::SDK.sending(api_key: 'smx_root_test')
+    assert_instance_of Sendmux::Sending::Client, Sendmux::SDK.sending(api_key: 'smx_mbx_test')
     assert_instance_of Sendmux::Mailbox::Client, Sendmux::SDK.mailbox(api_key: 'smx_mbx_test')
     assert_raises(ArgumentError) { Sendmux::SDK.management(api_key: 'smx_mbx_test') }
   end

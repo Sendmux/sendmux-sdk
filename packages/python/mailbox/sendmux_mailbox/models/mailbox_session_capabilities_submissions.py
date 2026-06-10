@@ -90,5 +90,3 @@ class MailboxSessionCapabilitiesSubmissions(BaseModel):
             "send": obj.get("send")
         })
         return _obj
-
-

@@ -92,5 +92,3 @@ class ProviderAllowedActions(BaseModel):
             "update": obj.get("update")
         })
         return _obj
-
-

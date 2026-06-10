@@ -86,5 +86,3 @@ class MailboxFolderQueryChangesAddedInner(BaseModel):
             "index": obj.get("index")
         })
         return _obj
-
-

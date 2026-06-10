@@ -128,6 +128,10 @@ export type MailboxChanges = {
     has_more: boolean;
     new_state: string;
     old_state: string | null;
+    /**
+     * When true, refetch this resource list instead of applying the incremental arrays.
+     */
+    sync_required?: boolean;
     updated: Array<string>;
     updated_properties?: Array<string>;
 };

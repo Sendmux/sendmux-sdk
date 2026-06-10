@@ -93,5 +93,3 @@ class SendMailboxMessageResult(BaseModel):
             "status": obj.get("status")
         })
         return _obj
-
-

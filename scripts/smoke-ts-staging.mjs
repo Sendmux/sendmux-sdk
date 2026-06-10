@@ -49,7 +49,7 @@ const mailboxClient = createMailboxClient({
   retry: { baseDelayMs: 250, maxAttempts: 2, maxDelayMs: 1_000 },
 });
 const sendingClient = createSendingClient({
-  apiKey: rootApiKey,
+  apiKey: mailboxApiKey,
   baseUrl: smtpBaseUrl,
   fetch: sendingFetch.fetch,
   retry: { baseDelayMs: 250, maxAttempts: 2, maxDelayMs: 1_000 },
@@ -91,7 +91,7 @@ if (process.env.SENDMUX_STAGING_SEND === "1") {
 managementFetch.assertSawBearer("root");
 mailboxFetch.assertSawBearer("mailbox");
 if (process.env.SENDMUX_STAGING_SEND === "1") {
-  sendingFetch.assertSawBearer("root");
+  sendingFetch.assertSawBearer("mailbox");
 }
 
 console.log("TypeScript staging smoke passed.");

@@ -140,10 +140,11 @@ def hosted_http_middleware() -> list[Middleware]:
 
 
 def hosted_surface_config(surface: Surface, runtime: HostedServerRuntimeConfig) -> ServerConfig:
-    base = config_from_env(surface, api_key=None, require_api_key=False)
+    base = config_from_env((surface,), api_key=None, require_api_key=False)
     return ServerConfig(
-        surface=surface,
+        surfaces=(surface,),
         api_key=None,
+        api_keys={},
         app_base_url=base.app_base_url,
         sending_base_url=base.sending_base_url,
         transport="http",

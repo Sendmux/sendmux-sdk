@@ -96,5 +96,3 @@ class MailboxThreadDetailResponse(BaseModel):
             "data": MailboxThread.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj
-
-

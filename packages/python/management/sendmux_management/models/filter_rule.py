@@ -101,5 +101,3 @@ class FilterRule(BaseModel):
             "type": obj.get("type")
         })
         return _obj
-
-

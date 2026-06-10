@@ -64,6 +64,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         'has_more' => 'bool',
         'new_state' => 'string',
         'old_state' => 'string',
+        'sync_required' => 'bool',
         'updated' => 'string[]',
         'updated_properties' => 'string[]'
     ];
@@ -79,6 +80,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         'has_more' => null,
         'new_state' => null,
         'old_state' => null,
+        'sync_required' => null,
         'updated' => null,
         'updated_properties' => null
     ];
@@ -94,6 +96,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         'has_more' => false,
         'new_state' => false,
         'old_state' => true,
+        'sync_required' => false,
         'updated' => false,
         'updated_properties' => false
     ];
@@ -179,6 +182,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         'has_more' => 'has_more',
         'new_state' => 'new_state',
         'old_state' => 'old_state',
+        'sync_required' => 'sync_required',
         'updated' => 'updated',
         'updated_properties' => 'updated_properties'
     ];
@@ -194,6 +198,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         'has_more' => 'setHasMore',
         'new_state' => 'setNewState',
         'old_state' => 'setOldState',
+        'sync_required' => 'setSyncRequired',
         'updated' => 'setUpdated',
         'updated_properties' => 'setUpdatedProperties'
     ];
@@ -209,6 +214,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         'has_more' => 'getHasMore',
         'new_state' => 'getNewState',
         'old_state' => 'getOldState',
+        'sync_required' => 'getSyncRequired',
         'updated' => 'getUpdated',
         'updated_properties' => 'getUpdatedProperties'
     ];
@@ -265,6 +271,7 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('has_more', $data ?? [], null);
         $this->setIfExists('new_state', $data ?? [], null);
         $this->setIfExists('old_state', $data ?? [], null);
+        $this->setIfExists('sync_required', $data ?? [], null);
         $this->setIfExists('updated', $data ?? [], null);
         $this->setIfExists('updated_properties', $data ?? [], null);
     }
@@ -462,6 +469,33 @@ class MailboxChanges implements ModelInterface, ArrayAccess, JsonSerializable
             }
         }
         $this->container['old_state'] = $old_state;
+
+        return $this;
+    }
+
+    /**
+     * Gets sync_required
+     *
+     * @return bool|null
+     */
+    public function getSyncRequired(): ?bool
+    {
+        return $this->container['sync_required'];
+    }
+
+    /**
+     * Sets sync_required
+     *
+     * @param bool|null $sync_required When true, refetch this resource list instead of applying the incremental arrays.
+     *
+     * @return $this
+     */
+    public function setSyncRequired(?bool $sync_required): static
+    {
+        if (is_null($sync_required)) {
+            throw new InvalidArgumentException('non-nullable sync_required cannot be null');
+        }
+        $this->container['sync_required'] = $sync_required;
 
         return $this;
     }

@@ -101,5 +101,3 @@ class ProviderUsage(BaseModel):
             "window_days": obj.get("window_days")
         })
         return _obj
-
-

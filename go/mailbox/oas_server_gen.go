@@ -43,15 +43,16 @@ type Handler interface {
 	MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody) (MailboxCreateFolderRes, error)
 	// MailboxDeleteFolder implements mailboxDeleteFolder operation.
 	//
-	// Deletes an empty custom folder with state-safe conflict handling. Built-in folders and non-empty
-	// folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
+	// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
+	// non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
 	//
 	// DELETE /mailbox/folders/{folder_id}
 	MailboxDeleteFolder(ctx context.Context, params MailboxDeleteFolderParams) (MailboxDeleteFolderRes, error)
 	// MailboxDeleteMessage implements mailboxDeleteMessage operation.
 	//
-	// Moves a message to Trash by default with state-safe conflict handling. Set `permanent=true` to
-	// permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
+	// Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set
+	// `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale
+	// deletes.
 	//
 	// DELETE /mailbox/messages/{message_id}
 	MailboxDeleteMessage(ctx context.Context, params MailboxDeleteMessageParams) (MailboxDeleteMessageRes, error)
@@ -247,8 +248,8 @@ type Handler interface {
 	MailboxStreamEvents(ctx context.Context, params MailboxStreamEventsParams) (MailboxStreamEventsRes, error)
 	// MailboxUpdateFolder implements mailboxUpdateFolder operation.
 	//
-	// Updates a folder with state-safe conflict handling. Send `If-Match` with a prior ETag to reject
-	// stale edits.
+	// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag
+	// to reject stale edits.
 	//
 	// PATCH /mailbox/folders/{folder_id}
 	MailboxUpdateFolder(ctx context.Context, req OptPatchMailboxFolderBody, params MailboxUpdateFolderParams) (MailboxUpdateFolderRes, error)
@@ -261,8 +262,8 @@ type Handler interface {
 	MailboxUpdateIdentity(ctx context.Context, req OptUpdateMailboxIdentityBody) (MailboxUpdateIdentityRes, error)
 	// MailboxUpdateMessage implements mailboxUpdateMessage operation.
 	//
-	// Updates mutable message flags and keywords with state-safe conflict handling. Send `If-Match` with
-	// a prior ETag to reject stale edits.
+	// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send
+	// `If-Match` with a prior ETag to reject stale edits.
 	//
 	// PATCH /mailbox/messages/{message_id}
 	MailboxUpdateMessage(ctx context.Context, req OptPatchMailboxMessageBody, params MailboxUpdateMessageParams) (MailboxUpdateMessageRes, error)

@@ -120,5 +120,3 @@ class MailboxDomain(BaseModel):
             "verified_at": obj.get("verified_at")
         })
         return _obj
-
-

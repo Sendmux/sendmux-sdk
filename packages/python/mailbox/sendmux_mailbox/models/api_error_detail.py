@@ -88,5 +88,3 @@ class ApiErrorDetail(BaseModel):
             "message": obj.get("message")
         })
         return _obj
-
-

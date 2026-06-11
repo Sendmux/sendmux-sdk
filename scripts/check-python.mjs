@@ -7,6 +7,7 @@ const venv = join(root, ".tmp", "python-venv");
 const python = join(venv, "bin", "python");
 
 checkGeneratedMailboxBodyParamOrder();
+checkGeneratedMailboxTargeting();
 
 if (!existsSync(python)) {
   mkdirSync(join(root, ".tmp"), { recursive: true });
@@ -84,6 +85,24 @@ function checkGeneratedMailboxBodyParamOrder() {
   }
 }
 
+function checkGeneratedMailboxTargeting() {
+  const filePath = join(root, "packages", "python", "mailbox", "sendmux_mailbox", "api", "mailbox_api_api.py");
+  const source = readFileSync(filePath, "utf8");
+
+  assertMethodContains({
+    source,
+    filePath,
+    anchor: "def mailbox_get_identity(",
+    expected: ["mailbox_id:", "mailbox_id=mailbox_id,"],
+  });
+  assertMethodContains({
+    source,
+    filePath,
+    anchor: "def _mailbox_get_identity_serialize(",
+    expected: ["mailbox_id,", "_query_params.append(('mailbox_id', mailbox_id))"],
+  });
+}
+
 function assertOrder({ source, filePath, anchor, first, second }) {
   const anchorIndex = source.indexOf(anchor);
   if (anchorIndex === -1) {
@@ -97,5 +116,20 @@ function assertOrder({ source, filePath, anchor, first, second }) {
   }
   if (secondIndex < firstIndex) {
     throw new Error(`Generated Python method ${anchor} places ${second} before ${first} in ${filePath}`);
+  }
+}
+
+function assertMethodContains({ source, filePath, anchor, expected }) {
+  const anchorIndex = source.indexOf(anchor);
+  if (anchorIndex === -1) {
+    throw new Error(`Missing generated Python method ${anchor} in ${filePath}`);
+  }
+
+  const methodEnd = source.indexOf("    def ", anchorIndex + anchor.length);
+  const methodSource = source.slice(anchorIndex, methodEnd === -1 ? undefined : methodEnd);
+  for (const value of expected) {
+    if (!methodSource.includes(value)) {
+      throw new Error(`Generated Python method ${anchor} is missing ${value} in ${filePath}`);
+    }
   }
 }

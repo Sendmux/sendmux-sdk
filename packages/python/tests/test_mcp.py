@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from typing import Any
 
 import httpx
@@ -8,8 +9,15 @@ import pytest
 from fastmcp import Client
 
 from sendmux_mcp.cli import parser, surfaces_from_args
-from sendmux_mcp.config import RetryConfig, ServerConfig
+from sendmux_mcp.config import RetryConfig, ServerConfig, Surface
 from sendmux_mcp.curation import TOOLS_BY_SURFACE
+from sendmux_mcp.hosted_proxy import (
+    HostedOperationManifest,
+    HostedOperationRoute,
+    HostedProxyConfig,
+    HostedProxyTransport,
+    path_template_pattern,
+)
 from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.server import create_server
 from sendmux_mcp.verification import structured_result
@@ -238,8 +246,78 @@ def test_http_security_middleware_blocks_unauthorised_mcp_requests() -> None:
     asyncio.run(check())
 
 
+def test_hosted_proxy_only_targets_mailbox_for_mailbox_surface() -> None:
+    transport = HostedProxyTransport(
+        HostedProxyConfig(
+            proxy_url="https://mcp.sendmux.ai/internal/proxy",
+            upstream_base_url="https://app.sendmux.ai/api/v1",
+        ),
+        manifest=HostedOperationManifest(()),
+    )
+    management_route = hosted_route("managementListMailboxes", "management_list_mailboxes", "management", "/mailboxes")
+    sending_route = hosted_route("sendingSendEmail", "sending_send_email", "sending", "/emails/send", method="POST")
+    mailbox_route = hosted_route("mailboxGetIdentity", "mailbox_get_identity", "mailbox", "/mailbox/identities/{public_id}")
+
+    management = proxy_envelope(
+        transport,
+        httpx.Request("GET", "https://app.sendmux.ai/api/v1/mailboxes?mailbox_id=mbx_one"),
+        management_route,
+    )
+    sending = proxy_envelope(
+        transport,
+        httpx.Request("POST", "https://smtp.sendmux.ai/api/v1/emails/send?mailbox_id=mbx_one"),
+        sending_route,
+    )
+    mailbox = proxy_envelope(
+        transport,
+        httpx.Request("GET", "https://app.sendmux.ai/api/v1/mailbox/identities/ident_1?mailbox_id=mbx_one"),
+        mailbox_route,
+    )
+
+    assert management["surface"] == "management"
+    assert "mailbox_id" not in management
+    assert sending["surface"] == "sending"
+    assert "mailbox_id" not in sending
+    assert mailbox["surface"] == "mailbox"
+    assert mailbox["mailbox_id"] == "mbx_one"
+
+
 def ok_transport() -> httpx.MockTransport:
     def handler(_request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json={"ok": True, "data": {}, "meta": {"request_id": "req_test"}})
 
     return httpx.MockTransport(handler)
+
+
+def hosted_route(
+    operation_id: str,
+    tool_name: str,
+    surface: Surface,
+    path_template: str,
+    *,
+    method: str = "GET",
+) -> HostedOperationRoute:
+    return HostedOperationRoute(
+        operation_id=operation_id,
+        tool_name=tool_name,
+        surface=surface,
+        method=method,
+        path_template=path_template,
+        permissions=(),
+        path_pattern=path_template_pattern(path_template),
+    )
+
+
+def proxy_envelope(
+    transport: HostedProxyTransport,
+    request: httpx.Request,
+    route: HostedOperationRoute,
+) -> dict[str, Any]:
+    proxy_request = transport._proxy_request(
+        request,
+        route,
+        "mcp_grant_public",
+        request.url.path.removeprefix("/api/v1"),
+        b"",
+    )
+    return json.loads(proxy_request.content)

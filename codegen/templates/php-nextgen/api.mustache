@@ -155,9 +155,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
 {{/-last}}
 {{/servers}}
-{{#allParams}}
-     * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-{{/allParams}}
+{{>sendmux_param_docs}}
 {{#servers}}
 {{#-first}}
      * @param  null|int $hostIndex Host index. Defaults to null. If null, then the library will use $this->hostIndex instead
@@ -175,9 +173,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}(
     {{^exts.x-group-parameters}}
-    {{#allParams}}
-        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
-    {{/allParams}}
+{{>sendmux_param_signature}}
     {{#servers}}
     {{#-first}}
         ?int $hostIndex = null,
@@ -191,7 +187,7 @@ use {{invokerPackage}}\ObjectSerializer;
     {{/exts.x-group-parameters}}
     ): {{{exts.x-php-return-type}}}
     {
-        {{^exts.x-php-return-type-is-void}}list($response) = {{/exts.x-php-return-type-is-void}}$this->{{operationId}}WithHttpInfo({{^exts.x-group-parameters}}{{#allParams}}${{paramName}}, {{/allParams}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});{{^exts.x-php-return-type-is-void}}
+        {{^exts.x-php-return-type-is-void}}list($response) = {{/exts.x-php-return-type-is-void}}$this->{{operationId}}WithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});{{^exts.x-php-return-type-is-void}}
         return $response;{{/exts.x-php-return-type-is-void}}
     }
 
@@ -230,9 +226,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
 {{/-last}}
 {{/servers}}
-{{#allParams}}
-     * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-{{/allParams}}
+{{>sendmux_param_docs}}
 {{#servers}}
 {{#-first}}
      * @param  null|int $hostIndex Host index. Defaults to null. If null, then the library will use $this->hostIndex instead
@@ -250,9 +244,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}WithHttpInfo(
     {{^exts.x-group-parameters}}
-    {{#allParams}}
-        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
-    {{/allParams}}
+{{>sendmux_param_signature}}
     {{#servers}}
     {{#-first}}
         ?int $hostIndex = null,
@@ -266,7 +258,7 @@ use {{invokerPackage}}\ObjectSerializer;
     {{/exts.x-group-parameters}}
     ): array
     {
-        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{#allParams}}${{paramName}}, {{/allParams}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
+        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
 
         try {
             $options = $this->createHttpClientOption();
@@ -407,9 +399,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
 {{/-last}}
 {{/servers}}
-{{#allParams}}
-     * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-{{/allParams}}
+{{>sendmux_param_docs}}
 {{#servers}}
 {{#-first}}
      * @param  null|int $hostIndex Host index. Defaults to null. If null, then the library will use $this->hostIndex instead
@@ -426,9 +416,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}Async(
     {{^exts.x-group-parameters}}
-    {{#allParams}}
-        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
-    {{/allParams}}
+{{>sendmux_param_signature}}
     {{#servers}}
     {{#-first}}
         ?int $hostIndex = null,
@@ -442,7 +430,7 @@ use {{invokerPackage}}\ObjectSerializer;
     {{/exts.x-group-parameters}}
     ): PromiseInterface
     {
-        return $this->{{operationId}}AsyncWithHttpInfo({{^exts.x-group-parameters}}{{#allParams}}${{paramName}}, {{/allParams}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}})
+        return $this->{{operationId}}AsyncWithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}})
             ->then(
                 function ($response) {
                     return $response[0];
@@ -485,9 +473,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
 {{/-last}}
 {{/servers}}
-{{#allParams}}
-     * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-{{/allParams}}
+{{>sendmux_param_docs}}
 {{#servers}}
 {{#-first}}
      * @param  null|int $hostIndex Host index. Defaults to null. If null, then the library will use $this->hostIndex instead
@@ -504,9 +490,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}AsyncWithHttpInfo(
     {{^exts.x-group-parameters}}
-    {{#allParams}}
-        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
-    {{/allParams}}
+{{>sendmux_param_signature}}
     {{#servers}}
     {{#-first}}
         ?int $hostIndex = null,
@@ -521,7 +505,7 @@ use {{invokerPackage}}\ObjectSerializer;
     ): PromiseInterface
     {
         $returnType = '{{{returnType}}}';
-        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{#allParams}}${{paramName}}, {{/allParams}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
+        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -615,9 +599,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
 {{/-last}}
 {{/servers}}
-{{#allParams}}
-     * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
-{{/allParams}}
+{{>sendmux_param_docs}}
 {{#servers}}
 {{#-first}}
      * @param  null|int $hostIndex Host index. Defaults to null. If null, then the library will use $this->hostIndex instead
@@ -634,9 +616,7 @@ use {{invokerPackage}}\ObjectSerializer;
      */
     public function {{operationId}}Request(
     {{^exts.x-group-parameters}}
-    {{#allParams}}
-        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
-    {{/allParams}}
+{{>sendmux_param_signature}}
     {{#servers}}
     {{#-first}}
         ?int $hostIndex = null,

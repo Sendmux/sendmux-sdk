@@ -110,8 +110,27 @@ function writeFilteredSpec(surface) {
   }
 
   const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
-  writeFileSync(outputPath, `${JSON.stringify(pruneComponents({ ...source, paths }), null, 2)}\n`);
+  writeFileSync(outputPath, `${JSON.stringify(markTrailingSdkParams(pruneComponents({ ...source, paths })), null, 2)}\n`);
   return outputPath;
+}
+
+function markTrailingSdkParams(document) {
+  for (const pathItem of Object.values(document.paths ?? {})) {
+    for (const [method, operation] of Object.entries(pathItem ?? {})) {
+      if (!["get", "post", "put", "patch", "delete", "head", "options"].includes(method)) {
+        continue;
+      }
+      if (!operation?.requestBody) {
+        continue;
+      }
+      for (const parameter of operation.parameters ?? []) {
+        if (parameter?.name === "mailbox_id" && parameter.in === "query") {
+          parameter["x-sendmux-trailing-sdk-param"] = true;
+        }
+      }
+    }
+  }
+  return document;
 }
 
 function markBodylessSuccessResponses(operation) {

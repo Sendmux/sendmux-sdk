@@ -168,7 +168,11 @@ class MailboxesApi
         ?\Sendmux\Management\Model\ManagementCreateMailboxRequest $management_create_mailbox_request = null,
         string $contentType = self::contentTypes['managementCreateMailbox'][0]
     ): \Sendmux\Management\Model\MailboxCreateResultResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementCreateMailboxWithHttpInfo($idempotency_key, $management_create_mailbox_request, $contentType);
+        list($response) = $this->managementCreateMailboxWithHttpInfo(
+            $idempotency_key,
+            $management_create_mailbox_request,
+            $contentType
+        );
         return $response;
     }
 
@@ -177,8 +181,8 @@ class MailboxesApi
      *
      * Create a mailbox
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request management_create_mailbox_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailbox'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -190,7 +194,11 @@ class MailboxesApi
         ?\Sendmux\Management\Model\ManagementCreateMailboxRequest $management_create_mailbox_request = null,
         string $contentType = self::contentTypes['managementCreateMailbox'][0]
     ): array {
-        $request = $this->managementCreateMailboxRequest($idempotency_key, $management_create_mailbox_request, $contentType);
+        $request = $this->managementCreateMailboxRequest(
+            $idempotency_key,
+            $management_create_mailbox_request,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -319,8 +327,8 @@ class MailboxesApi
      *
      * Create a mailbox
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request management_create_mailbox_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -331,7 +339,11 @@ class MailboxesApi
         ?\Sendmux\Management\Model\ManagementCreateMailboxRequest $management_create_mailbox_request = null,
         string $contentType = self::contentTypes['managementCreateMailbox'][0]
     ): PromiseInterface {
-        return $this->managementCreateMailboxAsyncWithHttpInfo($idempotency_key, $management_create_mailbox_request, $contentType)
+        return $this->managementCreateMailboxAsyncWithHttpInfo(
+            $idempotency_key,
+            $management_create_mailbox_request,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -344,8 +356,8 @@ class MailboxesApi
      *
      * Create a mailbox
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request management_create_mailbox_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -357,7 +369,11 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementCreateMailbox'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxCreateResultResponse';
-        $request = $this->managementCreateMailboxRequest($idempotency_key, $management_create_mailbox_request, $contentType);
+        $request = $this->managementCreateMailboxRequest(
+            $idempotency_key,
+            $management_create_mailbox_request,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -414,8 +430,8 @@ class MailboxesApi
     /**
      * Create request for operation 'managementCreateMailbox'
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxRequest|null $management_create_mailbox_request management_create_mailbox_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -531,7 +547,12 @@ class MailboxesApi
         ?\Sendmux\Management\Model\ManagementCreateMailboxKeyRequest $management_create_mailbox_key_request = null,
         string $contentType = self::contentTypes['managementCreateMailboxKey'][0]
     ): \Sendmux\Management\Model\MailboxAppPasswordResultResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementCreateMailboxKeyWithHttpInfo($public_id, $idempotency_key, $management_create_mailbox_key_request, $contentType);
+        list($response) = $this->managementCreateMailboxKeyWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $management_create_mailbox_key_request,
+            $contentType
+        );
         return $response;
     }
 
@@ -540,9 +561,9 @@ class MailboxesApi
      *
      * Create a mailbox API key
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request management_create_mailbox_key_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailboxKey'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -555,7 +576,12 @@ class MailboxesApi
         ?\Sendmux\Management\Model\ManagementCreateMailboxKeyRequest $management_create_mailbox_key_request = null,
         string $contentType = self::contentTypes['managementCreateMailboxKey'][0]
     ): array {
-        $request = $this->managementCreateMailboxKeyRequest($public_id, $idempotency_key, $management_create_mailbox_key_request, $contentType);
+        $request = $this->managementCreateMailboxKeyRequest(
+            $public_id,
+            $idempotency_key,
+            $management_create_mailbox_key_request,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -684,9 +710,9 @@ class MailboxesApi
      *
      * Create a mailbox API key
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request management_create_mailbox_key_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailboxKey'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -698,7 +724,12 @@ class MailboxesApi
         ?\Sendmux\Management\Model\ManagementCreateMailboxKeyRequest $management_create_mailbox_key_request = null,
         string $contentType = self::contentTypes['managementCreateMailboxKey'][0]
     ): PromiseInterface {
-        return $this->managementCreateMailboxKeyAsyncWithHttpInfo($public_id, $idempotency_key, $management_create_mailbox_key_request, $contentType)
+        return $this->managementCreateMailboxKeyAsyncWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $management_create_mailbox_key_request,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -711,9 +742,9 @@ class MailboxesApi
      *
      * Create a mailbox API key
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request management_create_mailbox_key_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailboxKey'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -726,7 +757,12 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementCreateMailboxKey'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxAppPasswordResultResponse';
-        $request = $this->managementCreateMailboxKeyRequest($public_id, $idempotency_key, $management_create_mailbox_key_request, $contentType);
+        $request = $this->managementCreateMailboxKeyRequest(
+            $public_id,
+            $idempotency_key,
+            $management_create_mailbox_key_request,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -783,9 +819,9 @@ class MailboxesApi
     /**
      * Create request for operation 'managementCreateMailboxKey'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateMailboxKeyRequest|null $management_create_mailbox_key_request management_create_mailbox_key_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateMailboxKey'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -913,7 +949,10 @@ class MailboxesApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteMailbox'][0]
     ): \Sendmux\Management\Model\MailboxDeletedResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementDeleteMailboxWithHttpInfo($public_id, $contentType);
+        list($response) = $this->managementDeleteMailboxWithHttpInfo(
+            $public_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -922,7 +961,7 @@ class MailboxesApi
      *
      * Delete a mailbox
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailbox'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -933,7 +972,10 @@ class MailboxesApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteMailbox'][0]
     ): array {
-        $request = $this->managementDeleteMailboxRequest($public_id, $contentType);
+        $request = $this->managementDeleteMailboxRequest(
+            $public_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1020,7 +1062,7 @@ class MailboxesApi
      *
      * Delete a mailbox
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1030,7 +1072,10 @@ class MailboxesApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteMailbox'][0]
     ): PromiseInterface {
-        return $this->managementDeleteMailboxAsyncWithHttpInfo($public_id, $contentType)
+        return $this->managementDeleteMailboxAsyncWithHttpInfo(
+            $public_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1043,7 +1088,7 @@ class MailboxesApi
      *
      * Delete a mailbox
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1054,7 +1099,10 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementDeleteMailbox'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxDeletedResponse';
-        $request = $this->managementDeleteMailboxRequest($public_id, $contentType);
+        $request = $this->managementDeleteMailboxRequest(
+            $public_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1111,7 +1159,7 @@ class MailboxesApi
     /**
      * Create request for operation 'managementDeleteMailbox'
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1223,7 +1271,11 @@ class MailboxesApi
         string $key_id,
         string $contentType = self::contentTypes['managementDeleteMailboxKey'][0]
     ): \Sendmux\Management\Model\MailboxKeyDeletedResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementDeleteMailboxKeyWithHttpInfo($public_id, $key_id, $contentType);
+        list($response) = $this->managementDeleteMailboxKeyWithHttpInfo(
+            $public_id,
+            $key_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -1232,8 +1284,8 @@ class MailboxesApi
      *
      * Revoke a mailbox API key
      *
-     * @param  string $public_id (required)
-     * @param  string $key_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $key_id key_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailboxKey'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1245,7 +1297,11 @@ class MailboxesApi
         string $key_id,
         string $contentType = self::contentTypes['managementDeleteMailboxKey'][0]
     ): array {
-        $request = $this->managementDeleteMailboxKeyRequest($public_id, $key_id, $contentType);
+        $request = $this->managementDeleteMailboxKeyRequest(
+            $public_id,
+            $key_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1332,8 +1388,8 @@ class MailboxesApi
      *
      * Revoke a mailbox API key
      *
-     * @param  string $public_id (required)
-     * @param  string $key_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $key_id key_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailboxKey'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1344,7 +1400,11 @@ class MailboxesApi
         string $key_id,
         string $contentType = self::contentTypes['managementDeleteMailboxKey'][0]
     ): PromiseInterface {
-        return $this->managementDeleteMailboxKeyAsyncWithHttpInfo($public_id, $key_id, $contentType)
+        return $this->managementDeleteMailboxKeyAsyncWithHttpInfo(
+            $public_id,
+            $key_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1357,8 +1417,8 @@ class MailboxesApi
      *
      * Revoke a mailbox API key
      *
-     * @param  string $public_id (required)
-     * @param  string $key_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $key_id key_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailboxKey'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1370,7 +1430,11 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementDeleteMailboxKey'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxKeyDeletedResponse';
-        $request = $this->managementDeleteMailboxKeyRequest($public_id, $key_id, $contentType);
+        $request = $this->managementDeleteMailboxKeyRequest(
+            $public_id,
+            $key_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1427,8 +1491,8 @@ class MailboxesApi
     /**
      * Create request for operation 'managementDeleteMailboxKey'
      *
-     * @param  string $public_id (required)
-     * @param  string $key_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $key_id key_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteMailboxKey'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1556,7 +1620,11 @@ class MailboxesApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetMailbox'][0]
     ): \Sendmux\Management\Model\MailboxItemResponse|\Sendmux\Management\Model\ApiError|null {
-        list($response) = $this->managementGetMailboxWithHttpInfo($public_id, $if_none_match, $contentType);
+        list($response) = $this->managementGetMailboxWithHttpInfo(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
         return $response;
     }
 
@@ -1565,8 +1633,8 @@ class MailboxesApi
      *
      * Get a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailbox'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1578,7 +1646,11 @@ class MailboxesApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetMailbox'][0]
     ): array {
-        $request = $this->managementGetMailboxRequest($public_id, $if_none_match, $contentType);
+        $request = $this->managementGetMailboxRequest(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1667,8 +1739,8 @@ class MailboxesApi
      *
      * Get a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1679,7 +1751,11 @@ class MailboxesApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetMailbox'][0]
     ): PromiseInterface {
-        return $this->managementGetMailboxAsyncWithHttpInfo($public_id, $if_none_match, $contentType)
+        return $this->managementGetMailboxAsyncWithHttpInfo(
+            $public_id,
+            $if_none_match,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1692,8 +1768,8 @@ class MailboxesApi
      *
      * Get a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1705,7 +1781,11 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementGetMailbox'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxItemResponse';
-        $request = $this->managementGetMailboxRequest($public_id, $if_none_match, $contentType);
+        $request = $this->managementGetMailboxRequest(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1766,8 +1846,8 @@ class MailboxesApi
     /**
      * Create request for operation 'managementGetMailbox'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1887,7 +1967,12 @@ class MailboxesApi
         ?string $include_deleted = null,
         string $contentType = self::contentTypes['managementListMailboxes'][0]
     ): \Sendmux\Management\Model\MailboxItemCursorListResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementListMailboxesWithHttpInfo($cursor, $limit, $include_deleted, $contentType);
+        list($response) = $this->managementListMailboxesWithHttpInfo(
+            $cursor,
+            $limit,
+            $include_deleted,
+            $contentType
+        );
         return $response;
     }
 
@@ -1896,9 +1981,9 @@ class MailboxesApi
      *
      * List mailboxes
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $include_deleted (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $include_deleted include_deleted (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListMailboxes'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1911,7 +1996,12 @@ class MailboxesApi
         ?string $include_deleted = null,
         string $contentType = self::contentTypes['managementListMailboxes'][0]
     ): array {
-        $request = $this->managementListMailboxesRequest($cursor, $limit, $include_deleted, $contentType);
+        $request = $this->managementListMailboxesRequest(
+            $cursor,
+            $limit,
+            $include_deleted,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2012,9 +2102,9 @@ class MailboxesApi
      *
      * List mailboxes
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $include_deleted (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $include_deleted include_deleted (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListMailboxes'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2026,7 +2116,12 @@ class MailboxesApi
         ?string $include_deleted = null,
         string $contentType = self::contentTypes['managementListMailboxes'][0]
     ): PromiseInterface {
-        return $this->managementListMailboxesAsyncWithHttpInfo($cursor, $limit, $include_deleted, $contentType)
+        return $this->managementListMailboxesAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $include_deleted,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2039,9 +2134,9 @@ class MailboxesApi
      *
      * List mailboxes
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $include_deleted (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $include_deleted include_deleted (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListMailboxes'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2054,7 +2149,12 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementListMailboxes'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxItemCursorListResponse';
-        $request = $this->managementListMailboxesRequest($cursor, $limit, $include_deleted, $contentType);
+        $request = $this->managementListMailboxesRequest(
+            $cursor,
+            $limit,
+            $include_deleted,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2111,9 +2211,9 @@ class MailboxesApi
     /**
      * Create request for operation 'managementListMailboxes'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $include_deleted (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $include_deleted include_deleted (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListMailboxes'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2248,7 +2348,11 @@ class MailboxesApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementResumeMailbox'][0]
     ): \Sendmux\Management\Model\MailboxItemResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementResumeMailboxWithHttpInfo($public_id, $idempotency_key, $contentType);
+        list($response) = $this->managementResumeMailboxWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
         return $response;
     }
 
@@ -2257,8 +2361,8 @@ class MailboxesApi
      *
      * Resume a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementResumeMailbox'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2270,7 +2374,11 @@ class MailboxesApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementResumeMailbox'][0]
     ): array {
-        $request = $this->managementResumeMailboxRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementResumeMailboxRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2399,8 +2507,8 @@ class MailboxesApi
      *
      * Resume a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementResumeMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2411,7 +2519,11 @@ class MailboxesApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementResumeMailbox'][0]
     ): PromiseInterface {
-        return $this->managementResumeMailboxAsyncWithHttpInfo($public_id, $idempotency_key, $contentType)
+        return $this->managementResumeMailboxAsyncWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2424,8 +2536,8 @@ class MailboxesApi
      *
      * Resume a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementResumeMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2437,7 +2549,11 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementResumeMailbox'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxItemResponse';
-        $request = $this->managementResumeMailboxRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementResumeMailboxRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2494,8 +2610,8 @@ class MailboxesApi
     /**
      * Create request for operation 'managementResumeMailbox'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementResumeMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2616,7 +2732,11 @@ class MailboxesApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementSuspendMailbox'][0]
     ): \Sendmux\Management\Model\MailboxItemResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementSuspendMailboxWithHttpInfo($public_id, $idempotency_key, $contentType);
+        list($response) = $this->managementSuspendMailboxWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
         return $response;
     }
 
@@ -2625,8 +2745,8 @@ class MailboxesApi
      *
      * Suspend a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementSuspendMailbox'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2638,7 +2758,11 @@ class MailboxesApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementSuspendMailbox'][0]
     ): array {
-        $request = $this->managementSuspendMailboxRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementSuspendMailboxRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2767,8 +2891,8 @@ class MailboxesApi
      *
      * Suspend a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementSuspendMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2779,7 +2903,11 @@ class MailboxesApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementSuspendMailbox'][0]
     ): PromiseInterface {
-        return $this->managementSuspendMailboxAsyncWithHttpInfo($public_id, $idempotency_key, $contentType)
+        return $this->managementSuspendMailboxAsyncWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2792,8 +2920,8 @@ class MailboxesApi
      *
      * Suspend a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementSuspendMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2805,7 +2933,11 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementSuspendMailbox'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxItemResponse';
-        $request = $this->managementSuspendMailboxRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementSuspendMailboxRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2862,8 +2994,8 @@ class MailboxesApi
     /**
      * Create request for operation 'managementSuspendMailbox'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementSuspendMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2986,7 +3118,12 @@ class MailboxesApi
         ?\Sendmux\Management\Model\UpdateMailboxBody $update_mailbox_body = null,
         string $contentType = self::contentTypes['managementUpdateMailbox'][0]
     ): \Sendmux\Management\Model\MailboxItemResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementUpdateMailboxWithHttpInfo($public_id, $if_match, $update_mailbox_body, $contentType);
+        list($response) = $this->managementUpdateMailboxWithHttpInfo(
+            $public_id,
+            $if_match,
+            $update_mailbox_body,
+            $contentType
+        );
         return $response;
     }
 
@@ -2995,9 +3132,9 @@ class MailboxesApi
      *
      * Update a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body update_mailbox_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateMailbox'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3010,7 +3147,12 @@ class MailboxesApi
         ?\Sendmux\Management\Model\UpdateMailboxBody $update_mailbox_body = null,
         string $contentType = self::contentTypes['managementUpdateMailbox'][0]
     ): array {
-        $request = $this->managementUpdateMailboxRequest($public_id, $if_match, $update_mailbox_body, $contentType);
+        $request = $this->managementUpdateMailboxRequest(
+            $public_id,
+            $if_match,
+            $update_mailbox_body,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -3139,9 +3281,9 @@ class MailboxesApi
      *
      * Update a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body update_mailbox_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3153,7 +3295,12 @@ class MailboxesApi
         ?\Sendmux\Management\Model\UpdateMailboxBody $update_mailbox_body = null,
         string $contentType = self::contentTypes['managementUpdateMailbox'][0]
     ): PromiseInterface {
-        return $this->managementUpdateMailboxAsyncWithHttpInfo($public_id, $if_match, $update_mailbox_body, $contentType)
+        return $this->managementUpdateMailboxAsyncWithHttpInfo(
+            $public_id,
+            $if_match,
+            $update_mailbox_body,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3166,9 +3313,9 @@ class MailboxesApi
      *
      * Update a mailbox
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body update_mailbox_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3181,7 +3328,12 @@ class MailboxesApi
         string $contentType = self::contentTypes['managementUpdateMailbox'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\MailboxItemResponse';
-        $request = $this->managementUpdateMailboxRequest($public_id, $if_match, $update_mailbox_body, $contentType);
+        $request = $this->managementUpdateMailboxRequest(
+            $public_id,
+            $if_match,
+            $update_mailbox_body,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3238,9 +3390,9 @@ class MailboxesApi
     /**
      * Create request for operation 'managementUpdateMailbox'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\UpdateMailboxBody|null $update_mailbox_body update_mailbox_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateMailbox'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException

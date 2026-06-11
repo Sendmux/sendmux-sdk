@@ -80,8 +80,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_delete_messages(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_delete_mailbox_messages_body: Optional[BatchDeleteMailboxMessagesBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -153,8 +153,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_delete_messages_with_http_info(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_delete_mailbox_messages_body: Optional[BatchDeleteMailboxMessagesBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -226,8 +226,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_delete_messages_without_preload_content(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_delete_mailbox_messages_body: Optional[BatchDeleteMailboxMessagesBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -377,8 +377,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_get_messages(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         mailbox_batch_get_body: Optional[MailboxBatchGetBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -450,8 +450,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_get_messages_with_http_info(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         mailbox_batch_get_body: Optional[MailboxBatchGetBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -523,8 +523,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_get_messages_without_preload_content(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         mailbox_batch_get_body: Optional[MailboxBatchGetBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -674,8 +674,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_update_messages(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_update_mailbox_messages_body: Optional[BatchUpdateMailboxMessagesBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -747,8 +747,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_update_messages_with_http_info(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_update_mailbox_messages_body: Optional[BatchUpdateMailboxMessagesBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -820,8 +820,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_update_messages_without_preload_content(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_update_mailbox_messages_body: Optional[BatchUpdateMailboxMessagesBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1560,8 +1560,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_create_folder(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1633,8 +1633,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_create_folder_with_http_info(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1706,8 +1706,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_create_folder_without_preload_content(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -12462,8 +12462,8 @@ class MailboxAPIApi:
     def mailbox_send_message(
         self,
         idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         send_mailbox_message_body: Optional[SendMailboxMessageBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -12541,8 +12541,8 @@ class MailboxAPIApi:
     def mailbox_send_message_with_http_info(
         self,
         idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         send_mailbox_message_body: Optional[SendMailboxMessageBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -12620,8 +12620,8 @@ class MailboxAPIApi:
     def mailbox_send_message_without_preload_content(
         self,
         idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         send_mailbox_message_body: Optional[SendMailboxMessageBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13143,8 +13143,8 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_folder_body: Optional[PatchMailboxFolderBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13225,8 +13225,8 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_folder_body: Optional[PatchMailboxFolderBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13307,8 +13307,8 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_folder_body: Optional[PatchMailboxFolderBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13471,8 +13471,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_update_identity(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         update_mailbox_identity_body: Optional[UpdateMailboxIdentityBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13547,8 +13547,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_update_identity_with_http_info(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         update_mailbox_identity_body: Optional[UpdateMailboxIdentityBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13623,8 +13623,8 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_update_identity_without_preload_content(
         self,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         update_mailbox_identity_body: Optional[UpdateMailboxIdentityBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13779,8 +13779,8 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_match: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_message_body: Optional[PatchMailboxMessageBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13861,8 +13861,8 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_match: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_message_body: Optional[PatchMailboxMessageBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13943,8 +13943,8 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_match: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_message_body: Optional[PatchMailboxMessageBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -14108,8 +14108,8 @@ class MailboxAPIApi:
     def mailbox_upload_attachment(
         self,
         filename: StrictStr,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         body: Optional[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -14186,8 +14186,8 @@ class MailboxAPIApi:
     def mailbox_upload_attachment_with_http_info(
         self,
         filename: StrictStr,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         body: Optional[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -14264,8 +14264,8 @@ class MailboxAPIApi:
     def mailbox_upload_attachment_without_preload_content(
         self,
         filename: StrictStr,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         body: Optional[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],

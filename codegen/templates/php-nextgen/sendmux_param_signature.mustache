@@ -1,0 +1,10 @@
+{{#allParams}}
+{{^vendorExtensions.x-sendmux-trailing-sdk-param}}
+        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
+{{/vendorExtensions.x-sendmux-trailing-sdk-param}}
+{{/allParams}}
+{{#allParams}}
+{{#vendorExtensions.x-sendmux-trailing-sdk-param}}
+        {{exts.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
+{{/vendorExtensions.x-sendmux-trailing-sdk-param}}
+{{/allParams}}

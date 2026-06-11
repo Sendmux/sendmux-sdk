@@ -5,6 +5,7 @@ import asyncio
 import httpx
 import pytest
 
+from sendmux_mcp.curation import MAILBOX_TOOLS
 from sendmux_mcp.hosted import (
     HOSTED_SURFACES,
     HostedServerRuntimeConfig,
@@ -142,6 +143,51 @@ def test_hosted_surface_children_keep_curated_tool_sets_without_process_api_key(
         assert "mailbox_get_me" in tool_names
         assert "management_list_domains" in tool_names
         assert "sending_send_email" in tool_names
+
+    asyncio.run(run())
+
+
+def test_hosted_mailbox_action_tools_expose_mailbox_target(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def run() -> None:
+        monkeypatch.delenv("SENDMUX_API_KEY", raising=False)
+
+        runtime = runtime_config()
+        auth_provider = create_remote_auth_provider(
+            HostedAuthConfig(
+                issuer=runtime.issuer,
+                authorization_servers=runtime.authorization_servers,
+                jwks_uri=runtime.jwks_uri,
+                resource_base_url=runtime.resource_base_url,
+                mcp_path=runtime.mcp_path,
+            )
+        )
+        surface_config = hosted_surface_config("mailbox", runtime)
+        child = create_server(
+            surface_config,
+            auth_provider=auth_provider,
+            hosted_proxy_config=HostedProxyConfig(
+                proxy_url=runtime.proxy_url,
+                upstream_base_url=surface_config.api_base_url,
+                internal_bearer_token=runtime.internal_bearer_token,
+            ),
+        )
+
+        tools = await child.list_tools(run_middleware=False)
+        tool_names = {tool.name for tool in tools}
+        expected_tool_names = {tool.name for tool in MAILBOX_TOOLS}
+        missing_target: list[str] = []
+
+        assert tool_names == expected_tool_names
+
+        for tool in tools:
+            properties = (tool.parameters or {}).get("properties", {})
+            if tool.name == "mailbox_list_granted_mailboxes":
+                assert "mailbox_id" not in properties
+                continue
+            if tool.name.startswith("mailbox_") and "mailbox_id" not in properties:
+                missing_target.append(tool.name)
+
+        assert missing_target == []
 
     asyncio.run(run())
 

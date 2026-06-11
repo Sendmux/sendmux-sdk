@@ -13,6 +13,7 @@ const {
   paginate,
   responseEtag,
 } = await import("../packages/ts/core/dist/index.js");
+const { createMailboxClient, mailboxGetIdentity } = await import("../packages/ts/mailbox/dist/index.js");
 const { createSendingClient } = await import("../packages/ts/sending/dist/index.js");
 
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
@@ -243,6 +244,32 @@ await sendingB.get({
 assert.deepEqual(seenConfiguredRequests, [
   { authorization: "Bearer smx_mbx_test_a", url: "https://sdk-a.test/auth-check" },
   { authorization: "Bearer smx_mbx_test_b", url: "https://sdk-b.test/auth-check" },
+]);
+
+const seenMailboxRequests = [];
+const mailboxClient = createMailboxClient({
+  apiKey: "smx_mbx_test_mailbox",
+  baseUrl: "https://mailbox-sdk.test",
+  fetch: async (request) => {
+    seenMailboxRequests.push({
+      authorization: request.headers.get("Authorization"),
+      url: request.url,
+    });
+    return new Response(JSON.stringify({ ok: true, data: {}, meta: { request_id: "req_mailbox_identity" } }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    });
+  },
+});
+await mailboxGetIdentity({
+  client: mailboxClient,
+  query: { mailbox_id: "mbx_ts_target" },
+});
+assert.deepEqual(seenMailboxRequests, [
+  {
+    authorization: "Bearer smx_mbx_test_mailbox",
+    url: "https://mailbox-sdk.test/mailbox/identity?mailbox_id=mbx_ts_target",
+  },
 ]);
 
 console.log("TypeScript core helper tests passed.");

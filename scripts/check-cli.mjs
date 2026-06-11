@@ -74,6 +74,24 @@ try {
   const parsed = JSON.parse(jsonResult.stdout);
   assertDeepEqual(parsed, envelope, "--json must emit the raw SDK response envelope");
 
+  const identityResult = await runCli([
+    "mailbox:get-identity",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--query",
+    "mailbox_id=mbx_cli_target",
+    "--json",
+  ]);
+
+  assertCliSuccess(identityResult, "mailbox:get-identity with mailbox_id query");
+  const identityRequest = latestRequest();
+  if (!identityRequest.url.startsWith("/mailbox/identity")) {
+    throw new Error(`mailbox:get-identity used the wrong path: ${identityRequest.url}`);
+  }
+  assertSearchParam(identityRequest.url, "mailbox_id", "mbx_cli_target");
+
   const countResult = await runCli([
     "mailbox:count-messages",
     "--api-key",

@@ -12,7 +12,15 @@ export const operations = {
     "operationId": "mailboxBatchDeleteMessages",
     "path": "/mailbox/messages:batch-delete",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -26,7 +34,15 @@ export const operations = {
     "operationId": "mailboxBatchGetMessages",
     "path": "/mailbox/messages:batch-get",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -40,7 +56,15 @@ export const operations = {
     "operationId": "mailboxBatchUpdateMessages",
     "path": "/mailbox/messages:batch-update",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -189,6 +213,13 @@ export const operations = {
         "schema": {
           "type": "boolean"
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -204,7 +235,15 @@ export const operations = {
     "operationId": "mailboxCreateFolder",
     "path": "/mailbox/folders",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -234,7 +273,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -270,6 +317,13 @@ export const operations = {
         "required": false,
         "schema": {
           "type": "boolean"
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -351,6 +405,13 @@ export const operations = {
           "minimum": 1,
           "maximum": 500
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -382,7 +443,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -412,6 +481,13 @@ export const operations = {
           "minimum": 1,
           "maximum": 500
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -427,7 +503,15 @@ export const operations = {
     "operationId": "mailboxGetIdentity",
     "path": "/mailbox/identity",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -449,7 +533,15 @@ export const operations = {
     "operationId": "mailboxGetMe",
     "path": "/mailbox/me",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -479,7 +571,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -516,7 +616,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -546,6 +654,13 @@ export const operations = {
           "minimum": 1,
           "maximum": 500
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -569,7 +684,15 @@ export const operations = {
     "operationId": "mailboxGetSession",
     "path": "/mailbox/session",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -599,7 +722,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -628,6 +759,13 @@ export const operations = {
           "type": "integer",
           "minimum": 1,
           "maximum": 500
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -660,7 +798,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -789,6 +935,13 @@ export const operations = {
             "desc"
           ]
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -840,6 +993,13 @@ export const operations = {
           "type": "integer",
           "minimum": 1,
           "maximum": 1000000
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -944,6 +1104,13 @@ export const operations = {
             "metadata"
           ]
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -975,6 +1142,51 @@ export const operations = {
           "minimum": 1,
           "maximum": 100
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxListGrantedMailboxes: {
+    "bodyKind": "none",
+    "command": "mailbox:list-granted-mailboxes",
+    "description": "List granted mailboxes",
+    "headerParams": [],
+    "method": "get",
+    "operationId": "mailboxListGrantedMailboxes",
+    "path": "/mailbox/mailboxes",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "cursor",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "q",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1005,6 +1217,13 @@ export const operations = {
           "type": "integer",
           "minimum": 1,
           "maximum": 100
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -1198,6 +1417,13 @@ export const operations = {
             "desc"
           ]
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1287,6 +1513,13 @@ export const operations = {
             "asc",
             "desc"
           ]
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -1389,6 +1622,13 @@ export const operations = {
             "desc"
           ]
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1438,6 +1678,13 @@ export const operations = {
             "asc",
             "desc"
           ]
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -1530,6 +1777,13 @@ export const operations = {
             "desc"
           ]
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1553,7 +1807,15 @@ export const operations = {
     "operationId": "mailboxListUsage",
     "path": "/mailbox/usage",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1582,6 +1844,13 @@ export const operations = {
           "type": "integer",
           "minimum": 1,
           "maximum": 500
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       }
     ],
@@ -1782,6 +2051,13 @@ export const operations = {
             "desc"
           ]
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1941,6 +2217,13 @@ export const operations = {
           "minimum": 1,
           "maximum": 100
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -1965,7 +2248,15 @@ export const operations = {
     "operationId": "mailboxSendMessage",
     "path": "/mailbox/messages/send",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2019,6 +2310,13 @@ export const operations = {
           "minimum": 30,
           "maximum": 3600
         }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     ],
     "requestBodyRequired": false,
@@ -2050,7 +2348,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2064,7 +2370,15 @@ export const operations = {
     "operationId": "mailboxUpdateIdentity",
     "path": "/mailbox/identity",
     "pathParams": [],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2094,7 +2408,15 @@ export const operations = {
         }
       }
     ],
-    "queryParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2112,6 +2434,13 @@ export const operations = {
       {
         "name": "filename",
         "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
         "schema": {
           "type": "string"
         }

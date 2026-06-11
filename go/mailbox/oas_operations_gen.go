@@ -29,6 +29,7 @@ const (
 	MailboxListBodyOperation              OperationName = "MailboxListBody"
 	MailboxListContentOperation           OperationName = "MailboxListContent"
 	MailboxListFoldersOperation           OperationName = "MailboxListFolders"
+	MailboxListGrantedMailboxesOperation  OperationName = "MailboxListGrantedMailboxes"
 	MailboxListIdentitiesOperation        OperationName = "MailboxListIdentities"
 	MailboxListMessagesOperation          OperationName = "MailboxListMessages"
 	MailboxListQuotasOperation            OperationName = "MailboxListQuotas"

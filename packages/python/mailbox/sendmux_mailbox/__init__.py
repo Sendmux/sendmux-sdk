@@ -36,6 +36,8 @@ __all__ = [
     "BatchUpdateMailboxMessagesBody",
     "CreateMailboxFolderBody",
     "CursorPagination",
+    "GrantedMailbox",
+    "GrantedMailboxListResponse",
     "Mailbox",
     "MailboxAddress",
     "MailboxAttachment",
@@ -178,6 +180,8 @@ from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDelet
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody as BatchUpdateMailboxMessagesBody
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody as CreateMailboxFolderBody
 from sendmux_mailbox.models.cursor_pagination import CursorPagination as CursorPagination
+from sendmux_mailbox.models.granted_mailbox import GrantedMailbox as GrantedMailbox
+from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse as GrantedMailboxListResponse
 from sendmux_mailbox.models.mailbox import Mailbox as Mailbox
 from sendmux_mailbox.models.mailbox_address import MailboxAddress as MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment as MailboxAttachment

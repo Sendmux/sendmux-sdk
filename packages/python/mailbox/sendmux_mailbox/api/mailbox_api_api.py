@@ -21,6 +21,7 @@ from typing_extensions import Annotated
 from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDeleteMailboxMessagesBody
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody
+from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_result_response import MailboxAttachmentUploadResultResponse
 from sendmux_mailbox.models.mailbox_batch_delete_messages_result_response import MailboxBatchDeleteMessagesResultResponse
 from sendmux_mailbox.models.mailbox_batch_get_body import MailboxBatchGetBody
@@ -79,6 +80,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_delete_messages(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_delete_mailbox_messages_body: Optional[BatchDeleteMailboxMessagesBody] = None,
         _request_timeout: Union[
             None,
@@ -97,6 +99,8 @@ class MailboxAPIApi:
 
         Moves up to 100 messages to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete them.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param batch_delete_mailbox_messages_body:
         :type batch_delete_mailbox_messages_body: BatchDeleteMailboxMessagesBody
         :param _request_timeout: timeout setting for this request. If one
@@ -122,6 +126,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_delete_messages_serialize(
+            mailbox_id=mailbox_id,
             batch_delete_mailbox_messages_body=batch_delete_mailbox_messages_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -148,6 +153,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_delete_messages_with_http_info(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_delete_mailbox_messages_body: Optional[BatchDeleteMailboxMessagesBody] = None,
         _request_timeout: Union[
             None,
@@ -166,6 +172,8 @@ class MailboxAPIApi:
 
         Moves up to 100 messages to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete them.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param batch_delete_mailbox_messages_body:
         :type batch_delete_mailbox_messages_body: BatchDeleteMailboxMessagesBody
         :param _request_timeout: timeout setting for this request. If one
@@ -191,6 +199,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_delete_messages_serialize(
+            mailbox_id=mailbox_id,
             batch_delete_mailbox_messages_body=batch_delete_mailbox_messages_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -217,6 +226,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_delete_messages_without_preload_content(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_delete_mailbox_messages_body: Optional[BatchDeleteMailboxMessagesBody] = None,
         _request_timeout: Union[
             None,
@@ -235,6 +245,8 @@ class MailboxAPIApi:
 
         Moves up to 100 messages to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete them.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param batch_delete_mailbox_messages_body:
         :type batch_delete_mailbox_messages_body: BatchDeleteMailboxMessagesBody
         :param _request_timeout: timeout setting for this request. If one
@@ -260,6 +272,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_delete_messages_serialize(
+            mailbox_id=mailbox_id,
             batch_delete_mailbox_messages_body=batch_delete_mailbox_messages_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -281,6 +294,7 @@ class MailboxAPIApi:
 
     def _mailbox_batch_delete_messages_serialize(
         self,
+        mailbox_id,
         batch_delete_mailbox_messages_body,
         _request_auth,
         _content_type,
@@ -304,6 +318,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -359,6 +377,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_get_messages(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         mailbox_batch_get_body: Optional[MailboxBatchGetBody] = None,
         _request_timeout: Union[
             None,
@@ -377,6 +396,8 @@ class MailboxAPIApi:
 
         Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param mailbox_batch_get_body:
         :type mailbox_batch_get_body: MailboxBatchGetBody
         :param _request_timeout: timeout setting for this request. If one
@@ -402,6 +423,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_get_messages_serialize(
+            mailbox_id=mailbox_id,
             mailbox_batch_get_body=mailbox_batch_get_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -428,6 +450,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_get_messages_with_http_info(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         mailbox_batch_get_body: Optional[MailboxBatchGetBody] = None,
         _request_timeout: Union[
             None,
@@ -446,6 +469,8 @@ class MailboxAPIApi:
 
         Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param mailbox_batch_get_body:
         :type mailbox_batch_get_body: MailboxBatchGetBody
         :param _request_timeout: timeout setting for this request. If one
@@ -471,6 +496,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_get_messages_serialize(
+            mailbox_id=mailbox_id,
             mailbox_batch_get_body=mailbox_batch_get_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -497,6 +523,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_get_messages_without_preload_content(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         mailbox_batch_get_body: Optional[MailboxBatchGetBody] = None,
         _request_timeout: Union[
             None,
@@ -515,6 +542,8 @@ class MailboxAPIApi:
 
         Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param mailbox_batch_get_body:
         :type mailbox_batch_get_body: MailboxBatchGetBody
         :param _request_timeout: timeout setting for this request. If one
@@ -540,6 +569,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_get_messages_serialize(
+            mailbox_id=mailbox_id,
             mailbox_batch_get_body=mailbox_batch_get_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -561,6 +591,7 @@ class MailboxAPIApi:
 
     def _mailbox_batch_get_messages_serialize(
         self,
+        mailbox_id,
         mailbox_batch_get_body,
         _request_auth,
         _content_type,
@@ -584,6 +615,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -639,6 +674,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_update_messages(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_update_mailbox_messages_body: Optional[BatchUpdateMailboxMessagesBody] = None,
         _request_timeout: Union[
             None,
@@ -657,6 +693,8 @@ class MailboxAPIApi:
 
         Updates allowed message flags and keywords for up to 100 messages with state-safe conflict handling.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param batch_update_mailbox_messages_body:
         :type batch_update_mailbox_messages_body: BatchUpdateMailboxMessagesBody
         :param _request_timeout: timeout setting for this request. If one
@@ -682,6 +720,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_update_messages_serialize(
+            mailbox_id=mailbox_id,
             batch_update_mailbox_messages_body=batch_update_mailbox_messages_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -708,6 +747,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_update_messages_with_http_info(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_update_mailbox_messages_body: Optional[BatchUpdateMailboxMessagesBody] = None,
         _request_timeout: Union[
             None,
@@ -726,6 +766,8 @@ class MailboxAPIApi:
 
         Updates allowed message flags and keywords for up to 100 messages with state-safe conflict handling.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param batch_update_mailbox_messages_body:
         :type batch_update_mailbox_messages_body: BatchUpdateMailboxMessagesBody
         :param _request_timeout: timeout setting for this request. If one
@@ -751,6 +793,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_update_messages_serialize(
+            mailbox_id=mailbox_id,
             batch_update_mailbox_messages_body=batch_update_mailbox_messages_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -777,6 +820,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_batch_update_messages_without_preload_content(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         batch_update_mailbox_messages_body: Optional[BatchUpdateMailboxMessagesBody] = None,
         _request_timeout: Union[
             None,
@@ -795,6 +839,8 @@ class MailboxAPIApi:
 
         Updates allowed message flags and keywords for up to 100 messages with state-safe conflict handling.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param batch_update_mailbox_messages_body:
         :type batch_update_mailbox_messages_body: BatchUpdateMailboxMessagesBody
         :param _request_timeout: timeout setting for this request. If one
@@ -820,6 +866,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_batch_update_messages_serialize(
+            mailbox_id=mailbox_id,
             batch_update_mailbox_messages_body=batch_update_mailbox_messages_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -841,6 +888,7 @@ class MailboxAPIApi:
 
     def _mailbox_batch_update_messages_serialize(
         self,
+        mailbox_id,
         batch_update_mailbox_messages_body,
         _request_auth,
         _content_type,
@@ -864,6 +912,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -938,6 +990,7 @@ class MailboxAPIApi:
         before: Optional[StrictStr] = None,
         has_attachment: Optional[StrictBool] = None,
         is_unread: Optional[StrictBool] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -993,6 +1046,8 @@ class MailboxAPIApi:
         :type has_attachment: bool
         :param is_unread:
         :type is_unread: bool
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1035,6 +1090,7 @@ class MailboxAPIApi:
             before=before,
             has_attachment=has_attachment,
             is_unread=is_unread,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1078,6 +1134,7 @@ class MailboxAPIApi:
         before: Optional[StrictStr] = None,
         has_attachment: Optional[StrictBool] = None,
         is_unread: Optional[StrictBool] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1133,6 +1190,8 @@ class MailboxAPIApi:
         :type has_attachment: bool
         :param is_unread:
         :type is_unread: bool
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1175,6 +1234,7 @@ class MailboxAPIApi:
             before=before,
             has_attachment=has_attachment,
             is_unread=is_unread,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1218,6 +1278,7 @@ class MailboxAPIApi:
         before: Optional[StrictStr] = None,
         has_attachment: Optional[StrictBool] = None,
         is_unread: Optional[StrictBool] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1273,6 +1334,8 @@ class MailboxAPIApi:
         :type has_attachment: bool
         :param is_unread:
         :type is_unread: bool
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1315,6 +1378,7 @@ class MailboxAPIApi:
             before=before,
             has_attachment=has_attachment,
             is_unread=is_unread,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1353,6 +1417,7 @@ class MailboxAPIApi:
         before,
         has_attachment,
         is_unread,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -1451,6 +1516,10 @@ class MailboxAPIApi:
             
             _query_params.append(('is_unread', is_unread))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1491,6 +1560,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_create_folder(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
         _request_timeout: Union[
             None,
@@ -1509,6 +1579,8 @@ class MailboxAPIApi:
 
         Creates a folder in the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param create_mailbox_folder_body:
         :type create_mailbox_folder_body: CreateMailboxFolderBody
         :param _request_timeout: timeout setting for this request. If one
@@ -1534,6 +1606,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_create_folder_serialize(
+            mailbox_id=mailbox_id,
             create_mailbox_folder_body=create_mailbox_folder_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1560,6 +1633,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_create_folder_with_http_info(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
         _request_timeout: Union[
             None,
@@ -1578,6 +1652,8 @@ class MailboxAPIApi:
 
         Creates a folder in the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param create_mailbox_folder_body:
         :type create_mailbox_folder_body: CreateMailboxFolderBody
         :param _request_timeout: timeout setting for this request. If one
@@ -1603,6 +1679,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_create_folder_serialize(
+            mailbox_id=mailbox_id,
             create_mailbox_folder_body=create_mailbox_folder_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1629,6 +1706,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_create_folder_without_preload_content(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
         _request_timeout: Union[
             None,
@@ -1647,6 +1725,8 @@ class MailboxAPIApi:
 
         Creates a folder in the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param create_mailbox_folder_body:
         :type create_mailbox_folder_body: CreateMailboxFolderBody
         :param _request_timeout: timeout setting for this request. If one
@@ -1672,6 +1752,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_create_folder_serialize(
+            mailbox_id=mailbox_id,
             create_mailbox_folder_body=create_mailbox_folder_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1693,6 +1774,7 @@ class MailboxAPIApi:
 
     def _mailbox_create_folder_serialize(
         self,
+        mailbox_id,
         create_mailbox_folder_body,
         _request_auth,
         _content_type,
@@ -1716,6 +1798,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1773,6 +1859,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1794,6 +1881,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1819,6 +1908,7 @@ class MailboxAPIApi:
         _param = self._mailbox_delete_folder_serialize(
             folder_id=folder_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1845,6 +1935,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1866,6 +1957,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1891,6 +1984,7 @@ class MailboxAPIApi:
         _param = self._mailbox_delete_folder_serialize(
             folder_id=folder_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1917,6 +2011,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1938,6 +2033,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1963,6 +2060,7 @@ class MailboxAPIApi:
         _param = self._mailbox_delete_folder_serialize(
             folder_id=folder_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1984,6 +2082,7 @@ class MailboxAPIApi:
         self,
         folder_id,
         if_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2008,6 +2107,10 @@ class MailboxAPIApi:
         if folder_id is not None:
             _path_params['folder_id'] = folder_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -2053,6 +2156,7 @@ class MailboxAPIApi:
         message_id: StrictStr,
         permanent: Optional[StrictBool] = None,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2076,6 +2180,8 @@ class MailboxAPIApi:
         :type permanent: bool
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2102,6 +2208,7 @@ class MailboxAPIApi:
             message_id=message_id,
             permanent=permanent,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2130,6 +2237,7 @@ class MailboxAPIApi:
         message_id: StrictStr,
         permanent: Optional[StrictBool] = None,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2153,6 +2261,8 @@ class MailboxAPIApi:
         :type permanent: bool
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2179,6 +2289,7 @@ class MailboxAPIApi:
             message_id=message_id,
             permanent=permanent,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2207,6 +2318,7 @@ class MailboxAPIApi:
         message_id: StrictStr,
         permanent: Optional[StrictBool] = None,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2230,6 +2342,8 @@ class MailboxAPIApi:
         :type permanent: bool
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2256,6 +2370,7 @@ class MailboxAPIApi:
             message_id=message_id,
             permanent=permanent,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2279,6 +2394,7 @@ class MailboxAPIApi:
         message_id,
         permanent,
         if_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2306,6 +2422,10 @@ class MailboxAPIApi:
         if permanent is not None:
             
             _query_params.append(('permanent', permanent))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         if if_match is not None:
@@ -2358,6 +2478,7 @@ class MailboxAPIApi:
         identities_since_state: Optional[StrictStr] = None,
         quotas_since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2393,6 +2514,8 @@ class MailboxAPIApi:
         :type quotas_since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2425,6 +2548,7 @@ class MailboxAPIApi:
             identities_since_state=identities_since_state,
             quotas_since_state=quotas_since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2458,6 +2582,7 @@ class MailboxAPIApi:
         identities_since_state: Optional[StrictStr] = None,
         quotas_since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2493,6 +2618,8 @@ class MailboxAPIApi:
         :type quotas_since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2525,6 +2652,7 @@ class MailboxAPIApi:
             identities_since_state=identities_since_state,
             quotas_since_state=quotas_since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2558,6 +2686,7 @@ class MailboxAPIApi:
         identities_since_state: Optional[StrictStr] = None,
         quotas_since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2593,6 +2722,8 @@ class MailboxAPIApi:
         :type quotas_since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2625,6 +2756,7 @@ class MailboxAPIApi:
             identities_since_state=identities_since_state,
             quotas_since_state=quotas_since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2653,6 +2785,7 @@ class MailboxAPIApi:
         identities_since_state,
         quotas_since_state,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2711,6 +2844,10 @@ class MailboxAPIApi:
             
             _query_params.append(('limit', limit))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2753,6 +2890,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2774,6 +2912,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2799,6 +2939,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_folder_serialize(
             folder_id=folder_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2826,6 +2967,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2847,6 +2989,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2872,6 +3016,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_folder_serialize(
             folder_id=folder_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2899,6 +3044,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2920,6 +3066,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2945,6 +3093,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_folder_serialize(
             folder_id=folder_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2967,6 +3116,7 @@ class MailboxAPIApi:
         self,
         folder_id,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2991,6 +3141,10 @@ class MailboxAPIApi:
         if folder_id is not None:
             _path_params['folder_id'] = folder_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -3035,6 +3189,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3056,6 +3211,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3081,6 +3238,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_folder_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3107,6 +3265,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3128,6 +3287,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3153,6 +3314,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_folder_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3179,6 +3341,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3200,6 +3363,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3225,6 +3390,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_folder_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3246,6 +3412,7 @@ class MailboxAPIApi:
         self,
         since_state,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -3275,6 +3442,10 @@ class MailboxAPIApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -3316,6 +3487,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_get_identity(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3333,6 +3505,8 @@ class MailboxAPIApi:
 
         Returns the default sender identity and signatures for the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3356,6 +3530,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_get_identity_serialize(
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3382,6 +3557,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_get_identity_with_http_info(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3399,6 +3575,8 @@ class MailboxAPIApi:
 
         Returns the default sender identity and signatures for the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3422,6 +3600,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_get_identity_serialize(
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3448,6 +3627,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_get_identity_without_preload_content(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3465,6 +3645,8 @@ class MailboxAPIApi:
 
         Returns the default sender identity and signatures for the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3488,6 +3670,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_get_identity_serialize(
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3509,6 +3692,7 @@ class MailboxAPIApi:
 
     def _mailbox_get_identity_serialize(
         self,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -3531,6 +3715,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -3572,6 +3760,7 @@ class MailboxAPIApi:
     def mailbox_get_me(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3591,6 +3780,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3615,6 +3806,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_get_me_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3643,6 +3835,7 @@ class MailboxAPIApi:
     def mailbox_get_me_with_http_info(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3662,6 +3855,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3686,6 +3881,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_get_me_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3714,6 +3910,7 @@ class MailboxAPIApi:
     def mailbox_get_me_without_preload_content(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3733,6 +3930,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3757,6 +3956,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_get_me_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3780,6 +3980,7 @@ class MailboxAPIApi:
     def _mailbox_get_me_serialize(
         self,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -3802,6 +4003,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -3846,6 +4051,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3867,6 +4073,8 @@ class MailboxAPIApi:
         :type message_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3892,6 +4100,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_serialize(
             message_id=message_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3919,6 +4128,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3940,6 +4150,8 @@ class MailboxAPIApi:
         :type message_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3965,6 +4177,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_serialize(
             message_id=message_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3992,6 +4205,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4013,6 +4227,8 @@ class MailboxAPIApi:
         :type message_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4038,6 +4254,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_serialize(
             message_id=message_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4060,6 +4277,7 @@ class MailboxAPIApi:
         self,
         message_id,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -4084,6 +4302,10 @@ class MailboxAPIApi:
         if message_id is not None:
             _path_params['message_id'] = message_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -4129,6 +4351,7 @@ class MailboxAPIApi:
         message_id: StrictStr,
         attachment_id: StrictStr,
         range: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4152,6 +4375,8 @@ class MailboxAPIApi:
         :type attachment_id: str
         :param range:
         :type range: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4178,6 +4403,7 @@ class MailboxAPIApi:
             message_id=message_id,
             attachment_id=attachment_id,
             range=range,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4207,6 +4433,7 @@ class MailboxAPIApi:
         message_id: StrictStr,
         attachment_id: StrictStr,
         range: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4230,6 +4457,8 @@ class MailboxAPIApi:
         :type attachment_id: str
         :param range:
         :type range: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4256,6 +4485,7 @@ class MailboxAPIApi:
             message_id=message_id,
             attachment_id=attachment_id,
             range=range,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4285,6 +4515,7 @@ class MailboxAPIApi:
         message_id: StrictStr,
         attachment_id: StrictStr,
         range: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4308,6 +4539,8 @@ class MailboxAPIApi:
         :type attachment_id: str
         :param range:
         :type range: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4334,6 +4567,7 @@ class MailboxAPIApi:
             message_id=message_id,
             attachment_id=attachment_id,
             range=range,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4358,6 +4592,7 @@ class MailboxAPIApi:
         message_id,
         attachment_id,
         range,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -4384,6 +4619,10 @@ class MailboxAPIApi:
         if attachment_id is not None:
             _path_params['attachment_id'] = attachment_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if range is not None:
             _header_params['Range'] = range
@@ -4428,6 +4667,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4449,6 +4689,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4474,6 +4716,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_quota_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4500,6 +4743,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4521,6 +4765,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4546,6 +4792,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_quota_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4572,6 +4819,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4593,6 +4841,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4618,6 +4868,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_quota_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4639,6 +4890,7 @@ class MailboxAPIApi:
         self,
         since_state,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -4668,6 +4920,10 @@ class MailboxAPIApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -4710,6 +4966,7 @@ class MailboxAPIApi:
     def mailbox_get_session(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4729,6 +4986,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4753,6 +5012,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_get_session_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4781,6 +5041,7 @@ class MailboxAPIApi:
     def mailbox_get_session_with_http_info(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4800,6 +5061,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4824,6 +5087,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_get_session_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4852,6 +5116,7 @@ class MailboxAPIApi:
     def mailbox_get_session_without_preload_content(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4871,6 +5136,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4895,6 +5162,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_get_session_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4918,6 +5186,7 @@ class MailboxAPIApi:
     def _mailbox_get_session_serialize(
         self,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -4940,6 +5209,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -4984,6 +5257,7 @@ class MailboxAPIApi:
         self,
         submission_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5005,6 +5279,8 @@ class MailboxAPIApi:
         :type submission_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5030,6 +5306,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_submission_serialize(
             submission_id=submission_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5057,6 +5334,7 @@ class MailboxAPIApi:
         self,
         submission_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5078,6 +5356,8 @@ class MailboxAPIApi:
         :type submission_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5103,6 +5383,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_submission_serialize(
             submission_id=submission_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5130,6 +5411,7 @@ class MailboxAPIApi:
         self,
         submission_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5151,6 +5433,8 @@ class MailboxAPIApi:
         :type submission_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5176,6 +5460,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_submission_serialize(
             submission_id=submission_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5198,6 +5483,7 @@ class MailboxAPIApi:
         self,
         submission_id,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -5222,6 +5508,10 @@ class MailboxAPIApi:
         if submission_id is not None:
             _path_params['submission_id'] = submission_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -5266,6 +5556,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5287,6 +5578,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5312,6 +5605,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_submission_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5338,6 +5632,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5359,6 +5654,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5384,6 +5681,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_submission_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5410,6 +5708,7 @@ class MailboxAPIApi:
         self,
         since_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5431,6 +5730,8 @@ class MailboxAPIApi:
         :type since_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5456,6 +5757,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_submission_changes_serialize(
             since_state=since_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5477,6 +5779,7 @@ class MailboxAPIApi:
         self,
         since_state,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -5506,6 +5809,10 @@ class MailboxAPIApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -5549,6 +5856,7 @@ class MailboxAPIApi:
         self,
         thread_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5570,6 +5878,8 @@ class MailboxAPIApi:
         :type thread_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5595,6 +5905,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_thread_serialize(
             thread_id=thread_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5622,6 +5933,7 @@ class MailboxAPIApi:
         self,
         thread_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5643,6 +5955,8 @@ class MailboxAPIApi:
         :type thread_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5668,6 +5982,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_thread_serialize(
             thread_id=thread_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5695,6 +6010,7 @@ class MailboxAPIApi:
         self,
         thread_id: StrictStr,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5716,6 +6032,8 @@ class MailboxAPIApi:
         :type thread_id: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5741,6 +6059,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_thread_serialize(
             thread_id=thread_id,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5763,6 +6082,7 @@ class MailboxAPIApi:
         self,
         thread_id,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -5787,6 +6107,10 @@ class MailboxAPIApi:
         if thread_id is not None:
             _path_params['thread_id'] = thread_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -5842,6 +6166,7 @@ class MailboxAPIApi:
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         sort: Optional[StrictStr] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -5885,6 +6210,8 @@ class MailboxAPIApi:
         :type sort: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -5921,6 +6248,7 @@ class MailboxAPIApi:
             limit=limit,
             sort=sort,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -5960,6 +6288,7 @@ class MailboxAPIApi:
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         sort: Optional[StrictStr] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6003,6 +6332,8 @@ class MailboxAPIApi:
         :type sort: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6039,6 +6370,7 @@ class MailboxAPIApi:
             limit=limit,
             sort=sort,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6078,6 +6410,7 @@ class MailboxAPIApi:
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         sort: Optional[StrictStr] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6121,6 +6454,8 @@ class MailboxAPIApi:
         :type sort: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6157,6 +6492,7 @@ class MailboxAPIApi:
             limit=limit,
             sort=sort,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6191,6 +6527,7 @@ class MailboxAPIApi:
         limit,
         sort,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -6259,6 +6596,10 @@ class MailboxAPIApi:
             
             _query_params.append(('sort', sort))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -6305,6 +6646,7 @@ class MailboxAPIApi:
         part: Optional[StrictStr] = None,
         max_body_chars: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6330,6 +6672,8 @@ class MailboxAPIApi:
         :type max_body_chars: int
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6357,6 +6701,7 @@ class MailboxAPIApi:
             part=part,
             max_body_chars=max_body_chars,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6387,6 +6732,7 @@ class MailboxAPIApi:
         part: Optional[StrictStr] = None,
         max_body_chars: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6412,6 +6758,8 @@ class MailboxAPIApi:
         :type max_body_chars: int
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6439,6 +6787,7 @@ class MailboxAPIApi:
             part=part,
             max_body_chars=max_body_chars,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6469,6 +6818,7 @@ class MailboxAPIApi:
         part: Optional[StrictStr] = None,
         max_body_chars: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6494,6 +6844,8 @@ class MailboxAPIApi:
         :type max_body_chars: int
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6521,6 +6873,7 @@ class MailboxAPIApi:
             part=part,
             max_body_chars=max_body_chars,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6546,6 +6899,7 @@ class MailboxAPIApi:
         part,
         max_body_chars,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -6577,6 +6931,10 @@ class MailboxAPIApi:
         if max_body_chars is not None:
             
             _query_params.append(('max_body_chars', max_body_chars))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         if if_none_match is not None:
@@ -6630,6 +6988,7 @@ class MailboxAPIApi:
         include_headers: Optional[StrictStr] = None,
         include_attachments: Optional[StrictStr] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6667,6 +7026,8 @@ class MailboxAPIApi:
         :type include_attachments: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6700,6 +7061,7 @@ class MailboxAPIApi:
             include_headers=include_headers,
             include_attachments=include_attachments,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6736,6 +7098,7 @@ class MailboxAPIApi:
         include_headers: Optional[StrictStr] = None,
         include_attachments: Optional[StrictStr] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6773,6 +7136,8 @@ class MailboxAPIApi:
         :type include_attachments: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6806,6 +7171,7 @@ class MailboxAPIApi:
             include_headers=include_headers,
             include_attachments=include_attachments,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6842,6 +7208,7 @@ class MailboxAPIApi:
         include_headers: Optional[StrictStr] = None,
         include_attachments: Optional[StrictStr] = None,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -6879,6 +7246,8 @@ class MailboxAPIApi:
         :type include_attachments: str
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -6912,6 +7281,7 @@ class MailboxAPIApi:
             include_headers=include_headers,
             include_attachments=include_attachments,
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -6943,6 +7313,7 @@ class MailboxAPIApi:
         include_headers,
         include_attachments,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -6999,6 +7370,10 @@ class MailboxAPIApi:
             
             _query_params.append(('include_attachments', include_attachments))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -7043,6 +7418,7 @@ class MailboxAPIApi:
         self,
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7064,6 +7440,8 @@ class MailboxAPIApi:
         :type cursor: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7089,6 +7467,7 @@ class MailboxAPIApi:
         _param = self._mailbox_list_folders_serialize(
             cursor=cursor,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7114,6 +7493,7 @@ class MailboxAPIApi:
         self,
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7135,6 +7515,8 @@ class MailboxAPIApi:
         :type cursor: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7160,6 +7542,7 @@ class MailboxAPIApi:
         _param = self._mailbox_list_folders_serialize(
             cursor=cursor,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7185,6 +7568,7 @@ class MailboxAPIApi:
         self,
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7206,6 +7590,8 @@ class MailboxAPIApi:
         :type cursor: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7231,6 +7617,7 @@ class MailboxAPIApi:
         _param = self._mailbox_list_folders_serialize(
             cursor=cursor,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7251,6 +7638,7 @@ class MailboxAPIApi:
         self,
         cursor,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -7280,6 +7668,10 @@ class MailboxAPIApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -7319,10 +7711,11 @@ class MailboxAPIApi:
 
 
     @validate_call
-    def mailbox_list_identities(
+    def mailbox_list_granted_mailboxes(
         self,
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        q: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7335,15 +7728,17 @@ class MailboxAPIApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> MailboxIdentityCursorListResponse:
-        """List mailbox sender identities
+    ) -> GrantedMailboxListResponse:
+        """List granted mailboxes
 
-        Returns sender identities available to the authenticated mailbox.
+        Lists the mailboxes available to the current mailbox credential or connected app. Use this before choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
 
         :param cursor:
         :type cursor: str
         :param limit:
         :type limit: int
+        :param q:
+        :type q: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7366,9 +7761,10 @@ class MailboxAPIApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._mailbox_list_identities_serialize(
+        _param = self._mailbox_list_granted_mailboxes_serialize(
             cursor=cursor,
             limit=limit,
+            q=q,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7376,8 +7772,7 @@ class MailboxAPIApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "MailboxIdentityCursorListResponse",
-            '400': "ApiError",
+            '200': "GrantedMailboxListResponse",
             '401': "ApiError",
             '403': "ApiError",
         }
@@ -7393,10 +7788,11 @@ class MailboxAPIApi:
 
 
     @validate_call
-    def mailbox_list_identities_with_http_info(
+    def mailbox_list_granted_mailboxes_with_http_info(
         self,
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        q: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7409,15 +7805,17 @@ class MailboxAPIApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[MailboxIdentityCursorListResponse]:
-        """List mailbox sender identities
+    ) -> ApiResponse[GrantedMailboxListResponse]:
+        """List granted mailboxes
 
-        Returns sender identities available to the authenticated mailbox.
+        Lists the mailboxes available to the current mailbox credential or connected app. Use this before choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
 
         :param cursor:
         :type cursor: str
         :param limit:
         :type limit: int
+        :param q:
+        :type q: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7440,9 +7838,10 @@ class MailboxAPIApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._mailbox_list_identities_serialize(
+        _param = self._mailbox_list_granted_mailboxes_serialize(
             cursor=cursor,
             limit=limit,
+            q=q,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7450,8 +7849,7 @@ class MailboxAPIApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "MailboxIdentityCursorListResponse",
-            '400': "ApiError",
+            '200': "GrantedMailboxListResponse",
             '401': "ApiError",
             '403': "ApiError",
         }
@@ -7467,10 +7865,11 @@ class MailboxAPIApi:
 
 
     @validate_call
-    def mailbox_list_identities_without_preload_content(
+    def mailbox_list_granted_mailboxes_without_preload_content(
         self,
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        q: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7484,14 +7883,16 @@ class MailboxAPIApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List mailbox sender identities
+        """List granted mailboxes
 
-        Returns sender identities available to the authenticated mailbox.
+        Lists the mailboxes available to the current mailbox credential or connected app. Use this before choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
 
         :param cursor:
         :type cursor: str
         :param limit:
         :type limit: int
+        :param q:
+        :type q: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7514,9 +7915,10 @@ class MailboxAPIApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._mailbox_list_identities_serialize(
+        _param = self._mailbox_list_granted_mailboxes_serialize(
             cursor=cursor,
             limit=limit,
+            q=q,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7524,8 +7926,7 @@ class MailboxAPIApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "MailboxIdentityCursorListResponse",
-            '400': "ApiError",
+            '200': "GrantedMailboxListResponse",
             '401': "ApiError",
             '403': "ApiError",
         }
@@ -7536,10 +7937,11 @@ class MailboxAPIApi:
         return response_data.response
 
 
-    def _mailbox_list_identities_serialize(
+    def _mailbox_list_granted_mailboxes_serialize(
         self,
         cursor,
         limit,
+        q,
         _request_auth,
         _content_type,
         _headers,
@@ -7569,6 +7971,316 @@ class MailboxAPIApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if q is not None:
+            
+            _query_params.append(('q', q))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/mailboxes',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_list_identities(
+        self,
+        cursor: Optional[StrictStr] = None,
+        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxIdentityCursorListResponse:
+        """List mailbox sender identities
+
+        Returns sender identities available to the authenticated mailbox.
+
+        :param cursor:
+        :type cursor: str
+        :param limit:
+        :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_list_identities_serialize(
+            cursor=cursor,
+            limit=limit,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxIdentityCursorListResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_list_identities_with_http_info(
+        self,
+        cursor: Optional[StrictStr] = None,
+        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxIdentityCursorListResponse]:
+        """List mailbox sender identities
+
+        Returns sender identities available to the authenticated mailbox.
+
+        :param cursor:
+        :type cursor: str
+        :param limit:
+        :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_list_identities_serialize(
+            cursor=cursor,
+            limit=limit,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxIdentityCursorListResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_list_identities_without_preload_content(
+        self,
+        cursor: Optional[StrictStr] = None,
+        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List mailbox sender identities
+
+        Returns sender identities available to the authenticated mailbox.
+
+        :param cursor:
+        :type cursor: str
+        :param limit:
+        :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_list_identities_serialize(
+            cursor=cursor,
+            limit=limit,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxIdentityCursorListResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_list_identities_serialize(
+        self,
+        cursor,
+        limit,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -7633,6 +8345,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7696,6 +8409,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7742,6 +8457,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7791,6 +8507,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -7854,6 +8571,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -7900,6 +8619,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -7949,6 +8669,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8012,6 +8733,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8058,6 +8781,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8102,6 +8826,7 @@ class MailboxAPIApi:
         is_unread,
         sort_by,
         sort_direction,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -8216,6 +8941,10 @@ class MailboxAPIApi:
             
             _query_params.append(('sort_direction', sort_direction))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -8264,6 +8993,7 @@ class MailboxAPIApi:
         type: Optional[StrictStr] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8297,6 +9027,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8328,6 +9060,7 @@ class MailboxAPIApi:
             type=type,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8360,6 +9093,7 @@ class MailboxAPIApi:
         type: Optional[StrictStr] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8393,6 +9127,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8424,6 +9160,7 @@ class MailboxAPIApi:
             type=type,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8456,6 +9193,7 @@ class MailboxAPIApi:
         type: Optional[StrictStr] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8489,6 +9227,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8520,6 +9260,7 @@ class MailboxAPIApi:
             type=type,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8547,6 +9288,7 @@ class MailboxAPIApi:
         type,
         sort_by,
         sort_direction,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -8601,6 +9343,10 @@ class MailboxAPIApi:
             
             _query_params.append(('sort_direction', sort_direction))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -8651,6 +9397,7 @@ class MailboxAPIApi:
         before: Optional[StrictStr] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8688,6 +9435,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8721,6 +9470,7 @@ class MailboxAPIApi:
             before=before,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8755,6 +9505,7 @@ class MailboxAPIApi:
         before: Optional[StrictStr] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8792,6 +9543,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8825,6 +9578,7 @@ class MailboxAPIApi:
             before=before,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8859,6 +9613,7 @@ class MailboxAPIApi:
         before: Optional[StrictStr] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -8896,6 +9651,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -8929,6 +9686,7 @@ class MailboxAPIApi:
             before=before,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -8958,6 +9716,7 @@ class MailboxAPIApi:
         before,
         sort_by,
         sort_direction,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -9020,6 +9779,10 @@ class MailboxAPIApi:
             
             _query_params.append(('sort_direction', sort_direction))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -9064,6 +9827,7 @@ class MailboxAPIApi:
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         sort: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9089,6 +9853,8 @@ class MailboxAPIApi:
         :type limit: int
         :param sort:
         :type sort: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9116,6 +9882,7 @@ class MailboxAPIApi:
             cursor=cursor,
             limit=limit,
             sort=sort,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9145,6 +9912,7 @@ class MailboxAPIApi:
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         sort: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9170,6 +9938,8 @@ class MailboxAPIApi:
         :type limit: int
         :param sort:
         :type sort: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9197,6 +9967,7 @@ class MailboxAPIApi:
             cursor=cursor,
             limit=limit,
             sort=sort,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9226,6 +9997,7 @@ class MailboxAPIApi:
         cursor: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         sort: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9251,6 +10023,8 @@ class MailboxAPIApi:
         :type limit: int
         :param sort:
         :type sort: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9278,6 +10052,7 @@ class MailboxAPIApi:
             cursor=cursor,
             limit=limit,
             sort=sort,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9302,6 +10077,7 @@ class MailboxAPIApi:
         cursor,
         limit,
         sort,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -9337,6 +10113,10 @@ class MailboxAPIApi:
         if sort is not None:
             
             _query_params.append(('sort', sort))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -9388,6 +10168,7 @@ class MailboxAPIApi:
         has_attachment: Optional[StrictBool] = None,
         is_unread: Optional[StrictBool] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9425,6 +10206,8 @@ class MailboxAPIApi:
         :type is_unread: bool
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9458,6 +10241,7 @@ class MailboxAPIApi:
             has_attachment=has_attachment,
             is_unread=is_unread,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9494,6 +10278,7 @@ class MailboxAPIApi:
         has_attachment: Optional[StrictBool] = None,
         is_unread: Optional[StrictBool] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9531,6 +10316,8 @@ class MailboxAPIApi:
         :type is_unread: bool
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9564,6 +10351,7 @@ class MailboxAPIApi:
             has_attachment=has_attachment,
             is_unread=is_unread,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9600,6 +10388,7 @@ class MailboxAPIApi:
         has_attachment: Optional[StrictBool] = None,
         is_unread: Optional[StrictBool] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9637,6 +10426,8 @@ class MailboxAPIApi:
         :type is_unread: bool
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9670,6 +10461,7 @@ class MailboxAPIApi:
             has_attachment=has_attachment,
             is_unread=is_unread,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9701,6 +10493,7 @@ class MailboxAPIApi:
         has_attachment,
         is_unread,
         sort_direction,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -9763,6 +10556,10 @@ class MailboxAPIApi:
             
             _query_params.append(('sort_direction', sort_direction))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -9804,6 +10601,7 @@ class MailboxAPIApi:
     def mailbox_list_usage(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9823,6 +10621,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9847,6 +10647,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_list_usage_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9872,6 +10673,7 @@ class MailboxAPIApi:
     def mailbox_list_usage_with_http_info(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9891,6 +10693,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9915,6 +10719,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_list_usage_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -9940,6 +10745,7 @@ class MailboxAPIApi:
     def mailbox_list_usage_without_preload_content(
         self,
         if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -9959,6 +10765,8 @@ class MailboxAPIApi:
 
         :param if_none_match:
         :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -9983,6 +10791,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_list_usage_serialize(
             if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10003,6 +10812,7 @@ class MailboxAPIApi:
     def _mailbox_list_usage_serialize(
         self,
         if_none_match,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -10025,6 +10835,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -10069,6 +10883,7 @@ class MailboxAPIApi:
         self,
         since_query_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -10090,6 +10905,8 @@ class MailboxAPIApi:
         :type since_query_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -10115,6 +10932,7 @@ class MailboxAPIApi:
         _param = self._mailbox_query_folder_changes_serialize(
             since_query_state=since_query_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10141,6 +10959,7 @@ class MailboxAPIApi:
         self,
         since_query_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -10162,6 +10981,8 @@ class MailboxAPIApi:
         :type since_query_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -10187,6 +11008,7 @@ class MailboxAPIApi:
         _param = self._mailbox_query_folder_changes_serialize(
             since_query_state=since_query_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10213,6 +11035,7 @@ class MailboxAPIApi:
         self,
         since_query_state: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -10234,6 +11057,8 @@ class MailboxAPIApi:
         :type since_query_state: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -10259,6 +11084,7 @@ class MailboxAPIApi:
         _param = self._mailbox_query_folder_changes_serialize(
             since_query_state=since_query_state,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10280,6 +11106,7 @@ class MailboxAPIApi:
         self,
         since_query_state,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -10309,6 +11136,10 @@ class MailboxAPIApi:
         if limit is not None:
             
             _query_params.append(('limit', limit))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters
@@ -10374,6 +11205,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -10439,6 +11271,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -10486,6 +11320,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10534,6 +11369,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -10599,6 +11435,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -10646,6 +11484,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10694,6 +11533,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         sort_by: Optional[StrictStr] = None,
         sort_direction: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -10759,6 +11599,8 @@ class MailboxAPIApi:
         :type sort_by: str
         :param sort_direction:
         :type sort_direction: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -10806,6 +11648,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             sort_by=sort_by,
             sort_direction=sort_direction,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -10849,6 +11692,7 @@ class MailboxAPIApi:
         is_unread,
         sort_by,
         sort_direction,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -10967,6 +11811,10 @@ class MailboxAPIApi:
             
             _query_params.append(('sort_direction', sort_direction))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -11027,6 +11875,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         message_ids: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -11084,6 +11933,8 @@ class MailboxAPIApi:
         :type message_ids: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -11127,6 +11978,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             message_ids=message_ids,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -11171,6 +12023,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         message_ids: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -11228,6 +12081,8 @@ class MailboxAPIApi:
         :type message_ids: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -11271,6 +12126,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             message_ids=message_ids,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -11315,6 +12171,7 @@ class MailboxAPIApi:
         is_unread: Optional[StrictBool] = None,
         message_ids: Optional[StrictStr] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -11372,6 +12229,8 @@ class MailboxAPIApi:
         :type message_ids: str
         :param limit:
         :type limit: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -11415,6 +12274,7 @@ class MailboxAPIApi:
             is_unread=is_unread,
             message_ids=message_ids,
             limit=limit,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -11454,6 +12314,7 @@ class MailboxAPIApi:
         is_unread,
         message_ids,
         limit,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -11556,6 +12417,10 @@ class MailboxAPIApi:
             
             _query_params.append(('limit', limit))
             
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -11597,6 +12462,7 @@ class MailboxAPIApi:
     def mailbox_send_message(
         self,
         idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         send_mailbox_message_body: Optional[SendMailboxMessageBody] = None,
         _request_timeout: Union[
             None,
@@ -11617,6 +12483,8 @@ class MailboxAPIApi:
 
         :param idempotency_key:
         :type idempotency_key: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param send_mailbox_message_body:
         :type send_mailbox_message_body: SendMailboxMessageBody
         :param _request_timeout: timeout setting for this request. If one
@@ -11643,6 +12511,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_send_message_serialize(
             idempotency_key=idempotency_key,
+            mailbox_id=mailbox_id,
             send_mailbox_message_body=send_mailbox_message_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -11672,6 +12541,7 @@ class MailboxAPIApi:
     def mailbox_send_message_with_http_info(
         self,
         idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         send_mailbox_message_body: Optional[SendMailboxMessageBody] = None,
         _request_timeout: Union[
             None,
@@ -11692,6 +12562,8 @@ class MailboxAPIApi:
 
         :param idempotency_key:
         :type idempotency_key: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param send_mailbox_message_body:
         :type send_mailbox_message_body: SendMailboxMessageBody
         :param _request_timeout: timeout setting for this request. If one
@@ -11718,6 +12590,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_send_message_serialize(
             idempotency_key=idempotency_key,
+            mailbox_id=mailbox_id,
             send_mailbox_message_body=send_mailbox_message_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -11747,6 +12620,7 @@ class MailboxAPIApi:
     def mailbox_send_message_without_preload_content(
         self,
         idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         send_mailbox_message_body: Optional[SendMailboxMessageBody] = None,
         _request_timeout: Union[
             None,
@@ -11767,6 +12641,8 @@ class MailboxAPIApi:
 
         :param idempotency_key:
         :type idempotency_key: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param send_mailbox_message_body:
         :type send_mailbox_message_body: SendMailboxMessageBody
         :param _request_timeout: timeout setting for this request. If one
@@ -11793,6 +12669,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_send_message_serialize(
             idempotency_key=idempotency_key,
+            mailbox_id=mailbox_id,
             send_mailbox_message_body=send_mailbox_message_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -11817,6 +12694,7 @@ class MailboxAPIApi:
     def _mailbox_send_message_serialize(
         self,
         idempotency_key,
+        mailbox_id,
         send_mailbox_message_body,
         _request_auth,
         _content_type,
@@ -11840,6 +12718,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if idempotency_key is not None:
             _header_params['Idempotency-Key'] = idempotency_key
@@ -11902,6 +12784,7 @@ class MailboxAPIApi:
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -11929,6 +12812,8 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -11957,6 +12842,7 @@ class MailboxAPIApi:
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -11990,6 +12876,7 @@ class MailboxAPIApi:
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -12017,6 +12904,8 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -12045,6 +12934,7 @@ class MailboxAPIApi:
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -12078,6 +12968,7 @@ class MailboxAPIApi:
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -12105,6 +12996,8 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -12133,6 +13026,7 @@ class MailboxAPIApi:
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -12161,6 +13055,7 @@ class MailboxAPIApi:
         ping,
         close_after,
         last_event_id2,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -12198,6 +13093,10 @@ class MailboxAPIApi:
         if close_after is not None:
             
             _query_params.append(('close_after', close_after))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         if last_event_id2 is not None:
@@ -12244,6 +13143,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_folder_body: Optional[PatchMailboxFolderBody] = None,
         _request_timeout: Union[
             None,
@@ -12266,6 +13166,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param patch_mailbox_folder_body:
         :type patch_mailbox_folder_body: PatchMailboxFolderBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12293,6 +13195,7 @@ class MailboxAPIApi:
         _param = self._mailbox_update_folder_serialize(
             folder_id=folder_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             patch_mailbox_folder_body=patch_mailbox_folder_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12322,6 +13225,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_folder_body: Optional[PatchMailboxFolderBody] = None,
         _request_timeout: Union[
             None,
@@ -12344,6 +13248,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param patch_mailbox_folder_body:
         :type patch_mailbox_folder_body: PatchMailboxFolderBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12371,6 +13277,7 @@ class MailboxAPIApi:
         _param = self._mailbox_update_folder_serialize(
             folder_id=folder_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             patch_mailbox_folder_body=patch_mailbox_folder_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12400,6 +13307,7 @@ class MailboxAPIApi:
         self,
         folder_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_folder_body: Optional[PatchMailboxFolderBody] = None,
         _request_timeout: Union[
             None,
@@ -12422,6 +13330,8 @@ class MailboxAPIApi:
         :type folder_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param patch_mailbox_folder_body:
         :type patch_mailbox_folder_body: PatchMailboxFolderBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12449,6 +13359,7 @@ class MailboxAPIApi:
         _param = self._mailbox_update_folder_serialize(
             folder_id=folder_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             patch_mailbox_folder_body=patch_mailbox_folder_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12473,6 +13384,7 @@ class MailboxAPIApi:
         self,
         folder_id,
         if_match,
+        mailbox_id,
         patch_mailbox_folder_body,
         _request_auth,
         _content_type,
@@ -12498,6 +13410,10 @@ class MailboxAPIApi:
         if folder_id is not None:
             _path_params['folder_id'] = folder_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -12555,6 +13471,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_update_identity(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         update_mailbox_identity_body: Optional[UpdateMailboxIdentityBody] = None,
         _request_timeout: Union[
             None,
@@ -12573,6 +13490,8 @@ class MailboxAPIApi:
 
         Updates the default sender name, plain text signature, and HTML signature for the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param update_mailbox_identity_body:
         :type update_mailbox_identity_body: UpdateMailboxIdentityBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12598,6 +13517,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_update_identity_serialize(
+            mailbox_id=mailbox_id,
             update_mailbox_identity_body=update_mailbox_identity_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12627,6 +13547,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_update_identity_with_http_info(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         update_mailbox_identity_body: Optional[UpdateMailboxIdentityBody] = None,
         _request_timeout: Union[
             None,
@@ -12645,6 +13566,8 @@ class MailboxAPIApi:
 
         Updates the default sender name, plain text signature, and HTML signature for the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param update_mailbox_identity_body:
         :type update_mailbox_identity_body: UpdateMailboxIdentityBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12670,6 +13593,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_update_identity_serialize(
+            mailbox_id=mailbox_id,
             update_mailbox_identity_body=update_mailbox_identity_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12699,6 +13623,7 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_update_identity_without_preload_content(
         self,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         update_mailbox_identity_body: Optional[UpdateMailboxIdentityBody] = None,
         _request_timeout: Union[
             None,
@@ -12717,6 +13642,8 @@ class MailboxAPIApi:
 
         Updates the default sender name, plain text signature, and HTML signature for the authenticated mailbox.
 
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param update_mailbox_identity_body:
         :type update_mailbox_identity_body: UpdateMailboxIdentityBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12742,6 +13669,7 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_update_identity_serialize(
+            mailbox_id=mailbox_id,
             update_mailbox_identity_body=update_mailbox_identity_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12766,6 +13694,7 @@ class MailboxAPIApi:
 
     def _mailbox_update_identity_serialize(
         self,
+        mailbox_id,
         update_mailbox_identity_body,
         _request_auth,
         _content_type,
@@ -12789,6 +13718,10 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -12846,6 +13779,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_message_body: Optional[PatchMailboxMessageBody] = None,
         _request_timeout: Union[
             None,
@@ -12868,6 +13802,8 @@ class MailboxAPIApi:
         :type message_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param patch_mailbox_message_body:
         :type patch_mailbox_message_body: PatchMailboxMessageBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12895,6 +13831,7 @@ class MailboxAPIApi:
         _param = self._mailbox_update_message_serialize(
             message_id=message_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             patch_mailbox_message_body=patch_mailbox_message_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -12924,6 +13861,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_message_body: Optional[PatchMailboxMessageBody] = None,
         _request_timeout: Union[
             None,
@@ -12946,6 +13884,8 @@ class MailboxAPIApi:
         :type message_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param patch_mailbox_message_body:
         :type patch_mailbox_message_body: PatchMailboxMessageBody
         :param _request_timeout: timeout setting for this request. If one
@@ -12973,6 +13913,7 @@ class MailboxAPIApi:
         _param = self._mailbox_update_message_serialize(
             message_id=message_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             patch_mailbox_message_body=patch_mailbox_message_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -13002,6 +13943,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         if_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         patch_mailbox_message_body: Optional[PatchMailboxMessageBody] = None,
         _request_timeout: Union[
             None,
@@ -13024,6 +13966,8 @@ class MailboxAPIApi:
         :type message_id: str
         :param if_match:
         :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param patch_mailbox_message_body:
         :type patch_mailbox_message_body: PatchMailboxMessageBody
         :param _request_timeout: timeout setting for this request. If one
@@ -13051,6 +13995,7 @@ class MailboxAPIApi:
         _param = self._mailbox_update_message_serialize(
             message_id=message_id,
             if_match=if_match,
+            mailbox_id=mailbox_id,
             patch_mailbox_message_body=patch_mailbox_message_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -13075,6 +14020,7 @@ class MailboxAPIApi:
         self,
         message_id,
         if_match,
+        mailbox_id,
         patch_mailbox_message_body,
         _request_auth,
         _content_type,
@@ -13100,6 +14046,10 @@ class MailboxAPIApi:
         if message_id is not None:
             _path_params['message_id'] = message_id
         # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -13158,6 +14108,7 @@ class MailboxAPIApi:
     def mailbox_upload_attachment(
         self,
         filename: StrictStr,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         body: Optional[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = None,
         _request_timeout: Union[
             None,
@@ -13178,6 +14129,8 @@ class MailboxAPIApi:
 
         :param filename: (required)
         :type filename: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param body:
         :type body: bytes
         :param _request_timeout: timeout setting for this request. If one
@@ -13204,6 +14157,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_upload_attachment_serialize(
             filename=filename,
+            mailbox_id=mailbox_id,
             body=body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -13232,6 +14186,7 @@ class MailboxAPIApi:
     def mailbox_upload_attachment_with_http_info(
         self,
         filename: StrictStr,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         body: Optional[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = None,
         _request_timeout: Union[
             None,
@@ -13252,6 +14207,8 @@ class MailboxAPIApi:
 
         :param filename: (required)
         :type filename: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param body:
         :type body: bytes
         :param _request_timeout: timeout setting for this request. If one
@@ -13278,6 +14235,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_upload_attachment_serialize(
             filename=filename,
+            mailbox_id=mailbox_id,
             body=body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -13306,6 +14264,7 @@ class MailboxAPIApi:
     def mailbox_upload_attachment_without_preload_content(
         self,
         filename: StrictStr,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         body: Optional[Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]]] = None,
         _request_timeout: Union[
             None,
@@ -13326,6 +14285,8 @@ class MailboxAPIApi:
 
         :param filename: (required)
         :type filename: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
         :param body:
         :type body: bytes
         :param _request_timeout: timeout setting for this request. If one
@@ -13352,6 +14313,7 @@ class MailboxAPIApi:
 
         _param = self._mailbox_upload_attachment_serialize(
             filename=filename,
+            mailbox_id=mailbox_id,
             body=body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -13375,6 +14337,7 @@ class MailboxAPIApi:
     def _mailbox_upload_attachment_serialize(
         self,
         filename,
+        mailbox_id,
         body,
         _request_auth,
         _content_type,
@@ -13401,6 +14364,10 @@ class MailboxAPIApi:
         if filename is not None:
             
             _query_params.append(('filename', filename))
+            
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
             
         # process the header parameters
         # process the form parameters

@@ -164,6 +164,18 @@ func (r *MailboxListContentNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxListGrantedMailboxesForbidden into the shared typed API error.
+func (r *MailboxListGrantedMailboxesForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxListGrantedMailboxesUnauthorized into the shared typed API error.
+func (r *MailboxListGrantedMailboxesUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
 // APIError maps MailboxListIdentitiesBadRequest into the shared typed API error.
 func (r *MailboxListIdentitiesBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)

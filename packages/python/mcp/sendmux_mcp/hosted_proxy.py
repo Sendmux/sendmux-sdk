@@ -131,6 +131,9 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
             "headers": sanitised_headers(request.headers),
             "body_base64": base64.b64encode(body).decode("ascii") if body else None,
         }
+        mailbox_id = hosted_mailbox_id(request.url, route)
+        if mailbox_id is not None:
+            envelope["mailbox_id"] = mailbox_id
 
         return httpx.Request(
             "POST",
@@ -176,6 +179,13 @@ def current_grant_id() -> str | None:
     claims = token.claims or {}
     grant_id = claims.get("grant_id")
     return grant_id if isinstance(grant_id, str) and grant_id else None
+
+
+def hosted_mailbox_id(url: httpx.URL, route: HostedOperationRoute) -> str | None:
+    if route.surface != "mailbox":
+        return None
+    mailbox_id = url.params.get("mailbox_id")
+    return mailbox_id if isinstance(mailbox_id, str) and mailbox_id else None
 
 
 def sanitised_headers(headers: httpx.Headers) -> Mapping[str, str]:

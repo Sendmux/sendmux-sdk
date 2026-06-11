@@ -149,6 +149,16 @@ func (s *Server) handleMailboxBatchDeleteMessagesRequest(args [0]string, argsEsc
 			return
 		}
 	}
+	params, err := decodeMailboxBatchDeleteMessagesParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 	request, close, err := s.decodeMailboxBatchDeleteMessagesRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -173,13 +183,18 @@ func (s *Server) handleMailboxBatchDeleteMessagesRequest(args [0]string, argsEsc
 			OperationSummary: "Batch delete mailbox messages",
 			OperationID:      "mailboxBatchDeleteMessages",
 			Body:             request,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = OptBatchDeleteMailboxMessagesBody
-			Params   = struct{}
+			Params   = MailboxBatchDeleteMessagesParams
 			Response = MailboxBatchDeleteMessagesRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -189,14 +204,14 @@ func (s *Server) handleMailboxBatchDeleteMessagesRequest(args [0]string, argsEsc
 		](
 			m,
 			mreq,
-			nil,
+			unpackMailboxBatchDeleteMessagesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxBatchDeleteMessages(ctx, request)
+				response, err = s.h.MailboxBatchDeleteMessages(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxBatchDeleteMessages(ctx, request)
+		response, err = s.h.MailboxBatchDeleteMessages(ctx, request, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -332,6 +347,16 @@ func (s *Server) handleMailboxBatchGetMessagesRequest(args [0]string, argsEscape
 			return
 		}
 	}
+	params, err := decodeMailboxBatchGetMessagesParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 	request, close, err := s.decodeMailboxBatchGetMessagesRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -356,13 +381,18 @@ func (s *Server) handleMailboxBatchGetMessagesRequest(args [0]string, argsEscape
 			OperationSummary: "Batch get mailbox messages",
 			OperationID:      "mailboxBatchGetMessages",
 			Body:             request,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = OptMailboxBatchGetBody
-			Params   = struct{}
+			Params   = MailboxBatchGetMessagesParams
 			Response = MailboxBatchGetMessagesRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -372,14 +402,14 @@ func (s *Server) handleMailboxBatchGetMessagesRequest(args [0]string, argsEscape
 		](
 			m,
 			mreq,
-			nil,
+			unpackMailboxBatchGetMessagesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxBatchGetMessages(ctx, request)
+				response, err = s.h.MailboxBatchGetMessages(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxBatchGetMessages(ctx, request)
+		response, err = s.h.MailboxBatchGetMessages(ctx, request, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -515,6 +545,16 @@ func (s *Server) handleMailboxBatchUpdateMessagesRequest(args [0]string, argsEsc
 			return
 		}
 	}
+	params, err := decodeMailboxBatchUpdateMessagesParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 	request, close, err := s.decodeMailboxBatchUpdateMessagesRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -539,13 +579,18 @@ func (s *Server) handleMailboxBatchUpdateMessagesRequest(args [0]string, argsEsc
 			OperationSummary: "Batch update mailbox messages",
 			OperationID:      "mailboxBatchUpdateMessages",
 			Body:             request,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = OptBatchUpdateMailboxMessagesBody
-			Params   = struct{}
+			Params   = MailboxBatchUpdateMessagesParams
 			Response = MailboxBatchUpdateMessagesRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -555,14 +600,14 @@ func (s *Server) handleMailboxBatchUpdateMessagesRequest(args [0]string, argsEsc
 		](
 			m,
 			mreq,
-			nil,
+			unpackMailboxBatchUpdateMessagesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxBatchUpdateMessages(ctx, request)
+				response, err = s.h.MailboxBatchUpdateMessages(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxBatchUpdateMessages(ctx, request)
+		response, err = s.h.MailboxBatchUpdateMessages(ctx, request, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -793,6 +838,10 @@ func (s *Server) handleMailboxCountMessagesRequest(args [0]string, argsEscaped b
 					Name: "is_unread",
 					In:   "query",
 				}: params.IsUnread,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -951,6 +1000,16 @@ func (s *Server) handleMailboxCreateFolderRequest(args [0]string, argsEscaped bo
 			return
 		}
 	}
+	params, err := decodeMailboxCreateFolderParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 	request, close, err := s.decodeMailboxCreateFolderRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -975,13 +1034,18 @@ func (s *Server) handleMailboxCreateFolderRequest(args [0]string, argsEscaped bo
 			OperationSummary: "Create a mailbox folder",
 			OperationID:      "mailboxCreateFolder",
 			Body:             request,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = OptCreateMailboxFolderBody
-			Params   = struct{}
+			Params   = MailboxCreateFolderParams
 			Response = MailboxCreateFolderRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -991,14 +1055,14 @@ func (s *Server) handleMailboxCreateFolderRequest(args [0]string, argsEscaped bo
 		](
 			m,
 			mreq,
-			nil,
+			unpackMailboxCreateFolderParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxCreateFolder(ctx, request)
+				response, err = s.h.MailboxCreateFolder(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxCreateFolder(ctx, request)
+		response, err = s.h.MailboxCreateFolder(ctx, request, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -1162,6 +1226,10 @@ func (s *Server) handleMailboxDeleteFolderRequest(args [1]string, argsEscaped bo
 					Name: "If-Match",
 					In:   "header",
 				}: params.IfMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -1354,6 +1422,10 @@ func (s *Server) handleMailboxDeleteMessageRequest(args [1]string, argsEscaped b
 					Name: "If-Match",
 					In:   "header",
 				}: params.IfMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -1569,6 +1641,10 @@ func (s *Server) handleMailboxGetChangesRequest(args [0]string, argsEscaped bool
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -1755,6 +1831,10 @@ func (s *Server) handleMailboxGetFolderRequest(args [1]string, argsEscaped bool,
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -1941,6 +2021,10 @@ func (s *Server) handleMailboxGetFolderChangesRequest(args [0]string, argsEscape
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -2099,6 +2183,16 @@ func (s *Server) handleMailboxGetIdentityRequest(args [0]string, argsEscaped boo
 			return
 		}
 	}
+	params, err := decodeMailboxGetIdentityParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 
 	var response MailboxGetIdentityRes
 	if m := s.cfg.Middleware; m != nil {
@@ -2108,13 +2202,18 @@ func (s *Server) handleMailboxGetIdentityRequest(args [0]string, argsEscaped boo
 			OperationSummary: "Get mailbox sender identity",
 			OperationID:      "mailboxGetIdentity",
 			Body:             nil,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = struct{}
+			Params   = MailboxGetIdentityParams
 			Response = MailboxGetIdentityRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -2124,14 +2223,14 @@ func (s *Server) handleMailboxGetIdentityRequest(args [0]string, argsEscaped boo
 		](
 			m,
 			mreq,
-			nil,
+			unpackMailboxGetIdentityParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxGetIdentity(ctx)
+				response, err = s.h.MailboxGetIdentity(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxGetIdentity(ctx)
+		response, err = s.h.MailboxGetIdentity(ctx, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -2294,6 +2393,10 @@ func (s *Server) handleMailboxGetMeRequest(args [0]string, argsEscaped bool, w h
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -2480,6 +2583,10 @@ func (s *Server) handleMailboxGetMessageRequest(args [1]string, argsEscaped bool
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -2670,6 +2777,10 @@ func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEs
 					Name: "Range",
 					In:   "header",
 				}: params.Range,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -2856,6 +2967,10 @@ func (s *Server) handleMailboxGetQuotaChangesRequest(args [0]string, argsEscaped
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -3039,6 +3154,10 @@ func (s *Server) handleMailboxGetSessionRequest(args [0]string, argsEscaped bool
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -3225,6 +3344,10 @@ func (s *Server) handleMailboxGetSubmissionRequest(args [1]string, argsEscaped b
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -3411,6 +3534,10 @@ func (s *Server) handleMailboxGetSubmissionChangesRequest(args [0]string, argsEs
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -3598,6 +3725,10 @@ func (s *Server) handleMailboxGetThreadRequest(args [1]string, argsEscaped bool,
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -3829,6 +3960,10 @@ func (s *Server) handleMailboxGetThreadContentRequest(args [1]string, argsEscape
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -4024,6 +4159,10 @@ func (s *Server) handleMailboxListBodyRequest(args [1]string, argsEscaped bool, 
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -4243,6 +4382,10 @@ func (s *Server) handleMailboxListContentRequest(args [1]string, argsEscaped boo
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -4429,6 +4572,10 @@ func (s *Server) handleMailboxListFoldersRequest(args [0]string, argsEscaped boo
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -4461,6 +4608,197 @@ func (s *Server) handleMailboxListFoldersRequest(args [0]string, argsEscaped boo
 	}
 
 	if err := encodeMailboxListFoldersResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
+// handleMailboxListGrantedMailboxesRequest handles mailboxListGrantedMailboxes operation.
+//
+// Lists the mailboxes available to the current mailbox credential or connected app. Use this before
+// choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
+//
+// GET /mailbox/mailboxes
+func (s *Server) handleMailboxListGrantedMailboxesRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxListGrantedMailboxes"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/mailboxes"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), MailboxListGrantedMailboxesOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: MailboxListGrantedMailboxesOperation,
+			ID:   "mailboxListGrantedMailboxes",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityBearerAuth(ctx, MailboxListGrantedMailboxesOperation, r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "BearerAuth",
+					Err:              err,
+				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	params, err := decodeMailboxListGrantedMailboxesParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response MailboxListGrantedMailboxesRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    MailboxListGrantedMailboxesOperation,
+			OperationSummary: "List granted mailboxes",
+			OperationID:      "mailboxListGrantedMailboxes",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "cursor",
+					In:   "query",
+				}: params.Cursor,
+				{
+					Name: "limit",
+					In:   "query",
+				}: params.Limit,
+				{
+					Name: "q",
+					In:   "query",
+				}: params.Q,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = MailboxListGrantedMailboxesParams
+			Response = MailboxListGrantedMailboxesRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackMailboxListGrantedMailboxesParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.MailboxListGrantedMailboxes(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.MailboxListGrantedMailboxes(ctx, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeMailboxListGrantedMailboxesResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -4615,6 +4953,10 @@ func (s *Server) handleMailboxListIdentitiesRequest(args [0]string, argsEscaped 
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -4886,6 +5228,10 @@ func (s *Server) handleMailboxListMessagesRequest(args [0]string, argsEscaped bo
 					Name: "sort_direction",
 					In:   "query",
 				}: params.SortDirection,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -5096,6 +5442,10 @@ func (s *Server) handleMailboxListQuotasRequest(args [0]string, argsEscaped bool
 					Name: "sort_direction",
 					In:   "query",
 				}: params.SortDirection,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -5315,6 +5665,10 @@ func (s *Server) handleMailboxListSubmissionsRequest(args [0]string, argsEscaped
 					Name: "sort_direction",
 					In:   "query",
 				}: params.SortDirection,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -5510,6 +5864,10 @@ func (s *Server) handleMailboxListThreadMessagesRequest(args [1]string, argsEsca
 					Name: "sort",
 					In:   "query",
 				}: params.Sort,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -5729,6 +6087,10 @@ func (s *Server) handleMailboxListThreadsRequest(args [0]string, argsEscaped boo
 					Name: "sort_direction",
 					In:   "query",
 				}: params.SortDirection,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -5912,6 +6274,10 @@ func (s *Server) handleMailboxListUsageRequest(args [0]string, argsEscaped bool,
 					Name: "If-None-Match",
 					In:   "header",
 				}: params.IfNoneMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -6099,6 +6465,10 @@ func (s *Server) handleMailboxQueryFolderChangesRequest(args [0]string, argsEsca
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -6374,6 +6744,10 @@ func (s *Server) handleMailboxQueryMessageChangesRequest(args [0]string, argsEsc
 					Name: "sort_direction",
 					In:   "query",
 				}: params.SortDirection,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -6633,6 +7007,10 @@ func (s *Server) handleMailboxSearchMessageSnippetsRequest(args [0]string, argsE
 					Name: "limit",
 					In:   "query",
 				}: params.Limit,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -6832,6 +7210,10 @@ func (s *Server) handleMailboxSendMessageRequest(args [0]string, argsEscaped boo
 					Name: "Idempotency-Key",
 					In:   "header",
 				}: params.IdempotencyKey,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -7032,6 +7414,10 @@ func (s *Server) handleMailboxStreamEventsRequest(args [0]string, argsEscaped bo
 					Name: "Last-Event-ID",
 					In:   "header",
 				}: params.HeaderLastEventID,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -7234,6 +7620,10 @@ func (s *Server) handleMailboxUpdateFolderRequest(args [1]string, argsEscaped bo
 					Name: "If-Match",
 					In:   "header",
 				}: params.IfMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -7393,6 +7783,16 @@ func (s *Server) handleMailboxUpdateIdentityRequest(args [0]string, argsEscaped 
 			return
 		}
 	}
+	params, err := decodeMailboxUpdateIdentityParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 	request, close, err := s.decodeMailboxUpdateIdentityRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -7417,13 +7817,18 @@ func (s *Server) handleMailboxUpdateIdentityRequest(args [0]string, argsEscaped 
 			OperationSummary: "Update mailbox sender identity",
 			OperationID:      "mailboxUpdateIdentity",
 			Body:             request,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = OptUpdateMailboxIdentityBody
-			Params   = struct{}
+			Params   = MailboxUpdateIdentityParams
 			Response = MailboxUpdateIdentityRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -7433,14 +7838,14 @@ func (s *Server) handleMailboxUpdateIdentityRequest(args [0]string, argsEscaped 
 		](
 			m,
 			mreq,
-			nil,
+			unpackMailboxUpdateIdentityParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxUpdateIdentity(ctx, request)
+				response, err = s.h.MailboxUpdateIdentity(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxUpdateIdentity(ctx, request)
+		response, err = s.h.MailboxUpdateIdentity(ctx, request, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)
@@ -7619,6 +8024,10 @@ func (s *Server) handleMailboxUpdateMessageRequest(args [1]string, argsEscaped b
 					Name: "If-Match",
 					In:   "header",
 				}: params.IfMatch,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}
@@ -7817,6 +8226,10 @@ func (s *Server) handleMailboxUploadAttachmentRequest(args [0]string, argsEscape
 					Name: "filename",
 					In:   "query",
 				}: params.Filename,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}

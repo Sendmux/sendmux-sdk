@@ -59,6 +59,7 @@ var operationRolesBearerAuth = map[string][]string{
 	MailboxListBodyOperation:              []string{},
 	MailboxListContentOperation:           []string{},
 	MailboxListFoldersOperation:           []string{},
+	MailboxListGrantedMailboxesOperation:  []string{},
 	MailboxListIdentitiesOperation:        []string{},
 	MailboxListMessagesOperation:          []string{},
 	MailboxListQuotasOperation:            []string{},

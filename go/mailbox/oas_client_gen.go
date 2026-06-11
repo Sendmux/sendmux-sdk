@@ -35,21 +35,21 @@ type Invoker interface {
 	// `permanent=true` to permanently delete them.
 	//
 	// POST /mailbox/messages:batch-delete
-	MailboxBatchDeleteMessages(ctx context.Context, request OptBatchDeleteMailboxMessagesBody) (MailboxBatchDeleteMessagesRes, error)
+	MailboxBatchDeleteMessages(ctx context.Context, request OptBatchDeleteMailboxMessagesBody, params MailboxBatchDeleteMessagesParams) (MailboxBatchDeleteMessagesRes, error)
 	// MailboxBatchGetMessages invokes mailboxBatchGetMessages operation.
 	//
 	// Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or
 	// clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 	//
 	// POST /mailbox/messages:batch-get
-	MailboxBatchGetMessages(ctx context.Context, request OptMailboxBatchGetBody) (MailboxBatchGetMessagesRes, error)
+	MailboxBatchGetMessages(ctx context.Context, request OptMailboxBatchGetBody, params MailboxBatchGetMessagesParams) (MailboxBatchGetMessagesRes, error)
 	// MailboxBatchUpdateMessages invokes mailboxBatchUpdateMessages operation.
 	//
 	// Updates allowed message flags and keywords for up to 100 messages with state-safe conflict
 	// handling.
 	//
 	// POST /mailbox/messages:batch-update
-	MailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody) (MailboxBatchUpdateMessagesRes, error)
+	MailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (MailboxBatchUpdateMessagesRes, error)
 	// MailboxCountMessages invokes mailboxCountMessages operation.
 	//
 	// Returns a count for the supplied mailbox message filters without returning message rows.
@@ -61,7 +61,7 @@ type Invoker interface {
 	// Creates a folder in the authenticated mailbox.
 	//
 	// POST /mailbox/folders
-	MailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody) (MailboxCreateFolderRes, error)
+	MailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (MailboxCreateFolderRes, error)
 	// MailboxDeleteFolder invokes mailboxDeleteFolder operation.
 	//
 	// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
@@ -101,7 +101,7 @@ type Invoker interface {
 	// Returns the default sender identity and signatures for the authenticated mailbox.
 	//
 	// GET /mailbox/identity
-	MailboxGetIdentity(ctx context.Context) (MailboxGetIdentityRes, error)
+	MailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (MailboxGetIdentityRes, error)
 	// MailboxGetMe invokes mailboxGetMe operation.
 	//
 	// Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK
@@ -183,6 +183,13 @@ type Invoker interface {
 	//
 	// GET /mailbox/folders
 	MailboxListFolders(ctx context.Context, params MailboxListFoldersParams) (*MailboxFolderCursorListResponse, error)
+	// MailboxListGrantedMailboxes invokes mailboxListGrantedMailboxes operation.
+	//
+	// Lists the mailboxes available to the current mailbox credential or connected app. Use this before
+	// choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
+	//
+	// GET /mailbox/mailboxes
+	MailboxListGrantedMailboxes(ctx context.Context, params MailboxListGrantedMailboxesParams) (MailboxListGrantedMailboxesRes, error)
 	// MailboxListIdentities invokes mailboxListIdentities operation.
 	//
 	// Returns sender identities available to the authenticated mailbox.
@@ -280,7 +287,7 @@ type Invoker interface {
 	// mailbox.
 	//
 	// PATCH /mailbox/identity
-	MailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody) (MailboxUpdateIdentityRes, error)
+	MailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody, params MailboxUpdateIdentityParams) (MailboxUpdateIdentityRes, error)
 	// MailboxUpdateMessage invokes mailboxUpdateMessage operation.
 	//
 	// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send
@@ -348,12 +355,12 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 // `permanent=true` to permanently delete them.
 //
 // POST /mailbox/messages:batch-delete
-func (c *Client) MailboxBatchDeleteMessages(ctx context.Context, request OptBatchDeleteMailboxMessagesBody) (MailboxBatchDeleteMessagesRes, error) {
-	res, err := c.sendMailboxBatchDeleteMessages(ctx, request)
+func (c *Client) MailboxBatchDeleteMessages(ctx context.Context, request OptBatchDeleteMailboxMessagesBody, params MailboxBatchDeleteMessagesParams) (MailboxBatchDeleteMessagesRes, error) {
+	res, err := c.sendMailboxBatchDeleteMessages(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendMailboxBatchDeleteMessages(ctx context.Context, request OptBatchDeleteMailboxMessagesBody) (res MailboxBatchDeleteMessagesRes, err error) {
+func (c *Client) sendMailboxBatchDeleteMessages(ctx context.Context, request OptBatchDeleteMailboxMessagesBody, params MailboxBatchDeleteMessagesParams) (res MailboxBatchDeleteMessagesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("mailboxBatchDeleteMessages"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -392,6 +399,27 @@ func (c *Client) sendMailboxBatchDeleteMessages(ctx context.Context, request Opt
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/messages:batch-delete"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "POST", u)
@@ -457,12 +485,12 @@ func (c *Client) sendMailboxBatchDeleteMessages(ctx context.Context, request Opt
 // clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 //
 // POST /mailbox/messages:batch-get
-func (c *Client) MailboxBatchGetMessages(ctx context.Context, request OptMailboxBatchGetBody) (MailboxBatchGetMessagesRes, error) {
-	res, err := c.sendMailboxBatchGetMessages(ctx, request)
+func (c *Client) MailboxBatchGetMessages(ctx context.Context, request OptMailboxBatchGetBody, params MailboxBatchGetMessagesParams) (MailboxBatchGetMessagesRes, error) {
+	res, err := c.sendMailboxBatchGetMessages(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendMailboxBatchGetMessages(ctx context.Context, request OptMailboxBatchGetBody) (res MailboxBatchGetMessagesRes, err error) {
+func (c *Client) sendMailboxBatchGetMessages(ctx context.Context, request OptMailboxBatchGetBody, params MailboxBatchGetMessagesParams) (res MailboxBatchGetMessagesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("mailboxBatchGetMessages"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -501,6 +529,27 @@ func (c *Client) sendMailboxBatchGetMessages(ctx context.Context, request OptMai
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/messages:batch-get"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "POST", u)
@@ -566,12 +615,12 @@ func (c *Client) sendMailboxBatchGetMessages(ctx context.Context, request OptMai
 // handling.
 //
 // POST /mailbox/messages:batch-update
-func (c *Client) MailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody) (MailboxBatchUpdateMessagesRes, error) {
-	res, err := c.sendMailboxBatchUpdateMessages(ctx, request)
+func (c *Client) MailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (MailboxBatchUpdateMessagesRes, error) {
+	res, err := c.sendMailboxBatchUpdateMessages(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendMailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody) (res MailboxBatchUpdateMessagesRes, err error) {
+func (c *Client) sendMailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (res MailboxBatchUpdateMessagesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("mailboxBatchUpdateMessages"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -610,6 +659,27 @@ func (c *Client) sendMailboxBatchUpdateMessages(ctx context.Context, request Opt
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/messages:batch-update"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "POST", u)
@@ -1044,6 +1114,23 @@ func (c *Client) sendMailboxCountMessages(ctx context.Context, params MailboxCou
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -1106,12 +1193,12 @@ func (c *Client) sendMailboxCountMessages(ctx context.Context, params MailboxCou
 // Creates a folder in the authenticated mailbox.
 //
 // POST /mailbox/folders
-func (c *Client) MailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody) (MailboxCreateFolderRes, error) {
-	res, err := c.sendMailboxCreateFolder(ctx, request)
+func (c *Client) MailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (MailboxCreateFolderRes, error) {
+	res, err := c.sendMailboxCreateFolder(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendMailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody) (res MailboxCreateFolderRes, err error) {
+func (c *Client) sendMailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (res MailboxCreateFolderRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("mailboxCreateFolder"),
 		semconv.HTTPRequestMethodKey.String("POST"),
@@ -1150,6 +1237,27 @@ func (c *Client) sendMailboxCreateFolder(ctx context.Context, request OptCreateM
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/folders"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "POST", u)
@@ -1277,6 +1385,27 @@ func (c *Client) sendMailboxDeleteFolder(ctx context.Context, params MailboxDele
 		pathParts[1] = encoded
 	}
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "DELETE", u)
@@ -1433,6 +1562,23 @@ func (c *Client) sendMailboxDeleteMessage(ctx context.Context, params MailboxDel
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.Permanent.Get(); ok {
 				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {
@@ -1719,6 +1865,23 @@ func (c *Client) sendMailboxGetChanges(ctx context.Context, params MailboxGetCha
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -1843,6 +2006,27 @@ func (c *Client) sendMailboxGetFolder(ctx context.Context, params MailboxGetFold
 		pathParts[1] = encoded
 	}
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -2002,6 +2186,23 @@ func (c *Client) sendMailboxGetFolderChanges(ctx context.Context, params Mailbox
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -2064,12 +2265,12 @@ func (c *Client) sendMailboxGetFolderChanges(ctx context.Context, params Mailbox
 // Returns the default sender identity and signatures for the authenticated mailbox.
 //
 // GET /mailbox/identity
-func (c *Client) MailboxGetIdentity(ctx context.Context) (MailboxGetIdentityRes, error) {
-	res, err := c.sendMailboxGetIdentity(ctx)
+func (c *Client) MailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (MailboxGetIdentityRes, error) {
+	res, err := c.sendMailboxGetIdentity(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendMailboxGetIdentity(ctx context.Context) (res MailboxGetIdentityRes, err error) {
+func (c *Client) sendMailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (res MailboxGetIdentityRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("mailboxGetIdentity"),
 		semconv.HTTPRequestMethodKey.String("GET"),
@@ -2108,6 +2309,27 @@ func (c *Client) sendMailboxGetIdentity(ctx context.Context) (res MailboxGetIden
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/identity"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -2217,6 +2439,27 @@ func (c *Client) sendMailboxGetMe(ctx context.Context, params MailboxGetMeParams
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/me"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -2357,6 +2600,27 @@ func (c *Client) sendMailboxGetMessage(ctx context.Context, params MailboxGetMes
 		pathParts[1] = encoded
 	}
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -2517,6 +2781,27 @@ func (c *Client) sendMailboxGetMessageAttachment(ctx context.Context, params Mai
 	}
 	uri.AddPathParts(u, pathParts[:]...)
 
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
 	if err != nil {
@@ -2675,6 +2960,23 @@ func (c *Client) sendMailboxGetQuotaChanges(ctx context.Context, params MailboxG
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -2782,6 +3084,27 @@ func (c *Client) sendMailboxGetSession(ctx context.Context, params MailboxGetSes
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/session"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -2922,6 +3245,27 @@ func (c *Client) sendMailboxGetSubmission(ctx context.Context, params MailboxGet
 		pathParts[1] = encoded
 	}
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -3081,6 +3425,23 @@ func (c *Client) sendMailboxGetSubmissionChanges(ctx context.Context, params Mai
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -3206,6 +3567,27 @@ func (c *Client) sendMailboxGetThread(ctx context.Context, params MailboxGetThre
 		pathParts[1] = encoded
 	}
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -3538,6 +3920,23 @@ func (c *Client) sendMailboxGetThreadContent(ctx context.Context, params Mailbox
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -3712,6 +4111,23 @@ func (c *Client) sendMailboxListBody(ctx context.Context, params MailboxListBody
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.MaxBodyChars.Get(); ok {
 				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {
@@ -4000,6 +4416,23 @@ func (c *Client) sendMailboxListContent(ctx context.Context, params MailboxListC
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -4160,6 +4593,23 @@ func (c *Client) sendMailboxListFolders(ctx context.Context, params MailboxListF
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -4210,6 +4660,167 @@ func (c *Client) sendMailboxListFolders(ctx context.Context, params MailboxListF
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxListFoldersResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxListGrantedMailboxes invokes mailboxListGrantedMailboxes operation.
+//
+// Lists the mailboxes available to the current mailbox credential or connected app. Use this before
+// choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
+//
+// GET /mailbox/mailboxes
+func (c *Client) MailboxListGrantedMailboxes(ctx context.Context, params MailboxListGrantedMailboxesParams) (MailboxListGrantedMailboxesRes, error) {
+	res, err := c.sendMailboxListGrantedMailboxes(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxListGrantedMailboxes(ctx context.Context, params MailboxListGrantedMailboxesParams) (res MailboxListGrantedMailboxesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxListGrantedMailboxes"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/mailboxes"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxListGrantedMailboxesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/mailbox/mailboxes"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "cursor" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "cursor",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Cursor.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "limit" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "limit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Limit.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "q" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "q",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Q.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxListGrantedMailboxesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxListGrantedMailboxesResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -4297,6 +4908,23 @@ func (c *Client) sendMailboxListIdentities(ctx context.Context, params MailboxLi
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.Limit.Get(); ok {
 				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {
@@ -4804,6 +5432,23 @@ func (c *Client) sendMailboxListMessages(ctx context.Context, params MailboxList
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -5043,6 +5688,23 @@ func (c *Client) sendMailboxListQuotas(ctx context.Context, params MailboxListQu
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.SortDirection.Get(); ok {
 				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {
@@ -5329,6 +5991,23 @@ func (c *Client) sendMailboxListSubmissions(ctx context.Context, params MailboxL
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -5503,6 +6182,23 @@ func (c *Client) sendMailboxListThreadMessages(ctx context.Context, params Mailb
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.Sort.Get(); ok {
 				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {
@@ -5789,6 +6485,23 @@ func (c *Client) sendMailboxListThreads(ctx context.Context, params MailboxListT
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -5896,6 +6609,27 @@ func (c *Client) sendMailboxListUsage(ctx context.Context, params MailboxListUsa
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/usage"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u)
@@ -6050,6 +6784,23 @@ func (c *Client) sendMailboxQueryFolderChanges(ctx context.Context, params Mailb
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.Limit.Get(); ok {
 				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {
@@ -6574,6 +7325,23 @@ func (c *Client) sendMailboxQueryMessageChanges(ctx context.Context, params Mail
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -7021,6 +7789,23 @@ func (c *Client) sendMailboxSearchMessageSnippets(ctx context.Context, params Ma
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -7129,6 +7914,27 @@ func (c *Client) sendMailboxSendMessage(ctx context.Context, request OptSendMail
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/messages/send"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "POST", u)
@@ -7327,6 +8133,23 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
@@ -7470,6 +8293,27 @@ func (c *Client) sendMailboxUpdateFolder(ctx context.Context, request OptPatchMa
 	}
 	uri.AddPathParts(u, pathParts[:]...)
 
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "PATCH", u)
 	if err != nil {
@@ -7551,12 +8395,12 @@ func (c *Client) sendMailboxUpdateFolder(ctx context.Context, request OptPatchMa
 // mailbox.
 //
 // PATCH /mailbox/identity
-func (c *Client) MailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody) (MailboxUpdateIdentityRes, error) {
-	res, err := c.sendMailboxUpdateIdentity(ctx, request)
+func (c *Client) MailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody, params MailboxUpdateIdentityParams) (MailboxUpdateIdentityRes, error) {
+	res, err := c.sendMailboxUpdateIdentity(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendMailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody) (res MailboxUpdateIdentityRes, err error) {
+func (c *Client) sendMailboxUpdateIdentity(ctx context.Context, request OptUpdateMailboxIdentityBody, params MailboxUpdateIdentityParams) (res MailboxUpdateIdentityRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("mailboxUpdateIdentity"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
@@ -7595,6 +8439,27 @@ func (c *Client) sendMailboxUpdateIdentity(ctx context.Context, request OptUpdat
 	var pathParts [1]string
 	pathParts[0] = "/mailbox/identity"
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "PATCH", u)
@@ -7722,6 +8587,27 @@ func (c *Client) sendMailboxUpdateMessage(ctx context.Context, request OptPatchM
 		pathParts[1] = encoded
 	}
 	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "PATCH", u)
@@ -7861,6 +8747,23 @@ func (c *Client) sendMailboxUploadAttachment(ctx context.Context, request Mailbo
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			return e.EncodeValue(conv.StringToString(params.Filename))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}

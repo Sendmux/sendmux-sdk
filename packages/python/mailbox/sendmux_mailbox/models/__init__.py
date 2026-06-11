@@ -21,6 +21,8 @@ from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDelet
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody
 from sendmux_mailbox.models.cursor_pagination import CursorPagination
+from sendmux_mailbox.models.granted_mailbox import GrantedMailbox
+from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse
 from sendmux_mailbox.models.mailbox import Mailbox
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment

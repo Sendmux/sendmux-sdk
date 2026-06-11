@@ -14,21 +14,21 @@ type Handler interface {
 	// `permanent=true` to permanently delete them.
 	//
 	// POST /mailbox/messages:batch-delete
-	MailboxBatchDeleteMessages(ctx context.Context, req OptBatchDeleteMailboxMessagesBody) (MailboxBatchDeleteMessagesRes, error)
+	MailboxBatchDeleteMessages(ctx context.Context, req OptBatchDeleteMailboxMessagesBody, params MailboxBatchDeleteMessagesParams) (MailboxBatchDeleteMessagesRes, error)
 	// MailboxBatchGetMessages implements mailboxBatchGetMessages operation.
 	//
 	// Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or
 	// clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 	//
 	// POST /mailbox/messages:batch-get
-	MailboxBatchGetMessages(ctx context.Context, req OptMailboxBatchGetBody) (MailboxBatchGetMessagesRes, error)
+	MailboxBatchGetMessages(ctx context.Context, req OptMailboxBatchGetBody, params MailboxBatchGetMessagesParams) (MailboxBatchGetMessagesRes, error)
 	// MailboxBatchUpdateMessages implements mailboxBatchUpdateMessages operation.
 	//
 	// Updates allowed message flags and keywords for up to 100 messages with state-safe conflict
 	// handling.
 	//
 	// POST /mailbox/messages:batch-update
-	MailboxBatchUpdateMessages(ctx context.Context, req OptBatchUpdateMailboxMessagesBody) (MailboxBatchUpdateMessagesRes, error)
+	MailboxBatchUpdateMessages(ctx context.Context, req OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (MailboxBatchUpdateMessagesRes, error)
 	// MailboxCountMessages implements mailboxCountMessages operation.
 	//
 	// Returns a count for the supplied mailbox message filters without returning message rows.
@@ -40,7 +40,7 @@ type Handler interface {
 	// Creates a folder in the authenticated mailbox.
 	//
 	// POST /mailbox/folders
-	MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody) (MailboxCreateFolderRes, error)
+	MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (MailboxCreateFolderRes, error)
 	// MailboxDeleteFolder implements mailboxDeleteFolder operation.
 	//
 	// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
@@ -80,7 +80,7 @@ type Handler interface {
 	// Returns the default sender identity and signatures for the authenticated mailbox.
 	//
 	// GET /mailbox/identity
-	MailboxGetIdentity(ctx context.Context) (MailboxGetIdentityRes, error)
+	MailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (MailboxGetIdentityRes, error)
 	// MailboxGetMe implements mailboxGetMe operation.
 	//
 	// Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK
@@ -162,6 +162,13 @@ type Handler interface {
 	//
 	// GET /mailbox/folders
 	MailboxListFolders(ctx context.Context, params MailboxListFoldersParams) (*MailboxFolderCursorListResponse, error)
+	// MailboxListGrantedMailboxes implements mailboxListGrantedMailboxes operation.
+	//
+	// Lists the mailboxes available to the current mailbox credential or connected app. Use this before
+	// choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
+	//
+	// GET /mailbox/mailboxes
+	MailboxListGrantedMailboxes(ctx context.Context, params MailboxListGrantedMailboxesParams) (MailboxListGrantedMailboxesRes, error)
 	// MailboxListIdentities implements mailboxListIdentities operation.
 	//
 	// Returns sender identities available to the authenticated mailbox.
@@ -259,7 +266,7 @@ type Handler interface {
 	// mailbox.
 	//
 	// PATCH /mailbox/identity
-	MailboxUpdateIdentity(ctx context.Context, req OptUpdateMailboxIdentityBody) (MailboxUpdateIdentityRes, error)
+	MailboxUpdateIdentity(ctx context.Context, req OptUpdateMailboxIdentityBody, params MailboxUpdateIdentityParams) (MailboxUpdateIdentityRes, error)
 	// MailboxUpdateMessage implements mailboxUpdateMessage operation.
 	//
 	// Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send

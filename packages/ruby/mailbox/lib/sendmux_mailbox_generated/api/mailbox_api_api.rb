@@ -22,6 +22,7 @@ module Sendmux::Mailbox::Generated
     # Batch delete mailbox messages
     # Moves up to 100 messages to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete them.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [BatchDeleteMailboxMessagesBody] :batch_delete_mailbox_messages_body
     # @return [MailboxBatchDeleteMessagesResultResponse]
     def mailbox_batch_delete_messages(opts = {})
@@ -32,6 +33,7 @@ module Sendmux::Mailbox::Generated
     # Batch delete mailbox messages
     # Moves up to 100 messages to Trash by default with state-safe conflict handling. Set &#x60;permanent&#x3D;true&#x60; to permanently delete them.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [BatchDeleteMailboxMessagesBody] :batch_delete_mailbox_messages_body
     # @return [Array<(MailboxBatchDeleteMessagesResultResponse, Integer, Hash)>] MailboxBatchDeleteMessagesResultResponse data, response status code and response headers
     def mailbox_batch_delete_messages_with_http_info(opts = {})
@@ -43,6 +45,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -86,6 +89,7 @@ module Sendmux::Mailbox::Generated
     # Batch get mailbox messages
     # Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [MailboxBatchGetBody] :mailbox_batch_get_body
     # @return [MailboxBatchGetResultResponse]
     def mailbox_batch_get_messages(opts = {})
@@ -96,6 +100,7 @@ module Sendmux::Mailbox::Generated
     # Batch get mailbox messages
     # Returns exact messages by ID. Use &#x60;body_mode&#x60; to choose summary-only output, raw body output, or clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [MailboxBatchGetBody] :mailbox_batch_get_body
     # @return [Array<(MailboxBatchGetResultResponse, Integer, Hash)>] MailboxBatchGetResultResponse data, response status code and response headers
     def mailbox_batch_get_messages_with_http_info(opts = {})
@@ -107,6 +112,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -150,6 +156,7 @@ module Sendmux::Mailbox::Generated
     # Batch update mailbox messages
     # Updates allowed message flags and keywords for up to 100 messages with state-safe conflict handling.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [BatchUpdateMailboxMessagesBody] :batch_update_mailbox_messages_body
     # @return [MailboxBatchUpdateMessagesResultResponse]
     def mailbox_batch_update_messages(opts = {})
@@ -160,6 +167,7 @@ module Sendmux::Mailbox::Generated
     # Batch update mailbox messages
     # Updates allowed message flags and keywords for up to 100 messages with state-safe conflict handling.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [BatchUpdateMailboxMessagesBody] :batch_update_mailbox_messages_body
     # @return [Array<(MailboxBatchUpdateMessagesResultResponse, Integer, Hash)>] MailboxBatchUpdateMessagesResultResponse data, response status code and response headers
     def mailbox_batch_update_messages_with_http_info(opts = {})
@@ -171,6 +179,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -233,6 +242,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :before
     # @option opts [Boolean] :has_attachment
     # @option opts [Boolean] :is_unread
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageCountResponse]
     def mailbox_count_messages(opts = {})
       data, _status_code, _headers = mailbox_count_messages_with_http_info(opts)
@@ -261,6 +271,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :before
     # @option opts [Boolean] :has_attachment
     # @option opts [Boolean] :is_unread
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageCountResponse, Integer, Hash)>] MailboxMessageCountResponse data, response status code and response headers
     def mailbox_count_messages_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -298,6 +309,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'before'] = opts[:'before'] if !opts[:'before'].nil?
       query_params[:'has_attachment'] = opts[:'has_attachment'] if !opts[:'has_attachment'].nil?
       query_params[:'is_unread'] = opts[:'is_unread'] if !opts[:'is_unread'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -336,6 +348,7 @@ module Sendmux::Mailbox::Generated
     # Create a mailbox folder
     # Creates a folder in the authenticated mailbox.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [CreateMailboxFolderBody] :create_mailbox_folder_body
     # @return [MailboxFolderResponse]
     def mailbox_create_folder(opts = {})
@@ -346,6 +359,7 @@ module Sendmux::Mailbox::Generated
     # Create a mailbox folder
     # Creates a folder in the authenticated mailbox.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [CreateMailboxFolderBody] :create_mailbox_folder_body
     # @return [Array<(MailboxFolderResponse, Integer, Hash)>] MailboxFolderResponse data, response status code and response headers
     def mailbox_create_folder_with_http_info(opts = {})
@@ -357,6 +371,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -402,6 +417,7 @@ module Sendmux::Mailbox::Generated
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxFolderDeletedResponse]
     def mailbox_delete_folder(folder_id, opts = {})
       data, _status_code, _headers = mailbox_delete_folder_with_http_info(folder_id, opts)
@@ -413,6 +429,7 @@ module Sendmux::Mailbox::Generated
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxFolderDeletedResponse, Integer, Hash)>] MailboxFolderDeletedResponse data, response status code and response headers
     def mailbox_delete_folder_with_http_info(folder_id, opts = {})
       if @api_client.config.debugging
@@ -427,6 +444,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -469,6 +487,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [Boolean] :permanent
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageDeletedResponse]
     def mailbox_delete_message(message_id, opts = {})
       data, _status_code, _headers = mailbox_delete_message_with_http_info(message_id, opts)
@@ -481,6 +500,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [Boolean] :permanent
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageDeletedResponse, Integer, Hash)>] MailboxMessageDeletedResponse data, response status code and response headers
     def mailbox_delete_message_with_http_info(message_id, opts = {})
       if @api_client.config.debugging
@@ -496,6 +516,7 @@ module Sendmux::Mailbox::Generated
       # query parameters
       query_params = opts[:query_params] || {}
       query_params[:'permanent'] = opts[:'permanent'] if !opts[:'permanent'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -544,6 +565,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :identities_since_state
     # @option opts [String] :quotas_since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxGetChanges200Response]
     def mailbox_get_changes(opts = {})
       data, _status_code, _headers = mailbox_get_changes_with_http_info(opts)
@@ -562,6 +584,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :identities_since_state
     # @option opts [String] :quotas_since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxGetChanges200Response, Integer, Hash)>] MailboxGetChanges200Response data, response status code and response headers
     def mailbox_get_changes_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -589,6 +612,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'identities_since_state'] = opts[:'identities_since_state'] if !opts[:'identities_since_state'].nil?
       query_params[:'quotas_since_state'] = opts[:'quotas_since_state'] if !opts[:'quotas_since_state'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -629,6 +653,7 @@ module Sendmux::Mailbox::Generated
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxFolderResponse]
     def mailbox_get_folder(folder_id, opts = {})
       data, _status_code, _headers = mailbox_get_folder_with_http_info(folder_id, opts)
@@ -640,6 +665,7 @@ module Sendmux::Mailbox::Generated
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxFolderResponse, Integer, Hash)>] MailboxFolderResponse data, response status code and response headers
     def mailbox_get_folder_with_http_info(folder_id, opts = {})
       if @api_client.config.debugging
@@ -654,6 +680,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -695,6 +722,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxChangesResponse]
     def mailbox_get_folder_changes(opts = {})
       data, _status_code, _headers = mailbox_get_folder_changes_with_http_info(opts)
@@ -706,6 +734,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxChangesResponse, Integer, Hash)>] MailboxChangesResponse data, response status code and response headers
     def mailbox_get_folder_changes_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -726,6 +755,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'since_state'] = opts[:'since_state'] if !opts[:'since_state'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -764,6 +794,7 @@ module Sendmux::Mailbox::Generated
     # Get mailbox sender identity
     # Returns the default sender identity and signatures for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxIdentityResponse]
     def mailbox_get_identity(opts = {})
       data, _status_code, _headers = mailbox_get_identity_with_http_info(opts)
@@ -773,6 +804,7 @@ module Sendmux::Mailbox::Generated
     # Get mailbox sender identity
     # Returns the default sender identity and signatures for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxIdentityResponse, Integer, Hash)>] MailboxIdentityResponse data, response status code and response headers
     def mailbox_get_identity_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -783,6 +815,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -822,6 +855,7 @@ module Sendmux::Mailbox::Generated
     # Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMeItemResponse]
     def mailbox_get_me(opts = {})
       data, _status_code, _headers = mailbox_get_me_with_http_info(opts)
@@ -832,6 +866,7 @@ module Sendmux::Mailbox::Generated
     # Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak &#x60;ETag&#x60; header — send it back as &#x60;If-None-Match&#x60; on the next request and the server will return &#x60;304 Not Modified&#x60; (no body) when the mailbox state has not changed.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMeItemResponse, Integer, Hash)>] MailboxMeItemResponse data, response status code and response headers
     def mailbox_get_me_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -842,6 +877,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -883,6 +919,7 @@ module Sendmux::Mailbox::Generated
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageDetailResponse]
     def mailbox_get_message(message_id, opts = {})
       data, _status_code, _headers = mailbox_get_message_with_http_info(message_id, opts)
@@ -894,6 +931,7 @@ module Sendmux::Mailbox::Generated
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageDetailResponse, Integer, Hash)>] MailboxMessageDetailResponse data, response status code and response headers
     def mailbox_get_message_with_http_info(message_id, opts = {})
       if @api_client.config.debugging
@@ -908,6 +946,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -950,6 +989,7 @@ module Sendmux::Mailbox::Generated
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :range
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [nil]
     def mailbox_get_message_attachment(message_id, attachment_id, opts = {})
       mailbox_get_message_attachment_with_http_info(message_id, attachment_id, opts)
@@ -962,6 +1002,7 @@ module Sendmux::Mailbox::Generated
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :range
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(nil, Integer, Hash)>] nil, response status code and response headers
     def mailbox_get_message_attachment_with_http_info(message_id, attachment_id, opts = {})
       if @api_client.config.debugging
@@ -980,6 +1021,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1021,6 +1063,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxChangesResponse]
     def mailbox_get_quota_changes(opts = {})
       data, _status_code, _headers = mailbox_get_quota_changes_with_http_info(opts)
@@ -1032,6 +1075,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxChangesResponse, Integer, Hash)>] MailboxChangesResponse data, response status code and response headers
     def mailbox_get_quota_changes_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -1052,6 +1096,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'since_state'] = opts[:'since_state'] if !opts[:'since_state'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1091,6 +1136,7 @@ module Sendmux::Mailbox::Generated
     # Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxSessionResponse]
     def mailbox_get_session(opts = {})
       data, _status_code, _headers = mailbox_get_session_with_http_info(opts)
@@ -1101,6 +1147,7 @@ module Sendmux::Mailbox::Generated
     # Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxSessionResponse, Integer, Hash)>] MailboxSessionResponse data, response status code and response headers
     def mailbox_get_session_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -1111,6 +1158,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1152,6 +1200,7 @@ module Sendmux::Mailbox::Generated
     # @param submission_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxSubmissionResponse]
     def mailbox_get_submission(submission_id, opts = {})
       data, _status_code, _headers = mailbox_get_submission_with_http_info(submission_id, opts)
@@ -1163,6 +1212,7 @@ module Sendmux::Mailbox::Generated
     # @param submission_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxSubmissionResponse, Integer, Hash)>] MailboxSubmissionResponse data, response status code and response headers
     def mailbox_get_submission_with_http_info(submission_id, opts = {})
       if @api_client.config.debugging
@@ -1177,6 +1227,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1218,6 +1269,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxChangesResponse]
     def mailbox_get_submission_changes(opts = {})
       data, _status_code, _headers = mailbox_get_submission_changes_with_http_info(opts)
@@ -1229,6 +1281,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxChangesResponse, Integer, Hash)>] MailboxChangesResponse data, response status code and response headers
     def mailbox_get_submission_changes_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -1249,6 +1302,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'since_state'] = opts[:'since_state'] if !opts[:'since_state'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1289,6 +1343,7 @@ module Sendmux::Mailbox::Generated
     # @param thread_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxThreadDetailResponse]
     def mailbox_get_thread(thread_id, opts = {})
       data, _status_code, _headers = mailbox_get_thread_with_http_info(thread_id, opts)
@@ -1300,6 +1355,7 @@ module Sendmux::Mailbox::Generated
     # @param thread_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxThreadDetailResponse, Integer, Hash)>] MailboxThreadDetailResponse data, response status code and response headers
     def mailbox_get_thread_with_http_info(thread_id, opts = {})
       if @api_client.config.debugging
@@ -1314,6 +1370,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1366,6 +1423,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Integer] :limit
     # @option opts [String] :sort
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxThreadContentResponse]
     def mailbox_get_thread_content(thread_id, opts = {})
       data, _status_code, _headers = mailbox_get_thread_content_with_http_info(thread_id, opts)
@@ -1388,6 +1446,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Integer] :limit
     # @option opts [String] :sort
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxThreadContentResponse, Integer, Hash)>] MailboxThreadContentResponse data, response status code and response headers
     def mailbox_get_thread_content_with_http_info(thread_id, opts = {})
       if @api_client.config.debugging
@@ -1445,6 +1504,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'cursor'] = opts[:'cursor'] if !opts[:'cursor'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
       query_params[:'sort'] = opts[:'sort'] if !opts[:'sort'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1488,6 +1548,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :part
     # @option opts [Integer] :max_body_chars
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxRawBodyResponse]
     def mailbox_list_body(message_id, opts = {})
       data, _status_code, _headers = mailbox_list_body_with_http_info(message_id, opts)
@@ -1501,6 +1562,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :part
     # @option opts [Integer] :max_body_chars
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxRawBodyResponse, Integer, Hash)>] MailboxRawBodyResponse data, response status code and response headers
     def mailbox_list_body_with_http_info(message_id, opts = {})
       if @api_client.config.debugging
@@ -1529,6 +1591,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'part'] = opts[:'part'] if !opts[:'part'].nil?
       query_params[:'max_body_chars'] = opts[:'max_body_chars'] if !opts[:'max_body_chars'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1578,6 +1641,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :include_headers
     # @option opts [String] :include_attachments
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageContentResponse]
     def mailbox_list_content(message_id, opts = {})
       data, _status_code, _headers = mailbox_list_content_with_http_info(message_id, opts)
@@ -1597,6 +1661,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :include_headers
     # @option opts [String] :include_attachments
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageContentResponse, Integer, Hash)>] MailboxMessageContentResponse data, response status code and response headers
     def mailbox_list_content_with_http_info(message_id, opts = {})
       if @api_client.config.debugging
@@ -1639,6 +1704,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'include_html'] = opts[:'include_html'] if !opts[:'include_html'].nil?
       query_params[:'include_headers'] = opts[:'include_headers'] if !opts[:'include_headers'].nil?
       query_params[:'include_attachments'] = opts[:'include_attachments'] if !opts[:'include_attachments'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1680,6 +1746,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxFolderCursorListResponse]
     def mailbox_list_folders(opts = {})
       data, _status_code, _headers = mailbox_list_folders_with_http_info(opts)
@@ -1691,6 +1758,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxFolderCursorListResponse, Integer, Hash)>] MailboxFolderCursorListResponse data, response status code and response headers
     def mailbox_list_folders_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -1711,6 +1779,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'cursor'] = opts[:'cursor'] if !opts[:'cursor'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1746,11 +1815,86 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # List granted mailboxes
+    # Lists the mailboxes available to the current mailbox credential or connected app. Use this before choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :cursor
+    # @option opts [Integer] :limit
+    # @option opts [String] :q
+    # @return [GrantedMailboxListResponse]
+    def mailbox_list_granted_mailboxes(opts = {})
+      data, _status_code, _headers = mailbox_list_granted_mailboxes_with_http_info(opts)
+      data
+    end
+
+    # List granted mailboxes
+    # Lists the mailboxes available to the current mailbox credential or connected app. Use this before choosing a &#x60;mailbox_id&#x60; for mailbox actions when more than one mailbox is available.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :cursor
+    # @option opts [Integer] :limit
+    # @option opts [String] :q
+    # @return [Array<(GrantedMailboxListResponse, Integer, Hash)>] GrantedMailboxListResponse data, response status code and response headers
+    def mailbox_list_granted_mailboxes_with_http_info(opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_list_granted_mailboxes ...'
+      end
+      if @api_client.config.client_side_validation && !opts[:'limit'].nil? && opts[:'limit'] > 100
+        fail ArgumentError, 'invalid value for "opts[:"limit"]" when calling MailboxAPIApi.mailbox_list_granted_mailboxes, must be smaller than or equal to 100.'
+      end
+
+      if @api_client.config.client_side_validation && !opts[:'limit'].nil? && opts[:'limit'] < 1
+        fail ArgumentError, 'invalid value for "opts[:"limit"]" when calling MailboxAPIApi.mailbox_list_granted_mailboxes, must be greater than or equal to 1.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox/mailboxes'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'cursor'] = opts[:'cursor'] if !opts[:'cursor'].nil?
+      query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'q'] = opts[:'q'] if !opts[:'q'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'GrantedMailboxListResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_list_granted_mailboxes",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_list_granted_mailboxes\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # List mailbox sender identities
     # Returns sender identities available to the authenticated mailbox.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxIdentityCursorListResponse]
     def mailbox_list_identities(opts = {})
       data, _status_code, _headers = mailbox_list_identities_with_http_info(opts)
@@ -1762,6 +1906,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxIdentityCursorListResponse, Integer, Hash)>] MailboxIdentityCursorListResponse data, response status code and response headers
     def mailbox_list_identities_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -1782,6 +1927,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'cursor'] = opts[:'cursor'] if !opts[:'cursor'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1843,6 +1989,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :is_unread
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageSummaryCursorListResponse]
     def mailbox_list_messages(opts = {})
       data, _status_code, _headers = mailbox_list_messages_with_http_info(opts)
@@ -1875,6 +2022,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :is_unread
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageSummaryCursorListResponse, Integer, Hash)>] MailboxMessageSummaryCursorListResponse data, response status code and response headers
     def mailbox_list_messages_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -1932,6 +2080,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'is_unread'] = opts[:'is_unread'] if !opts[:'is_unread'].nil?
       query_params[:'sort_by'] = opts[:'sort_by'] if !opts[:'sort_by'].nil?
       query_params[:'sort_direction'] = opts[:'sort_direction'] if !opts[:'sort_direction'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -1978,6 +2127,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :type
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxQuotaCursorListResponse]
     def mailbox_list_quotas(opts = {})
       data, _status_code, _headers = mailbox_list_quotas_with_http_info(opts)
@@ -1995,6 +2145,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :type
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxQuotaCursorListResponse, Integer, Hash)>] MailboxQuotaCursorListResponse data, response status code and response headers
     def mailbox_list_quotas_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2037,6 +2188,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'type'] = opts[:'type'] if !opts[:'type'].nil?
       query_params[:'sort_by'] = opts[:'sort_by'] if !opts[:'sort_by'].nil?
       query_params[:'sort_direction'] = opts[:'sort_direction'] if !opts[:'sort_direction'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2085,6 +2237,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :before
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxSubmissionCursorListResponse]
     def mailbox_list_submissions(opts = {})
       data, _status_code, _headers = mailbox_list_submissions_with_http_info(opts)
@@ -2104,6 +2257,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :before
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxSubmissionCursorListResponse, Integer, Hash)>] MailboxSubmissionCursorListResponse data, response status code and response headers
     def mailbox_list_submissions_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2144,6 +2298,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'before'] = opts[:'before'] if !opts[:'before'].nil?
       query_params[:'sort_by'] = opts[:'sort_by'] if !opts[:'sort_by'].nil?
       query_params[:'sort_direction'] = opts[:'sort_direction'] if !opts[:'sort_direction'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2186,6 +2341,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
     # @option opts [String] :sort
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageSummaryCursorListResponse]
     def mailbox_list_thread_messages(thread_id, opts = {})
       data, _status_code, _headers = mailbox_list_thread_messages_with_http_info(thread_id, opts)
@@ -2199,6 +2355,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
     # @option opts [String] :sort
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageSummaryCursorListResponse, Integer, Hash)>] MailboxMessageSummaryCursorListResponse data, response status code and response headers
     def mailbox_list_thread_messages_with_http_info(thread_id, opts = {})
       if @api_client.config.debugging
@@ -2228,6 +2385,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'cursor'] = opts[:'cursor'] if !opts[:'cursor'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
       query_params[:'sort'] = opts[:'sort'] if !opts[:'sort'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2276,6 +2434,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :has_attachment
     # @option opts [Boolean] :is_unread
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxThreadSummaryCursorListResponse]
     def mailbox_list_threads(opts = {})
       data, _status_code, _headers = mailbox_list_threads_with_http_info(opts)
@@ -2295,6 +2454,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :has_attachment
     # @option opts [Boolean] :is_unread
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxThreadSummaryCursorListResponse, Integer, Hash)>] MailboxThreadSummaryCursorListResponse data, response status code and response headers
     def mailbox_list_threads_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2327,6 +2487,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'has_attachment'] = opts[:'has_attachment'] if !opts[:'has_attachment'].nil?
       query_params[:'is_unread'] = opts[:'is_unread'] if !opts[:'is_unread'].nil?
       query_params[:'sort_direction'] = opts[:'sort_direction'] if !opts[:'sort_direction'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2366,6 +2527,7 @@ module Sendmux::Mailbox::Generated
     # Returns a compact usage view derived from mailbox quota records. Responses include a weak `ETag` header.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxUsageResponse]
     def mailbox_list_usage(opts = {})
       data, _status_code, _headers = mailbox_list_usage_with_http_info(opts)
@@ -2376,6 +2538,7 @@ module Sendmux::Mailbox::Generated
     # Returns a compact usage view derived from mailbox quota records. Responses include a weak &#x60;ETag&#x60; header.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxUsageResponse, Integer, Hash)>] MailboxUsageResponse data, response status code and response headers
     def mailbox_list_usage_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2386,6 +2549,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2427,6 +2591,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_query_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxFolderQueryChangesResponse]
     def mailbox_query_folder_changes(opts = {})
       data, _status_code, _headers = mailbox_query_folder_changes_with_http_info(opts)
@@ -2438,6 +2603,7 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] opts the optional parameters
     # @option opts [String] :since_query_state
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxFolderQueryChangesResponse, Integer, Hash)>] MailboxFolderQueryChangesResponse data, response status code and response headers
     def mailbox_query_folder_changes_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2458,6 +2624,7 @@ module Sendmux::Mailbox::Generated
       query_params = opts[:query_params] || {}
       query_params[:'since_query_state'] = opts[:'since_query_state'] if !opts[:'since_query_state'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2520,6 +2687,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :is_unread
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxMessageQueryChangesResponse]
     def mailbox_query_message_changes(opts = {})
       data, _status_code, _headers = mailbox_query_message_changes_with_http_info(opts)
@@ -2553,6 +2721,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :is_unread
     # @option opts [String] :sort_by
     # @option opts [String] :sort_direction
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxMessageQueryChangesResponse, Integer, Hash)>] MailboxMessageQueryChangesResponse data, response status code and response headers
     def mailbox_query_message_changes_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2611,6 +2780,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'is_unread'] = opts[:'is_unread'] if !opts[:'is_unread'].nil?
       query_params[:'sort_by'] = opts[:'sort_by'] if !opts[:'sort_by'].nil?
       query_params[:'sort_direction'] = opts[:'sort_direction'] if !opts[:'sort_direction'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2669,6 +2839,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :is_unread
     # @option opts [String] :message_ids
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxSearchSnippetsResultResponse]
     def mailbox_search_message_snippets(q, opts = {})
       data, _status_code, _headers = mailbox_search_message_snippets_with_http_info(q, opts)
@@ -2698,6 +2869,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Boolean] :is_unread
     # @option opts [String] :message_ids
     # @option opts [Integer] :limit
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxSearchSnippetsResultResponse, Integer, Hash)>] MailboxSearchSnippetsResultResponse data, response status code and response headers
     def mailbox_search_message_snippets_with_http_info(q, opts = {})
       if @api_client.config.debugging
@@ -2748,6 +2920,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'is_unread'] = opts[:'is_unread'] if !opts[:'is_unread'].nil?
       query_params[:'message_ids'] = opts[:'message_ids'] if !opts[:'message_ids'].nil?
       query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2787,6 +2960,7 @@ module Sendmux::Mailbox::Generated
     # Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [SendMailboxMessageBody] :send_mailbox_message_body
     # @return [MailboxSendResultResponse]
     def mailbox_send_message(opts = {})
@@ -2798,6 +2972,7 @@ module Sendmux::Mailbox::Generated
     # Creates and queues a message from the authenticated mailbox. Supply an &#x60;Idempotency-Key&#x60; header to safely retry. Attachments may use small inline base64 content or blob IDs returned by &#x60;POST /mailbox/attachments:upload&#x60;.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [SendMailboxMessageBody] :send_mailbox_message_body
     # @return [Array<(MailboxSendResultResponse, Integer, Hash)>] MailboxSendResultResponse data, response status code and response headers
     def mailbox_send_message_with_http_info(opts = {})
@@ -2813,6 +2988,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2862,6 +3038,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Integer] :ping
     # @option opts [Integer] :close_after
     # @option opts [String] :last_event_id2
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxRealtimeEvent]
     def mailbox_stream_events(opts = {})
       data, _status_code, _headers = mailbox_stream_events_with_http_info(opts)
@@ -2876,6 +3053,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Integer] :ping
     # @option opts [Integer] :close_after
     # @option opts [String] :last_event_id2
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxRealtimeEvent, Integer, Hash)>] MailboxRealtimeEvent data, response status code and response headers
     def mailbox_stream_events_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -2906,6 +3084,7 @@ module Sendmux::Mailbox::Generated
       query_params[:'last_event_id'] = opts[:'last_event_id'] if !opts[:'last_event_id'].nil?
       query_params[:'ping'] = opts[:'ping'] if !opts[:'ping'].nil?
       query_params[:'close_after'] = opts[:'close_after'] if !opts[:'close_after'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2947,6 +3126,7 @@ module Sendmux::Mailbox::Generated
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [PatchMailboxFolderBody] :patch_mailbox_folder_body
     # @return [MailboxFolderResponse]
     def mailbox_update_folder(folder_id, opts = {})
@@ -2959,6 +3139,7 @@ module Sendmux::Mailbox::Generated
     # @param folder_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [PatchMailboxFolderBody] :patch_mailbox_folder_body
     # @return [Array<(MailboxFolderResponse, Integer, Hash)>] MailboxFolderResponse data, response status code and response headers
     def mailbox_update_folder_with_http_info(folder_id, opts = {})
@@ -2974,6 +3155,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -3018,6 +3200,7 @@ module Sendmux::Mailbox::Generated
     # Update mailbox sender identity
     # Updates the default sender name, plain text signature, and HTML signature for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [UpdateMailboxIdentityBody] :update_mailbox_identity_body
     # @return [MailboxIdentityResponse]
     def mailbox_update_identity(opts = {})
@@ -3028,6 +3211,7 @@ module Sendmux::Mailbox::Generated
     # Update mailbox sender identity
     # Updates the default sender name, plain text signature, and HTML signature for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [UpdateMailboxIdentityBody] :update_mailbox_identity_body
     # @return [Array<(MailboxIdentityResponse, Integer, Hash)>] MailboxIdentityResponse data, response status code and response headers
     def mailbox_update_identity_with_http_info(opts = {})
@@ -3039,6 +3223,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -3084,6 +3269,7 @@ module Sendmux::Mailbox::Generated
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [PatchMailboxMessageBody] :patch_mailbox_message_body
     # @return [MailboxMessageDetailResponse]
     def mailbox_update_message(message_id, opts = {})
@@ -3096,6 +3282,7 @@ module Sendmux::Mailbox::Generated
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [PatchMailboxMessageBody] :patch_mailbox_message_body
     # @return [Array<(MailboxMessageDetailResponse, Integer, Hash)>] MailboxMessageDetailResponse data, response status code and response headers
     def mailbox_update_message_with_http_info(message_id, opts = {})
@@ -3111,6 +3298,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -3156,6 +3344,7 @@ module Sendmux::Mailbox::Generated
     # Uploads one attachment as binary data and returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
     # @param filename [String]
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [File] :body
     # @return [MailboxAttachmentUploadResultResponse]
     def mailbox_upload_attachment(filename, opts = {})
@@ -3167,6 +3356,7 @@ module Sendmux::Mailbox::Generated
     # Uploads one attachment as binary data and returns a blob ID that can be supplied to &#x60;POST /mailbox/messages/send&#x60;.
     # @param filename [String]
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [File] :body
     # @return [Array<(MailboxAttachmentUploadResultResponse, Integer, Hash)>] MailboxAttachmentUploadResultResponse data, response status code and response headers
     def mailbox_upload_attachment_with_http_info(filename, opts = {})
@@ -3183,6 +3373,7 @@ module Sendmux::Mailbox::Generated
       # query parameters
       query_params = opts[:query_params] || {}
       query_params[:'filename'] = filename
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}

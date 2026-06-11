@@ -147,7 +147,11 @@ class EmailsApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['sendingSendEmail'][0]
     ): \Sendmux\Sending\Model\SendSuccessResponse|\Sendmux\Sending\Model\ErrorResponse {
-        list($response) = $this->sendingSendEmailWithHttpInfo($email_send_request, $idempotency_key, $contentType);
+        list($response) = $this->sendingSendEmailWithHttpInfo(
+            $email_send_request,
+            $idempotency_key,
+            $contentType
+        );
         return $response;
     }
 
@@ -156,7 +160,7 @@ class EmailsApi
      *
      * Send a single email
      *
-     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request (required)
+     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request email_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmail'] to see the possible values for this operation
      *
@@ -169,7 +173,11 @@ class EmailsApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['sendingSendEmail'][0]
     ): array {
-        $request = $this->sendingSendEmailRequest($email_send_request, $idempotency_key, $contentType);
+        $request = $this->sendingSendEmailRequest(
+            $email_send_request,
+            $idempotency_key,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -368,7 +376,7 @@ class EmailsApi
      *
      * Send a single email
      *
-     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request (required)
+     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request email_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmail'] to see the possible values for this operation
      *
@@ -380,7 +388,11 @@ class EmailsApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['sendingSendEmail'][0]
     ): PromiseInterface {
-        return $this->sendingSendEmailAsyncWithHttpInfo($email_send_request, $idempotency_key, $contentType)
+        return $this->sendingSendEmailAsyncWithHttpInfo(
+            $email_send_request,
+            $idempotency_key,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -393,7 +405,7 @@ class EmailsApi
      *
      * Send a single email
      *
-     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request (required)
+     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request email_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmail'] to see the possible values for this operation
      *
@@ -406,7 +418,11 @@ class EmailsApi
         string $contentType = self::contentTypes['sendingSendEmail'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Sending\Model\SendSuccessResponse';
-        $request = $this->sendingSendEmailRequest($email_send_request, $idempotency_key, $contentType);
+        $request = $this->sendingSendEmailRequest(
+            $email_send_request,
+            $idempotency_key,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -463,7 +479,7 @@ class EmailsApi
     /**
      * Create request for operation 'sendingSendEmail'
      *
-     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request (required)
+     * @param  \Sendmux\Sending\Model\EmailSendRequest $email_send_request email_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmail'] to see the possible values for this operation
      *
@@ -584,7 +600,11 @@ class EmailsApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['sendingSendEmailBatch'][0]
     ): \Sendmux\Sending\Model\BatchSendSuccessResponse|\Sendmux\Sending\Model\ErrorResponse {
-        list($response) = $this->sendingSendEmailBatchWithHttpInfo($batch_send_request, $idempotency_key, $contentType);
+        list($response) = $this->sendingSendEmailBatchWithHttpInfo(
+            $batch_send_request,
+            $idempotency_key,
+            $contentType
+        );
         return $response;
     }
 
@@ -593,7 +613,7 @@ class EmailsApi
      *
      * Send a batch of emails
      *
-     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request (required)
+     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request batch_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmailBatch'] to see the possible values for this operation
      *
@@ -606,7 +626,11 @@ class EmailsApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['sendingSendEmailBatch'][0]
     ): array {
-        $request = $this->sendingSendEmailBatchRequest($batch_send_request, $idempotency_key, $contentType);
+        $request = $this->sendingSendEmailBatchRequest(
+            $batch_send_request,
+            $idempotency_key,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -805,7 +829,7 @@ class EmailsApi
      *
      * Send a batch of emails
      *
-     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request (required)
+     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request batch_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmailBatch'] to see the possible values for this operation
      *
@@ -817,7 +841,11 @@ class EmailsApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['sendingSendEmailBatch'][0]
     ): PromiseInterface {
-        return $this->sendingSendEmailBatchAsyncWithHttpInfo($batch_send_request, $idempotency_key, $contentType)
+        return $this->sendingSendEmailBatchAsyncWithHttpInfo(
+            $batch_send_request,
+            $idempotency_key,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -830,7 +858,7 @@ class EmailsApi
      *
      * Send a batch of emails
      *
-     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request (required)
+     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request batch_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmailBatch'] to see the possible values for this operation
      *
@@ -843,7 +871,11 @@ class EmailsApi
         string $contentType = self::contentTypes['sendingSendEmailBatch'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Sending\Model\BatchSendSuccessResponse';
-        $request = $this->sendingSendEmailBatchRequest($batch_send_request, $idempotency_key, $contentType);
+        $request = $this->sendingSendEmailBatchRequest(
+            $batch_send_request,
+            $idempotency_key,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -900,7 +932,7 @@ class EmailsApi
     /**
      * Create request for operation 'sendingSendEmailBatch'
      *
-     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request (required)
+     * @param  \Sendmux\Sending\Model\BatchSendRequest $batch_send_request batch_send_request (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingSendEmailBatch'] to see the possible values for this operation
      *

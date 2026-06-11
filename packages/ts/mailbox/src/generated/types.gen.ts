@@ -865,6 +865,23 @@ export type MailboxAttachmentUploadResult = {
     size_bytes: number;
 };
 
+export type GrantedMailboxListResponse = SuccessEnvelope & {
+    data: Array<GrantedMailbox>;
+    meta?: ResponseMeta;
+    pagination: CursorPagination;
+};
+
+export type GrantedMailbox = {
+    /**
+     * Mailbox email address
+     */
+    email: string;
+    /**
+     * Mailbox public ID
+     */
+    id: string;
+};
+
 export type CreateMailboxFolderBody = {
     name: string;
     parent_id?: string | null;
@@ -958,6 +975,10 @@ export type MailboxUploadAttachmentData = {
          * Filename to use when sending the uploaded attachment.
          */
         filename: string;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/attachments:upload';
 };
@@ -1004,6 +1025,10 @@ export type MailboxGetChangesData = {
         identities_since_state?: string;
         quotas_since_state?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/changes';
 };
@@ -1040,6 +1065,10 @@ export type MailboxStreamEventsData = {
         last_event_id?: string;
         ping?: number;
         close_after?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/events';
 };
@@ -1084,6 +1113,10 @@ export type MailboxListFoldersData = {
     query?: {
         cursor?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/folders';
 };
@@ -1100,7 +1133,12 @@ export type MailboxListFoldersResponse = MailboxListFoldersResponses[keyof Mailb
 export type MailboxCreateFolderData = {
     body?: CreateMailboxFolderBody;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/folders';
 };
 
@@ -1134,7 +1172,12 @@ export type MailboxDeleteFolderData = {
     path: {
         folder_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/folders/{folder_id}';
 };
 
@@ -1164,7 +1207,12 @@ export type MailboxGetFolderData = {
     path: {
         folder_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/folders/{folder_id}';
 };
 
@@ -1194,7 +1242,12 @@ export type MailboxUpdateFolderData = {
     path: {
         folder_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/folders/{folder_id}';
 };
 
@@ -1230,6 +1283,10 @@ export type MailboxGetFolderChangesData = {
     query?: {
         since_state?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/folders/changes';
 };
@@ -1258,6 +1315,10 @@ export type MailboxQueryFolderChangesData = {
     query?: {
         since_query_state?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/folders/query-changes';
 };
@@ -1286,6 +1347,10 @@ export type MailboxListIdentitiesData = {
     query?: {
         cursor?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/identities';
 };
@@ -1319,7 +1384,12 @@ export type MailboxListIdentitiesResponse = MailboxListIdentitiesResponses[keyof
 export type MailboxGetIdentityData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/identity';
 };
 
@@ -1352,7 +1422,12 @@ export type MailboxGetIdentityResponse = MailboxGetIdentityResponses[keyof Mailb
 export type MailboxUpdateIdentityData = {
     body?: UpdateMailboxIdentityBody;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/identity';
 };
 
@@ -1390,6 +1465,48 @@ export type MailboxUpdateIdentityResponses = {
 
 export type MailboxUpdateIdentityResponse = MailboxUpdateIdentityResponses[keyof MailboxUpdateIdentityResponses];
 
+export type MailboxListGrantedMailboxesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Cursor from the previous response.
+         */
+        cursor?: string;
+        /**
+         * Maximum results (default 50).
+         */
+        limit?: number;
+        /**
+         * Search by mailbox ID or email address.
+         */
+        q?: string;
+    };
+    url: '/mailbox/mailboxes';
+};
+
+export type MailboxListGrantedMailboxesErrors = {
+    /**
+     * Authentication required
+     */
+    401: ApiError;
+    /**
+     * Mailbox access required
+     */
+    403: ApiError;
+};
+
+export type MailboxListGrantedMailboxesError = MailboxListGrantedMailboxesErrors[keyof MailboxListGrantedMailboxesErrors];
+
+export type MailboxListGrantedMailboxesResponses = {
+    /**
+     * Granted mailboxes
+     */
+    200: GrantedMailboxListResponse;
+};
+
+export type MailboxListGrantedMailboxesResponse = MailboxListGrantedMailboxesResponses[keyof MailboxListGrantedMailboxesResponses];
+
 export type MailboxGetMeData = {
     body?: never;
     headers?: {
@@ -1399,7 +1516,12 @@ export type MailboxGetMeData = {
         'If-None-Match'?: string;
     };
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/me';
 };
 
@@ -1456,6 +1578,10 @@ export type MailboxListMessagesData = {
         is_unread?: boolean;
         sort_by?: 'received_at' | 'sent_at' | 'subject' | 'from' | 'to' | 'size_bytes';
         sort_direction?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages';
 };
@@ -1489,7 +1615,12 @@ export type MailboxListMessagesResponse = MailboxListMessagesResponses[keyof Mai
 export type MailboxBatchDeleteMessagesData = {
     body?: BatchDeleteMailboxMessagesBody;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages:batch-delete';
 };
 
@@ -1518,7 +1649,12 @@ export type MailboxBatchDeleteMessagesResponse = MailboxBatchDeleteMessagesRespo
 export type MailboxBatchGetMessagesData = {
     body?: MailboxBatchGetBody;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages:batch-get';
 };
 
@@ -1547,7 +1683,12 @@ export type MailboxBatchGetMessagesResponse = MailboxBatchGetMessagesResponses[k
 export type MailboxBatchUpdateMessagesData = {
     body?: BatchUpdateMailboxMessagesBody;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages:batch-update';
 };
 
@@ -1583,6 +1724,10 @@ export type MailboxDeleteMessageData = {
     };
     query?: {
         permanent?: boolean;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages/{message_id}';
 };
@@ -1617,7 +1762,12 @@ export type MailboxGetMessageData = {
     path: {
         message_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages/{message_id}';
 };
 
@@ -1647,7 +1797,12 @@ export type MailboxUpdateMessageData = {
     path: {
         message_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages/{message_id}';
 };
 
@@ -1689,7 +1844,12 @@ export type MailboxGetMessageAttachmentData = {
         message_id: string;
         attachment_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages/{message_id}/attachments/{attachment_id}';
 };
 
@@ -1728,6 +1888,10 @@ export type MailboxListBodyData = {
     query?: {
         part?: 'text' | 'html' | 'both';
         max_body_chars?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages/{message_id}/body';
 };
@@ -1771,6 +1935,10 @@ export type MailboxListContentData = {
         include_html?: boolean;
         include_headers?: 'none' | 'selected' | 'full';
         include_attachments?: 'none' | 'metadata';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages/{message_id}/content';
 };
@@ -1820,6 +1988,10 @@ export type MailboxCountMessagesData = {
         before?: string;
         has_attachment?: boolean;
         is_unread?: boolean;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages/count';
 };
@@ -1870,6 +2042,10 @@ export type MailboxQueryMessageChangesData = {
         is_unread?: boolean;
         sort_by?: 'received_at' | 'sent_at' | 'subject' | 'from' | 'to' | 'size_bytes';
         sort_direction?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages/query-changes';
 };
@@ -1919,6 +2095,10 @@ export type MailboxSearchMessageSnippetsData = {
          */
         message_ids?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/messages/search-snippets';
 };
@@ -1947,7 +2127,12 @@ export type MailboxSendMessageData = {
         'Idempotency-Key'?: string;
     };
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/messages/send';
 };
 
@@ -1993,6 +2178,10 @@ export type MailboxListQuotasData = {
         type?: string;
         sort_by?: 'name' | 'used';
         sort_direction?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/quotas';
 };
@@ -2021,6 +2210,10 @@ export type MailboxGetQuotaChangesData = {
     query?: {
         since_state?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/quotas/changes';
 };
@@ -2049,7 +2242,12 @@ export type MailboxGetSessionData = {
         'If-None-Match'?: string;
     };
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/session';
 };
 
@@ -2102,6 +2300,10 @@ export type MailboxListSubmissionsData = {
         before?: string;
         sort_by?: 'send_at' | 'email_id' | 'thread_id';
         sort_direction?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/submissions';
 };
@@ -2132,7 +2334,12 @@ export type MailboxGetSubmissionData = {
     path: {
         submission_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/submissions/{submission_id}';
 };
 
@@ -2160,6 +2367,10 @@ export type MailboxGetSubmissionChangesData = {
     query?: {
         since_state?: string;
         limit?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/submissions/changes';
 };
@@ -2196,6 +2407,10 @@ export type MailboxListThreadsData = {
         has_attachment?: boolean;
         is_unread?: boolean;
         sort_direction?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/threads';
 };
@@ -2234,7 +2449,12 @@ export type MailboxGetThreadData = {
     path: {
         thread_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/threads/{thread_id}';
 };
 
@@ -2276,6 +2496,10 @@ export type MailboxGetThreadContentData = {
         cursor?: string;
         limit?: number;
         sort?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/threads/{thread_id}/content';
 };
@@ -2311,6 +2535,10 @@ export type MailboxListThreadMessagesData = {
         cursor?: string;
         limit?: number;
         sort?: 'asc' | 'desc';
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/threads/{thread_id}/messages';
 };
@@ -2343,7 +2571,12 @@ export type MailboxListUsageData = {
         'If-None-Match'?: string;
     };
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
     url: '/mailbox/usage';
 };
 

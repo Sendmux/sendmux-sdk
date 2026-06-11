@@ -144,6 +144,9 @@ class MailboxAPIApi
         'mailboxListFolders' => [
             'application/json',
         ],
+        'mailboxListGrantedMailboxes' => [
+            'application/json',
+        ],
         'mailboxListIdentities' => [
             'application/json',
         ],
@@ -246,6 +249,7 @@ class MailboxAPIApi
      * Batch delete mailbox messages
      *
      * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body batch_delete_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchDeleteMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -254,9 +258,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchDeleteMessages(
         ?\Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody $batch_delete_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchDeleteMessages'][0]
     ): \Sendmux\Mailbox\Model\MailboxBatchDeleteMessagesResultResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxBatchDeleteMessagesWithHttpInfo($batch_delete_mailbox_messages_body, $contentType);
+        list($response) = $this->mailboxBatchDeleteMessagesWithHttpInfo(
+            $batch_delete_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -265,7 +274,8 @@ class MailboxAPIApi
      *
      * Batch delete mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body batch_delete_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchDeleteMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -274,9 +284,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchDeleteMessagesWithHttpInfo(
         ?\Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody $batch_delete_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchDeleteMessages'][0]
     ): array {
-        $request = $this->mailboxBatchDeleteMessagesRequest($batch_delete_mailbox_messages_body, $contentType);
+        $request = $this->mailboxBatchDeleteMessagesRequest(
+            $batch_delete_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -377,7 +392,8 @@ class MailboxAPIApi
      *
      * Batch delete mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body batch_delete_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchDeleteMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -385,9 +401,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchDeleteMessagesAsync(
         ?\Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody $batch_delete_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchDeleteMessages'][0]
     ): PromiseInterface {
-        return $this->mailboxBatchDeleteMessagesAsyncWithHttpInfo($batch_delete_mailbox_messages_body, $contentType)
+        return $this->mailboxBatchDeleteMessagesAsyncWithHttpInfo(
+            $batch_delete_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -400,7 +421,8 @@ class MailboxAPIApi
      *
      * Batch delete mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body batch_delete_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchDeleteMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -408,10 +430,15 @@ class MailboxAPIApi
      */
     public function mailboxBatchDeleteMessagesAsyncWithHttpInfo(
         ?\Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody $batch_delete_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchDeleteMessages'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxBatchDeleteMessagesResultResponse';
-        $request = $this->mailboxBatchDeleteMessagesRequest($batch_delete_mailbox_messages_body, $contentType);
+        $request = $this->mailboxBatchDeleteMessagesRequest(
+            $batch_delete_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -468,7 +495,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxBatchDeleteMessages'
      *
-     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody|null $batch_delete_mailbox_messages_body batch_delete_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchDeleteMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -476,8 +504,10 @@ class MailboxAPIApi
      */
     public function mailboxBatchDeleteMessagesRequest(
         ?\Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody $batch_delete_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchDeleteMessages'][0]
     ): Request {
+
 
 
 
@@ -488,6 +518,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -561,6 +600,7 @@ class MailboxAPIApi
      * Batch get mailbox messages
      *
      * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body mailbox_batch_get_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchGetMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -569,9 +609,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchGetMessages(
         ?\Sendmux\Mailbox\Model\MailboxBatchGetBody $mailbox_batch_get_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchGetMessages'][0]
     ): \Sendmux\Mailbox\Model\MailboxBatchGetResultResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxBatchGetMessagesWithHttpInfo($mailbox_batch_get_body, $contentType);
+        list($response) = $this->mailboxBatchGetMessagesWithHttpInfo(
+            $mailbox_batch_get_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -580,7 +625,8 @@ class MailboxAPIApi
      *
      * Batch get mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body (optional)
+     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body mailbox_batch_get_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchGetMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -589,9 +635,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchGetMessagesWithHttpInfo(
         ?\Sendmux\Mailbox\Model\MailboxBatchGetBody $mailbox_batch_get_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchGetMessages'][0]
     ): array {
-        $request = $this->mailboxBatchGetMessagesRequest($mailbox_batch_get_body, $contentType);
+        $request = $this->mailboxBatchGetMessagesRequest(
+            $mailbox_batch_get_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -692,7 +743,8 @@ class MailboxAPIApi
      *
      * Batch get mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body (optional)
+     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body mailbox_batch_get_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchGetMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -700,9 +752,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchGetMessagesAsync(
         ?\Sendmux\Mailbox\Model\MailboxBatchGetBody $mailbox_batch_get_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchGetMessages'][0]
     ): PromiseInterface {
-        return $this->mailboxBatchGetMessagesAsyncWithHttpInfo($mailbox_batch_get_body, $contentType)
+        return $this->mailboxBatchGetMessagesAsyncWithHttpInfo(
+            $mailbox_batch_get_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -715,7 +772,8 @@ class MailboxAPIApi
      *
      * Batch get mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body (optional)
+     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body mailbox_batch_get_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchGetMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -723,10 +781,15 @@ class MailboxAPIApi
      */
     public function mailboxBatchGetMessagesAsyncWithHttpInfo(
         ?\Sendmux\Mailbox\Model\MailboxBatchGetBody $mailbox_batch_get_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchGetMessages'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxBatchGetResultResponse';
-        $request = $this->mailboxBatchGetMessagesRequest($mailbox_batch_get_body, $contentType);
+        $request = $this->mailboxBatchGetMessagesRequest(
+            $mailbox_batch_get_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -783,7 +846,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxBatchGetMessages'
      *
-     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body (optional)
+     * @param  \Sendmux\Mailbox\Model\MailboxBatchGetBody|null $mailbox_batch_get_body mailbox_batch_get_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchGetMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -791,8 +855,10 @@ class MailboxAPIApi
      */
     public function mailboxBatchGetMessagesRequest(
         ?\Sendmux\Mailbox\Model\MailboxBatchGetBody $mailbox_batch_get_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchGetMessages'][0]
     ): Request {
+
 
 
 
@@ -803,6 +869,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -876,6 +951,7 @@ class MailboxAPIApi
      * Batch update mailbox messages
      *
      * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body batch_update_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchUpdateMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -884,9 +960,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchUpdateMessages(
         ?\Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody $batch_update_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchUpdateMessages'][0]
     ): \Sendmux\Mailbox\Model\MailboxBatchUpdateMessagesResultResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxBatchUpdateMessagesWithHttpInfo($batch_update_mailbox_messages_body, $contentType);
+        list($response) = $this->mailboxBatchUpdateMessagesWithHttpInfo(
+            $batch_update_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -895,7 +976,8 @@ class MailboxAPIApi
      *
      * Batch update mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body batch_update_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchUpdateMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -904,9 +986,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchUpdateMessagesWithHttpInfo(
         ?\Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody $batch_update_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchUpdateMessages'][0]
     ): array {
-        $request = $this->mailboxBatchUpdateMessagesRequest($batch_update_mailbox_messages_body, $contentType);
+        $request = $this->mailboxBatchUpdateMessagesRequest(
+            $batch_update_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1007,7 +1094,8 @@ class MailboxAPIApi
      *
      * Batch update mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body batch_update_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchUpdateMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1015,9 +1103,14 @@ class MailboxAPIApi
      */
     public function mailboxBatchUpdateMessagesAsync(
         ?\Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody $batch_update_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchUpdateMessages'][0]
     ): PromiseInterface {
-        return $this->mailboxBatchUpdateMessagesAsyncWithHttpInfo($batch_update_mailbox_messages_body, $contentType)
+        return $this->mailboxBatchUpdateMessagesAsyncWithHttpInfo(
+            $batch_update_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1030,7 +1123,8 @@ class MailboxAPIApi
      *
      * Batch update mailbox messages
      *
-     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body batch_update_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchUpdateMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1038,10 +1132,15 @@ class MailboxAPIApi
      */
     public function mailboxBatchUpdateMessagesAsyncWithHttpInfo(
         ?\Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody $batch_update_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchUpdateMessages'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxBatchUpdateMessagesResultResponse';
-        $request = $this->mailboxBatchUpdateMessagesRequest($batch_update_mailbox_messages_body, $contentType);
+        $request = $this->mailboxBatchUpdateMessagesRequest(
+            $batch_update_mailbox_messages_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1098,7 +1197,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxBatchUpdateMessages'
      *
-     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body (optional)
+     * @param  \Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody|null $batch_update_mailbox_messages_body batch_update_mailbox_messages_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxBatchUpdateMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1106,8 +1206,10 @@ class MailboxAPIApi
      */
     public function mailboxBatchUpdateMessagesRequest(
         ?\Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody $batch_update_mailbox_messages_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxBatchUpdateMessages'][0]
     ): Request {
+
 
 
 
@@ -1118,6 +1220,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -1209,6 +1320,7 @@ class MailboxAPIApi
      * @param  string|null $before before (optional)
      * @param  bool|null $has_attachment has_attachment (optional)
      * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCountMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1235,9 +1347,32 @@ class MailboxAPIApi
         ?string $before = null,
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCountMessages'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageCountResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxCountMessagesWithHttpInfo($folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $contentType);
+        list($response) = $this->mailboxCountMessagesWithHttpInfo(
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -1246,25 +1381,26 @@ class MailboxAPIApi
      *
      * Count mailbox messages
      *
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCountMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1291,9 +1427,32 @@ class MailboxAPIApi
         ?string $before = null,
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCountMessages'][0]
     ): array {
-        $request = $this->mailboxCountMessagesRequest($folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $contentType);
+        $request = $this->mailboxCountMessagesRequest(
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1380,25 +1539,26 @@ class MailboxAPIApi
      *
      * Count mailbox messages
      *
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCountMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1424,9 +1584,32 @@ class MailboxAPIApi
         ?string $before = null,
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCountMessages'][0]
     ): PromiseInterface {
-        return $this->mailboxCountMessagesAsyncWithHttpInfo($folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $contentType)
+        return $this->mailboxCountMessagesAsyncWithHttpInfo(
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1439,25 +1622,26 @@ class MailboxAPIApi
      *
      * Count mailbox messages
      *
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCountMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1483,10 +1667,33 @@ class MailboxAPIApi
         ?string $before = null,
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCountMessages'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageCountResponse';
-        $request = $this->mailboxCountMessagesRequest($folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $contentType);
+        $request = $this->mailboxCountMessagesRequest(
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1543,25 +1750,26 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxCountMessages'
      *
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCountMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1587,6 +1795,7 @@ class MailboxAPIApi
         ?string $before = null,
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCountMessages'][0]
     ): Request {
 
@@ -1608,6 +1817,7 @@ class MailboxAPIApi
         if ($max_size_bytes !== null && $max_size_bytes < 0) {
             throw new InvalidArgumentException('invalid value for "$max_size_bytes" when calling MailboxAPIApi.mailboxCountMessages, must be bigger than or equal to 0.');
         }
+
 
 
 
@@ -1794,6 +2004,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -1860,6 +2079,7 @@ class MailboxAPIApi
      * Create a mailbox folder
      *
      * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body create_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1868,9 +2088,14 @@ class MailboxAPIApi
      */
     public function mailboxCreateFolder(
         ?\Sendmux\Mailbox\Model\CreateMailboxFolderBody $create_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCreateFolder'][0]
     ): \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxCreateFolderWithHttpInfo($create_mailbox_folder_body, $contentType);
+        list($response) = $this->mailboxCreateFolderWithHttpInfo(
+            $create_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -1879,7 +2104,8 @@ class MailboxAPIApi
      *
      * Create a mailbox folder
      *
-     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body (optional)
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body create_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1888,9 +2114,14 @@ class MailboxAPIApi
      */
     public function mailboxCreateFolderWithHttpInfo(
         ?\Sendmux\Mailbox\Model\CreateMailboxFolderBody $create_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCreateFolder'][0]
     ): array {
-        $request = $this->mailboxCreateFolderRequest($create_mailbox_folder_body, $contentType);
+        $request = $this->mailboxCreateFolderRequest(
+            $create_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1991,7 +2222,8 @@ class MailboxAPIApi
      *
      * Create a mailbox folder
      *
-     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body (optional)
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body create_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1999,9 +2231,14 @@ class MailboxAPIApi
      */
     public function mailboxCreateFolderAsync(
         ?\Sendmux\Mailbox\Model\CreateMailboxFolderBody $create_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCreateFolder'][0]
     ): PromiseInterface {
-        return $this->mailboxCreateFolderAsyncWithHttpInfo($create_mailbox_folder_body, $contentType)
+        return $this->mailboxCreateFolderAsyncWithHttpInfo(
+            $create_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2014,7 +2251,8 @@ class MailboxAPIApi
      *
      * Create a mailbox folder
      *
-     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body (optional)
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body create_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2022,10 +2260,15 @@ class MailboxAPIApi
      */
     public function mailboxCreateFolderAsyncWithHttpInfo(
         ?\Sendmux\Mailbox\Model\CreateMailboxFolderBody $create_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCreateFolder'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxFolderResponse';
-        $request = $this->mailboxCreateFolderRequest($create_mailbox_folder_body, $contentType);
+        $request = $this->mailboxCreateFolderRequest(
+            $create_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2082,7 +2325,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxCreateFolder'
      *
-     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body (optional)
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxFolderBody|null $create_mailbox_folder_body create_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2090,8 +2334,10 @@ class MailboxAPIApi
      */
     public function mailboxCreateFolderRequest(
         ?\Sendmux\Mailbox\Model\CreateMailboxFolderBody $create_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxCreateFolder'][0]
     ): Request {
+
 
 
 
@@ -2102,6 +2348,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -2176,6 +2431,7 @@ class MailboxAPIApi
      *
      * @param  string $folder_id folder_id (required)
      * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2185,9 +2441,15 @@ class MailboxAPIApi
     public function mailboxDeleteFolder(
         string $folder_id,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteFolder'][0]
     ): \Sendmux\Mailbox\Model\MailboxFolderDeletedResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxDeleteFolderWithHttpInfo($folder_id, $if_match, $contentType);
+        list($response) = $this->mailboxDeleteFolderWithHttpInfo(
+            $folder_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -2196,8 +2458,9 @@ class MailboxAPIApi
      *
      * Delete a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2207,9 +2470,15 @@ class MailboxAPIApi
     public function mailboxDeleteFolderWithHttpInfo(
         string $folder_id,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteFolder'][0]
     ): array {
-        $request = $this->mailboxDeleteFolderRequest($folder_id, $if_match, $contentType);
+        $request = $this->mailboxDeleteFolderRequest(
+            $folder_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2296,8 +2565,9 @@ class MailboxAPIApi
      *
      * Delete a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2306,9 +2576,15 @@ class MailboxAPIApi
     public function mailboxDeleteFolderAsync(
         string $folder_id,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteFolder'][0]
     ): PromiseInterface {
-        return $this->mailboxDeleteFolderAsyncWithHttpInfo($folder_id, $if_match, $contentType)
+        return $this->mailboxDeleteFolderAsyncWithHttpInfo(
+            $folder_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2321,8 +2597,9 @@ class MailboxAPIApi
      *
      * Delete a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2331,10 +2608,16 @@ class MailboxAPIApi
     public function mailboxDeleteFolderAsyncWithHttpInfo(
         string $folder_id,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteFolder'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxFolderDeletedResponse';
-        $request = $this->mailboxDeleteFolderRequest($folder_id, $if_match, $contentType);
+        $request = $this->mailboxDeleteFolderRequest(
+            $folder_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2391,8 +2674,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxDeleteFolder'
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2401,6 +2685,7 @@ class MailboxAPIApi
     public function mailboxDeleteFolderRequest(
         string $folder_id,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteFolder'][0]
     ): Request {
 
@@ -2413,6 +2698,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/folders/{folder_id}';
         $formParams = [];
         $queryParams = [];
@@ -2420,6 +2706,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_match !== null) {
@@ -2500,6 +2795,7 @@ class MailboxAPIApi
      * @param  string $message_id message_id (required)
      * @param  bool|null $permanent permanent (optional)
      * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2510,9 +2806,16 @@ class MailboxAPIApi
         string $message_id,
         ?bool $permanent = null,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteMessage'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageDeletedResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxDeleteMessageWithHttpInfo($message_id, $permanent, $if_match, $contentType);
+        list($response) = $this->mailboxDeleteMessageWithHttpInfo(
+            $message_id,
+            $permanent,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -2521,9 +2824,10 @@ class MailboxAPIApi
      *
      * Delete a mailbox message
      *
-     * @param  string $message_id (required)
-     * @param  bool|null $permanent (optional)
-     * @param  string|null $if_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  bool|null $permanent permanent (optional)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2534,9 +2838,16 @@ class MailboxAPIApi
         string $message_id,
         ?bool $permanent = null,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteMessage'][0]
     ): array {
-        $request = $this->mailboxDeleteMessageRequest($message_id, $permanent, $if_match, $contentType);
+        $request = $this->mailboxDeleteMessageRequest(
+            $message_id,
+            $permanent,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2637,9 +2948,10 @@ class MailboxAPIApi
      *
      * Delete a mailbox message
      *
-     * @param  string $message_id (required)
-     * @param  bool|null $permanent (optional)
-     * @param  string|null $if_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  bool|null $permanent permanent (optional)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2649,9 +2961,16 @@ class MailboxAPIApi
         string $message_id,
         ?bool $permanent = null,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteMessage'][0]
     ): PromiseInterface {
-        return $this->mailboxDeleteMessageAsyncWithHttpInfo($message_id, $permanent, $if_match, $contentType)
+        return $this->mailboxDeleteMessageAsyncWithHttpInfo(
+            $message_id,
+            $permanent,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2664,9 +2983,10 @@ class MailboxAPIApi
      *
      * Delete a mailbox message
      *
-     * @param  string $message_id (required)
-     * @param  bool|null $permanent (optional)
-     * @param  string|null $if_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  bool|null $permanent permanent (optional)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2676,10 +2996,17 @@ class MailboxAPIApi
         string $message_id,
         ?bool $permanent = null,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteMessage'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageDeletedResponse';
-        $request = $this->mailboxDeleteMessageRequest($message_id, $permanent, $if_match, $contentType);
+        $request = $this->mailboxDeleteMessageRequest(
+            $message_id,
+            $permanent,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2736,9 +3063,10 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxDeleteMessage'
      *
-     * @param  string $message_id (required)
-     * @param  bool|null $permanent (optional)
-     * @param  string|null $if_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  bool|null $permanent permanent (optional)
+     * @param  string|null $if_match if_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2748,6 +3076,7 @@ class MailboxAPIApi
         string $message_id,
         ?bool $permanent = null,
         ?string $if_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxDeleteMessage'][0]
     ): Request {
 
@@ -2757,6 +3086,7 @@ class MailboxAPIApi
                 'Missing the required parameter $message_id when calling mailboxDeleteMessage'
             );
         }
+
 
 
 
@@ -2773,6 +3103,15 @@ class MailboxAPIApi
             $permanent,
             'permanent', // param base name
             'boolean', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -2863,6 +3202,7 @@ class MailboxAPIApi
      * @param  string|null $identities_since_state identities_since_state (optional)
      * @param  string|null $quotas_since_state quotas_since_state (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2879,9 +3219,22 @@ class MailboxAPIApi
         ?string $identities_since_state = null,
         ?string $quotas_since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetChanges'][0]
     ): \Sendmux\Mailbox\Model\MailboxGetChanges200Response|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxGetChangesWithHttpInfo($since_state, $types, $messages_since_state, $folders_since_state, $threads_since_state, $submissions_since_state, $identities_since_state, $quotas_since_state, $limit, $contentType);
+        list($response) = $this->mailboxGetChangesWithHttpInfo(
+            $since_state,
+            $types,
+            $messages_since_state,
+            $folders_since_state,
+            $threads_since_state,
+            $submissions_since_state,
+            $identities_since_state,
+            $quotas_since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -2890,15 +3243,16 @@ class MailboxAPIApi
      *
      * Get mailbox changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  string|null $types (optional)
-     * @param  string|null $messages_since_state (optional)
-     * @param  string|null $folders_since_state (optional)
-     * @param  string|null $threads_since_state (optional)
-     * @param  string|null $submissions_since_state (optional)
-     * @param  string|null $identities_since_state (optional)
-     * @param  string|null $quotas_since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  string|null $types types (optional)
+     * @param  string|null $messages_since_state messages_since_state (optional)
+     * @param  string|null $folders_since_state folders_since_state (optional)
+     * @param  string|null $threads_since_state threads_since_state (optional)
+     * @param  string|null $submissions_since_state submissions_since_state (optional)
+     * @param  string|null $identities_since_state identities_since_state (optional)
+     * @param  string|null $quotas_since_state quotas_since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2915,9 +3269,22 @@ class MailboxAPIApi
         ?string $identities_since_state = null,
         ?string $quotas_since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetChanges'][0]
     ): array {
-        $request = $this->mailboxGetChangesRequest($since_state, $types, $messages_since_state, $folders_since_state, $threads_since_state, $submissions_since_state, $identities_since_state, $quotas_since_state, $limit, $contentType);
+        $request = $this->mailboxGetChangesRequest(
+            $since_state,
+            $types,
+            $messages_since_state,
+            $folders_since_state,
+            $threads_since_state,
+            $submissions_since_state,
+            $identities_since_state,
+            $quotas_since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -3004,15 +3371,16 @@ class MailboxAPIApi
      *
      * Get mailbox changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  string|null $types (optional)
-     * @param  string|null $messages_since_state (optional)
-     * @param  string|null $folders_since_state (optional)
-     * @param  string|null $threads_since_state (optional)
-     * @param  string|null $submissions_since_state (optional)
-     * @param  string|null $identities_since_state (optional)
-     * @param  string|null $quotas_since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  string|null $types types (optional)
+     * @param  string|null $messages_since_state messages_since_state (optional)
+     * @param  string|null $folders_since_state folders_since_state (optional)
+     * @param  string|null $threads_since_state threads_since_state (optional)
+     * @param  string|null $submissions_since_state submissions_since_state (optional)
+     * @param  string|null $identities_since_state identities_since_state (optional)
+     * @param  string|null $quotas_since_state quotas_since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3028,9 +3396,22 @@ class MailboxAPIApi
         ?string $identities_since_state = null,
         ?string $quotas_since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetChanges'][0]
     ): PromiseInterface {
-        return $this->mailboxGetChangesAsyncWithHttpInfo($since_state, $types, $messages_since_state, $folders_since_state, $threads_since_state, $submissions_since_state, $identities_since_state, $quotas_since_state, $limit, $contentType)
+        return $this->mailboxGetChangesAsyncWithHttpInfo(
+            $since_state,
+            $types,
+            $messages_since_state,
+            $folders_since_state,
+            $threads_since_state,
+            $submissions_since_state,
+            $identities_since_state,
+            $quotas_since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3043,15 +3424,16 @@ class MailboxAPIApi
      *
      * Get mailbox changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  string|null $types (optional)
-     * @param  string|null $messages_since_state (optional)
-     * @param  string|null $folders_since_state (optional)
-     * @param  string|null $threads_since_state (optional)
-     * @param  string|null $submissions_since_state (optional)
-     * @param  string|null $identities_since_state (optional)
-     * @param  string|null $quotas_since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  string|null $types types (optional)
+     * @param  string|null $messages_since_state messages_since_state (optional)
+     * @param  string|null $folders_since_state folders_since_state (optional)
+     * @param  string|null $threads_since_state threads_since_state (optional)
+     * @param  string|null $submissions_since_state submissions_since_state (optional)
+     * @param  string|null $identities_since_state identities_since_state (optional)
+     * @param  string|null $quotas_since_state quotas_since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3067,10 +3449,23 @@ class MailboxAPIApi
         ?string $identities_since_state = null,
         ?string $quotas_since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetChanges'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxGetChanges200Response';
-        $request = $this->mailboxGetChangesRequest($since_state, $types, $messages_since_state, $folders_since_state, $threads_since_state, $submissions_since_state, $identities_since_state, $quotas_since_state, $limit, $contentType);
+        $request = $this->mailboxGetChangesRequest(
+            $since_state,
+            $types,
+            $messages_since_state,
+            $folders_since_state,
+            $threads_since_state,
+            $submissions_since_state,
+            $identities_since_state,
+            $quotas_since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3127,15 +3522,16 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetChanges'
      *
-     * @param  string|null $since_state (optional)
-     * @param  string|null $types (optional)
-     * @param  string|null $messages_since_state (optional)
-     * @param  string|null $folders_since_state (optional)
-     * @param  string|null $threads_since_state (optional)
-     * @param  string|null $submissions_since_state (optional)
-     * @param  string|null $identities_since_state (optional)
-     * @param  string|null $quotas_since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  string|null $types types (optional)
+     * @param  string|null $messages_since_state messages_since_state (optional)
+     * @param  string|null $folders_since_state folders_since_state (optional)
+     * @param  string|null $threads_since_state threads_since_state (optional)
+     * @param  string|null $submissions_since_state submissions_since_state (optional)
+     * @param  string|null $identities_since_state identities_since_state (optional)
+     * @param  string|null $quotas_since_state quotas_since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3151,6 +3547,7 @@ class MailboxAPIApi
         ?string $identities_since_state = null,
         ?string $quotas_since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetChanges'][0]
     ): Request {
 
@@ -3168,6 +3565,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxGetChanges, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/changes';
@@ -3258,6 +3656,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -3325,6 +3732,7 @@ class MailboxAPIApi
      *
      * @param  string $folder_id folder_id (required)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3334,9 +3742,15 @@ class MailboxAPIApi
     public function mailboxGetFolder(
         string $folder_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolder'][0]
     ): \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetFolderWithHttpInfo($folder_id, $if_none_match, $contentType);
+        list($response) = $this->mailboxGetFolderWithHttpInfo(
+            $folder_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -3345,8 +3759,9 @@ class MailboxAPIApi
      *
      * Get a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3356,9 +3771,15 @@ class MailboxAPIApi
     public function mailboxGetFolderWithHttpInfo(
         string $folder_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolder'][0]
     ): array {
-        $request = $this->mailboxGetFolderRequest($folder_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetFolderRequest(
+            $folder_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -3447,8 +3868,9 @@ class MailboxAPIApi
      *
      * Get a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3457,9 +3879,15 @@ class MailboxAPIApi
     public function mailboxGetFolderAsync(
         string $folder_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolder'][0]
     ): PromiseInterface {
-        return $this->mailboxGetFolderAsyncWithHttpInfo($folder_id, $if_none_match, $contentType)
+        return $this->mailboxGetFolderAsyncWithHttpInfo(
+            $folder_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3472,8 +3900,9 @@ class MailboxAPIApi
      *
      * Get a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3482,10 +3911,16 @@ class MailboxAPIApi
     public function mailboxGetFolderAsyncWithHttpInfo(
         string $folder_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolder'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxFolderResponse';
-        $request = $this->mailboxGetFolderRequest($folder_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetFolderRequest(
+            $folder_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3546,8 +3981,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetFolder'
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3556,6 +3992,7 @@ class MailboxAPIApi
     public function mailboxGetFolderRequest(
         string $folder_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolder'][0]
     ): Request {
 
@@ -3568,6 +4005,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/folders/{folder_id}';
         $formParams = [];
         $queryParams = [];
@@ -3575,6 +4013,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -3654,6 +4101,7 @@ class MailboxAPIApi
      *
      * @param  string|null $since_state since_state (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolderChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3663,9 +4111,15 @@ class MailboxAPIApi
     public function mailboxGetFolderChanges(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolderChanges'][0]
     ): \Sendmux\Mailbox\Model\MailboxChangesResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxGetFolderChangesWithHttpInfo($since_state, $limit, $contentType);
+        list($response) = $this->mailboxGetFolderChangesWithHttpInfo(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -3674,8 +4128,9 @@ class MailboxAPIApi
      *
      * Get folder changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolderChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3685,9 +4140,15 @@ class MailboxAPIApi
     public function mailboxGetFolderChangesWithHttpInfo(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolderChanges'][0]
     ): array {
-        $request = $this->mailboxGetFolderChangesRequest($since_state, $limit, $contentType);
+        $request = $this->mailboxGetFolderChangesRequest(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -3774,8 +4235,9 @@ class MailboxAPIApi
      *
      * Get folder changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolderChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3784,9 +4246,15 @@ class MailboxAPIApi
     public function mailboxGetFolderChangesAsync(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolderChanges'][0]
     ): PromiseInterface {
-        return $this->mailboxGetFolderChangesAsyncWithHttpInfo($since_state, $limit, $contentType)
+        return $this->mailboxGetFolderChangesAsyncWithHttpInfo(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3799,8 +4267,9 @@ class MailboxAPIApi
      *
      * Get folder changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolderChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3809,10 +4278,16 @@ class MailboxAPIApi
     public function mailboxGetFolderChangesAsyncWithHttpInfo(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolderChanges'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxChangesResponse';
-        $request = $this->mailboxGetFolderChangesRequest($since_state, $limit, $contentType);
+        $request = $this->mailboxGetFolderChangesRequest(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3869,8 +4344,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetFolderChanges'
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetFolderChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3879,6 +4355,7 @@ class MailboxAPIApi
     public function mailboxGetFolderChangesRequest(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetFolderChanges'][0]
     ): Request {
 
@@ -3889,6 +4366,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxGetFolderChanges, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/folders/changes';
@@ -3912,6 +4390,15 @@ class MailboxAPIApi
             $limit,
             'limit', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -3981,6 +4468,7 @@ class MailboxAPIApi
      *
      * Get mailbox sender identity
      *
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetIdentity'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3988,9 +4476,13 @@ class MailboxAPIApi
      * @return \Sendmux\Mailbox\Model\MailboxIdentityResponse|\Sendmux\Mailbox\Model\ApiError
      */
     public function mailboxGetIdentity(
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetIdentity'][0]
     ): \Sendmux\Mailbox\Model\MailboxIdentityResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxGetIdentityWithHttpInfo($contentType);
+        list($response) = $this->mailboxGetIdentityWithHttpInfo(
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -3999,6 +4491,7 @@ class MailboxAPIApi
      *
      * Get mailbox sender identity
      *
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetIdentity'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4006,9 +4499,13 @@ class MailboxAPIApi
      * @return array of \Sendmux\Mailbox\Model\MailboxIdentityResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxGetIdentityWithHttpInfo(
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetIdentity'][0]
     ): array {
-        $request = $this->mailboxGetIdentityRequest($contentType);
+        $request = $this->mailboxGetIdentityRequest(
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -4123,15 +4620,20 @@ class MailboxAPIApi
      *
      * Get mailbox sender identity
      *
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetIdentity'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
      */
     public function mailboxGetIdentityAsync(
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetIdentity'][0]
     ): PromiseInterface {
-        return $this->mailboxGetIdentityAsyncWithHttpInfo($contentType)
+        return $this->mailboxGetIdentityAsyncWithHttpInfo(
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -4144,16 +4646,21 @@ class MailboxAPIApi
      *
      * Get mailbox sender identity
      *
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetIdentity'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
      */
     public function mailboxGetIdentityAsyncWithHttpInfo(
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetIdentity'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxIdentityResponse';
-        $request = $this->mailboxGetIdentityRequest($contentType);
+        $request = $this->mailboxGetIdentityRequest(
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -4210,14 +4717,17 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetIdentity'
      *
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetIdentity'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     public function mailboxGetIdentityRequest(
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetIdentity'][0]
     ): Request {
+
 
 
         $resourcePath = '/mailbox/identity';
@@ -4227,6 +4737,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -4293,6 +4812,7 @@ class MailboxAPIApi
      * Self-introspect the calling mailbox
      *
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMe'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4301,9 +4821,14 @@ class MailboxAPIApi
      */
     public function mailboxGetMe(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMe'][0]
     ): \Sendmux\Mailbox\Model\MailboxMeItemResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetMeWithHttpInfo($if_none_match, $contentType);
+        list($response) = $this->mailboxGetMeWithHttpInfo(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -4312,7 +4837,8 @@ class MailboxAPIApi
      *
      * Self-introspect the calling mailbox
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMe'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4321,9 +4847,14 @@ class MailboxAPIApi
      */
     public function mailboxGetMeWithHttpInfo(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMe'][0]
     ): array {
-        $request = $this->mailboxGetMeRequest($if_none_match, $contentType);
+        $request = $this->mailboxGetMeRequest(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -4440,7 +4971,8 @@ class MailboxAPIApi
      *
      * Self-introspect the calling mailbox
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMe'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -4448,9 +4980,14 @@ class MailboxAPIApi
      */
     public function mailboxGetMeAsync(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMe'][0]
     ): PromiseInterface {
-        return $this->mailboxGetMeAsyncWithHttpInfo($if_none_match, $contentType)
+        return $this->mailboxGetMeAsyncWithHttpInfo(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -4463,7 +5000,8 @@ class MailboxAPIApi
      *
      * Self-introspect the calling mailbox
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMe'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -4471,10 +5009,15 @@ class MailboxAPIApi
      */
     public function mailboxGetMeAsyncWithHttpInfo(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMe'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMeItemResponse';
-        $request = $this->mailboxGetMeRequest($if_none_match, $contentType);
+        $request = $this->mailboxGetMeRequest(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -4535,7 +5078,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetMe'
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMe'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -4543,8 +5087,10 @@ class MailboxAPIApi
      */
     public function mailboxGetMeRequest(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMe'][0]
     ): Request {
+
 
 
 
@@ -4555,6 +5101,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -4626,6 +5181,7 @@ class MailboxAPIApi
      *
      * @param  string $message_id message_id (required)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4635,9 +5191,15 @@ class MailboxAPIApi
     public function mailboxGetMessage(
         string $message_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessage'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageDetailResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetMessageWithHttpInfo($message_id, $if_none_match, $contentType);
+        list($response) = $this->mailboxGetMessageWithHttpInfo(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -4646,8 +5208,9 @@ class MailboxAPIApi
      *
      * Get a mailbox message
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4657,9 +5220,15 @@ class MailboxAPIApi
     public function mailboxGetMessageWithHttpInfo(
         string $message_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessage'][0]
     ): array {
-        $request = $this->mailboxGetMessageRequest($message_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetMessageRequest(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -4748,8 +5317,9 @@ class MailboxAPIApi
      *
      * Get a mailbox message
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -4758,9 +5328,15 @@ class MailboxAPIApi
     public function mailboxGetMessageAsync(
         string $message_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessage'][0]
     ): PromiseInterface {
-        return $this->mailboxGetMessageAsyncWithHttpInfo($message_id, $if_none_match, $contentType)
+        return $this->mailboxGetMessageAsyncWithHttpInfo(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -4773,8 +5349,9 @@ class MailboxAPIApi
      *
      * Get a mailbox message
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -4783,10 +5360,16 @@ class MailboxAPIApi
     public function mailboxGetMessageAsyncWithHttpInfo(
         string $message_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessage'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageDetailResponse';
-        $request = $this->mailboxGetMessageRequest($message_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetMessageRequest(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -4847,8 +5430,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetMessage'
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -4857,6 +5441,7 @@ class MailboxAPIApi
     public function mailboxGetMessageRequest(
         string $message_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessage'][0]
     ): Request {
 
@@ -4869,6 +5454,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/messages/{message_id}';
         $formParams = [];
         $queryParams = [];
@@ -4876,6 +5462,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -4956,6 +5551,7 @@ class MailboxAPIApi
      * @param  string $message_id message_id (required)
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4966,9 +5562,16 @@ class MailboxAPIApi
         string $message_id,
         string $attachment_id,
         ?string $range = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): ?\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxGetMessageAttachmentWithHttpInfo($message_id, $attachment_id, $range, $contentType);
+        list($response) = $this->mailboxGetMessageAttachmentWithHttpInfo(
+            $message_id,
+            $attachment_id,
+            $range,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -4977,9 +5580,10 @@ class MailboxAPIApi
      *
      * Download a message attachment
      *
-     * @param  string $message_id (required)
-     * @param  string $attachment_id (required)
-     * @param  string|null $range (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $range range (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -4990,9 +5594,16 @@ class MailboxAPIApi
         string $message_id,
         string $attachment_id,
         ?string $range = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): array {
-        $request = $this->mailboxGetMessageAttachmentRequest($message_id, $attachment_id, $range, $contentType);
+        $request = $this->mailboxGetMessageAttachmentRequest(
+            $message_id,
+            $attachment_id,
+            $range,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -5047,9 +5658,10 @@ class MailboxAPIApi
      *
      * Download a message attachment
      *
-     * @param  string $message_id (required)
-     * @param  string $attachment_id (required)
-     * @param  string|null $range (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $range range (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5059,9 +5671,16 @@ class MailboxAPIApi
         string $message_id,
         string $attachment_id,
         ?string $range = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): PromiseInterface {
-        return $this->mailboxGetMessageAttachmentAsyncWithHttpInfo($message_id, $attachment_id, $range, $contentType)
+        return $this->mailboxGetMessageAttachmentAsyncWithHttpInfo(
+            $message_id,
+            $attachment_id,
+            $range,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -5074,9 +5693,10 @@ class MailboxAPIApi
      *
      * Download a message attachment
      *
-     * @param  string $message_id (required)
-     * @param  string $attachment_id (required)
-     * @param  string|null $range (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $range range (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5086,10 +5706,17 @@ class MailboxAPIApi
         string $message_id,
         string $attachment_id,
         ?string $range = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): PromiseInterface {
         $returnType = '';
-        $request = $this->mailboxGetMessageAttachmentRequest($message_id, $attachment_id, $range, $contentType);
+        $request = $this->mailboxGetMessageAttachmentRequest(
+            $message_id,
+            $attachment_id,
+            $range,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -5133,9 +5760,10 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetMessageAttachment'
      *
-     * @param  string $message_id (required)
-     * @param  string $attachment_id (required)
-     * @param  string|null $range (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $range range (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5145,6 +5773,7 @@ class MailboxAPIApi
         string $message_id,
         string $attachment_id,
         ?string $range = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): Request {
 
@@ -5164,6 +5793,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/messages/{message_id}/attachments/{attachment_id}';
         $formParams = [];
         $queryParams = [];
@@ -5171,6 +5801,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($range !== null) {
@@ -5258,6 +5897,7 @@ class MailboxAPIApi
      *
      * @param  string|null $since_state since_state (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetQuotaChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5267,9 +5907,15 @@ class MailboxAPIApi
     public function mailboxGetQuotaChanges(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetQuotaChanges'][0]
     ): \Sendmux\Mailbox\Model\MailboxChangesResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxGetQuotaChangesWithHttpInfo($since_state, $limit, $contentType);
+        list($response) = $this->mailboxGetQuotaChangesWithHttpInfo(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -5278,8 +5924,9 @@ class MailboxAPIApi
      *
      * Get quota changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetQuotaChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5289,9 +5936,15 @@ class MailboxAPIApi
     public function mailboxGetQuotaChangesWithHttpInfo(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetQuotaChanges'][0]
     ): array {
-        $request = $this->mailboxGetQuotaChangesRequest($since_state, $limit, $contentType);
+        $request = $this->mailboxGetQuotaChangesRequest(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -5378,8 +6031,9 @@ class MailboxAPIApi
      *
      * Get quota changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetQuotaChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5388,9 +6042,15 @@ class MailboxAPIApi
     public function mailboxGetQuotaChangesAsync(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetQuotaChanges'][0]
     ): PromiseInterface {
-        return $this->mailboxGetQuotaChangesAsyncWithHttpInfo($since_state, $limit, $contentType)
+        return $this->mailboxGetQuotaChangesAsyncWithHttpInfo(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -5403,8 +6063,9 @@ class MailboxAPIApi
      *
      * Get quota changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetQuotaChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5413,10 +6074,16 @@ class MailboxAPIApi
     public function mailboxGetQuotaChangesAsyncWithHttpInfo(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetQuotaChanges'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxChangesResponse';
-        $request = $this->mailboxGetQuotaChangesRequest($since_state, $limit, $contentType);
+        $request = $this->mailboxGetQuotaChangesRequest(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -5473,8 +6140,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetQuotaChanges'
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetQuotaChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5483,6 +6151,7 @@ class MailboxAPIApi
     public function mailboxGetQuotaChangesRequest(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetQuotaChanges'][0]
     ): Request {
 
@@ -5493,6 +6162,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxGetQuotaChanges, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/quotas/changes';
@@ -5516,6 +6186,15 @@ class MailboxAPIApi
             $limit,
             'limit', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -5586,6 +6265,7 @@ class MailboxAPIApi
      * Get mailbox API session
      *
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSession'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5594,9 +6274,14 @@ class MailboxAPIApi
      */
     public function mailboxGetSession(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSession'][0]
     ): \Sendmux\Mailbox\Model\MailboxSessionResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetSessionWithHttpInfo($if_none_match, $contentType);
+        list($response) = $this->mailboxGetSessionWithHttpInfo(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -5605,7 +6290,8 @@ class MailboxAPIApi
      *
      * Get mailbox API session
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSession'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5614,9 +6300,14 @@ class MailboxAPIApi
      */
     public function mailboxGetSessionWithHttpInfo(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSession'][0]
     ): array {
-        $request = $this->mailboxGetSessionRequest($if_none_match, $contentType);
+        $request = $this->mailboxGetSessionRequest(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -5733,7 +6424,8 @@ class MailboxAPIApi
      *
      * Get mailbox API session
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSession'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5741,9 +6433,14 @@ class MailboxAPIApi
      */
     public function mailboxGetSessionAsync(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSession'][0]
     ): PromiseInterface {
-        return $this->mailboxGetSessionAsyncWithHttpInfo($if_none_match, $contentType)
+        return $this->mailboxGetSessionAsyncWithHttpInfo(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -5756,7 +6453,8 @@ class MailboxAPIApi
      *
      * Get mailbox API session
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSession'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5764,10 +6462,15 @@ class MailboxAPIApi
      */
     public function mailboxGetSessionAsyncWithHttpInfo(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSession'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxSessionResponse';
-        $request = $this->mailboxGetSessionRequest($if_none_match, $contentType);
+        $request = $this->mailboxGetSessionRequest(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -5828,7 +6531,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetSession'
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSession'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5836,8 +6540,10 @@ class MailboxAPIApi
      */
     public function mailboxGetSessionRequest(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSession'][0]
     ): Request {
+
 
 
 
@@ -5848,6 +6554,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -5919,6 +6634,7 @@ class MailboxAPIApi
      *
      * @param  string $submission_id submission_id (required)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmission'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5928,9 +6644,15 @@ class MailboxAPIApi
     public function mailboxGetSubmission(
         string $submission_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmission'][0]
     ): \Sendmux\Mailbox\Model\MailboxSubmissionResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetSubmissionWithHttpInfo($submission_id, $if_none_match, $contentType);
+        list($response) = $this->mailboxGetSubmissionWithHttpInfo(
+            $submission_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -5939,8 +6661,9 @@ class MailboxAPIApi
      *
      * Get a mailbox submission
      *
-     * @param  string $submission_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $submission_id submission_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmission'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5950,9 +6673,15 @@ class MailboxAPIApi
     public function mailboxGetSubmissionWithHttpInfo(
         string $submission_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmission'][0]
     ): array {
-        $request = $this->mailboxGetSubmissionRequest($submission_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetSubmissionRequest(
+            $submission_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -6041,8 +6770,9 @@ class MailboxAPIApi
      *
      * Get a mailbox submission
      *
-     * @param  string $submission_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $submission_id submission_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmission'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6051,9 +6781,15 @@ class MailboxAPIApi
     public function mailboxGetSubmissionAsync(
         string $submission_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmission'][0]
     ): PromiseInterface {
-        return $this->mailboxGetSubmissionAsyncWithHttpInfo($submission_id, $if_none_match, $contentType)
+        return $this->mailboxGetSubmissionAsyncWithHttpInfo(
+            $submission_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -6066,8 +6802,9 @@ class MailboxAPIApi
      *
      * Get a mailbox submission
      *
-     * @param  string $submission_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $submission_id submission_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmission'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6076,10 +6813,16 @@ class MailboxAPIApi
     public function mailboxGetSubmissionAsyncWithHttpInfo(
         string $submission_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmission'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxSubmissionResponse';
-        $request = $this->mailboxGetSubmissionRequest($submission_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetSubmissionRequest(
+            $submission_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -6140,8 +6883,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetSubmission'
      *
-     * @param  string $submission_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $submission_id submission_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmission'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6150,6 +6894,7 @@ class MailboxAPIApi
     public function mailboxGetSubmissionRequest(
         string $submission_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmission'][0]
     ): Request {
 
@@ -6162,6 +6907,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/submissions/{submission_id}';
         $formParams = [];
         $queryParams = [];
@@ -6169,6 +6915,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -6248,6 +7003,7 @@ class MailboxAPIApi
      *
      * @param  string|null $since_state since_state (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmissionChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -6257,9 +7013,15 @@ class MailboxAPIApi
     public function mailboxGetSubmissionChanges(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmissionChanges'][0]
     ): \Sendmux\Mailbox\Model\MailboxChangesResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxGetSubmissionChangesWithHttpInfo($since_state, $limit, $contentType);
+        list($response) = $this->mailboxGetSubmissionChangesWithHttpInfo(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -6268,8 +7030,9 @@ class MailboxAPIApi
      *
      * Get submission changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmissionChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -6279,9 +7042,15 @@ class MailboxAPIApi
     public function mailboxGetSubmissionChangesWithHttpInfo(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmissionChanges'][0]
     ): array {
-        $request = $this->mailboxGetSubmissionChangesRequest($since_state, $limit, $contentType);
+        $request = $this->mailboxGetSubmissionChangesRequest(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -6368,8 +7137,9 @@ class MailboxAPIApi
      *
      * Get submission changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmissionChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6378,9 +7148,15 @@ class MailboxAPIApi
     public function mailboxGetSubmissionChangesAsync(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmissionChanges'][0]
     ): PromiseInterface {
-        return $this->mailboxGetSubmissionChangesAsyncWithHttpInfo($since_state, $limit, $contentType)
+        return $this->mailboxGetSubmissionChangesAsyncWithHttpInfo(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -6393,8 +7169,9 @@ class MailboxAPIApi
      *
      * Get submission changes
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmissionChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6403,10 +7180,16 @@ class MailboxAPIApi
     public function mailboxGetSubmissionChangesAsyncWithHttpInfo(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmissionChanges'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxChangesResponse';
-        $request = $this->mailboxGetSubmissionChangesRequest($since_state, $limit, $contentType);
+        $request = $this->mailboxGetSubmissionChangesRequest(
+            $since_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -6463,8 +7246,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetSubmissionChanges'
      *
-     * @param  string|null $since_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_state since_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSubmissionChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6473,6 +7257,7 @@ class MailboxAPIApi
     public function mailboxGetSubmissionChangesRequest(
         ?string $since_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetSubmissionChanges'][0]
     ): Request {
 
@@ -6483,6 +7268,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxGetSubmissionChanges, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/submissions/changes';
@@ -6506,6 +7292,15 @@ class MailboxAPIApi
             $limit,
             'limit', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -6577,6 +7372,7 @@ class MailboxAPIApi
      *
      * @param  string $thread_id thread_id (required)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThread'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -6586,9 +7382,15 @@ class MailboxAPIApi
     public function mailboxGetThread(
         string $thread_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThread'][0]
     ): \Sendmux\Mailbox\Model\MailboxThreadDetailResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetThreadWithHttpInfo($thread_id, $if_none_match, $contentType);
+        list($response) = $this->mailboxGetThreadWithHttpInfo(
+            $thread_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -6597,8 +7399,9 @@ class MailboxAPIApi
      *
      * Get a mailbox thread
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThread'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -6608,9 +7411,15 @@ class MailboxAPIApi
     public function mailboxGetThreadWithHttpInfo(
         string $thread_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThread'][0]
     ): array {
-        $request = $this->mailboxGetThreadRequest($thread_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetThreadRequest(
+            $thread_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -6699,8 +7508,9 @@ class MailboxAPIApi
      *
      * Get a mailbox thread
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThread'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6709,9 +7519,15 @@ class MailboxAPIApi
     public function mailboxGetThreadAsync(
         string $thread_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThread'][0]
     ): PromiseInterface {
-        return $this->mailboxGetThreadAsyncWithHttpInfo($thread_id, $if_none_match, $contentType)
+        return $this->mailboxGetThreadAsyncWithHttpInfo(
+            $thread_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -6724,8 +7540,9 @@ class MailboxAPIApi
      *
      * Get a mailbox thread
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThread'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6734,10 +7551,16 @@ class MailboxAPIApi
     public function mailboxGetThreadAsyncWithHttpInfo(
         string $thread_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThread'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxThreadDetailResponse';
-        $request = $this->mailboxGetThreadRequest($thread_id, $if_none_match, $contentType);
+        $request = $this->mailboxGetThreadRequest(
+            $thread_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -6798,8 +7621,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetThread'
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThread'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -6808,6 +7632,7 @@ class MailboxAPIApi
     public function mailboxGetThreadRequest(
         string $thread_id,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThread'][0]
     ): Request {
 
@@ -6820,6 +7645,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/threads/{thread_id}';
         $formParams = [];
         $queryParams = [];
@@ -6827,6 +7653,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -6917,6 +7752,7 @@ class MailboxAPIApi
      * @param  int|null $limit limit (optional)
      * @param  string|null $sort sort (optional)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThreadContent'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -6937,9 +7773,26 @@ class MailboxAPIApi
         ?int $limit = null,
         ?string $sort = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThreadContent'][0]
     ): \Sendmux\Mailbox\Model\MailboxThreadContentResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxGetThreadContentWithHttpInfo($thread_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $cursor, $limit, $sort, $if_none_match, $contentType);
+        list($response) = $this->mailboxGetThreadContentWithHttpInfo(
+            $thread_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $cursor,
+            $limit,
+            $sort,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -6948,19 +7801,20 @@ class MailboxAPIApi
      *
      * Get clean thread content
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThreadContent'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -6981,9 +7835,26 @@ class MailboxAPIApi
         ?int $limit = null,
         ?string $sort = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThreadContent'][0]
     ): array {
-        $request = $this->mailboxGetThreadContentRequest($thread_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $cursor, $limit, $sort, $if_none_match, $contentType);
+        $request = $this->mailboxGetThreadContentRequest(
+            $thread_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $cursor,
+            $limit,
+            $sort,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -7086,19 +7957,20 @@ class MailboxAPIApi
      *
      * Get clean thread content
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThreadContent'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -7118,9 +7990,26 @@ class MailboxAPIApi
         ?int $limit = null,
         ?string $sort = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThreadContent'][0]
     ): PromiseInterface {
-        return $this->mailboxGetThreadContentAsyncWithHttpInfo($thread_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $cursor, $limit, $sort, $if_none_match, $contentType)
+        return $this->mailboxGetThreadContentAsyncWithHttpInfo(
+            $thread_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $cursor,
+            $limit,
+            $sort,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -7133,19 +8022,20 @@ class MailboxAPIApi
      *
      * Get clean thread content
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThreadContent'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -7165,10 +8055,27 @@ class MailboxAPIApi
         ?int $limit = null,
         ?string $sort = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThreadContent'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxThreadContentResponse';
-        $request = $this->mailboxGetThreadContentRequest($thread_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $cursor, $limit, $sort, $if_none_match, $contentType);
+        $request = $this->mailboxGetThreadContentRequest(
+            $thread_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $cursor,
+            $limit,
+            $sort,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -7229,19 +8136,20 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxGetThreadContent'
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetThreadContent'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -7261,6 +8169,7 @@ class MailboxAPIApi
         ?int $limit = null,
         ?string $sort = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetThreadContent'][0]
     ): Request {
 
@@ -7292,6 +8201,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxGetThreadContent, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -7402,6 +8312,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -7483,6 +8402,7 @@ class MailboxAPIApi
      * @param  string|null $part part (optional)
      * @param  int|null $max_body_chars max_body_chars (optional)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListBody'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -7494,9 +8414,17 @@ class MailboxAPIApi
         ?string $part = null,
         ?int $max_body_chars = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListBody'][0]
     ): \Sendmux\Mailbox\Model\MailboxRawBodyResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxListBodyWithHttpInfo($message_id, $part, $max_body_chars, $if_none_match, $contentType);
+        list($response) = $this->mailboxListBodyWithHttpInfo(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -7505,10 +8433,11 @@ class MailboxAPIApi
      *
      * Get raw message body
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListBody'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -7520,9 +8449,17 @@ class MailboxAPIApi
         ?string $part = null,
         ?int $max_body_chars = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListBody'][0]
     ): array {
-        $request = $this->mailboxListBodyRequest($message_id, $part, $max_body_chars, $if_none_match, $contentType);
+        $request = $this->mailboxListBodyRequest(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -7625,10 +8562,11 @@ class MailboxAPIApi
      *
      * Get raw message body
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListBody'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -7639,9 +8577,17 @@ class MailboxAPIApi
         ?string $part = null,
         ?int $max_body_chars = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListBody'][0]
     ): PromiseInterface {
-        return $this->mailboxListBodyAsyncWithHttpInfo($message_id, $part, $max_body_chars, $if_none_match, $contentType)
+        return $this->mailboxListBodyAsyncWithHttpInfo(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -7654,10 +8600,11 @@ class MailboxAPIApi
      *
      * Get raw message body
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListBody'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -7668,10 +8615,18 @@ class MailboxAPIApi
         ?string $part = null,
         ?int $max_body_chars = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListBody'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxRawBodyResponse';
-        $request = $this->mailboxListBodyRequest($message_id, $part, $max_body_chars, $if_none_match, $contentType);
+        $request = $this->mailboxListBodyRequest(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -7732,10 +8687,11 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListBody'
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListBody'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -7746,6 +8702,7 @@ class MailboxAPIApi
         ?string $part = null,
         ?int $max_body_chars = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListBody'][0]
     ): Request {
 
@@ -7763,6 +8720,7 @@ class MailboxAPIApi
         if ($max_body_chars !== null && $max_body_chars < 1) {
             throw new InvalidArgumentException('invalid value for "$max_body_chars" when calling MailboxAPIApi.mailboxListBody, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -7787,6 +8745,15 @@ class MailboxAPIApi
             $max_body_chars,
             'max_body_chars', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -7878,6 +8845,7 @@ class MailboxAPIApi
      * @param  string|null $include_headers include_headers (optional)
      * @param  string|null $include_attachments include_attachments (optional)
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListContent'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -7895,9 +8863,23 @@ class MailboxAPIApi
         ?string $include_headers = null,
         ?string $include_attachments = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListContent'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageContentResponse|\Sendmux\Mailbox\Model\ApiError|null {
-        list($response) = $this->mailboxListContentWithHttpInfo($message_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $if_none_match, $contentType);
+        list($response) = $this->mailboxListContentWithHttpInfo(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -7906,16 +8888,17 @@ class MailboxAPIApi
      *
      * Get clean message content
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListContent'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -7933,9 +8916,23 @@ class MailboxAPIApi
         ?string $include_headers = null,
         ?string $include_attachments = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListContent'][0]
     ): array {
-        $request = $this->mailboxListContentRequest($message_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $if_none_match, $contentType);
+        $request = $this->mailboxListContentRequest(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -8038,16 +9035,17 @@ class MailboxAPIApi
      *
      * Get clean message content
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListContent'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8064,9 +9062,23 @@ class MailboxAPIApi
         ?string $include_headers = null,
         ?string $include_attachments = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListContent'][0]
     ): PromiseInterface {
-        return $this->mailboxListContentAsyncWithHttpInfo($message_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $if_none_match, $contentType)
+        return $this->mailboxListContentAsyncWithHttpInfo(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -8079,16 +9091,17 @@ class MailboxAPIApi
      *
      * Get clean message content
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListContent'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8105,10 +9118,24 @@ class MailboxAPIApi
         ?string $include_headers = null,
         ?string $include_attachments = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListContent'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageContentResponse';
-        $request = $this->mailboxListContentRequest($message_id, $part, $max_body_chars, $strip_signature, $strip_quotes, $include_links, $include_html, $include_headers, $include_attachments, $if_none_match, $contentType);
+        $request = $this->mailboxListContentRequest(
+            $message_id,
+            $part,
+            $max_body_chars,
+            $strip_signature,
+            $strip_quotes,
+            $include_links,
+            $include_html,
+            $include_headers,
+            $include_attachments,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -8169,16 +9196,17 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListContent'
      *
-     * @param  string $message_id (required)
-     * @param  string|null $part (optional)
-     * @param  int|null $max_body_chars (optional)
-     * @param  bool|null $strip_signature (optional)
-     * @param  bool|null $strip_quotes (optional)
-     * @param  bool|null $include_links (optional)
-     * @param  bool|null $include_html (optional)
-     * @param  string|null $include_headers (optional)
-     * @param  string|null $include_attachments (optional)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $part part (optional)
+     * @param  int|null $max_body_chars max_body_chars (optional)
+     * @param  bool|null $strip_signature strip_signature (optional)
+     * @param  bool|null $strip_quotes strip_quotes (optional)
+     * @param  bool|null $include_links include_links (optional)
+     * @param  bool|null $include_html include_html (optional)
+     * @param  string|null $include_headers include_headers (optional)
+     * @param  string|null $include_attachments include_attachments (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListContent'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8195,6 +9223,7 @@ class MailboxAPIApi
         ?string $include_headers = null,
         ?string $include_attachments = null,
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListContent'][0]
     ): Request {
 
@@ -8212,6 +9241,7 @@ class MailboxAPIApi
         if ($max_body_chars !== null && $max_body_chars < 1) {
             throw new InvalidArgumentException('invalid value for "$max_body_chars" when calling MailboxAPIApi.mailboxListContent, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -8300,6 +9330,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -8379,6 +9418,7 @@ class MailboxAPIApi
      *
      * @param  string|null $cursor cursor (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListFolders'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -8388,9 +9428,15 @@ class MailboxAPIApi
     public function mailboxListFolders(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListFolders'][0]
     ): \Sendmux\Mailbox\Model\MailboxFolderCursorListResponse {
-        list($response) = $this->mailboxListFoldersWithHttpInfo($cursor, $limit, $contentType);
+        list($response) = $this->mailboxListFoldersWithHttpInfo(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -8399,8 +9445,9 @@ class MailboxAPIApi
      *
      * List mailbox folders
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListFolders'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -8410,9 +9457,15 @@ class MailboxAPIApi
     public function mailboxListFoldersWithHttpInfo(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListFolders'][0]
     ): array {
-        $request = $this->mailboxListFoldersRequest($cursor, $limit, $contentType);
+        $request = $this->mailboxListFoldersRequest(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -8485,8 +9538,9 @@ class MailboxAPIApi
      *
      * List mailbox folders
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListFolders'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8495,9 +9549,15 @@ class MailboxAPIApi
     public function mailboxListFoldersAsync(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListFolders'][0]
     ): PromiseInterface {
-        return $this->mailboxListFoldersAsyncWithHttpInfo($cursor, $limit, $contentType)
+        return $this->mailboxListFoldersAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -8510,8 +9570,9 @@ class MailboxAPIApi
      *
      * List mailbox folders
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListFolders'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8520,10 +9581,16 @@ class MailboxAPIApi
     public function mailboxListFoldersAsyncWithHttpInfo(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListFolders'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxFolderCursorListResponse';
-        $request = $this->mailboxListFoldersRequest($cursor, $limit, $contentType);
+        $request = $this->mailboxListFoldersRequest(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -8580,8 +9647,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListFolders'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListFolders'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8590,6 +9658,7 @@ class MailboxAPIApi
     public function mailboxListFoldersRequest(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListFolders'][0]
     ): Request {
 
@@ -8600,6 +9669,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListFolders, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/folders';
@@ -8623,6 +9693,398 @@ class MailboxAPIApi
             $limit,
             'limit', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxListGrantedMailboxes
+     *
+     * List granted mailboxes
+     *
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListGrantedMailboxes'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\GrantedMailboxListResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxListGrantedMailboxes(
+        ?string $cursor = null,
+        ?int $limit = null,
+        ?string $q = null,
+        string $contentType = self::contentTypes['mailboxListGrantedMailboxes'][0]
+    ): \Sendmux\Mailbox\Model\GrantedMailboxListResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxListGrantedMailboxesWithHttpInfo(
+            $cursor,
+            $limit,
+            $q,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxListGrantedMailboxesWithHttpInfo
+     *
+     * List granted mailboxes
+     *
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListGrantedMailboxes'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\GrantedMailboxListResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxListGrantedMailboxesWithHttpInfo(
+        ?string $cursor = null,
+        ?int $limit = null,
+        ?string $q = null,
+        string $contentType = self::contentTypes['mailboxListGrantedMailboxes'][0]
+    ): array {
+        $request = $this->mailboxListGrantedMailboxesRequest(
+            $cursor,
+            $limit,
+            $q,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\GrantedMailboxListResponse',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\GrantedMailboxListResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\GrantedMailboxListResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxListGrantedMailboxesAsync
+     *
+     * List granted mailboxes
+     *
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListGrantedMailboxes'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxListGrantedMailboxesAsync(
+        ?string $cursor = null,
+        ?int $limit = null,
+        ?string $q = null,
+        string $contentType = self::contentTypes['mailboxListGrantedMailboxes'][0]
+    ): PromiseInterface {
+        return $this->mailboxListGrantedMailboxesAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $q,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxListGrantedMailboxesAsyncWithHttpInfo
+     *
+     * List granted mailboxes
+     *
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListGrantedMailboxes'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxListGrantedMailboxesAsyncWithHttpInfo(
+        ?string $cursor = null,
+        ?int $limit = null,
+        ?string $q = null,
+        string $contentType = self::contentTypes['mailboxListGrantedMailboxes'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\GrantedMailboxListResponse';
+        $request = $this->mailboxListGrantedMailboxesRequest(
+            $cursor,
+            $limit,
+            $q,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxListGrantedMailboxes'
+     *
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListGrantedMailboxes'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxListGrantedMailboxesRequest(
+        ?string $cursor = null,
+        ?int $limit = null,
+        ?string $q = null,
+        string $contentType = self::contentTypes['mailboxListGrantedMailboxes'][0]
+    ): Request {
+
+
+        if ($limit !== null && $limit > 100) {
+            throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListGrantedMailboxes, must be smaller than or equal to 100.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListGrantedMailboxes, must be bigger than or equal to 1.');
+        }
+
+
+
+        $resourcePath = '/mailbox/mailboxes';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $cursor,
+            'cursor', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $limit,
+            'limit', // param base name
+            'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $q,
+            'q', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -8694,6 +10156,7 @@ class MailboxAPIApi
      *
      * @param  string|null $cursor cursor (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListIdentities'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -8703,9 +10166,15 @@ class MailboxAPIApi
     public function mailboxListIdentities(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListIdentities'][0]
     ): \Sendmux\Mailbox\Model\MailboxIdentityCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxListIdentitiesWithHttpInfo($cursor, $limit, $contentType);
+        list($response) = $this->mailboxListIdentitiesWithHttpInfo(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -8714,8 +10183,9 @@ class MailboxAPIApi
      *
      * List mailbox sender identities
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListIdentities'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -8725,9 +10195,15 @@ class MailboxAPIApi
     public function mailboxListIdentitiesWithHttpInfo(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListIdentities'][0]
     ): array {
-        $request = $this->mailboxListIdentitiesRequest($cursor, $limit, $contentType);
+        $request = $this->mailboxListIdentitiesRequest(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -8842,8 +10318,9 @@ class MailboxAPIApi
      *
      * List mailbox sender identities
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListIdentities'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8852,9 +10329,15 @@ class MailboxAPIApi
     public function mailboxListIdentitiesAsync(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListIdentities'][0]
     ): PromiseInterface {
-        return $this->mailboxListIdentitiesAsyncWithHttpInfo($cursor, $limit, $contentType)
+        return $this->mailboxListIdentitiesAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -8867,8 +10350,9 @@ class MailboxAPIApi
      *
      * List mailbox sender identities
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListIdentities'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8877,10 +10361,16 @@ class MailboxAPIApi
     public function mailboxListIdentitiesAsyncWithHttpInfo(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListIdentities'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxIdentityCursorListResponse';
-        $request = $this->mailboxListIdentitiesRequest($cursor, $limit, $contentType);
+        $request = $this->mailboxListIdentitiesRequest(
+            $cursor,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -8937,8 +10427,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListIdentities'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListIdentities'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -8947,6 +10438,7 @@ class MailboxAPIApi
     public function mailboxListIdentitiesRequest(
         ?string $cursor = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListIdentities'][0]
     ): Request {
 
@@ -8957,6 +10449,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListIdentities, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/identities';
@@ -8980,6 +10473,15 @@ class MailboxAPIApi
             $limit,
             'limit', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -9072,6 +10574,7 @@ class MailboxAPIApi
      * @param  bool|null $is_unread is_unread (optional)
      * @param  string|null $sort_by sort_by (optional)
      * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -9102,9 +10605,36 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListMessages'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxListMessagesWithHttpInfo($cursor, $limit, $folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType);
+        list($response) = $this->mailboxListMessagesWithHttpInfo(
+            $cursor,
+            $limit,
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -9113,29 +10643,30 @@ class MailboxAPIApi
      *
      * List mailbox messages
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -9166,9 +10697,36 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListMessages'][0]
     ): array {
-        $request = $this->mailboxListMessagesRequest($cursor, $limit, $folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxListMessagesRequest(
+            $cursor,
+            $limit,
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -9283,29 +10841,30 @@ class MailboxAPIApi
      *
      * List mailbox messages
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -9335,9 +10894,36 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListMessages'][0]
     ): PromiseInterface {
-        return $this->mailboxListMessagesAsyncWithHttpInfo($cursor, $limit, $folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType)
+        return $this->mailboxListMessagesAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -9350,29 +10936,30 @@ class MailboxAPIApi
      *
      * List mailbox messages
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -9402,10 +10989,37 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListMessages'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse';
-        $request = $this->mailboxListMessagesRequest($cursor, $limit, $folder_id, $thread_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxListMessagesRequest(
+            $cursor,
+            $limit,
+            $folder_id,
+            $thread_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -9462,29 +11076,30 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListMessages'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $thread_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $thread_id thread_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -9514,6 +11129,7 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListMessages'][0]
     ): Request {
 
@@ -9543,6 +11159,7 @@ class MailboxAPIApi
         if ($max_size_bytes !== null && $max_size_bytes < 0) {
             throw new InvalidArgumentException('invalid value for "$max_size_bytes" when calling MailboxAPIApi.mailboxListMessages, must be bigger than or equal to 0.');
         }
+
 
 
 
@@ -9767,6 +11384,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -9840,6 +11466,7 @@ class MailboxAPIApi
      * @param  string|null $type type (optional)
      * @param  string|null $sort_by sort_by (optional)
      * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListQuotas'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -9855,9 +11482,21 @@ class MailboxAPIApi
         ?string $type = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListQuotas'][0]
     ): \Sendmux\Mailbox\Model\MailboxQuotaCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxListQuotasWithHttpInfo($cursor, $limit, $name, $scope, $resource_type, $type, $sort_by, $sort_direction, $contentType);
+        list($response) = $this->mailboxListQuotasWithHttpInfo(
+            $cursor,
+            $limit,
+            $name,
+            $scope,
+            $resource_type,
+            $type,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -9866,14 +11505,15 @@ class MailboxAPIApi
      *
      * List mailbox quotas
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $name (optional)
-     * @param  string|null $scope (optional)
-     * @param  string|null $resource_type (optional)
-     * @param  string|null $type (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $name name (optional)
+     * @param  string|null $scope scope (optional)
+     * @param  string|null $resource_type resource_type (optional)
+     * @param  string|null $type type (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListQuotas'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -9889,9 +11529,21 @@ class MailboxAPIApi
         ?string $type = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListQuotas'][0]
     ): array {
-        $request = $this->mailboxListQuotasRequest($cursor, $limit, $name, $scope, $resource_type, $type, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxListQuotasRequest(
+            $cursor,
+            $limit,
+            $name,
+            $scope,
+            $resource_type,
+            $type,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -9978,14 +11630,15 @@ class MailboxAPIApi
      *
      * List mailbox quotas
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $name (optional)
-     * @param  string|null $scope (optional)
-     * @param  string|null $resource_type (optional)
-     * @param  string|null $type (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $name name (optional)
+     * @param  string|null $scope scope (optional)
+     * @param  string|null $resource_type resource_type (optional)
+     * @param  string|null $type type (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListQuotas'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10000,9 +11653,21 @@ class MailboxAPIApi
         ?string $type = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListQuotas'][0]
     ): PromiseInterface {
-        return $this->mailboxListQuotasAsyncWithHttpInfo($cursor, $limit, $name, $scope, $resource_type, $type, $sort_by, $sort_direction, $contentType)
+        return $this->mailboxListQuotasAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $name,
+            $scope,
+            $resource_type,
+            $type,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -10015,14 +11680,15 @@ class MailboxAPIApi
      *
      * List mailbox quotas
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $name (optional)
-     * @param  string|null $scope (optional)
-     * @param  string|null $resource_type (optional)
-     * @param  string|null $type (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $name name (optional)
+     * @param  string|null $scope scope (optional)
+     * @param  string|null $resource_type resource_type (optional)
+     * @param  string|null $type type (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListQuotas'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10037,10 +11703,22 @@ class MailboxAPIApi
         ?string $type = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListQuotas'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxQuotaCursorListResponse';
-        $request = $this->mailboxListQuotasRequest($cursor, $limit, $name, $scope, $resource_type, $type, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxListQuotasRequest(
+            $cursor,
+            $limit,
+            $name,
+            $scope,
+            $resource_type,
+            $type,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -10097,14 +11775,15 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListQuotas'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $name (optional)
-     * @param  string|null $scope (optional)
-     * @param  string|null $resource_type (optional)
-     * @param  string|null $type (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $name name (optional)
+     * @param  string|null $scope scope (optional)
+     * @param  string|null $resource_type resource_type (optional)
+     * @param  string|null $type type (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListQuotas'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10119,6 +11798,7 @@ class MailboxAPIApi
         ?string $type = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListQuotas'][0]
     ): Request {
 
@@ -10129,6 +11809,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListQuotas, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -10216,6 +11897,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -10291,6 +11981,7 @@ class MailboxAPIApi
      * @param  string|null $before before (optional)
      * @param  string|null $sort_by sort_by (optional)
      * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListSubmissions'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -10308,9 +11999,23 @@ class MailboxAPIApi
         ?string $before = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListSubmissions'][0]
     ): \Sendmux\Mailbox\Model\MailboxSubmissionCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxListSubmissionsWithHttpInfo($cursor, $limit, $identity_ids, $email_ids, $thread_ids, $undo_status, $after, $before, $sort_by, $sort_direction, $contentType);
+        list($response) = $this->mailboxListSubmissionsWithHttpInfo(
+            $cursor,
+            $limit,
+            $identity_ids,
+            $email_ids,
+            $thread_ids,
+            $undo_status,
+            $after,
+            $before,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -10319,16 +12024,17 @@ class MailboxAPIApi
      *
      * List mailbox submissions
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $identity_ids (optional)
-     * @param  string|null $email_ids (optional)
-     * @param  string|null $thread_ids (optional)
-     * @param  string|null $undo_status (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $identity_ids identity_ids (optional)
+     * @param  string|null $email_ids email_ids (optional)
+     * @param  string|null $thread_ids thread_ids (optional)
+     * @param  string|null $undo_status undo_status (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListSubmissions'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -10346,9 +12052,23 @@ class MailboxAPIApi
         ?string $before = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListSubmissions'][0]
     ): array {
-        $request = $this->mailboxListSubmissionsRequest($cursor, $limit, $identity_ids, $email_ids, $thread_ids, $undo_status, $after, $before, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxListSubmissionsRequest(
+            $cursor,
+            $limit,
+            $identity_ids,
+            $email_ids,
+            $thread_ids,
+            $undo_status,
+            $after,
+            $before,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -10435,16 +12155,17 @@ class MailboxAPIApi
      *
      * List mailbox submissions
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $identity_ids (optional)
-     * @param  string|null $email_ids (optional)
-     * @param  string|null $thread_ids (optional)
-     * @param  string|null $undo_status (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $identity_ids identity_ids (optional)
+     * @param  string|null $email_ids email_ids (optional)
+     * @param  string|null $thread_ids thread_ids (optional)
+     * @param  string|null $undo_status undo_status (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListSubmissions'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10461,9 +12182,23 @@ class MailboxAPIApi
         ?string $before = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListSubmissions'][0]
     ): PromiseInterface {
-        return $this->mailboxListSubmissionsAsyncWithHttpInfo($cursor, $limit, $identity_ids, $email_ids, $thread_ids, $undo_status, $after, $before, $sort_by, $sort_direction, $contentType)
+        return $this->mailboxListSubmissionsAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $identity_ids,
+            $email_ids,
+            $thread_ids,
+            $undo_status,
+            $after,
+            $before,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -10476,16 +12211,17 @@ class MailboxAPIApi
      *
      * List mailbox submissions
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $identity_ids (optional)
-     * @param  string|null $email_ids (optional)
-     * @param  string|null $thread_ids (optional)
-     * @param  string|null $undo_status (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $identity_ids identity_ids (optional)
+     * @param  string|null $email_ids email_ids (optional)
+     * @param  string|null $thread_ids thread_ids (optional)
+     * @param  string|null $undo_status undo_status (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListSubmissions'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10502,10 +12238,24 @@ class MailboxAPIApi
         ?string $before = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListSubmissions'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxSubmissionCursorListResponse';
-        $request = $this->mailboxListSubmissionsRequest($cursor, $limit, $identity_ids, $email_ids, $thread_ids, $undo_status, $after, $before, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxListSubmissionsRequest(
+            $cursor,
+            $limit,
+            $identity_ids,
+            $email_ids,
+            $thread_ids,
+            $undo_status,
+            $after,
+            $before,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -10562,16 +12312,17 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListSubmissions'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $identity_ids (optional)
-     * @param  string|null $email_ids (optional)
-     * @param  string|null $thread_ids (optional)
-     * @param  string|null $undo_status (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $identity_ids identity_ids (optional)
+     * @param  string|null $email_ids email_ids (optional)
+     * @param  string|null $thread_ids thread_ids (optional)
+     * @param  string|null $undo_status undo_status (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListSubmissions'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10588,6 +12339,7 @@ class MailboxAPIApi
         ?string $before = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListSubmissions'][0]
     ): Request {
 
@@ -10598,6 +12350,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListSubmissions, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -10705,6 +12458,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -10774,6 +12536,7 @@ class MailboxAPIApi
      * @param  string|null $cursor cursor (optional)
      * @param  int|null $limit limit (optional)
      * @param  string|null $sort sort (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreadMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -10785,9 +12548,17 @@ class MailboxAPIApi
         ?string $cursor = null,
         ?int $limit = null,
         ?string $sort = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxListThreadMessagesWithHttpInfo($thread_id, $cursor, $limit, $sort, $contentType);
+        list($response) = $this->mailboxListThreadMessagesWithHttpInfo(
+            $thread_id,
+            $cursor,
+            $limit,
+            $sort,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -10796,10 +12567,11 @@ class MailboxAPIApi
      *
      * List thread messages
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreadMessages'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -10811,9 +12583,17 @@ class MailboxAPIApi
         ?string $cursor = null,
         ?int $limit = null,
         ?string $sort = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
     ): array {
-        $request = $this->mailboxListThreadMessagesRequest($thread_id, $cursor, $limit, $sort, $contentType);
+        $request = $this->mailboxListThreadMessagesRequest(
+            $thread_id,
+            $cursor,
+            $limit,
+            $sort,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -10914,10 +12694,11 @@ class MailboxAPIApi
      *
      * List thread messages
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreadMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10928,9 +12709,17 @@ class MailboxAPIApi
         ?string $cursor = null,
         ?int $limit = null,
         ?string $sort = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
     ): PromiseInterface {
-        return $this->mailboxListThreadMessagesAsyncWithHttpInfo($thread_id, $cursor, $limit, $sort, $contentType)
+        return $this->mailboxListThreadMessagesAsyncWithHttpInfo(
+            $thread_id,
+            $cursor,
+            $limit,
+            $sort,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -10943,10 +12732,11 @@ class MailboxAPIApi
      *
      * List thread messages
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreadMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -10957,10 +12747,18 @@ class MailboxAPIApi
         ?string $cursor = null,
         ?int $limit = null,
         ?string $sort = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse';
-        $request = $this->mailboxListThreadMessagesRequest($thread_id, $cursor, $limit, $sort, $contentType);
+        $request = $this->mailboxListThreadMessagesRequest(
+            $thread_id,
+            $cursor,
+            $limit,
+            $sort,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -11017,10 +12815,11 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListThreadMessages'
      *
-     * @param  string $thread_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $sort (optional)
+     * @param  string $thread_id thread_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $sort sort (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreadMessages'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11031,6 +12830,7 @@ class MailboxAPIApi
         ?string $cursor = null,
         ?int $limit = null,
         ?string $sort = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
     ): Request {
 
@@ -11048,6 +12848,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListThreadMessages, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -11080,6 +12881,15 @@ class MailboxAPIApi
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
             $sort,
             'sort', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
             'string', // openApiType
             'form', // style
             true, // explode
@@ -11168,6 +12978,7 @@ class MailboxAPIApi
      * @param  bool|null $has_attachment has_attachment (optional)
      * @param  bool|null $is_unread is_unread (optional)
      * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreads'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -11185,9 +12996,23 @@ class MailboxAPIApi
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreads'][0]
     ): \Sendmux\Mailbox\Model\MailboxThreadSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxListThreadsWithHttpInfo($cursor, $limit, $q, $participant, $folder_id, $after, $before, $has_attachment, $is_unread, $sort_direction, $contentType);
+        list($response) = $this->mailboxListThreadsWithHttpInfo(
+            $cursor,
+            $limit,
+            $q,
+            $participant,
+            $folder_id,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -11196,16 +13021,17 @@ class MailboxAPIApi
      *
      * List mailbox threads
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $participant (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $participant participant (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreads'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -11223,9 +13049,23 @@ class MailboxAPIApi
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreads'][0]
     ): array {
-        $request = $this->mailboxListThreadsRequest($cursor, $limit, $q, $participant, $folder_id, $after, $before, $has_attachment, $is_unread, $sort_direction, $contentType);
+        $request = $this->mailboxListThreadsRequest(
+            $cursor,
+            $limit,
+            $q,
+            $participant,
+            $folder_id,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -11340,16 +13180,17 @@ class MailboxAPIApi
      *
      * List mailbox threads
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $participant (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $participant participant (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreads'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11366,9 +13207,23 @@ class MailboxAPIApi
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreads'][0]
     ): PromiseInterface {
-        return $this->mailboxListThreadsAsyncWithHttpInfo($cursor, $limit, $q, $participant, $folder_id, $after, $before, $has_attachment, $is_unread, $sort_direction, $contentType)
+        return $this->mailboxListThreadsAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $q,
+            $participant,
+            $folder_id,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -11381,16 +13236,17 @@ class MailboxAPIApi
      *
      * List mailbox threads
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $participant (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $participant participant (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreads'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11407,10 +13263,24 @@ class MailboxAPIApi
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreads'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxThreadSummaryCursorListResponse';
-        $request = $this->mailboxListThreadsRequest($cursor, $limit, $q, $participant, $folder_id, $after, $before, $has_attachment, $is_unread, $sort_direction, $contentType);
+        $request = $this->mailboxListThreadsRequest(
+            $cursor,
+            $limit,
+            $q,
+            $participant,
+            $folder_id,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -11467,16 +13337,17 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListThreads'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $participant (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $participant participant (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListThreads'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11493,6 +13364,7 @@ class MailboxAPIApi
         ?bool $has_attachment = null,
         ?bool $is_unread = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreads'][0]
     ): Request {
 
@@ -11503,6 +13375,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListThreads, must be bigger than or equal to 1.');
         }
+
 
 
 
@@ -11610,6 +13483,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -11676,6 +13558,7 @@ class MailboxAPIApi
      * Get mailbox usage
      *
      * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListUsage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -11684,9 +13567,14 @@ class MailboxAPIApi
      */
     public function mailboxListUsage(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListUsage'][0]
     ): ?\Sendmux\Mailbox\Model\MailboxUsageResponse {
-        list($response) = $this->mailboxListUsageWithHttpInfo($if_none_match, $contentType);
+        list($response) = $this->mailboxListUsageWithHttpInfo(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -11695,7 +13583,8 @@ class MailboxAPIApi
      *
      * Get mailbox usage
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListUsage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -11704,9 +13593,14 @@ class MailboxAPIApi
      */
     public function mailboxListUsageWithHttpInfo(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListUsage'][0]
     ): array {
-        $request = $this->mailboxListUsageRequest($if_none_match, $contentType);
+        $request = $this->mailboxListUsageRequest(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -11781,7 +13675,8 @@ class MailboxAPIApi
      *
      * Get mailbox usage
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListUsage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11789,9 +13684,14 @@ class MailboxAPIApi
      */
     public function mailboxListUsageAsync(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListUsage'][0]
     ): PromiseInterface {
-        return $this->mailboxListUsageAsyncWithHttpInfo($if_none_match, $contentType)
+        return $this->mailboxListUsageAsyncWithHttpInfo(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -11804,7 +13704,8 @@ class MailboxAPIApi
      *
      * Get mailbox usage
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListUsage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11812,10 +13713,15 @@ class MailboxAPIApi
      */
     public function mailboxListUsageAsyncWithHttpInfo(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListUsage'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxUsageResponse';
-        $request = $this->mailboxListUsageRequest($if_none_match, $contentType);
+        $request = $this->mailboxListUsageRequest(
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -11876,7 +13782,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxListUsage'
      *
-     * @param  string|null $if_none_match (optional)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListUsage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -11884,8 +13791,10 @@ class MailboxAPIApi
      */
     public function mailboxListUsageRequest(
         ?string $if_none_match = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListUsage'][0]
     ): Request {
+
 
 
 
@@ -11896,6 +13805,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_none_match !== null) {
@@ -11967,6 +13885,7 @@ class MailboxAPIApi
      *
      * @param  string|null $since_query_state since_query_state (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryFolderChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -11976,9 +13895,15 @@ class MailboxAPIApi
     public function mailboxQueryFolderChanges(
         ?string $since_query_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryFolderChanges'][0]
     ): \Sendmux\Mailbox\Model\MailboxFolderQueryChangesResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxQueryFolderChangesWithHttpInfo($since_query_state, $limit, $contentType);
+        list($response) = $this->mailboxQueryFolderChangesWithHttpInfo(
+            $since_query_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -11987,8 +13912,9 @@ class MailboxAPIApi
      *
      * Get folder query changes
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryFolderChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -11998,9 +13924,15 @@ class MailboxAPIApi
     public function mailboxQueryFolderChangesWithHttpInfo(
         ?string $since_query_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryFolderChanges'][0]
     ): array {
-        $request = $this->mailboxQueryFolderChangesRequest($since_query_state, $limit, $contentType);
+        $request = $this->mailboxQueryFolderChangesRequest(
+            $since_query_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -12087,8 +14019,9 @@ class MailboxAPIApi
      *
      * Get folder query changes
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryFolderChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -12097,9 +14030,15 @@ class MailboxAPIApi
     public function mailboxQueryFolderChangesAsync(
         ?string $since_query_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryFolderChanges'][0]
     ): PromiseInterface {
-        return $this->mailboxQueryFolderChangesAsyncWithHttpInfo($since_query_state, $limit, $contentType)
+        return $this->mailboxQueryFolderChangesAsyncWithHttpInfo(
+            $since_query_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -12112,8 +14051,9 @@ class MailboxAPIApi
      *
      * Get folder query changes
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryFolderChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -12122,10 +14062,16 @@ class MailboxAPIApi
     public function mailboxQueryFolderChangesAsyncWithHttpInfo(
         ?string $since_query_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryFolderChanges'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxFolderQueryChangesResponse';
-        $request = $this->mailboxQueryFolderChangesRequest($since_query_state, $limit, $contentType);
+        $request = $this->mailboxQueryFolderChangesRequest(
+            $since_query_state,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -12182,8 +14128,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxQueryFolderChanges'
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryFolderChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -12192,6 +14139,7 @@ class MailboxAPIApi
     public function mailboxQueryFolderChangesRequest(
         ?string $since_query_state = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryFolderChanges'][0]
     ): Request {
 
@@ -12202,6 +14150,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxQueryFolderChanges, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/folders/query-changes';
@@ -12225,6 +14174,15 @@ class MailboxAPIApi
             $limit,
             'limit', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -12318,6 +14276,7 @@ class MailboxAPIApi
      * @param  bool|null $is_unread is_unread (optional)
      * @param  string|null $sort_by sort_by (optional)
      * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryMessageChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -12349,9 +14308,37 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryMessageChanges'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageQueryChangesResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxQueryMessageChangesWithHttpInfo($since_query_state, $limit, $up_to_id, $calculate_total, $folder_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType);
+        list($response) = $this->mailboxQueryMessageChangesWithHttpInfo(
+            $since_query_state,
+            $limit,
+            $up_to_id,
+            $calculate_total,
+            $folder_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -12360,30 +14347,31 @@ class MailboxAPIApi
      *
      * Get message query changes
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $up_to_id (optional)
-     * @param  bool|null $calculate_total (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $up_to_id up_to_id (optional)
+     * @param  bool|null $calculate_total calculate_total (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryMessageChanges'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -12415,9 +14403,37 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryMessageChanges'][0]
     ): array {
-        $request = $this->mailboxQueryMessageChangesRequest($since_query_state, $limit, $up_to_id, $calculate_total, $folder_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxQueryMessageChangesRequest(
+            $since_query_state,
+            $limit,
+            $up_to_id,
+            $calculate_total,
+            $folder_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -12504,30 +14520,31 @@ class MailboxAPIApi
      *
      * Get message query changes
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $up_to_id (optional)
-     * @param  bool|null $calculate_total (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $up_to_id up_to_id (optional)
+     * @param  bool|null $calculate_total calculate_total (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryMessageChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -12558,9 +14575,37 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryMessageChanges'][0]
     ): PromiseInterface {
-        return $this->mailboxQueryMessageChangesAsyncWithHttpInfo($since_query_state, $limit, $up_to_id, $calculate_total, $folder_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType)
+        return $this->mailboxQueryMessageChangesAsyncWithHttpInfo(
+            $since_query_state,
+            $limit,
+            $up_to_id,
+            $calculate_total,
+            $folder_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -12573,30 +14618,31 @@ class MailboxAPIApi
      *
      * Get message query changes
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $up_to_id (optional)
-     * @param  bool|null $calculate_total (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $up_to_id up_to_id (optional)
+     * @param  bool|null $calculate_total calculate_total (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryMessageChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -12627,10 +14673,38 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryMessageChanges'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageQueryChangesResponse';
-        $request = $this->mailboxQueryMessageChangesRequest($since_query_state, $limit, $up_to_id, $calculate_total, $folder_id, $q, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $sort_by, $sort_direction, $contentType);
+        $request = $this->mailboxQueryMessageChangesRequest(
+            $since_query_state,
+            $limit,
+            $up_to_id,
+            $calculate_total,
+            $folder_id,
+            $q,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $sort_by,
+            $sort_direction,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -12687,30 +14761,31 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxQueryMessageChanges'
      *
-     * @param  string|null $since_query_state (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $up_to_id (optional)
-     * @param  bool|null $calculate_total (optional)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $q (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $sort_by (optional)
-     * @param  string|null $sort_direction (optional)
+     * @param  string|null $since_query_state since_query_state (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $up_to_id up_to_id (optional)
+     * @param  bool|null $calculate_total calculate_total (optional)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $q q (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $sort_by sort_by (optional)
+     * @param  string|null $sort_direction sort_direction (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxQueryMessageChanges'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -12741,6 +14816,7 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $sort_by = null,
         ?string $sort_direction = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxQueryMessageChanges'][0]
     ): Request {
 
@@ -12771,6 +14847,7 @@ class MailboxAPIApi
         if ($max_size_bytes !== null && $max_size_bytes < 0) {
             throw new InvalidArgumentException('invalid value for "$max_size_bytes" when calling MailboxAPIApi.mailboxQueryMessageChanges, must be bigger than or equal to 0.');
         }
+
 
 
 
@@ -13004,6 +15081,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -13089,6 +15175,7 @@ class MailboxAPIApi
      * @param  bool|null $is_unread is_unread (optional)
      * @param  string|null $message_ids message_ids (optional)
      * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSearchMessageSnippets'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -13116,9 +15203,33 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $message_ids = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSearchMessageSnippets'][0]
     ): \Sendmux\Mailbox\Model\MailboxSearchSnippetsResultResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxSearchMessageSnippetsWithHttpInfo($q, $folder_id, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $message_ids, $limit, $contentType);
+        list($response) = $this->mailboxSearchMessageSnippetsWithHttpInfo(
+            $q,
+            $folder_id,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $message_ids,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -13127,26 +15238,27 @@ class MailboxAPIApi
      *
      * Get message search snippets
      *
-     * @param  string $q (required)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $message_ids (optional)
-     * @param  int|null $limit (optional)
+     * @param  string $q q (required)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $message_ids message_ids (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSearchMessageSnippets'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -13174,9 +15286,33 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $message_ids = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSearchMessageSnippets'][0]
     ): array {
-        $request = $this->mailboxSearchMessageSnippetsRequest($q, $folder_id, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $message_ids, $limit, $contentType);
+        $request = $this->mailboxSearchMessageSnippetsRequest(
+            $q,
+            $folder_id,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $message_ids,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -13263,26 +15399,27 @@ class MailboxAPIApi
      *
      * Get message search snippets
      *
-     * @param  string $q (required)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $message_ids (optional)
-     * @param  int|null $limit (optional)
+     * @param  string $q q (required)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $message_ids message_ids (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSearchMessageSnippets'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -13309,9 +15446,33 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $message_ids = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSearchMessageSnippets'][0]
     ): PromiseInterface {
-        return $this->mailboxSearchMessageSnippetsAsyncWithHttpInfo($q, $folder_id, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $message_ids, $limit, $contentType)
+        return $this->mailboxSearchMessageSnippetsAsyncWithHttpInfo(
+            $q,
+            $folder_id,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $message_ids,
+            $limit,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -13324,26 +15485,27 @@ class MailboxAPIApi
      *
      * Get message search snippets
      *
-     * @param  string $q (required)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $message_ids (optional)
-     * @param  int|null $limit (optional)
+     * @param  string $q q (required)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $message_ids message_ids (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSearchMessageSnippets'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -13370,10 +15532,34 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $message_ids = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSearchMessageSnippets'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxSearchSnippetsResultResponse';
-        $request = $this->mailboxSearchMessageSnippetsRequest($q, $folder_id, $from, $to, $cc, $bcc, $subject, $body, $header_name, $header_value, $min_size_bytes, $max_size_bytes, $keyword, $not_keyword, $after, $before, $has_attachment, $is_unread, $message_ids, $limit, $contentType);
+        $request = $this->mailboxSearchMessageSnippetsRequest(
+            $q,
+            $folder_id,
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $subject,
+            $body,
+            $header_name,
+            $header_value,
+            $min_size_bytes,
+            $max_size_bytes,
+            $keyword,
+            $not_keyword,
+            $after,
+            $before,
+            $has_attachment,
+            $is_unread,
+            $message_ids,
+            $limit,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -13430,26 +15616,27 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxSearchMessageSnippets'
      *
-     * @param  string $q (required)
-     * @param  string|null $folder_id (optional)
-     * @param  string|null $from (optional)
-     * @param  string|null $to (optional)
-     * @param  string|null $cc (optional)
-     * @param  string|null $bcc (optional)
-     * @param  string|null $subject (optional)
-     * @param  string|null $body (optional)
-     * @param  string|null $header_name (optional)
-     * @param  string|null $header_value (optional)
-     * @param  int|null $min_size_bytes (optional)
-     * @param  int|null $max_size_bytes (optional)
-     * @param  string|null $keyword (optional)
-     * @param  string|null $not_keyword (optional)
-     * @param  string|null $after (optional)
-     * @param  string|null $before (optional)
-     * @param  bool|null $has_attachment (optional)
-     * @param  bool|null $is_unread (optional)
-     * @param  string|null $message_ids (optional)
-     * @param  int|null $limit (optional)
+     * @param  string $q q (required)
+     * @param  string|null $folder_id folder_id (optional)
+     * @param  string|null $from from (optional)
+     * @param  string|null $to to (optional)
+     * @param  string|null $cc cc (optional)
+     * @param  string|null $bcc bcc (optional)
+     * @param  string|null $subject subject (optional)
+     * @param  string|null $body body (optional)
+     * @param  string|null $header_name header_name (optional)
+     * @param  string|null $header_value header_value (optional)
+     * @param  int|null $min_size_bytes min_size_bytes (optional)
+     * @param  int|null $max_size_bytes max_size_bytes (optional)
+     * @param  string|null $keyword keyword (optional)
+     * @param  string|null $not_keyword not_keyword (optional)
+     * @param  string|null $after after (optional)
+     * @param  string|null $before before (optional)
+     * @param  bool|null $has_attachment has_attachment (optional)
+     * @param  bool|null $is_unread is_unread (optional)
+     * @param  string|null $message_ids message_ids (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSearchMessageSnippets'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -13476,6 +15663,7 @@ class MailboxAPIApi
         ?bool $is_unread = null,
         ?string $message_ids = null,
         ?int $limit = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSearchMessageSnippets'][0]
     ): Request {
 
@@ -13516,6 +15704,7 @@ class MailboxAPIApi
         if ($limit !== null && $limit < 1) {
             throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxSearchMessageSnippets, must be bigger than or equal to 1.');
         }
+
 
 
         $resourcePath = '/mailbox/messages/search-snippets';
@@ -13705,6 +15894,15 @@ class MailboxAPIApi
             true, // explode
             false // required
         ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -13772,6 +15970,7 @@ class MailboxAPIApi
      *
      * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body send_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -13781,9 +15980,15 @@ class MailboxAPIApi
     public function mailboxSendMessage(
         ?string $idempotency_key = null,
         ?\Sendmux\Mailbox\Model\SendMailboxMessageBody $send_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSendMessage'][0]
     ): \Sendmux\Mailbox\Model\MailboxSendResultResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxSendMessageWithHttpInfo($idempotency_key, $send_mailbox_message_body, $contentType);
+        list($response) = $this->mailboxSendMessageWithHttpInfo(
+            $idempotency_key,
+            $send_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -13792,8 +15997,9 @@ class MailboxAPIApi
      *
      * Send a mailbox message
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body send_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -13803,9 +16009,15 @@ class MailboxAPIApi
     public function mailboxSendMessageWithHttpInfo(
         ?string $idempotency_key = null,
         ?\Sendmux\Mailbox\Model\SendMailboxMessageBody $send_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSendMessage'][0]
     ): array {
-        $request = $this->mailboxSendMessageRequest($idempotency_key, $send_mailbox_message_body, $contentType);
+        $request = $this->mailboxSendMessageRequest(
+            $idempotency_key,
+            $send_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -13934,8 +16146,9 @@ class MailboxAPIApi
      *
      * Send a mailbox message
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body send_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -13944,9 +16157,15 @@ class MailboxAPIApi
     public function mailboxSendMessageAsync(
         ?string $idempotency_key = null,
         ?\Sendmux\Mailbox\Model\SendMailboxMessageBody $send_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSendMessage'][0]
     ): PromiseInterface {
-        return $this->mailboxSendMessageAsyncWithHttpInfo($idempotency_key, $send_mailbox_message_body, $contentType)
+        return $this->mailboxSendMessageAsyncWithHttpInfo(
+            $idempotency_key,
+            $send_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -13959,8 +16178,9 @@ class MailboxAPIApi
      *
      * Send a mailbox message
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body send_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -13969,10 +16189,16 @@ class MailboxAPIApi
     public function mailboxSendMessageAsyncWithHttpInfo(
         ?string $idempotency_key = null,
         ?\Sendmux\Mailbox\Model\SendMailboxMessageBody $send_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSendMessage'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxSendResultResponse';
-        $request = $this->mailboxSendMessageRequest($idempotency_key, $send_mailbox_message_body, $contentType);
+        $request = $this->mailboxSendMessageRequest(
+            $idempotency_key,
+            $send_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -14029,8 +16255,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxSendMessage'
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxMessageBody|null $send_mailbox_message_body send_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14039,12 +16266,14 @@ class MailboxAPIApi
     public function mailboxSendMessageRequest(
         ?string $idempotency_key = null,
         ?\Sendmux\Mailbox\Model\SendMailboxMessageBody $send_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxSendMessage'][0]
     ): Request {
 
         if ($idempotency_key !== null && strlen($idempotency_key) > 255) {
             throw new InvalidArgumentException('invalid length for "$idempotency_key" when calling MailboxAPIApi.mailboxSendMessage, must be smaller than or equal to 255.');
         }
+
 
 
 
@@ -14055,6 +16284,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($idempotency_key !== null) {
@@ -14136,6 +16374,7 @@ class MailboxAPIApi
      * @param  int|null $ping ping (optional)
      * @param  int|null $close_after close_after (optional)
      * @param  string|null $last_event_id2 last_event_id2 (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -14148,9 +16387,18 @@ class MailboxAPIApi
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): \Sendmux\Mailbox\Model\MailboxRealtimeEvent|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxStreamEventsWithHttpInfo($event_types, $last_event_id, $ping, $close_after, $last_event_id2, $contentType);
+        list($response) = $this->mailboxStreamEventsWithHttpInfo(
+            $event_types,
+            $last_event_id,
+            $ping,
+            $close_after,
+            $last_event_id2,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -14159,11 +16407,12 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
-     * @param  string|null $event_types (optional)
-     * @param  string|null $last_event_id (optional)
-     * @param  int|null $ping (optional)
-     * @param  int|null $close_after (optional)
-     * @param  string|null $last_event_id2 (optional)
+     * @param  string|null $event_types event_types (optional)
+     * @param  string|null $last_event_id last_event_id (optional)
+     * @param  int|null $ping ping (optional)
+     * @param  int|null $close_after close_after (optional)
+     * @param  string|null $last_event_id2 last_event_id2 (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -14176,9 +16425,18 @@ class MailboxAPIApi
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): array {
-        $request = $this->mailboxStreamEventsRequest($event_types, $last_event_id, $ping, $close_after, $last_event_id2, $contentType);
+        $request = $this->mailboxStreamEventsRequest(
+            $event_types,
+            $last_event_id,
+            $ping,
+            $close_after,
+            $last_event_id2,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -14321,11 +16579,12 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
-     * @param  string|null $event_types (optional)
-     * @param  string|null $last_event_id (optional)
-     * @param  int|null $ping (optional)
-     * @param  int|null $close_after (optional)
-     * @param  string|null $last_event_id2 (optional)
+     * @param  string|null $event_types event_types (optional)
+     * @param  string|null $last_event_id last_event_id (optional)
+     * @param  int|null $ping ping (optional)
+     * @param  int|null $close_after close_after (optional)
+     * @param  string|null $last_event_id2 last_event_id2 (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14337,9 +16596,18 @@ class MailboxAPIApi
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): PromiseInterface {
-        return $this->mailboxStreamEventsAsyncWithHttpInfo($event_types, $last_event_id, $ping, $close_after, $last_event_id2, $contentType)
+        return $this->mailboxStreamEventsAsyncWithHttpInfo(
+            $event_types,
+            $last_event_id,
+            $ping,
+            $close_after,
+            $last_event_id2,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -14352,11 +16620,12 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
-     * @param  string|null $event_types (optional)
-     * @param  string|null $last_event_id (optional)
-     * @param  int|null $ping (optional)
-     * @param  int|null $close_after (optional)
-     * @param  string|null $last_event_id2 (optional)
+     * @param  string|null $event_types event_types (optional)
+     * @param  string|null $last_event_id last_event_id (optional)
+     * @param  int|null $ping ping (optional)
+     * @param  int|null $close_after close_after (optional)
+     * @param  string|null $last_event_id2 last_event_id2 (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14368,10 +16637,19 @@ class MailboxAPIApi
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxRealtimeEvent';
-        $request = $this->mailboxStreamEventsRequest($event_types, $last_event_id, $ping, $close_after, $last_event_id2, $contentType);
+        $request = $this->mailboxStreamEventsRequest(
+            $event_types,
+            $last_event_id,
+            $ping,
+            $close_after,
+            $last_event_id2,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -14428,11 +16706,12 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxStreamEvents'
      *
-     * @param  string|null $event_types (optional)
-     * @param  string|null $last_event_id (optional)
-     * @param  int|null $ping (optional)
-     * @param  int|null $close_after (optional)
-     * @param  string|null $last_event_id2 (optional)
+     * @param  string|null $event_types event_types (optional)
+     * @param  string|null $last_event_id last_event_id (optional)
+     * @param  int|null $ping ping (optional)
+     * @param  int|null $close_after close_after (optional)
+     * @param  string|null $last_event_id2 last_event_id2 (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14444,6 +16723,7 @@ class MailboxAPIApi
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): Request {
 
@@ -14462,6 +16742,7 @@ class MailboxAPIApi
         if ($close_after !== null && $close_after < 30) {
             throw new InvalidArgumentException('invalid value for "$close_after" when calling MailboxAPIApi.mailboxStreamEvents, must be bigger than or equal to 30.');
         }
+
 
 
 
@@ -14504,6 +16785,15 @@ class MailboxAPIApi
             $close_after,
             'close_after', // param base name
             'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -14580,6 +16870,7 @@ class MailboxAPIApi
      * @param  string $folder_id folder_id (required)
      * @param  string|null $if_match if_match (optional)
      * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body patch_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -14590,9 +16881,16 @@ class MailboxAPIApi
         string $folder_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxFolderBody $patch_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateFolder'][0]
     ): \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxUpdateFolderWithHttpInfo($folder_id, $if_match, $patch_mailbox_folder_body, $contentType);
+        list($response) = $this->mailboxUpdateFolderWithHttpInfo(
+            $folder_id,
+            $if_match,
+            $patch_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -14601,9 +16899,10 @@ class MailboxAPIApi
      *
      * Update a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body patch_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateFolder'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -14614,9 +16913,16 @@ class MailboxAPIApi
         string $folder_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxFolderBody $patch_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateFolder'][0]
     ): array {
-        $request = $this->mailboxUpdateFolderRequest($folder_id, $if_match, $patch_mailbox_folder_body, $contentType);
+        $request = $this->mailboxUpdateFolderRequest(
+            $folder_id,
+            $if_match,
+            $patch_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -14731,9 +17037,10 @@ class MailboxAPIApi
      *
      * Update a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body patch_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14743,9 +17050,16 @@ class MailboxAPIApi
         string $folder_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxFolderBody $patch_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateFolder'][0]
     ): PromiseInterface {
-        return $this->mailboxUpdateFolderAsyncWithHttpInfo($folder_id, $if_match, $patch_mailbox_folder_body, $contentType)
+        return $this->mailboxUpdateFolderAsyncWithHttpInfo(
+            $folder_id,
+            $if_match,
+            $patch_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -14758,9 +17072,10 @@ class MailboxAPIApi
      *
      * Update a mailbox folder
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body patch_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14770,10 +17085,17 @@ class MailboxAPIApi
         string $folder_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxFolderBody $patch_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateFolder'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxFolderResponse';
-        $request = $this->mailboxUpdateFolderRequest($folder_id, $if_match, $patch_mailbox_folder_body, $contentType);
+        $request = $this->mailboxUpdateFolderRequest(
+            $folder_id,
+            $if_match,
+            $patch_mailbox_folder_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -14830,9 +17152,10 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxUpdateFolder'
      *
-     * @param  string $folder_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body (optional)
+     * @param  string $folder_id folder_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxFolderBody|null $patch_mailbox_folder_body patch_mailbox_folder_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateFolder'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -14842,6 +17165,7 @@ class MailboxAPIApi
         string $folder_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxFolderBody $patch_mailbox_folder_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateFolder'][0]
     ): Request {
 
@@ -14855,6 +17179,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/folders/{folder_id}';
         $formParams = [];
         $queryParams = [];
@@ -14862,6 +17187,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_match !== null) {
@@ -14947,6 +17281,7 @@ class MailboxAPIApi
      * Update mailbox sender identity
      *
      * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body update_mailbox_identity_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateIdentity'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -14955,9 +17290,14 @@ class MailboxAPIApi
      */
     public function mailboxUpdateIdentity(
         ?\Sendmux\Mailbox\Model\UpdateMailboxIdentityBody $update_mailbox_identity_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateIdentity'][0]
     ): \Sendmux\Mailbox\Model\MailboxIdentityResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxUpdateIdentityWithHttpInfo($update_mailbox_identity_body, $contentType);
+        list($response) = $this->mailboxUpdateIdentityWithHttpInfo(
+            $update_mailbox_identity_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -14966,7 +17306,8 @@ class MailboxAPIApi
      *
      * Update mailbox sender identity
      *
-     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body (optional)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body update_mailbox_identity_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateIdentity'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -14975,9 +17316,14 @@ class MailboxAPIApi
      */
     public function mailboxUpdateIdentityWithHttpInfo(
         ?\Sendmux\Mailbox\Model\UpdateMailboxIdentityBody $update_mailbox_identity_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateIdentity'][0]
     ): array {
-        $request = $this->mailboxUpdateIdentityRequest($update_mailbox_identity_body, $contentType);
+        $request = $this->mailboxUpdateIdentityRequest(
+            $update_mailbox_identity_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -15120,7 +17466,8 @@ class MailboxAPIApi
      *
      * Update mailbox sender identity
      *
-     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body (optional)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body update_mailbox_identity_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateIdentity'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15128,9 +17475,14 @@ class MailboxAPIApi
      */
     public function mailboxUpdateIdentityAsync(
         ?\Sendmux\Mailbox\Model\UpdateMailboxIdentityBody $update_mailbox_identity_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateIdentity'][0]
     ): PromiseInterface {
-        return $this->mailboxUpdateIdentityAsyncWithHttpInfo($update_mailbox_identity_body, $contentType)
+        return $this->mailboxUpdateIdentityAsyncWithHttpInfo(
+            $update_mailbox_identity_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -15143,7 +17495,8 @@ class MailboxAPIApi
      *
      * Update mailbox sender identity
      *
-     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body (optional)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body update_mailbox_identity_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateIdentity'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15151,10 +17504,15 @@ class MailboxAPIApi
      */
     public function mailboxUpdateIdentityAsyncWithHttpInfo(
         ?\Sendmux\Mailbox\Model\UpdateMailboxIdentityBody $update_mailbox_identity_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateIdentity'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxIdentityResponse';
-        $request = $this->mailboxUpdateIdentityRequest($update_mailbox_identity_body, $contentType);
+        $request = $this->mailboxUpdateIdentityRequest(
+            $update_mailbox_identity_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -15211,7 +17569,8 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxUpdateIdentity'
      *
-     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body (optional)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxIdentityBody|null $update_mailbox_identity_body update_mailbox_identity_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateIdentity'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15219,8 +17578,10 @@ class MailboxAPIApi
      */
     public function mailboxUpdateIdentityRequest(
         ?\Sendmux\Mailbox\Model\UpdateMailboxIdentityBody $update_mailbox_identity_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateIdentity'][0]
     ): Request {
+
 
 
 
@@ -15231,6 +17592,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
 
 
@@ -15306,6 +17676,7 @@ class MailboxAPIApi
      * @param  string $message_id message_id (required)
      * @param  string|null $if_match if_match (optional)
      * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body patch_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -15316,9 +17687,16 @@ class MailboxAPIApi
         string $message_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxMessageBody $patch_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateMessage'][0]
     ): \Sendmux\Mailbox\Model\MailboxMessageDetailResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxUpdateMessageWithHttpInfo($message_id, $if_match, $patch_mailbox_message_body, $contentType);
+        list($response) = $this->mailboxUpdateMessageWithHttpInfo(
+            $message_id,
+            $if_match,
+            $patch_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -15327,9 +17705,10 @@ class MailboxAPIApi
      *
      * Update mailbox message flags
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body patch_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateMessage'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -15340,9 +17719,16 @@ class MailboxAPIApi
         string $message_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxMessageBody $patch_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateMessage'][0]
     ): array {
-        $request = $this->mailboxUpdateMessageRequest($message_id, $if_match, $patch_mailbox_message_body, $contentType);
+        $request = $this->mailboxUpdateMessageRequest(
+            $message_id,
+            $if_match,
+            $patch_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -15457,9 +17843,10 @@ class MailboxAPIApi
      *
      * Update mailbox message flags
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body patch_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15469,9 +17856,16 @@ class MailboxAPIApi
         string $message_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxMessageBody $patch_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateMessage'][0]
     ): PromiseInterface {
-        return $this->mailboxUpdateMessageAsyncWithHttpInfo($message_id, $if_match, $patch_mailbox_message_body, $contentType)
+        return $this->mailboxUpdateMessageAsyncWithHttpInfo(
+            $message_id,
+            $if_match,
+            $patch_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -15484,9 +17878,10 @@ class MailboxAPIApi
      *
      * Update mailbox message flags
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body patch_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15496,10 +17891,17 @@ class MailboxAPIApi
         string $message_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxMessageBody $patch_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateMessage'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxMessageDetailResponse';
-        $request = $this->mailboxUpdateMessageRequest($message_id, $if_match, $patch_mailbox_message_body, $contentType);
+        $request = $this->mailboxUpdateMessageRequest(
+            $message_id,
+            $if_match,
+            $patch_mailbox_message_body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -15556,9 +17958,10 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxUpdateMessage'
      *
-     * @param  string $message_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body (optional)
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Mailbox\Model\PatchMailboxMessageBody|null $patch_mailbox_message_body patch_mailbox_message_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateMessage'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15568,6 +17971,7 @@ class MailboxAPIApi
         string $message_id,
         ?string $if_match = null,
         ?\Sendmux\Mailbox\Model\PatchMailboxMessageBody $patch_mailbox_message_body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUpdateMessage'][0]
     ): Request {
 
@@ -15581,6 +17985,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/messages/{message_id}';
         $formParams = [];
         $queryParams = [];
@@ -15588,6 +17993,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
 
         // header params
         if ($if_match !== null) {
@@ -15674,6 +18088,7 @@ class MailboxAPIApi
      *
      * @param  string $filename filename (required)
      * @param  \SplFileObject|null $body body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUploadAttachment'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -15683,9 +18098,15 @@ class MailboxAPIApi
     public function mailboxUploadAttachment(
         string $filename,
         ?\SplFileObject $body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUploadAttachment'][0]
     ): \Sendmux\Mailbox\Model\MailboxAttachmentUploadResultResponse|\Sendmux\Mailbox\Model\ApiError {
-        list($response) = $this->mailboxUploadAttachmentWithHttpInfo($filename, $body, $contentType);
+        list($response) = $this->mailboxUploadAttachmentWithHttpInfo(
+            $filename,
+            $body,
+            $mailbox_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -15694,8 +18115,9 @@ class MailboxAPIApi
      *
      * Upload a mailbox attachment
      *
-     * @param  string $filename (required)
-     * @param  \SplFileObject|null $body (optional)
+     * @param  string $filename filename (required)
+     * @param  \SplFileObject|null $body body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUploadAttachment'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -15705,9 +18127,15 @@ class MailboxAPIApi
     public function mailboxUploadAttachmentWithHttpInfo(
         string $filename,
         ?\SplFileObject $body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUploadAttachment'][0]
     ): array {
-        $request = $this->mailboxUploadAttachmentRequest($filename, $body, $contentType);
+        $request = $this->mailboxUploadAttachmentRequest(
+            $filename,
+            $body,
+            $mailbox_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -15822,8 +18250,9 @@ class MailboxAPIApi
      *
      * Upload a mailbox attachment
      *
-     * @param  string $filename (required)
-     * @param  \SplFileObject|null $body (optional)
+     * @param  string $filename filename (required)
+     * @param  \SplFileObject|null $body body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUploadAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15832,9 +18261,15 @@ class MailboxAPIApi
     public function mailboxUploadAttachmentAsync(
         string $filename,
         ?\SplFileObject $body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUploadAttachment'][0]
     ): PromiseInterface {
-        return $this->mailboxUploadAttachmentAsyncWithHttpInfo($filename, $body, $contentType)
+        return $this->mailboxUploadAttachmentAsyncWithHttpInfo(
+            $filename,
+            $body,
+            $mailbox_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -15847,8 +18282,9 @@ class MailboxAPIApi
      *
      * Upload a mailbox attachment
      *
-     * @param  string $filename (required)
-     * @param  \SplFileObject|null $body (optional)
+     * @param  string $filename filename (required)
+     * @param  \SplFileObject|null $body body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUploadAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15857,10 +18293,16 @@ class MailboxAPIApi
     public function mailboxUploadAttachmentAsyncWithHttpInfo(
         string $filename,
         ?\SplFileObject $body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUploadAttachment'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxAttachmentUploadResultResponse';
-        $request = $this->mailboxUploadAttachmentRequest($filename, $body, $contentType);
+        $request = $this->mailboxUploadAttachmentRequest(
+            $filename,
+            $body,
+            $mailbox_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -15917,8 +18359,9 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxUploadAttachment'
      *
-     * @param  string $filename (required)
-     * @param  \SplFileObject|null $body (optional)
+     * @param  string $filename filename (required)
+     * @param  \SplFileObject|null $body body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUploadAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -15927,6 +18370,7 @@ class MailboxAPIApi
     public function mailboxUploadAttachmentRequest(
         string $filename,
         ?\SplFileObject $body = null,
+        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxUploadAttachment'][0]
     ): Request {
 
@@ -15936,6 +18380,7 @@ class MailboxAPIApi
                 'Missing the required parameter $filename when calling mailboxUploadAttachment'
             );
         }
+
 
 
 
@@ -15954,6 +18399,15 @@ class MailboxAPIApi
             'form', // style
             true, // explode
             true // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
         ) ?? []);
 
 

@@ -9,6 +9,7 @@ from fastmcp import Client
 
 from sendmux_mcp.cli import parser, surfaces_from_args
 from sendmux_mcp.config import RetryConfig, ServerConfig
+from sendmux_mcp.curation import TOOLS_BY_SURFACE
 from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.server import create_server
 from sendmux_mcp.verification import structured_result
@@ -33,9 +34,9 @@ def test_toolsets_are_curated_and_key_split() -> None:
         management_names = {tool.name for tool in management_tools}
         sending_names = {tool.name for tool in sending_tools}
 
-        assert 10 <= len(mailbox_names) <= 20
-        assert 10 <= len(management_names) <= 20
-        assert sending_names == {"sending_send_email", "sending_send_email_batch"}
+        assert mailbox_names == {tool.name for tool in TOOLS_BY_SURFACE["mailbox"]}
+        assert management_names == {tool.name for tool in TOOLS_BY_SURFACE["management"]}
+        assert sending_names == {tool.name for tool in TOOLS_BY_SURFACE["sending"]}
 
         assert "mailbox_send_message" in mailbox_names
         assert "mailbox_list_messages" in mailbox_names

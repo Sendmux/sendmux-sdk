@@ -105,6 +105,53 @@ def test_proxy_transport_sends_operation_envelope_without_token_passthrough(
     asyncio.run(run())
 
 
+def test_proxy_transport_sends_mailbox_id_for_mailbox_tools(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def run() -> None:
+        captured: list[httpx.Request] = []
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            captured.append(request)
+            return httpx.Response(202, json={"ok": True}, request=request)
+
+        monkeypatch.setattr(
+            "sendmux_mcp.hosted_proxy.get_access_token",
+            lambda: AccessToken(
+                token="inbound-mcp-token",
+                client_id="mcp_client_public",
+                scopes=[],
+                claims={"grant_id": "mcp_grant_public"},
+            ),
+        )
+
+        config = ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test")
+        spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
+        manifest = build_hosted_operation_manifest(spec, "mailbox")
+        transport = HostedProxyTransport(
+            HostedProxyConfig(
+                proxy_url="https://app.sendmux.ai/api/internal/mcp/proxy",
+                upstream_base_url=config.api_base_url,
+            ),
+            manifest=manifest,
+            inner=httpx.MockTransport(handler),
+        )
+
+        response = await transport.handle_async_request(
+            httpx.Request(
+                "GET",
+                "https://app.sendmux.ai/api/v1/mailbox/messages?mailbox_id=mbx_granted&limit=1",
+            )
+        )
+
+        assert response.status_code == 202
+        envelope = json.loads((await captured[0].aread()).decode())
+        assert envelope["operation_id"] == "mailboxListMessages"
+        assert envelope["tool_name"] == "mailbox_list_messages"
+        assert envelope["mailbox_id"] == "mbx_granted"
+        assert envelope["query"] == "mailbox_id=mbx_granted&limit=1"
+
+    asyncio.run(run())
+
+
 def test_hosted_proxy_server_does_not_require_process_upstream_api_key() -> None:
     auth_provider = create_remote_auth_provider(
         HostedAuthConfig(

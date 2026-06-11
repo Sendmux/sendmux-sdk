@@ -29,6 +29,7 @@ def test_permission_lookup_returns_required_permissions_for_tool() -> None:
         "mailbox.read",
         "mailbox.settings.update",
     )
+    assert permissions_for_tool("mailbox_list_granted_mailboxes") == ("mailbox.read",)
     assert permissions_for_tool("management_create_domain") == ("domain.create",)
     assert permissions_for_tool("sending_send_email_batch") == ("email.send",)
 
@@ -44,6 +45,7 @@ def test_authorised_tools_are_filtered_per_surface() -> None:
 
     assert authorised_tool_names("mailbox", granted) == {
         "mailbox_get_me",
+        "mailbox_list_granted_mailboxes",
         "mailbox_get_session",
         "mailbox_get_identity",
         "mailbox_list_identities",

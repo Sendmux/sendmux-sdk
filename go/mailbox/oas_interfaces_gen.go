@@ -89,6 +89,10 @@ type MailboxListContentRes interface {
 	mailboxListContentRes()
 }
 
+type MailboxListGrantedMailboxesRes interface {
+	mailboxListGrantedMailboxesRes()
+}
+
 type MailboxListIdentitiesRes interface {
 	mailboxListIdentitiesRes()
 }

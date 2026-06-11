@@ -7,6 +7,7 @@ const composer = existsSync(join(root, "composer.phar")) ? "php composer.phar" :
 const packages = ["core", "sending", "mailbox", "management", "sdk"];
 
 checkGeneratedClientCorrections();
+checkGeneratedMailboxBodyParamOrder();
 
 runShell(`${composer} install --no-interaction --no-progress`);
 
@@ -53,6 +54,63 @@ function checkGeneratedClientCorrections() {
   }
 }
 
+function checkGeneratedMailboxBodyParamOrder() {
+  const filePath = join(root, "packages", "php", "mailbox", "src", "Api", "MailboxAPIApi.php");
+  const source = readFileSync(filePath, "utf8");
+  const operations = [
+    {
+      method: "mailboxBatchDeleteMessages",
+      bodyParam: "$batch_delete_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchDeleteMessagesWithHttpInfo",
+      bodyParam: "$batch_delete_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchDeleteMessagesAsync",
+      bodyParam: "$batch_delete_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchDeleteMessagesAsyncWithHttpInfo",
+      bodyParam: "$batch_delete_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchDeleteMessagesRequest",
+      bodyParam: "$batch_delete_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchUpdateMessages",
+      bodyParam: "$batch_update_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchUpdateMessagesWithHttpInfo",
+      bodyParam: "$batch_update_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchUpdateMessagesAsync",
+      bodyParam: "$batch_update_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchUpdateMessagesAsyncWithHttpInfo",
+      bodyParam: "$batch_update_mailbox_messages_body",
+    },
+    {
+      method: "mailboxBatchUpdateMessagesRequest",
+      bodyParam: "$batch_update_mailbox_messages_body",
+    },
+  ];
+
+  for (const operation of operations) {
+    assertOrder({
+      source,
+      filePath,
+      anchor: `function ${operation.method}(`,
+      first: operation.bodyParam,
+      second: "$mailbox_id",
+    });
+  }
+}
+
 function listPhpApiFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
@@ -65,4 +123,20 @@ function listPhpApiFiles(dir) {
 
 function countMatches(source, needle) {
   return source.split(needle).length - 1;
+}
+
+function assertOrder({ source, filePath, anchor, first, second }) {
+  const anchorIndex = source.indexOf(anchor);
+  if (anchorIndex === -1) {
+    throw new Error(`Missing generated PHP method ${anchor} in ${filePath}`);
+  }
+
+  const firstIndex = source.indexOf(first, anchorIndex);
+  const secondIndex = source.indexOf(second, anchorIndex);
+  if (firstIndex === -1 || secondIndex === -1) {
+    throw new Error(`Generated PHP method ${anchor} is missing ${first} or ${second} in ${filePath}`);
+  }
+  if (secondIndex < firstIndex) {
+    throw new Error(`Generated PHP method ${anchor} places ${second} before ${first} in ${filePath}`);
+  }
 }

@@ -286,28 +286,41 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 'm': // Prefix: "me"
+			case 'm': // Prefix: "m"
 
-				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
+				if l := len("m"); len(elem) >= l && elem[0:l] == "m" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleMailboxGetMeRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case 's': // Prefix: "ssages"
+				case 'a': // Prefix: "ailboxes"
 
-					if l := len("ssages"); len(elem) >= l && elem[0:l] == "ssages" {
+					if l := len("ailboxes"); len(elem) >= l && elem[0:l] == "ailboxes" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleMailboxListGrantedMailboxesRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+				case 'e': // Prefix: "e"
+
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
 						elem = elem[l:]
 					} else {
 						break
@@ -316,7 +329,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					if len(elem) == 0 {
 						switch r.Method {
 						case "GET":
-							s.handleMailboxListMessagesRequest([0]string{}, elemIsEscaped, w, r)
+							s.handleMailboxGetMeRequest([0]string{}, elemIsEscaped, w, r)
 						default:
 							s.notAllowed(w, r, "GET")
 						}
@@ -324,141 +337,20 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case 's': // Prefix: "ssages"
 
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("ssages"); len(elem) >= l && elem[0:l] == "ssages" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "count"
-							origElem := elem
-							if l := len("count"); len(elem) >= l && elem[0:l] == "count" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleMailboxCountMessagesRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-
-							elem = origElem
-						case 'q': // Prefix: "query-changes"
-							origElem := elem
-							if l := len("query-changes"); len(elem) >= l && elem[0:l] == "query-changes" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleMailboxQueryMessageChangesRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-
-							elem = origElem
-						case 's': // Prefix: "se"
-							origElem := elem
-							if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								break
-							}
-							switch elem[0] {
-							case 'a': // Prefix: "arch-snippets"
-
-								if l := len("arch-snippets"); len(elem) >= l && elem[0:l] == "arch-snippets" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleMailboxSearchMessageSnippetsRequest([0]string{}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-
-							case 'n': // Prefix: "nd"
-
-								if l := len("nd"); len(elem) >= l && elem[0:l] == "nd" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "POST":
-										s.handleMailboxSendMessageRequest([0]string{}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "POST")
-									}
-
-									return
-								}
-
-							}
-
-							elem = origElem
-						}
-						// Param: "message_id"
-						// Match until "/"
-						idx := strings.IndexByte(elem, '/')
-						if idx < 0 {
-							idx = len(elem)
-						}
-						args[0] = elem[:idx]
-						elem = elem[idx:]
-
-						if len(elem) == 0 {
 							switch r.Method {
-							case "DELETE":
-								s.handleMailboxDeleteMessageRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
 							case "GET":
-								s.handleMailboxGetMessageRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							case "PATCH":
-								s.handleMailboxUpdateMessageRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
+								s.handleMailboxListMessagesRequest([0]string{}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "DELETE,GET,PATCH")
+								s.notAllowed(w, r, "GET")
 							}
 
 							return
@@ -476,41 +368,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
-							case 'a': // Prefix: "attachments/"
-
-								if l := len("attachments/"); len(elem) >= l && elem[0:l] == "attachments/" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								// Param: "attachment_id"
-								// Leaf parameter, slashes are prohibited
-								idx := strings.IndexByte(elem, '/')
-								if idx >= 0 {
-									break
-								}
-								args[1] = elem
-								elem = ""
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleMailboxGetMessageAttachmentRequest([2]string{
-											args[0],
-											args[1],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-
-							case 'b': // Prefix: "body"
-
-								if l := len("body"); len(elem) >= l && elem[0:l] == "body" {
+							case 'c': // Prefix: "count"
+								origElem := elem
+								if l := len("count"); len(elem) >= l && elem[0:l] == "count" {
 									elem = elem[l:]
 								} else {
 									break
@@ -520,9 +380,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleMailboxListBodyRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
+										s.handleMailboxCountMessagesRequest([0]string{}, elemIsEscaped, w, r)
 									default:
 										s.notAllowed(w, r, "GET")
 									}
@@ -530,9 +388,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									return
 								}
 
-							case 'c': // Prefix: "content"
-
-								if l := len("content"); len(elem) >= l && elem[0:l] == "content" {
+								elem = origElem
+							case 'q': // Prefix: "query-changes"
+								origElem := elem
+								if l := len("query-changes"); len(elem) >= l && elem[0:l] == "query-changes" {
 									elem = elem[l:]
 								} else {
 									break
@@ -542,9 +401,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleMailboxListContentRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
+										s.handleMailboxQueryMessageChangesRequest([0]string{}, elemIsEscaped, w, r)
 									default:
 										s.notAllowed(w, r, "GET")
 									}
@@ -552,80 +409,257 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									return
 								}
 
+								elem = origElem
+							case 's': // Prefix: "se"
+								origElem := elem
+								if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'a': // Prefix: "arch-snippets"
+
+									if l := len("arch-snippets"); len(elem) >= l && elem[0:l] == "arch-snippets" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleMailboxSearchMessageSnippetsRequest([0]string{}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								case 'n': // Prefix: "nd"
+
+									if l := len("nd"); len(elem) >= l && elem[0:l] == "nd" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleMailboxSendMessageRequest([0]string{}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
+								}
+
+								elem = origElem
+							}
+							// Param: "message_id"
+							// Match until "/"
+							idx := strings.IndexByte(elem, '/')
+							if idx < 0 {
+								idx = len(elem)
+							}
+							args[0] = elem[:idx]
+							elem = elem[idx:]
+
+							if len(elem) == 0 {
+								switch r.Method {
+								case "DELETE":
+									s.handleMailboxDeleteMessageRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								case "GET":
+									s.handleMailboxGetMessageRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								case "PATCH":
+									s.handleMailboxUpdateMessageRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "DELETE,GET,PATCH")
+								}
+
+								return
+							}
+							switch elem[0] {
+							case '/': // Prefix: "/"
+
+								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'a': // Prefix: "attachments/"
+
+									if l := len("attachments/"); len(elem) >= l && elem[0:l] == "attachments/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "attachment_id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleMailboxGetMessageAttachmentRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								case 'b': // Prefix: "body"
+
+									if l := len("body"); len(elem) >= l && elem[0:l] == "body" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleMailboxListBodyRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								case 'c': // Prefix: "content"
+
+									if l := len("content"); len(elem) >= l && elem[0:l] == "content" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleMailboxListContentRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								}
+
 							}
 
-						}
+						case ':': // Prefix: ":batch-"
 
-					case ':': // Prefix: ":batch-"
-
-						if l := len(":batch-"); len(elem) >= l && elem[0:l] == ":batch-" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'd': // Prefix: "delete"
-
-							if l := len("delete"); len(elem) >= l && elem[0:l] == "delete" {
+							if l := len(":batch-"); len(elem) >= l && elem[0:l] == ":batch-" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleMailboxBatchDeleteMessagesRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
-								}
-
-								return
-							}
-
-						case 'g': // Prefix: "get"
-
-							if l := len("get"); len(elem) >= l && elem[0:l] == "get" {
-								elem = elem[l:]
-							} else {
 								break
 							}
+							switch elem[0] {
+							case 'd': // Prefix: "delete"
 
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleMailboxBatchGetMessagesRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
+								if l := len("delete"); len(elem) >= l && elem[0:l] == "delete" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
-							}
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleMailboxBatchDeleteMessagesRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
 
-						case 'u': // Prefix: "update"
-
-							if l := len("update"); len(elem) >= l && elem[0:l] == "update" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleMailboxBatchUpdateMessagesRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
+									return
 								}
 
-								return
+							case 'g': // Prefix: "get"
+
+								if l := len("get"); len(elem) >= l && elem[0:l] == "get" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleMailboxBatchGetMessagesRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 'u': // Prefix: "update"
+
+								if l := len("update"); len(elem) >= l && elem[0:l] == "update" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleMailboxBatchUpdateMessagesRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
 							}
 
 						}
@@ -1291,32 +1325,45 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 'm': // Prefix: "me"
+			case 'm': // Prefix: "m"
 
-				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
+				if l := len("m"); len(elem) >= l && elem[0:l] == "m" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = MailboxGetMeOperation
-						r.summary = "Self-introspect the calling mailbox"
-						r.operationID = "mailboxGetMe"
-						r.pathPattern = "/mailbox/me"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case 's': // Prefix: "ssages"
+				case 'a': // Prefix: "ailboxes"
 
-					if l := len("ssages"); len(elem) >= l && elem[0:l] == "ssages" {
+					if l := len("ailboxes"); len(elem) >= l && elem[0:l] == "ailboxes" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = MailboxListGrantedMailboxesOperation
+							r.summary = "List granted mailboxes"
+							r.operationID = "mailboxListGrantedMailboxes"
+							r.pathPattern = "/mailbox/mailboxes"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'e': // Prefix: "e"
+
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
 						elem = elem[l:]
 					} else {
 						break
@@ -1325,10 +1372,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					if len(elem) == 0 {
 						switch method {
 						case "GET":
-							r.name = MailboxListMessagesOperation
-							r.summary = "List mailbox messages"
-							r.operationID = "mailboxListMessages"
-							r.pathPattern = "/mailbox/messages"
+							r.name = MailboxGetMeOperation
+							r.summary = "Self-introspect the calling mailbox"
+							r.operationID = "mailboxGetMe"
+							r.pathPattern = "/mailbox/me"
 							r.args = args
 							r.count = 0
 							return r, true
@@ -1337,166 +1384,23 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case 's': // Prefix: "ssages"
 
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("ssages"); len(elem) >= l && elem[0:l] == "ssages" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "count"
-							origElem := elem
-							if l := len("count"); len(elem) >= l && elem[0:l] == "count" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = MailboxCountMessagesOperation
-									r.summary = "Count mailbox messages"
-									r.operationID = "mailboxCountMessages"
-									r.pathPattern = "/mailbox/messages/count"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
-								}
-							}
-
-							elem = origElem
-						case 'q': // Prefix: "query-changes"
-							origElem := elem
-							if l := len("query-changes"); len(elem) >= l && elem[0:l] == "query-changes" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = MailboxQueryMessageChangesOperation
-									r.summary = "Get message query changes"
-									r.operationID = "mailboxQueryMessageChanges"
-									r.pathPattern = "/mailbox/messages/query-changes"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
-								}
-							}
-
-							elem = origElem
-						case 's': // Prefix: "se"
-							origElem := elem
-							if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								break
-							}
-							switch elem[0] {
-							case 'a': // Prefix: "arch-snippets"
-
-								if l := len("arch-snippets"); len(elem) >= l && elem[0:l] == "arch-snippets" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "GET":
-										r.name = MailboxSearchMessageSnippetsOperation
-										r.summary = "Get message search snippets"
-										r.operationID = "mailboxSearchMessageSnippets"
-										r.pathPattern = "/mailbox/messages/search-snippets"
-										r.args = args
-										r.count = 0
-										return r, true
-									default:
-										return
-									}
-								}
-
-							case 'n': // Prefix: "nd"
-
-								if l := len("nd"); len(elem) >= l && elem[0:l] == "nd" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "POST":
-										r.name = MailboxSendMessageOperation
-										r.summary = "Send a mailbox message"
-										r.operationID = "mailboxSendMessage"
-										r.pathPattern = "/mailbox/messages/send"
-										r.args = args
-										r.count = 0
-										return r, true
-									default:
-										return
-									}
-								}
-
-							}
-
-							elem = origElem
-						}
-						// Param: "message_id"
-						// Match until "/"
-						idx := strings.IndexByte(elem, '/')
-						if idx < 0 {
-							idx = len(elem)
-						}
-						args[0] = elem[:idx]
-						elem = elem[idx:]
-
-						if len(elem) == 0 {
 							switch method {
-							case "DELETE":
-								r.name = MailboxDeleteMessageOperation
-								r.summary = "Delete a mailbox message"
-								r.operationID = "mailboxDeleteMessage"
-								r.pathPattern = "/mailbox/messages/{message_id}"
-								r.args = args
-								r.count = 1
-								return r, true
 							case "GET":
-								r.name = MailboxGetMessageOperation
-								r.summary = "Get a mailbox message"
-								r.operationID = "mailboxGetMessage"
-								r.pathPattern = "/mailbox/messages/{message_id}"
+								r.name = MailboxListMessagesOperation
+								r.summary = "List mailbox messages"
+								r.operationID = "mailboxListMessages"
+								r.pathPattern = "/mailbox/messages"
 								r.args = args
-								r.count = 1
-								return r, true
-							case "PATCH":
-								r.name = MailboxUpdateMessageOperation
-								r.summary = "Update mailbox message flags"
-								r.operationID = "mailboxUpdateMessage"
-								r.pathPattern = "/mailbox/messages/{message_id}"
-								r.args = args
-								r.count = 1
+								r.count = 0
 								return r, true
 							default:
 								return
@@ -1515,42 +1419,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
-							case 'a': // Prefix: "attachments/"
-
-								if l := len("attachments/"); len(elem) >= l && elem[0:l] == "attachments/" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								// Param: "attachment_id"
-								// Leaf parameter, slashes are prohibited
-								idx := strings.IndexByte(elem, '/')
-								if idx >= 0 {
-									break
-								}
-								args[1] = elem
-								elem = ""
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "GET":
-										r.name = MailboxGetMessageAttachmentOperation
-										r.summary = "Download a message attachment"
-										r.operationID = "mailboxGetMessageAttachment"
-										r.pathPattern = "/mailbox/messages/{message_id}/attachments/{attachment_id}"
-										r.args = args
-										r.count = 2
-										return r, true
-									default:
-										return
-									}
-								}
-
-							case 'b': // Prefix: "body"
-
-								if l := len("body"); len(elem) >= l && elem[0:l] == "body" {
+							case 'c': // Prefix: "count"
+								origElem := elem
+								if l := len("count"); len(elem) >= l && elem[0:l] == "count" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1560,21 +1431,22 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									// Leaf node.
 									switch method {
 									case "GET":
-										r.name = MailboxListBodyOperation
-										r.summary = "Get raw message body"
-										r.operationID = "mailboxListBody"
-										r.pathPattern = "/mailbox/messages/{message_id}/body"
+										r.name = MailboxCountMessagesOperation
+										r.summary = "Count mailbox messages"
+										r.operationID = "mailboxCountMessages"
+										r.pathPattern = "/mailbox/messages/count"
 										r.args = args
-										r.count = 1
+										r.count = 0
 										return r, true
 									default:
 										return
 									}
 								}
 
-							case 'c': // Prefix: "content"
-
-								if l := len("content"); len(elem) >= l && elem[0:l] == "content" {
+								elem = origElem
+							case 'q': // Prefix: "query-changes"
+								origElem := elem
+								if l := len("query-changes"); len(elem) >= l && elem[0:l] == "query-changes" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1584,104 +1456,304 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									// Leaf node.
 									switch method {
 									case "GET":
-										r.name = MailboxListContentOperation
-										r.summary = "Get clean message content"
-										r.operationID = "mailboxListContent"
-										r.pathPattern = "/mailbox/messages/{message_id}/content"
+										r.name = MailboxQueryMessageChangesOperation
+										r.summary = "Get message query changes"
+										r.operationID = "mailboxQueryMessageChanges"
+										r.pathPattern = "/mailbox/messages/query-changes"
 										r.args = args
-										r.count = 1
+										r.count = 0
 										return r, true
 									default:
 										return
 									}
 								}
 
+								elem = origElem
+							case 's': // Prefix: "se"
+								origElem := elem
+								if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'a': // Prefix: "arch-snippets"
+
+									if l := len("arch-snippets"); len(elem) >= l && elem[0:l] == "arch-snippets" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = MailboxSearchMessageSnippetsOperation
+											r.summary = "Get message search snippets"
+											r.operationID = "mailboxSearchMessageSnippets"
+											r.pathPattern = "/mailbox/messages/search-snippets"
+											r.args = args
+											r.count = 0
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'n': // Prefix: "nd"
+
+									if l := len("nd"); len(elem) >= l && elem[0:l] == "nd" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = MailboxSendMessageOperation
+											r.summary = "Send a mailbox message"
+											r.operationID = "mailboxSendMessage"
+											r.pathPattern = "/mailbox/messages/send"
+											r.args = args
+											r.count = 0
+											return r, true
+										default:
+											return
+										}
+									}
+
+								}
+
+								elem = origElem
+							}
+							// Param: "message_id"
+							// Match until "/"
+							idx := strings.IndexByte(elem, '/')
+							if idx < 0 {
+								idx = len(elem)
+							}
+							args[0] = elem[:idx]
+							elem = elem[idx:]
+
+							if len(elem) == 0 {
+								switch method {
+								case "DELETE":
+									r.name = MailboxDeleteMessageOperation
+									r.summary = "Delete a mailbox message"
+									r.operationID = "mailboxDeleteMessage"
+									r.pathPattern = "/mailbox/messages/{message_id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								case "GET":
+									r.name = MailboxGetMessageOperation
+									r.summary = "Get a mailbox message"
+									r.operationID = "mailboxGetMessage"
+									r.pathPattern = "/mailbox/messages/{message_id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								case "PATCH":
+									r.name = MailboxUpdateMessageOperation
+									r.summary = "Update mailbox message flags"
+									r.operationID = "mailboxUpdateMessage"
+									r.pathPattern = "/mailbox/messages/{message_id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+							switch elem[0] {
+							case '/': // Prefix: "/"
+
+								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'a': // Prefix: "attachments/"
+
+									if l := len("attachments/"); len(elem) >= l && elem[0:l] == "attachments/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "attachment_id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = MailboxGetMessageAttachmentOperation
+											r.summary = "Download a message attachment"
+											r.operationID = "mailboxGetMessageAttachment"
+											r.pathPattern = "/mailbox/messages/{message_id}/attachments/{attachment_id}"
+											r.args = args
+											r.count = 2
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'b': // Prefix: "body"
+
+									if l := len("body"); len(elem) >= l && elem[0:l] == "body" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = MailboxListBodyOperation
+											r.summary = "Get raw message body"
+											r.operationID = "mailboxListBody"
+											r.pathPattern = "/mailbox/messages/{message_id}/body"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'c': // Prefix: "content"
+
+									if l := len("content"); len(elem) >= l && elem[0:l] == "content" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = MailboxListContentOperation
+											r.summary = "Get clean message content"
+											r.operationID = "mailboxListContent"
+											r.pathPattern = "/mailbox/messages/{message_id}/content"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								}
+
 							}
 
-						}
+						case ':': // Prefix: ":batch-"
 
-					case ':': // Prefix: ":batch-"
-
-						if l := len(":batch-"); len(elem) >= l && elem[0:l] == ":batch-" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'd': // Prefix: "delete"
-
-							if l := len("delete"); len(elem) >= l && elem[0:l] == "delete" {
+							if l := len(":batch-"); len(elem) >= l && elem[0:l] == ":batch-" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = MailboxBatchDeleteMessagesOperation
-									r.summary = "Batch delete mailbox messages"
-									r.operationID = "mailboxBatchDeleteMessages"
-									r.pathPattern = "/mailbox/messages:batch-delete"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
-								}
-							}
-
-						case 'g': // Prefix: "get"
-
-							if l := len("get"); len(elem) >= l && elem[0:l] == "get" {
-								elem = elem[l:]
-							} else {
 								break
 							}
+							switch elem[0] {
+							case 'd': // Prefix: "delete"
 
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = MailboxBatchGetMessagesOperation
-									r.summary = "Batch get mailbox messages"
-									r.operationID = "mailboxBatchGetMessages"
-									r.pathPattern = "/mailbox/messages:batch-get"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
+								if l := len("delete"); len(elem) >= l && elem[0:l] == "delete" {
+									elem = elem[l:]
+								} else {
+									break
 								}
-							}
 
-						case 'u': // Prefix: "update"
-
-							if l := len("update"); len(elem) >= l && elem[0:l] == "update" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = MailboxBatchUpdateMessagesOperation
-									r.summary = "Batch update mailbox messages"
-									r.operationID = "mailboxBatchUpdateMessages"
-									r.pathPattern = "/mailbox/messages:batch-update"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = MailboxBatchDeleteMessagesOperation
+										r.summary = "Batch delete mailbox messages"
+										r.operationID = "mailboxBatchDeleteMessages"
+										r.pathPattern = "/mailbox/messages:batch-delete"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
 								}
+
+							case 'g': // Prefix: "get"
+
+								if l := len("get"); len(elem) >= l && elem[0:l] == "get" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = MailboxBatchGetMessagesOperation
+										r.summary = "Batch get mailbox messages"
+										r.operationID = "mailboxBatchGetMessages"
+										r.pathPattern = "/mailbox/messages:batch-get"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'u': // Prefix: "update"
+
+								if l := len("update"); len(elem) >= l && elem[0:l] == "update" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = MailboxBatchUpdateMessagesOperation
+										r.summary = "Batch update mailbox messages"
+										r.operationID = "mailboxBatchUpdateMessages"
+										r.pathPattern = "/mailbox/messages:batch-update"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
 							}
 
 						}

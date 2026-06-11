@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "python-codegen");
+const templateDir = join(root, "codegen", "templates", "python");
 
 const surfaces = [
   {
@@ -57,6 +58,8 @@ for (const surface of surfaces) {
     inputSpec,
     "-o",
     generatedRoot,
+    "-t",
+    templateDir,
     `--additional-properties=packageName=${surface.packageName},projectName=${surface.projectName},packageVersion=1.0.0,generateSourceCodeOnly=true,hideGenerationTimestamp=true`,
     "--global-property=models,supportingFiles,apis,apiTests=false,modelTests=false,apiDocs=false,modelDocs=false",
   ]);
@@ -93,8 +96,27 @@ function writeFilteredSpec(surface) {
   }
 
   const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
-  writeFileSync(outputPath, `${JSON.stringify(pruneComponents({ ...source, paths }), null, 2)}\n`);
+  writeFileSync(outputPath, `${JSON.stringify(markTrailingSdkParams(pruneComponents({ ...source, paths })), null, 2)}\n`);
   return outputPath;
+}
+
+function markTrailingSdkParams(document) {
+  for (const pathItem of Object.values(document.paths ?? {})) {
+    for (const [method, operation] of Object.entries(pathItem ?? {})) {
+      if (!["get", "post", "put", "patch", "delete", "head", "options"].includes(method)) {
+        continue;
+      }
+      if (!operation?.requestBody) {
+        continue;
+      }
+      for (const parameter of operation.parameters ?? []) {
+        if (parameter?.name === "mailbox_id" && parameter.in === "query") {
+          parameter["x-sendmux-trailing-sdk-param"] = true;
+        }
+      }
+    }
+  }
+  return document;
 }
 
 function pruneComponents(document) {

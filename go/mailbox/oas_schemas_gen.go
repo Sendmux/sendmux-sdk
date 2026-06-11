@@ -526,6 +526,136 @@ func (s *CursorPagination) SetNextCursor(val OptString) {
 	s.NextCursor = val
 }
 
+// Ref: #/components/schemas/GrantedMailbox
+type GrantedMailbox struct {
+	// Mailbox email address.
+	Email string `json:"email"`
+	// Mailbox public ID.
+	ID string `json:"id"`
+}
+
+// GetEmail returns the value of Email.
+func (s *GrantedMailbox) GetEmail() string {
+	return s.Email
+}
+
+// GetID returns the value of ID.
+func (s *GrantedMailbox) GetID() string {
+	return s.ID
+}
+
+// SetEmail sets the value of Email.
+func (s *GrantedMailbox) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetID sets the value of ID.
+func (s *GrantedMailbox) SetID(val string) {
+	s.ID = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/GrantedMailboxListResponse
+type GrantedMailboxListResponse struct {
+	// Merged property.
+	Meta       GrantedMailboxListResponseMeta `json:"meta"`
+	Ok         GrantedMailboxListResponseOk   `json:"ok"`
+	Data       []GrantedMailbox               `json:"data"`
+	Pagination CursorPagination               `json:"pagination"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *GrantedMailboxListResponse) GetMeta() GrantedMailboxListResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *GrantedMailboxListResponse) GetOk() GrantedMailboxListResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *GrantedMailboxListResponse) GetData() []GrantedMailbox {
+	return s.Data
+}
+
+// GetPagination returns the value of Pagination.
+func (s *GrantedMailboxListResponse) GetPagination() CursorPagination {
+	return s.Pagination
+}
+
+// SetMeta sets the value of Meta.
+func (s *GrantedMailboxListResponse) SetMeta(val GrantedMailboxListResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *GrantedMailboxListResponse) SetOk(val GrantedMailboxListResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *GrantedMailboxListResponse) SetData(val []GrantedMailbox) {
+	s.Data = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *GrantedMailboxListResponse) SetPagination(val CursorPagination) {
+	s.Pagination = val
+}
+
+func (*GrantedMailboxListResponse) mailboxListGrantedMailboxesRes() {}
+
+// Merged schema.
+type GrantedMailboxListResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps GrantedMailboxListResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *GrantedMailboxListResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *GrantedMailboxListResponseMeta) GetAdditionalProps() GrantedMailboxListResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *GrantedMailboxListResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *GrantedMailboxListResponseMeta) SetAdditionalProps(val GrantedMailboxListResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type GrantedMailboxListResponseMetaAdditional map[string]jx.Raw
+
+func (s *GrantedMailboxListResponseMetaAdditional) init() GrantedMailboxListResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type GrantedMailboxListResponseOk bool
+
+const (
+	GrantedMailboxListResponseOkTrue GrantedMailboxListResponseOk = true
+)
+
+// AllValues returns all GrantedMailboxListResponseOk values.
+func (GrantedMailboxListResponseOk) AllValues() []GrantedMailboxListResponseOk {
+	return []GrantedMailboxListResponseOk{
+		GrantedMailboxListResponseOkTrue,
+	}
+}
+
 // Ref: #/components/schemas/MailboxAddress
 type MailboxAddress struct {
 	Email string    `json:"email"`
@@ -3461,6 +3591,14 @@ func (s *MailboxListContentPart) UnmarshalText(data []byte) error {
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+type MailboxListGrantedMailboxesForbidden ApiError
+
+func (*MailboxListGrantedMailboxesForbidden) mailboxListGrantedMailboxesRes() {}
+
+type MailboxListGrantedMailboxesUnauthorized ApiError
+
+func (*MailboxListGrantedMailboxesUnauthorized) mailboxListGrantedMailboxesRes() {}
 
 type MailboxListIdentitiesBadRequest ApiError
 

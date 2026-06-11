@@ -142,7 +142,10 @@ class MetaApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['sendingGetOpenApiSpec'][0]
     ): ?array {
-        list($response) = $this->sendingGetOpenApiSpecWithHttpInfo($if_none_match, $contentType);
+        list($response) = $this->sendingGetOpenApiSpecWithHttpInfo(
+            $if_none_match,
+            $contentType
+        );
         return $response;
     }
 
@@ -162,7 +165,10 @@ class MetaApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['sendingGetOpenApiSpec'][0]
     ): array {
-        $request = $this->sendingGetOpenApiSpecRequest($if_none_match, $contentType);
+        $request = $this->sendingGetOpenApiSpecRequest(
+            $if_none_match,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -247,7 +253,10 @@ class MetaApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['sendingGetOpenApiSpec'][0]
     ): PromiseInterface {
-        return $this->sendingGetOpenApiSpecAsyncWithHttpInfo($if_none_match, $contentType)
+        return $this->sendingGetOpenApiSpecAsyncWithHttpInfo(
+            $if_none_match,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -271,7 +280,10 @@ class MetaApi
         string $contentType = self::contentTypes['sendingGetOpenApiSpec'][0]
     ): PromiseInterface {
         $returnType = 'array<string,mixed>';
-        $request = $this->sendingGetOpenApiSpecRequest($if_none_match, $contentType);
+        $request = $this->sendingGetOpenApiSpecRequest(
+            $if_none_match,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())

@@ -168,7 +168,11 @@ class WebhooksApi
         ?\Sendmux\Management\Model\WebhookCreateBody $webhook_create_body = null,
         string $contentType = self::contentTypes['managementCreateWebhook'][0]
     ): \Sendmux\Management\Model\WebhookSubscriptionWithSecretResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementCreateWebhookWithHttpInfo($idempotency_key, $webhook_create_body, $contentType);
+        list($response) = $this->managementCreateWebhookWithHttpInfo(
+            $idempotency_key,
+            $webhook_create_body,
+            $contentType
+        );
         return $response;
     }
 
@@ -177,8 +181,8 @@ class WebhooksApi
      *
      * Create a webhook subscription
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body webhook_create_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateWebhook'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -190,7 +194,11 @@ class WebhooksApi
         ?\Sendmux\Management\Model\WebhookCreateBody $webhook_create_body = null,
         string $contentType = self::contentTypes['managementCreateWebhook'][0]
     ): array {
-        $request = $this->managementCreateWebhookRequest($idempotency_key, $webhook_create_body, $contentType);
+        $request = $this->managementCreateWebhookRequest(
+            $idempotency_key,
+            $webhook_create_body,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -333,8 +341,8 @@ class WebhooksApi
      *
      * Create a webhook subscription
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body webhook_create_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -345,7 +353,11 @@ class WebhooksApi
         ?\Sendmux\Management\Model\WebhookCreateBody $webhook_create_body = null,
         string $contentType = self::contentTypes['managementCreateWebhook'][0]
     ): PromiseInterface {
-        return $this->managementCreateWebhookAsyncWithHttpInfo($idempotency_key, $webhook_create_body, $contentType)
+        return $this->managementCreateWebhookAsyncWithHttpInfo(
+            $idempotency_key,
+            $webhook_create_body,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -358,8 +370,8 @@ class WebhooksApi
      *
      * Create a webhook subscription
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body webhook_create_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -371,7 +383,11 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementCreateWebhook'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookSubscriptionWithSecretResponse';
-        $request = $this->managementCreateWebhookRequest($idempotency_key, $webhook_create_body, $contentType);
+        $request = $this->managementCreateWebhookRequest(
+            $idempotency_key,
+            $webhook_create_body,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -428,8 +444,8 @@ class WebhooksApi
     /**
      * Create request for operation 'managementCreateWebhook'
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\WebhookCreateBody|null $webhook_create_body webhook_create_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -541,7 +557,10 @@ class WebhooksApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteWebhook'][0]
     ): \Sendmux\Management\Model\WebhookDeletedResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementDeleteWebhookWithHttpInfo($public_id, $contentType);
+        list($response) = $this->managementDeleteWebhookWithHttpInfo(
+            $public_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -550,7 +569,7 @@ class WebhooksApi
      *
      * Delete a webhook subscription
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteWebhook'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -561,7 +580,10 @@ class WebhooksApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteWebhook'][0]
     ): array {
-        $request = $this->managementDeleteWebhookRequest($public_id, $contentType);
+        $request = $this->managementDeleteWebhookRequest(
+            $public_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -648,7 +670,7 @@ class WebhooksApi
      *
      * Delete a webhook subscription
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -658,7 +680,10 @@ class WebhooksApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteWebhook'][0]
     ): PromiseInterface {
-        return $this->managementDeleteWebhookAsyncWithHttpInfo($public_id, $contentType)
+        return $this->managementDeleteWebhookAsyncWithHttpInfo(
+            $public_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -671,7 +696,7 @@ class WebhooksApi
      *
      * Delete a webhook subscription
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -682,7 +707,10 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementDeleteWebhook'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookDeletedResponse';
-        $request = $this->managementDeleteWebhookRequest($public_id, $contentType);
+        $request = $this->managementDeleteWebhookRequest(
+            $public_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -739,7 +767,7 @@ class WebhooksApi
     /**
      * Create request for operation 'managementDeleteWebhook'
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -851,7 +879,11 @@ class WebhooksApi
         string $delivery_id,
         string $contentType = self::contentTypes['managementGetDeliveryPayload'][0]
     ): \Sendmux\Management\Model\WebhookDeliveryPayloadResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementGetDeliveryPayloadWithHttpInfo($public_id, $delivery_id, $contentType);
+        list($response) = $this->managementGetDeliveryPayloadWithHttpInfo(
+            $public_id,
+            $delivery_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -860,8 +892,8 @@ class WebhooksApi
      *
      * Get a webhook delivery payload
      *
-     * @param  string $public_id (required)
-     * @param  string $delivery_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $delivery_id delivery_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDeliveryPayload'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -873,7 +905,11 @@ class WebhooksApi
         string $delivery_id,
         string $contentType = self::contentTypes['managementGetDeliveryPayload'][0]
     ): array {
-        $request = $this->managementGetDeliveryPayloadRequest($public_id, $delivery_id, $contentType);
+        $request = $this->managementGetDeliveryPayloadRequest(
+            $public_id,
+            $delivery_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -988,8 +1024,8 @@ class WebhooksApi
      *
      * Get a webhook delivery payload
      *
-     * @param  string $public_id (required)
-     * @param  string $delivery_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $delivery_id delivery_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDeliveryPayload'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1000,7 +1036,11 @@ class WebhooksApi
         string $delivery_id,
         string $contentType = self::contentTypes['managementGetDeliveryPayload'][0]
     ): PromiseInterface {
-        return $this->managementGetDeliveryPayloadAsyncWithHttpInfo($public_id, $delivery_id, $contentType)
+        return $this->managementGetDeliveryPayloadAsyncWithHttpInfo(
+            $public_id,
+            $delivery_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1013,8 +1053,8 @@ class WebhooksApi
      *
      * Get a webhook delivery payload
      *
-     * @param  string $public_id (required)
-     * @param  string $delivery_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $delivery_id delivery_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDeliveryPayload'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1026,7 +1066,11 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementGetDeliveryPayload'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookDeliveryPayloadResponse';
-        $request = $this->managementGetDeliveryPayloadRequest($public_id, $delivery_id, $contentType);
+        $request = $this->managementGetDeliveryPayloadRequest(
+            $public_id,
+            $delivery_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1083,8 +1127,8 @@ class WebhooksApi
     /**
      * Create request for operation 'managementGetDeliveryPayload'
      *
-     * @param  string $public_id (required)
-     * @param  string $delivery_id (required)
+     * @param  string $public_id public_id (required)
+     * @param  string $delivery_id delivery_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDeliveryPayload'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1212,7 +1256,11 @@ class WebhooksApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetWebhook'][0]
     ): \Sendmux\Management\Model\WebhookSubscriptionResponse|\Sendmux\Management\Model\ApiError|null {
-        list($response) = $this->managementGetWebhookWithHttpInfo($public_id, $if_none_match, $contentType);
+        list($response) = $this->managementGetWebhookWithHttpInfo(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
         return $response;
     }
 
@@ -1221,8 +1269,8 @@ class WebhooksApi
      *
      * Get a webhook subscription
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetWebhook'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1234,7 +1282,11 @@ class WebhooksApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetWebhook'][0]
     ): array {
-        $request = $this->managementGetWebhookRequest($public_id, $if_none_match, $contentType);
+        $request = $this->managementGetWebhookRequest(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1323,8 +1375,8 @@ class WebhooksApi
      *
      * Get a webhook subscription
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1335,7 +1387,11 @@ class WebhooksApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetWebhook'][0]
     ): PromiseInterface {
-        return $this->managementGetWebhookAsyncWithHttpInfo($public_id, $if_none_match, $contentType)
+        return $this->managementGetWebhookAsyncWithHttpInfo(
+            $public_id,
+            $if_none_match,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1348,8 +1404,8 @@ class WebhooksApi
      *
      * Get a webhook subscription
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1361,7 +1417,11 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementGetWebhook'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookSubscriptionResponse';
-        $request = $this->managementGetWebhookRequest($public_id, $if_none_match, $contentType);
+        $request = $this->managementGetWebhookRequest(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1422,8 +1482,8 @@ class WebhooksApi
     /**
      * Create request for operation 'managementGetWebhook'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1547,7 +1607,14 @@ class WebhooksApi
         ?string $result = null,
         string $contentType = self::contentTypes['managementListDelivery'][0]
     ): \Sendmux\Management\Model\WebhookDeliveryAttemptCursorListResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementListDeliveryWithHttpInfo($public_id, $cursor, $limit, $event_type, $result, $contentType);
+        list($response) = $this->managementListDeliveryWithHttpInfo(
+            $public_id,
+            $cursor,
+            $limit,
+            $event_type,
+            $result,
+            $contentType
+        );
         return $response;
     }
 
@@ -1556,11 +1623,11 @@ class WebhooksApi
      *
      * List webhook delivery attempts
      *
-     * @param  string $public_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $event_type (optional)
-     * @param  string|null $result (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $event_type event_type (optional)
+     * @param  string|null $result result (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDelivery'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1575,7 +1642,14 @@ class WebhooksApi
         ?string $result = null,
         string $contentType = self::contentTypes['managementListDelivery'][0]
     ): array {
-        $request = $this->managementListDeliveryRequest($public_id, $cursor, $limit, $event_type, $result, $contentType);
+        $request = $this->managementListDeliveryRequest(
+            $public_id,
+            $cursor,
+            $limit,
+            $event_type,
+            $result,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1704,11 +1778,11 @@ class WebhooksApi
      *
      * List webhook delivery attempts
      *
-     * @param  string $public_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $event_type (optional)
-     * @param  string|null $result (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $event_type event_type (optional)
+     * @param  string|null $result result (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDelivery'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1722,7 +1796,14 @@ class WebhooksApi
         ?string $result = null,
         string $contentType = self::contentTypes['managementListDelivery'][0]
     ): PromiseInterface {
-        return $this->managementListDeliveryAsyncWithHttpInfo($public_id, $cursor, $limit, $event_type, $result, $contentType)
+        return $this->managementListDeliveryAsyncWithHttpInfo(
+            $public_id,
+            $cursor,
+            $limit,
+            $event_type,
+            $result,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1735,11 +1816,11 @@ class WebhooksApi
      *
      * List webhook delivery attempts
      *
-     * @param  string $public_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $event_type (optional)
-     * @param  string|null $result (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $event_type event_type (optional)
+     * @param  string|null $result result (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDelivery'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1754,7 +1835,14 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementListDelivery'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookDeliveryAttemptCursorListResponse';
-        $request = $this->managementListDeliveryRequest($public_id, $cursor, $limit, $event_type, $result, $contentType);
+        $request = $this->managementListDeliveryRequest(
+            $public_id,
+            $cursor,
+            $limit,
+            $event_type,
+            $result,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1811,11 +1899,11 @@ class WebhooksApi
     /**
      * Create request for operation 'managementListDelivery'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
-     * @param  string|null $event_type (optional)
-     * @param  string|null $result (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
+     * @param  string|null $event_type event_type (optional)
+     * @param  string|null $result result (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDelivery'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1977,7 +2065,11 @@ class WebhooksApi
         ?int $limit = null,
         string $contentType = self::contentTypes['managementListWebhooks'][0]
     ): \Sendmux\Management\Model\WebhookSubscriptionCursorListResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementListWebhooksWithHttpInfo($cursor, $limit, $contentType);
+        list($response) = $this->managementListWebhooksWithHttpInfo(
+            $cursor,
+            $limit,
+            $contentType
+        );
         return $response;
     }
 
@@ -1986,8 +2078,8 @@ class WebhooksApi
      *
      * List webhook subscriptions
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListWebhooks'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1999,7 +2091,11 @@ class WebhooksApi
         ?int $limit = null,
         string $contentType = self::contentTypes['managementListWebhooks'][0]
     ): array {
-        $request = $this->managementListWebhooksRequest($cursor, $limit, $contentType);
+        $request = $this->managementListWebhooksRequest(
+            $cursor,
+            $limit,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2100,8 +2196,8 @@ class WebhooksApi
      *
      * List webhook subscriptions
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListWebhooks'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2112,7 +2208,11 @@ class WebhooksApi
         ?int $limit = null,
         string $contentType = self::contentTypes['managementListWebhooks'][0]
     ): PromiseInterface {
-        return $this->managementListWebhooksAsyncWithHttpInfo($cursor, $limit, $contentType)
+        return $this->managementListWebhooksAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2125,8 +2225,8 @@ class WebhooksApi
      *
      * List webhook subscriptions
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListWebhooks'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2138,7 +2238,11 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementListWebhooks'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookSubscriptionCursorListResponse';
-        $request = $this->managementListWebhooksRequest($cursor, $limit, $contentType);
+        $request = $this->managementListWebhooksRequest(
+            $cursor,
+            $limit,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2195,8 +2299,8 @@ class WebhooksApi
     /**
      * Create request for operation 'managementListWebhooks'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListWebhooks'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2320,7 +2424,11 @@ class WebhooksApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementRotateWebhookSecret'][0]
     ): \Sendmux\Management\Model\WebhookSubscriptionWithSecretResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementRotateWebhookSecretWithHttpInfo($public_id, $idempotency_key, $contentType);
+        list($response) = $this->managementRotateWebhookSecretWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
         return $response;
     }
 
@@ -2329,8 +2437,8 @@ class WebhooksApi
      *
      * Rotate the signing secret
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementRotateWebhookSecret'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2342,7 +2450,11 @@ class WebhooksApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementRotateWebhookSecret'][0]
     ): array {
-        $request = $this->managementRotateWebhookSecretRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementRotateWebhookSecretRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2443,8 +2555,8 @@ class WebhooksApi
      *
      * Rotate the signing secret
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementRotateWebhookSecret'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2455,7 +2567,11 @@ class WebhooksApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementRotateWebhookSecret'][0]
     ): PromiseInterface {
-        return $this->managementRotateWebhookSecretAsyncWithHttpInfo($public_id, $idempotency_key, $contentType)
+        return $this->managementRotateWebhookSecretAsyncWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2468,8 +2584,8 @@ class WebhooksApi
      *
      * Rotate the signing secret
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementRotateWebhookSecret'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2481,7 +2597,11 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementRotateWebhookSecret'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookSubscriptionWithSecretResponse';
-        $request = $this->managementRotateWebhookSecretRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementRotateWebhookSecretRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2538,8 +2658,8 @@ class WebhooksApi
     /**
      * Create request for operation 'managementRotateWebhookSecret'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementRotateWebhookSecret'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2660,7 +2780,11 @@ class WebhooksApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementTestWebhook'][0]
     ): \Sendmux\Management\Model\ManagementTestWebhook200Response|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementTestWebhookWithHttpInfo($public_id, $idempotency_key, $contentType);
+        list($response) = $this->managementTestWebhookWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
         return $response;
     }
 
@@ -2669,8 +2793,8 @@ class WebhooksApi
      *
      * Send a synthetic test event
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementTestWebhook'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -2682,7 +2806,11 @@ class WebhooksApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementTestWebhook'][0]
     ): array {
-        $request = $this->managementTestWebhookRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementTestWebhookRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -2797,8 +2925,8 @@ class WebhooksApi
      *
      * Send a synthetic test event
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementTestWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2809,7 +2937,11 @@ class WebhooksApi
         ?string $idempotency_key = null,
         string $contentType = self::contentTypes['managementTestWebhook'][0]
     ): PromiseInterface {
-        return $this->managementTestWebhookAsyncWithHttpInfo($public_id, $idempotency_key, $contentType)
+        return $this->managementTestWebhookAsyncWithHttpInfo(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2822,8 +2954,8 @@ class WebhooksApi
      *
      * Send a synthetic test event
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementTestWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -2835,7 +2967,11 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementTestWebhook'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\ManagementTestWebhook200Response';
-        $request = $this->managementTestWebhookRequest($public_id, $idempotency_key, $contentType);
+        $request = $this->managementTestWebhookRequest(
+            $public_id,
+            $idempotency_key,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2892,8 +3028,8 @@ class WebhooksApi
     /**
      * Create request for operation 'managementTestWebhook'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $idempotency_key (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $idempotency_key idempotency_key (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementTestWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3016,7 +3152,12 @@ class WebhooksApi
         ?\Sendmux\Management\Model\WebhookUpdateBody $webhook_update_body = null,
         string $contentType = self::contentTypes['managementUpdateWebhook'][0]
     ): \Sendmux\Management\Model\WebhookSubscriptionResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementUpdateWebhookWithHttpInfo($public_id, $if_match, $webhook_update_body, $contentType);
+        list($response) = $this->managementUpdateWebhookWithHttpInfo(
+            $public_id,
+            $if_match,
+            $webhook_update_body,
+            $contentType
+        );
         return $response;
     }
 
@@ -3025,9 +3166,9 @@ class WebhooksApi
      *
      * Update a webhook subscription
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body webhook_update_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateWebhook'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -3040,7 +3181,12 @@ class WebhooksApi
         ?\Sendmux\Management\Model\WebhookUpdateBody $webhook_update_body = null,
         string $contentType = self::contentTypes['managementUpdateWebhook'][0]
     ): array {
-        $request = $this->managementUpdateWebhookRequest($public_id, $if_match, $webhook_update_body, $contentType);
+        $request = $this->managementUpdateWebhookRequest(
+            $public_id,
+            $if_match,
+            $webhook_update_body,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -3169,9 +3315,9 @@ class WebhooksApi
      *
      * Update a webhook subscription
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body webhook_update_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3183,7 +3329,12 @@ class WebhooksApi
         ?\Sendmux\Management\Model\WebhookUpdateBody $webhook_update_body = null,
         string $contentType = self::contentTypes['managementUpdateWebhook'][0]
     ): PromiseInterface {
-        return $this->managementUpdateWebhookAsyncWithHttpInfo($public_id, $if_match, $webhook_update_body, $contentType)
+        return $this->managementUpdateWebhookAsyncWithHttpInfo(
+            $public_id,
+            $if_match,
+            $webhook_update_body,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3196,9 +3347,9 @@ class WebhooksApi
      *
      * Update a webhook subscription
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body webhook_update_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -3211,7 +3362,12 @@ class WebhooksApi
         string $contentType = self::contentTypes['managementUpdateWebhook'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\WebhookSubscriptionResponse';
-        $request = $this->managementUpdateWebhookRequest($public_id, $if_match, $webhook_update_body, $contentType);
+        $request = $this->managementUpdateWebhookRequest(
+            $public_id,
+            $if_match,
+            $webhook_update_body,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -3268,9 +3424,9 @@ class WebhooksApi
     /**
      * Create request for operation 'managementUpdateWebhook'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_match (optional)
-     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_match if_match (optional)
+     * @param  \Sendmux\Management\Model\WebhookUpdateBody|null $webhook_update_body webhook_update_body (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementUpdateWebhook'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException

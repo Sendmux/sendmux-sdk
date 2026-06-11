@@ -19,7 +19,7 @@ var _ Handler = UnimplementedHandler{}
 // `permanent=true` to permanently delete them.
 //
 // POST /mailbox/messages:batch-delete
-func (UnimplementedHandler) MailboxBatchDeleteMessages(ctx context.Context, req OptBatchDeleteMailboxMessagesBody) (r MailboxBatchDeleteMessagesRes, _ error) {
+func (UnimplementedHandler) MailboxBatchDeleteMessages(ctx context.Context, req OptBatchDeleteMailboxMessagesBody, params MailboxBatchDeleteMessagesParams) (r MailboxBatchDeleteMessagesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -29,7 +29,7 @@ func (UnimplementedHandler) MailboxBatchDeleteMessages(ctx context.Context, req 
 // clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
 //
 // POST /mailbox/messages:batch-get
-func (UnimplementedHandler) MailboxBatchGetMessages(ctx context.Context, req OptMailboxBatchGetBody) (r MailboxBatchGetMessagesRes, _ error) {
+func (UnimplementedHandler) MailboxBatchGetMessages(ctx context.Context, req OptMailboxBatchGetBody, params MailboxBatchGetMessagesParams) (r MailboxBatchGetMessagesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -39,7 +39,7 @@ func (UnimplementedHandler) MailboxBatchGetMessages(ctx context.Context, req Opt
 // handling.
 //
 // POST /mailbox/messages:batch-update
-func (UnimplementedHandler) MailboxBatchUpdateMessages(ctx context.Context, req OptBatchUpdateMailboxMessagesBody) (r MailboxBatchUpdateMessagesRes, _ error) {
+func (UnimplementedHandler) MailboxBatchUpdateMessages(ctx context.Context, req OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (r MailboxBatchUpdateMessagesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -57,7 +57,7 @@ func (UnimplementedHandler) MailboxCountMessages(ctx context.Context, params Mai
 // Creates a folder in the authenticated mailbox.
 //
 // POST /mailbox/folders
-func (UnimplementedHandler) MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody) (r MailboxCreateFolderRes, _ error) {
+func (UnimplementedHandler) MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (r MailboxCreateFolderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -115,7 +115,7 @@ func (UnimplementedHandler) MailboxGetFolderChanges(ctx context.Context, params 
 // Returns the default sender identity and signatures for the authenticated mailbox.
 //
 // GET /mailbox/identity
-func (UnimplementedHandler) MailboxGetIdentity(ctx context.Context) (r MailboxGetIdentityRes, _ error) {
+func (UnimplementedHandler) MailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (r MailboxGetIdentityRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -233,6 +233,16 @@ func (UnimplementedHandler) MailboxListContent(ctx context.Context, params Mailb
 //
 // GET /mailbox/folders
 func (UnimplementedHandler) MailboxListFolders(ctx context.Context, params MailboxListFoldersParams) (r *MailboxFolderCursorListResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MailboxListGrantedMailboxes implements mailboxListGrantedMailboxes operation.
+//
+// Lists the mailboxes available to the current mailbox credential or connected app. Use this before
+// choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
+//
+// GET /mailbox/mailboxes
+func (UnimplementedHandler) MailboxListGrantedMailboxes(ctx context.Context, params MailboxListGrantedMailboxesParams) (r MailboxListGrantedMailboxesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -372,7 +382,7 @@ func (UnimplementedHandler) MailboxUpdateFolder(ctx context.Context, req OptPatc
 // mailbox.
 //
 // PATCH /mailbox/identity
-func (UnimplementedHandler) MailboxUpdateIdentity(ctx context.Context, req OptUpdateMailboxIdentityBody) (r MailboxUpdateIdentityRes, _ error) {
+func (UnimplementedHandler) MailboxUpdateIdentity(ctx context.Context, req OptUpdateMailboxIdentityBody, params MailboxUpdateIdentityParams) (r MailboxUpdateIdentityRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

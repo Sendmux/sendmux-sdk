@@ -21,6 +21,12 @@ class ToolSpec:
 
 MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
+        operation_id="mailboxListGrantedMailboxes",
+        name="mailbox_list_granted_mailboxes",
+        title="List Granted Mailboxes",
+        description="Use this first when the token can access more than one mailbox. It searches only the mailboxes granted to this connection and returns IDs to pass as mailbox_id.",
+    ),
+    ToolSpec(
         operation_id="mailboxGetMe",
         name="mailbox_get_me",
         title="Get Mailbox Profile",

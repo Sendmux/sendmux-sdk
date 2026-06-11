@@ -159,7 +159,11 @@ class DomainsApi
         ?\Sendmux\Management\Model\ManagementCreateDomainRequest $management_create_domain_request = null,
         string $contentType = self::contentTypes['managementCreateDomain'][0]
     ): \Sendmux\Management\Model\DomainItemResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementCreateDomainWithHttpInfo($idempotency_key, $management_create_domain_request, $contentType);
+        list($response) = $this->managementCreateDomainWithHttpInfo(
+            $idempotency_key,
+            $management_create_domain_request,
+            $contentType
+        );
         return $response;
     }
 
@@ -168,8 +172,8 @@ class DomainsApi
      *
      * Add a mailbox domain
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request management_create_domain_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateDomain'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -181,7 +185,11 @@ class DomainsApi
         ?\Sendmux\Management\Model\ManagementCreateDomainRequest $management_create_domain_request = null,
         string $contentType = self::contentTypes['managementCreateDomain'][0]
     ): array {
-        $request = $this->managementCreateDomainRequest($idempotency_key, $management_create_domain_request, $contentType);
+        $request = $this->managementCreateDomainRequest(
+            $idempotency_key,
+            $management_create_domain_request,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -296,8 +304,8 @@ class DomainsApi
      *
      * Add a mailbox domain
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request management_create_domain_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -308,7 +316,11 @@ class DomainsApi
         ?\Sendmux\Management\Model\ManagementCreateDomainRequest $management_create_domain_request = null,
         string $contentType = self::contentTypes['managementCreateDomain'][0]
     ): PromiseInterface {
-        return $this->managementCreateDomainAsyncWithHttpInfo($idempotency_key, $management_create_domain_request, $contentType)
+        return $this->managementCreateDomainAsyncWithHttpInfo(
+            $idempotency_key,
+            $management_create_domain_request,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -321,8 +333,8 @@ class DomainsApi
      *
      * Add a mailbox domain
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request management_create_domain_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -334,7 +346,11 @@ class DomainsApi
         string $contentType = self::contentTypes['managementCreateDomain'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\DomainItemResponse';
-        $request = $this->managementCreateDomainRequest($idempotency_key, $management_create_domain_request, $contentType);
+        $request = $this->managementCreateDomainRequest(
+            $idempotency_key,
+            $management_create_domain_request,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -391,8 +407,8 @@ class DomainsApi
     /**
      * Create request for operation 'managementCreateDomain'
      *
-     * @param  string|null $idempotency_key (optional)
-     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request (optional)
+     * @param  string|null $idempotency_key idempotency_key (optional)
+     * @param  \Sendmux\Management\Model\ManagementCreateDomainRequest|null $management_create_domain_request management_create_domain_request (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCreateDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -504,7 +520,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteDomain'][0]
     ): \Sendmux\Management\Model\DomainDeletedResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementDeleteDomainWithHttpInfo($public_id, $contentType);
+        list($response) = $this->managementDeleteDomainWithHttpInfo(
+            $public_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -513,7 +532,7 @@ class DomainsApi
      *
      * Delete a mailbox domain
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteDomain'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -524,7 +543,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteDomain'][0]
     ): array {
-        $request = $this->managementDeleteDomainRequest($public_id, $contentType);
+        $request = $this->managementDeleteDomainRequest(
+            $public_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -625,7 +647,7 @@ class DomainsApi
      *
      * Delete a mailbox domain
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -635,7 +657,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementDeleteDomain'][0]
     ): PromiseInterface {
-        return $this->managementDeleteDomainAsyncWithHttpInfo($public_id, $contentType)
+        return $this->managementDeleteDomainAsyncWithHttpInfo(
+            $public_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -648,7 +673,7 @@ class DomainsApi
      *
      * Delete a mailbox domain
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -659,7 +684,10 @@ class DomainsApi
         string $contentType = self::contentTypes['managementDeleteDomain'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\DomainDeletedResponse';
-        $request = $this->managementDeleteDomainRequest($public_id, $contentType);
+        $request = $this->managementDeleteDomainRequest(
+            $public_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -716,7 +744,7 @@ class DomainsApi
     /**
      * Create request for operation 'managementDeleteDomain'
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementDeleteDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -828,7 +856,11 @@ class DomainsApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetDomain'][0]
     ): \Sendmux\Management\Model\DomainItemResponse|\Sendmux\Management\Model\ApiError|null {
-        list($response) = $this->managementGetDomainWithHttpInfo($public_id, $if_none_match, $contentType);
+        list($response) = $this->managementGetDomainWithHttpInfo(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
         return $response;
     }
 
@@ -837,8 +869,8 @@ class DomainsApi
      *
      * Get a mailbox domain
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomain'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -850,7 +882,11 @@ class DomainsApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetDomain'][0]
     ): array {
-        $request = $this->managementGetDomainRequest($public_id, $if_none_match, $contentType);
+        $request = $this->managementGetDomainRequest(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -939,8 +975,8 @@ class DomainsApi
      *
      * Get a mailbox domain
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -951,7 +987,11 @@ class DomainsApi
         ?string $if_none_match = null,
         string $contentType = self::contentTypes['managementGetDomain'][0]
     ): PromiseInterface {
-        return $this->managementGetDomainAsyncWithHttpInfo($public_id, $if_none_match, $contentType)
+        return $this->managementGetDomainAsyncWithHttpInfo(
+            $public_id,
+            $if_none_match,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -964,8 +1004,8 @@ class DomainsApi
      *
      * Get a mailbox domain
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -977,7 +1017,11 @@ class DomainsApi
         string $contentType = self::contentTypes['managementGetDomain'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\DomainItemResponse';
-        $request = $this->managementGetDomainRequest($public_id, $if_none_match, $contentType);
+        $request = $this->managementGetDomainRequest(
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1038,8 +1082,8 @@ class DomainsApi
     /**
      * Create request for operation 'managementGetDomain'
      *
-     * @param  string $public_id (required)
-     * @param  string|null $if_none_match (optional)
+     * @param  string $public_id public_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1155,7 +1199,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementGetDomainZoneFile'][0]
     ): string|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementGetDomainZoneFileWithHttpInfo($public_id, $contentType);
+        list($response) = $this->managementGetDomainZoneFileWithHttpInfo(
+            $public_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -1164,7 +1211,7 @@ class DomainsApi
      *
      * Download a domain as a zone file
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomainZoneFile'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1175,7 +1222,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementGetDomainZoneFile'][0]
     ): array {
-        $request = $this->managementGetDomainZoneFileRequest($public_id, $contentType);
+        $request = $this->managementGetDomainZoneFileRequest(
+            $public_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1262,7 +1312,7 @@ class DomainsApi
      *
      * Download a domain as a zone file
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomainZoneFile'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1272,7 +1322,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementGetDomainZoneFile'][0]
     ): PromiseInterface {
-        return $this->managementGetDomainZoneFileAsyncWithHttpInfo($public_id, $contentType)
+        return $this->managementGetDomainZoneFileAsyncWithHttpInfo(
+            $public_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1285,7 +1338,7 @@ class DomainsApi
      *
      * Download a domain as a zone file
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomainZoneFile'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1296,7 +1349,10 @@ class DomainsApi
         string $contentType = self::contentTypes['managementGetDomainZoneFile'][0]
     ): PromiseInterface {
         $returnType = 'string';
-        $request = $this->managementGetDomainZoneFileRequest($public_id, $contentType);
+        $request = $this->managementGetDomainZoneFileRequest(
+            $public_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1353,7 +1409,7 @@ class DomainsApi
     /**
      * Create request for operation 'managementGetDomainZoneFile'
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetDomainZoneFile'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1465,7 +1521,11 @@ class DomainsApi
         ?int $limit = null,
         string $contentType = self::contentTypes['managementListDomains'][0]
     ): \Sendmux\Management\Model\DomainItemCursorListResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementListDomainsWithHttpInfo($cursor, $limit, $contentType);
+        list($response) = $this->managementListDomainsWithHttpInfo(
+            $cursor,
+            $limit,
+            $contentType
+        );
         return $response;
     }
 
@@ -1474,8 +1534,8 @@ class DomainsApi
      *
      * List mailbox domains
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDomains'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1487,7 +1547,11 @@ class DomainsApi
         ?int $limit = null,
         string $contentType = self::contentTypes['managementListDomains'][0]
     ): array {
-        $request = $this->managementListDomainsRequest($cursor, $limit, $contentType);
+        $request = $this->managementListDomainsRequest(
+            $cursor,
+            $limit,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1588,8 +1652,8 @@ class DomainsApi
      *
      * List mailbox domains
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDomains'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1600,7 +1664,11 @@ class DomainsApi
         ?int $limit = null,
         string $contentType = self::contentTypes['managementListDomains'][0]
     ): PromiseInterface {
-        return $this->managementListDomainsAsyncWithHttpInfo($cursor, $limit, $contentType)
+        return $this->managementListDomainsAsyncWithHttpInfo(
+            $cursor,
+            $limit,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1613,8 +1681,8 @@ class DomainsApi
      *
      * List mailbox domains
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDomains'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1626,7 +1694,11 @@ class DomainsApi
         string $contentType = self::contentTypes['managementListDomains'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\DomainItemCursorListResponse';
-        $request = $this->managementListDomainsRequest($cursor, $limit, $contentType);
+        $request = $this->managementListDomainsRequest(
+            $cursor,
+            $limit,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1683,8 +1755,8 @@ class DomainsApi
     /**
      * Create request for operation 'managementListDomains'
      *
-     * @param  string|null $cursor (optional)
-     * @param  int|null $limit (optional)
+     * @param  string|null $cursor cursor (optional)
+     * @param  int|null $limit limit (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementListDomains'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1806,7 +1878,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementVerifyDomain'][0]
     ): \Sendmux\Management\Model\DomainVerifyResponse|\Sendmux\Management\Model\ApiError {
-        list($response) = $this->managementVerifyDomainWithHttpInfo($public_id, $contentType);
+        list($response) = $this->managementVerifyDomainWithHttpInfo(
+            $public_id,
+            $contentType
+        );
         return $response;
     }
 
@@ -1815,7 +1890,7 @@ class DomainsApi
      *
      * Verify a mailbox domain
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementVerifyDomain'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -1826,7 +1901,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementVerifyDomain'][0]
     ): array {
-        $request = $this->managementVerifyDomainRequest($public_id, $contentType);
+        $request = $this->managementVerifyDomainRequest(
+            $public_id,
+            $contentType
+        );
 
         try {
             $options = $this->createHttpClientOption();
@@ -1913,7 +1991,7 @@ class DomainsApi
      *
      * Verify a mailbox domain
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementVerifyDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1923,7 +2001,10 @@ class DomainsApi
         string $public_id,
         string $contentType = self::contentTypes['managementVerifyDomain'][0]
     ): PromiseInterface {
-        return $this->managementVerifyDomainAsyncWithHttpInfo($public_id, $contentType)
+        return $this->managementVerifyDomainAsyncWithHttpInfo(
+            $public_id,
+            $contentType
+        )
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1936,7 +2017,7 @@ class DomainsApi
      *
      * Verify a mailbox domain
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementVerifyDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -1947,7 +2028,10 @@ class DomainsApi
         string $contentType = self::contentTypes['managementVerifyDomain'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Management\Model\DomainVerifyResponse';
-        $request = $this->managementVerifyDomainRequest($public_id, $contentType);
+        $request = $this->managementVerifyDomainRequest(
+            $public_id,
+            $contentType
+        );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2004,7 +2088,7 @@ class DomainsApi
     /**
      * Create request for operation 'managementVerifyDomain'
      *
-     * @param  string $public_id (required)
+     * @param  string $public_id public_id (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementVerifyDomain'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException

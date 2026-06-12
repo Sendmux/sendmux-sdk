@@ -70,11 +70,12 @@ jobs:
           SENDMUX_LIVE_E2E_ALLOWED_APP_BASE_URLS: ${{ vars.SENDMUX_LIVE_E2E_ALLOWED_APP_BASE_URLS }}
           SENDMUX_LIVE_E2E_ALLOWED_SENDING_BASE_URLS: ${{ vars.SENDMUX_LIVE_E2E_ALLOWED_SENDING_BASE_URLS }}
           SENDMUX_LIVE_E2E_MAILBOX_API_KEY: ${{ secrets.SENDMUX_LIVE_E2E_MAILBOX_API_KEY }}
+          SENDMUX_LIVE_E2E_OPERATIONS: ${{ inputs.operations }}
           SENDMUX_LIVE_E2E_ROOT_API_KEY: ${{ secrets.SENDMUX_LIVE_E2E_ROOT_API_KEY }}
           SENDMUX_LIVE_E2E_SENDING_BASE_URL: ${{ vars.SENDMUX_LIVE_E2E_SENDING_BASE_URL }}
         run: |
           args=(--adapter "${SENDMUX_LIVE_E2E_ADAPTERS}")
-          if [ -n "${{ inputs.operations }}" ]; then
-            args+=(--operation "${{ inputs.operations }}")
+          if [ -n "${SENDMUX_LIVE_E2E_OPERATIONS}" ]; then
+            args+=(--operation "${SENDMUX_LIVE_E2E_OPERATIONS}")
           fi
           pnpm live:e2e -- "${args[@]}"

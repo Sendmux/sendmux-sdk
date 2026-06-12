@@ -35,6 +35,7 @@ export interface OperationDefinition {
   path: string;
   pathParams: readonly OperationParameter[];
   queryParams: readonly OperationParameter[];
+  responseKind: "binary" | "json" | "text";
   requestBodyRequired: boolean;
   requiredKeyKind: ApiKeyKind;
   surface: "mailbox" | "management" | "sending";

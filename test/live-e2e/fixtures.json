@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "sources": {
+    "mailboxFolderId": {
+      "env": "SENDMUX_LIVE_E2E_MAILBOX_FOLDER_ID",
+      "operationId": "mailboxListFolders",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "mailbox"
+    },
+    "mailboxMessageId": {
+      "env": "SENDMUX_LIVE_E2E_MAILBOX_MESSAGE_ID",
+      "operationId": "mailboxListMessages",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "mailbox"
+    },
+    "mailboxSelfEmail": {
+      "operationId": "mailboxGetMe",
+      "request": {},
+      "selectors": ["data.email"],
+      "surface": "mailbox"
+    },
+    "mailboxSubmissionId": {
+      "env": "SENDMUX_LIVE_E2E_MAILBOX_SUBMISSION_ID",
+      "operationId": "mailboxListSubmissions",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "setup": {
+        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"],
+        "kind": "mailbox_send_message",
+        "subjectPrefix": "Sendmux live E2E submission fixture",
+        "to": {
+          "source": "mailboxSelfEmail"
+        }
+      },
+      "surface": "mailbox"
+    },
+    "mailboxThreadId": {
+      "env": "SENDMUX_LIVE_E2E_MAILBOX_THREAD_ID",
+      "operationId": "mailboxListThreads",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "mailbox"
+    },
+    "managementDomainId": {
+      "env": "SENDMUX_LIVE_E2E_DOMAIN_ID",
+      "operationId": "managementListDomains",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "management"
+    },
+    "managementEmailLogId": {
+      "env": "SENDMUX_LIVE_E2E_EMAIL_LOG_ID",
+      "operationId": "managementListEmailLogs",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "management"
+    },
+    "managementInboxLogId": {
+      "env": "SENDMUX_LIVE_E2E_INBOX_LOG_ID",
+      "operationId": "managementListInboxLogs",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "management"
+    },
+    "managementMailboxId": {
+      "env": "SENDMUX_LIVE_E2E_MANAGEMENT_MAILBOX_ID",
+      "operationId": "managementListMailboxes",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "management"
+    },
+    "managementProviderId": {
+      "env": "SENDMUX_LIVE_E2E_PROVIDER_ID",
+      "operationId": "managementListProviders",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "surface": "management"
+    },
+    "managementWebhookDeliveryId": {
+      "env": "SENDMUX_LIVE_E2E_WEBHOOK_DELIVERY_ID",
+      "operationId": "managementListDelivery",
+      "request": {
+        "path": {
+          "public_id": {
+            "source": "managementWebhookId"
+          }
+        },
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "setup": {
+        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist"],
+        "kind": "management_webhook_delivery",
+        "webhook": {
+          "source": "managementWebhookId"
+        }
+      },
+      "surface": "management"
+    },
+    "managementWebhookId": {
+      "env": "SENDMUX_LIVE_E2E_WEBHOOK_ID",
+      "operationId": "managementListWebhooks",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.id"],
+      "setup": {
+        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist"],
+        "kind": "management_webhook",
+        "namePrefix": "Sendmux live E2E webhook fixture",
+        "url": {
+          "env": "SENDMUX_LIVE_E2E_WEBHOOK_URL"
+        }
+      },
+      "surface": "management"
+    }
+  },
+  "operations": {
+    "mailboxGetFolder": {
+      "inputs": {
+        "path": {
+          "folder_id": {
+            "source": "mailboxFolderId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxGetMessage": {
+      "inputs": {
+        "path": {
+          "message_id": {
+            "source": "mailboxMessageId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxGetSubmission": {
+      "inputs": {
+        "path": {
+          "submission_id": {
+            "source": "mailboxSubmissionId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxGetThread": {
+      "inputs": {
+        "path": {
+          "thread_id": {
+            "source": "mailboxThreadId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxGetThreadContent": {
+      "inputs": {
+        "path": {
+          "thread_id": {
+            "source": "mailboxThreadId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxListBody": {
+      "inputs": {
+        "path": {
+          "message_id": {
+            "source": "mailboxMessageId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxListContent": {
+      "inputs": {
+        "path": {
+          "message_id": {
+            "source": "mailboxMessageId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxListThreadMessages": {
+      "inputs": {
+        "path": {
+          "thread_id": {
+            "source": "mailboxThreadId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "mailboxSearchMessageSnippets": {
+      "inputs": {
+        "query": {
+          "q": {
+            "literal": "test"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetDeliveryPayload": {
+      "inputs": {
+        "path": {
+          "delivery_id": {
+            "source": "managementWebhookDeliveryId"
+          },
+          "public_id": {
+            "source": "managementWebhookId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetDomain": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementDomainId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetDomainFilters": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementDomainId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetDomainZoneFile": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementDomainId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetEmailLog": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementEmailLogId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetInboxLog": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementInboxLogId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetMailbox": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementMailboxId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetMailboxFilters": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementMailboxId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetProvider": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementProviderId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetWebhook": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementWebhookId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementListDelivery": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementWebhookId"
+          }
+        },
+        "query": {
+          "limit": {
+            "literal": 1
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    }
+  }
+}

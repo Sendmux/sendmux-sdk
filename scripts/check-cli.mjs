@@ -553,6 +553,7 @@ async function assertCliArrayParameterSupport() {
           },
         },
       ],
+      responseKind: "json",
       requestBodyRequired: false,
       requiredKeyKind: "root",
       surface: "management",

@@ -4,18 +4,19 @@ import asyncio
 import json
 import os
 from collections import defaultdict
-from typing import Any, TypedDict, cast
+from typing import Any, Literal, TypedDict, cast
 
 from fastmcp import Client
 
 from sendmux_mcp.config import ServerConfig, Surface
 from sendmux_mcp.server import create_server
-from sendmux_mcp.verification import structured_result
+from sendmux_mcp.verification import structured_result, text_result
 
 
 class PlannedOperation(TypedDict):
     args: dict[str, Any]
     operationId: str
+    responseKind: Literal["binary", "json", "text"]
     surface: Surface
     toolName: str
 
@@ -45,8 +46,12 @@ async def main() -> None:
                     continue
 
                 try:
-                    result = structured_result(await client.call_tool(operation["toolName"], operation["args"]))
-                    assert_live_response(operation["operationId"], result)
+                    call_result = await client.call_tool(operation["toolName"], operation["args"])
+                    if operation.get("responseKind") == "text":
+                        assert_text_response(operation["operationId"], text_result(call_result))
+                    else:
+                        result = structured_result(call_result)
+                        assert_live_response(operation["operationId"], result)
                     results.append(
                         {
                             "adapter": "mcp",
@@ -90,6 +95,11 @@ def assert_live_response(operation_id: str, value: dict[str, Any]) -> None:
     meta = value.get("meta")
     if not isinstance(meta, dict) or not isinstance(meta.get("request_id"), str):
         raise AssertionError(f"{operation_id} did not return meta.request_id")
+
+
+def assert_text_response(operation_id: str, value: str) -> None:
+    if not value:
+        raise AssertionError(f"{operation_id} returned empty text")
 
 
 def app_base_url() -> str:

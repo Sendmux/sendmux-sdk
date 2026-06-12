@@ -7,10 +7,11 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 ## Protected Runner
 
 - Plan without secrets: `pnpm live:e2e:plan`.
-- Execute the read-only live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.
-- The first executable slice runs only GET operations that need no path fixture, required query, body, binary payload, stream, send, or mutation cleanup.
+- Execute the default safe live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.
+- The default executable slice runs GET `read` operations plus GET `read_fixture` operations whose inputs are declared in `test/live-e2e/fixtures.json`.
+- Read fixtures may declare setup gates. The runner only seeds those fixtures when the setup gate is enabled and the target recipient is allowlisted.
 - `sdk` and `cli` adapters call the built public TypeScript SDK and generated CLI. `mcp` calls the curated FastMCP tools for operations that intentionally exist in MCP; non-curated operations are reported as skipped, not passed.
-- Mutation, send, binary, stream, and path-fixture operations remain gated until the fixture ownership registry and cleanup proof are implemented.
+- Mutation, send, binary, and stream operations remain blocked until explicit gates and ownership/cleanup proof are present.
 
 ## Summary
 
@@ -18,6 +19,9 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
 - MCP adapters required for curated tools: 43.
+- Default executable live operations: 53.
+- Blocked behind safety gates: 40.
+- Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
 - Risks: binary 2, destructive 7, mutation 28, read 53, send 2, stream 1.
 - Modes: binary_fixture 2, create_cleanup 7, destructive_cleanup_only 7, mutation_fixture 13, read 33, read_fixture 20, send 2, stream 1, update_restore 8.
 

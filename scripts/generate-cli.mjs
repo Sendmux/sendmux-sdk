@@ -54,6 +54,7 @@ for (const { file } of specs) {
         path,
         pathParams: parameters.filter((parameter) => parameter.in === "path").map(toPublicParameter),
         queryParams: parameters.filter((parameter) => parameter.in === "query").map(toPublicParameter),
+        responseKind: responseKindForOperation(operation),
         requestBodyRequired: Boolean(operation.requestBody?.required),
         requiredKeyKind: requiredKeyKindForSurface(surface),
         surface,
@@ -251,6 +252,20 @@ function bodyKindForOperation(operation) {
   }
 
   throw new Error(`Unsupported CLI request body content type for ${operation.operationId}: ${contentTypes.join(", ")}`);
+}
+
+function responseKindForOperation(operation) {
+  const contentTypes = Object.keys(operation.responses?.["200"]?.content ?? {});
+  if (contentTypes.includes("application/json")) {
+    return "json";
+  }
+  if (contentTypes.includes("text/plain")) {
+    return "text";
+  }
+  if (contentTypes.includes("application/octet-stream")) {
+    return "binary";
+  }
+  return "json";
 }
 
 function surfaceForOperationId(operationId) {

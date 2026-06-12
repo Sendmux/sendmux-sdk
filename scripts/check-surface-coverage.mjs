@@ -112,6 +112,7 @@ function loadOperations(dir) {
           path,
           pathParams: parameters.filter((parameter) => parameter.in === "path").map(toPublicParameter),
           queryParams: parameters.filter((parameter) => parameter.in === "query").map(toPublicParameter),
+          responseKind: responseKindForOperation(operation),
           requestBodyRequired: Boolean(operation.requestBody?.required),
           surface,
         });
@@ -254,6 +255,20 @@ function bodyKindForOperation(operation) {
   return "unsupported";
 }
 
+function responseKindForOperation(operation) {
+  const contentTypes = Object.keys(operation.responses?.["200"]?.content ?? {});
+  if (contentTypes.includes("application/json")) {
+    return "json";
+  }
+  if (contentTypes.includes("text/plain")) {
+    return "text";
+  }
+  if (contentTypes.includes("application/octet-stream")) {
+    return "binary";
+  }
+  return "json";
+}
+
 function surfaceForOperationId(operationId) {
   if (operationId.startsWith("mailbox")) {
     return "mailbox";
@@ -286,6 +301,7 @@ function compareCliOperation(operation, cli) {
     path: operation.path,
     pathParams: operation.pathParams,
     queryParams: operation.queryParams,
+    responseKind: operation.responseKind,
     requestBodyRequired: operation.requestBodyRequired,
     requiredKeyKind: operation.commandKeyKind,
     surface: operation.surface,

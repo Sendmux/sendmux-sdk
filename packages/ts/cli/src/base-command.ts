@@ -98,6 +98,15 @@ export abstract class SendmuxCommand extends Command {
     return value;
   }
 
+  renderTextResult(value: string): unknown {
+    if (this.jsonEnabled()) {
+      return { text: value };
+    }
+
+    this.log(value);
+    return value;
+  }
+
   private assertKeyKind({
     apiKey,
     baseUrl,

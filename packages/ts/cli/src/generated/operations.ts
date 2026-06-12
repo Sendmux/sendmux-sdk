@@ -21,6 +21,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -43,6 +44,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -65,6 +67,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -222,6 +225,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -244,6 +248,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -282,6 +287,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -327,6 +333,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -414,6 +421,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -452,6 +460,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -490,6 +499,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -512,6 +522,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -542,6 +553,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -580,6 +592,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -625,6 +638,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -663,6 +677,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -693,6 +708,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -731,6 +747,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -769,6 +786,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -807,6 +825,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -944,6 +963,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1003,6 +1023,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1113,6 +1134,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1151,6 +1173,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1189,6 +1212,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1227,6 +1251,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1426,6 +1451,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1523,6 +1549,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1631,6 +1658,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1688,6 +1716,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1786,6 +1815,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1816,6 +1846,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -1854,6 +1885,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2060,6 +2092,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2226,6 +2259,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2257,6 +2291,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2319,6 +2354,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2357,6 +2393,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2379,6 +2416,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2417,6 +2455,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2446,6 +2485,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -2477,6 +2517,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2500,6 +2541,7 @@ export const operations = {
     "path": "/domains",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2523,6 +2565,7 @@ export const operations = {
     "path": "/mailboxes",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2554,6 +2597,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2577,6 +2621,7 @@ export const operations = {
     "path": "/providers",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2600,6 +2645,7 @@ export const operations = {
     "path": "/providers/shared-amazon-ses-limit-request",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2623,6 +2669,7 @@ export const operations = {
     "path": "/webhooks",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2654,6 +2701,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2676,6 +2724,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2698,6 +2747,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2727,6 +2777,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2749,6 +2800,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2771,6 +2823,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2800,6 +2853,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2830,6 +2884,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2860,6 +2915,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2882,6 +2938,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "text",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2912,6 +2969,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2971,6 +3029,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -2993,6 +3052,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3023,6 +3083,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3053,6 +3114,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3083,6 +3145,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3097,6 +3160,7 @@ export const operations = {
     "path": "/providers/limits",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3111,6 +3175,7 @@ export const operations = {
     "path": "/providers/stats",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3125,6 +3190,7 @@ export const operations = {
     "path": "/providers/usage",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3139,6 +3205,7 @@ export const operations = {
     "path": "/providers/shared-amazon-ses-limit-request",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3166,6 +3233,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3196,6 +3264,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3210,6 +3279,7 @@ export const operations = {
     "path": "/billing/balance",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3279,6 +3349,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3310,6 +3381,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3382,6 +3454,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3452,6 +3525,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3493,6 +3567,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3550,6 +3625,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3595,6 +3671,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3626,6 +3703,7 @@ export const operations = {
         }
       }
     ],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3649,6 +3727,7 @@ export const operations = {
     "path": "/providers/limits/sending-accounts/request-increase",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3680,6 +3759,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3711,6 +3791,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3741,6 +3822,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3771,6 +3853,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3802,6 +3885,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3833,6 +3917,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3864,6 +3949,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3894,6 +3980,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3924,6 +4011,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3954,6 +4042,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3976,6 +4065,7 @@ export const operations = {
       }
     ],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "root",
     "surface": "management"
@@ -3998,6 +4088,7 @@ export const operations = {
     "path": "/openapi.json",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "sending"
@@ -4021,6 +4112,7 @@ export const operations = {
     "path": "/emails/send",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": true,
     "requiredKeyKind": "mailbox",
     "surface": "sending"
@@ -4044,6 +4136,7 @@ export const operations = {
     "path": "/emails/send/batch",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
     "requestBodyRequired": true,
     "requiredKeyKind": "mailbox",
     "surface": "sending"

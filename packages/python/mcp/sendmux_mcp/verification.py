@@ -19,3 +19,18 @@ def structured_result(value: Any) -> dict[str, Any]:
             return result
         return structured
     raise TypeError(f"Expected structured MCP result, got {type(value).__name__}")
+
+
+def text_result(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    content = getattr(value, "content", None)
+    if isinstance(content, list):
+        text_parts = [getattr(item, "text", None) for item in content]
+        text = "\n".join(part for part in text_parts if isinstance(part, str))
+        if text:
+            return text
+    direct_text = getattr(value, "text", None)
+    if isinstance(direct_text, str):
+        return direct_text
+    raise TypeError(f"Expected text MCP result, got {type(value).__name__}")

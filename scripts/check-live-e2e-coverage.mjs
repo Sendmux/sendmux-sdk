@@ -9,7 +9,9 @@ const specs = [
 ];
 const httpMethods = new Set(["delete", "get", "patch", "post", "put"]);
 const sdkAdapters = ["typescript", "python", "go", "php", "ruby"];
+const fixtureSetupKinds = new Set(["mailbox_send_message", "management_webhook", "management_webhook_delivery"]);
 const scenarioPath = resolve("test/live-e2e/scenarios.json");
+const fixtureRegistryPath = resolve("test/live-e2e/fixtures.json");
 const matrixPath = resolve("docs/live-e2e-matrix.md");
 const writeOutputs = process.argv.includes("--write");
 const dryRun = process.argv.includes("--dry-run");
@@ -19,10 +21,14 @@ const operations = loadOperations(inputDir);
 const cliOperations = loadCliOperations();
 const curatedMcp = loadMcpCuration();
 const expected = buildExpectedScenarios(operations, cliOperations, curatedMcp);
+const fixtures = readFixtureRegistry();
 const scenarioDocument = writeOutputs ? { version: 1, scenarios: expected } : readScenarioDocument();
 const scenarios = scenarioDocument.scenarios ?? {};
-const failures = validateScenarios({ curatedMcp, expected, operations, scenarios });
-const matrix = renderMatrix({ curatedMcp, operations, scenarios });
+const failures = [
+  ...validateScenarios({ curatedMcp, expected, operations, scenarios }),
+  ...validateFixtureRegistry({ fixtures, operations, scenarios }),
+];
+const matrix = renderMatrix({ curatedMcp, fixtures, operations, scenarios });
 
 if (writeOutputs) {
   mkdirSync(dirname(scenarioPath), { recursive: true });
@@ -62,6 +68,14 @@ function readScenarioDocument() {
   return readJson(scenarioPath);
 }
 
+function readFixtureRegistry() {
+  if (!existsSync(fixtureRegistryPath)) {
+    throw new Error("Missing live E2E fixture registry. Create test/live-e2e/fixtures.json");
+  }
+
+  return readJson(fixtureRegistryPath);
+}
+
 function loadOperations(dir) {
   const out = [];
   const seen = new Set();
@@ -91,6 +105,7 @@ function loadOperations(dir) {
           path,
           pathParams: parameters.filter((parameter) => parameter.in === "path").map(toPublicParameter),
           queryParams: parameters.filter((parameter) => parameter.in === "query").map(toPublicParameter),
+          responseKind: responseKindForOperation(operation),
           requestBodyRequired: Boolean(operation.requestBody?.required),
           surface,
         });
@@ -230,6 +245,20 @@ function bodyKindForOperation(operation) {
     return "binary";
   }
   return "unsupported";
+}
+
+function responseKindForOperation(operation) {
+  const contentTypes = Object.keys(operation.responses?.["200"]?.content ?? {});
+  if (contentTypes.includes("application/json")) {
+    return "json";
+  }
+  if (contentTypes.includes("text/plain")) {
+    return "text";
+  }
+  if (contentTypes.includes("application/octet-stream")) {
+    return "binary";
+  }
+  return "json";
 }
 
 function surfaceForOperationId(operationId) {
@@ -422,11 +451,98 @@ function validateScenarios({ curatedMcp, expected, operations, scenarios }) {
   return failures;
 }
 
-function renderMatrix({ curatedMcp, operations, scenarios }) {
+function validateFixtureRegistry({ fixtures, operations, scenarios }) {
+  const failures = [];
+  const operationsById = new Map(operations.map((operation) => [operation.operationId, operation]));
+  const sourceNames = new Set(Object.keys(fixtures.sources ?? {}));
+
+  for (const operation of operations) {
+    const scenario = scenarios[operation.operationId];
+    const entry = fixtures.operations?.[operation.operationId];
+    if (scenario?.mode !== "read_fixture") {
+      if (entry) {
+        failures.push(`${operation.operationId}: fixture registry entry exists for non-read-fixture scenario`);
+      }
+      continue;
+    }
+
+    if (!entry) {
+      failures.push(`${operation.operationId}: missing fixture registry entry`);
+      continue;
+    }
+    if (entry.ownership !== "discovered-read") {
+      failures.push(`${operation.operationId}: fixture registry ownership must be discovered-read`);
+    }
+
+    for (const parameter of operation.pathParams) {
+      if (!entry.inputs?.path?.[parameter.name]) {
+        failures.push(`${operation.operationId}: fixture registry missing path input ${parameter.name}`);
+      }
+    }
+    for (const parameter of operation.queryParams.filter((item) => item.required)) {
+      if (!entry.inputs?.query?.[parameter.name]) {
+        failures.push(`${operation.operationId}: fixture registry missing query input ${parameter.name}`);
+      }
+    }
+    failures.push(...validateFixtureInputReferences(entry.inputs ?? {}, sourceNames, `${operation.operationId}.inputs`));
+  }
+
+  for (const [sourceName, source] of Object.entries(fixtures.sources ?? {})) {
+    if (!operationsById.has(source.operationId)) {
+      failures.push(`${sourceName}: fixture source references unknown operation ${source.operationId}`);
+    }
+    if (!Array.isArray(source.selectors) || source.selectors.length === 0) {
+      failures.push(`${sourceName}: fixture source must provide at least one selector`);
+    }
+    failures.push(...validateFixtureInputReferences(source.request ?? {}, sourceNames, `${sourceName}.request`));
+    failures.push(...validateFixtureSetup(sourceName, source, sourceNames));
+  }
+
+  return failures;
+}
+
+function validateFixtureSetup(sourceName, source, sourceNames) {
+  const failures = [];
+  if (!source.setup) {
+    return failures;
+  }
+  if (!fixtureSetupKinds.has(source.setup.kind)) {
+    failures.push(`${sourceName}: fixture setup kind must be one of ${[...fixtureSetupKinds].join(", ")}`);
+  }
+  if (!Array.isArray(source.setup.gates) || source.setup.gates.length === 0) {
+    failures.push(`${sourceName}: fixture setup must declare safety gates`);
+  }
+  failures.push(...validateFixtureInputReferences(source.setup, sourceNames, `${sourceName}.setup`));
+  return failures;
+}
+
+function validateFixtureInputReferences(value, sourceNames, path) {
+  const failures = [];
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      failures.push(...validateFixtureInputReferences(item, sourceNames, `${path}.${index}`));
+    });
+    return failures;
+  }
+  if (!value || typeof value !== "object") {
+    return failures;
+  }
+  if (Object.hasOwn(value, "source") && !sourceNames.has(value.source)) {
+    failures.push(`${path}: unknown fixture source ${value.source}`);
+  }
+  for (const [key, item] of Object.entries(value)) {
+    failures.push(...validateFixtureInputReferences(item, sourceNames, `${path}.${key}`));
+  }
+  return failures;
+}
+
+function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
   const bySurface = countBy(operations, (operation) => operation.surface);
   const byRisk = countBy(operations, (operation) => scenarios[operation.operationId]?.risk ?? "missing");
   const byMode = countBy(operations, (operation) => scenarios[operation.operationId]?.mode ?? "missing");
   const mcpCount = [...curatedMcp.keys()].filter((operationId) => scenarios[operationId]?.adapters?.mcp).length;
+  const executable = operations.filter((operation) => isExecutableByDefault(operation, scenarios[operation.operationId], fixtures)).length;
+  const setupSources = Object.entries(fixtures.sources ?? {}).filter(([, source]) => source.setup);
 
   return [
     "# Live E2E Coverage Matrix",
@@ -438,10 +554,11 @@ function renderMatrix({ curatedMcp, operations, scenarios }) {
     "## Protected Runner",
     "",
     "- Plan without secrets: `pnpm live:e2e:plan`.",
-    "- Execute the read-only live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.",
-    "- The first executable slice runs only GET operations that need no path fixture, required query, body, binary payload, stream, send, or mutation cleanup.",
+    "- Execute the default safe live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.",
+    "- The default executable slice runs GET `read` operations plus GET `read_fixture` operations whose inputs are declared in `test/live-e2e/fixtures.json`.",
+    "- Read fixtures may declare setup gates. The runner only seeds those fixtures when the setup gate is enabled and the target recipient is allowlisted.",
     "- `sdk` and `cli` adapters call the built public TypeScript SDK and generated CLI. `mcp` calls the curated FastMCP tools for operations that intentionally exist in MCP; non-curated operations are reported as skipped, not passed.",
-    "- Mutation, send, binary, stream, and path-fixture operations remain gated until the fixture ownership registry and cleanup proof are implemented.",
+    "- Mutation, send, binary, and stream operations remain blocked until explicit gates and ownership/cleanup proof are present.",
     "",
     "## Summary",
     "",
@@ -451,6 +568,15 @@ function renderMatrix({ curatedMcp, operations, scenarios }) {
     `- SDK adapters required per operation: ${sdkAdapters.join(", ")}.`,
     "- CLI adapters required per operation: generated command for every OpenAPI operation.",
     `- MCP adapters required for curated tools: ${mcpCount}.`,
+    `- Default executable live operations: ${executable}.`,
+    `- Blocked behind safety gates: ${operations.length - executable}.`,
+    `- Fixture setup sources: ${
+      setupSources.length > 0
+        ? setupSources
+            .map(([name, source]) => `${name} (${source.setup.gates.join("; ")})`)
+            .join(", ")
+        : "none"
+    }.`,
     `- Risks: ${renderCounts(byRisk)}.`,
     `- Modes: ${renderCounts(byMode)}.`,
     "",
@@ -470,6 +596,25 @@ function renderMatrix({ curatedMcp, operations, scenarios }) {
     }),
     "",
   ].join("\n");
+}
+
+function isExecutableByDefault(operation, scenario, fixtures) {
+  if (scenario?.risk !== "read") {
+    return false;
+  }
+  if (scenario.mode === "read") {
+    return true;
+  }
+  if (scenario.mode !== "read_fixture") {
+    return false;
+  }
+
+  const entry = fixtures.operations?.[operation.operationId];
+  if (!entry || entry.ownership !== "discovered-read") {
+    return false;
+  }
+  return operation.pathParams.every((parameter) => entry.inputs?.path?.[parameter.name]) &&
+    operation.queryParams.filter((parameter) => parameter.required).every((parameter) => entry.inputs?.query?.[parameter.name]);
 }
 
 function printDryRunPlan({ operations, scenarios }) {

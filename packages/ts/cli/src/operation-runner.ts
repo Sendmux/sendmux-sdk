@@ -43,7 +43,12 @@ export async function runSdkOperation(
     ...operationOptions,
   });
 
-  return command.renderResult(rawResponseData(response));
+  const data = rawResponseData(response);
+  if (operation.responseKind === "text" && typeof data === "string") {
+    return command.renderTextResult(data);
+  }
+
+  return command.renderResult(data);
 }
 
 function operationFor(operation: OperationDefinition): SdkOperation {

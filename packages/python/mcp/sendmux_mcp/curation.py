@@ -342,3 +342,14 @@ def customise_component(route: Any, component: Any) -> None:
     component.title = tool.title
     component.description = tool.description
     component.tags = set(getattr(component, "tags", set())) | {"sendmux", surface}
+    if has_text_response(route):
+        component.output_schema = None
+
+
+def has_text_response(route: Any) -> bool:
+    responses = getattr(route, "responses", None)
+    if not isinstance(responses, dict):
+        return False
+    success = responses.get("200")
+    content_schema = getattr(success, "content_schema", None)
+    return isinstance(content_schema, dict) and "text/plain" in content_schema

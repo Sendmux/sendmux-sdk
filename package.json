@@ -13,7 +13,7 @@
     "build:ruby": "pnpm generate:ruby && node scripts/check-ruby.mjs && node scripts/build-ruby-gems.mjs",
     "canary:openapi": "node scripts/check-openapi-canary.mjs",
     "check:cli": "node scripts/check-cli.mjs",
-    "check:live-e2e": "node scripts/check-live-e2e-coverage.mjs",
+    "check:live-e2e": "node scripts/check-live-e2e-coverage.mjs && node scripts/check-live-e2e-runner.mjs",
     "check:surface-coverage": "node scripts/check-surface-coverage.mjs",
     "drift:check": "pnpm normalize:check && pnpm generate:ts && pnpm generate:go && pnpm generate:php && pnpm generate:python && pnpm generate:ruby && pnpm generate:mcp && pnpm generate:cli && pnpm verify:sdk-staleness",
     "generate:cli": "node scripts/generate-cli.mjs",

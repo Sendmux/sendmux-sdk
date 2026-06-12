@@ -1,0 +1,2913 @@
+{
+  "scenarios": {
+    "mailboxBatchDeleteMessages": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_batch_delete_messages",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "mailboxBatchGetMessages": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_batch_get_messages",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "mailboxBatchUpdateMessages": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_batch_update_messages",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "mailboxCountMessages": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_count_messages",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxCreateFolder": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "mailboxDeleteFolder": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "folder_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "mailboxDeleteMessage": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "message_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "mailboxGetChanges": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_changes",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetFolder": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "folder_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxGetFolderChanges": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetIdentity": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_identity",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetMe": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_me",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetMessage": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_message",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "message_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxGetMessageAttachment": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Range"
+        ],
+        "pathParams": [
+          "message_id",
+          "attachment_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
+    "mailboxGetQuotaChanges": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetSession": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_session",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetSubmission": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "submission_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxGetSubmissionChanges": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxGetThread": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_thread",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "thread_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxGetThreadContent": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "thread_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxListBody": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_body",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "message_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxListContent": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_content",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "message_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxListFolders": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_folders",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListGrantedMailboxes": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_granted_mailboxes",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListIdentities": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_identities",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListMessages": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_messages",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListQuotas": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListSubmissions": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListThreadMessages": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_thread_messages",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "thread_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxListThreads": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_list_threads",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxListUsage": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxQueryFolderChanges": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxQueryMessageChanges": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "mailboxSearchMessageSnippets": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_search_message_snippets",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [
+          "q"
+        ],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "mailboxSendMessage": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_send_message",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "mailboxStreamEvents": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Last-Event-ID"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_STREAM=1"
+      ],
+      "mode": "stream",
+      "risk": "stream"
+    },
+    "mailboxUpdateFolder": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "folder_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "mailboxUpdateIdentity": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_update_identity",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "mailboxUpdateMessage": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "message_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "mailboxUploadAttachment": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "binary",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [
+          "filename"
+        ],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
+    "managementActivateProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementCreateDomain": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_create_domain",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "managementCreateMailbox": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_create_mailbox",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "managementCreateMailboxKey": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_create_mailbox_key",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "managementCreateProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "managementCreateSharedAmazonSesLimitRequest": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "managementCreateWebhook": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_create_webhook",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "create_cleanup",
+      "risk": "mutation"
+    },
+    "managementDeactivateProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementDeleteDomain": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "managementDeleteMailbox": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "managementDeleteMailboxKey": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_delete_mailbox_key",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id",
+          "key_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "managementDeleteProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "managementDeleteWebhook": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
+    "managementGetDeliveryPayload": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id",
+          "delivery_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetDomain": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_domain",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetDomainFilters": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetDomainZoneFile": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_domain_zone_file",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetEmailLog": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_email_log",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetEmailMetrics": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_email_metrics",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementGetInboxLog": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetMailbox": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_mailbox",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetMailboxFilters": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementGetProviderLimits": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementGetProviderStats": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementGetProviderUsage": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementGetSharedAmazonSesLimitRequest": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementGetSpendSummary": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_spend_summary",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementGetWebhook": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementListBalance": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListDelivery": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
+    "managementListDomains": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_list_domains",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListEmailLogs": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_list_email_logs",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListInboxLogs": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListMailboxes": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_list_mailboxes",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListProviders": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListTransactions": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementListWebhooks": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_list_webhooks",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "managementRequestSendingAccountLimitIncrease": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementResumeMailbox": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_resume_mailbox",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementRotateWebhookSecret": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementSetDomainFilters": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "managementSetMailboxFilters": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "managementSuspendMailbox": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_suspend_mailbox",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementTestProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementTestWebhook": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_test_webhook",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementUpdateMailbox": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_update_mailbox",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "managementUpdateProvider": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "managementUpdateWebhook": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "update_restore",
+      "risk": "mutation"
+    },
+    "managementVerifyDomain": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_verify_domain",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "sendingGetOpenApiSpec": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
+    "sendingSendEmail": {
+      "adapters": {
+        "cli": true,
+        "mcp": "sending_send_email",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_STAGING_SEND=1",
+        "SENDMUX_STAGING_SEND_TO allowlist"
+      ],
+      "mode": "send",
+      "risk": "send"
+    },
+    "sendingSendEmailBatch": {
+      "adapters": {
+        "cli": true,
+        "mcp": "sending_send_email_batch",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_STAGING_SEND=1",
+        "SENDMUX_STAGING_SEND_TO allowlist"
+      ],
+      "mode": "send",
+      "risk": "send"
+    }
+  },
+  "version": 1
+}

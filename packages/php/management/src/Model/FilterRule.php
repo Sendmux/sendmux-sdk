@@ -365,7 +365,7 @@ class FilterRule implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets pattern
      *
-     * @param string $pattern Email address or bare domain name. Validated against RFC 5321/1035 regexes.
+     * @param string $pattern Email address or bare domain name. Validated against RFC 5321/1035 regexes. The `*@domain` wildcard spelling is accepted and normalised to the bare domain (matching is by exact address or sender domain).
      *
      * @return $this
      */

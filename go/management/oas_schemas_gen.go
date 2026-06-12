@@ -1891,7 +1891,9 @@ type FilterRule struct {
 	// Free-form caption for the rule (≤255 chars). UI-only metadata — never consulted at match time.
 	// `null` when absent.
 	Note OptNilString `json:"note"`
-	// Email address or bare domain name. Validated against RFC 5321/1035 regexes.
+	// Email address or bare domain name. Validated against RFC 5321/1035 regexes. The `*@domain`
+	// wildcard spelling is accepted and normalised to the bare domain (matching is by exact address or
+	// sender domain).
 	Pattern string `json:"pattern"`
 	// Rule type.
 	Type FilterRuleType `json:"type"`

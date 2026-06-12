@@ -29,7 +29,7 @@ class FilterRule(BaseModel):
     FilterRule
     """ # noqa: E501
     note: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Free-form caption for the rule (≤255 chars). UI-only metadata — never consulted at match time. `null` when absent.")
-    pattern: StrictStr = Field(description="Email address or bare domain name. Validated against RFC 5321/1035 regexes.")
+    pattern: StrictStr = Field(description="Email address or bare domain name. Validated against RFC 5321/1035 regexes. The `*@domain` wildcard spelling is accepted and normalised to the bare domain (matching is by exact address or sender domain).")
     type: StrictStr = Field(description="Rule type")
     __properties: ClassVar[List[str]] = ["note", "pattern", "type"]
 

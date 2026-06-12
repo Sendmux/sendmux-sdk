@@ -25,6 +25,8 @@ const envelope = {
   },
 };
 
+ensureCliBuilt();
+
 const serverState = { requests: [] };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 const server = createServer(async (request, response) => {
@@ -336,6 +338,17 @@ try {
 } finally {
   server.close();
   rmSync(tempHome, { force: true, recursive: true });
+}
+
+function ensureCliBuilt() {
+  const command = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+  const result = spawnSync(command, ["--filter", "@sendmux/cli", "build"], {
+    encoding: "utf8",
+    stdio: "inherit",
+  });
+  if (result.status !== 0) {
+    throw new Error("CLI build failed before gate checks");
+  }
 }
 
 function runCli(args) {

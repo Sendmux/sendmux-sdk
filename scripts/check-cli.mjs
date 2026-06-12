@@ -24,6 +24,14 @@ const envelope = {
     has_more: false,
   },
 };
+const openApiDocument = {
+  openapi: "3.1.0",
+  info: {
+    title: "Sending API fixture",
+    version: "1.0.0",
+  },
+  paths: {},
+};
 
 ensureCliBuilt();
 
@@ -42,7 +50,7 @@ const server = createServer(async (request, response) => {
     url: request.url ?? "",
   });
   response.setHeader("Content-Type", "application/json");
-  response.end(JSON.stringify(envelope));
+  response.end(JSON.stringify((request.url ?? "").startsWith("/openapi.json") ? openApiDocument : envelope));
 });
 
 server.listen(0, "127.0.0.1");
@@ -74,7 +82,23 @@ try {
   }
 
   const parsed = JSON.parse(jsonResult.stdout);
-  assertDeepEqual(parsed, envelope, "--json must emit the raw SDK response envelope");
+  assertDeepEqual(parsed, envelope, "--json must emit the raw API response envelope");
+
+  const openApiResult = await runCli([
+    "sending:get-open-api-spec",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--json",
+  ]);
+
+  assertCliSuccess(openApiResult, "sending:get-open-api-spec with mailbox key");
+  assertDeepEqual(
+    JSON.parse(openApiResult.stdout),
+    openApiDocument,
+    "--json must emit non-envelope API response payloads without the SDK response wrapper",
+  );
 
   const identityResult = await runCli([
     "mailbox:get-identity",

@@ -43,7 +43,7 @@ export async function runSdkOperation(
     ...operationOptions,
   });
 
-  return command.renderResult(rawEnvelope(response));
+  return command.renderResult(rawResponseData(response));
 }
 
 function operationFor(operation: OperationDefinition): SdkOperation {
@@ -56,15 +56,10 @@ function operationFor(operation: OperationDefinition): SdkOperation {
   return sdkOperation as SdkOperation;
 }
 
-function rawEnvelope(value: unknown): unknown {
+function rawResponseData(value: unknown): unknown {
   if (!value || typeof value !== "object" || !("data" in value)) {
     return value;
   }
 
-  const data = (value as { data?: unknown }).data;
-  if (!data || typeof data !== "object" || !("ok" in data)) {
-    return value;
-  }
-
-  return data;
+  return (value as { data?: unknown }).data;
 }

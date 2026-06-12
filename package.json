@@ -28,7 +28,9 @@
     "normalize:codegen": "node scripts/normalize-openapi-for-codegen.mjs",
     "smoke:mcp-staging": "node scripts/smoke-mcp-staging.mjs",
     "smoke:ts-staging": "node scripts/smoke-ts-staging.mjs",
-    "live:e2e:plan": "node scripts/check-live-e2e-coverage.mjs --dry-run",
+    "live:e2e": "node scripts/run-live-e2e.mjs",
+    "live:e2e:matrix": "node scripts/check-live-e2e-coverage.mjs --dry-run",
+    "live:e2e:plan": "node scripts/run-live-e2e.mjs --plan",
     "test:ts-helpers": "node scripts/test-ts-helpers.mjs",
     "verify:codegen": "node scripts/verify-normalized-openapi.mjs",
     "verify:layout": "node scripts/verify-layout.mjs",
@@ -44,6 +46,7 @@
     "@hey-api/openapi-ts": "0.97.3",
     "@openapitools/openapi-generator-cli": "2.32.0",
     "@redocly/cli": "2.31.5",
+    "@sendmux/sdk": "workspace:*",
     "esbuild": "0.27.1",
     "typescript": "5.9.3"
   }

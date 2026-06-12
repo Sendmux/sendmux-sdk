@@ -20,6 +20,9 @@ importers:
       '@redocly/cli':
         specifier: 2.31.5
         version: 2.31.5(@opentelemetry/api@1.9.1)(core-js@3.49.0)
+      '@sendmux/sdk':
+        specifier: workspace:*
+        version: link:packages/ts/sdk
       esbuild:
         specifier: 0.27.1
         version: 0.27.1

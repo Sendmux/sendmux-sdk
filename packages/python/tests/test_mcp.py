@@ -18,6 +18,7 @@ from sendmux_mcp.hosted_proxy import (
     HostedProxyTransport,
     path_template_pattern,
 )
+from sendmux_mcp.live_e2e import expected_api_error_exception
 from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.server import create_server
 from sendmux_mcp.verification import structured_result
@@ -127,6 +128,27 @@ def test_wrong_key_prefix_rejected_before_server_start() -> None:
             ),
             transport=ok_transport(),
         )
+
+
+def test_live_e2e_expected_error_parser_handles_literal_eval_type_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def raise_type_error(_value: str) -> object:
+        raise TypeError("malformed node or string")
+
+    monkeypatch.setattr("sendmux_mcp.live_e2e.ast.literal_eval", raise_type_error)
+
+    assert not expected_api_error_exception(
+        Exception("upstream - {'ok': False, 'error': {'code': 'not_found'}, 'meta': {'request_id': 'req_test'}}"),
+        ["not_found"],
+    )
+
+
+def test_live_e2e_expected_error_parser_accepts_matching_api_error() -> None:
+    assert expected_api_error_exception(
+        Exception("upstream - {'ok': False, 'error': {'code': 'not_found'}, 'meta': {'request_id': 'req_test'}}"),
+        ["not_found"],
+    )
 
 
 def test_umbrella_cli_reads_surfaces_from_env(monkeypatch: pytest.MonkeyPatch) -> None:

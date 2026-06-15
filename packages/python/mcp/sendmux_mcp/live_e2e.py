@@ -137,7 +137,7 @@ def expected_api_error_exception(error: Exception, expected_error_codes: list[st
         return False
     try:
         value = ast.literal_eval(text.split(" - ", 1)[1])
-    except (SyntaxError, ValueError):
+    except (SyntaxError, ValueError, TypeError, MemoryError, RecursionError):
         return False
     if not isinstance(value, dict) or value.get("ok") is not False:
         return False

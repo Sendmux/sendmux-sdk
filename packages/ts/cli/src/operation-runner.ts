@@ -59,6 +59,7 @@ export async function runSdkOperation(
     if (typeof data === "string" || data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
       return command.renderBinaryResult(data);
     }
+    throw new Error("SDK operation mailboxGetMessageAttachment did not return binary content");
   }
 
   const response = await sdkOperation({

@@ -233,6 +233,11 @@ func normaliseResult(value any, op operation) (any, error) {
 		if !ok {
 			return nil, fmt.Errorf("mailboxStreamEvents did not return an io.Reader")
 		}
+		if closer, ok := value.(io.Closer); ok {
+			defer func() {
+				_ = closer.Close()
+			}()
+		}
 		body, err := io.ReadAll(reader)
 		if err != nil {
 			return nil, err
@@ -296,6 +301,11 @@ func readTextResponse(value any) (string, bool, error) {
 		return text, true, nil
 	}
 	if reader, ok := value.(io.Reader); ok {
+		if closer, ok := value.(io.Closer); ok {
+			defer func() {
+				_ = closer.Close()
+			}()
+		}
 		data, err := io.ReadAll(reader)
 		return string(data), true, err
 	}
@@ -588,11 +598,11 @@ func contains(values []string, needle string) bool {
 }
 
 func appBaseURL() string {
-	return firstEnv("SENDMUX_LIVE_E2E_APP_BASE_URL", "SENDMUX_STAGING_APP_BASE_URL", "https://app.sendmux.ai/api/v1")
+	return firstEnvOrDefault("https://app.sendmux.ai/api/v1", "SENDMUX_LIVE_E2E_APP_BASE_URL", "SENDMUX_STAGING_APP_BASE_URL")
 }
 
 func sendingBaseURL() string {
-	return firstEnv("SENDMUX_LIVE_E2E_SENDING_BASE_URL", "SENDMUX_STAGING_SMTP_BASE_URL", "https://smtp.sendmux.ai/api/v1")
+	return firstEnvOrDefault("https://smtp.sendmux.ai/api/v1", "SENDMUX_LIVE_E2E_SENDING_BASE_URL", "SENDMUX_STAGING_SMTP_BASE_URL")
 }
 
 func rootAPIKey() string {
@@ -610,6 +620,13 @@ func firstEnv(names ...string) string {
 		}
 	}
 	return ""
+}
+
+func firstEnvOrDefault(defaultValue string, names ...string) string {
+	if value := firstEnv(names...); value != "" {
+		return value
+	}
+	return defaultValue
 }
 
 func requiredEnv(names ...string) string {

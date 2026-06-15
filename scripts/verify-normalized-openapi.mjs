@@ -18,6 +18,7 @@ for (const spec of specs) {
   assertVersion({ document: openApiGenerator, file: openApiGeneratorPath, expected: "3.0.3" });
   assertNoUnevaluatedProperties({ document: openApi31, file: openApi31Path });
   assertNoUnevaluatedProperties({ document: openApiGenerator, file: openApiGeneratorPath });
+  assertNoNullableAllOfBranches({ document: openApi31, file: openApi31Path });
   assertNoNullableTypeArrays({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoNullSchemaBranches({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoNumericExclusiveBounds({ document: openApiGenerator, file: openApiGeneratorPath });

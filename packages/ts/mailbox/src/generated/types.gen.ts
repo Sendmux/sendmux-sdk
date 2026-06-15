@@ -165,9 +165,7 @@ export type MailboxMessageSummary = {
     cc: Array<MailboxAddress>;
     flags: MailboxMessageFlags;
     folder_ids: Array<string>;
-    from: MailboxAddress & ({
-        [key: string]: unknown;
-    } | null);
+    from: MailboxAddress | null;
     has_attachments: boolean;
     /**
      * Message ID
@@ -193,9 +191,7 @@ export type MailboxThreadSummary = {
      * Thread ID
      */
     id: string;
-    last_message: MailboxMessageSummary & ({
-        [key: string]: unknown;
-    } | null);
+    last_message: MailboxMessageSummary | null;
     message_count: number;
     participants: Array<MailboxAddress>;
     states: {
@@ -291,9 +287,7 @@ export type MailboxMessageContent = {
     participants: {
         bcc: Array<MailboxAddress>;
         cc: Array<MailboxAddress>;
-        from: MailboxAddress & ({
-            [key: string]: unknown;
-        } | null);
+        from: MailboxAddress | null;
         reply_to: Array<MailboxAddress>;
         to: Array<MailboxAddress>;
     };
@@ -524,7 +518,7 @@ export type MailboxSearchSnippetsResult = {
     sync_state: string | null;
 };
 
-export type MailboxRealtimeMessage = MailboxMessageSummary & ({
+export type MailboxRealtimeMessage = (MailboxMessageSummary & {
     attachments: Array<MailboxAttachment>;
     body: {
         html: string | null;
@@ -533,7 +527,7 @@ export type MailboxRealtimeMessage = MailboxMessageSummary & ({
         text: string | null;
     };
     rfc5322_message_id: string | null;
-} | null);
+}) | null;
 
 export type MailboxRealtimeEvent = {
     event_type: 'message.received' | 'message.received.spam' | 'sync_required';

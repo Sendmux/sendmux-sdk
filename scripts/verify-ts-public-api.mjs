@@ -8,6 +8,7 @@ const core = [
   "packages/ts/core/dist/errors.d.ts",
 ].map((path) => readFileSync(path, "utf8")).join("\n");
 const surfaces = ["mailbox", "management", "sending"];
+const managementGeneratedTypes = readFileSync("packages/ts/management/src/generated/types.gen.ts", "utf8");
 
 const requiredCoreExports = [
   "export interface ApiError ",
@@ -32,6 +33,10 @@ for (const surface of surfaces) {
   if (/\b(ApiError|SuccessEnvelope)\b/.test(declaration)) {
     throw new Error(`@sendmux/${surface} root declaration leaks generated ApiError/SuccessEnvelope names.`);
   }
+}
+
+if (!/pending_request:\s*SharedAmazonSesLimitRequest\s*\|\s*null;/.test(managementGeneratedTypes)) {
+  throw new Error("management generated type SharedAmazonSesLimitRequestPage.pending_request must preserve null");
 }
 
 console.log("TypeScript public API exposes core-owned ApiError/SuccessEnvelope only.");

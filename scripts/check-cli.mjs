@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 
 const cliPath = "packages/ts/cli/bin/run.js";
 const operationsPath = "packages/ts/cli/src/generated/operations.ts";
+const operationRunnerPath = "packages/ts/cli/src/operation-runner.ts";
 const commandsDir = "packages/ts/cli/src/commands";
 const mailboxKey = "smx_mbx_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
@@ -58,6 +59,7 @@ await once(server, "listening");
 
 try {
   assertCliCommandCoverage();
+  assertBinaryOperationRunnerGuard();
   await assertCliArrayParameterSupport();
 
   const address = server.address();
@@ -455,6 +457,20 @@ function assertCliCommandCoverage() {
 
   if (missing.length > 0) {
     throw new Error(`CLI command modules are missing for generated operations:\n${missing.join("\n")}`);
+  }
+}
+
+function assertBinaryOperationRunnerGuard() {
+  const source = readFileSync(operationRunnerPath, "utf8");
+  const branch = source.match(/if \(operation\.operationId === "mailboxGetMessageAttachment"\) \{[\s\S]*?\n  \}/)?.[0];
+  if (!branch) {
+    throw new Error("CLI operation runner must special-case mailboxGetMessageAttachment");
+  }
+  if (!branch.includes("return command.renderBinaryResult(data);")) {
+    throw new Error("CLI attachment branch must render binary results directly");
+  }
+  if (!branch.includes('throw new Error("SDK operation mailboxGetMessageAttachment did not return binary content");')) {
+    throw new Error("CLI attachment branch must reject non-binary data instead of falling through");
   }
 }
 

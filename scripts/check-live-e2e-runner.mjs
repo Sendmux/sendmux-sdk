@@ -90,6 +90,7 @@ assert.equal(gatedPlan.summary.gated, 0);
 assert.equal(gatedPlan.summary.blocked, 0);
 
 const runnerSource = readFileSync("scripts/run-live-e2e.mjs", "utf8");
+const goLiveE2eSource = readFileSync("go/livee2e/main.go", "utf8");
 const ownedMailboxCreateMatch = runnerSource.match(/async function createOwnedManagementMailbox[\s\S]*?\n}/);
 assert.ok(ownedMailboxCreateMatch, "createOwnedManagementMailbox helper must exist");
 const ownedMailboxCreateSource = ownedMailboxCreateMatch[0];
@@ -124,5 +125,31 @@ for (const helperName of [
     `${helperName} must use createOwnedManagementMailbox so it inherits mailbox readiness polling`,
   );
 }
+
+assert.match(
+  goLiveE2eSource,
+  /func appBaseURL\(\) string \{\s*return firstEnvOrDefault\("https:\/\/app\.sendmux\.ai\/api\/v1", "SENDMUX_LIVE_E2E_APP_BASE_URL", "SENDMUX_STAGING_APP_BASE_URL"\)\s*\}/,
+  "Go live E2E app base URL must use a real default fallback",
+);
+assert.match(
+  goLiveE2eSource,
+  /func sendingBaseURL\(\) string \{\s*return firstEnvOrDefault\("https:\/\/smtp\.sendmux\.ai\/api\/v1", "SENDMUX_LIVE_E2E_SENDING_BASE_URL", "SENDMUX_STAGING_SMTP_BASE_URL"\)\s*\}/,
+  "Go live E2E sending base URL must use a real default fallback",
+);
+assert.doesNotMatch(
+  goLiveE2eSource,
+  /firstEnv\([^)]*"https:\/\/[^"]+"/,
+  "Go live E2E must not pass URL literals to firstEnv",
+);
+assert.match(
+  goLiveE2eSource,
+  /func normaliseResult[\s\S]*?if closer, ok := value\.\(io\.Closer\); ok \{\s*defer func\(\) \{\s*_ = closer\.Close\(\)\s*\}\(\)\s*\}[\s\S]*?io\.ReadAll\(reader\)/,
+  "Go live E2E stream readers must be closed after reading",
+);
+assert.match(
+  goLiveE2eSource,
+  /func readTextResponse[\s\S]*?if closer, ok := value\.\(io\.Closer\); ok \{\s*defer func\(\) \{\s*_ = closer\.Close\(\)\s*\}\(\)\s*\}[\s\S]*?io\.ReadAll\(reader\)/,
+  "Go live E2E text readers must be closed after reading",
+);
 
 console.log("Live E2E runner contract checks passed.");

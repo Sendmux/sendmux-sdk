@@ -20,10 +20,11 @@ for (const spec of specs) {
   assertOpenApi31({ document: source, file: inputPath });
 
   const stripped = stripUnevaluatedProperties(source);
+  const openApi31Codegen = normalizeOpenApi31Document(stripped);
   const codegenName = spec.replace(/\.json$/, ".codegen.json");
   const oagCodegenName = spec.replace(/\.json$/, ".openapi-generator.codegen.json");
 
-  writeJson(join(outputDir, codegenName), stripped);
+  writeJson(join(outputDir, codegenName), openApi31Codegen);
 
   const converter = new Converter(stripped, {});
   writeJson(join(outputDir, oagCodegenName), normalizeOpenApiGeneratorDocument(converter.convert()));
@@ -121,6 +122,13 @@ function normalizeOpenApiGeneratorDocument(document) {
   });
 }
 
+function normalizeOpenApi31Document(document) {
+  return walkSchemaLikeObjects(document, (schema) => {
+    normalizeOpenApi31NullableAllOfBranches(schema);
+    return schema;
+  });
+}
+
 function normalizeExclusiveBounds(schema) {
   if (typeof schema.exclusiveMinimum === "number") {
     schema.minimum = schema.exclusiveMinimum;
@@ -205,6 +213,38 @@ function normalizeNullableAllOfBranches(schema) {
   if (schema.allOf.length === 0) {
     delete schema.allOf;
   }
+}
+
+function normalizeOpenApi31NullableAllOfBranches(schema) {
+  if (!Array.isArray(schema.allOf)) {
+    return;
+  }
+
+  const branches = [];
+  let nullable = false;
+
+  for (const branch of schema.allOf) {
+    if (!isNullableSchema(branch)) {
+      branches.push(branch);
+      continue;
+    }
+
+    nullable = true;
+    const nonNullable = removeNullableMarker(branch);
+    if (!isRedundantTypeOnlySchema(nonNullable)) {
+      branches.push(nonNullable);
+    }
+  }
+
+  if (!nullable) {
+    return;
+  }
+
+  delete schema.allOf;
+  schema.anyOf = [
+    branches.length === 1 ? branches[0] : { allOf: branches },
+    { type: "null" },
+  ];
 }
 
 function removeNullableMarker(schema) {

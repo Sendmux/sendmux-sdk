@@ -420,9 +420,7 @@ export type SharedAmazonSesLimit = {
 
 export type SharedAmazonSesLimitRequestPage = {
     limit: SharedAmazonSesLimit;
-    pending_request: SharedAmazonSesLimitRequest & ({
-        [key: string]: unknown;
-    } | null);
+    pending_request: SharedAmazonSesLimitRequest | null;
 };
 
 export type SharedAmazonSesLimitRequestCreateResponse = SuccessEnvelope & {

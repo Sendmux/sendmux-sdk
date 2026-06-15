@@ -63,7 +63,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
         'cc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'flags' => '\Sendmux\Mailbox\Model\MailboxMessageFlags',
         'folder_ids' => 'string[]',
-        'from' => '\Sendmux\Mailbox\Model\MailboxMessageSummaryFrom',
+        'from' => '\Sendmux\Mailbox\Model\MailboxAddress',
         'has_attachments' => 'bool',
         'id' => 'string',
         'keywords' => 'string[]',
@@ -109,7 +109,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
         'cc' => false,
         'flags' => false,
         'folder_ids' => false,
-        'from' => false,
+        'from' => true,
         'has_attachments' => false,
         'id' => false,
         'keywords' => false,
@@ -362,8 +362,8 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
         if ($this->container['folder_ids'] === null) {
             $invalidProperties[] = "'folder_ids' can't be null";
         }
-        if ($this->container['from'] === null) {
-            $invalidProperties[] = "'from' can't be null";
+        if ($this->container['from'] === null && !$this->isNullableSetToNull('from')) {
+            $invalidProperties[] = "'from' is required";
         }
         if ($this->container['has_attachments'] === null) {
             $invalidProperties[] = "'has_attachments' can't be null";
@@ -518,9 +518,9 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets from
      *
-     * @return \Sendmux\Mailbox\Model\MailboxMessageSummaryFrom
+     * @return \Sendmux\Mailbox\Model\MailboxAddress|null
      */
-    public function getFrom(): \Sendmux\Mailbox\Model\MailboxMessageSummaryFrom
+    public function getFrom(): ?\Sendmux\Mailbox\Model\MailboxAddress
     {
         return $this->container['from'];
     }
@@ -528,14 +528,21 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets from
      *
-     * @param \Sendmux\Mailbox\Model\MailboxMessageSummaryFrom $from from
+     * @param \Sendmux\Mailbox\Model\MailboxAddress|null $from from
      *
      * @return $this
      */
-    public function setFrom(\Sendmux\Mailbox\Model\MailboxMessageSummaryFrom $from): static
+    public function setFrom(?\Sendmux\Mailbox\Model\MailboxAddress $from): static
     {
         if (is_null($from)) {
-            throw new InvalidArgumentException('non-nullable from cannot be null');
+            array_push($this->openAPINullablesSetToNull, 'from');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('from', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
         }
         $this->container['from'] = $from;
 

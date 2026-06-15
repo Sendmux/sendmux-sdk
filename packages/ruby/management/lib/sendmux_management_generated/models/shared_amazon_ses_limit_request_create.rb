@@ -41,7 +41,7 @@ module Sendmux::Management::Generated
     def self.openapi_types
       {
         :'limit' => :'SharedAmazonSesLimit',
-        :'request' => :'SharedAmazonSesLimitRequestCreateRequest'
+        :'request' => :'SharedAmazonSesLimitRequest'
       }
     end
 

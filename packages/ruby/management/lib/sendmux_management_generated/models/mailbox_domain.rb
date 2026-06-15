@@ -29,7 +29,10 @@ module Sendmux::Management::Generated
     # Active mailboxes currently using this domain
     attr_accessor :mailbox_count
 
-    # SES DKIM status (pending/success/failed/temporary_failure/not_started)
+    # `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.
+    attr_accessor :mode
+
+    # Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)
     attr_accessor :ses_dkim_status
 
     # Current verification state
@@ -68,6 +71,7 @@ module Sendmux::Management::Generated
         :'domain' => :'domain',
         :'id' => :'id',
         :'mailbox_count' => :'mailbox_count',
+        :'mode' => :'mode',
         :'ses_dkim_status' => :'ses_dkim_status',
         :'verification_status' => :'verification_status',
         :'verified_at' => :'verified_at'
@@ -92,6 +96,7 @@ module Sendmux::Management::Generated
         :'domain' => :'String',
         :'id' => :'String',
         :'mailbox_count' => :'Integer',
+        :'mode' => :'String',
         :'ses_dkim_status' => :'String',
         :'verification_status' => :'String',
         :'verified_at' => :'String'
@@ -152,6 +157,12 @@ module Sendmux::Management::Generated
         self.mailbox_count = nil
       end
 
+      if attributes.key?(:'mode')
+        self.mode = attributes[:'mode']
+      else
+        self.mode = nil
+      end
+
       if attributes.key?(:'ses_dkim_status')
         self.ses_dkim_status = attributes[:'ses_dkim_status']
       else
@@ -200,6 +211,10 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "mailbox_count", must be greater than or equal to 0.')
       end
 
+      if @mode.nil?
+        invalid_properties.push('invalid value for "mode", mode cannot be nil.')
+      end
+
       if @verification_status.nil?
         invalid_properties.push('invalid value for "verification_status", verification_status cannot be nil.')
       end
@@ -217,6 +232,9 @@ module Sendmux::Management::Generated
       return false if @id.nil?
       return false if @mailbox_count.nil?
       return false if @mailbox_count < 0
+      return false if @mode.nil?
+      mode_validator = EnumAttributeValidator.new('String', ["send_only", "send_receive", "unknown_default_open_api"])
+      return false unless mode_validator.valid?(@mode)
       return false if @verification_status.nil?
       verification_status_validator = EnumAttributeValidator.new('String', ["pending", "verified", "failed", "unknown_default_open_api"])
       return false unless verification_status_validator.valid?(@verification_status)
@@ -278,6 +296,16 @@ module Sendmux::Management::Generated
     end
 
     # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] mode Object to be assigned
+    def mode=(mode)
+      validator = EnumAttributeValidator.new('String', ["send_only", "send_receive", "unknown_default_open_api"])
+      unless validator.valid?(mode)
+        fail ArgumentError, "invalid value for \"mode\", must be one of #{validator.allowable_values}."
+      end
+      @mode = mode
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
     # @param [Object] verification_status Object to be assigned
     def verification_status=(verification_status)
       validator = EnumAttributeValidator.new('String', ["pending", "verified", "failed", "unknown_default_open_api"])
@@ -297,6 +325,7 @@ module Sendmux::Management::Generated
           domain == o.domain &&
           id == o.id &&
           mailbox_count == o.mailbox_count &&
+          mode == o.mode &&
           ses_dkim_status == o.ses_dkim_status &&
           verification_status == o.verification_status &&
           verified_at == o.verified_at
@@ -311,7 +340,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [created_at, dns_records, domain, id, mailbox_count, ses_dkim_status, verification_status, verified_at].hash
+      [created_at, dns_records, domain, id, mailbox_count, mode, ses_dkim_status, verification_status, verified_at].hash
     end
 
     # Builds the object from hash

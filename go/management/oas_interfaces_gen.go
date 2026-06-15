@@ -5,6 +5,10 @@ type ManagementActivateProviderRes interface {
 	managementActivateProviderRes()
 }
 
+type ManagementCancelSharedAmazonSesLimitRequestRes interface {
+	managementCancelSharedAmazonSesLimitRequestRes()
+}
+
 type ManagementCreateDomainRes interface {
 	managementCreateDomainRes()
 }
@@ -171,6 +175,10 @@ type ManagementTestProviderRes interface {
 
 type ManagementTestWebhookRes interface {
 	managementTestWebhookRes()
+}
+
+type ManagementUpdateDomainRes interface {
+	managementUpdateDomainRes()
 }
 
 type ManagementUpdateMailboxRes interface {

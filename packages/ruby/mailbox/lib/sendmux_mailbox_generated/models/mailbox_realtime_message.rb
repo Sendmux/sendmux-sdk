@@ -94,7 +94,7 @@ module Sendmux::Mailbox::Generated
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
         :'folder_ids' => :'Array<String>',
-        :'from' => :'MailboxMessageSummaryFrom',
+        :'from' => :'MailboxAddress',
         :'has_attachments' => :'Boolean',
         :'id' => :'String',
         :'keywords' => :'Array<String>',
@@ -114,6 +114,7 @@ module Sendmux::Mailbox::Generated
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
+        :'from',
         :'preview',
         :'received_at',
         :'sent_at',
@@ -289,10 +290,6 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "folder_ids", folder_ids cannot be nil.')
       end
 
-      if @from.nil?
-        invalid_properties.push('invalid value for "from", from cannot be nil.')
-      end
-
       if @has_attachments.nil?
         invalid_properties.push('invalid value for "has_attachments", has_attachments cannot be nil.')
       end
@@ -328,7 +325,6 @@ module Sendmux::Mailbox::Generated
       return false if @cc.nil?
       return false if @flags.nil?
       return false if @folder_ids.nil?
-      return false if @from.nil?
       return false if @has_attachments.nil?
       return false if @id.nil?
       return false if @keywords.nil?
@@ -376,16 +372,6 @@ module Sendmux::Mailbox::Generated
       end
 
       @folder_ids = folder_ids
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] from Value to be assigned
-    def from=(from)
-      if from.nil?
-        fail ArgumentError, 'from cannot be nil'
-      end
-
-      @from = from
     end
 
     # Custom attribute writer method with validation

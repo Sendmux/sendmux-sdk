@@ -41,8 +41,8 @@ class SharedAmazonSesLimitRequest(BaseModel):
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['pending', 'approved', 'denied']):
-            raise ValueError("must be one of enum values ('pending', 'approved', 'denied')")
+        if value not in set(['pending', 'approved', 'denied', 'cancelled']):
+            raise ValueError("must be one of enum values ('pending', 'approved', 'denied', 'cancelled')")
         return value
 
     model_config = ConfigDict(

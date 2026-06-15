@@ -1862,8 +1862,17 @@
             "minimum": 0,
             "type": "integer"
           },
+          "mode": {
+            "description": "`send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.",
+            "enum": [
+              "send_only",
+              "send_receive"
+            ],
+            "example": "send_receive",
+            "type": "string"
+          },
           "ses_dkim_status": {
-            "description": "SES DKIM status (pending/success/failed/temporary_failure/not_started)",
+            "description": "Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)",
             "type": [
               "string",
               "null"
@@ -1889,6 +1898,7 @@
         "required": [
           "id",
           "domain",
+          "mode",
           "verification_status",
           "ses_dkim_status",
           "verified_at",
@@ -1902,7 +1912,7 @@
         "additionalProperties": false,
         "properties": {
           "dkim": {
-            "description": "Three SES DKIM CNAME records",
+            "description": "Three Amazon SES DKIM CNAME records",
             "items": {
               "$ref": "#/components/schemas/MailboxDomainNameValueRecord"
             },
@@ -1968,7 +1978,7 @@
       },
       "MailboxDomainNameValueRecord": {
         "additionalProperties": false,
-        "description": "SPF TXT record covering both SES and Sendmux includes",
+        "description": "SPF TXT record covering Amazon SES sending",
         "properties": {
           "name": {
             "example": "_sendmux.acme.com",
@@ -1993,7 +2003,7 @@
             "type": "boolean"
           },
           "mx": {
-            "description": "MX record present with priority 10 pointing at mail.sendmux.ai",
+            "description": "MX record present when the domain is configured for receiving. Always true for send-only domains.",
             "type": "boolean"
           },
           "spf": {
@@ -2020,7 +2030,7 @@
             "$ref": "#/components/schemas/MailboxDomainVerifyChecks"
           },
           "ses_dkim_status": {
-            "description": "Latest SES DKIM status from AWS",
+            "description": "Latest Amazon SES DKIM status",
             "type": "string"
           },
           "status": {
@@ -6218,7 +6228,8 @@
             "enum": [
               "pending",
               "approved",
-              "denied"
+              "denied",
+              "cancelled"
             ],
             "type": "string"
           }
@@ -6233,10 +6244,45 @@
           "created_at",
           "decided_at"
         ],
-        "type": [
-          "object",
-          "null"
-        ]
+        "type": "object"
+      },
+      "SharedAmazonSesLimitRequestCancel": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "$ref": "#/components/schemas/SharedAmazonSesLimit"
+          },
+          "request": {
+            "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
+          }
+        },
+        "required": [
+          "request",
+          "limit"
+        ],
+        "type": "object"
+      },
+      "SharedAmazonSesLimitRequestCancelResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/SharedAmazonSesLimitRequestCancel"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
       },
       "SharedAmazonSesLimitRequestCreate": {
         "additionalProperties": false,
@@ -6245,14 +6291,7 @@
             "$ref": "#/components/schemas/SharedAmazonSesLimit"
           },
           "request": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
-              },
-              {
-                "type": "object"
-              }
-            ]
+            "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
           }
         },
         "required": [
@@ -6290,7 +6329,17 @@
             "$ref": "#/components/schemas/SharedAmazonSesLimit"
           },
           "pending_request": {
-            "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
           }
         },
         "required": [
@@ -7690,7 +7739,7 @@
         ]
       },
       "post": {
-        "description": "Creates a new sending domain and returns the DNS records the customer must place before verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any failure the partial state is automatically rolled back.\n\nSupply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.",
+        "description": "Creates a new domain and returns the DNS records the customer must place before verification can succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES; on any failure the partial state is automatically rolled back.\n\nSupply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.",
         "operationId": "managementCreateDomain",
         "parameters": [
           {
@@ -7714,6 +7763,15 @@
                   "domain": {
                     "description": "Fully qualified domain name. Must be lowercased and domain-only (no scheme).",
                     "example": "mail.acme.com",
+                    "type": "string"
+                  },
+                  "mode": {
+                    "description": "Domain usage mode. Defaults to `send_receive` when omitted.",
+                    "enum": [
+                      "send_only",
+                      "send_receive"
+                    ],
+                    "example": "send_only",
                     "type": "string"
                   }
                 },
@@ -7919,11 +7977,128 @@
         "tags": [
           "Domains"
         ]
+      },
+      "patch": {
+        "description": "Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to `pending` until the required MX record verifies.",
+        "operationId": "managementUpdateDomain",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "description": "Domain public ID",
+              "example": "mdom_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "description": "Weak ETag from a prior GET. Reject with 409 conflict when the server's current ETag differs.",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "mode": {
+                    "description": "The only supported update is upgrading to `send_receive`.",
+                    "enum": [
+                      "send_receive"
+                    ],
+                    "example": "send_receive",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mode"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainItemResponse"
+                }
+              }
+            },
+            "description": "Updated domain",
+            "headers": {
+              "ETag": {
+                "description": "Weak ETag for the post-update resource.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid request body"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Domain not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "`If-Match` mismatch, or the domain cannot be upgraded in its current state."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unsupported update. Only `{ mode: \"send_receive\" }` is accepted."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update a mailbox domain",
+        "tags": [
+          "Domains"
+        ]
       }
     },
     "/domains/{public_id}/filters": {
       "get": {
-        "description": "Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Per-mailbox rules take precedence at match time.\n\nResponses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.",
+        "description": "Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence at match time.\n\nResponses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.",
         "operationId": "managementGetDomainFilters",
         "parameters": [
           {
@@ -7986,6 +8161,16 @@
             },
             "description": "Domain not found"
           },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Domain is send-only and does not support inbound filters."
+          },
           "503": {
             "content": {
               "application/json": {
@@ -8008,7 +8193,7 @@
         ]
       },
       "put": {
-        "description": "Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.\n\nFor optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.",
+        "description": "Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.\n\nFor optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.",
         "operationId": "managementSetDomainFilters",
         "parameters": [
           {
@@ -8086,7 +8271,7 @@
                 }
               }
             },
-            "description": "`If-Match` ETag does not match the server's current version."
+            "description": "`If-Match` ETag does not match the server's current version, or the domain is send-only."
           },
           "422": {
             "content": {
@@ -8122,7 +8307,7 @@
     },
     "/domains/{public_id}/verify": {
       "post": {
-        "description": "Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records, then asks SES for the latest DKIM status. If every check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.",
+        "description": "Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.",
         "operationId": "managementVerifyDomain",
         "parameters": [
           {
@@ -13657,6 +13842,16 @@
               }
             },
             "description": "Mailbox is not active"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Credential setup temporarily unavailable"
           }
         },
         "security": [
@@ -14697,6 +14892,65 @@
           }
         ],
         "summary": "Request a shared Amazon SES daily limit increase",
+        "tags": [
+          "Sending accounts"
+        ]
+      }
+    },
+    "/providers/shared-amazon-ses-limit-request/{request_id}": {
+      "delete": {
+        "description": "Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved or denied requests cannot be cancelled.",
+        "operationId": "managementCancelSharedAmazonSesLimitRequest",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "description": "Shared Amazon SES limit request public ID",
+              "example": "slir_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharedAmazonSesLimitRequestCancelResponse"
+                }
+              }
+            },
+            "description": "Request cancelled"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request has already been approved or denied"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Cancel a shared Amazon SES daily limit request",
         "tags": [
           "Sending accounts"
         ]

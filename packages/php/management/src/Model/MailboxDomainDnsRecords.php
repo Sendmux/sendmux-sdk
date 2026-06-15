@@ -320,7 +320,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets dkim
      *
-     * @param \Sendmux\Management\Model\MailboxDomainNameValueRecord[] $dkim Three SES DKIM CNAME records
+     * @param \Sendmux\Management\Model\MailboxDomainNameValueRecord[] $dkim Three Amazon SES DKIM CNAME records
      *
      * @return $this
      */

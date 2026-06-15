@@ -25,7 +25,7 @@ from pydantic_core import to_jsonable_python
 
 class MailboxDomainNameValueRecord(BaseModel):
     """
-    SPF TXT record covering both SES and Sendmux includes
+    SPF TXT record covering Amazon SES sending
     """ # noqa: E501
     name: StrictStr
     value: StrictStr

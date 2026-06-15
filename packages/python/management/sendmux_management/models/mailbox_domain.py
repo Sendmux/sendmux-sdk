@@ -34,10 +34,18 @@ class MailboxDomain(BaseModel):
     domain: StrictStr = Field(description="Fully qualified domain name")
     id: StrictStr = Field(description="Public ID")
     mailbox_count: Annotated[int, Field(strict=True, ge=0)] = Field(description="Active mailboxes currently using this domain")
-    ses_dkim_status: Optional[StrictStr] = Field(description="SES DKIM status (pending/success/failed/temporary_failure/not_started)")
+    mode: StrictStr = Field(description="`send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.")
+    ses_dkim_status: Optional[StrictStr] = Field(description="Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)")
     verification_status: StrictStr = Field(description="Current verification state")
     verified_at: Optional[StrictStr] = Field(description="ISO 8601 timestamp of last successful verification")
-    __properties: ClassVar[List[str]] = ["created_at", "dns_records", "domain", "id", "mailbox_count", "ses_dkim_status", "verification_status", "verified_at"]
+    __properties: ClassVar[List[str]] = ["created_at", "dns_records", "domain", "id", "mailbox_count", "mode", "ses_dkim_status", "verification_status", "verified_at"]
+
+    @field_validator('mode')
+    def mode_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['send_only', 'send_receive']):
+            raise ValueError("must be one of enum values ('send_only', 'send_receive')")
+        return value
 
     @field_validator('verification_status')
     def verification_status_validate_enum(cls, value):
@@ -115,6 +123,7 @@ class MailboxDomain(BaseModel):
             "domain": obj.get("domain"),
             "id": obj.get("id"),
             "mailbox_count": obj.get("mailbox_count"),
+            "mode": obj.get("mode"),
             "ses_dkim_status": obj.get("ses_dkim_status"),
             "verification_status": obj.get("verification_status"),
             "verified_at": obj.get("verified_at")

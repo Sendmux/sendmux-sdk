@@ -17,7 +17,7 @@ module Sendmux::Management::Generated
   class MailboxDomainVerifyResult < ApiModelBase
     attr_accessor :checks
 
-    # Latest SES DKIM status from AWS
+    # Latest Amazon SES DKIM status
     attr_accessor :ses_dkim_status
 
     # Post-check verification status

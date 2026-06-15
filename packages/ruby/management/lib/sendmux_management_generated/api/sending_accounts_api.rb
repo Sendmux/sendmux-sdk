@@ -89,6 +89,69 @@ module Sendmux::Management::Generated
       return data, status_code, headers
     end
 
+    # Cancel a shared Amazon SES daily limit request
+    # Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved or denied requests cannot be cancelled.
+    # @param request_id [String]
+    # @param [Hash] opts the optional parameters
+    # @return [SharedAmazonSesLimitRequestCancelResponse]
+    def management_cancel_shared_amazon_ses_limit_request(request_id, opts = {})
+      data, _status_code, _headers = management_cancel_shared_amazon_ses_limit_request_with_http_info(request_id, opts)
+      data
+    end
+
+    # Cancel a shared Amazon SES daily limit request
+    # Cancels a pending shared Amazon SES daily limit increase request for the caller&#39;s team. Approved or denied requests cannot be cancelled.
+    # @param request_id [String]
+    # @param [Hash] opts the optional parameters
+    # @return [Array<(SharedAmazonSesLimitRequestCancelResponse, Integer, Hash)>] SharedAmazonSesLimitRequestCancelResponse data, response status code and response headers
+    def management_cancel_shared_amazon_ses_limit_request_with_http_info(request_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: SendingAccountsApi.management_cancel_shared_amazon_ses_limit_request ...'
+      end
+      # verify the required parameter 'request_id' is set
+      if @api_client.config.client_side_validation && request_id.nil?
+        fail ArgumentError, "Missing the required parameter 'request_id' when calling SendingAccountsApi.management_cancel_shared_amazon_ses_limit_request"
+      end
+      # resource path
+      local_var_path = '/providers/shared-amazon-ses-limit-request/{request_id}'.sub('{request_id}', CGI.escape(request_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'SharedAmazonSesLimitRequestCancelResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"SendingAccountsApi.management_cancel_shared_amazon_ses_limit_request",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:DELETE, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: SendingAccountsApi#management_cancel_shared_amazon_ses_limit_request\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Create an SMTP sending account
     # Creates a custom SMTP sending account. Supply an `Idempotency-Key` header to safely retry on network errors. The SMTP password is stored securely and is never returned.
     # @param [Hash] opts the optional parameters

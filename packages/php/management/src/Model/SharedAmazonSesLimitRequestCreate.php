@@ -60,7 +60,7 @@ class SharedAmazonSesLimitRequestCreate implements ModelInterface, ArrayAccess, 
      */
     protected static array $openAPITypes = [
         'limit' => '\Sendmux\Management\Model\SharedAmazonSesLimit',
-        'request' => '\Sendmux\Management\Model\SharedAmazonSesLimitRequestCreateRequest'
+        'request' => '\Sendmux\Management\Model\SharedAmazonSesLimitRequest'
     ];
 
     /**
@@ -307,9 +307,9 @@ class SharedAmazonSesLimitRequestCreate implements ModelInterface, ArrayAccess, 
     /**
      * Gets request
      *
-     * @return \Sendmux\Management\Model\SharedAmazonSesLimitRequestCreateRequest
+     * @return \Sendmux\Management\Model\SharedAmazonSesLimitRequest
      */
-    public function getRequest(): \Sendmux\Management\Model\SharedAmazonSesLimitRequestCreateRequest
+    public function getRequest(): \Sendmux\Management\Model\SharedAmazonSesLimitRequest
     {
         return $this->container['request'];
     }
@@ -317,11 +317,11 @@ class SharedAmazonSesLimitRequestCreate implements ModelInterface, ArrayAccess, 
     /**
      * Sets request
      *
-     * @param \Sendmux\Management\Model\SharedAmazonSesLimitRequestCreateRequest $request request
+     * @param \Sendmux\Management\Model\SharedAmazonSesLimitRequest $request request
      *
      * @return $this
      */
-    public function setRequest(\Sendmux\Management\Model\SharedAmazonSesLimitRequestCreateRequest $request): static
+    public function setRequest(\Sendmux\Management\Model\SharedAmazonSesLimitRequest $request): static
     {
         if (is_null($request)) {
             throw new InvalidArgumentException('non-nullable request cannot be null');

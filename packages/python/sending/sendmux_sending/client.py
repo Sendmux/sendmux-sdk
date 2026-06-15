@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import certifi
+
 from typing import Any, cast
 
 from sendmux_core import RetryOptions, configure_auth, validate_api_key
@@ -38,7 +40,7 @@ def create_sending_client(
     retry_options: RetryOptions | None = None,
 ) -> SendmuxSendingApiClient:
     validate_api_key(api_key, surface="mailbox")
-    configuration = Configuration(host=base_url or DEFAULT_BASE_URL)
+    configuration = Configuration(host=base_url or DEFAULT_BASE_URL, ssl_ca_cert=certifi.where())
     configure_auth(configuration, api_key=api_key)
     return SendmuxSendingApiClient(configuration, retry_options=retry_options)
 

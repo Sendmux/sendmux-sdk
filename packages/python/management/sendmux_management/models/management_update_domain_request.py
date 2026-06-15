@@ -17,19 +17,25 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxMessageSummaryFrom(BaseModel):
+class ManagementUpdateDomainRequest(BaseModel):
     """
-    MailboxMessageSummaryFrom
+    ManagementUpdateDomainRequest
     """ # noqa: E501
-    email: StrictStr
-    name: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["email", "name"]
+    mode: StrictStr = Field(description="The only supported update is upgrading to `send_receive`.")
+    __properties: ClassVar[List[str]] = ["mode"]
+
+    @field_validator('mode')
+    def mode_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['send_receive']):
+            raise ValueError("must be one of enum values ('send_receive')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +55,7 @@ class MailboxMessageSummaryFrom(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxMessageSummaryFrom from a JSON string"""
+        """Create an instance of ManagementUpdateDomainRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,16 +76,11 @@ class MailboxMessageSummaryFrom(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if name (nullable) is None
-        # and model_fields_set contains the field
-        if self.name is None and "name" in self.model_fields_set:
-            _dict['name'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxMessageSummaryFrom from a dict"""
+        """Create an instance of ManagementUpdateDomainRequest from a dict"""
         if obj is None:
             return None
 
@@ -87,7 +88,6 @@ class MailboxMessageSummaryFrom(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "email": obj.get("email"),
-            "name": obj.get("name")
+            "mode": obj.get("mode")
         })
         return _obj

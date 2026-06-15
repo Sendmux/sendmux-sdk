@@ -38,6 +38,29 @@ export async function runSdkOperation(
   const client = clientFactories[operation.surface](clientConfig);
   const operationOptions = await parseOperationOptions(command, operation, flags);
   const sdkOperation = operationFor(operation);
+
+  if (operation.operationId === "mailboxStreamEvents") {
+    const controller = new AbortController();
+    const response = await sdkOperation({
+      client,
+      ...operationOptions,
+      signal: controller.signal,
+    });
+    return command.renderResult(await firstStreamEvent(response, controller));
+  }
+
+  if (operation.operationId === "mailboxGetMessageAttachment") {
+    const response = await sdkOperation({
+      client,
+      ...operationOptions,
+      parseAs: "arrayBuffer",
+    });
+    const data = rawResponseData(response);
+    if (typeof data === "string" || data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
+      return command.renderBinaryResult(data);
+    }
+  }
+
   const response = await sdkOperation({
     client,
     ...operationOptions,
@@ -49,6 +72,47 @@ export async function runSdkOperation(
   }
 
   return command.renderResult(data);
+}
+
+async function firstStreamEvent(value: unknown, controller: AbortController): Promise<unknown> {
+  const stream = (value as { stream?: AsyncIterable<unknown> } | null)?.stream;
+  if (!stream || typeof stream[Symbol.asyncIterator] !== "function") {
+    throw new Error("SDK operation mailboxStreamEvents did not return an async stream");
+  }
+
+  const iterator = stream[Symbol.asyncIterator]();
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("Timed out waiting for mailbox stream event")), 20_000);
+  });
+
+  try {
+    const next = await Promise.race([iterator.next(), timeout]);
+    if (next.done) {
+      throw new Error("Mailbox stream ended before yielding an event");
+    }
+    return next.value;
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    controller.abort();
+    await closeAsyncIterator(iterator);
+  }
+}
+
+async function closeAsyncIterator(iterator: AsyncIterator<unknown>): Promise<void> {
+  if (typeof iterator.return !== "function") {
+    return;
+  }
+  await Promise.race([iterator.return(), sleep(1_000)]).catch(() => undefined);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(resolve, ms);
+    timeout.unref?.();
+  });
 }
 
 function operationFor(operation: OperationDefinition): SdkOperation {

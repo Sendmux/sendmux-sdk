@@ -87,6 +87,7 @@ __all__ = [
     "ManagementCreateMailboxRequest",
     "ManagementCreateMailboxRequestSendScope",
     "ManagementTestWebhook200Response",
+    "ManagementUpdateDomainRequest",
     "ProviderAllowedActions",
     "ProviderCreateBody",
     "ProviderCreateBodyQuotas",
@@ -118,8 +119,9 @@ __all__ = [
     "SetFilterStateBody",
     "SharedAmazonSesLimit",
     "SharedAmazonSesLimitRequest",
+    "SharedAmazonSesLimitRequestCancel",
+    "SharedAmazonSesLimitRequestCancelResponse",
     "SharedAmazonSesLimitRequestCreate",
-    "SharedAmazonSesLimitRequestCreateRequest",
     "SharedAmazonSesLimitRequestCreateResponse",
     "SharedAmazonSesLimitRequestPage",
     "SharedAmazonSesLimitRequestPageResponse",
@@ -221,6 +223,7 @@ from sendmux_management.models.management_create_mailbox_key_request import Mana
 from sendmux_management.models.management_create_mailbox_request import ManagementCreateMailboxRequest as ManagementCreateMailboxRequest
 from sendmux_management.models.management_create_mailbox_request_send_scope import ManagementCreateMailboxRequestSendScope as ManagementCreateMailboxRequestSendScope
 from sendmux_management.models.management_test_webhook200_response import ManagementTestWebhook200Response as ManagementTestWebhook200Response
+from sendmux_management.models.management_update_domain_request import ManagementUpdateDomainRequest as ManagementUpdateDomainRequest
 from sendmux_management.models.provider_allowed_actions import ProviderAllowedActions as ProviderAllowedActions
 from sendmux_management.models.provider_create_body import ProviderCreateBody as ProviderCreateBody
 from sendmux_management.models.provider_create_body_quotas import ProviderCreateBodyQuotas as ProviderCreateBodyQuotas
@@ -252,8 +255,9 @@ from sendmux_management.models.sending_account_limit_request_response import Sen
 from sendmux_management.models.set_filter_state_body import SetFilterStateBody as SetFilterStateBody
 from sendmux_management.models.shared_amazon_ses_limit import SharedAmazonSesLimit as SharedAmazonSesLimit
 from sendmux_management.models.shared_amazon_ses_limit_request import SharedAmazonSesLimitRequest as SharedAmazonSesLimitRequest
+from sendmux_management.models.shared_amazon_ses_limit_request_cancel import SharedAmazonSesLimitRequestCancel as SharedAmazonSesLimitRequestCancel
+from sendmux_management.models.shared_amazon_ses_limit_request_cancel_response import SharedAmazonSesLimitRequestCancelResponse as SharedAmazonSesLimitRequestCancelResponse
 from sendmux_management.models.shared_amazon_ses_limit_request_create import SharedAmazonSesLimitRequestCreate as SharedAmazonSesLimitRequestCreate
-from sendmux_management.models.shared_amazon_ses_limit_request_create_request import SharedAmazonSesLimitRequestCreateRequest as SharedAmazonSesLimitRequestCreateRequest
 from sendmux_management.models.shared_amazon_ses_limit_request_create_response import SharedAmazonSesLimitRequestCreateResponse as SharedAmazonSesLimitRequestCreateResponse
 from sendmux_management.models.shared_amazon_ses_limit_request_page import SharedAmazonSesLimitRequestPage as SharedAmazonSesLimitRequestPage
 from sendmux_management.models.shared_amazon_ses_limit_request_page_response import SharedAmazonSesLimitRequestPageResponse as SharedAmazonSesLimitRequestPageResponse

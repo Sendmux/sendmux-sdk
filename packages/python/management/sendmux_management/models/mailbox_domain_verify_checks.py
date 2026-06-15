@@ -28,7 +28,7 @@ class MailboxDomainVerifyChecks(BaseModel):
     MailboxDomainVerifyChecks
     """ # noqa: E501
     dmarc: StrictBool = Field(description="DMARC TXT record matches expected value")
-    mx: StrictBool = Field(description="MX record present with priority 10 pointing at mail.sendmux.ai")
+    mx: StrictBool = Field(description="MX record present when the domain is configured for receiving. Always true for send-only domains.")
     spf: StrictBool = Field(description="SPF TXT record matches expected value")
     verification_txt: StrictBool = Field(description="Ownership TXT record present with correct value")
     __properties: ClassVar[List[str]] = ["dmarc", "mx", "spf", "verification_txt"]

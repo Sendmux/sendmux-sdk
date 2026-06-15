@@ -22,6 +22,7 @@ for (const spec of specs) {
   assertNoNullSchemaBranches({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoNumericExclusiveBounds({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoComposedNullableWithoutType({ document: openApiGenerator, file: openApiGeneratorPath });
+  assertNoNullableAllOfBranches({ document: openApiGenerator, file: openApiGeneratorPath });
 }
 
 console.log(`Verified normalized OpenAPI artifacts in ${outputDir}`);
@@ -136,6 +137,28 @@ function assertNoComposedNullableWithoutType({ document, file }) {
 
   if (count > 0) {
     throw new Error(`${file} still contains ${count} composed nullable schemas without sibling type`);
+  }
+}
+
+function assertNoNullableAllOfBranches({ document, file }) {
+  const count = countMatches(document, (value) => {
+    return Boolean(
+      value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        Array.isArray(value.allOf) &&
+        value.allOf.some(
+          (branch) =>
+            branch &&
+            typeof branch === "object" &&
+            !Array.isArray(branch) &&
+            (branch.nullable === true || (Array.isArray(branch.type) && branch.type.includes("null"))),
+        ),
+    );
+  });
+
+  if (count > 0) {
+    throw new Error(`${file} still contains ${count} nullable allOf branch schemas`);
   }
 }
 

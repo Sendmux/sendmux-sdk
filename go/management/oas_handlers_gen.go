@@ -217,11 +217,197 @@ func (s *Server) handleManagementActivateProviderRequest(args [1]string, argsEsc
 	}
 }
 
+// handleManagementCancelSharedAmazonSesLimitRequestRequest handles managementCancelSharedAmazonSesLimitRequest operation.
+//
+// Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved
+// or denied requests cannot be cancelled.
+//
+// DELETE /providers/shared-amazon-ses-limit-request/{request_id}
+func (s *Server) handleManagementCancelSharedAmazonSesLimitRequestRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("managementCancelSharedAmazonSesLimitRequest"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/providers/shared-amazon-ses-limit-request/{request_id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), ManagementCancelSharedAmazonSesLimitRequestOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: ManagementCancelSharedAmazonSesLimitRequestOperation,
+			ID:   "managementCancelSharedAmazonSesLimitRequest",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityBearerAuth(ctx, ManagementCancelSharedAmazonSesLimitRequestOperation, r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "BearerAuth",
+					Err:              err,
+				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	params, err := decodeManagementCancelSharedAmazonSesLimitRequestParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ManagementCancelSharedAmazonSesLimitRequestRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    ManagementCancelSharedAmazonSesLimitRequestOperation,
+			OperationSummary: "Cancel a shared Amazon SES daily limit request",
+			OperationID:      "managementCancelSharedAmazonSesLimitRequest",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "request_id",
+					In:   "path",
+				}: params.RequestID,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ManagementCancelSharedAmazonSesLimitRequestParams
+			Response = ManagementCancelSharedAmazonSesLimitRequestRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackManagementCancelSharedAmazonSesLimitRequestParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ManagementCancelSharedAmazonSesLimitRequest(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ManagementCancelSharedAmazonSesLimitRequest(ctx, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeManagementCancelSharedAmazonSesLimitRequestResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleManagementCreateDomainRequest handles managementCreateDomain operation.
 //
-// Creates a new sending domain and returns the DNS records the customer must place before
-// verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any
-// failure the partial state is automatically rolled back.
+// Creates a new domain and returns the DNS records the customer must place before verification can
+// succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also
+// configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES;
+//
+//	on any failure the partial state is automatically rolled back.
+//
 // Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network
 // errors. Replays with the same key return the original response; replays with a different body
 // return `409 idempotency_conflict`.
@@ -2891,7 +3077,8 @@ func (s *Server) handleManagementGetDomainRequest(args [1]string, argsEscaped bo
 // handleManagementGetDomainFiltersRequest handles managementGetDomainFilters operation.
 //
 // Returns the current sender-filter mode and rule set applied to every mailbox under this domain.
-// Per-mailbox rules take precedence at match time.
+// Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence
+// at match time.
 // Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set
 // has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on
 // the corresponding PUT for optimistic concurrency.
@@ -7732,11 +7919,11 @@ func (s *Server) handleManagementRotateWebhookSecretRequest(args [1]string, args
 
 // handleManagementSetDomainFiltersRequest handles managementSetDomainFilters operation.
 //
-// Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every
-// mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence).
+// Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain.
 //
-//	Maximum 1000 rules per request.
+//	Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules
 //
+// (which take precedence). Maximum 1000 rules per request.
 // For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched
 // `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to
 // re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
@@ -8710,6 +8897,208 @@ func (s *Server) handleManagementTestWebhookRequest(args [1]string, argsEscaped 
 	}
 }
 
+// handleManagementUpdateDomainRequest handles managementUpdateDomain operation.
+//
+// Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the
+// domain returns to `pending` until the required MX record verifies.
+//
+// PATCH /domains/{public_id}
+func (s *Server) handleManagementUpdateDomainRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("managementUpdateDomain"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/domains/{public_id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), ManagementUpdateDomainOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: ManagementUpdateDomainOperation,
+			ID:   "managementUpdateDomain",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityBearerAuth(ctx, ManagementUpdateDomainOperation, r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "BearerAuth",
+					Err:              err,
+				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	params, err := decodeManagementUpdateDomainParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	request, close, err := s.decodeManagementUpdateDomainRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response ManagementUpdateDomainRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    ManagementUpdateDomainOperation,
+			OperationSummary: "Update a mailbox domain",
+			OperationID:      "managementUpdateDomain",
+			Body:             request,
+			Params: middleware.Parameters{
+				{
+					Name: "public_id",
+					In:   "path",
+				}: params.PublicID,
+				{
+					Name: "If-Match",
+					In:   "header",
+				}: params.IfMatch,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = OptManagementUpdateDomainReq
+			Params   = ManagementUpdateDomainParams
+			Response = ManagementUpdateDomainRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackManagementUpdateDomainParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ManagementUpdateDomain(ctx, request, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ManagementUpdateDomain(ctx, request, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeManagementUpdateDomainResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleManagementUpdateMailboxRequest handles managementUpdateMailbox operation.
 //
 // Updates any combination of display_name, quota_bytes, and send_scope on a mailbox. The
@@ -9328,10 +9717,10 @@ func (s *Server) handleManagementUpdateWebhookRequest(args [1]string, argsEscape
 
 // handleManagementVerifyDomainRequest handles managementVerifyDomain operation.
 //
-// Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records,
-// then asks SES for the latest DKIM status. If every check passes the domain is marked verified.
-// Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check
-// on demand.
+// Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES
+// for the latest DKIM status. If every required check passes the domain is marked verified. Domains
+// automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on
+// demand.
 //
 // POST /domains/{public_id}/verify
 func (s *Server) handleManagementVerifyDomainRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {

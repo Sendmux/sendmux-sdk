@@ -314,6 +314,10 @@ function classifyScenario(operation) {
     return { mode: "destructive_cleanup_only", risk: "destructive" };
   }
 
+  if (id === "managementUpdateDomain") {
+    return { mode: "mutation_fixture", risk: "mutation" };
+  }
+
   if (operation.method === "patch" || operation.method === "put") {
     return { mode: "update_restore", risk: "mutation" };
   }
@@ -344,6 +348,9 @@ function fixtureFor(operation) {
 
 function resourceOwnershipFor(operation) {
   if (operation.method === "delete") {
+    return "e2e-owned";
+  }
+  if (operation.operationId === "managementUpdateDomain") {
     return "e2e-owned";
   }
   if (operation.method === "patch" || operation.method === "put") {

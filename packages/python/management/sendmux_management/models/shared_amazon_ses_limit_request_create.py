@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
 from sendmux_management.models.shared_amazon_ses_limit import SharedAmazonSesLimit
-from sendmux_management.models.shared_amazon_ses_limit_request_create_request import SharedAmazonSesLimitRequestCreateRequest
+from sendmux_management.models.shared_amazon_ses_limit_request import SharedAmazonSesLimitRequest
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,7 +30,7 @@ class SharedAmazonSesLimitRequestCreate(BaseModel):
     SharedAmazonSesLimitRequestCreate
     """ # noqa: E501
     limit: SharedAmazonSesLimit
-    request: SharedAmazonSesLimitRequestCreateRequest
+    request: SharedAmazonSesLimitRequest
     __properties: ClassVar[List[str]] = ["limit", "request"]
 
     model_config = ConfigDict(
@@ -91,6 +91,6 @@ class SharedAmazonSesLimitRequestCreate(BaseModel):
 
         _obj = cls.model_validate({
             "limit": SharedAmazonSesLimit.from_dict(obj["limit"]) if obj.get("limit") is not None else None,
-            "request": SharedAmazonSesLimitRequestCreateRequest.from_dict(obj["request"]) if obj.get("request") is not None else None
+            "request": SharedAmazonSesLimitRequest.from_dict(obj["request"]) if obj.get("request") is not None else None
         })
         return _obj

@@ -31,7 +31,7 @@ class MailboxRealtimeEvent(BaseModel):
     event_type: StrictStr
     is_spam: Optional[StrictBool]
     mailbox_id: StrictStr
-    message: MailboxRealtimeMessage
+    message: Optional[MailboxRealtimeMessage]
     message_id: Optional[StrictStr]
     message_id_kind: Optional[StrictStr]
     occurred_at: StrictStr
@@ -103,6 +103,11 @@ class MailboxRealtimeEvent(BaseModel):
         # and model_fields_set contains the field
         if self.is_spam is None and "is_spam" in self.model_fields_set:
             _dict['is_spam'] = None
+
+        # set to None if message (nullable) is None
+        # and model_fields_set contains the field
+        if self.message is None and "message" in self.model_fields_set:
+            _dict['message'] = None
 
         # set to None if message_id (nullable) is None
         # and model_fields_set contains the field

@@ -17,8 +17,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,7 +28,18 @@ class ManagementCreateDomainRequest(BaseModel):
     ManagementCreateDomainRequest
     """ # noqa: E501
     domain: StrictStr = Field(description="Fully qualified domain name. Must be lowercased and domain-only (no scheme).")
-    __properties: ClassVar[List[str]] = ["domain"]
+    mode: Optional[StrictStr] = Field(default=None, description="Domain usage mode. Defaults to `send_receive` when omitted.")
+    __properties: ClassVar[List[str]] = ["domain", "mode"]
+
+    @field_validator('mode')
+    def mode_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['send_only', 'send_receive']):
+            raise ValueError("must be one of enum values ('send_only', 'send_receive')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -81,6 +92,7 @@ class ManagementCreateDomainRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "domain": obj.get("domain")
+            "domain": obj.get("domain"),
+            "mode": obj.get("mode")
         })
         return _obj

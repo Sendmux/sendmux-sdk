@@ -15,11 +15,19 @@ type Handler interface {
 	//
 	// POST /providers/{public_id}/activate
 	ManagementActivateProvider(ctx context.Context, params ManagementActivateProviderParams) (ManagementActivateProviderRes, error)
+	// ManagementCancelSharedAmazonSesLimitRequest implements managementCancelSharedAmazonSesLimitRequest operation.
+	//
+	// Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved
+	// or denied requests cannot be cancelled.
+	//
+	// DELETE /providers/shared-amazon-ses-limit-request/{request_id}
+	ManagementCancelSharedAmazonSesLimitRequest(ctx context.Context, params ManagementCancelSharedAmazonSesLimitRequestParams) (ManagementCancelSharedAmazonSesLimitRequestRes, error)
 	// ManagementCreateDomain implements managementCreateDomain operation.
 	//
-	// Creates a new sending domain and returns the DNS records the customer must place before
-	// verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any
-	// failure the partial state is automatically rolled back.
+	// Creates a new domain and returns the DNS records the customer must place before verification can
+	// succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also
+	// configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES;
+	//  on any failure the partial state is automatically rolled back.
 	// Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network
 	// errors. Replays with the same key return the original response; replays with a different body
 	// return `409 idempotency_conflict`.
@@ -130,7 +138,8 @@ type Handler interface {
 	// ManagementGetDomainFilters implements managementGetDomainFilters operation.
 	//
 	// Returns the current sender-filter mode and rule set applied to every mailbox under this domain.
-	// Per-mailbox rules take precedence at match time.
+	// Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence
+	// at match time.
 	// Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set
 	// has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on
 	// the corresponding PUT for optimistic concurrency.
@@ -321,9 +330,9 @@ type Handler interface {
 	ManagementRotateWebhookSecret(ctx context.Context, params ManagementRotateWebhookSecretParams) (ManagementRotateWebhookSecretRes, error)
 	// ManagementSetDomainFilters implements managementSetDomainFilters operation.
 	//
-	// Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every
-	// mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence).
-	//  Maximum 1000 rules per request.
+	// Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain.
+	//  Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules
+	// (which take precedence). Maximum 1000 rules per request.
 	// For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched
 	// `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to
 	// re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
@@ -367,6 +376,13 @@ type Handler interface {
 	//
 	// POST /webhooks/{public_id}/test
 	ManagementTestWebhook(ctx context.Context, params ManagementTestWebhookParams) (ManagementTestWebhookRes, error)
+	// ManagementUpdateDomain implements managementUpdateDomain operation.
+	//
+	// Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the
+	// domain returns to `pending` until the required MX record verifies.
+	//
+	// PATCH /domains/{public_id}
+	ManagementUpdateDomain(ctx context.Context, req OptManagementUpdateDomainReq, params ManagementUpdateDomainParams) (ManagementUpdateDomainRes, error)
 	// ManagementUpdateMailbox implements managementUpdateMailbox operation.
 	//
 	// Updates any combination of display_name, quota_bytes, and send_scope on a mailbox. The
@@ -400,10 +416,10 @@ type Handler interface {
 	ManagementUpdateWebhook(ctx context.Context, req OptWebhookUpdateBody, params ManagementUpdateWebhookParams) (ManagementUpdateWebhookRes, error)
 	// ManagementVerifyDomain implements managementVerifyDomain operation.
 	//
-	// Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records,
-	// then asks SES for the latest DKIM status. If every check passes the domain is marked verified.
-	// Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check
-	// on demand.
+	// Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES
+	// for the latest DKIM status. If every required check passes the domain is marked verified. Domains
+	// automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on
+	// demand.
 	//
 	// POST /domains/{public_id}/verify
 	ManagementVerifyDomain(ctx context.Context, params ManagementVerifyDomainParams) (ManagementVerifyDomainRes, error)

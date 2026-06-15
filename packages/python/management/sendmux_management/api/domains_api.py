@@ -23,6 +23,7 @@ from sendmux_management.models.domain_item_cursor_list_response import DomainIte
 from sendmux_management.models.domain_item_response import DomainItemResponse
 from sendmux_management.models.domain_verify_response import DomainVerifyResponse
 from sendmux_management.models.management_create_domain_request import ManagementCreateDomainRequest
+from sendmux_management.models.management_update_domain_request import ManagementUpdateDomainRequest
 
 from sendmux_management.api_client import ApiClient, RequestSerialized
 from sendmux_management.api_response import ApiResponse
@@ -62,7 +63,7 @@ class DomainsApi:
     ) -> DomainItemResponse:
         """Add a mailbox domain
 
-        Creates a new sending domain and returns the DNS records the customer must place before verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
+        Creates a new domain and returns the DNS records the customer must place before verification can succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES; on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
 
         :param idempotency_key:
         :type idempotency_key: str
@@ -136,7 +137,7 @@ class DomainsApi:
     ) -> ApiResponse[DomainItemResponse]:
         """Add a mailbox domain
 
-        Creates a new sending domain and returns the DNS records the customer must place before verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
+        Creates a new domain and returns the DNS records the customer must place before verification can succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES; on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
 
         :param idempotency_key:
         :type idempotency_key: str
@@ -210,7 +211,7 @@ class DomainsApi:
     ) -> RESTResponseType:
         """Add a mailbox domain
 
-        Creates a new sending domain and returns the DNS records the customer must place before verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
+        Creates a new domain and returns the DNS records the customer must place before verification can succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES; on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
 
         :param idempotency_key:
         :type idempotency_key: str
@@ -1441,6 +1442,322 @@ class DomainsApi:
 
 
     @validate_call
+    def management_update_domain(
+        self,
+        public_id: StrictStr,
+        if_match: Optional[StrictStr] = None,
+        management_update_domain_request: Optional[ManagementUpdateDomainRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> DomainItemResponse:
+        """Update a mailbox domain
+
+        Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to `pending` until the required MX record verifies.
+
+        :param public_id: (required)
+        :type public_id: str
+        :param if_match:
+        :type if_match: str
+        :param management_update_domain_request:
+        :type management_update_domain_request: ManagementUpdateDomainRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._management_update_domain_serialize(
+            public_id=public_id,
+            if_match=if_match,
+            management_update_domain_request=management_update_domain_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "DomainItemResponse",
+            '400': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '422': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def management_update_domain_with_http_info(
+        self,
+        public_id: StrictStr,
+        if_match: Optional[StrictStr] = None,
+        management_update_domain_request: Optional[ManagementUpdateDomainRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[DomainItemResponse]:
+        """Update a mailbox domain
+
+        Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to `pending` until the required MX record verifies.
+
+        :param public_id: (required)
+        :type public_id: str
+        :param if_match:
+        :type if_match: str
+        :param management_update_domain_request:
+        :type management_update_domain_request: ManagementUpdateDomainRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._management_update_domain_serialize(
+            public_id=public_id,
+            if_match=if_match,
+            management_update_domain_request=management_update_domain_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "DomainItemResponse",
+            '400': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '422': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def management_update_domain_without_preload_content(
+        self,
+        public_id: StrictStr,
+        if_match: Optional[StrictStr] = None,
+        management_update_domain_request: Optional[ManagementUpdateDomainRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update a mailbox domain
+
+        Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to `pending` until the required MX record verifies.
+
+        :param public_id: (required)
+        :type public_id: str
+        :param if_match:
+        :type if_match: str
+        :param management_update_domain_request:
+        :type management_update_domain_request: ManagementUpdateDomainRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._management_update_domain_serialize(
+            public_id=public_id,
+            if_match=if_match,
+            management_update_domain_request=management_update_domain_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "DomainItemResponse",
+            '400': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '422': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _management_update_domain_serialize(
+        self,
+        public_id,
+        if_match,
+        management_update_domain_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if public_id is not None:
+            _path_params['public_id'] = public_id
+        # process the query parameters
+        # process the header parameters
+        if if_match is not None:
+            _header_params['If-Match'] = if_match
+        # process the form parameters
+        # process the body parameter
+        if management_update_domain_request is not None:
+            _body_params = management_update_domain_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/domains/{public_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def management_verify_domain(
         self,
         public_id: StrictStr,
@@ -1459,7 +1776,7 @@ class DomainsApi:
     ) -> DomainVerifyResponse:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records, then asks SES for the latest DKIM status. If every check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1527,7 +1844,7 @@ class DomainsApi:
     ) -> ApiResponse[DomainVerifyResponse]:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records, then asks SES for the latest DKIM status. If every check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1595,7 +1912,7 @@ class DomainsApi:
     ) -> RESTResponseType:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records, then asks SES for the latest DKIM status. If every check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str

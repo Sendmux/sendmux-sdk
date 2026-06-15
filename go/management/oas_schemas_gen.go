@@ -1362,6 +1362,7 @@ func (s *DomainItemResponseHeaders) SetResponse(val DomainItemResponse) {
 
 func (*DomainItemResponseHeaders) managementCreateDomainRes() {}
 func (*DomainItemResponseHeaders) managementGetDomainRes()    {}
+func (*DomainItemResponseHeaders) managementUpdateDomainRes() {}
 
 // Merged schema.
 type DomainItemResponseMeta struct {
@@ -3296,7 +3297,10 @@ type MailboxDomain struct {
 	ID string `json:"id"`
 	// Active mailboxes currently using this domain.
 	MailboxCount int `json:"mailbox_count"`
-	// SES DKIM status (pending/success/failed/temporary_failure/not_started).
+	// `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host
+	// mailboxes.
+	Mode MailboxDomainMode `json:"mode"`
+	// Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started).
 	SesDkimStatus NilString `json:"ses_dkim_status"`
 	// Current verification state.
 	VerificationStatus MailboxDomainVerificationStatus `json:"verification_status"`
@@ -3327,6 +3331,11 @@ func (s *MailboxDomain) GetID() string {
 // GetMailboxCount returns the value of MailboxCount.
 func (s *MailboxDomain) GetMailboxCount() int {
 	return s.MailboxCount
+}
+
+// GetMode returns the value of Mode.
+func (s *MailboxDomain) GetMode() MailboxDomainMode {
+	return s.Mode
 }
 
 // GetSesDkimStatus returns the value of SesDkimStatus.
@@ -3369,6 +3378,11 @@ func (s *MailboxDomain) SetMailboxCount(val int) {
 	s.MailboxCount = val
 }
 
+// SetMode sets the value of Mode.
+func (s *MailboxDomain) SetMode(val MailboxDomainMode) {
+	s.Mode = val
+}
+
 // SetSesDkimStatus sets the value of SesDkimStatus.
 func (s *MailboxDomain) SetSesDkimStatus(val NilString) {
 	s.SesDkimStatus = val
@@ -3386,7 +3400,7 @@ func (s *MailboxDomain) SetVerifiedAt(val NilString) {
 
 // Ref: #/components/schemas/MailboxDomainDnsRecords
 type MailboxDomainDnsRecords struct {
-	// Three SES DKIM CNAME records.
+	// Three Amazon SES DKIM CNAME records.
 	Dkim  []MailboxDomainNameValueRecord `json:"dkim"`
 	Dmarc MailboxDomainDnsRecordsDmarc   `json:"dmarc"`
 	// MX records the customer must place. All point at Sendmux's inbound mail servers.
@@ -3445,7 +3459,7 @@ func (s *MailboxDomainDnsRecords) SetVerification(val MailboxDomainDnsRecordsVer
 	s.Verification = val
 }
 
-// SPF TXT record covering both SES and Sendmux includes.
+// SPF TXT record covering Amazon SES sending.
 type MailboxDomainDnsRecordsDmarc struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -3471,7 +3485,7 @@ func (s *MailboxDomainDnsRecordsDmarc) SetValue(val string) {
 	s.Value = val
 }
 
-// SPF TXT record covering both SES and Sendmux includes.
+// SPF TXT record covering Amazon SES sending.
 type MailboxDomainDnsRecordsVerification struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -3495,6 +3509,49 @@ func (s *MailboxDomainDnsRecordsVerification) SetName(val string) {
 // SetValue sets the value of Value.
 func (s *MailboxDomainDnsRecordsVerification) SetValue(val string) {
 	s.Value = val
+}
+
+// `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host
+// mailboxes.
+type MailboxDomainMode string
+
+const (
+	MailboxDomainModeSendOnly    MailboxDomainMode = "send_only"
+	MailboxDomainModeSendReceive MailboxDomainMode = "send_receive"
+)
+
+// AllValues returns all MailboxDomainMode values.
+func (MailboxDomainMode) AllValues() []MailboxDomainMode {
+	return []MailboxDomainMode{
+		MailboxDomainModeSendOnly,
+		MailboxDomainModeSendReceive,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxDomainMode) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxDomainModeSendOnly:
+		return []byte(s), nil
+	case MailboxDomainModeSendReceive:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxDomainMode) UnmarshalText(data []byte) error {
+	switch MailboxDomainMode(data) {
+	case MailboxDomainModeSendOnly:
+		*s = MailboxDomainModeSendOnly
+		return nil
+	case MailboxDomainModeSendReceive:
+		*s = MailboxDomainModeSendReceive
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/MailboxDomainMxRecord
@@ -3523,7 +3580,7 @@ func (s *MailboxDomainMxRecord) SetTarget(val string) {
 	s.Target = val
 }
 
-// SPF TXT record covering both SES and Sendmux includes.
+// SPF TXT record covering Amazon SES sending.
 // Ref: #/components/schemas/MailboxDomainNameValueRecord
 type MailboxDomainNameValueRecord struct {
 	Name  string `json:"name"`
@@ -3603,7 +3660,7 @@ func (s *MailboxDomainVerificationStatus) UnmarshalText(data []byte) error {
 type MailboxDomainVerifyChecks struct {
 	// DMARC TXT record matches expected value.
 	Dmarc bool `json:"dmarc"`
-	// MX record present with priority 10 pointing at mail.sendmux.ai.
+	// MX record present when the domain is configured for receiving. Always true for send-only domains.
 	Mx bool `json:"mx"`
 	// SPF TXT record matches expected value.
 	Spf bool `json:"spf"`
@@ -3654,7 +3711,7 @@ func (s *MailboxDomainVerifyChecks) SetVerificationTxt(val bool) {
 // Ref: #/components/schemas/MailboxDomainVerifyResult
 type MailboxDomainVerifyResult struct {
 	Checks MailboxDomainVerifyChecks `json:"checks"`
-	// Latest SES DKIM status from AWS.
+	// Latest Amazon SES DKIM status.
 	SesDkimStatus string `json:"ses_dkim_status"`
 	// Post-check verification status.
 	Status MailboxDomainVerifyResultStatus `json:"status"`
@@ -4182,6 +4239,16 @@ type ManagementActivateProviderNotFound ApiError
 
 func (*ManagementActivateProviderNotFound) managementActivateProviderRes() {}
 
+type ManagementCancelSharedAmazonSesLimitRequestConflict ApiError
+
+func (*ManagementCancelSharedAmazonSesLimitRequestConflict) managementCancelSharedAmazonSesLimitRequestRes() {
+}
+
+type ManagementCancelSharedAmazonSesLimitRequestNotFound ApiError
+
+func (*ManagementCancelSharedAmazonSesLimitRequestNotFound) managementCancelSharedAmazonSesLimitRequestRes() {
+}
+
 type ManagementCreateDomainBadRequest ApiError
 
 func (*ManagementCreateDomainBadRequest) managementCreateDomainRes() {}
@@ -4193,6 +4260,8 @@ func (*ManagementCreateDomainConflict) managementCreateDomainRes() {}
 type ManagementCreateDomainReq struct {
 	// Fully qualified domain name. Must be lowercased and domain-only (no scheme).
 	Domain string `json:"domain"`
+	// Domain usage mode. Defaults to `send_receive` when omitted.
+	Mode OptManagementCreateDomainReqMode `json:"mode"`
 }
 
 // GetDomain returns the value of Domain.
@@ -4200,9 +4269,61 @@ func (s *ManagementCreateDomainReq) GetDomain() string {
 	return s.Domain
 }
 
+// GetMode returns the value of Mode.
+func (s *ManagementCreateDomainReq) GetMode() OptManagementCreateDomainReqMode {
+	return s.Mode
+}
+
 // SetDomain sets the value of Domain.
 func (s *ManagementCreateDomainReq) SetDomain(val string) {
 	s.Domain = val
+}
+
+// SetMode sets the value of Mode.
+func (s *ManagementCreateDomainReq) SetMode(val OptManagementCreateDomainReqMode) {
+	s.Mode = val
+}
+
+// Domain usage mode. Defaults to `send_receive` when omitted.
+type ManagementCreateDomainReqMode string
+
+const (
+	ManagementCreateDomainReqModeSendOnly    ManagementCreateDomainReqMode = "send_only"
+	ManagementCreateDomainReqModeSendReceive ManagementCreateDomainReqMode = "send_receive"
+)
+
+// AllValues returns all ManagementCreateDomainReqMode values.
+func (ManagementCreateDomainReqMode) AllValues() []ManagementCreateDomainReqMode {
+	return []ManagementCreateDomainReqMode{
+		ManagementCreateDomainReqModeSendOnly,
+		ManagementCreateDomainReqModeSendReceive,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ManagementCreateDomainReqMode) MarshalText() ([]byte, error) {
+	switch s {
+	case ManagementCreateDomainReqModeSendOnly:
+		return []byte(s), nil
+	case ManagementCreateDomainReqModeSendReceive:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ManagementCreateDomainReqMode) UnmarshalText(data []byte) error {
+	switch ManagementCreateDomainReqMode(data) {
+	case ManagementCreateDomainReqModeSendOnly:
+		*s = ManagementCreateDomainReqModeSendOnly
+		return nil
+	case ManagementCreateDomainReqModeSendReceive:
+		*s = ManagementCreateDomainReqModeSendReceive
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type ManagementCreateDomainServiceUnavailable ApiError
@@ -4242,6 +4363,10 @@ func (s *ManagementCreateMailboxKeyReq) GetAppName() string {
 func (s *ManagementCreateMailboxKeyReq) SetAppName(val string) {
 	s.AppName = val
 }
+
+type ManagementCreateMailboxKeyServiceUnavailable ApiError
+
+func (*ManagementCreateMailboxKeyServiceUnavailable) managementCreateMailboxKeyRes() {}
 
 type ManagementCreateMailboxKeyUnprocessableEntity ApiError
 
@@ -4465,6 +4590,10 @@ func (*ManagementGetDeliveryPayloadNotFound) managementGetDeliveryPayloadRes() {
 type ManagementGetDeliveryPayloadUnauthorized ApiError
 
 func (*ManagementGetDeliveryPayloadUnauthorized) managementGetDeliveryPayloadRes() {}
+
+type ManagementGetDomainFiltersConflict ApiError
+
+func (*ManagementGetDomainFiltersConflict) managementGetDomainFiltersRes() {}
 
 type ManagementGetDomainFiltersNotFound ApiError
 
@@ -5548,6 +5677,72 @@ type ManagementTestWebhookServiceUnavailable ApiError
 
 func (*ManagementTestWebhookServiceUnavailable) managementTestWebhookRes() {}
 
+type ManagementUpdateDomainBadRequest ApiError
+
+func (*ManagementUpdateDomainBadRequest) managementUpdateDomainRes() {}
+
+type ManagementUpdateDomainConflict ApiError
+
+func (*ManagementUpdateDomainConflict) managementUpdateDomainRes() {}
+
+type ManagementUpdateDomainNotFound ApiError
+
+func (*ManagementUpdateDomainNotFound) managementUpdateDomainRes() {}
+
+type ManagementUpdateDomainReq struct {
+	// The only supported update is upgrading to `send_receive`.
+	Mode ManagementUpdateDomainReqMode `json:"mode"`
+}
+
+// GetMode returns the value of Mode.
+func (s *ManagementUpdateDomainReq) GetMode() ManagementUpdateDomainReqMode {
+	return s.Mode
+}
+
+// SetMode sets the value of Mode.
+func (s *ManagementUpdateDomainReq) SetMode(val ManagementUpdateDomainReqMode) {
+	s.Mode = val
+}
+
+// The only supported update is upgrading to `send_receive`.
+type ManagementUpdateDomainReqMode string
+
+const (
+	ManagementUpdateDomainReqModeSendReceive ManagementUpdateDomainReqMode = "send_receive"
+)
+
+// AllValues returns all ManagementUpdateDomainReqMode values.
+func (ManagementUpdateDomainReqMode) AllValues() []ManagementUpdateDomainReqMode {
+	return []ManagementUpdateDomainReqMode{
+		ManagementUpdateDomainReqModeSendReceive,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ManagementUpdateDomainReqMode) MarshalText() ([]byte, error) {
+	switch s {
+	case ManagementUpdateDomainReqModeSendReceive:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ManagementUpdateDomainReqMode) UnmarshalText(data []byte) error {
+	switch ManagementUpdateDomainReqMode(data) {
+	case ManagementUpdateDomainReqModeSendReceive:
+		*s = ManagementUpdateDomainReqModeSendReceive
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type ManagementUpdateDomainUnprocessableEntity ApiError
+
+func (*ManagementUpdateDomainUnprocessableEntity) managementUpdateDomainRes() {}
+
 type ManagementUpdateMailboxBadRequest ApiError
 
 func (*ManagementUpdateMailboxBadRequest) managementUpdateMailboxRes() {}
@@ -6316,51 +6511,6 @@ func (o NilSharedAmazonSesLimitRequest) Or(d SharedAmazonSesLimitRequest) Shared
 	return d
 }
 
-// NewNilSharedAmazonSesLimitRequestCreateRequest returns new NilSharedAmazonSesLimitRequestCreateRequest with value set to v.
-func NewNilSharedAmazonSesLimitRequestCreateRequest(v SharedAmazonSesLimitRequestCreateRequest) NilSharedAmazonSesLimitRequestCreateRequest {
-	return NilSharedAmazonSesLimitRequestCreateRequest{
-		Value: v,
-	}
-}
-
-// NilSharedAmazonSesLimitRequestCreateRequest is nullable SharedAmazonSesLimitRequestCreateRequest.
-type NilSharedAmazonSesLimitRequestCreateRequest struct {
-	Value SharedAmazonSesLimitRequestCreateRequest
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilSharedAmazonSesLimitRequestCreateRequest) SetTo(v SharedAmazonSesLimitRequestCreateRequest) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilSharedAmazonSesLimitRequestCreateRequest) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilSharedAmazonSesLimitRequestCreateRequest) SetToNull() {
-	o.Null = true
-	var v SharedAmazonSesLimitRequestCreateRequest
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilSharedAmazonSesLimitRequestCreateRequest) Get() (v SharedAmazonSesLimitRequestCreateRequest, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilSharedAmazonSesLimitRequestCreateRequest) Or(d SharedAmazonSesLimitRequestCreateRequest) SharedAmazonSesLimitRequestCreateRequest {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewNilString returns new NilString with value set to v.
 func NewNilString(v string) NilString {
 	return NilString{
@@ -6628,6 +6778,52 @@ func (o OptManagementCreateDomainReq) Get() (v ManagementCreateDomainReq, ok boo
 
 // Or returns value if set, or given parameter if does not.
 func (o OptManagementCreateDomainReq) Or(d ManagementCreateDomainReq) ManagementCreateDomainReq {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptManagementCreateDomainReqMode returns new OptManagementCreateDomainReqMode with value set to v.
+func NewOptManagementCreateDomainReqMode(v ManagementCreateDomainReqMode) OptManagementCreateDomainReqMode {
+	return OptManagementCreateDomainReqMode{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptManagementCreateDomainReqMode is optional ManagementCreateDomainReqMode.
+type OptManagementCreateDomainReqMode struct {
+	Value ManagementCreateDomainReqMode
+	Set   bool
+}
+
+// IsSet returns true if OptManagementCreateDomainReqMode was set.
+func (o OptManagementCreateDomainReqMode) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptManagementCreateDomainReqMode) Reset() {
+	var v ManagementCreateDomainReqMode
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptManagementCreateDomainReqMode) SetTo(v ManagementCreateDomainReqMode) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptManagementCreateDomainReqMode) Get() (v ManagementCreateDomainReqMode, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptManagementCreateDomainReqMode) Or(d ManagementCreateDomainReqMode) ManagementCreateDomainReqMode {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -7272,6 +7468,52 @@ func (o OptManagementListTransactionsType) Get() (v ManagementListTransactionsTy
 
 // Or returns value if set, or given parameter if does not.
 func (o OptManagementListTransactionsType) Or(d ManagementListTransactionsType) ManagementListTransactionsType {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptManagementUpdateDomainReq returns new OptManagementUpdateDomainReq with value set to v.
+func NewOptManagementUpdateDomainReq(v ManagementUpdateDomainReq) OptManagementUpdateDomainReq {
+	return OptManagementUpdateDomainReq{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptManagementUpdateDomainReq is optional ManagementUpdateDomainReq.
+type OptManagementUpdateDomainReq struct {
+	Value ManagementUpdateDomainReq
+	Set   bool
+}
+
+// IsSet returns true if OptManagementUpdateDomainReq was set.
+func (o OptManagementUpdateDomainReq) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptManagementUpdateDomainReq) Reset() {
+	var v ManagementUpdateDomainReq
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptManagementUpdateDomainReq) SetTo(v ManagementUpdateDomainReq) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptManagementUpdateDomainReq) Get() (v ManagementUpdateDomainReq, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptManagementUpdateDomainReq) Or(d ManagementUpdateDomainReq) ManagementUpdateDomainReq {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12008,10 +12250,127 @@ func (s *SharedAmazonSesLimitRequest) SetStatus(val SharedAmazonSesLimitRequestS
 	s.Status = val
 }
 
+// Ref: #/components/schemas/SharedAmazonSesLimitRequestCancel
+type SharedAmazonSesLimitRequestCancel struct {
+	Limit   SharedAmazonSesLimit        `json:"limit"`
+	Request SharedAmazonSesLimitRequest `json:"request"`
+}
+
+// GetLimit returns the value of Limit.
+func (s *SharedAmazonSesLimitRequestCancel) GetLimit() SharedAmazonSesLimit {
+	return s.Limit
+}
+
+// GetRequest returns the value of Request.
+func (s *SharedAmazonSesLimitRequestCancel) GetRequest() SharedAmazonSesLimitRequest {
+	return s.Request
+}
+
+// SetLimit sets the value of Limit.
+func (s *SharedAmazonSesLimitRequestCancel) SetLimit(val SharedAmazonSesLimit) {
+	s.Limit = val
+}
+
+// SetRequest sets the value of Request.
+func (s *SharedAmazonSesLimitRequestCancel) SetRequest(val SharedAmazonSesLimitRequest) {
+	s.Request = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/SharedAmazonSesLimitRequestCancelResponse
+type SharedAmazonSesLimitRequestCancelResponse struct {
+	// Merged property.
+	Meta SharedAmazonSesLimitRequestCancelResponseMeta `json:"meta"`
+	Ok   SharedAmazonSesLimitRequestCancelResponseOk   `json:"ok"`
+	Data SharedAmazonSesLimitRequestCancel             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *SharedAmazonSesLimitRequestCancelResponse) GetMeta() SharedAmazonSesLimitRequestCancelResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *SharedAmazonSesLimitRequestCancelResponse) GetOk() SharedAmazonSesLimitRequestCancelResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *SharedAmazonSesLimitRequestCancelResponse) GetData() SharedAmazonSesLimitRequestCancel {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *SharedAmazonSesLimitRequestCancelResponse) SetMeta(val SharedAmazonSesLimitRequestCancelResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *SharedAmazonSesLimitRequestCancelResponse) SetOk(val SharedAmazonSesLimitRequestCancelResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *SharedAmazonSesLimitRequestCancelResponse) SetData(val SharedAmazonSesLimitRequestCancel) {
+	s.Data = val
+}
+
+func (*SharedAmazonSesLimitRequestCancelResponse) managementCancelSharedAmazonSesLimitRequestRes() {}
+
+// Merged schema.
+type SharedAmazonSesLimitRequestCancelResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps SharedAmazonSesLimitRequestCancelResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *SharedAmazonSesLimitRequestCancelResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *SharedAmazonSesLimitRequestCancelResponseMeta) GetAdditionalProps() SharedAmazonSesLimitRequestCancelResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *SharedAmazonSesLimitRequestCancelResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *SharedAmazonSesLimitRequestCancelResponseMeta) SetAdditionalProps(val SharedAmazonSesLimitRequestCancelResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type SharedAmazonSesLimitRequestCancelResponseMetaAdditional map[string]jx.Raw
+
+func (s *SharedAmazonSesLimitRequestCancelResponseMetaAdditional) init() SharedAmazonSesLimitRequestCancelResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type SharedAmazonSesLimitRequestCancelResponseOk bool
+
+const (
+	SharedAmazonSesLimitRequestCancelResponseOkTrue SharedAmazonSesLimitRequestCancelResponseOk = true
+)
+
+// AllValues returns all SharedAmazonSesLimitRequestCancelResponseOk values.
+func (SharedAmazonSesLimitRequestCancelResponseOk) AllValues() []SharedAmazonSesLimitRequestCancelResponseOk {
+	return []SharedAmazonSesLimitRequestCancelResponseOk{
+		SharedAmazonSesLimitRequestCancelResponseOkTrue,
+	}
+}
+
 // Ref: #/components/schemas/SharedAmazonSesLimitRequestCreate
 type SharedAmazonSesLimitRequestCreate struct {
-	Limit   SharedAmazonSesLimit                        `json:"limit"`
-	Request NilSharedAmazonSesLimitRequestCreateRequest `json:"request"`
+	Limit   SharedAmazonSesLimit        `json:"limit"`
+	Request SharedAmazonSesLimitRequest `json:"request"`
 }
 
 // GetLimit returns the value of Limit.
@@ -12020,7 +12379,7 @@ func (s *SharedAmazonSesLimitRequestCreate) GetLimit() SharedAmazonSesLimit {
 }
 
 // GetRequest returns the value of Request.
-func (s *SharedAmazonSesLimitRequestCreate) GetRequest() NilSharedAmazonSesLimitRequestCreateRequest {
+func (s *SharedAmazonSesLimitRequestCreate) GetRequest() SharedAmazonSesLimitRequest {
 	return s.Request
 }
 
@@ -12030,148 +12389,8 @@ func (s *SharedAmazonSesLimitRequestCreate) SetLimit(val SharedAmazonSesLimit) {
 }
 
 // SetRequest sets the value of Request.
-func (s *SharedAmazonSesLimitRequestCreate) SetRequest(val NilSharedAmazonSesLimitRequestCreateRequest) {
+func (s *SharedAmazonSesLimitRequestCreate) SetRequest(val SharedAmazonSesLimitRequest) {
 	s.Request = val
-}
-
-// Merged schema.
-type SharedAmazonSesLimitRequestCreateRequest struct {
-	ApprovedDailyLimit NilInt                                         `json:"approved_daily_limit"`
-	CreatedAt          string                                         `json:"created_at"`
-	CurrentDailyLimit  int                                            `json:"current_daily_limit"`
-	CurrentDailySent   int                                            `json:"current_daily_sent"`
-	DecidedAt          NilString                                      `json:"decided_at"`
-	DecisionNote       NilString                                      `json:"decision_note"`
-	ID                 string                                         `json:"id"`
-	Status             SharedAmazonSesLimitRequestCreateRequestStatus `json:"status"`
-}
-
-// GetApprovedDailyLimit returns the value of ApprovedDailyLimit.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetApprovedDailyLimit() NilInt {
-	return s.ApprovedDailyLimit
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetCreatedAt() string {
-	return s.CreatedAt
-}
-
-// GetCurrentDailyLimit returns the value of CurrentDailyLimit.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetCurrentDailyLimit() int {
-	return s.CurrentDailyLimit
-}
-
-// GetCurrentDailySent returns the value of CurrentDailySent.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetCurrentDailySent() int {
-	return s.CurrentDailySent
-}
-
-// GetDecidedAt returns the value of DecidedAt.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetDecidedAt() NilString {
-	return s.DecidedAt
-}
-
-// GetDecisionNote returns the value of DecisionNote.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetDecisionNote() NilString {
-	return s.DecisionNote
-}
-
-// GetID returns the value of ID.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetID() string {
-	return s.ID
-}
-
-// GetStatus returns the value of Status.
-func (s *SharedAmazonSesLimitRequestCreateRequest) GetStatus() SharedAmazonSesLimitRequestCreateRequestStatus {
-	return s.Status
-}
-
-// SetApprovedDailyLimit sets the value of ApprovedDailyLimit.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetApprovedDailyLimit(val NilInt) {
-	s.ApprovedDailyLimit = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetCreatedAt(val string) {
-	s.CreatedAt = val
-}
-
-// SetCurrentDailyLimit sets the value of CurrentDailyLimit.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetCurrentDailyLimit(val int) {
-	s.CurrentDailyLimit = val
-}
-
-// SetCurrentDailySent sets the value of CurrentDailySent.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetCurrentDailySent(val int) {
-	s.CurrentDailySent = val
-}
-
-// SetDecidedAt sets the value of DecidedAt.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetDecidedAt(val NilString) {
-	s.DecidedAt = val
-}
-
-// SetDecisionNote sets the value of DecisionNote.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetDecisionNote(val NilString) {
-	s.DecisionNote = val
-}
-
-// SetID sets the value of ID.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetID(val string) {
-	s.ID = val
-}
-
-// SetStatus sets the value of Status.
-func (s *SharedAmazonSesLimitRequestCreateRequest) SetStatus(val SharedAmazonSesLimitRequestCreateRequestStatus) {
-	s.Status = val
-}
-
-type SharedAmazonSesLimitRequestCreateRequestStatus string
-
-const (
-	SharedAmazonSesLimitRequestCreateRequestStatusPending  SharedAmazonSesLimitRequestCreateRequestStatus = "pending"
-	SharedAmazonSesLimitRequestCreateRequestStatusApproved SharedAmazonSesLimitRequestCreateRequestStatus = "approved"
-	SharedAmazonSesLimitRequestCreateRequestStatusDenied   SharedAmazonSesLimitRequestCreateRequestStatus = "denied"
-)
-
-// AllValues returns all SharedAmazonSesLimitRequestCreateRequestStatus values.
-func (SharedAmazonSesLimitRequestCreateRequestStatus) AllValues() []SharedAmazonSesLimitRequestCreateRequestStatus {
-	return []SharedAmazonSesLimitRequestCreateRequestStatus{
-		SharedAmazonSesLimitRequestCreateRequestStatusPending,
-		SharedAmazonSesLimitRequestCreateRequestStatusApproved,
-		SharedAmazonSesLimitRequestCreateRequestStatusDenied,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s SharedAmazonSesLimitRequestCreateRequestStatus) MarshalText() ([]byte, error) {
-	switch s {
-	case SharedAmazonSesLimitRequestCreateRequestStatusPending:
-		return []byte(s), nil
-	case SharedAmazonSesLimitRequestCreateRequestStatusApproved:
-		return []byte(s), nil
-	case SharedAmazonSesLimitRequestCreateRequestStatusDenied:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *SharedAmazonSesLimitRequestCreateRequestStatus) UnmarshalText(data []byte) error {
-	switch SharedAmazonSesLimitRequestCreateRequestStatus(data) {
-	case SharedAmazonSesLimitRequestCreateRequestStatusPending:
-		*s = SharedAmazonSesLimitRequestCreateRequestStatusPending
-		return nil
-	case SharedAmazonSesLimitRequestCreateRequestStatusApproved:
-		*s = SharedAmazonSesLimitRequestCreateRequestStatusApproved
-		return nil
-	case SharedAmazonSesLimitRequestCreateRequestStatusDenied:
-		*s = SharedAmazonSesLimitRequestCreateRequestStatusDenied
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
 }
 
 // Merged schema.
@@ -12383,9 +12602,10 @@ func (SharedAmazonSesLimitRequestPageResponseOk) AllValues() []SharedAmazonSesLi
 type SharedAmazonSesLimitRequestStatus string
 
 const (
-	SharedAmazonSesLimitRequestStatusPending  SharedAmazonSesLimitRequestStatus = "pending"
-	SharedAmazonSesLimitRequestStatusApproved SharedAmazonSesLimitRequestStatus = "approved"
-	SharedAmazonSesLimitRequestStatusDenied   SharedAmazonSesLimitRequestStatus = "denied"
+	SharedAmazonSesLimitRequestStatusPending   SharedAmazonSesLimitRequestStatus = "pending"
+	SharedAmazonSesLimitRequestStatusApproved  SharedAmazonSesLimitRequestStatus = "approved"
+	SharedAmazonSesLimitRequestStatusDenied    SharedAmazonSesLimitRequestStatus = "denied"
+	SharedAmazonSesLimitRequestStatusCancelled SharedAmazonSesLimitRequestStatus = "cancelled"
 )
 
 // AllValues returns all SharedAmazonSesLimitRequestStatus values.
@@ -12394,6 +12614,7 @@ func (SharedAmazonSesLimitRequestStatus) AllValues() []SharedAmazonSesLimitReque
 		SharedAmazonSesLimitRequestStatusPending,
 		SharedAmazonSesLimitRequestStatusApproved,
 		SharedAmazonSesLimitRequestStatusDenied,
+		SharedAmazonSesLimitRequestStatusCancelled,
 	}
 }
 
@@ -12405,6 +12626,8 @@ func (s SharedAmazonSesLimitRequestStatus) MarshalText() ([]byte, error) {
 	case SharedAmazonSesLimitRequestStatusApproved:
 		return []byte(s), nil
 	case SharedAmazonSesLimitRequestStatusDenied:
+		return []byte(s), nil
+	case SharedAmazonSesLimitRequestStatusCancelled:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -12422,6 +12645,9 @@ func (s *SharedAmazonSesLimitRequestStatus) UnmarshalText(data []byte) error {
 		return nil
 	case SharedAmazonSesLimitRequestStatusDenied:
 		*s = SharedAmazonSesLimitRequestStatusDenied
+		return nil
+	case SharedAmazonSesLimitRequestStatusCancelled:
+		*s = SharedAmazonSesLimitRequestStatusCancelled
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)

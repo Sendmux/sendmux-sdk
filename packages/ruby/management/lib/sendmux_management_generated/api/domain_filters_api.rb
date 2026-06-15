@@ -20,7 +20,7 @@ module Sendmux::Management::Generated
       @api_client = api_client
     end
     # Get domain-wide sender filters
-    # Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
+    # Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
     # @param public_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
@@ -31,7 +31,7 @@ module Sendmux::Management::Generated
     end
 
     # Get domain-wide sender filters
-    # Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Per-mailbox rules take precedence at match time.  Responses carry a weak &#x60;ETag&#x60; — send it as &#x60;If-None-Match&#x60; to skip the body when the filter set has not changed (returns &#x60;304 Not Modified&#x60;). The same ETag is the value to use in &#x60;If-Match&#x60; on the corresponding PUT for optimistic concurrency.
+    # Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence at match time.  Responses carry a weak &#x60;ETag&#x60; — send it as &#x60;If-None-Match&#x60; to skip the body when the filter set has not changed (returns &#x60;304 Not Modified&#x60;). The same ETag is the value to use in &#x60;If-Match&#x60; on the corresponding PUT for optimistic concurrency.
     # @param public_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
@@ -86,7 +86,7 @@ module Sendmux::Management::Generated
     end
 
     # Replace domain-wide sender filters
-    # Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
+    # Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
     # @param public_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match
@@ -98,7 +98,7 @@ module Sendmux::Management::Generated
     end
 
     # Replace domain-wide sender filters
-    # Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send &#x60;If-Match: &lt;etag&gt;&#x60; using the ETag from a prior GET. A mismatched &#x60;If-Match&#x60; returns &#x60;409 conflict&#x60; (the server&#39;s ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
+    # Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send &#x60;If-Match: &lt;etag&gt;&#x60; using the ETag from a prior GET. A mismatched &#x60;If-Match&#x60; returns &#x60;409 conflict&#x60; (the server&#39;s ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
     # @param public_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_match

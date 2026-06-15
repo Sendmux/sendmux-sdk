@@ -353,7 +353,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets ses_dkim_status
      *
-     * @param string $ses_dkim_status Latest SES DKIM status from AWS
+     * @param string $ses_dkim_status Latest Amazon SES DKIM status
      *
      * @return $this
      */

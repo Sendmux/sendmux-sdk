@@ -18,10 +18,36 @@ module Sendmux::Management::Generated
     # Fully qualified domain name. Must be lowercased and domain-only (no scheme).
     attr_accessor :domain
 
+    # Domain usage mode. Defaults to `send_receive` when omitted.
+    attr_accessor :mode
+
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
+
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'domain' => :'domain'
+        :'domain' => :'domain',
+        :'mode' => :'mode'
       }
     end
 
@@ -38,7 +64,8 @@ module Sendmux::Management::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'domain' => :'String'
+        :'domain' => :'String',
+        :'mode' => :'String'
       }
     end
 
@@ -69,6 +96,10 @@ module Sendmux::Management::Generated
       else
         self.domain = nil
       end
+
+      if attributes.key?(:'mode')
+        self.mode = attributes[:'mode']
+      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -88,6 +119,8 @@ module Sendmux::Management::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @domain.nil?
+      mode_validator = EnumAttributeValidator.new('String', ["send_only", "send_receive", "unknown_default_open_api"])
+      return false unless mode_validator.valid?(@mode)
       true
     end
 
@@ -101,12 +134,23 @@ module Sendmux::Management::Generated
       @domain = domain
     end
 
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] mode Object to be assigned
+    def mode=(mode)
+      validator = EnumAttributeValidator.new('String', ["send_only", "send_receive", "unknown_default_open_api"])
+      unless validator.valid?(mode)
+        fail ArgumentError, "invalid value for \"mode\", must be one of #{validator.allowable_values}."
+      end
+      @mode = mode
+    end
+
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          domain == o.domain
+          domain == o.domain &&
+          mode == o.mode
     end
 
     # @see the `==` method
@@ -118,7 +162,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [domain].hash
+      [domain, mode].hash
     end
 
     # Builds the object from hash

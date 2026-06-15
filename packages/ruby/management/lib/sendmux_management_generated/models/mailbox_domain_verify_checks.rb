@@ -18,7 +18,7 @@ module Sendmux::Management::Generated
     # DMARC TXT record matches expected value
     attr_accessor :dmarc
 
-    # MX record present with priority 10 pointing at mail.sendmux.ai
+    # MX record present when the domain is configured for receiving. Always true for send-only domains.
     attr_accessor :mx
 
     # SPF TXT record matches expected value

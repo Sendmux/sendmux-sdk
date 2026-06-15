@@ -15,15 +15,15 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 
 ## Summary
 
-- OpenAPI operations: 93 (management 50, mailbox 40, sending 3).
+- OpenAPI operations: 95 (management 52, mailbox 40, sending 3).
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
 - MCP adapters required for curated tools: 43.
 - Default executable live operations: 53.
-- Blocked behind safety gates: 40.
+- Blocked behind safety gates: 42.
 - Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
-- Risks: binary 2, destructive 7, mutation 28, read 53, send 2, stream 1.
-- Modes: binary_fixture 2, create_cleanup 7, destructive_cleanup_only 7, mutation_fixture 13, read 33, read_fixture 20, send 2, stream 1, update_restore 8.
+- Risks: binary 2, destructive 8, mutation 29, read 53, send 2, stream 1.
+- Modes: binary_fixture 2, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 14, read 33, read_fixture 20, send 2, stream 1, update_restore 8.
 
 ## Matrix
 
@@ -70,6 +70,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | mailbox | `mailboxUpdateMessage` | PATCH | `/mailbox/messages/{message_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | mailbox | `mailboxUploadAttachment` | POST | `/mailbox/attachments:upload` | binary_fixture | binary | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |
 | management | `managementActivateProvider` | POST | `/providers/{public_id}/activate` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
+| management | `managementCancelSharedAmazonSesLimitRequest` | DELETE | `/providers/shared-amazon-ses-limit-request/{request_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | management | `managementCreateDomain` | POST | `/domains` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | management_create_domain | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
 | management | `managementCreateMailbox` | POST | `/mailboxes` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | management_create_mailbox | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
 | management | `managementCreateMailboxKey` | POST | `/mailboxes/{public_id}/keys` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | management_create_mailbox_key | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
@@ -115,6 +116,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | management | `managementSuspendMailbox` | POST | `/mailboxes/{public_id}/suspend` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | management_suspend_mailbox | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | management | `managementTestProvider` | POST | `/providers/{public_id}/test` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | management | `managementTestWebhook` | POST | `/webhooks/{public_id}/test` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | management_test_webhook | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
+| management | `managementUpdateDomain` | PATCH | `/domains/{public_id}` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | management | `managementUpdateMailbox` | PATCH | `/mailboxes/{public_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | management_update_mailbox | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | management | `managementUpdateProvider` | PATCH | `/providers/{public_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | management | `managementUpdateWebhook` | PATCH | `/webhooks/{public_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |

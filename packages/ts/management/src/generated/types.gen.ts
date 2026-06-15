@@ -404,8 +404,8 @@ export type SharedAmazonSesLimitRequest = {
     decided_at: string | null;
     decision_note: string | null;
     id: string;
-    status: 'pending' | 'approved' | 'denied';
-} | null;
+    status: 'pending' | 'approved' | 'denied' | 'cancelled';
+};
 
 export type SharedAmazonSesLimit = {
     can_request_increase: boolean;
@@ -420,7 +420,9 @@ export type SharedAmazonSesLimit = {
 
 export type SharedAmazonSesLimitRequestPage = {
     limit: SharedAmazonSesLimit;
-    pending_request: SharedAmazonSesLimitRequest;
+    pending_request: SharedAmazonSesLimitRequest & ({
+        [key: string]: unknown;
+    } | null);
 };
 
 export type SharedAmazonSesLimitRequestCreateResponse = SuccessEnvelope & {
@@ -430,9 +432,17 @@ export type SharedAmazonSesLimitRequestCreateResponse = SuccessEnvelope & {
 
 export type SharedAmazonSesLimitRequestCreate = {
     limit: SharedAmazonSesLimit;
-    request: SharedAmazonSesLimitRequest & {
-        [key: string]: unknown;
-    };
+    request: SharedAmazonSesLimitRequest;
+};
+
+export type SharedAmazonSesLimitRequestCancelResponse = SuccessEnvelope & {
+    data: SharedAmazonSesLimitRequestCancel;
+    meta?: ResponseMeta;
+};
+
+export type SharedAmazonSesLimitRequestCancel = {
+    limit: SharedAmazonSesLimit;
+    request: SharedAmazonSesLimitRequest;
 };
 
 export type SetFilterStateBody = {
@@ -872,7 +882,7 @@ export type MailboxItemCursorListResponse = SuccessEnvelope & {
 export type MailboxDomainVerifyResult = {
     checks: MailboxDomainVerifyChecks;
     /**
-     * Latest SES DKIM status from AWS
+     * Latest Amazon SES DKIM status
      */
     ses_dkim_status: string;
     /**
@@ -887,7 +897,7 @@ export type MailboxDomainVerifyChecks = {
      */
     dmarc: boolean;
     /**
-     * MX record present with priority 10 pointing at mail.sendmux.ai
+     * MX record present when the domain is configured for receiving. Always true for send-only domains.
      */
     mx: boolean;
     /**
@@ -901,7 +911,7 @@ export type MailboxDomainVerifyChecks = {
 };
 
 /**
- * SPF TXT record covering both SES and Sendmux includes
+ * SPF TXT record covering Amazon SES sending
  */
 export type MailboxDomainNameValueRecord = {
     name: string;
@@ -915,7 +925,7 @@ export type MailboxDomainMxRecord = {
 
 export type MailboxDomainDnsRecords = {
     /**
-     * Three SES DKIM CNAME records
+     * Three Amazon SES DKIM CNAME records
      */
     dkim: Array<MailboxDomainNameValueRecord>;
     dmarc: MailboxDomainNameValueRecord & unknown;
@@ -946,7 +956,11 @@ export type MailboxDomain = {
      */
     mailbox_count: number;
     /**
-     * SES DKIM status (pending/success/failed/temporary_failure/not_started)
+     * `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.
+     */
+    mode: 'send_only' | 'send_receive';
+    /**
+     * Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)
      */
     ses_dkim_status: string | null;
     /**
@@ -1422,6 +1436,10 @@ export type ManagementCreateDomainData = {
          * Fully qualified domain name. Must be lowercased and domain-only (no scheme).
          */
         domain: string;
+        /**
+         * Domain usage mode. Defaults to `send_receive` when omitted.
+         */
+        mode?: 'send_only' | 'send_receive';
     };
     headers?: {
         /**
@@ -1530,6 +1548,59 @@ export type ManagementGetDomainResponses = {
 
 export type ManagementGetDomainResponse = ManagementGetDomainResponses[keyof ManagementGetDomainResponses];
 
+export type ManagementUpdateDomainData = {
+    body?: {
+        /**
+         * The only supported update is upgrading to `send_receive`.
+         */
+        mode: 'send_receive';
+    };
+    headers?: {
+        /**
+         * Weak ETag from a prior GET. Reject with 409 conflict when the server's current ETag differs.
+         */
+        'If-Match'?: string;
+    };
+    path: {
+        /**
+         * Domain public ID
+         */
+        public_id: string;
+    };
+    query?: never;
+    url: '/domains/{public_id}';
+};
+
+export type ManagementUpdateDomainErrors = {
+    /**
+     * Invalid request body
+     */
+    400: ApiError;
+    /**
+     * Domain not found
+     */
+    404: ApiError;
+    /**
+     * `If-Match` mismatch, or the domain cannot be upgraded in its current state.
+     */
+    409: ApiError;
+    /**
+     * Unsupported update. Only `{ mode: "send_receive" }` is accepted.
+     */
+    422: ApiError;
+};
+
+export type ManagementUpdateDomainError = ManagementUpdateDomainErrors[keyof ManagementUpdateDomainErrors];
+
+export type ManagementUpdateDomainResponses = {
+    /**
+     * Updated domain
+     */
+    200: DomainItemResponse;
+};
+
+export type ManagementUpdateDomainResponse = ManagementUpdateDomainResponses[keyof ManagementUpdateDomainResponses];
+
 export type ManagementGetDomainFiltersData = {
     body?: never;
     headers?: {
@@ -1553,6 +1624,10 @@ export type ManagementGetDomainFiltersErrors = {
      * Domain not found
      */
     404: ApiError;
+    /**
+     * Domain is send-only and does not support inbound filters.
+     */
+    409: ApiError;
     /**
      * Filter service temporarily unavailable
      */
@@ -1598,7 +1673,7 @@ export type ManagementSetDomainFiltersErrors = {
      */
     404: ApiError;
     /**
-     * `If-Match` ETag does not match the server's current version.
+     * `If-Match` ETag does not match the server's current version, or the domain is send-only.
      */
     409: ApiError;
     /**
@@ -2257,13 +2332,17 @@ export type ManagementCreateMailboxKeyErrors = {
      */
     404: ApiError;
     /**
-     * API key limit reached (`limit_exceeded`) or idempotency key conflict (`idempotency_conflict`).
+     * Credential limit reached (`limit_exceeded`) or idempotency key conflict (`idempotency_conflict`).
      */
     409: ApiError;
     /**
      * Mailbox is not active
      */
     422: ApiError;
+    /**
+     * Credential setup temporarily unavailable
+     */
+    503: ApiError;
 };
 
 export type ManagementCreateMailboxKeyError = ManagementCreateMailboxKeyErrors[keyof ManagementCreateMailboxKeyErrors];
@@ -2829,6 +2908,40 @@ export type ManagementCreateSharedAmazonSesLimitRequestResponses = {
 };
 
 export type ManagementCreateSharedAmazonSesLimitRequestResponse = ManagementCreateSharedAmazonSesLimitRequestResponses[keyof ManagementCreateSharedAmazonSesLimitRequestResponses];
+
+export type ManagementCancelSharedAmazonSesLimitRequestData = {
+    body?: never;
+    path: {
+        /**
+         * Shared Amazon SES limit request public ID
+         */
+        request_id: string;
+    };
+    query?: never;
+    url: '/providers/shared-amazon-ses-limit-request/{request_id}';
+};
+
+export type ManagementCancelSharedAmazonSesLimitRequestErrors = {
+    /**
+     * Request not found
+     */
+    404: ApiError;
+    /**
+     * Request has already been approved or denied
+     */
+    409: ApiError;
+};
+
+export type ManagementCancelSharedAmazonSesLimitRequestError = ManagementCancelSharedAmazonSesLimitRequestErrors[keyof ManagementCancelSharedAmazonSesLimitRequestErrors];
+
+export type ManagementCancelSharedAmazonSesLimitRequestResponses = {
+    /**
+     * Request cancelled
+     */
+    200: SharedAmazonSesLimitRequestCancelResponse;
+};
+
+export type ManagementCancelSharedAmazonSesLimitRequestResponse = ManagementCancelSharedAmazonSesLimitRequestResponses[keyof ManagementCancelSharedAmazonSesLimitRequestResponses];
 
 export type ManagementGetProviderStatsData = {
     body?: never;

@@ -15,7 +15,7 @@ require 'time'
 
 module Sendmux::Management::Generated
   class MailboxDomainDnsRecords < ApiModelBase
-    # Three SES DKIM CNAME records
+    # Three Amazon SES DKIM CNAME records
     attr_accessor :dkim
 
     # DMARC enforcement record (quarantine, no reporting)

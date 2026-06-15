@@ -20,7 +20,7 @@ module Sendmux::Management::Generated
       @api_client = api_client
     end
     # Add a mailbox domain
-    # Creates a new sending domain and returns the DNS records the customer must place before verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
+    # Creates a new domain and returns the DNS records the customer must place before verification can succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES; on any failure the partial state is automatically rolled back.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key
     # @option opts [ManagementCreateDomainRequest] :management_create_domain_request
@@ -31,7 +31,7 @@ module Sendmux::Management::Generated
     end
 
     # Add a mailbox domain
-    # Creates a new sending domain and returns the DNS records the customer must place before verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any failure the partial state is automatically rolled back.  Supply an &#x60;Idempotency-Key&#x60; header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return &#x60;409 idempotency_conflict&#x60;.
+    # Creates a new domain and returns the DNS records the customer must place before verification can succeed. &#x60;send_only&#x60; configures outbound sending without changing MX records. &#x60;send_receive&#x60; also configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES; on any failure the partial state is automatically rolled back.  Supply an &#x60;Idempotency-Key&#x60; header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return &#x60;409 idempotency_conflict&#x60;.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key
     # @option opts [ManagementCreateDomainRequest] :management_create_domain_request
@@ -353,8 +353,81 @@ module Sendmux::Management::Generated
       return data, status_code, headers
     end
 
+    # Update a mailbox domain
+    # Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to `pending` until the required MX record verifies.
+    # @param public_id [String]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match
+    # @option opts [ManagementUpdateDomainRequest] :management_update_domain_request
+    # @return [DomainItemResponse]
+    def management_update_domain(public_id, opts = {})
+      data, _status_code, _headers = management_update_domain_with_http_info(public_id, opts)
+      data
+    end
+
+    # Update a mailbox domain
+    # Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to &#x60;pending&#x60; until the required MX record verifies.
+    # @param public_id [String]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match
+    # @option opts [ManagementUpdateDomainRequest] :management_update_domain_request
+    # @return [Array<(DomainItemResponse, Integer, Hash)>] DomainItemResponse data, response status code and response headers
+    def management_update_domain_with_http_info(public_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: DomainsApi.management_update_domain ...'
+      end
+      # verify the required parameter 'public_id' is set
+      if @api_client.config.client_side_validation && public_id.nil?
+        fail ArgumentError, "Missing the required parameter 'public_id' when calling DomainsApi.management_update_domain"
+      end
+      # resource path
+      local_var_path = '/domains/{public_id}'.sub('{public_id}', CGI.escape(public_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+      header_params[:'If-Match'] = opts[:'if_match'] if !opts[:'if_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(opts[:'management_update_domain_request'])
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'DomainItemResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"DomainsApi.management_update_domain",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:PATCH, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: DomainsApi#management_update_domain\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Verify a mailbox domain
-    # Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records, then asks SES for the latest DKIM status. If every check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+    # Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
     # @param public_id [String]
     # @param [Hash] opts the optional parameters
     # @return [DomainVerifyResponse]
@@ -364,7 +437,7 @@ module Sendmux::Management::Generated
     end
 
     # Verify a mailbox domain
-    # Runs an immediate DNS-over-HTTPS check of the domain&#39;s MX, SPF, DMARC and ownership TXT records, then asks SES for the latest DKIM status. If every check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+    # Runs an immediate DNS-over-HTTPS check of the domain&#39;s required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
     # @param public_id [String]
     # @param [Hash] opts the optional parameters
     # @return [Array<(DomainVerifyResponse, Integer, Hash)>] DomainVerifyResponse data, response status code and response headers

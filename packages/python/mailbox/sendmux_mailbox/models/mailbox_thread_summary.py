@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
-from sendmux_mailbox.models.mailbox_thread_summary_last_message import MailboxThreadSummaryLastMessage
+from sendmux_mailbox.models.mailbox_message_summary import MailboxMessageSummary
 from sendmux_mailbox.models.mailbox_thread_summary_states import MailboxThreadSummaryStates
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,7 +33,7 @@ class MailboxThreadSummary(BaseModel):
     folder_ids: List[StrictStr]
     has_attachments: StrictBool
     id: StrictStr = Field(description="Thread ID")
-    last_message: MailboxThreadSummaryLastMessage
+    last_message: Optional[MailboxMessageSummary]
     message_count: StrictInt
     participants: List[MailboxAddress]
     states: MailboxThreadSummaryStates
@@ -93,6 +93,11 @@ class MailboxThreadSummary(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of states
         if self.states:
             _dict['states'] = self.states.to_dict()
+        # set to None if last_message (nullable) is None
+        # and model_fields_set contains the field
+        if self.last_message is None and "last_message" in self.model_fields_set:
+            _dict['last_message'] = None
+
         # set to None if subject (nullable) is None
         # and model_fields_set contains the field
         if self.subject is None and "subject" in self.model_fields_set:
@@ -113,7 +118,7 @@ class MailboxThreadSummary(BaseModel):
             "folder_ids": obj.get("folder_ids"),
             "has_attachments": obj.get("has_attachments"),
             "id": obj.get("id"),
-            "last_message": MailboxThreadSummaryLastMessage.from_dict(obj["last_message"]) if obj.get("last_message") is not None else None,
+            "last_message": MailboxMessageSummary.from_dict(obj["last_message"]) if obj.get("last_message") is not None else None,
             "message_count": obj.get("message_count"),
             "participants": [MailboxAddress.from_dict(_item) for _item in obj["participants"]] if obj.get("participants") is not None else None,
             "states": MailboxThreadSummaryStates.from_dict(obj["states"]) if obj.get("states") is not None else None,

@@ -51,7 +51,7 @@ module Sendmux::Mailbox::Generated
       {
         :'bcc' => :'Array<MailboxAddress>',
         :'cc' => :'Array<MailboxAddress>',
-        :'from' => :'MailboxMessageSummaryFrom',
+        :'from' => :'MailboxAddress',
         :'reply_to' => :'Array<MailboxAddress>',
         :'to' => :'Array<MailboxAddress>'
       }
@@ -60,6 +60,7 @@ module Sendmux::Mailbox::Generated
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
+        :'from',
       ])
     end
 
@@ -131,10 +132,6 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "cc", cc cannot be nil.')
       end
 
-      if @from.nil?
-        invalid_properties.push('invalid value for "from", from cannot be nil.')
-      end
-
       if @reply_to.nil?
         invalid_properties.push('invalid value for "reply_to", reply_to cannot be nil.')
       end
@@ -152,7 +149,6 @@ module Sendmux::Mailbox::Generated
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @bcc.nil?
       return false if @cc.nil?
-      return false if @from.nil?
       return false if @reply_to.nil?
       return false if @to.nil?
       true
@@ -176,16 +172,6 @@ module Sendmux::Mailbox::Generated
       end
 
       @cc = cc
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] from Value to be assigned
-    def from=(from)
-      if from.nil?
-        fail ArgumentError, 'from cannot be nil'
-      end
-
-      @from = from
     end
 
     # Custom attribute writer method with validation

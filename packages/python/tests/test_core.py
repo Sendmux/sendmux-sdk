@@ -6,7 +6,7 @@ from typing import Any, cast
 
 import pytest
 
-from sendmux_core import RetryOptions, SendmuxApiError, iter_cursor_pages, validate_api_key
+from sendmux_core import RetryOptions, SendmuxApiError, configure_auth, iter_cursor_pages, validate_api_key
 from sendmux_core.errors import map_api_exception
 from sendmux_core.headers import conditional_headers, idempotency_headers
 from sendmux_core.pagination import CursorResponse
@@ -19,6 +19,28 @@ def test_api_key_prefix_validation() -> None:
 
     with pytest.raises(ValueError):
         validate_api_key("smx_mbx_123", surface="root")
+
+
+def test_configure_auth_uses_generated_bearer_access_token() -> None:
+    class Configuration:
+        access_token: str | None = None
+
+        def auth_settings(self) -> dict[str, dict[str, str]]:
+            if self.access_token is None:
+                return {}
+            return {
+                "bearerAuth": {
+                    "in": "header",
+                    "key": "Authorization",
+                    "value": "Bearer " + self.access_token,
+                }
+            }
+
+    configuration = Configuration()
+
+    configure_auth(configuration, api_key="smx_root_123")
+
+    assert configuration.auth_settings()["bearerAuth"]["value"] == "Bearer smx_root_123"
 
 
 def test_headers() -> None:

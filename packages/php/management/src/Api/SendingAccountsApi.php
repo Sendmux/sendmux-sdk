@@ -78,6 +78,9 @@ class SendingAccountsApi
         'managementActivateProvider' => [
             'application/json',
         ],
+        'managementCancelSharedAmazonSesLimitRequest' => [
+            'application/json',
+        ],
         'managementCreateProvider' => [
             'application/json',
         ],
@@ -515,6 +518,340 @@ class SendingAccountsApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'POST',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation managementCancelSharedAmazonSesLimitRequest
+     *
+     * Cancel a shared Amazon SES daily limit request
+     *
+     * @param  string $request_id request_id (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCancelSharedAmazonSesLimitRequest'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse|\Sendmux\Management\Model\ApiError
+     */
+    public function managementCancelSharedAmazonSesLimitRequest(
+        string $request_id,
+        string $contentType = self::contentTypes['managementCancelSharedAmazonSesLimitRequest'][0]
+    ): \Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse|\Sendmux\Management\Model\ApiError {
+        list($response) = $this->managementCancelSharedAmazonSesLimitRequestWithHttpInfo(
+            $request_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation managementCancelSharedAmazonSesLimitRequestWithHttpInfo
+     *
+     * Cancel a shared Amazon SES daily limit request
+     *
+     * @param  string $request_id request_id (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCancelSharedAmazonSesLimitRequest'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function managementCancelSharedAmazonSesLimitRequestWithHttpInfo(
+        string $request_id,
+        string $contentType = self::contentTypes['managementCancelSharedAmazonSesLimitRequest'][0]
+    ): array {
+        $request = $this->managementCancelSharedAmazonSesLimitRequestRequest(
+            $request_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation managementCancelSharedAmazonSesLimitRequestAsync
+     *
+     * Cancel a shared Amazon SES daily limit request
+     *
+     * @param  string $request_id request_id (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCancelSharedAmazonSesLimitRequest'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementCancelSharedAmazonSesLimitRequestAsync(
+        string $request_id,
+        string $contentType = self::contentTypes['managementCancelSharedAmazonSesLimitRequest'][0]
+    ): PromiseInterface {
+        return $this->managementCancelSharedAmazonSesLimitRequestAsyncWithHttpInfo(
+            $request_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation managementCancelSharedAmazonSesLimitRequestAsyncWithHttpInfo
+     *
+     * Cancel a shared Amazon SES daily limit request
+     *
+     * @param  string $request_id request_id (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCancelSharedAmazonSesLimitRequest'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementCancelSharedAmazonSesLimitRequestAsyncWithHttpInfo(
+        string $request_id,
+        string $contentType = self::contentTypes['managementCancelSharedAmazonSesLimitRequest'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Management\Model\SharedAmazonSesLimitRequestCancelResponse';
+        $request = $this->managementCancelSharedAmazonSesLimitRequestRequest(
+            $request_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'managementCancelSharedAmazonSesLimitRequest'
+     *
+     * @param  string $request_id request_id (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCancelSharedAmazonSesLimitRequest'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function managementCancelSharedAmazonSesLimitRequestRequest(
+        string $request_id,
+        string $contentType = self::contentTypes['managementCancelSharedAmazonSesLimitRequest'][0]
+    ): Request {
+
+        // verify the required parameter 'request_id' is set
+        if ($request_id === null || (is_array($request_id) && count($request_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $request_id when calling managementCancelSharedAmazonSesLimitRequest'
+            );
+        }
+
+
+        $resourcePath = '/providers/shared-amazon-ses-limit-request/{request_id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+
+        // path params
+        if ($request_id !== null) {
+            $resourcePath = str_replace(
+                '{request_id}',
+                ObjectSerializer::toPathValue($request_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'DELETE',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody

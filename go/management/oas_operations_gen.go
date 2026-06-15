@@ -7,6 +7,7 @@ type OperationName = string
 
 const (
 	ManagementActivateProviderOperation                   OperationName = "ManagementActivateProvider"
+	ManagementCancelSharedAmazonSesLimitRequestOperation  OperationName = "ManagementCancelSharedAmazonSesLimitRequest"
 	ManagementCreateDomainOperation                       OperationName = "ManagementCreateDomain"
 	ManagementCreateMailboxOperation                      OperationName = "ManagementCreateMailbox"
 	ManagementCreateMailboxKeyOperation                   OperationName = "ManagementCreateMailboxKey"
@@ -52,6 +53,7 @@ const (
 	ManagementSuspendMailboxOperation                     OperationName = "ManagementSuspendMailbox"
 	ManagementTestProviderOperation                       OperationName = "ManagementTestProvider"
 	ManagementTestWebhookOperation                        OperationName = "ManagementTestWebhook"
+	ManagementUpdateDomainOperation                       OperationName = "ManagementUpdateDomain"
 	ManagementUpdateMailboxOperation                      OperationName = "ManagementUpdateMailbox"
 	ManagementUpdateProviderOperation                     OperationName = "ManagementUpdateProvider"
 	ManagementUpdateWebhookOperation                      OperationName = "ManagementUpdateWebhook"

@@ -36,11 +36,19 @@ type Invoker interface {
 	//
 	// POST /providers/{public_id}/activate
 	ManagementActivateProvider(ctx context.Context, params ManagementActivateProviderParams) (ManagementActivateProviderRes, error)
+	// ManagementCancelSharedAmazonSesLimitRequest invokes managementCancelSharedAmazonSesLimitRequest operation.
+	//
+	// Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved
+	// or denied requests cannot be cancelled.
+	//
+	// DELETE /providers/shared-amazon-ses-limit-request/{request_id}
+	ManagementCancelSharedAmazonSesLimitRequest(ctx context.Context, params ManagementCancelSharedAmazonSesLimitRequestParams) (ManagementCancelSharedAmazonSesLimitRequestRes, error)
 	// ManagementCreateDomain invokes managementCreateDomain operation.
 	//
-	// Creates a new sending domain and returns the DNS records the customer must place before
-	// verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any
-	// failure the partial state is automatically rolled back.
+	// Creates a new domain and returns the DNS records the customer must place before verification can
+	// succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also
+	// configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES;
+	//  on any failure the partial state is automatically rolled back.
 	// Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network
 	// errors. Replays with the same key return the original response; replays with a different body
 	// return `409 idempotency_conflict`.
@@ -151,7 +159,8 @@ type Invoker interface {
 	// ManagementGetDomainFilters invokes managementGetDomainFilters operation.
 	//
 	// Returns the current sender-filter mode and rule set applied to every mailbox under this domain.
-	// Per-mailbox rules take precedence at match time.
+	// Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence
+	// at match time.
 	// Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set
 	// has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on
 	// the corresponding PUT for optimistic concurrency.
@@ -342,9 +351,9 @@ type Invoker interface {
 	ManagementRotateWebhookSecret(ctx context.Context, params ManagementRotateWebhookSecretParams) (ManagementRotateWebhookSecretRes, error)
 	// ManagementSetDomainFilters invokes managementSetDomainFilters operation.
 	//
-	// Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every
-	// mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence).
-	//  Maximum 1000 rules per request.
+	// Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain.
+	//  Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules
+	// (which take precedence). Maximum 1000 rules per request.
 	// For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched
 	// `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to
 	// re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
@@ -388,6 +397,13 @@ type Invoker interface {
 	//
 	// POST /webhooks/{public_id}/test
 	ManagementTestWebhook(ctx context.Context, params ManagementTestWebhookParams) (ManagementTestWebhookRes, error)
+	// ManagementUpdateDomain invokes managementUpdateDomain operation.
+	//
+	// Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the
+	// domain returns to `pending` until the required MX record verifies.
+	//
+	// PATCH /domains/{public_id}
+	ManagementUpdateDomain(ctx context.Context, request OptManagementUpdateDomainReq, params ManagementUpdateDomainParams) (ManagementUpdateDomainRes, error)
 	// ManagementUpdateMailbox invokes managementUpdateMailbox operation.
 	//
 	// Updates any combination of display_name, quota_bytes, and send_scope on a mailbox. The
@@ -421,10 +437,10 @@ type Invoker interface {
 	ManagementUpdateWebhook(ctx context.Context, request OptWebhookUpdateBody, params ManagementUpdateWebhookParams) (ManagementUpdateWebhookRes, error)
 	// ManagementVerifyDomain invokes managementVerifyDomain operation.
 	//
-	// Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records,
-	// then asks SES for the latest DKIM status. If every check passes the domain is marked verified.
-	// Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check
-	// on demand.
+	// Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES
+	// for the latest DKIM status. If every required check passes the domain is marked verified. Domains
+	// automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on
+	// demand.
 	//
 	// POST /domains/{public_id}/verify
 	ManagementVerifyDomain(ctx context.Context, params ManagementVerifyDomainParams) (ManagementVerifyDomainRes, error)
@@ -617,11 +633,138 @@ func (c *Client) sendManagementActivateProvider(ctx context.Context, params Mana
 	return result, nil
 }
 
+// ManagementCancelSharedAmazonSesLimitRequest invokes managementCancelSharedAmazonSesLimitRequest operation.
+//
+// Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved
+// or denied requests cannot be cancelled.
+//
+// DELETE /providers/shared-amazon-ses-limit-request/{request_id}
+func (c *Client) ManagementCancelSharedAmazonSesLimitRequest(ctx context.Context, params ManagementCancelSharedAmazonSesLimitRequestParams) (ManagementCancelSharedAmazonSesLimitRequestRes, error) {
+	res, err := c.sendManagementCancelSharedAmazonSesLimitRequest(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendManagementCancelSharedAmazonSesLimitRequest(ctx context.Context, params ManagementCancelSharedAmazonSesLimitRequestParams) (res ManagementCancelSharedAmazonSesLimitRequestRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("managementCancelSharedAmazonSesLimitRequest"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/providers/shared-amazon-ses-limit-request/{request_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ManagementCancelSharedAmazonSesLimitRequestOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/providers/shared-amazon-ses-limit-request/"
+	{
+		// Encode "request_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "request_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.RequestID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ManagementCancelSharedAmazonSesLimitRequestOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeManagementCancelSharedAmazonSesLimitRequestResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ManagementCreateDomain invokes managementCreateDomain operation.
 //
-// Creates a new sending domain and returns the DNS records the customer must place before
-// verification can succeed. Provisioning touches both our mail platform and Amazon SES — on any
-// failure the partial state is automatically rolled back.
+// Creates a new domain and returns the DNS records the customer must place before verification can
+// succeed. `send_only` configures outbound sending without changing MX records. `send_receive` also
+// configures the domain for hosted mailboxes. Provisioning touches our email platform and Amazon SES;
+//
+//	on any failure the partial state is automatically rolled back.
+//
 // Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network
 // errors. Replays with the same key return the original response; replays with a different body
 // return `409 idempotency_conflict`.
@@ -2472,7 +2615,8 @@ func (c *Client) sendManagementGetDomain(ctx context.Context, params ManagementG
 // ManagementGetDomainFilters invokes managementGetDomainFilters operation.
 //
 // Returns the current sender-filter mode and rule set applied to every mailbox under this domain.
-// Per-mailbox rules take precedence at match time.
+// Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence
+// at match time.
 // Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set
 // has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on
 // the corresponding PUT for optimistic concurrency.
@@ -6281,11 +6425,11 @@ func (c *Client) sendManagementRotateWebhookSecret(ctx context.Context, params M
 
 // ManagementSetDomainFilters invokes managementSetDomainFilters operation.
 //
-// Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every
-// mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence).
+// Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain.
 //
-//	Maximum 1000 rules per request.
+//	Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules
 //
+// (which take precedence). Maximum 1000 rules per request.
 // For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched
 // `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to
 // re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
@@ -7010,6 +7154,150 @@ func (c *Client) sendManagementTestWebhook(ctx context.Context, params Managemen
 	return result, nil
 }
 
+// ManagementUpdateDomain invokes managementUpdateDomain operation.
+//
+// Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the
+// domain returns to `pending` until the required MX record verifies.
+//
+// PATCH /domains/{public_id}
+func (c *Client) ManagementUpdateDomain(ctx context.Context, request OptManagementUpdateDomainReq, params ManagementUpdateDomainParams) (ManagementUpdateDomainRes, error) {
+	res, err := c.sendManagementUpdateDomain(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendManagementUpdateDomain(ctx context.Context, request OptManagementUpdateDomainReq, params ManagementUpdateDomainParams) (res ManagementUpdateDomainRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("managementUpdateDomain"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/domains/{public_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ManagementUpdateDomainOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/domains/"
+	{
+		// Encode "public_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "public_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.PublicID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeManagementUpdateDomainRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ManagementUpdateDomainOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeManagementUpdateDomainResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ManagementUpdateMailbox invokes managementUpdateMailbox operation.
 //
 // Updates any combination of display_name, quota_bytes, and send_scope on a mailbox. The
@@ -7454,10 +7742,10 @@ func (c *Client) sendManagementUpdateWebhook(ctx context.Context, request OptWeb
 
 // ManagementVerifyDomain invokes managementVerifyDomain operation.
 //
-// Runs an immediate DNS-over-HTTPS check of the domain's MX, SPF, DMARC and ownership TXT records,
-// then asks SES for the latest DKIM status. If every check passes the domain is marked verified.
-// Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check
-// on demand.
+// Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES
+// for the latest DKIM status. If every required check passes the domain is marked verified. Domains
+// automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on
+// demand.
 //
 // POST /domains/{public_id}/verify
 func (c *Client) ManagementVerifyDomain(ctx context.Context, params ManagementVerifyDomainParams) (ManagementVerifyDomainRes, error) {

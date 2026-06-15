@@ -1,11 +1,11 @@
 <?php
 
 /**
- * MailboxMessageSummaryFrom
+ * SharedAmazonSesLimitRequestCancelResponse
  *
  * PHP version 8.1
  *
- * @package  Sendmux\Mailbox
+ * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
@@ -26,23 +26,23 @@
  * Do not edit the class manually.
  */
 
-namespace Sendmux\Mailbox\Model;
+namespace Sendmux\Management\Model;
 
 use ArrayAccess;
 use JsonSerializable;
 use InvalidArgumentException;
 use ReturnTypeWillChange;
-use Sendmux\Mailbox\ObjectSerializer;
+use Sendmux\Management\ObjectSerializer;
 
 /**
- * MailboxMessageSummaryFrom Class Doc Comment
+ * SharedAmazonSesLimitRequestCancelResponse Class Doc Comment
  *
- * @package  Sendmux\Mailbox
+ * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSerializable
+class SharedAmazonSesLimitRequestCancelResponse implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxMessageSummary_from';
+    protected static string $openAPIModelName = 'SharedAmazonSesLimitRequestCancelResponse';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,8 +59,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'email' => 'string',
-        'name' => 'string'
+        'meta' => '\Sendmux\Management\Model\ResponseMeta',
+        'ok' => 'bool',
+        'data' => '\Sendmux\Management\Model\SharedAmazonSesLimitRequestCancel'
     ];
 
     /**
@@ -69,8 +70,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'email' => 'email',
-        'name' => null
+        'meta' => null,
+        'ok' => null,
+        'data' => null
     ];
 
     /**
@@ -79,8 +81,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'email' => false,
-        'name' => true
+        'meta' => false,
+        'ok' => false,
+        'data' => false
     ];
 
     /**
@@ -159,8 +162,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'email' => 'email',
-        'name' => 'name'
+        'meta' => 'meta',
+        'ok' => 'ok',
+        'data' => 'data'
     ];
 
     /**
@@ -169,8 +173,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $setters = [
-        'email' => 'setEmail',
-        'name' => 'setName'
+        'meta' => 'setMeta',
+        'ok' => 'setOk',
+        'data' => 'setData'
     ];
 
     /**
@@ -179,8 +184,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $getters = [
-        'email' => 'getEmail',
-        'name' => 'getName'
+        'meta' => 'getMeta',
+        'ok' => 'getOk',
+        'data' => 'getData'
     ];
 
     /**
@@ -230,8 +236,9 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('email', $data ?? [], null);
-        $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('meta', $data ?? [], null);
+        $this->setIfExists('ok', $data ?? [], null);
+        $this->setIfExists('data', $data ?? [], null);
     }
 
     /**
@@ -259,11 +266,14 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['email'] === null) {
-            $invalidProperties[] = "'email' can't be null";
+        if ($this->container['meta'] === null) {
+            $invalidProperties[] = "'meta' can't be null";
         }
-        if ($this->container['name'] === null && !$this->isNullableSetToNull('name')) {
-            $invalidProperties[] = "'name' is required";
+        if ($this->container['ok'] === null) {
+            $invalidProperties[] = "'ok' can't be null";
+        }
+        if ($this->container['data'] === null) {
+            $invalidProperties[] = "'data' can't be null";
         }
         return $invalidProperties;
     }
@@ -278,62 +288,82 @@ class MailboxMessageSummaryFrom implements ModelInterface, ArrayAccess, JsonSeri
 
 
     /**
-     * Gets email
+     * Gets meta
      *
-     * @return string
+     * @return \Sendmux\Management\Model\ResponseMeta
      */
-    public function getEmail(): string
+    public function getMeta(): \Sendmux\Management\Model\ResponseMeta
     {
-        return $this->container['email'];
+        return $this->container['meta'];
     }
 
     /**
-     * Sets email
+     * Sets meta
      *
-     * @param string $email email
+     * @param \Sendmux\Management\Model\ResponseMeta $meta meta
      *
      * @return $this
      */
-    public function setEmail(string $email): static
+    public function setMeta(\Sendmux\Management\Model\ResponseMeta $meta): static
     {
-        if (is_null($email)) {
-            throw new InvalidArgumentException('non-nullable email cannot be null');
+        if (is_null($meta)) {
+            throw new InvalidArgumentException('non-nullable meta cannot be null');
         }
-        $this->container['email'] = $email;
+        $this->container['meta'] = $meta;
 
         return $this;
     }
 
     /**
-     * Gets name
+     * Gets ok
      *
-     * @return string|null
+     * @return bool
      */
-    public function getName(): ?string
+    public function getOk(): bool
     {
-        return $this->container['name'];
+        return $this->container['ok'];
     }
 
     /**
-     * Sets name
+     * Sets ok
      *
-     * @param string|null $name name
+     * @param bool $ok ok
      *
      * @return $this
      */
-    public function setName(?string $name): static
+    public function setOk(bool $ok): static
     {
-        if (is_null($name)) {
-            array_push($this->openAPINullablesSetToNull, 'name');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('name', $nullablesSetToNull);
-            if ($index !== false) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+        if (is_null($ok)) {
+            throw new InvalidArgumentException('non-nullable ok cannot be null');
         }
-        $this->container['name'] = $name;
+        $this->container['ok'] = $ok;
+
+        return $this;
+    }
+
+    /**
+     * Gets data
+     *
+     * @return \Sendmux\Management\Model\SharedAmazonSesLimitRequestCancel
+     */
+    public function getData(): \Sendmux\Management\Model\SharedAmazonSesLimitRequestCancel
+    {
+        return $this->container['data'];
+    }
+
+    /**
+     * Sets data
+     *
+     * @param \Sendmux\Management\Model\SharedAmazonSesLimitRequestCancel $data data
+     *
+     * @return $this
+     */
+    public function setData(\Sendmux\Management\Model\SharedAmazonSesLimitRequestCancel $data): static
+    {
+        if (is_null($data)) {
+            throw new InvalidArgumentException('non-nullable data cannot be null');
+        }
+        $this->container['data'] = $data;
 
         return $this;
     }

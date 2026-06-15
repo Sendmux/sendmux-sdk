@@ -1258,6 +1258,39 @@
       "mode": "mutation_fixture",
       "risk": "mutation"
     },
+    "managementCancelSharedAmazonSesLimitRequest": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "request_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "destructive_cleanup_only",
+      "risk": "destructive"
+    },
     "managementCreateDomain": {
       "adapters": {
         "cli": true,
@@ -2666,6 +2699,41 @@
         ],
         "queryParams": [],
         "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
+    },
+    "managementUpdateDomain": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "If-Match"
+        ],
+        "pathParams": [
+          "public_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "e2e-owned"
       },
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",

@@ -12,6 +12,4 @@ def validate_api_key(api_key: str, *, surface: ApiKeySurface) -> None:
 
 
 def configure_auth(configuration: Any, *, api_key: str) -> None:
-    configuration.api_key["BearerAuth"] = api_key
-    configuration.api_key_prefix["BearerAuth"] = "Bearer"
-
+    configuration.access_token = api_key

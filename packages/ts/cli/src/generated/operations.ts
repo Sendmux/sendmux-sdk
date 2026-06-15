@@ -2522,6 +2522,29 @@ export const operations = {
     "requiredKeyKind": "root",
     "surface": "management"
   },
+  managementCancelSharedAmazonSesLimitRequest: {
+    "bodyKind": "none",
+    "command": "management:cancel-shared-amazon-ses-limit-request",
+    "description": "Cancel a shared Amazon SES daily limit request",
+    "headerParams": [],
+    "method": "delete",
+    "operationId": "managementCancelSharedAmazonSesLimitRequest",
+    "path": "/providers/shared-amazon-ses-limit-request/{request_id}",
+    "pathParams": [
+      {
+        "name": "request_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
   managementCreateDomain: {
     "bodyKind": "json",
     "command": "management:create-domain",
@@ -3939,6 +3962,37 @@ export const operations = {
     "method": "post",
     "operationId": "managementTestWebhook",
     "path": "/webhooks/{public_id}/test",
+    "pathParams": [
+      {
+        "name": "public_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
+  managementUpdateDomain: {
+    "bodyKind": "json",
+    "command": "management:update-domain",
+    "description": "Update a mailbox domain",
+    "headerParams": [
+      {
+        "name": "If-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "patch",
+    "operationId": "managementUpdateDomain",
+    "path": "/domains/{public_id}",
     "pathParams": [
       {
         "name": "public_id",

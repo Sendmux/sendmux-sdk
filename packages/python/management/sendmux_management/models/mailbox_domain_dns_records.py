@@ -29,7 +29,7 @@ class MailboxDomainDnsRecords(BaseModel):
     """
     MailboxDomainDnsRecords
     """ # noqa: E501
-    dkim: List[MailboxDomainNameValueRecord] = Field(description="Three SES DKIM CNAME records")
+    dkim: List[MailboxDomainNameValueRecord] = Field(description="Three Amazon SES DKIM CNAME records")
     dmarc: MailboxDomainNameValueRecord = Field(description="DMARC enforcement record (quarantine, no reporting)")
     mx: List[MailboxDomainMxRecord] = Field(description="MX records the customer must place. All point at Sendmux's inbound mail servers.")
     spf: MailboxDomainNameValueRecord

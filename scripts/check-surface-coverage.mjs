@@ -381,11 +381,15 @@ function mcpExclusionReason(operation) {
     return "Sender-filter policy endpoints are specialised configuration; excluded until there is a dedicated guarded MCP workflow for policy edits.";
   }
 
+  if (id === "managementUpdateDomain") {
+    return "Domain mode upgrades are irreversible and DNS-sensitive; excluded from default MCP curation until there is a dedicated guarded domain-upgrade workflow.";
+  }
+
   if (/^management(DeleteDomain|DeleteMailbox|DeleteProvider|DeleteWebhook)$/.test(id)) {
     return "Destructive resource lifecycle endpoint; intentionally excluded from default MCP curation.";
   }
 
-  if (/^management(ListProviders|CreateProvider|UpdateProvider|ActivateProvider|DeactivateProvider|TestProvider|GetProvider|GetProviderLimits|GetProviderStats|GetProviderUsage|RequestSendingAccountLimitIncrease|GetSharedAmazonSesLimitRequest|CreateSharedAmazonSesLimitRequest)$/.test(id)) {
+  if (/^management(ListProviders|CreateProvider|UpdateProvider|ActivateProvider|DeactivateProvider|TestProvider|GetProvider|GetProviderLimits|GetProviderStats|GetProviderUsage|RequestSendingAccountLimitIncrease|GetSharedAmazonSesLimitRequest|CreateSharedAmazonSesLimitRequest|CancelSharedAmazonSesLimitRequest)$/.test(id)) {
     return "Provider and limit administration is excluded from default MCP curation; provider setup remains a deliberate management workflow outside agent defaults.";
   }
 

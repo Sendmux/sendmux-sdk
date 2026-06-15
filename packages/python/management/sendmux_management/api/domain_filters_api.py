@@ -58,7 +58,7 @@ class DomainFiltersApi:
     ) -> FilterStateResponse:
         """Get domain-wide sender filters
 
-        Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
+        Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
 
         :param public_id: (required)
         :type public_id: str
@@ -99,6 +99,7 @@ class DomainFiltersApi:
             '200': "FilterStateResponse",
             '304': None,
             '404': "ApiError",
+            '409': "ApiError",
             '503': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -132,7 +133,7 @@ class DomainFiltersApi:
     ) -> ApiResponse[FilterStateResponse]:
         """Get domain-wide sender filters
 
-        Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
+        Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
 
         :param public_id: (required)
         :type public_id: str
@@ -173,6 +174,7 @@ class DomainFiltersApi:
             '200': "FilterStateResponse",
             '304': None,
             '404': "ApiError",
+            '409': "ApiError",
             '503': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -206,7 +208,7 @@ class DomainFiltersApi:
     ) -> RESTResponseType:
         """Get domain-wide sender filters
 
-        Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
+        Returns the current sender-filter mode and rule set applied to every mailbox under this domain. Only sending and receiving domains support domain-wide filters. Per-mailbox rules take precedence at match time.  Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
 
         :param public_id: (required)
         :type public_id: str
@@ -247,6 +249,7 @@ class DomainFiltersApi:
             '200': "FilterStateResponse",
             '304': None,
             '404': "ApiError",
+            '409': "ApiError",
             '503': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -344,7 +347,7 @@ class DomainFiltersApi:
     ) -> FilterStateResponse:
         """Replace domain-wide sender filters
 
-        Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
+        Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
 
         :param public_id: (required)
         :type public_id: str
@@ -424,7 +427,7 @@ class DomainFiltersApi:
     ) -> ApiResponse[FilterStateResponse]:
         """Replace domain-wide sender filters
 
-        Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
+        Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
 
         :param public_id: (required)
         :type public_id: str
@@ -504,7 +507,7 @@ class DomainFiltersApi:
     ) -> RESTResponseType:
         """Replace domain-wide sender filters
 
-        Atomically replaces the sender-filter mode and rule set for an entire domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
+        Atomically replaces the sender-filter mode and rule set for an entire sending and receiving domain. Applies to every mailbox under the domain unless that mailbox has its own per-mailbox rules (which take precedence). Maximum 1000 rules per request.  For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
 
         :param public_id: (required)
         :type public_id: str

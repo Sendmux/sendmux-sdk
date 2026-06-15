@@ -153,6 +153,71 @@ func decodeManagementActivateProviderParams(args [1]string, argsEscaped bool, r 
 	return params, nil
 }
 
+// ManagementCancelSharedAmazonSesLimitRequestParams is parameters of managementCancelSharedAmazonSesLimitRequest operation.
+type ManagementCancelSharedAmazonSesLimitRequestParams struct {
+	RequestID string
+}
+
+func unpackManagementCancelSharedAmazonSesLimitRequestParams(packed middleware.Parameters) (params ManagementCancelSharedAmazonSesLimitRequestParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "request_id",
+			In:   "path",
+		}
+		params.RequestID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeManagementCancelSharedAmazonSesLimitRequestParams(args [1]string, argsEscaped bool, r *http.Request) (params ManagementCancelSharedAmazonSesLimitRequestParams, _ error) {
+	// Decode path: request_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "request_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.RequestID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "request_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ManagementCreateDomainParams is parameters of managementCreateDomain operation.
 type ManagementCreateDomainParams struct {
 	IdempotencyKey OptString
@@ -5761,6 +5826,121 @@ func decodeManagementTestWebhookParams(args [1]string, argsEscaped bool, r *http
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "Idempotency-Key",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ManagementUpdateDomainParams is parameters of managementUpdateDomain operation.
+type ManagementUpdateDomainParams struct {
+	PublicID string
+	IfMatch  OptString
+}
+
+func unpackManagementUpdateDomainParams(packed middleware.Parameters) (params ManagementUpdateDomainParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "public_id",
+			In:   "path",
+		}
+		params.PublicID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfMatch = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeManagementUpdateDomainParams(args [1]string, argsEscaped bool, r *http.Request) (params ManagementUpdateDomainParams, _ error) {
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: public_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "public_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.PublicID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "public_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfMatch.SetTo(paramsDotIfMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-Match",
 			In:   "header",
 			Err:  err,
 		}

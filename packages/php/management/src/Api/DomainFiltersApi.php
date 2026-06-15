@@ -166,7 +166,7 @@ class DomainFiltersApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Management\Model\FilterStateResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Management\Model\FilterStateResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function managementGetDomainFiltersWithHttpInfo(
         string $public_id,
@@ -216,6 +216,12 @@ class DomainFiltersApi
                         $request,
                         $response,
                     );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
                 case 503:
                     return $this->handleResponseWithDataType(
                         '\Sendmux\Management\Model\ApiError',
@@ -254,6 +260,14 @@ class DomainFiltersApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Management\Model\ApiError',

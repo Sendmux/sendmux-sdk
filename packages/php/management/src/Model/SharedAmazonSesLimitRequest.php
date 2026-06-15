@@ -254,6 +254,7 @@ class SharedAmazonSesLimitRequest implements ModelInterface, ArrayAccess, JsonSe
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_DENIED = 'denied';
+    public const STATUS_CANCELLED = 'cancelled';
     public const STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
@@ -267,6 +268,7 @@ class SharedAmazonSesLimitRequest implements ModelInterface, ArrayAccess, JsonSe
             self::STATUS_PENDING,
             self::STATUS_APPROVED,
             self::STATUS_DENIED,
+            self::STATUS_CANCELLED,
             self::STATUS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }

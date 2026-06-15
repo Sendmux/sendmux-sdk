@@ -145,6 +145,8 @@ function normalizeComposedNullBranches(schema) {
       markComposedSchemaNullable(schema);
     }
   }
+
+  normalizeNullableAllOfBranches(schema);
 }
 
 function markComposedSchemaNullable(schema) {
@@ -164,6 +166,77 @@ function markComposedSchemaNullable(schema) {
   for (const branch of typedBranches) {
     branch.nullable = true;
   }
+}
+
+function normalizeNullableAllOfBranches(schema) {
+  if (!Array.isArray(schema.allOf)) {
+    return;
+  }
+
+  const nextAllOf = [];
+  let nullable = false;
+  let explicitType;
+
+  for (const branch of schema.allOf) {
+    if (!isNullableSchema(branch)) {
+      nextAllOf.push(branch);
+      continue;
+    }
+
+    nullable = true;
+    const nonNullable = removeNullableMarker(branch);
+    if (!explicitType && typeof nonNullable.type === "string") {
+      explicitType = nonNullable.type;
+    }
+    if (!isRedundantTypeOnlySchema(nonNullable)) {
+      nextAllOf.push(nonNullable);
+    }
+  }
+
+  if (!nullable) {
+    return;
+  }
+
+  schema.allOf = nextAllOf;
+  schema.nullable = true;
+  if (!schema.type && explicitType) {
+    schema.type = explicitType;
+  }
+  if (schema.allOf.length === 0) {
+    delete schema.allOf;
+  }
+}
+
+function removeNullableMarker(schema) {
+  const next = { ...schema };
+  delete next.nullable;
+  if (Array.isArray(next.type)) {
+    const types = next.type.filter((type) => type !== "null");
+    if (types.length === 1) {
+      next.type = types[0];
+    } else if (types.length > 1) {
+      next.type = types;
+    } else {
+      delete next.type;
+    }
+  } else if (next.type === "null") {
+    delete next.type;
+  }
+  return next;
+}
+
+function isNullableSchema(value) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      (value.nullable === true || isNullSchema(value) || (Array.isArray(value.type) && value.type.includes("null"))),
+  );
+}
+
+function isRedundantTypeOnlySchema(schema) {
+  const keys = Object.keys(schema);
+  return keys.length === 0 || (keys.length === 1 && keys[0] === "type");
 }
 
 function isNullSchema(value) {

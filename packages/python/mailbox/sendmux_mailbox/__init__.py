@@ -90,7 +90,6 @@ __all__ = [
     "MailboxMessageQueryChangesResponse",
     "MailboxMessageSummary",
     "MailboxMessageSummaryCursorListResponse",
-    "MailboxMessageSummaryFrom",
     "MailboxQuota",
     "MailboxQuotaCursorListResponse",
     "MailboxRawBody",
@@ -136,7 +135,6 @@ __all__ = [
     "MailboxThreadDetailResponse",
     "MailboxThreadSummary",
     "MailboxThreadSummaryCursorListResponse",
-    "MailboxThreadSummaryLastMessage",
     "MailboxThreadSummaryStates",
     "MailboxTypedChanges",
     "MailboxTypedChangesResponse",
@@ -234,7 +232,6 @@ from sendmux_mailbox.models.mailbox_message_query_changes import MailboxMessageQ
 from sendmux_mailbox.models.mailbox_message_query_changes_response import MailboxMessageQueryChangesResponse as MailboxMessageQueryChangesResponse
 from sendmux_mailbox.models.mailbox_message_summary import MailboxMessageSummary as MailboxMessageSummary
 from sendmux_mailbox.models.mailbox_message_summary_cursor_list_response import MailboxMessageSummaryCursorListResponse as MailboxMessageSummaryCursorListResponse
-from sendmux_mailbox.models.mailbox_message_summary_from import MailboxMessageSummaryFrom as MailboxMessageSummaryFrom
 from sendmux_mailbox.models.mailbox_quota import MailboxQuota as MailboxQuota
 from sendmux_mailbox.models.mailbox_quota_cursor_list_response import MailboxQuotaCursorListResponse as MailboxQuotaCursorListResponse
 from sendmux_mailbox.models.mailbox_raw_body import MailboxRawBody as MailboxRawBody
@@ -280,7 +277,6 @@ from sendmux_mailbox.models.mailbox_thread_content_response_all_of_data import M
 from sendmux_mailbox.models.mailbox_thread_detail_response import MailboxThreadDetailResponse as MailboxThreadDetailResponse
 from sendmux_mailbox.models.mailbox_thread_summary import MailboxThreadSummary as MailboxThreadSummary
 from sendmux_mailbox.models.mailbox_thread_summary_cursor_list_response import MailboxThreadSummaryCursorListResponse as MailboxThreadSummaryCursorListResponse
-from sendmux_mailbox.models.mailbox_thread_summary_last_message import MailboxThreadSummaryLastMessage as MailboxThreadSummaryLastMessage
 from sendmux_mailbox.models.mailbox_thread_summary_states import MailboxThreadSummaryStates as MailboxThreadSummaryStates
 from sendmux_mailbox.models.mailbox_typed_changes import MailboxTypedChanges as MailboxTypedChanges
 from sendmux_mailbox.models.mailbox_typed_changes_response import MailboxTypedChangesResponse as MailboxTypedChangesResponse

@@ -22,7 +22,6 @@ from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment
 from sendmux_mailbox.models.mailbox_message_flags import MailboxMessageFlags
-from sendmux_mailbox.models.mailbox_message_summary_from import MailboxMessageSummaryFrom
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -35,7 +34,7 @@ class MailboxMessage(BaseModel):
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
     folder_ids: List[StrictStr]
-    var_from: MailboxMessageSummaryFrom = Field(alias="from")
+    var_from: Optional[MailboxAddress] = Field(alias="from")
     has_attachments: StrictBool
     id: StrictStr = Field(description="Message ID")
     keywords: List[StrictStr] = Field(description="Active message keywords, including system flags and custom labels.")
@@ -124,6 +123,11 @@ class MailboxMessage(BaseModel):
                 if _item_attachments:
                     _items.append(_item_attachments.to_dict())
             _dict['attachments'] = _items
+        # set to None if var_from (nullable) is None
+        # and model_fields_set contains the field
+        if self.var_from is None and "var_from" in self.model_fields_set:
+            _dict['from'] = None
+
         # set to None if preview (nullable) is None
         # and model_fields_set contains the field
         if self.preview is None and "preview" in self.model_fields_set:
@@ -180,7 +184,7 @@ class MailboxMessage(BaseModel):
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "flags": MailboxMessageFlags.from_dict(obj["flags"]) if obj.get("flags") is not None else None,
             "folder_ids": obj.get("folder_ids"),
-            "from": MailboxMessageSummaryFrom.from_dict(obj["from"]) if obj.get("from") is not None else None,
+            "from": MailboxAddress.from_dict(obj["from"]) if obj.get("from") is not None else None,
             "has_attachments": obj.get("has_attachments"),
             "id": obj.get("id"),
             "keywords": obj.get("keywords"),

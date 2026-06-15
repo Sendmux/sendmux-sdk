@@ -226,6 +226,8 @@ function writeSurfaceClient(surface) {
     join(packageDir, "client.py"),
     `from __future__ import annotations
 
+import certifi
+
 from typing import Any, cast
 
 from sendmux_core import RetryOptions, configure_auth, validate_api_key
@@ -264,7 +266,7 @@ def create_${surface.name}_client(
     retry_options: RetryOptions | None = None,
 ) -> Sendmux${className}ApiClient:
     validate_api_key(api_key, surface="${keySurface}")
-    configuration = Configuration(host=base_url or DEFAULT_BASE_URL)
+    configuration = Configuration(host=base_url or DEFAULT_BASE_URL, ssl_ca_cert=certifi.where())
     configure_auth(configuration, api_key=api_key)
     return Sendmux${className}ApiClient(configuration, retry_options=retry_options)
 

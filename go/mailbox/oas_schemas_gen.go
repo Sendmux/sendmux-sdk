@@ -4369,12 +4369,12 @@ func (MailboxMeItemResponseOk) AllValues() []MailboxMeItemResponseOk {
 // Merged schema.
 // Ref: #/components/schemas/MailboxMessage
 type MailboxMessage struct {
-	Bcc            []MailboxAddress      `json:"bcc"`
-	Cc             []MailboxAddress      `json:"cc"`
-	Flags          MailboxMessageFlags   `json:"flags"`
-	FolderIds      []string              `json:"folder_ids"`
-	From           NilMailboxMessageFrom `json:"from"`
-	HasAttachments bool                  `json:"has_attachments"`
+	Bcc            []MailboxAddress    `json:"bcc"`
+	Cc             []MailboxAddress    `json:"cc"`
+	Flags          MailboxMessageFlags `json:"flags"`
+	FolderIds      []string            `json:"folder_ids"`
+	From           NilMailboxAddress   `json:"from"`
+	HasAttachments bool                `json:"has_attachments"`
 	// Message ID.
 	ID string `json:"id"`
 	// Active message keywords, including system flags and custom labels.
@@ -4412,7 +4412,7 @@ func (s *MailboxMessage) GetFolderIds() []string {
 }
 
 // GetFrom returns the value of From.
-func (s *MailboxMessage) GetFrom() NilMailboxMessageFrom {
+func (s *MailboxMessage) GetFrom() NilMailboxAddress {
 	return s.From
 }
 
@@ -4502,7 +4502,7 @@ func (s *MailboxMessage) SetFolderIds(val []string) {
 }
 
 // SetFrom sets the value of From.
-func (s *MailboxMessage) SetFrom(val NilMailboxMessageFrom) {
+func (s *MailboxMessage) SetFrom(val NilMailboxAddress) {
 	s.From = val
 }
 
@@ -4835,11 +4835,11 @@ func (s *MailboxMessageContentDates) SetSentAt(val NilString) {
 }
 
 type MailboxMessageContentParticipants struct {
-	Bcc     []MailboxAddress                         `json:"bcc"`
-	Cc      []MailboxAddress                         `json:"cc"`
-	From    NilMailboxMessageContentParticipantsFrom `json:"from"`
-	ReplyTo []MailboxAddress                         `json:"reply_to"`
-	To      []MailboxAddress                         `json:"to"`
+	Bcc     []MailboxAddress  `json:"bcc"`
+	Cc      []MailboxAddress  `json:"cc"`
+	From    NilMailboxAddress `json:"from"`
+	ReplyTo []MailboxAddress  `json:"reply_to"`
+	To      []MailboxAddress  `json:"to"`
 }
 
 // GetBcc returns the value of Bcc.
@@ -4853,7 +4853,7 @@ func (s *MailboxMessageContentParticipants) GetCc() []MailboxAddress {
 }
 
 // GetFrom returns the value of From.
-func (s *MailboxMessageContentParticipants) GetFrom() NilMailboxMessageContentParticipantsFrom {
+func (s *MailboxMessageContentParticipants) GetFrom() NilMailboxAddress {
 	return s.From
 }
 
@@ -4878,7 +4878,7 @@ func (s *MailboxMessageContentParticipants) SetCc(val []MailboxAddress) {
 }
 
 // SetFrom sets the value of From.
-func (s *MailboxMessageContentParticipants) SetFrom(val NilMailboxMessageContentParticipantsFrom) {
+func (s *MailboxMessageContentParticipants) SetFrom(val NilMailboxAddress) {
 	s.From = val
 }
 
@@ -4890,32 +4890,6 @@ func (s *MailboxMessageContentParticipants) SetReplyTo(val []MailboxAddress) {
 // SetTo sets the value of To.
 func (s *MailboxMessageContentParticipants) SetTo(val []MailboxAddress) {
 	s.To = val
-}
-
-// Merged schema.
-type MailboxMessageContentParticipantsFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxMessageContentParticipantsFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxMessageContentParticipantsFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxMessageContentParticipantsFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxMessageContentParticipantsFrom) SetName(val NilString) {
-	s.Name = val
 }
 
 // Merged schema.
@@ -5223,11 +5197,11 @@ func (s *MailboxMessageContentResponseDataDates) SetSentAt(val NilString) {
 }
 
 type MailboxMessageContentResponseDataParticipants struct {
-	Bcc     []MailboxAddress                                     `json:"bcc"`
-	Cc      []MailboxAddress                                     `json:"cc"`
-	From    NilMailboxMessageContentResponseDataParticipantsFrom `json:"from"`
-	ReplyTo []MailboxAddress                                     `json:"reply_to"`
-	To      []MailboxAddress                                     `json:"to"`
+	Bcc     []MailboxAddress  `json:"bcc"`
+	Cc      []MailboxAddress  `json:"cc"`
+	From    NilMailboxAddress `json:"from"`
+	ReplyTo []MailboxAddress  `json:"reply_to"`
+	To      []MailboxAddress  `json:"to"`
 }
 
 // GetBcc returns the value of Bcc.
@@ -5241,7 +5215,7 @@ func (s *MailboxMessageContentResponseDataParticipants) GetCc() []MailboxAddress
 }
 
 // GetFrom returns the value of From.
-func (s *MailboxMessageContentResponseDataParticipants) GetFrom() NilMailboxMessageContentResponseDataParticipantsFrom {
+func (s *MailboxMessageContentResponseDataParticipants) GetFrom() NilMailboxAddress {
 	return s.From
 }
 
@@ -5266,7 +5240,7 @@ func (s *MailboxMessageContentResponseDataParticipants) SetCc(val []MailboxAddre
 }
 
 // SetFrom sets the value of From.
-func (s *MailboxMessageContentResponseDataParticipants) SetFrom(val NilMailboxMessageContentResponseDataParticipantsFrom) {
+func (s *MailboxMessageContentResponseDataParticipants) SetFrom(val NilMailboxAddress) {
 	s.From = val
 }
 
@@ -5278,32 +5252,6 @@ func (s *MailboxMessageContentResponseDataParticipants) SetReplyTo(val []Mailbox
 // SetTo sets the value of To.
 func (s *MailboxMessageContentResponseDataParticipants) SetTo(val []MailboxAddress) {
 	s.To = val
-}
-
-// Merged schema.
-type MailboxMessageContentResponseDataParticipantsFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxMessageContentResponseDataParticipantsFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxMessageContentResponseDataParticipantsFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxMessageContentResponseDataParticipantsFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxMessageContentResponseDataParticipantsFrom) SetName(val NilString) {
-	s.Name = val
 }
 
 type MailboxMessageContentResponseDataStates struct {
@@ -5792,32 +5740,6 @@ func (s *MailboxMessageFlags) SetSeen(val bool) {
 	s.Seen = val
 }
 
-// Merged schema.
-type MailboxMessageFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxMessageFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxMessageFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxMessageFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxMessageFrom) SetName(val NilString) {
-	s.Name = val
-}
-
 // Ref: #/components/schemas/MailboxMessageQueryChanges
 type MailboxMessageQueryChanges struct {
 	Added         []MailboxMessageQueryChangesAddedItem `json:"added"`
@@ -6006,12 +5928,12 @@ func (MailboxMessageQueryChangesResponseOk) AllValues() []MailboxMessageQueryCha
 
 // Ref: #/components/schemas/MailboxMessageSummary
 type MailboxMessageSummary struct {
-	Bcc            []MailboxAddress             `json:"bcc"`
-	Cc             []MailboxAddress             `json:"cc"`
-	Flags          MailboxMessageFlags          `json:"flags"`
-	FolderIds      []string                     `json:"folder_ids"`
-	From           NilMailboxMessageSummaryFrom `json:"from"`
-	HasAttachments bool                         `json:"has_attachments"`
+	Bcc            []MailboxAddress    `json:"bcc"`
+	Cc             []MailboxAddress    `json:"cc"`
+	Flags          MailboxMessageFlags `json:"flags"`
+	FolderIds      []string            `json:"folder_ids"`
+	From           NilMailboxAddress   `json:"from"`
+	HasAttachments bool                `json:"has_attachments"`
 	// Message ID.
 	ID string `json:"id"`
 	// Active message keywords, including system flags and custom labels.
@@ -6046,7 +5968,7 @@ func (s *MailboxMessageSummary) GetFolderIds() []string {
 }
 
 // GetFrom returns the value of From.
-func (s *MailboxMessageSummary) GetFrom() NilMailboxMessageSummaryFrom {
+func (s *MailboxMessageSummary) GetFrom() NilMailboxAddress {
 	return s.From
 }
 
@@ -6121,7 +6043,7 @@ func (s *MailboxMessageSummary) SetFolderIds(val []string) {
 }
 
 // SetFrom sets the value of From.
-func (s *MailboxMessageSummary) SetFrom(val NilMailboxMessageSummaryFrom) {
+func (s *MailboxMessageSummary) SetFrom(val NilMailboxAddress) {
 	s.From = val
 }
 
@@ -6276,32 +6198,6 @@ func (MailboxMessageSummaryCursorListResponseOk) AllValues() []MailboxMessageSum
 	return []MailboxMessageSummaryCursorListResponseOk{
 		MailboxMessageSummaryCursorListResponseOkTrue,
 	}
-}
-
-// Merged schema.
-type MailboxMessageSummaryFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxMessageSummaryFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxMessageSummaryFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxMessageSummaryFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxMessageSummaryFrom) SetName(val NilString) {
-	s.Name = val
 }
 
 type MailboxQueryMessageChangesSortBy string
@@ -9321,14 +9217,14 @@ type MailboxThread struct {
 	FolderIds      []string `json:"folder_ids"`
 	HasAttachments bool     `json:"has_attachments"`
 	// Thread ID.
-	ID           string                      `json:"id"`
-	LastMessage  NilMailboxThreadLastMessage `json:"last_message"`
-	MessageCount int                         `json:"message_count"`
-	Participants []MailboxAddress            `json:"participants"`
-	States       MailboxThreadStates         `json:"states"`
-	Subject      NilString                   `json:"subject"`
-	UnreadCount  int                         `json:"unread_count"`
-	MessageIds   []string                    `json:"message_ids"`
+	ID           string                   `json:"id"`
+	LastMessage  NilMailboxMessageSummary `json:"last_message"`
+	MessageCount int                      `json:"message_count"`
+	Participants []MailboxAddress         `json:"participants"`
+	States       MailboxThreadStates      `json:"states"`
+	Subject      NilString                `json:"subject"`
+	UnreadCount  int                      `json:"unread_count"`
+	MessageIds   []string                 `json:"message_ids"`
 }
 
 // GetFolderIds returns the value of FolderIds.
@@ -9347,7 +9243,7 @@ func (s *MailboxThread) GetID() string {
 }
 
 // GetLastMessage returns the value of LastMessage.
-func (s *MailboxThread) GetLastMessage() NilMailboxThreadLastMessage {
+func (s *MailboxThread) GetLastMessage() NilMailboxMessageSummary {
 	return s.LastMessage
 }
 
@@ -9397,7 +9293,7 @@ func (s *MailboxThread) SetID(val string) {
 }
 
 // SetLastMessage sets the value of LastMessage.
-func (s *MailboxThread) SetLastMessage(val NilMailboxThreadLastMessage) {
+func (s *MailboxThread) SetLastMessage(val NilMailboxMessageSummary) {
 	s.LastMessage = val
 }
 
@@ -9747,11 +9643,11 @@ func (s *MailboxThreadContentResponseDataItemDates) SetSentAt(val NilString) {
 }
 
 type MailboxThreadContentResponseDataItemParticipants struct {
-	Bcc     []MailboxAddress                                        `json:"bcc"`
-	Cc      []MailboxAddress                                        `json:"cc"`
-	From    NilMailboxThreadContentResponseDataItemParticipantsFrom `json:"from"`
-	ReplyTo []MailboxAddress                                        `json:"reply_to"`
-	To      []MailboxAddress                                        `json:"to"`
+	Bcc     []MailboxAddress  `json:"bcc"`
+	Cc      []MailboxAddress  `json:"cc"`
+	From    NilMailboxAddress `json:"from"`
+	ReplyTo []MailboxAddress  `json:"reply_to"`
+	To      []MailboxAddress  `json:"to"`
 }
 
 // GetBcc returns the value of Bcc.
@@ -9765,7 +9661,7 @@ func (s *MailboxThreadContentResponseDataItemParticipants) GetCc() []MailboxAddr
 }
 
 // GetFrom returns the value of From.
-func (s *MailboxThreadContentResponseDataItemParticipants) GetFrom() NilMailboxThreadContentResponseDataItemParticipantsFrom {
+func (s *MailboxThreadContentResponseDataItemParticipants) GetFrom() NilMailboxAddress {
 	return s.From
 }
 
@@ -9790,7 +9686,7 @@ func (s *MailboxThreadContentResponseDataItemParticipants) SetCc(val []MailboxAd
 }
 
 // SetFrom sets the value of From.
-func (s *MailboxThreadContentResponseDataItemParticipants) SetFrom(val NilMailboxThreadContentResponseDataItemParticipantsFrom) {
+func (s *MailboxThreadContentResponseDataItemParticipants) SetFrom(val NilMailboxAddress) {
 	s.From = val
 }
 
@@ -9802,32 +9698,6 @@ func (s *MailboxThreadContentResponseDataItemParticipants) SetReplyTo(val []Mail
 // SetTo sets the value of To.
 func (s *MailboxThreadContentResponseDataItemParticipants) SetTo(val []MailboxAddress) {
 	s.To = val
-}
-
-// Merged schema.
-type MailboxThreadContentResponseDataItemParticipantsFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxThreadContentResponseDataItemParticipantsFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxThreadContentResponseDataItemParticipantsFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxThreadContentResponseDataItemParticipantsFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxThreadContentResponseDataItemParticipantsFrom) SetName(val NilString) {
-	s.Name = val
 }
 
 type MailboxThreadContentResponseDataItemStates struct {
@@ -10065,203 +9935,6 @@ func (MailboxThreadDetailResponseOk) AllValues() []MailboxThreadDetailResponseOk
 	}
 }
 
-// Merged schema.
-type MailboxThreadLastMessage struct {
-	Bcc            []MailboxAddress                `json:"bcc"`
-	Cc             []MailboxAddress                `json:"cc"`
-	Flags          MailboxMessageFlags             `json:"flags"`
-	FolderIds      []string                        `json:"folder_ids"`
-	From           NilMailboxThreadLastMessageFrom `json:"from"`
-	HasAttachments bool                            `json:"has_attachments"`
-	// Message ID.
-	ID string `json:"id"`
-	// Active message keywords, including system flags and custom labels.
-	Keywords   []string         `json:"keywords"`
-	Preview    NilString        `json:"preview"`
-	ReceivedAt NilString        `json:"received_at"`
-	SentAt     NilString        `json:"sent_at"`
-	SizeBytes  NilInt           `json:"size_bytes"`
-	Subject    NilString        `json:"subject"`
-	ThreadID   NilString        `json:"thread_id"`
-	To         []MailboxAddress `json:"to"`
-}
-
-// GetBcc returns the value of Bcc.
-func (s *MailboxThreadLastMessage) GetBcc() []MailboxAddress {
-	return s.Bcc
-}
-
-// GetCc returns the value of Cc.
-func (s *MailboxThreadLastMessage) GetCc() []MailboxAddress {
-	return s.Cc
-}
-
-// GetFlags returns the value of Flags.
-func (s *MailboxThreadLastMessage) GetFlags() MailboxMessageFlags {
-	return s.Flags
-}
-
-// GetFolderIds returns the value of FolderIds.
-func (s *MailboxThreadLastMessage) GetFolderIds() []string {
-	return s.FolderIds
-}
-
-// GetFrom returns the value of From.
-func (s *MailboxThreadLastMessage) GetFrom() NilMailboxThreadLastMessageFrom {
-	return s.From
-}
-
-// GetHasAttachments returns the value of HasAttachments.
-func (s *MailboxThreadLastMessage) GetHasAttachments() bool {
-	return s.HasAttachments
-}
-
-// GetID returns the value of ID.
-func (s *MailboxThreadLastMessage) GetID() string {
-	return s.ID
-}
-
-// GetKeywords returns the value of Keywords.
-func (s *MailboxThreadLastMessage) GetKeywords() []string {
-	return s.Keywords
-}
-
-// GetPreview returns the value of Preview.
-func (s *MailboxThreadLastMessage) GetPreview() NilString {
-	return s.Preview
-}
-
-// GetReceivedAt returns the value of ReceivedAt.
-func (s *MailboxThreadLastMessage) GetReceivedAt() NilString {
-	return s.ReceivedAt
-}
-
-// GetSentAt returns the value of SentAt.
-func (s *MailboxThreadLastMessage) GetSentAt() NilString {
-	return s.SentAt
-}
-
-// GetSizeBytes returns the value of SizeBytes.
-func (s *MailboxThreadLastMessage) GetSizeBytes() NilInt {
-	return s.SizeBytes
-}
-
-// GetSubject returns the value of Subject.
-func (s *MailboxThreadLastMessage) GetSubject() NilString {
-	return s.Subject
-}
-
-// GetThreadID returns the value of ThreadID.
-func (s *MailboxThreadLastMessage) GetThreadID() NilString {
-	return s.ThreadID
-}
-
-// GetTo returns the value of To.
-func (s *MailboxThreadLastMessage) GetTo() []MailboxAddress {
-	return s.To
-}
-
-// SetBcc sets the value of Bcc.
-func (s *MailboxThreadLastMessage) SetBcc(val []MailboxAddress) {
-	s.Bcc = val
-}
-
-// SetCc sets the value of Cc.
-func (s *MailboxThreadLastMessage) SetCc(val []MailboxAddress) {
-	s.Cc = val
-}
-
-// SetFlags sets the value of Flags.
-func (s *MailboxThreadLastMessage) SetFlags(val MailboxMessageFlags) {
-	s.Flags = val
-}
-
-// SetFolderIds sets the value of FolderIds.
-func (s *MailboxThreadLastMessage) SetFolderIds(val []string) {
-	s.FolderIds = val
-}
-
-// SetFrom sets the value of From.
-func (s *MailboxThreadLastMessage) SetFrom(val NilMailboxThreadLastMessageFrom) {
-	s.From = val
-}
-
-// SetHasAttachments sets the value of HasAttachments.
-func (s *MailboxThreadLastMessage) SetHasAttachments(val bool) {
-	s.HasAttachments = val
-}
-
-// SetID sets the value of ID.
-func (s *MailboxThreadLastMessage) SetID(val string) {
-	s.ID = val
-}
-
-// SetKeywords sets the value of Keywords.
-func (s *MailboxThreadLastMessage) SetKeywords(val []string) {
-	s.Keywords = val
-}
-
-// SetPreview sets the value of Preview.
-func (s *MailboxThreadLastMessage) SetPreview(val NilString) {
-	s.Preview = val
-}
-
-// SetReceivedAt sets the value of ReceivedAt.
-func (s *MailboxThreadLastMessage) SetReceivedAt(val NilString) {
-	s.ReceivedAt = val
-}
-
-// SetSentAt sets the value of SentAt.
-func (s *MailboxThreadLastMessage) SetSentAt(val NilString) {
-	s.SentAt = val
-}
-
-// SetSizeBytes sets the value of SizeBytes.
-func (s *MailboxThreadLastMessage) SetSizeBytes(val NilInt) {
-	s.SizeBytes = val
-}
-
-// SetSubject sets the value of Subject.
-func (s *MailboxThreadLastMessage) SetSubject(val NilString) {
-	s.Subject = val
-}
-
-// SetThreadID sets the value of ThreadID.
-func (s *MailboxThreadLastMessage) SetThreadID(val NilString) {
-	s.ThreadID = val
-}
-
-// SetTo sets the value of To.
-func (s *MailboxThreadLastMessage) SetTo(val []MailboxAddress) {
-	s.To = val
-}
-
-// Merged schema.
-type MailboxThreadLastMessageFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxThreadLastMessageFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxThreadLastMessageFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxThreadLastMessageFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxThreadLastMessageFrom) SetName(val NilString) {
-	s.Name = val
-}
-
 type MailboxThreadStates struct {
 	EmailState  NilString `json:"email_state"`
 	ThreadState NilString `json:"thread_state"`
@@ -10292,13 +9965,13 @@ type MailboxThreadSummary struct {
 	FolderIds      []string `json:"folder_ids"`
 	HasAttachments bool     `json:"has_attachments"`
 	// Thread ID.
-	ID           string                             `json:"id"`
-	LastMessage  NilMailboxThreadSummaryLastMessage `json:"last_message"`
-	MessageCount int                                `json:"message_count"`
-	Participants []MailboxAddress                   `json:"participants"`
-	States       MailboxThreadSummaryStates         `json:"states"`
-	Subject      NilString                          `json:"subject"`
-	UnreadCount  int                                `json:"unread_count"`
+	ID           string                     `json:"id"`
+	LastMessage  NilMailboxMessageSummary   `json:"last_message"`
+	MessageCount int                        `json:"message_count"`
+	Participants []MailboxAddress           `json:"participants"`
+	States       MailboxThreadSummaryStates `json:"states"`
+	Subject      NilString                  `json:"subject"`
+	UnreadCount  int                        `json:"unread_count"`
 }
 
 // GetFolderIds returns the value of FolderIds.
@@ -10317,7 +9990,7 @@ func (s *MailboxThreadSummary) GetID() string {
 }
 
 // GetLastMessage returns the value of LastMessage.
-func (s *MailboxThreadSummary) GetLastMessage() NilMailboxThreadSummaryLastMessage {
+func (s *MailboxThreadSummary) GetLastMessage() NilMailboxMessageSummary {
 	return s.LastMessage
 }
 
@@ -10362,7 +10035,7 @@ func (s *MailboxThreadSummary) SetID(val string) {
 }
 
 // SetLastMessage sets the value of LastMessage.
-func (s *MailboxThreadSummary) SetLastMessage(val NilMailboxThreadSummaryLastMessage) {
+func (s *MailboxThreadSummary) SetLastMessage(val NilMailboxMessageSummary) {
 	s.LastMessage = val
 }
 
@@ -10491,203 +10164,6 @@ func (MailboxThreadSummaryCursorListResponseOk) AllValues() []MailboxThreadSumma
 	return []MailboxThreadSummaryCursorListResponseOk{
 		MailboxThreadSummaryCursorListResponseOkTrue,
 	}
-}
-
-// Merged schema.
-type MailboxThreadSummaryLastMessage struct {
-	Bcc            []MailboxAddress                       `json:"bcc"`
-	Cc             []MailboxAddress                       `json:"cc"`
-	Flags          MailboxMessageFlags                    `json:"flags"`
-	FolderIds      []string                               `json:"folder_ids"`
-	From           NilMailboxThreadSummaryLastMessageFrom `json:"from"`
-	HasAttachments bool                                   `json:"has_attachments"`
-	// Message ID.
-	ID string `json:"id"`
-	// Active message keywords, including system flags and custom labels.
-	Keywords   []string         `json:"keywords"`
-	Preview    NilString        `json:"preview"`
-	ReceivedAt NilString        `json:"received_at"`
-	SentAt     NilString        `json:"sent_at"`
-	SizeBytes  NilInt           `json:"size_bytes"`
-	Subject    NilString        `json:"subject"`
-	ThreadID   NilString        `json:"thread_id"`
-	To         []MailboxAddress `json:"to"`
-}
-
-// GetBcc returns the value of Bcc.
-func (s *MailboxThreadSummaryLastMessage) GetBcc() []MailboxAddress {
-	return s.Bcc
-}
-
-// GetCc returns the value of Cc.
-func (s *MailboxThreadSummaryLastMessage) GetCc() []MailboxAddress {
-	return s.Cc
-}
-
-// GetFlags returns the value of Flags.
-func (s *MailboxThreadSummaryLastMessage) GetFlags() MailboxMessageFlags {
-	return s.Flags
-}
-
-// GetFolderIds returns the value of FolderIds.
-func (s *MailboxThreadSummaryLastMessage) GetFolderIds() []string {
-	return s.FolderIds
-}
-
-// GetFrom returns the value of From.
-func (s *MailboxThreadSummaryLastMessage) GetFrom() NilMailboxThreadSummaryLastMessageFrom {
-	return s.From
-}
-
-// GetHasAttachments returns the value of HasAttachments.
-func (s *MailboxThreadSummaryLastMessage) GetHasAttachments() bool {
-	return s.HasAttachments
-}
-
-// GetID returns the value of ID.
-func (s *MailboxThreadSummaryLastMessage) GetID() string {
-	return s.ID
-}
-
-// GetKeywords returns the value of Keywords.
-func (s *MailboxThreadSummaryLastMessage) GetKeywords() []string {
-	return s.Keywords
-}
-
-// GetPreview returns the value of Preview.
-func (s *MailboxThreadSummaryLastMessage) GetPreview() NilString {
-	return s.Preview
-}
-
-// GetReceivedAt returns the value of ReceivedAt.
-func (s *MailboxThreadSummaryLastMessage) GetReceivedAt() NilString {
-	return s.ReceivedAt
-}
-
-// GetSentAt returns the value of SentAt.
-func (s *MailboxThreadSummaryLastMessage) GetSentAt() NilString {
-	return s.SentAt
-}
-
-// GetSizeBytes returns the value of SizeBytes.
-func (s *MailboxThreadSummaryLastMessage) GetSizeBytes() NilInt {
-	return s.SizeBytes
-}
-
-// GetSubject returns the value of Subject.
-func (s *MailboxThreadSummaryLastMessage) GetSubject() NilString {
-	return s.Subject
-}
-
-// GetThreadID returns the value of ThreadID.
-func (s *MailboxThreadSummaryLastMessage) GetThreadID() NilString {
-	return s.ThreadID
-}
-
-// GetTo returns the value of To.
-func (s *MailboxThreadSummaryLastMessage) GetTo() []MailboxAddress {
-	return s.To
-}
-
-// SetBcc sets the value of Bcc.
-func (s *MailboxThreadSummaryLastMessage) SetBcc(val []MailboxAddress) {
-	s.Bcc = val
-}
-
-// SetCc sets the value of Cc.
-func (s *MailboxThreadSummaryLastMessage) SetCc(val []MailboxAddress) {
-	s.Cc = val
-}
-
-// SetFlags sets the value of Flags.
-func (s *MailboxThreadSummaryLastMessage) SetFlags(val MailboxMessageFlags) {
-	s.Flags = val
-}
-
-// SetFolderIds sets the value of FolderIds.
-func (s *MailboxThreadSummaryLastMessage) SetFolderIds(val []string) {
-	s.FolderIds = val
-}
-
-// SetFrom sets the value of From.
-func (s *MailboxThreadSummaryLastMessage) SetFrom(val NilMailboxThreadSummaryLastMessageFrom) {
-	s.From = val
-}
-
-// SetHasAttachments sets the value of HasAttachments.
-func (s *MailboxThreadSummaryLastMessage) SetHasAttachments(val bool) {
-	s.HasAttachments = val
-}
-
-// SetID sets the value of ID.
-func (s *MailboxThreadSummaryLastMessage) SetID(val string) {
-	s.ID = val
-}
-
-// SetKeywords sets the value of Keywords.
-func (s *MailboxThreadSummaryLastMessage) SetKeywords(val []string) {
-	s.Keywords = val
-}
-
-// SetPreview sets the value of Preview.
-func (s *MailboxThreadSummaryLastMessage) SetPreview(val NilString) {
-	s.Preview = val
-}
-
-// SetReceivedAt sets the value of ReceivedAt.
-func (s *MailboxThreadSummaryLastMessage) SetReceivedAt(val NilString) {
-	s.ReceivedAt = val
-}
-
-// SetSentAt sets the value of SentAt.
-func (s *MailboxThreadSummaryLastMessage) SetSentAt(val NilString) {
-	s.SentAt = val
-}
-
-// SetSizeBytes sets the value of SizeBytes.
-func (s *MailboxThreadSummaryLastMessage) SetSizeBytes(val NilInt) {
-	s.SizeBytes = val
-}
-
-// SetSubject sets the value of Subject.
-func (s *MailboxThreadSummaryLastMessage) SetSubject(val NilString) {
-	s.Subject = val
-}
-
-// SetThreadID sets the value of ThreadID.
-func (s *MailboxThreadSummaryLastMessage) SetThreadID(val NilString) {
-	s.ThreadID = val
-}
-
-// SetTo sets the value of To.
-func (s *MailboxThreadSummaryLastMessage) SetTo(val []MailboxAddress) {
-	s.To = val
-}
-
-// Merged schema.
-type MailboxThreadSummaryLastMessageFrom struct {
-	Email string    `json:"email"`
-	Name  NilString `json:"name"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxThreadSummaryLastMessageFrom) GetEmail() string {
-	return s.Email
-}
-
-// GetName returns the value of Name.
-func (s *MailboxThreadSummaryLastMessageFrom) GetName() NilString {
-	return s.Name
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxThreadSummaryLastMessageFrom) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetName sets the value of Name.
-func (s *MailboxThreadSummaryLastMessageFrom) SetName(val NilString) {
-	s.Name = val
 }
 
 type MailboxThreadSummaryStates struct {
@@ -11194,6 +10670,51 @@ func (o NilInt) Or(d int) int {
 	return d
 }
 
+// NewNilMailboxAddress returns new NilMailboxAddress with value set to v.
+func NewNilMailboxAddress(v MailboxAddress) NilMailboxAddress {
+	return NilMailboxAddress{
+		Value: v,
+	}
+}
+
+// NilMailboxAddress is nullable MailboxAddress.
+type NilMailboxAddress struct {
+	Value MailboxAddress
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilMailboxAddress) SetTo(v MailboxAddress) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilMailboxAddress) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilMailboxAddress) SetToNull() {
+	o.Null = true
+	var v MailboxAddress
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilMailboxAddress) Get() (v MailboxAddress, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilMailboxAddress) Or(d MailboxAddress) MailboxAddress {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewNilMailboxContentHeadersSelected returns new NilMailboxContentHeadersSelected with value set to v.
 func NewNilMailboxContentHeadersSelected(v MailboxContentHeadersSelected) NilMailboxContentHeadersSelected {
 	return NilMailboxContentHeadersSelected{
@@ -11329,51 +10850,6 @@ func (o NilMailboxMessageContentBodyFormat) Or(d MailboxMessageContentBodyFormat
 	return d
 }
 
-// NewNilMailboxMessageContentParticipantsFrom returns new NilMailboxMessageContentParticipantsFrom with value set to v.
-func NewNilMailboxMessageContentParticipantsFrom(v MailboxMessageContentParticipantsFrom) NilMailboxMessageContentParticipantsFrom {
-	return NilMailboxMessageContentParticipantsFrom{
-		Value: v,
-	}
-}
-
-// NilMailboxMessageContentParticipantsFrom is nullable MailboxMessageContentParticipantsFrom.
-type NilMailboxMessageContentParticipantsFrom struct {
-	Value MailboxMessageContentParticipantsFrom
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxMessageContentParticipantsFrom) SetTo(v MailboxMessageContentParticipantsFrom) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxMessageContentParticipantsFrom) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxMessageContentParticipantsFrom) SetToNull() {
-	o.Null = true
-	var v MailboxMessageContentParticipantsFrom
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxMessageContentParticipantsFrom) Get() (v MailboxMessageContentParticipantsFrom, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxMessageContentParticipantsFrom) Or(d MailboxMessageContentParticipantsFrom) MailboxMessageContentParticipantsFrom {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewNilMailboxMessageContentResponseData returns new NilMailboxMessageContentResponseData with value set to v.
 func NewNilMailboxMessageContentResponseData(v MailboxMessageContentResponseData) NilMailboxMessageContentResponseData {
 	return NilMailboxMessageContentResponseData{
@@ -11464,37 +10940,37 @@ func (o NilMailboxMessageContentResponseDataBodyFormat) Or(d MailboxMessageConte
 	return d
 }
 
-// NewNilMailboxMessageContentResponseDataParticipantsFrom returns new NilMailboxMessageContentResponseDataParticipantsFrom with value set to v.
-func NewNilMailboxMessageContentResponseDataParticipantsFrom(v MailboxMessageContentResponseDataParticipantsFrom) NilMailboxMessageContentResponseDataParticipantsFrom {
-	return NilMailboxMessageContentResponseDataParticipantsFrom{
+// NewNilMailboxMessageSummary returns new NilMailboxMessageSummary with value set to v.
+func NewNilMailboxMessageSummary(v MailboxMessageSummary) NilMailboxMessageSummary {
+	return NilMailboxMessageSummary{
 		Value: v,
 	}
 }
 
-// NilMailboxMessageContentResponseDataParticipantsFrom is nullable MailboxMessageContentResponseDataParticipantsFrom.
-type NilMailboxMessageContentResponseDataParticipantsFrom struct {
-	Value MailboxMessageContentResponseDataParticipantsFrom
+// NilMailboxMessageSummary is nullable MailboxMessageSummary.
+type NilMailboxMessageSummary struct {
+	Value MailboxMessageSummary
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilMailboxMessageContentResponseDataParticipantsFrom) SetTo(v MailboxMessageContentResponseDataParticipantsFrom) {
+func (o *NilMailboxMessageSummary) SetTo(v MailboxMessageSummary) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilMailboxMessageContentResponseDataParticipantsFrom) IsNull() bool { return o.Null }
+func (o NilMailboxMessageSummary) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilMailboxMessageContentResponseDataParticipantsFrom) SetToNull() {
+func (o *NilMailboxMessageSummary) SetToNull() {
 	o.Null = true
-	var v MailboxMessageContentResponseDataParticipantsFrom
+	var v MailboxMessageSummary
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxMessageContentResponseDataParticipantsFrom) Get() (v MailboxMessageContentResponseDataParticipantsFrom, ok bool) {
+func (o NilMailboxMessageSummary) Get() (v MailboxMessageSummary, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -11502,97 +10978,7 @@ func (o NilMailboxMessageContentResponseDataParticipantsFrom) Get() (v MailboxMe
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilMailboxMessageContentResponseDataParticipantsFrom) Or(d MailboxMessageContentResponseDataParticipantsFrom) MailboxMessageContentResponseDataParticipantsFrom {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxMessageFrom returns new NilMailboxMessageFrom with value set to v.
-func NewNilMailboxMessageFrom(v MailboxMessageFrom) NilMailboxMessageFrom {
-	return NilMailboxMessageFrom{
-		Value: v,
-	}
-}
-
-// NilMailboxMessageFrom is nullable MailboxMessageFrom.
-type NilMailboxMessageFrom struct {
-	Value MailboxMessageFrom
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxMessageFrom) SetTo(v MailboxMessageFrom) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxMessageFrom) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxMessageFrom) SetToNull() {
-	o.Null = true
-	var v MailboxMessageFrom
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxMessageFrom) Get() (v MailboxMessageFrom, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxMessageFrom) Or(d MailboxMessageFrom) MailboxMessageFrom {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxMessageSummaryFrom returns new NilMailboxMessageSummaryFrom with value set to v.
-func NewNilMailboxMessageSummaryFrom(v MailboxMessageSummaryFrom) NilMailboxMessageSummaryFrom {
-	return NilMailboxMessageSummaryFrom{
-		Value: v,
-	}
-}
-
-// NilMailboxMessageSummaryFrom is nullable MailboxMessageSummaryFrom.
-type NilMailboxMessageSummaryFrom struct {
-	Value MailboxMessageSummaryFrom
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxMessageSummaryFrom) SetTo(v MailboxMessageSummaryFrom) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxMessageSummaryFrom) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxMessageSummaryFrom) SetToNull() {
-	o.Null = true
-	var v MailboxMessageSummaryFrom
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxMessageSummaryFrom) Get() (v MailboxMessageSummaryFrom, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxMessageSummaryFrom) Or(d MailboxMessageSummaryFrom) MailboxMessageSummaryFrom {
+func (o NilMailboxMessageSummary) Or(d MailboxMessageSummary) MailboxMessageSummary {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12043,231 +11429,6 @@ func (o NilMailboxThreadContentResponseDataItemBodyFormat) Get() (v MailboxThrea
 
 // Or returns value if set, or given parameter if does not.
 func (o NilMailboxThreadContentResponseDataItemBodyFormat) Or(d MailboxThreadContentResponseDataItemBodyFormat) MailboxThreadContentResponseDataItemBodyFormat {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadContentResponseDataItemParticipantsFrom returns new NilMailboxThreadContentResponseDataItemParticipantsFrom with value set to v.
-func NewNilMailboxThreadContentResponseDataItemParticipantsFrom(v MailboxThreadContentResponseDataItemParticipantsFrom) NilMailboxThreadContentResponseDataItemParticipantsFrom {
-	return NilMailboxThreadContentResponseDataItemParticipantsFrom{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadContentResponseDataItemParticipantsFrom is nullable MailboxThreadContentResponseDataItemParticipantsFrom.
-type NilMailboxThreadContentResponseDataItemParticipantsFrom struct {
-	Value MailboxThreadContentResponseDataItemParticipantsFrom
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadContentResponseDataItemParticipantsFrom) SetTo(v MailboxThreadContentResponseDataItemParticipantsFrom) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadContentResponseDataItemParticipantsFrom) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadContentResponseDataItemParticipantsFrom) SetToNull() {
-	o.Null = true
-	var v MailboxThreadContentResponseDataItemParticipantsFrom
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadContentResponseDataItemParticipantsFrom) Get() (v MailboxThreadContentResponseDataItemParticipantsFrom, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadContentResponseDataItemParticipantsFrom) Or(d MailboxThreadContentResponseDataItemParticipantsFrom) MailboxThreadContentResponseDataItemParticipantsFrom {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadLastMessage returns new NilMailboxThreadLastMessage with value set to v.
-func NewNilMailboxThreadLastMessage(v MailboxThreadLastMessage) NilMailboxThreadLastMessage {
-	return NilMailboxThreadLastMessage{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadLastMessage is nullable MailboxThreadLastMessage.
-type NilMailboxThreadLastMessage struct {
-	Value MailboxThreadLastMessage
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadLastMessage) SetTo(v MailboxThreadLastMessage) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadLastMessage) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadLastMessage) SetToNull() {
-	o.Null = true
-	var v MailboxThreadLastMessage
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadLastMessage) Get() (v MailboxThreadLastMessage, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadLastMessage) Or(d MailboxThreadLastMessage) MailboxThreadLastMessage {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadLastMessageFrom returns new NilMailboxThreadLastMessageFrom with value set to v.
-func NewNilMailboxThreadLastMessageFrom(v MailboxThreadLastMessageFrom) NilMailboxThreadLastMessageFrom {
-	return NilMailboxThreadLastMessageFrom{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadLastMessageFrom is nullable MailboxThreadLastMessageFrom.
-type NilMailboxThreadLastMessageFrom struct {
-	Value MailboxThreadLastMessageFrom
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadLastMessageFrom) SetTo(v MailboxThreadLastMessageFrom) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadLastMessageFrom) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadLastMessageFrom) SetToNull() {
-	o.Null = true
-	var v MailboxThreadLastMessageFrom
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadLastMessageFrom) Get() (v MailboxThreadLastMessageFrom, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadLastMessageFrom) Or(d MailboxThreadLastMessageFrom) MailboxThreadLastMessageFrom {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadSummaryLastMessage returns new NilMailboxThreadSummaryLastMessage with value set to v.
-func NewNilMailboxThreadSummaryLastMessage(v MailboxThreadSummaryLastMessage) NilMailboxThreadSummaryLastMessage {
-	return NilMailboxThreadSummaryLastMessage{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadSummaryLastMessage is nullable MailboxThreadSummaryLastMessage.
-type NilMailboxThreadSummaryLastMessage struct {
-	Value MailboxThreadSummaryLastMessage
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadSummaryLastMessage) SetTo(v MailboxThreadSummaryLastMessage) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadSummaryLastMessage) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadSummaryLastMessage) SetToNull() {
-	o.Null = true
-	var v MailboxThreadSummaryLastMessage
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadSummaryLastMessage) Get() (v MailboxThreadSummaryLastMessage, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadSummaryLastMessage) Or(d MailboxThreadSummaryLastMessage) MailboxThreadSummaryLastMessage {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadSummaryLastMessageFrom returns new NilMailboxThreadSummaryLastMessageFrom with value set to v.
-func NewNilMailboxThreadSummaryLastMessageFrom(v MailboxThreadSummaryLastMessageFrom) NilMailboxThreadSummaryLastMessageFrom {
-	return NilMailboxThreadSummaryLastMessageFrom{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadSummaryLastMessageFrom is nullable MailboxThreadSummaryLastMessageFrom.
-type NilMailboxThreadSummaryLastMessageFrom struct {
-	Value MailboxThreadSummaryLastMessageFrom
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadSummaryLastMessageFrom) SetTo(v MailboxThreadSummaryLastMessageFrom) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadSummaryLastMessageFrom) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadSummaryLastMessageFrom) SetToNull() {
-	o.Null = true
-	var v MailboxThreadSummaryLastMessageFrom
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadSummaryLastMessageFrom) Get() (v MailboxThreadSummaryLastMessageFrom, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadSummaryLastMessageFrom) Or(d MailboxThreadSummaryLastMessageFrom) MailboxThreadSummaryLastMessageFrom {
 	if v, ok := o.Get(); ok {
 		return v
 	}

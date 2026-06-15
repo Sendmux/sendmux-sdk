@@ -98,7 +98,7 @@ class MailboxRealtimeEvent implements ModelInterface, ArrayAccess, JsonSerializa
         'event_type' => false,
         'is_spam' => true,
         'mailbox_id' => false,
-        'message' => false,
+        'message' => true,
         'message_id' => true,
         'message_id_kind' => true,
         'occurred_at' => false,
@@ -369,8 +369,8 @@ class MailboxRealtimeEvent implements ModelInterface, ArrayAccess, JsonSerializa
         if ($this->container['mailbox_id'] === null) {
             $invalidProperties[] = "'mailbox_id' can't be null";
         }
-        if ($this->container['message'] === null) {
-            $invalidProperties[] = "'message' can't be null";
+        if ($this->container['message'] === null && !$this->isNullableSetToNull('message')) {
+            $invalidProperties[] = "'message' is required";
         }
         if ($this->container['message_id'] === null && !$this->isNullableSetToNull('message_id')) {
             $invalidProperties[] = "'message_id' is required";
@@ -506,9 +506,9 @@ class MailboxRealtimeEvent implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets message
      *
-     * @return \Sendmux\Mailbox\Model\MailboxRealtimeMessage
+     * @return \Sendmux\Mailbox\Model\MailboxRealtimeMessage|null
      */
-    public function getMessage(): \Sendmux\Mailbox\Model\MailboxRealtimeMessage
+    public function getMessage(): ?\Sendmux\Mailbox\Model\MailboxRealtimeMessage
     {
         return $this->container['message'];
     }
@@ -516,14 +516,21 @@ class MailboxRealtimeEvent implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets message
      *
-     * @param \Sendmux\Mailbox\Model\MailboxRealtimeMessage $message message
+     * @param \Sendmux\Mailbox\Model\MailboxRealtimeMessage|null $message message
      *
      * @return $this
      */
-    public function setMessage(\Sendmux\Mailbox\Model\MailboxRealtimeMessage $message): static
+    public function setMessage(?\Sendmux\Mailbox\Model\MailboxRealtimeMessage $message): static
     {
         if (is_null($message)) {
-            throw new InvalidArgumentException('non-nullable message cannot be null');
+            array_push($this->openAPINullablesSetToNull, 'message');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('message', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
         }
         $this->container['message'] = $message;
 

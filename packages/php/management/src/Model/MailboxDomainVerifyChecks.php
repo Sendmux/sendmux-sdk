@@ -337,7 +337,7 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets mx
      *
-     * @param bool $mx MX record present with priority 10 pointing at mail.sendmux.ai
+     * @param bool $mx MX record present when the domain is configured for receiving. Always true for send-only domains.
      *
      * @return $this
      */

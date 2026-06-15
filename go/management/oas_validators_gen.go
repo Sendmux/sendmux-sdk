@@ -1648,6 +1648,17 @@ func (s *MailboxDomain) Validate() error {
 		})
 	}
 	if err := func() error {
+		if err := s.Mode.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "mode",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if err := s.VerificationStatus.Validate(); err != nil {
 			return err
 		}
@@ -1696,6 +1707,17 @@ func (s *MailboxDomainDnsRecords) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s MailboxDomainMode) Validate() error {
+	switch s {
+	case "send_only":
+		return nil
+	case "send_receive":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s MailboxDomainVerificationStatus) Validate() error {
@@ -1998,6 +2020,22 @@ func (s *ManagementActivateProviderNotFound) Validate() error {
 	return nil
 }
 
+func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementCreateDomainBadRequest) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -2012,6 +2050,47 @@ func (s *ManagementCreateDomainConflict) Validate() error {
 		return err
 	}
 	return nil
+}
+
+func (s *ManagementCreateDomainReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.Mode.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "mode",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ManagementCreateDomainReqMode) Validate() error {
+	switch s {
+	case "send_only":
+		return nil
+	case "send_receive":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *ManagementCreateDomainServiceUnavailable) Validate() error {
@@ -2089,6 +2168,14 @@ func (s *ManagementCreateMailboxKeyReq) Validate() error {
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *ManagementCreateMailboxKeyServiceUnavailable) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -2466,6 +2553,14 @@ func (s *ManagementGetDeliveryPayloadNotFound) Validate() error {
 }
 
 func (s *ManagementGetDeliveryPayloadUnauthorized) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementGetDomainFiltersConflict) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -3167,6 +3262,70 @@ func (s ManagementTestWebhookOKOk) Validate() error {
 }
 
 func (s *ManagementTestWebhookServiceUnavailable) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementUpdateDomainBadRequest) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementUpdateDomainConflict) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementUpdateDomainNotFound) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementUpdateDomainReq) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Mode.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "mode",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ManagementUpdateDomainReqMode) Validate() error {
+	switch s {
+	case "send_receive":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *ManagementUpdateDomainUnprocessableEntity) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -6272,6 +6431,83 @@ func (s *SharedAmazonSesLimitRequest) Validate() error {
 	return nil
 }
 
+func (s *SharedAmazonSesLimitRequestCancel) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Limit.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "limit",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "request",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *SharedAmazonSesLimitRequestCancelResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Ok.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "ok",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Data.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "data",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s SharedAmazonSesLimitRequestCancelResponseOk) Validate() error {
+	switch s {
+	case true:
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s *SharedAmazonSesLimitRequestCreate) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -6290,15 +6526,8 @@ func (s *SharedAmazonSesLimitRequestCreate) Validate() error {
 		})
 	}
 	if err := func() error {
-		if value, ok := s.Request.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Request.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -6311,109 +6540,6 @@ func (s *SharedAmazonSesLimitRequestCreate) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
-}
-
-func (s *SharedAmazonSesLimitRequestCreateRequest) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if value, ok := s.ApprovedDailyLimit.Get(); ok {
-			if err := func() error {
-				if err := (validate.Int{
-					MinSet:        true,
-					Min:           0,
-					MaxSet:        false,
-					Max:           0,
-					MinExclusive:  true,
-					MaxExclusive:  false,
-					MultipleOfSet: false,
-					MultipleOf:    0,
-				}).Validate(int64(value)); err != nil {
-					return errors.Wrap(err, "int")
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "approved_daily_limit",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  false,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.CurrentDailyLimit)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "current_daily_limit",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  false,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.CurrentDailySent)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "current_daily_sent",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := s.Status.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "status",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s SharedAmazonSesLimitRequestCreateRequestStatus) Validate() error {
-	switch s {
-	case "pending":
-		return nil
-	case "approved":
-		return nil
-	case "denied":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
 }
 
 func (s *SharedAmazonSesLimitRequestCreateResponse) Validate() error {
@@ -6550,6 +6676,8 @@ func (s SharedAmazonSesLimitRequestStatus) Validate() error {
 	case "approved":
 		return nil
 	case "denied":
+		return nil
+	case "cancelled":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)

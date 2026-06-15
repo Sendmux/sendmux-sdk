@@ -29,7 +29,7 @@ class MailboxDomainVerifyResult(BaseModel):
     MailboxDomainVerifyResult
     """ # noqa: E501
     checks: MailboxDomainVerifyChecks
-    ses_dkim_status: StrictStr = Field(description="Latest SES DKIM status from AWS")
+    ses_dkim_status: StrictStr = Field(description="Latest Amazon SES DKIM status")
     status: StrictStr = Field(description="Post-check verification status")
     __properties: ClassVar[List[str]] = ["checks", "ses_dkim_status", "status"]
 

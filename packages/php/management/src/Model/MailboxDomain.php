@@ -64,6 +64,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'domain' => 'string',
         'id' => 'string',
         'mailbox_count' => 'int',
+        'mode' => 'string',
         'ses_dkim_status' => 'string',
         'verification_status' => 'string',
         'verified_at' => 'string'
@@ -80,6 +81,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'domain' => null,
         'id' => null,
         'mailbox_count' => null,
+        'mode' => null,
         'ses_dkim_status' => null,
         'verification_status' => null,
         'verified_at' => null
@@ -96,6 +98,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'domain' => false,
         'id' => false,
         'mailbox_count' => false,
+        'mode' => false,
         'ses_dkim_status' => true,
         'verification_status' => false,
         'verified_at' => true
@@ -182,6 +185,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'domain' => 'domain',
         'id' => 'id',
         'mailbox_count' => 'mailbox_count',
+        'mode' => 'mode',
         'ses_dkim_status' => 'ses_dkim_status',
         'verification_status' => 'verification_status',
         'verified_at' => 'verified_at'
@@ -198,6 +202,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'domain' => 'setDomain',
         'id' => 'setId',
         'mailbox_count' => 'setMailboxCount',
+        'mode' => 'setMode',
         'ses_dkim_status' => 'setSesDkimStatus',
         'verification_status' => 'setVerificationStatus',
         'verified_at' => 'setVerifiedAt'
@@ -214,6 +219,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'domain' => 'getDomain',
         'id' => 'getId',
         'mailbox_count' => 'getMailboxCount',
+        'mode' => 'getMode',
         'ses_dkim_status' => 'getSesDkimStatus',
         'verification_status' => 'getVerificationStatus',
         'verified_at' => 'getVerifiedAt'
@@ -251,10 +257,27 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         return self::$openAPIModelName;
     }
 
+    public const MODE_SEND_ONLY = 'send_only';
+    public const MODE_SEND_RECEIVE = 'send_receive';
+    public const MODE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const VERIFICATION_STATUS_PENDING = 'pending';
     public const VERIFICATION_STATUS_VERIFIED = 'verified';
     public const VERIFICATION_STATUS_FAILED = 'failed';
     public const VERIFICATION_STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getModeAllowableValues()
+    {
+        return [
+            self::MODE_SEND_ONLY,
+            self::MODE_SEND_RECEIVE,
+            self::MODE_UNKNOWN_DEFAULT_OPEN_API,
+        ];
+    }
 
     /**
      * Gets allowable values of the enum
@@ -290,6 +313,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('domain', $data ?? [], null);
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('mailbox_count', $data ?? [], null);
+        $this->setIfExists('mode', $data ?? [], null);
         $this->setIfExists('ses_dkim_status', $data ?? [], null);
         $this->setIfExists('verification_status', $data ?? [], null);
         $this->setIfExists('verified_at', $data ?? [], null);
@@ -337,6 +361,18 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         }
         if (($this->container['mailbox_count'] < 0)) {
             $invalidProperties[] = "invalid value for 'mailbox_count', must be bigger than or equal to 0.";
+        }
+
+        if ($this->container['mode'] === null) {
+            $invalidProperties[] = "'mode' can't be null";
+        }
+        $allowedValues = self::getModeAllowableValues();
+        if (!is_null($this->container['mode']) && !in_array($this->container['mode'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'mode', must be one of '%s'",
+                $this->container['mode'],
+                implode("', '", $allowedValues)
+            );
         }
 
         if ($this->container['ses_dkim_status'] === null && !$this->isNullableSetToNull('ses_dkim_status')) {
@@ -510,6 +546,37 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets mode
+     *
+     * @return string
+     */
+    public function getMode(): string
+    {
+        return $this->container['mode'];
+    }
+
+    /**
+     * Sets mode
+     *
+     * @param string $mode `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.
+     *
+     * @return $this
+     */
+    public function setMode(string $mode): static
+    {
+        if (is_null($mode)) {
+            throw new InvalidArgumentException('non-nullable mode cannot be null');
+        }
+        $allowedValues = self::getModeAllowableValues();
+        if (!in_array($mode, $allowedValues, true)) {
+            $mode = self::MODE_UNKNOWN_DEFAULT_OPEN_API;
+        }
+        $this->container['mode'] = $mode;
+
+        return $this;
+    }
+
+    /**
      * Gets ses_dkim_status
      *
      * @return string|null
@@ -522,7 +589,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets ses_dkim_status
      *
-     * @param string|null $ses_dkim_status SES DKIM status (pending/success/failed/temporary_failure/not_started)
+     * @param string|null $ses_dkim_status Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)
      *
      * @return $this
      */

@@ -14,6 +14,18 @@ func (r *ManagementActivateProviderNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementCancelSharedAmazonSesLimitRequestConflict into the shared typed API error.
+func (r *ManagementCancelSharedAmazonSesLimitRequestConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps ManagementCancelSharedAmazonSesLimitRequestNotFound into the shared typed API error.
+func (r *ManagementCancelSharedAmazonSesLimitRequestNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
 // APIError maps ManagementCreateDomainBadRequest into the shared typed API error.
 func (r *ManagementCreateDomainBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
@@ -59,6 +71,12 @@ func (r *ManagementCreateMailboxKeyConflict) APIError() *core.APIError {
 // APIError maps ManagementCreateMailboxKeyNotFound into the shared typed API error.
 func (r *ManagementCreateMailboxKeyNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps ManagementCreateMailboxKeyServiceUnavailable into the shared typed API error.
+func (r *ManagementCreateMailboxKeyServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
 	return err
 }
 
@@ -191,6 +209,12 @@ func (r *ManagementGetDeliveryPayloadNotFound) APIError() *core.APIError {
 // APIError maps ManagementGetDeliveryPayloadUnauthorized into the shared typed API error.
 func (r *ManagementGetDeliveryPayloadUnauthorized) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps ManagementGetDomainFiltersConflict into the shared typed API error.
+func (r *ManagementGetDomainFiltersConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
 	return err
 }
 
@@ -575,6 +599,30 @@ func (r *ManagementTestWebhookNotFound) APIError() *core.APIError {
 // APIError maps ManagementTestWebhookServiceUnavailable into the shared typed API error.
 func (r *ManagementTestWebhookServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps ManagementUpdateDomainBadRequest into the shared typed API error.
+func (r *ManagementUpdateDomainBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps ManagementUpdateDomainConflict into the shared typed API error.
+func (r *ManagementUpdateDomainConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps ManagementUpdateDomainNotFound into the shared typed API error.
+func (r *ManagementUpdateDomainNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps ManagementUpdateDomainUnprocessableEntity into the shared typed API error.
+func (r *ManagementUpdateDomainUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
 	return err
 }
 

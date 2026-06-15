@@ -18,9 +18,8 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
-from sendmux_mailbox.models.mailbox_message_summary_from import MailboxMessageSummaryFrom
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -31,7 +30,7 @@ class MailboxMessageContentParticipants(BaseModel):
     """ # noqa: E501
     bcc: List[MailboxAddress]
     cc: List[MailboxAddress]
-    var_from: MailboxMessageSummaryFrom = Field(alias="from")
+    var_from: Optional[MailboxAddress] = Field(alias="from")
     reply_to: List[MailboxAddress]
     to: List[MailboxAddress]
     __properties: ClassVar[List[str]] = ["bcc", "cc", "from", "reply_to", "to"]
@@ -106,6 +105,11 @@ class MailboxMessageContentParticipants(BaseModel):
                 if _item_to:
                     _items.append(_item_to.to_dict())
             _dict['to'] = _items
+        # set to None if var_from (nullable) is None
+        # and model_fields_set contains the field
+        if self.var_from is None and "var_from" in self.model_fields_set:
+            _dict['from'] = None
+
         return _dict
 
     @classmethod
@@ -120,7 +124,7 @@ class MailboxMessageContentParticipants(BaseModel):
         _obj = cls.model_validate({
             "bcc": [MailboxAddress.from_dict(_item) for _item in obj["bcc"]] if obj.get("bcc") is not None else None,
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
-            "from": MailboxMessageSummaryFrom.from_dict(obj["from"]) if obj.get("from") is not None else None,
+            "from": MailboxAddress.from_dict(obj["from"]) if obj.get("from") is not None else None,
             "reply_to": [MailboxAddress.from_dict(_item) for _item in obj["reply_to"]] if obj.get("reply_to") is not None else None,
             "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None
         })

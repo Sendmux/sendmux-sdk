@@ -107,6 +107,19 @@ export abstract class SendmuxCommand extends Command {
     return value;
   }
 
+  renderBinaryResult(value: ArrayBuffer | ArrayBufferView | string): unknown {
+    const buffer = binaryBuffer(value);
+    if (this.jsonEnabled()) {
+      return {
+        base64: buffer.toString("base64"),
+        byte_length: buffer.byteLength,
+      };
+    }
+
+    this.log(buffer.toString("base64"));
+    return buffer;
+  }
+
   private assertKeyKind({
     apiKey,
     baseUrl,
@@ -135,6 +148,16 @@ export abstract class SendmuxCommand extends Command {
       ...(baseUrl ? { baseUrl } : {}),
     };
   }
+}
+
+function binaryBuffer(value: ArrayBuffer | ArrayBufferView | string): Buffer {
+  if (typeof value === "string") {
+    return Buffer.from(value, "utf8");
+  }
+  if (ArrayBuffer.isView(value)) {
+    return Buffer.from(value.buffer, value.byteOffset, value.byteLength);
+  }
+  return Buffer.from(value);
 }
 
 interface KeyKindInput {

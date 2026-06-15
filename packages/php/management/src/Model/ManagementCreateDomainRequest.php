@@ -59,7 +59,8 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'domain' => 'string'
+        'domain' => 'string',
+        'mode' => 'string'
     ];
 
     /**
@@ -68,7 +69,8 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'domain' => null
+        'domain' => null,
+        'mode' => null
     ];
 
     /**
@@ -77,7 +79,8 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'domain' => false
+        'domain' => false,
+        'mode' => false
     ];
 
     /**
@@ -156,7 +159,8 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'domain' => 'domain'
+        'domain' => 'domain',
+        'mode' => 'mode'
     ];
 
     /**
@@ -165,7 +169,8 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
      * @var array<string, string>
      */
     protected static array $setters = [
-        'domain' => 'setDomain'
+        'domain' => 'setDomain',
+        'mode' => 'setMode'
     ];
 
     /**
@@ -174,7 +179,8 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
      * @var array<string, string>
      */
     protected static array $getters = [
-        'domain' => 'getDomain'
+        'domain' => 'getDomain',
+        'mode' => 'getMode'
     ];
 
     /**
@@ -209,6 +215,23 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
         return self::$openAPIModelName;
     }
 
+    public const MODE_SEND_ONLY = 'send_only';
+    public const MODE_SEND_RECEIVE = 'send_receive';
+    public const MODE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getModeAllowableValues()
+    {
+        return [
+            self::MODE_SEND_ONLY,
+            self::MODE_SEND_RECEIVE,
+            self::MODE_UNKNOWN_DEFAULT_OPEN_API,
+        ];
+    }
 
     /**
      * Associative array for storing property values
@@ -225,6 +248,7 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
     public function __construct(?array $data = null)
     {
         $this->setIfExists('domain', $data ?? [], null);
+        $this->setIfExists('mode', $data ?? [], null);
     }
 
     /**
@@ -255,6 +279,15 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
         if ($this->container['domain'] === null) {
             $invalidProperties[] = "'domain' can't be null";
         }
+        $allowedValues = self::getModeAllowableValues();
+        if (!is_null($this->container['mode']) && !in_array($this->container['mode'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'mode', must be one of '%s'",
+                $this->container['mode'],
+                implode("', '", $allowedValues)
+            );
+        }
+
         return $invalidProperties;
     }
 
@@ -290,6 +323,37 @@ class ManagementCreateDomainRequest implements ModelInterface, ArrayAccess, Json
             throw new InvalidArgumentException('non-nullable domain cannot be null');
         }
         $this->container['domain'] = $domain;
+
+        return $this;
+    }
+
+    /**
+     * Gets mode
+     *
+     * @return string|null
+     */
+    public function getMode(): ?string
+    {
+        return $this->container['mode'];
+    }
+
+    /**
+     * Sets mode
+     *
+     * @param string|null $mode Domain usage mode. Defaults to `send_receive` when omitted.
+     *
+     * @return $this
+     */
+    public function setMode(?string $mode): static
+    {
+        if (is_null($mode)) {
+            throw new InvalidArgumentException('non-nullable mode cannot be null');
+        }
+        $allowedValues = self::getModeAllowableValues();
+        if (!in_array($mode, $allowedValues, true)) {
+            $mode = self::MODE_UNKNOWN_DEFAULT_OPEN_API;
+        }
+        $this->container['mode'] = $mode;
 
         return $this;
     }

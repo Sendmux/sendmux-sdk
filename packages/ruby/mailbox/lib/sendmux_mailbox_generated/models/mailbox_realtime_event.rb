@@ -103,6 +103,7 @@ module Sendmux::Mailbox::Generated
     def self.openapi_nullable
       Set.new([
         :'is_spam',
+        :'message',
         :'message_id',
         :'message_id_kind',
         :'sender',
@@ -201,10 +202,6 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "mailbox_id", mailbox_id cannot be nil.')
       end
 
-      if @message.nil?
-        invalid_properties.push('invalid value for "message", message cannot be nil.')
-      end
-
       if @occurred_at.nil?
         invalid_properties.push('invalid value for "occurred_at", occurred_at cannot be nil.')
       end
@@ -228,7 +225,6 @@ module Sendmux::Mailbox::Generated
       event_type_validator = EnumAttributeValidator.new('String', ["message.received", "message.received.spam", "sync_required", "unknown_default_open_api"])
       return false unless event_type_validator.valid?(@event_type)
       return false if @mailbox_id.nil?
-      return false if @message.nil?
       message_id_kind_validator = EnumAttributeValidator.new('String', ["provider", "rfc5322", "unknown_default_open_api"])
       return false unless message_id_kind_validator.valid?(@message_id_kind)
       return false if @occurred_at.nil?
@@ -255,16 +251,6 @@ module Sendmux::Mailbox::Generated
       end
 
       @mailbox_id = mailbox_id
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] message Value to be assigned
-    def message=(message)
-      if message.nil?
-        fail ArgumentError, 'message cannot be nil'
-      end
-
-      @message = message
     end
 
     # Custom attribute writer method checking allowed values (enum).

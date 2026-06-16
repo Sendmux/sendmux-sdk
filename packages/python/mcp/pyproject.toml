@@ -11,6 +11,7 @@ requires-python = ">=3.10"
 dependencies = [
   "fastmcp==3.3.1",
   "httpx>=0.28.1,<1",
+  "sentry-sdk>=2.62.0,<3",
   "sendmux-core>=1.0.0,<2.0.0",
 ]
 

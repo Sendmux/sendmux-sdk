@@ -111,6 +111,7 @@ def is_sensitive_key(key: str) -> bool:
         normalised in SENSITIVE_KEYS
         or normalised.endswith("_token")
         or normalised.endswith("_secret")
+        or normalised.endswith("_api_key")
         or "authorization" in normalised
     )
 

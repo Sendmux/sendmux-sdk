@@ -52,6 +52,7 @@ def test_sentry_scrubber_removes_request_body_and_sensitive_headers() -> None:
                 "Cookie": "session=value",
                 "Mcp-Session-Id": "session-id",
                 "User-Agent": "test-client",
+                "X-Api-Key": "root-key",
             },
             "cookies": {"session": "value"},
             "data": {"jsonrpc": "2.0"},
@@ -78,6 +79,7 @@ def test_sentry_scrubber_removes_request_body_and_sensitive_headers() -> None:
     assert headers["Authorization"] == "[Filtered]"
     assert headers["Cookie"] == "[Filtered]"
     assert headers["Mcp-Session-Id"] == "[Filtered]"
+    assert headers["X-Api-Key"] == "[Filtered]"
     assert headers["User-Agent"] == "test-client"
     assert extra["grant_id"] == "[Filtered]"
     assert extra["access_token"] == "[Filtered]"

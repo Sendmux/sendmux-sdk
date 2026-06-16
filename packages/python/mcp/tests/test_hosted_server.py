@@ -33,6 +33,7 @@ def runtime_config() -> HostedServerRuntimeConfig:
         port=8765,
         stateless_http=True,
         scopes_supported=("mailbox.read", "email.send"),
+        allowed_origins=("https://app.sendmux.ai", "http://localhost:6274", "http://127.0.0.1:6274"),
     )
 
 
@@ -66,11 +67,57 @@ def test_hosted_server_allows_browser_preflight_to_mcp_endpoint() -> None:
             )
 
         assert response.status_code == 200
-        assert response.headers["access-control-allow-origin"] == "*"
+        assert response.headers["access-control-allow-origin"] == "http://localhost:6274"
         assert "authorization" in response.headers["access-control-allow-headers"].lower()
         assert "mcp-protocol-version" in response.headers["access-control-allow-headers"].lower()
         assert "post" in response.headers["access-control-allow-methods"].lower()
         assert "access-control-allow-credentials" not in response.headers
+
+    asyncio.run(run())
+
+
+def test_hosted_server_rejects_unknown_browser_origin_before_auth() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.post(
+                "/mcp",
+                headers={
+                    "Origin": "https://evil.example",
+                    "Content-Type": "application/json",
+                    "MCP-Protocol-Version": "2025-11-25",
+                },
+                json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+            )
+
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "origin_forbidden"
+        assert "www-authenticate" not in response.headers
+
+    asyncio.run(run())
+
+
+def test_hosted_server_rejects_unknown_browser_preflight() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.options(
+                "/mcp",
+                headers={
+                    "Origin": "https://evil.example",
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "authorization,content-type,mcp-protocol-version",
+                },
+            )
+
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "origin_forbidden"
 
     asyncio.run(run())
 
@@ -92,7 +139,7 @@ def test_hosted_server_exposes_mcp_headers_to_browser_requests() -> None:
                 json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
             )
 
-        assert response.headers["access-control-allow-origin"] == "*"
+        assert response.headers["access-control-allow-origin"] == "http://localhost:6274"
         assert "mcp-protocol-version" in response.headers["access-control-expose-headers"].lower()
         assert "mcp-session-id" in response.headers["access-control-expose-headers"].lower()
         assert "access-control-allow-credentials" not in response.headers
@@ -200,6 +247,7 @@ def test_hosted_runtime_config_uses_public_resource_and_internal_proxy_env(
     monkeypatch.setenv("SENDMUX_MCP_PROXY_URL", "http://sendmux-app.sendmux.svc.cluster.local/api/internal/mcp/proxy")
     monkeypatch.setenv("INTERNAL_API_SECRET", "internal-service-token")
     monkeypatch.setenv("SENDMUX_MCP_SCOPES_SUPPORTED", "mailbox.read,email.send")
+    monkeypatch.setenv("SENDMUX_MCP_ALLOWED_ORIGINS", "https://app.sendmux.ai,http://localhost:6274")
 
     config = hosted_runtime_config_from_env()
 
@@ -209,6 +257,14 @@ def test_hosted_runtime_config_uses_public_resource_and_internal_proxy_env(
     assert config.proxy_url == "http://sendmux-app.sendmux.svc.cluster.local/api/internal/mcp/proxy"
     assert config.internal_bearer_token == "internal-service-token"
     assert config.scopes_supported == ("mailbox.read", "email.send")
+    assert config.allowed_origins == ("https://app.sendmux.ai", "http://localhost:6274")
+
+
+def test_hosted_runtime_config_rejects_wildcard_origin(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SENDMUX_MCP_ALLOWED_ORIGINS", "*")
+
+    with pytest.raises(ValueError, match="wildcard"):
+        hosted_runtime_config_from_env()
 
 
 def test_origin_from_url_strips_api_path() -> None:

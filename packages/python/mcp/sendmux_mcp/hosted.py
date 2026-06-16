@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -14,13 +15,16 @@ from starlette.responses import JSONResponse
 from sendmux_mcp.config import DEFAULT_APP_BASE_URL, ServerConfig, Surface, config_from_env, parse_csv
 from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider
 from sendmux_mcp.hosted_proxy import HostedProxyConfig
+from sendmux_mcp.observability import init_sentry_from_env
 from sendmux_mcp.permissions import tool_permission_auth_check
+from sendmux_mcp.security import OriginGuardMiddleware
 from sendmux_mcp.server import create_server
 
 HOSTED_SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 DEFAULT_MCP_RESOURCE_BASE_URL = "https://mcp.sendmux.ai"
 DEFAULT_MCP_APP_ORIGIN = "https://app.sendmux.ai"
 DEFAULT_MCP_PATH = "/mcp"
+HOSTED_LOCAL_CLIENT_ORIGINS = ("http://localhost:6274", "http://127.0.0.1:6274")
 HOSTED_CORS_ALLOWED_HEADERS = (
     "Accept",
     "Authorization",
@@ -46,6 +50,7 @@ class HostedServerRuntimeConfig:
     port: int
     stateless_http: bool
     scopes_supported: tuple[str, ...]
+    allowed_origins: tuple[str, ...]
 
 
 def hosted_runtime_config_from_env() -> HostedServerRuntimeConfig:
@@ -58,6 +63,9 @@ def hosted_runtime_config_from_env() -> HostedServerRuntimeConfig:
     authorization_servers = parse_csv(os.environ.get("SENDMUX_MCP_AUTHORIZATION_SERVERS")) or (issuer,)
     jwks_uri = os.environ.get("SENDMUX_MCP_JWKS_URI", f"{app_origin}/.well-known/jwks.json")
     proxy_url = os.environ.get("SENDMUX_MCP_PROXY_URL", f"{app_origin}/api/internal/mcp/proxy")
+    allowed_origins = normalise_hosted_allowed_origins(
+        parse_csv(os.environ.get("SENDMUX_MCP_ALLOWED_ORIGINS")) or default_hosted_allowed_origins(app_origin)
+    )
 
     return HostedServerRuntimeConfig(
         issuer=issuer,
@@ -71,6 +79,7 @@ def hosted_runtime_config_from_env() -> HostedServerRuntimeConfig:
         port=int(os.environ.get("SENDMUX_MCP_PORT", "8765")),
         stateless_http=True,
         scopes_supported=parse_csv(os.environ.get("SENDMUX_MCP_SCOPES_SUPPORTED")),
+        allowed_origins=allowed_origins,
     )
 
 
@@ -113,6 +122,7 @@ def create_hosted_server(runtime: HostedServerRuntimeConfig | None = None) -> Fa
 
 
 def run_hosted() -> None:
+    init_sentry_from_env()
     runtime = hosted_runtime_config_from_env()
     server = create_hosted_server(runtime)
     server.run(
@@ -120,17 +130,21 @@ def run_hosted() -> None:
         host=runtime.host,
         port=runtime.port,
         path=runtime.mcp_path,
-        middleware=hosted_http_middleware(),
+        middleware=hosted_http_middleware(runtime.allowed_origins),
         stateless_http=runtime.stateless_http,
         show_banner=False,
     )
 
 
-def hosted_http_middleware() -> list[Middleware]:
+def hosted_http_middleware(allowed_origins: Sequence[str] | None = None) -> list[Middleware]:
+    origins = normalise_hosted_allowed_origins(
+        allowed_origins or default_hosted_allowed_origins(DEFAULT_MCP_APP_ORIGIN)
+    )
     return [
+        Middleware(OriginGuardMiddleware, allowed_origins=origins),
         Middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=list(origins),
             allow_methods=HOSTED_CORS_ALLOWED_METHODS,
             allow_headers=HOSTED_CORS_ALLOWED_HEADERS,
             expose_headers=HOSTED_CORS_EXPOSE_HEADERS,
@@ -161,6 +175,18 @@ def hosted_surface_config(surface: Surface, runtime: HostedServerRuntimeConfig) 
         stateless_http=runtime.stateless_http,
         retry=base.retry,
     )
+
+
+def default_hosted_allowed_origins(app_origin: str) -> tuple[str, ...]:
+    origins = (app_origin, *HOSTED_LOCAL_CLIENT_ORIGINS)
+    return tuple(dict.fromkeys(origin for origin in origins if origin))
+
+
+def normalise_hosted_allowed_origins(origins: Sequence[str]) -> tuple[str, ...]:
+    normalised = tuple(dict.fromkeys(origin for origin in origins if origin))
+    if "*" in normalised:
+        raise ValueError("Hosted MCP requires explicit allowed origins; wildcard '*' is not allowed.")
+    return normalised
 
 
 def origin_from_url(value: str) -> str:

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "kind": "sendmux-live-e2e-audit-manifest",
+  "note": "Sanitized audit record only: no API keys, bearer tokens, base URLs, request bodies, or response bodies.",
+  "run": {
+    "commit_sha": "5878488ea029a887c086c6fe0d0cdfa5e7327af1",
+    "generated_at": "2026-06-15T22:05:02+10:00",
+    "source": "local-protected-live-e2e:20260615-220502"
+  },
+  "ci_refresh": {
+    "workflow": ".github/workflows/live-e2e.yml",
+    "script": "scripts/write-live-e2e-audit-manifest.mjs",
+    "artifact_name": "live-e2e-audit-manifest"
+  },
+  "gates": {
+    "SENDMUX_LIVE_E2E": true,
+    "SENDMUX_LIVE_E2E_FIXTURE_SETUP": true,
+    "SENDMUX_LIVE_E2E_MUTATIONS": true,
+    "SENDMUX_LIVE_E2E_BINARY": true,
+    "SENDMUX_LIVE_E2E_STREAM": true,
+    "SENDMUX_STAGING_SEND": true,
+    "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO": true,
+    "SENDMUX_LIVE_E2E_WEBHOOK_URL": true,
+    "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST": true
+  },
+  "operation_counts": {
+    "total": 95,
+    "executable": 95,
+    "gated": 0,
+    "blocked": 0,
+    "gated_by_risk": {}
+  },
+  "result_summary": {
+    "total": {
+      "failed": 0,
+      "passed": 613,
+      "skipped": 52
+    },
+    "surfaces": {
+      "sdk": {
+        "failed": 0,
+        "passed": 475,
+        "skipped": 0
+      },
+      "cli": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      },
+      "mcp": {
+        "failed": 0,
+        "passed": 43,
+        "skipped": 52
+      }
+    },
+    "adapters": {
+      "cli": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      },
+      "go": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      },
+      "mcp": {
+        "failed": 0,
+        "passed": 43,
+        "skipped": 52
+      },
+      "php": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      },
+      "python": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      },
+      "ruby": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      },
+      "typescript": {
+        "failed": 0,
+        "passed": 95,
+        "skipped": 0
+      }
+    },
+    "product_lines": {
+      "mailbox": {
+        "failed": 0,
+        "passed": 261,
+        "skipped": 19
+      },
+      "management": {
+        "failed": 0,
+        "passed": 332,
+        "skipped": 32
+      },
+      "sending": {
+        "failed": 0,
+        "passed": 20,
+        "skipped": 1
+      }
+    }
+  }
+}

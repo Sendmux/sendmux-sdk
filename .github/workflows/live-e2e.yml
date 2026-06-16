@@ -78,8 +78,35 @@ jobs:
           SENDMUX_LIVE_E2E_WEBHOOK_URL: ${{ vars.SENDMUX_LIVE_E2E_WEBHOOK_URL }}
           SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST: ${{ vars.SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST }}
         run: |
+          mkdir -p .tmp/live-e2e
           args=(--adapter "${SENDMUX_LIVE_E2E_ADAPTERS}")
           if [ -n "${SENDMUX_LIVE_E2E_OPERATIONS}" ]; then
             args+=(--operation "${SENDMUX_LIVE_E2E_OPERATIONS}")
           fi
-          pnpm live:e2e -- "${args[@]}"
+          set +e
+          node scripts/run-live-e2e.mjs "${args[@]}" | tee .tmp/live-e2e/result.json
+          status=${PIPESTATUS[0]}
+          set -e
+          node scripts/write-live-e2e-audit-manifest.mjs \
+            --result .tmp/live-e2e/result.json \
+            --out docs/live-e2e-audit-manifest.json \
+            --commit "$GITHUB_SHA" \
+            --source "github-actions:${GITHUB_RUN_ID}"
+          exit "$status"
+
+      - name: Add live E2E audit manifest to summary
+        if: ${{ always() && hashFiles('docs/live-e2e-audit-manifest.json') != '' }}
+        run: |
+          echo "### Live E2E audit manifest" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`\`\`json" >> "$GITHUB_STEP_SUMMARY"
+          cat docs/live-e2e-audit-manifest.json >> "$GITHUB_STEP_SUMMARY"
+          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload live E2E audit manifest
+        if: ${{ always() && hashFiles('docs/live-e2e-audit-manifest.json') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-e2e-audit-manifest
+          path: docs/live-e2e-audit-manifest.json
+          retention-days: 90

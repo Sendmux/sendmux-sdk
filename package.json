@@ -47,7 +47,7 @@
     "@openapitools/openapi-generator-cli": "2.32.0",
     "@redocly/cli": "2.31.5",
     "@sendmux/sdk": "workspace:*",
-    "esbuild": "0.27.1",
+    "esbuild": "0.28.1",
     "typescript": "5.9.3"
   }
 }

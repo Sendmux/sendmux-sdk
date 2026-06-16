@@ -33,7 +33,7 @@ def runtime_config() -> HostedServerRuntimeConfig:
         port=8765,
         stateless_http=True,
         scopes_supported=("mailbox.read", "email.send"),
-        allowed_origins=("https://app.sendmux.ai", "http://localhost:6274", "http://127.0.0.1:6274"),
+        allowed_origins=("https://app.sendmux.ai",),
     )
 
 
@@ -50,7 +50,7 @@ def test_hosted_server_mounts_all_surfaces_without_process_api_key(monkeypatch: 
     asyncio.run(run())
 
 
-def test_hosted_server_allows_browser_preflight_to_mcp_endpoint() -> None:
+def test_hosted_server_rejects_localhost_browser_preflight_by_default() -> None:
     async def run() -> None:
         server = create_hosted_server(runtime_config())
         app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
@@ -66,8 +66,30 @@ def test_hosted_server_allows_browser_preflight_to_mcp_endpoint() -> None:
                 },
             )
 
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "origin_forbidden"
+
+    asyncio.run(run())
+
+
+def test_hosted_server_allows_browser_preflight_from_app_origin() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.options(
+                "/mcp",
+                headers={
+                    "Origin": "https://app.sendmux.ai",
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "authorization,content-type,mcp-protocol-version",
+                },
+            )
+
         assert response.status_code == 200
-        assert response.headers["access-control-allow-origin"] == "http://localhost:6274"
+        assert response.headers["access-control-allow-origin"] == "https://app.sendmux.ai"
         assert "authorization" in response.headers["access-control-allow-headers"].lower()
         assert "mcp-protocol-version" in response.headers["access-control-allow-headers"].lower()
         assert "post" in response.headers["access-control-allow-methods"].lower()
@@ -132,14 +154,14 @@ def test_hosted_server_exposes_mcp_headers_to_browser_requests() -> None:
             response = await client.post(
                 "/mcp",
                 headers={
-                    "Origin": "http://localhost:6274",
+                    "Origin": "https://app.sendmux.ai",
                     "Content-Type": "application/json",
                     "MCP-Protocol-Version": "2025-11-25",
                 },
                 json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
             )
 
-        assert response.headers["access-control-allow-origin"] == "http://localhost:6274"
+        assert response.headers["access-control-allow-origin"] == "https://app.sendmux.ai"
         assert "mcp-protocol-version" in response.headers["access-control-expose-headers"].lower()
         assert "mcp-session-id" in response.headers["access-control-expose-headers"].lower()
         assert "access-control-allow-credentials" not in response.headers
@@ -258,6 +280,15 @@ def test_hosted_runtime_config_uses_public_resource_and_internal_proxy_env(
     assert config.internal_bearer_token == "internal-service-token"
     assert config.scopes_supported == ("mailbox.read", "email.send")
     assert config.allowed_origins == ("https://app.sendmux.ai", "http://localhost:6274")
+
+
+def test_hosted_runtime_config_defaults_to_app_origin_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SENDMUX_MCP_APP_ORIGIN", "https://app.sendmux.ai")
+    monkeypatch.delenv("SENDMUX_MCP_ALLOWED_ORIGINS", raising=False)
+
+    config = hosted_runtime_config_from_env()
+
+    assert config.allowed_origins == ("https://app.sendmux.ai",)
 
 
 def test_hosted_runtime_config_rejects_wildcard_origin(monkeypatch: pytest.MonkeyPatch) -> None:

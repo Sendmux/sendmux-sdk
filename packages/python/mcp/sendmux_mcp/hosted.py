@@ -24,7 +24,6 @@ HOSTED_SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 DEFAULT_MCP_RESOURCE_BASE_URL = "https://mcp.sendmux.ai"
 DEFAULT_MCP_APP_ORIGIN = "https://app.sendmux.ai"
 DEFAULT_MCP_PATH = "/mcp"
-HOSTED_LOCAL_CLIENT_ORIGINS = ("http://localhost:6274", "http://127.0.0.1:6274")
 HOSTED_CORS_ALLOWED_HEADERS = (
     "Accept",
     "Authorization",
@@ -178,7 +177,7 @@ def hosted_surface_config(surface: Surface, runtime: HostedServerRuntimeConfig) 
 
 
 def default_hosted_allowed_origins(app_origin: str) -> tuple[str, ...]:
-    origins = (app_origin, *HOSTED_LOCAL_CLIENT_ORIGINS)
+    origins = (app_origin,)
     return tuple(dict.fromkeys(origin for origin in origins if origin))
 
 

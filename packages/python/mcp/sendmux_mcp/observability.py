@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Mapping, MutableMapping
+from collections.abc import MutableMapping
 from dataclasses import dataclass
 from typing import Any, cast
 
+import sentry_sdk
+from sentry_sdk.integrations.starlette import StarletteIntegration
 from sentry_sdk.types import Event, Hint
 
 
@@ -41,29 +43,29 @@ class SentryConfig:
     traces_sample_rate: float
 
 
-def sentry_config_from_env(env: Mapping[str, str] = os.environ) -> SentryConfig | None:
-    dsn = clean(env.get("SENTRY_DSN")) or clean(env.get("NEXT_PUBLIC_SENTRY_DSN"))
+def sentry_config_from_env() -> SentryConfig | None:
+    dsn = clean_env_value(os.environ.get("SENTRY_DSN")) or clean_env_value(
+        os.environ.get("NEXT_PUBLIC_SENTRY_DSN")
+    )
     if not dsn:
         return None
 
     return SentryConfig(
         dsn=dsn,
-        environment=clean(env.get("SENTRY_ENVIRONMENT"))
-        or clean(env.get("ENVIRONMENT"))
-        or clean(env.get("NODE_ENV"))
+        environment=clean_env_value(os.environ.get("SENTRY_ENVIRONMENT"))
+        or clean_env_value(os.environ.get("ENVIRONMENT"))
+        or clean_env_value(os.environ.get("NODE_ENV"))
         or "unknown",
-        release=clean(env.get("SENDMUX_MCP_RELEASE")) or clean(env.get("SENTRY_RELEASE")),
-        traces_sample_rate=parse_sample_rate(env.get("SENTRY_TRACES_SAMPLE_RATE")),
+        release=clean_env_value(os.environ.get("SENDMUX_MCP_RELEASE"))
+        or clean_env_value(os.environ.get("SENTRY_RELEASE")),
+        traces_sample_rate=parse_sample_rate(os.environ.get("SENTRY_TRACES_SAMPLE_RATE")),
     )
 
 
-def init_sentry_from_env(env: Mapping[str, str] = os.environ) -> bool:
-    config = sentry_config_from_env(env)
+def init_sentry_from_env() -> bool:
+    config = sentry_config_from_env()
     if config is None:
         return False
-
-    import sentry_sdk
-    from sentry_sdk.integrations.starlette import StarletteIntegration
 
     sentry_sdk.init(
         dsn=config.dsn,
@@ -123,6 +125,6 @@ def parse_sample_rate(value: str | None) -> float:
     return min(1.0, max(0.0, parsed))
 
 
-def clean(value: str | None) -> str | None:
+def clean_env_value(value: str | None) -> str | None:
     trimmed = value.strip() if value else ""
     return trimmed or None

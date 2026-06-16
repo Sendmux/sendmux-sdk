@@ -177,8 +177,7 @@ def hosted_surface_config(surface: Surface, runtime: HostedServerRuntimeConfig) 
 
 
 def default_hosted_allowed_origins(app_origin: str) -> tuple[str, ...]:
-    origins = (app_origin,)
-    return tuple(dict.fromkeys(origin for origin in origins if origin))
+    return (app_origin,)
 
 
 def normalise_hosted_allowed_origins(origins: Sequence[str]) -> tuple[str, ...]:

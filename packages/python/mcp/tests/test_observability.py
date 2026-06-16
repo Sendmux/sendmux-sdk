@@ -3,23 +3,39 @@ from __future__ import annotations
 from collections.abc import MutableMapping
 from typing import Any, cast
 
+import pytest
 from sentry_sdk.types import Event
 
 from sendmux_mcp.observability import scrub_sentry_event, sentry_config_from_env
 
 
-def test_sentry_config_from_env_is_disabled_without_dsn() -> None:
-    assert sentry_config_from_env({}) is None
+def clear_sentry_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    for key in (
+        "SENTRY_DSN",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_ENVIRONMENT",
+        "ENVIRONMENT",
+        "NODE_ENV",
+        "SENDMUX_MCP_RELEASE",
+        "SENTRY_RELEASE",
+        "SENTRY_TRACES_SAMPLE_RATE",
+    ):
+        monkeypatch.delenv(key, raising=False)
 
 
-def test_sentry_config_from_env_uses_privacy_minimized_defaults() -> None:
-    config = sentry_config_from_env(
-        {
-            "NEXT_PUBLIC_SENTRY_DSN": "https://public@example.invalid/1",
-            "SENTRY_ENVIRONMENT": "production",
-            "SENDMUX_MCP_RELEASE": "v1.0.4",
-        }
-    )
+def test_sentry_config_from_env_is_disabled_without_dsn(monkeypatch: pytest.MonkeyPatch) -> None:
+    clear_sentry_env(monkeypatch)
+
+    assert sentry_config_from_env() is None
+
+
+def test_sentry_config_from_env_uses_privacy_minimized_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
+    clear_sentry_env(monkeypatch)
+    monkeypatch.setenv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1")
+    monkeypatch.setenv("SENTRY_ENVIRONMENT", "production")
+    monkeypatch.setenv("SENDMUX_MCP_RELEASE", "v1.0.4")
+
+    config = sentry_config_from_env()
 
     assert config is not None
     assert config.dsn == "https://public@example.invalid/1"

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.1.0...python-core-v1.1.1) (2026-06-17)
+
+
+### Documentation
+
+* expand Python package READMEs ([6d82e19](https://github.com/Sendmux/sendmux-sdk/commit/6d82e1990d5a4efbde7b8107deae58bd99d35b89))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.0.0...python-core-v1.1.0) (2026-06-17)
 
 

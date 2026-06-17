@@ -26,6 +26,9 @@ from urllib.parse import quote
 from typing import Tuple, Optional, List, Dict, Union
 from pydantic import SecretStr
 
+from importlib.metadata import PackageNotFoundError, version as _distribution_version
+from pathlib import Path
+
 from sendmux_management.configuration import Configuration
 from sendmux_management.api_response import ApiResponse, T as ApiResponseT
 import sendmux_management.models
@@ -41,6 +44,21 @@ from sendmux_management.exceptions import (
 )
 
 RequestSerialized = Tuple[str, str, Dict[str, str], Optional[str], List[str]]
+
+
+def _sdk_package_version() -> str:
+    init_path = Path(__file__).with_name("__init__.py")
+    version_prefix = '__version__ = "'
+    if init_path.exists():
+        for line in init_path.read_text(encoding="utf-8").splitlines():
+            if line.startswith(version_prefix) and line.endswith('"'):
+                return line[len(version_prefix) : -1]
+
+    try:
+        return _distribution_version("sendmux-management")
+    except PackageNotFoundError:
+        raise RuntimeError("Could not read sendmux-management package version") from None
+
 
 class ApiClient:
     """Generic API client for OpenAPI client library builds.
@@ -91,7 +109,7 @@ class ApiClient:
             self.default_headers[header_name] = header_value
         self.cookie = cookie
         # Set default User-Agent.
-        self.user_agent = 'OpenAPI-Generator/1.0.1/python'
+        self.user_agent = f'OpenAPI-Generator/{_sdk_package_version()}/python'
         self.client_side_validation = configuration.client_side_validation
 
     def __enter__(self):

@@ -68,6 +68,7 @@ for (const surface of surfaces) {
   rmSync(join(packageDir, surface.packageName), { force: true, recursive: true });
   cpSync(join(generatedRoot, surface.packageName), join(packageDir, surface.packageName), { recursive: true });
   writeSurfaceClient(surface);
+  linkGeneratedRuntimeVersion(surface, packageDir);
   normalizePythonFiles(join(packageDir, surface.packageName));
 }
 
@@ -299,6 +300,76 @@ from ${surface.packageName}.client import (
 )
 `,
   );
+}
+
+function linkGeneratedRuntimeVersion(surface, packageDir) {
+  const packageRoot = join(packageDir, surface.packageName);
+  const apiClientPath = join(packageRoot, "api_client.py");
+  const configurationPath = join(packageRoot, "configuration.py");
+
+  let apiClient = readFileSync(apiClientPath, "utf8");
+  apiClient = replaceOnce({
+    source: apiClient,
+    filePath: apiClientPath,
+    from: "from pydantic import SecretStr\n\n",
+    to: "from pydantic import SecretStr\n\nfrom importlib.metadata import PackageNotFoundError, version as _distribution_version\nfrom pathlib import Path\n\n",
+  });
+  apiClient = replaceOnce({
+    source: apiClient,
+    filePath: apiClientPath,
+    from: "RequestSerialized = Tuple[str, str, Dict[str, str], Optional[str], List[str]]\n\nclass ApiClient:",
+    to: `RequestSerialized = Tuple[str, str, Dict[str, str], Optional[str], List[str]]\n\n\ndef _sdk_package_version() -> str:\n    init_path = Path(__file__).with_name("__init__.py")\n    version_prefix = '__version__ = "'\n    if init_path.exists():\n        for line in init_path.read_text(encoding="utf-8").splitlines():\n            if line.startswith(version_prefix) and line.endswith('"'):\n                return line[len(version_prefix) : -1]\n\n    try:\n        return _distribution_version("${surface.projectName}")\n    except PackageNotFoundError:\n        raise RuntimeError("Could not read ${surface.projectName} package version") from None\n\n\nclass ApiClient:`,
+  });
+  apiClient = replacePatternOnce({
+    source: apiClient,
+    filePath: apiClientPath,
+    pattern: /self\.user_agent = ['"]OpenAPI-Generator\/[^/'"]+\/python['"]/,
+    to:
+    "self.user_agent = f'OpenAPI-Generator/{_sdk_package_version()}/python'",
+  });
+  writeFileSync(apiClientPath, apiClient);
+
+  let configuration = readFileSync(configurationPath, "utf8");
+  configuration = replaceOnce({
+    source: configuration,
+    filePath: configurationPath,
+    from: "import copy\n",
+    to: "import copy\nfrom importlib.metadata import PackageNotFoundError, version as _distribution_version\nfrom pathlib import Path\n",
+  });
+  configuration = replaceOnce({
+    source: configuration,
+    filePath: configurationPath,
+    from: "ServerVariablesT = Dict[str, str]\n\nGenericAuthSetting",
+    to: `ServerVariablesT = Dict[str, str]\n\n\ndef _sdk_package_version() -> str:\n    init_path = Path(__file__).with_name("__init__.py")\n    version_prefix = '__version__ = "'\n    if init_path.exists():\n        for line in init_path.read_text(encoding="utf-8").splitlines():\n            if line.startswith(version_prefix) and line.endswith('"'):\n                return line[len(version_prefix) : -1]\n\n    try:\n        return _distribution_version("${surface.projectName}")\n    except PackageNotFoundError:\n        raise RuntimeError("Could not read ${surface.projectName} package version") from None\n\n\nGenericAuthSetting`,
+  });
+  configuration = replacePatternOnce({
+    source: configuration,
+    filePath: configurationPath,
+    pattern: /"SDK Package Version: [^"]+"\.\\/,
+    to: '"SDK Package Version: {sdk_package_version}".\\',
+  });
+  configuration = replaceOnce({
+    source: configuration,
+    filePath: configurationPath,
+    from: "format(env=sys.platform, pyversion=sys.version)",
+    to: "format(env=sys.platform, pyversion=sys.version, sdk_package_version=_sdk_package_version())",
+  });
+  writeFileSync(configurationPath, configuration);
+}
+
+function replaceOnce({ source, filePath, from, to }) {
+  if (!source.includes(from)) {
+    throw new Error(`Could not find expected generated snippet in ${filePath}`);
+  }
+  return source.replace(from, to);
+}
+
+function replacePatternOnce({ source, filePath, pattern, to }) {
+  const next = source.replace(pattern, to);
+  if (next === source) {
+    throw new Error(`Could not find expected generated pattern ${pattern} in ${filePath}`);
+  }
+  return next;
 }
 
 function run(command, args) {

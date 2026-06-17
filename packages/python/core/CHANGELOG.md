@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.0.0...python-core-v1.1.0) (2026-06-17)
+
+
+### Features
+
+* add MCP server package ([b53182a](https://github.com/Sendmux/sendmux-sdk/commit/b53182a16a46d03a7c3a04a072015ec83dc9de4f))
+
+
+### Bug Fixes
+
+* **python:** publish dists with supported metadata ([e5506e7](https://github.com/Sendmux/sendmux-sdk/commit/e5506e71410a61a7ddcf547f67f863ff2cfc60d6))
+
 ## 1.0.0 (2026-06-01)
 
 

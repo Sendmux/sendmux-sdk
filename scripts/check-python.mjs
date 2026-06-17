@@ -109,14 +109,17 @@ function checkGeneratedPackageVersions() {
     {
       packageDir: join(root, "packages", "python", "sending"),
       moduleDir: join(root, "packages", "python", "sending", "sendmux_sending"),
+      distributionName: "sendmux-sending",
     },
     {
       packageDir: join(root, "packages", "python", "mailbox"),
       moduleDir: join(root, "packages", "python", "mailbox", "sendmux_mailbox"),
+      distributionName: "sendmux-mailbox",
     },
     {
       packageDir: join(root, "packages", "python", "management"),
       moduleDir: join(root, "packages", "python", "management", "sendmux_management"),
+      distributionName: "sendmux-management",
     },
   ];
 
@@ -128,17 +131,28 @@ function checkGeneratedPackageVersions() {
       label: "__version__",
       expected: pyprojectVersion,
     });
-    assertGeneratedVersion({
+    assertGeneratedVersionReference({
       filePath: join(generatedPackage.moduleDir, "api_client.py"),
-      pattern: /self\.user_agent = 'OpenAPI-Generator\/([^/']+)\/python'/,
-      label: "User-Agent package version",
-      expected: pyprojectVersion,
+      expected: [
+        "from importlib.metadata import PackageNotFoundError, version as _distribution_version",
+        `return _distribution_version("${generatedPackage.distributionName}")`,
+        'version_prefix = \'__version__ = "\'',
+        "return line[len(version_prefix) : -1]",
+        "self.user_agent = f'OpenAPI-Generator/{_sdk_package_version()}/python'",
+      ],
+      forbiddenPattern: /OpenAPI-Generator\/\d+\.\d+\.\d+\/python/,
     });
-    assertGeneratedVersion({
+    assertGeneratedVersionReference({
       filePath: join(generatedPackage.moduleDir, "configuration.py"),
-      pattern: /"SDK Package Version: ([^"]+)"/,
-      label: "debug-report SDK package version",
-      expected: pyprojectVersion,
+      expected: [
+        "from importlib.metadata import PackageNotFoundError, version as _distribution_version",
+        `return _distribution_version("${generatedPackage.distributionName}")`,
+        'version_prefix = \'__version__ = "\'',
+        "return line[len(version_prefix) : -1]",
+        '"SDK Package Version: {sdk_package_version}".\\',
+        "sdk_package_version=_sdk_package_version()",
+      ],
+      forbiddenPattern: /SDK Package Version: \d+\.\d+\.\d+/,
     });
   }
 }
@@ -148,6 +162,19 @@ function assertGeneratedVersion({ filePath, pattern, label, expected }) {
   const actual = source.match(pattern)?.[1];
   if (actual !== expected) {
     throw new Error(`${filePath} has ${label} ${actual ?? "<missing>"} but pyproject.toml has ${expected}`);
+  }
+}
+
+function assertGeneratedVersionReference({ filePath, expected, forbiddenPattern }) {
+  const source = readFileSync(filePath, "utf8");
+  for (const snippet of expected) {
+    if (!source.includes(snippet)) {
+      throw new Error(`${filePath} is missing generated runtime version reference: ${snippet}`);
+    }
+  }
+  const forbidden = source.match(forbiddenPattern)?.[0];
+  if (forbidden) {
+    throw new Error(`${filePath} still hardcodes generated runtime package version: ${forbidden}`);
   }
 }
 

@@ -11,6 +11,8 @@
 
 
 import copy
+from importlib.metadata import PackageNotFoundError, version as _distribution_version
+from pathlib import Path
 import http.client as httplib
 import logging
 from logging import FileHandler
@@ -29,6 +31,19 @@ JSON_SCHEMA_VALIDATION_KEYWORDS = {
 }
 
 ServerVariablesT = Dict[str, str]
+
+
+def _sdk_package_version() -> str:
+    try:
+        return _distribution_version("sendmux-sending")
+    except PackageNotFoundError:
+        init_source = Path(__file__).with_name("__init__.py").read_text(encoding="utf-8")
+        version_prefix = '__version__ = "'
+        for line in init_source.splitlines():
+            if line.startswith(version_prefix) and line.endswith('"'):
+                return line[len(version_prefix) : -1]
+        raise RuntimeError("Could not read sendmux-sending package version") from None
+
 
 GenericAuthSetting = TypedDict(
     "GenericAuthSetting",
@@ -533,8 +548,8 @@ class Configuration:
                "OS: {env}\n"\
                "Python Version: {pyversion}\n"\
                "Version of the API: 1.0.0\n"\
-               "SDK Package Version: 1.0.1".\
-               format(env=sys.platform, pyversion=sys.version)
+               "SDK Package Version: {sdk_package_version}".\
+               format(env=sys.platform, pyversion=sys.version, sdk_package_version=_sdk_package_version())
 
     def get_host_settings(self) -> List[HostSetting]:
         """Gets an array of host settings

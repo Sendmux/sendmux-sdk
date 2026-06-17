@@ -8,6 +8,7 @@ const python = join(venv, "bin", "python");
 
 checkGeneratedMailboxBodyParamOrder();
 checkGeneratedMailboxTargeting();
+checkGeneratedPackageVersions();
 
 if (!existsSync(python)) {
   mkdirSync(join(root, ".tmp"), { recursive: true });
@@ -101,6 +102,63 @@ function checkGeneratedMailboxTargeting() {
     anchor: "def _mailbox_get_identity_serialize(",
     expected: ["mailbox_id,", "_query_params.append(('mailbox_id', mailbox_id))"],
   });
+}
+
+function checkGeneratedPackageVersions() {
+  const generatedPackages = [
+    {
+      packageDir: join(root, "packages", "python", "sending"),
+      moduleDir: join(root, "packages", "python", "sending", "sendmux_sending"),
+    },
+    {
+      packageDir: join(root, "packages", "python", "mailbox"),
+      moduleDir: join(root, "packages", "python", "mailbox", "sendmux_mailbox"),
+    },
+    {
+      packageDir: join(root, "packages", "python", "management"),
+      moduleDir: join(root, "packages", "python", "management", "sendmux_management"),
+    },
+  ];
+
+  for (const generatedPackage of generatedPackages) {
+    const pyprojectVersion = readPythonProjectVersion(generatedPackage.packageDir);
+    assertGeneratedVersion({
+      filePath: join(generatedPackage.moduleDir, "__init__.py"),
+      pattern: /^__version__ = "([^"]+)"$/m,
+      label: "__version__",
+      expected: pyprojectVersion,
+    });
+    assertGeneratedVersion({
+      filePath: join(generatedPackage.moduleDir, "api_client.py"),
+      pattern: /self\.user_agent = 'OpenAPI-Generator\/([^/']+)\/python'/,
+      label: "User-Agent package version",
+      expected: pyprojectVersion,
+    });
+    assertGeneratedVersion({
+      filePath: join(generatedPackage.moduleDir, "configuration.py"),
+      pattern: /"SDK Package Version: ([^"]+)"/,
+      label: "debug-report SDK package version",
+      expected: pyprojectVersion,
+    });
+  }
+}
+
+function assertGeneratedVersion({ filePath, pattern, label, expected }) {
+  const source = readFileSync(filePath, "utf8");
+  const actual = source.match(pattern)?.[1];
+  if (actual !== expected) {
+    throw new Error(`${filePath} has ${label} ${actual ?? "<missing>"} but pyproject.toml has ${expected}`);
+  }
+}
+
+function readPythonProjectVersion(packageDir) {
+  const pyprojectPath = join(packageDir, "pyproject.toml");
+  const pyproject = readFileSync(pyprojectPath, "utf8");
+  const match = pyproject.match(/^version = "([^"]+)"$/m);
+  if (!match) {
+    throw new Error(`Could not read project version from ${pyprojectPath}`);
+  }
+  return match[1];
 }
 
 function assertOrder({ source, filePath, anchor, first, second }) {

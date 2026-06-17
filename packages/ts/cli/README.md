@@ -1,14 +1,37 @@
 # @sendmux/cli
 
+[![npm version](https://img.shields.io/npm/v/@sendmux%2Fcli)](https://www.npmjs.com/package/@sendmux/cli)
+[![CI](https://github.com/Sendmux/sendmux-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Sendmux/sendmux-sdk/actions/workflows/ci.yml)
+[![npm downloads](https://img.shields.io/npm/dm/@sendmux%2Fcli)](https://www.npmjs.com/package/@sendmux/cli)
+[![Licence](https://img.shields.io/npm/l/@sendmux%2Fcli)](https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE)
+
 Agent-drivable command line interface for Sendmux.
 
-Install:
+## Documentation
+
+- Sendmux docs: [docs.sendmux.ai](https://docs.sendmux.ai)
+- Management API reference: [docs.sendmux.ai/api/introduction](https://docs.sendmux.ai/api/introduction)
+- Mailbox API reference: [docs.sendmux.ai/mailbox-api/introduction](https://docs.sendmux.ai/mailbox-api/introduction)
+- Sending API reference: [docs.sendmux.ai/sending-api/introduction](https://docs.sendmux.ai/sending-api/introduction)
+- Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
+
+## Requirements
+
+- npm global installs, `npx`, or a downloaded release tarball.
+- A root `smx_root_*` key for Management commands.
+- A mailbox-scoped `smx_mbx_*` key for Mailbox and Sending commands.
+
+## Installation
 
 ```sh
 npm install -g @sendmux/cli
 ```
 
-Configure a profile:
+The package exposes the `sendmux` binary.
+
+## Usage
+
+Create profiles for each key type before running API commands.
 
 ```sh
 sendmux profiles:set default --api-key smx_root_... --default
@@ -16,12 +39,55 @@ sendmux profiles:set mailbox --api-key smx_mbx_...
 sendmux profiles:set sending --api-key smx_mbx_...
 ```
 
-Use `--json` on API commands to emit the raw Sendmux response envelope:
+Run commands with `--json` for machine-readable output.
 
 ```sh
-sendmux mailbox:messages:list --profile mailbox --query limit=25 --json
 sendmux management:domains:list --profile default --json
-sendmux sending:send --profile sending --body '{"from":"sender@example.com","to":["user@example.com"],"subject":"Hello","text":"Hello"}' --json
+sendmux mailbox:messages:list --profile mailbox --query limit=25 --json
+sendmux sending:send --profile sending --body '{"from":{"email":"sender@example.com"},"to":{"email":"recipient@example.com"},"subject":"Hello","html_body":"<p>Hello.</p>","text_body":"Hello"}' --json
 ```
 
 Commands reject mismatched key types before making a network request.
+
+## Commands
+
+The CLI includes `95` generated API operation commands:
+
+- `40` Mailbox commands, including `mailbox:messages:list`, `mailbox:messages:get`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
+- `52` Management commands, including `management:domains:list`, `management:create-mailbox`, `management:get-spend-summary`, and `management:create-webhook`.
+- `3` Sending commands: `sending:get-open-api-spec`, `sending:send`, and `sending:send:batch`.
+- Profile commands: `profiles:list`, `profiles:set`, and `profiles:show`.
+
+Use command-level help for required path, query, header, and body fields.
+
+```sh
+sendmux management:domains:get --help
+sendmux sending:send --help
+```
+
+## Global API flags
+
+Operation commands support:
+
+- `--api-key`
+- `--base-url`
+- `--profile` / `-p`
+- `--body`
+- `--body-file`
+- `--header`
+- `--idempotency-key`
+- `--if-match`
+- `--if-none-match`
+- `--path`
+- `--query`
+- `--json`
+
+`--path`, `--query`, and `--header` use `name=value` syntax and can be repeated when the operation accepts multiple values.
+
+## Support
+
+Open an issue in [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk/issues) with the CLI version, command, flags, and request ID from any API error.
+
+## Licence
+
+MIT. See the [licence file](https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE).

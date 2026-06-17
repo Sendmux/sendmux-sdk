@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-sending-v1.0.0...python-sending-v1.0.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* **python:** publish dists with supported metadata ([e5506e7](https://github.com/Sendmux/sendmux-sdk/commit/e5506e71410a61a7ddcf547f67f863ff2cfc60d6))
+
 ## 1.0.0 (2026-06-01)
 
 

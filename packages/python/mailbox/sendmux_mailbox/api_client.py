@@ -47,14 +47,16 @@ RequestSerialized = Tuple[str, str, Dict[str, str], Optional[str], List[str]]
 
 
 def _sdk_package_version() -> str:
+    init_path = Path(__file__).with_name("__init__.py")
+    version_prefix = '__version__ = "'
+    if init_path.exists():
+        for line in init_path.read_text(encoding="utf-8").splitlines():
+            if line.startswith(version_prefix) and line.endswith('"'):
+                return line[len(version_prefix) : -1]
+
     try:
         return _distribution_version("sendmux-mailbox")
     except PackageNotFoundError:
-        init_source = Path(__file__).with_name("__init__.py").read_text(encoding="utf-8")
-        version_prefix = '__version__ = "'
-        for line in init_source.splitlines():
-            if line.startswith(version_prefix) and line.endswith('"'):
-                return line[len(version_prefix) : -1]
         raise RuntimeError("Could not read sendmux-mailbox package version") from None
 
 

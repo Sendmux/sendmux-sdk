@@ -135,24 +135,26 @@ function checkGeneratedPackageVersions() {
       filePath: join(generatedPackage.moduleDir, "api_client.py"),
       expected: [
         "from importlib.metadata import PackageNotFoundError, version as _distribution_version",
-        `return _distribution_version("${generatedPackage.distributionName}")`,
+        'init_path = Path(__file__).with_name("__init__.py")',
         'version_prefix = \'__version__ = "\'',
         "return line[len(version_prefix) : -1]",
+        `return _distribution_version("${generatedPackage.distributionName}")`,
         "self.user_agent = f'OpenAPI-Generator/{_sdk_package_version()}/python'",
       ],
-      forbiddenPattern: /OpenAPI-Generator\/\d+\.\d+\.\d+\/python/,
+      forbiddenPattern: /OpenAPI-Generator\/(?!\{_sdk_package_version\(\)\})[^/]+\/python/,
     });
     assertGeneratedVersionReference({
       filePath: join(generatedPackage.moduleDir, "configuration.py"),
       expected: [
         "from importlib.metadata import PackageNotFoundError, version as _distribution_version",
-        `return _distribution_version("${generatedPackage.distributionName}")`,
+        'init_path = Path(__file__).with_name("__init__.py")',
         'version_prefix = \'__version__ = "\'',
         "return line[len(version_prefix) : -1]",
+        `return _distribution_version("${generatedPackage.distributionName}")`,
         '"SDK Package Version: {sdk_package_version}".\\',
         "sdk_package_version=_sdk_package_version()",
       ],
-      forbiddenPattern: /SDK Package Version: \d+\.\d+\.\d+/,
+      forbiddenPattern: /SDK Package Version: (?!\{sdk_package_version\})[^"]+/,
     });
   }
 }

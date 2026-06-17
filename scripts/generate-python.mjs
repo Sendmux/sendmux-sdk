@@ -48,6 +48,7 @@ for (const surface of surfaces) {
   const packageDir = join(root, "packages", "python", surface.name);
   const generatedRoot = join(outputRoot, surface.name);
   const inputSpec = surface.tags ? writeFilteredSpec(surface) : join(root, surface.spec);
+  const packageVersion = readProjectVersion(packageDir);
 
   run("pnpm", [
     "openapi-generator-cli",
@@ -60,7 +61,7 @@ for (const surface of surfaces) {
     generatedRoot,
     "-t",
     templateDir,
-    `--additional-properties=packageName=${surface.packageName},projectName=${surface.projectName},packageVersion=1.0.0,generateSourceCodeOnly=true,hideGenerationTimestamp=true`,
+    `--additional-properties=packageName=${surface.packageName},projectName=${surface.projectName},packageVersion=${packageVersion},generateSourceCodeOnly=true,hideGenerationTimestamp=true`,
     "--global-property=models,supportingFiles,apis,apiTests=false,modelTests=false,apiDocs=false,modelDocs=false",
   ]);
 
@@ -71,6 +72,16 @@ for (const surface of surfaces) {
 }
 
 console.log("Generated Python SDK packages");
+
+function readProjectVersion(packageDir) {
+  const pyprojectPath = join(packageDir, "pyproject.toml");
+  const pyproject = readFileSync(pyprojectPath, "utf8");
+  const match = pyproject.match(/^version = "([^"]+)"$/m);
+  if (!match) {
+    throw new Error(`Could not read project version from ${pyprojectPath}`);
+  }
+  return match[1];
+}
 
 function writeFilteredSpec(surface) {
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));

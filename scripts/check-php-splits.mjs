@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -25,6 +25,11 @@ for (const pkg of packages) {
     recursive: true,
     filter: (path) => !path.includes(`${source}/vendor`),
   });
+  for (const requiredFile of ["README.md", "LICENSE"]) {
+    if (!existsSync(join(target, requiredFile))) {
+      throw new Error(`${pkg.repo} split is missing ${requiredFile}`);
+    }
+  }
   run("composer", ["validate", "--strict", "composer.json"], { cwd: target });
 }
 

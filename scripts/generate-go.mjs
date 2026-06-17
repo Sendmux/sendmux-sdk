@@ -14,6 +14,14 @@ const surfaces = [
     defaultBaseUrl: "https://smtp.sendmux.ai/api/v1",
     keySurface: "mailbox",
     description: "Sending API",
+    packageDoc: [
+      "Package sending contains the Sendmux Sending API client.",
+      "",
+      "Create a client with New and a mailbox-scoped API key using the smx_mbx_",
+      "prefix. The client exposes generated methods for the Sending API, typed",
+      "request and response models, idempotency header helpers, retry configuration,",
+      "and API error mapping through APIErrorFromResponse.",
+    ],
   },
   {
     name: "mailbox",
@@ -22,6 +30,15 @@ const surfaces = [
     defaultBaseUrl: "https://app.sendmux.ai/api/v1",
     keySurface: "mailbox",
     description: "Mailbox API",
+    packageDoc: [
+      "Package mailbox contains the Sendmux Mailbox API client.",
+      "",
+      "Create a client with New and a mailbox-scoped API key using the smx_mbx_",
+      "prefix. The client exposes generated methods for mailbox reads, message",
+      "operations, folders, threads, and usage, plus typed request and response",
+      "models, conditional request helpers, retry configuration, and API error",
+      "mapping through APIErrorFromResponse.",
+    ],
   },
   {
     name: "management",
@@ -40,6 +57,15 @@ const surfaces = [
     defaultBaseUrl: "https://app.sendmux.ai/api/v1",
     keySurface: "root",
     description: "Management API",
+    packageDoc: [
+      "Package management contains the Sendmux Management API client.",
+      "",
+      "Create a client with New and a root API key using the smx_root_ prefix. The",
+      "client exposes generated methods for domains, mailboxes, sending accounts,",
+      "billing, logs, and webhooks, plus typed request and response models,",
+      "idempotency and conditional request helpers, retry configuration, and API",
+      "error mapping through APIErrorFromResponse.",
+    ],
   },
 ];
 
@@ -339,10 +365,11 @@ function collectRefs(value, refs) {
 
 function writeSurfaceFiles(surface, specPath) {
   const packageDir = join(root, "go", surface.name);
+  const packageDoc = surface.packageDoc.map((line) => (line ? `// ${line}` : "//")).join("\n");
 
   writeFileSync(
     join(packageDir, "doc.go"),
-    `// Package ${surface.name} contains the generated Sendmux ${surface.description} client.
+    `${packageDoc}
 package ${surface.name}
 
 // DefaultBaseURL is the production Sendmux ${surface.description} base URL.

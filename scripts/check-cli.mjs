@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 const cliPath = "packages/ts/cli/bin/run.js";
+const cliManifestPath = "packages/ts/cli/package.json";
 const operationsPath = "packages/ts/cli/src/generated/operations.ts";
 const operationRunnerPath = "packages/ts/cli/src/operation-runner.ts";
 const commandsDir = "packages/ts/cli/src/commands";
@@ -58,6 +59,7 @@ server.listen(0, "127.0.0.1");
 await once(server, "listening");
 
 try {
+  assertCliPackageMetadata();
   assertCliCommandCoverage();
   assertBinaryOperationRunnerGuard();
   await assertCliArrayParameterSupport();
@@ -431,6 +433,16 @@ function assertDeepEqual(actual, expected, message) {
 function assertCliSuccess(result, label) {
   if (result.status !== 0) {
     throw new Error(`${label} failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
+  }
+}
+
+function assertCliPackageMetadata() {
+  const manifest = JSON.parse(readFileSync(cliManifestPath, "utf8"));
+  if (manifest.license !== "MIT") {
+    throw new Error('@sendmux/cli package.json must declare "license": "MIT" for npm package metadata');
+  }
+  if (manifest.repository?.directory !== "packages/ts/cli") {
+    throw new Error('@sendmux/cli package.json must point repository.directory at "packages/ts/cli"');
   }
 }
 

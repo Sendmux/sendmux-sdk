@@ -1,0 +1,10 @@
+$ErrorActionPreference = 'Stop'
+
+$toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$installDir = Join-Path $toolsDir 'sendmux'
+
+Uninstall-BinFile -Name 'sendmux'
+
+if (Test-Path $installDir) {
+  Remove-Item -Path $installDir -Recurse -Force
+}

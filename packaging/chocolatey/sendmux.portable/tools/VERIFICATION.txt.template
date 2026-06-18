@@ -1,0 +1,15 @@
+VERIFICATION
+
+The Sendmux CLI archive is downloaded from the official Sendmux SDK GitHub release:
+
+{{DOWNLOAD_URL}}
+
+The package install script validates the download with SHA256:
+
+{{CHECKSUM64}}
+
+The source repository and licence are available at:
+
+https://github.com/Sendmux/sendmux-sdk
+https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE
+

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import {
   copyFileSync,
@@ -31,12 +32,18 @@ const downloadUrl =
   args.url ??
   envValue("SENDMUX_CHOCOLATEY_DOWNLOAD_URL") ??
   `https://github.com/Sendmux/sendmux-sdk/releases/download/${releaseTag}/${assetName}`;
+const sourceRef =
+  args.sourceRef ??
+  envValue("SENDMUX_CHOCOLATEY_SOURCE_REF") ??
+  envValue("GITHUB_SHA") ??
+  gitRevParse("HEAD");
 const checksum = args.checksum ?? envValue("SENDMUX_CHOCOLATEY_CHECKSUM64") ?? checksumFor(assetPath);
 const templateDir = join(rootDir, "packaging/chocolatey");
 const replacements = {
   CHECKSUM64: checksum,
   CHECKSUM_TYPE: "sha256",
   DOWNLOAD_URL: downloadUrl,
+  PACKAGE_SOURCE_URL: `https://github.com/Sendmux/sendmux-sdk/tree/${sourceRef}/packaging/chocolatey`,
   RELEASE_TAG: releaseTag,
   VERSION: version,
 };
@@ -59,6 +66,13 @@ function checksumFor(path) {
   }
 
   return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+function gitRevParse(ref) {
+  return execFileSync("git", ["rev-parse", ref], {
+    cwd: rootDir,
+    encoding: "utf8",
+  }).trim();
 }
 
 function copyTemplateTree(fromDir, toDir) {

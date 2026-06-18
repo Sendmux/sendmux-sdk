@@ -106,6 +106,10 @@ jobs:
         if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
         run: pnpm --filter @sendmux/cli pack:tarballs
 
+      - name: Verify CLI tarballs
+        if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
+        run: pnpm check:cli-tarballs
+
       - name: Attach CLI tarballs to GitHub Release
         if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
         env:
@@ -118,6 +122,13 @@ jobs:
             exit 1
           fi
           gh release upload "$tag" "${assets[@]}" --clobber
+
+      - name: Update Homebrew tap
+        if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          SENDMUX_HOMEBREW_TAP_REPO: Sendmux/homebrew-tap
+        run: node scripts/update-homebrew-tap.mjs
 
   publish-cratesio:
     needs: release-please
@@ -222,6 +233,9 @@ jobs:
       - name: Pack CLI tarballs
         run: pnpm --filter @sendmux/cli pack:tarballs
 
+      - name: Verify CLI tarballs
+        run: pnpm check:cli-tarballs
+
       - name: Attach CLI tarballs to GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -235,6 +249,12 @@ jobs:
             exit 1
           fi
           gh release upload "$tag" "${assets[@]}" --clobber
+
+      - name: Update Homebrew tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          SENDMUX_HOMEBREW_TAP_REPO: Sendmux/homebrew-tap
+        run: node scripts/update-homebrew-tap.mjs
 
   publish-pypi:
     needs: release-please

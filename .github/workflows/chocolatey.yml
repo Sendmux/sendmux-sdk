@@ -7,9 +7,17 @@ on:
       - "package.json"
       - "packaging/chocolatey/**"
       - "packages/ts/cli/**"
+      - "scripts/chocolatey-asset-tools.mjs"
       - "scripts/build-chocolatey-asset.mjs"
+      - "scripts/check-cli-tarballs.mjs"
+      - "scripts/cli-tarball-tools.mjs"
       - "scripts/pack-cli-tarballs.mjs"
       - "scripts/prepare-chocolatey-packages.mjs"
+      - "scripts/test-chocolatey-asset-tools.mjs"
+      - "scripts/test-chocolatey-workflow-order.mjs"
+      - "scripts/test-cli-tarball-tools.mjs"
+      - "scripts/test-windows-command-shims.mjs"
+      - "scripts/windows-command-shims.mjs"
   release:
     types:
       - published
@@ -46,6 +54,12 @@ jobs:
         with:
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
 
+      - name: Check out OpenAPI snapshots
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: Sendmux/docs
+          path: sendmux-docs
+
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
         with:
@@ -59,6 +73,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Verify workflow helper scripts
+        run: |
+          pnpm test:windows-command-shims
+          pnpm test:chocolatey-asset-tools
+          pnpm test:chocolatey-workflow-order
+          pnpm test:cli-tarball-tools
 
       - name: Install Windows packaging tools
         shell: powershell
@@ -84,6 +105,7 @@ jobs:
         shell: bash
         run: |
           SENDMUX_CLI_PACK_TARGETS=win32-x64 pnpm --filter @sendmux/cli pack:tarballs
+          pnpm check:cli-tarballs
           node scripts/build-chocolatey-asset.mjs
 
       - name: Generate Chocolatey packages
@@ -97,6 +119,25 @@ jobs:
           New-Item -ItemType Directory -Force -Path .tmp/chocolatey/pkg | Out-Null
           choco pack .tmp/chocolatey/sendmux.portable/sendmux.portable.nuspec --output-directory .tmp/chocolatey/pkg
           choco pack .tmp/chocolatey/sendmux/sendmux.nuspec --output-directory .tmp/chocolatey/pkg
+
+      - name: Attach CLI ZIP assets to release
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            tag="${{ github.event.release.tag_name }}"
+          else
+            version="${SENDMUX_CHOCOLATEY_VERSION:-$(node -p "require('./packages/ts/cli/package.json').version")}"
+            tag="ts-cli-v${version}"
+          fi
+          gh release view "$tag" >/dev/null
+          mapfile -t assets < <(find packages/ts/cli/dist -type f \( -name "sendmux-v*-win32-x64.zip" -o -name "sendmux-v*-win32-x64.zip.sha256" \) -print)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "No Chocolatey ZIP assets found to upload."
+            exit 1
+          fi
+          gh release upload "$tag" "${assets[@]}" --clobber
 
       - name: Test Chocolatey packages
         shell: powershell
@@ -123,22 +164,44 @@ jobs:
             .tmp/chocolatey/pkg/*.nupkg
           retention-days: 30
 
-      - name: Attach Chocolatey artefacts to release
-        if: ${{ github.event_name == 'release' }}
+      - name: Attach Chocolatey package artefacts to release
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t assets < <(find packages/ts/cli/dist .tmp/chocolatey/pkg -type f \( -name "sendmux-v*-win32-x64.zip" -o -name "sendmux-v*-win32-x64.zip.sha256" -o -name "*.nupkg" \) -print)
-          gh release upload "${{ github.event.release.tag_name }}" "${assets[@]}" --clobber
+          if [ "${{ github.event_name }}" = "release" ]; then
+            tag="${{ github.event.release.tag_name }}"
+          else
+            version="${SENDMUX_CHOCOLATEY_VERSION:-$(node -p "require('./packages/ts/cli/package.json').version")}"
+            tag="ts-cli-v${version}"
+          fi
+          gh release view "$tag" >/dev/null
+          mapfile -t assets < <(find .tmp/chocolatey/pkg -type f -name "*.nupkg" -print)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "No Chocolatey package assets found to upload."
+            exit 1
+          fi
+          gh release upload "$tag" "${assets[@]}" --clobber
 
       - name: Push to Chocolatey
         if: ${{ (github.event_name == 'release' || inputs.push == true) && env.CHOCOLATEY_API_KEY != '' }}
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
+          $version = $env:SENDMUX_CHOCOLATEY_VERSION
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            $version = (Get-Content packages/ts/cli/package.json | ConvertFrom-Json).version
+          }
+          $packages = @(
+            ".tmp/chocolatey/pkg/sendmux.portable.$version.nupkg",
+            ".tmp/chocolatey/pkg/sendmux.$version.nupkg"
+          )
           choco apikey --key "$env:CHOCOLATEY_API_KEY" --source https://push.chocolatey.org/
-          Get-ChildItem .tmp/chocolatey/pkg/*.nupkg | ForEach-Object {
-            choco push $_.FullName --source https://push.chocolatey.org/ --api-key "$env:CHOCOLATEY_API_KEY" --no-progress
+          foreach ($package in $packages) {
+            if (-not (Test-Path $package)) {
+              throw "Expected Chocolatey package was not created: $package"
+            }
+            choco push $package --source https://push.chocolatey.org/ --api-key "$env:CHOCOLATEY_API_KEY" --no-progress
           }
 
       - name: Skip Chocolatey push notice

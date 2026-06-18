@@ -14,26 +14,24 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { commandForWindowsShim, nodeBinCandidates } from "./windows-command-shims.mjs";
 
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const cliDir = join(rootDir, "packages/ts/cli");
 const sdkPackageJson = join(rootDir, "packages/ts/sdk/package.json");
-const rootLock = join(rootDir, "pnpm-lock.yaml");
-const oclifBin = firstExisting([
-  join(cliDir, "node_modules/.bin/oclif"),
-  join(rootDir, "node_modules/.pnpm/node_modules/.bin/oclif"),
-  join(rootDir, "node_modules/.bin/oclif"),
-]);
+const oclifBin = firstExisting(
+  nodeBinCandidates("oclif", [
+    join(cliDir, "node_modules/.bin"),
+    join(rootDir, "node_modules/.pnpm/node_modules/.bin"),
+    join(rootDir, "node_modules/.bin"),
+  ]),
+);
 const targets =
   process.env.SENDMUX_CLI_PACK_TARGETS ?? "linux-x64,linux-arm64,darwin-x64,darwin-arm64,win32-x64";
 const gitSha = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
   cwd: rootDir,
   encoding: "utf8",
 }).trim();
-
-if (!existsSync(rootLock)) {
-  throw new Error(`Missing root pnpm lockfile: ${rootLock}`);
-}
 
 if (!oclifBin) {
   throw new Error("Missing oclif binary. Run pnpm install first.");
@@ -55,24 +53,30 @@ const keepTmp = process.env.SENDMUX_CLI_KEEP_PACK_TMP === "true";
 
 try {
   stagePackage(stagingDir);
+  writePackageLock(stagingDir);
+  const oclifCommand = commandForWindowsShim(oclifBin, [
+    "pack",
+    "tarballs",
+    "--root",
+    stagingDir,
+    "--sha",
+    gitSha,
+    "--targets",
+    targets,
+    "--no-xz",
+  ]);
   execFileSync(
-    oclifBin,
-    [
-      "pack",
-      "tarballs",
-      "--root",
-      stagingDir,
-      "--sha",
-      gitSha,
-      "--targets",
-      targets,
-      "--no-xz",
-    ],
+    oclifCommand.command,
+    oclifCommand.args,
     {
       cwd: cliDir,
       env: {
         ...process.env,
         CI: "false",
+        npm_config_audit: "false",
+        npm_config_bin_links: "false",
+        npm_config_fund: "false",
+        npm_config_install_strategy: "hoisted",
       },
       stdio: "inherit",
     },
@@ -95,13 +99,57 @@ function stagePackage(stagingDir) {
     "@sendmux/sdk": sdkManifest.version,
   };
   delete manifest.devDependencies;
+  assertNoWorkspaceDependencies(manifest);
 
   cpSync(join(cliDir, "bin"), join(stagingDir, "bin"), { recursive: true });
   cpSync(join(cliDir, "dist"), join(stagingDir, "dist"), { recursive: true });
-  copyFileSync(join(cliDir, "README.md"), join(stagingDir, "README.md"));
-  copyFileSync(join(cliDir, "oclif.manifest.json"), join(stagingDir, "oclif.manifest.json"));
-  copyFileSync(rootLock, join(stagingDir, "pnpm-lock.yaml"));
+  cpSync(join(cliDir, "README.md"), join(stagingDir, "README.md"));
+  cpSync(join(cliDir, "oclif.manifest.json"), join(stagingDir, "oclif.manifest.json"));
   writeFileSync(join(stagingDir, "package.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
+function writePackageLock(stagingDir) {
+  const npmCommand = commandForWindowsShim(process.platform === "win32" ? "npm.cmd" : "npm", [
+    "install",
+    "--package-lock-only",
+    "--ignore-scripts",
+    "--omit=dev",
+    "--audit=false",
+    "--fund=false",
+  ]);
+
+  execFileSync(npmCommand.command, npmCommand.args, {
+    cwd: stagingDir,
+    env: {
+      ...process.env,
+      npm_config_install_strategy: "hoisted",
+    },
+    stdio: "inherit",
+  });
+}
+
+function assertNoWorkspaceDependencies(manifest) {
+  const dependencySections = [
+    "dependencies",
+    "devDependencies",
+    "optionalDependencies",
+    "peerDependencies",
+  ];
+  const workspaceDependencies = [];
+
+  for (const section of dependencySections) {
+    for (const [name, range] of Object.entries(manifest[section] ?? {})) {
+      if (typeof range === "string" && range.startsWith("workspace:")) {
+        workspaceDependencies.push(`${section}.${name}`);
+      }
+    }
+  }
+
+  if (workspaceDependencies.length > 0) {
+    throw new Error(
+      `Staged CLI package contains workspace dependencies that npm cannot resolve from the registry: ${workspaceDependencies.join(", ")}`,
+    );
+  }
 }
 
 function cpTarballs(fromDir, toDir) {

@@ -37,7 +37,11 @@ async function main() {
       env: process.env,
       stdio: "inherit",
     });
-    execFileSync("git", ["checkout", "-B", branch], { cwd: tapDir, stdio: "inherit" });
+    const hasRemoteBranch = fetchRemoteBranch(branch);
+    execFileSync("git", hasRemoteBranch ? ["checkout", "-B", branch, `origin/${branch}`] : ["checkout", "-B", branch], {
+      cwd: tapDir,
+      stdio: "inherit",
+    });
     execFileSync("git", ["config", "user.name", "sendmux-release-bot"], {
       cwd: tapDir,
       stdio: "inherit",
@@ -62,11 +66,9 @@ async function main() {
       stdio: "inherit",
     });
 
-    const owner = tapRepo.split("/")[0];
-    const head = `${owner}:${branch}`;
+    const head = branch;
     const existingPrUrl = gh(
-      ["pr", "list", "--repo", tapRepo, "--base", baseBranch, "--head", head, "--state", "open", "--json", "url", "--jq", ".[0].url"],
-      { allowFailure: true },
+      ["pr", "list", "--repo", tapRepo, "--base", baseBranch, "--head", head, "--state", "open", "--json", "url", "--jq", ".[0].url // empty"],
     );
 
     if (existingPrUrl) {
@@ -154,6 +156,18 @@ function gh(args, options = {}) {
 
 function git(args, options = {}) {
   return run("git", args, { ...options, cwd: tapDir });
+}
+
+function fetchRemoteBranch(branchName) {
+  try {
+    execFileSync("git", ["fetch", "origin", `refs/heads/${branchName}:refs/remotes/origin/${branchName}`], {
+      cwd: tapDir,
+      stdio: "inherit",
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function run(cmd, args, options = {}) {

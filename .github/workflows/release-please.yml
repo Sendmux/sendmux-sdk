@@ -105,6 +105,10 @@ jobs:
         if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
         run: pnpm --filter @sendmux/cli pack:tarballs
 
+      - name: Verify CLI tarballs
+        if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
+        run: pnpm check:cli-tarballs
+
       - name: Attach CLI tarballs to GitHub Release
         if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
         env:
@@ -188,6 +192,9 @@ jobs:
 
       - name: Pack CLI tarballs
         run: pnpm --filter @sendmux/cli pack:tarballs
+
+      - name: Verify CLI tarballs
+        run: pnpm check:cli-tarballs
 
       - name: Attach CLI tarballs to GitHub Release
         env:

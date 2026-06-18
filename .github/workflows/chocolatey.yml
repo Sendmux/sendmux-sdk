@@ -9,9 +9,12 @@ on:
       - "packages/ts/cli/**"
       - "scripts/chocolatey-asset-tools.mjs"
       - "scripts/build-chocolatey-asset.mjs"
+      - "scripts/check-cli-tarballs.mjs"
+      - "scripts/cli-tarball-tools.mjs"
       - "scripts/pack-cli-tarballs.mjs"
       - "scripts/prepare-chocolatey-packages.mjs"
       - "scripts/test-chocolatey-asset-tools.mjs"
+      - "scripts/test-cli-tarball-tools.mjs"
       - "scripts/test-windows-command-shims.mjs"
       - "scripts/windows-command-shims.mjs"
   release:
@@ -74,6 +77,7 @@ jobs:
         run: |
           pnpm test:windows-command-shims
           pnpm test:chocolatey-asset-tools
+          pnpm test:cli-tarball-tools
 
       - name: Install Windows packaging tools
         shell: powershell
@@ -99,6 +103,7 @@ jobs:
         shell: bash
         run: |
           SENDMUX_CLI_PACK_TARGETS=win32-x64 pnpm --filter @sendmux/cli pack:tarballs
+          pnpm check:cli-tarballs
           node scripts/build-chocolatey-asset.mjs
 
       - name: Generate Chocolatey packages

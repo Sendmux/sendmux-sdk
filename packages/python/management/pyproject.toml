@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sendmux-management"
-version = "1.0.2"
+version = "1.0.3"
 description = "Generated Python client for the Sendmux Management API."
 readme = "README.md"
 requires-python = ">=3.10"

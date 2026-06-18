@@ -4,7 +4,9 @@ Official async Rust SDK for the Sendmux Sending, Mailbox, and Management APIs.
 
 Sendmux provides programmable email sending, mailbox automation, and account
 management APIs. The `sendmux` crate exposes first-party Rust clients for all
-public Sendmux API surfaces:
+public Sendmux API surfaces. The Sending client includes typed request and
+response models; Mailbox and Management expose typed surface clients with raw
+JSON helpers while generated Rust model coverage expands:
 
 - `sendmux::sending` for Sending API requests with `smx_mbx_*` keys.
 - `sendmux::mailbox` for Mailbox API requests with `smx_mbx_*` keys.

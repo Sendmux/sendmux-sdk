@@ -24,7 +24,8 @@ const oclifBin = firstExisting([
   join(rootDir, "node_modules/.pnpm/node_modules/.bin/oclif"),
   join(rootDir, "node_modules/.bin/oclif"),
 ]);
-const targets = process.env.SENDMUX_CLI_PACK_TARGETS ?? "linux-x64,linux-arm64,darwin-x64,darwin-arm64";
+const targets =
+  process.env.SENDMUX_CLI_PACK_TARGETS ?? "linux-x64,linux-arm64,darwin-x64,darwin-arm64,win32-x64";
 const gitSha = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
   cwd: rootDir,
   encoding: "utf8",

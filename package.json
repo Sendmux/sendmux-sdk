@@ -11,6 +11,7 @@
     "build:python": "pnpm generate:python && node scripts/check-python.mjs",
     "build:python:dists": "node scripts/build-python-dists.mjs",
     "build:ruby": "pnpm generate:ruby && node scripts/check-ruby.mjs && node scripts/build-ruby-gems.mjs",
+    "build:chocolatey": "node scripts/build-chocolatey-asset.mjs && node scripts/prepare-chocolatey-packages.mjs",
     "canary:openapi": "node scripts/check-openapi-canary.mjs",
     "check:cli": "node scripts/check-cli.mjs",
     "check:live-e2e": "node scripts/check-live-e2e-coverage.mjs && node scripts/check-live-e2e-runner.mjs && node scripts/write-live-e2e-audit-manifest.mjs --check docs/live-e2e-audit-manifest.json",
@@ -37,6 +38,7 @@
     "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs",
     "verify:tree-shaking": "node scripts/verify-tree-shaking.mjs",
     "verify:ts-public-api": "node scripts/verify-ts-public-api.mjs",
+    "prepare:chocolatey": "node scripts/prepare-chocolatey-packages.mjs",
     "prepare:publish:pypi": "node scripts/prepare-pypi-publish.mjs",
     "publish:rubygems": "node scripts/publish-rubygems.mjs",
     "publish:npm:ts": "node scripts/publish-npm-ts.mjs"

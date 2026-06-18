@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>sendmux.portable</id>
+    <version>{{VERSION}}</version>
+    <packageSourceUrl>https://github.com/Sendmux/sendmux-sdk/tree/{{RELEASE_TAG}}/packaging/chocolatey</packageSourceUrl>
+    <owners>Sendmux</owners>
+    <title>Sendmux CLI (Portable)</title>
+    <authors>Sendmux</authors>
+    <projectUrl>https://sendmux.ai</projectUrl>
+    <iconUrl>https://sendmux.ai/favicon/favicon.svg</iconUrl>
+    <licenseUrl>https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE</licenseUrl>
+    <projectSourceUrl>https://github.com/Sendmux/sendmux-sdk</projectSourceUrl>
+    <docsUrl>https://docs.sendmux.ai</docsUrl>
+    <bugTrackerUrl>https://github.com/Sendmux/sendmux-sdk/issues</bugTrackerUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>sendmux email cli api mailbox mcp</tags>
+    <summary>Command-line access to Sendmux email APIs.</summary>
+    <description><![CDATA[
+The Sendmux CLI provides command-line access to Sendmux Management, Mailbox, and Sending API surfaces.
+
+Use it to manage domains, mailboxes, webhooks, logs, metrics, mailbox messages, and sending operations from Windows terminals and automation.
+
+After installation, run:
+
+```
+sendmux --help
+```
+
+Documentation: https://docs.sendmux.ai
+Source: https://github.com/Sendmux/sendmux-sdk
+]]></description>
+    <releaseNotes>https://github.com/Sendmux/sendmux-sdk/releases/tag/{{RELEASE_TAG}}</releaseNotes>
+  </metadata>
+</package>

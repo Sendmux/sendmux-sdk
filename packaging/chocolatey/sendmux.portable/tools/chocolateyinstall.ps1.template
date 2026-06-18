@@ -1,0 +1,33 @@
+$ErrorActionPreference = 'Stop'
+
+$toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+if ((Get-OSArchitectureWidth) -ne 64) {
+  throw 'sendmux.portable requires 64-bit Windows.'
+}
+
+$packageArgs = @{
+  packageName    = 'sendmux.portable'
+  unzipLocation  = $toolsDir
+  url64bit       = '{{DOWNLOAD_URL}}'
+  checksum64     = '{{CHECKSUM64}}'
+  checksumType64 = '{{CHECKSUM_TYPE}}'
+}
+
+Install-ChocolateyZipPackage @packageArgs
+
+Get-ChildItem -Path $toolsDir -Recurse |
+  Where-Object { -not $_.PSIsContainer -and ($_.Name -like '*.exe' -or $_.Name -like '*.cmd') } |
+  ForEach-Object {
+    New-Item -Path "$($_.FullName).ignore" -ItemType File -Force | Out-Null
+  }
+
+$sendmuxCommand = Get-ChildItem -Path $toolsDir -Recurse |
+  Where-Object { -not $_.PSIsContainer -and ($_.Name -eq 'sendmux.cmd' -or $_.Name -eq 'sendmux.exe') } |
+  Select-Object -First 1
+
+if (-not $sendmuxCommand) {
+  throw 'sendmux command entrypoint was not found after extraction.'
+}
+
+Install-BinFile -Name 'sendmux' -Path $sendmuxCommand.FullName

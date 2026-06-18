@@ -1,0 +1,32 @@
+[package]
+name = "sendmux"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "Official async Rust SDK for the Sendmux Sending, Mailbox, and Management APIs."
+license = "MIT"
+repository = "https://github.com/Sendmux/sendmux-sdk"
+homepage = "https://docs.sendmux.ai"
+readme = "README.crates.io.md"
+keywords = ["sendmux", "email", "sdk", "api", "mailbox"]
+categories = ["api-bindings", "email", "web-programming"]
+include = [
+  "/Cargo.toml",
+  "/LICENSE",
+  "/README.crates.io.md",
+  "/src/**",
+]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+url = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

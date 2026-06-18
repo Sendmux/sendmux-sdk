@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@sendmux/sdk?label=npm)](https://www.npmjs.com/package/@sendmux/sdk)
 [![PyPI version](https://img.shields.io/pypi/v/sendmux-sdk?label=pypi)](https://pypi.org/project/sendmux-sdk/)
 [![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go.svg)](https://pkg.go.dev/sendmux.ai/go)
+[![crates.io version](https://img.shields.io/crates/v/sendmux?label=crates.io)](https://crates.io/crates/sendmux)
 [![CI](https://github.com/Sendmux/sendmux-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Sendmux/sendmux-sdk/actions/workflows/ci.yml)
 [![npm downloads](https://img.shields.io/npm/dm/@sendmux/sdk?label=npm%20downloads)](https://www.npmjs.com/package/@sendmux/sdk)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
@@ -36,6 +37,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` | `go get sendmux.ai/go@v1.0.0` | [`go/mailbox`](go/mailbox) |
 | Go | `sendmux.ai/go/management` | Management API | `smx_root_*` | `go get sendmux.ai/go@v1.0.0` | [`go/management`](go/management) |
 | Go | `sendmux.ai/go/sdk` | Go umbrella package | surface-specific | `go get sendmux.ai/go@v1.0.0` | [`go/sdk`](go/sdk) |
+| crates.io | `sendmux` | Rust umbrella crate | surface-specific | `cargo add sendmux` | [`src`](src) |
 | Packagist | `sendmux/core` | Shared PHP helpers | n/a | `composer require sendmux/core:^1.0` | [`packages/php/core`](packages/php/core) |
 | Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` | `composer require sendmux/sending:^1.0` | [`packages/php/sending`](packages/php/sending) |
 | Packagist | `sendmux/mailbox` | Mailbox API | `smx_mbx_*` | `composer require sendmux/mailbox:^1.0` | [`packages/php/mailbox`](packages/php/mailbox) |
@@ -55,6 +57,7 @@ Install only the package for the surface you need.
 npm install @sendmux/sending
 pip install sendmux-sending
 go get sendmux.ai/go@v1.0.0
+cargo add sendmux
 composer require sendmux/sending:^1.0
 gem install sendmux-sending
 ```

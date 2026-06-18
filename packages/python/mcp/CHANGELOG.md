@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.1...python-mcp-v1.1.2) (2026-06-18)
+
+
+### Documentation
+
+* update Sendmux docs links ([24b89cb](https://github.com/Sendmux/sendmux-sdk/commit/24b89cb851dd8f37dd1304eb292681892bad077d))
+
 ## [1.1.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.0...python-mcp-v1.1.1) (2026-06-17)
 
 

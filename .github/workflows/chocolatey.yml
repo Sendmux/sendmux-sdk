@@ -14,6 +14,7 @@ on:
       - "scripts/pack-cli-tarballs.mjs"
       - "scripts/prepare-chocolatey-packages.mjs"
       - "scripts/test-chocolatey-asset-tools.mjs"
+      - "scripts/test-chocolatey-workflow-order.mjs"
       - "scripts/test-cli-tarball-tools.mjs"
       - "scripts/test-windows-command-shims.mjs"
       - "scripts/windows-command-shims.mjs"
@@ -77,6 +78,7 @@ jobs:
         run: |
           pnpm test:windows-command-shims
           pnpm test:chocolatey-asset-tools
+          pnpm test:chocolatey-workflow-order
           pnpm test:cli-tarball-tools
 
       - name: Install Windows packaging tools
@@ -118,6 +120,25 @@ jobs:
           choco pack .tmp/chocolatey/sendmux.portable/sendmux.portable.nuspec --output-directory .tmp/chocolatey/pkg
           choco pack .tmp/chocolatey/sendmux/sendmux.nuspec --output-directory .tmp/chocolatey/pkg
 
+      - name: Attach CLI ZIP assets to release
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            tag="${{ github.event.release.tag_name }}"
+          else
+            version="${SENDMUX_CHOCOLATEY_VERSION:-$(node -p "require('./packages/ts/cli/package.json').version")}"
+            tag="ts-cli-v${version}"
+          fi
+          gh release view "$tag" >/dev/null
+          mapfile -t assets < <(find packages/ts/cli/dist -type f \( -name "sendmux-v*-win32-x64.zip" -o -name "sendmux-v*-win32-x64.zip.sha256" \) -print)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "No Chocolatey ZIP assets found to upload."
+            exit 1
+          fi
+          gh release upload "$tag" "${assets[@]}" --clobber
+
       - name: Test Chocolatey packages
         shell: powershell
         run: |
@@ -143,7 +164,7 @@ jobs:
             .tmp/chocolatey/pkg/*.nupkg
           retention-days: 30
 
-      - name: Attach Chocolatey artefacts to release
+      - name: Attach Chocolatey package artefacts to release
         if: ${{ github.event_name == 'release' || inputs.push == true }}
         shell: bash
         run: |
@@ -155,9 +176,9 @@ jobs:
             tag="ts-cli-v${version}"
           fi
           gh release view "$tag" >/dev/null
-          mapfile -t assets < <(find packages/ts/cli/dist .tmp/chocolatey/pkg -type f \( -name "sendmux-v*-win32-x64.zip" -o -name "sendmux-v*-win32-x64.zip.sha256" -o -name "*.nupkg" \) -print)
+          mapfile -t assets < <(find .tmp/chocolatey/pkg -type f -name "*.nupkg" -print)
           if [ "${#assets[@]}" -eq 0 ]; then
-            echo "No Chocolatey assets found to upload."
+            echo "No Chocolatey package assets found to upload."
             exit 1
           fi
           gh release upload "$tag" "${assets[@]}" --clobber

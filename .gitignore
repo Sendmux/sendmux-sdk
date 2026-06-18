@@ -6,6 +6,8 @@ dist/
 coverage/
 .DS_Store
 *.log
+*.snap
+snapcraft-*.txt
 *.codegen.json
 .codegen/
 .codegraph/

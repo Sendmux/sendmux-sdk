@@ -118,6 +118,13 @@ jobs:
           fi
           gh release upload "$tag" "${assets[@]}" --clobber
 
+      - name: Update Homebrew tap
+        if: ${{ contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') }}
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          SENDMUX_HOMEBREW_TAP_REPO: Sendmux/homebrew-tap
+        run: node scripts/update-homebrew-tap.mjs
+
   recover-ts-cli-release:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.recover_ts_cli_version != '' }}
     runs-on: ubuntu-latest
@@ -202,6 +209,12 @@ jobs:
             exit 1
           fi
           gh release upload "$tag" "${assets[@]}" --clobber
+
+      - name: Update Homebrew tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          SENDMUX_HOMEBREW_TAP_REPO: Sendmux/homebrew-tap
+        run: node scripts/update-homebrew-tap.mjs
 
   publish-pypi:
     needs: release-please

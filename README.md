@@ -25,6 +25,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | npm | `@sendmux/management` | Management API | `smx_root_*` | `npm install @sendmux/management` | [`packages/ts/management`](packages/ts/management) |
 | npm | `@sendmux/sdk` | TypeScript umbrella package | surface-specific | `npm install @sendmux/sdk` | [`packages/ts/sdk`](packages/ts/sdk) |
 | npm | `@sendmux/cli` | `sendmux` CLI | command/profile-specific | `npm install -g @sendmux/cli` | [`packages/ts/cli`](packages/ts/cli) |
+| Homebrew | `sendmux` | `sendmux` CLI | command/profile-specific | `brew install sendmux/tap/sendmux` | [`Sendmux/homebrew-tap`](https://github.com/Sendmux/homebrew-tap) |
 | PyPI | `sendmux-core` | Shared Python helpers | n/a | `pip install sendmux-core` | [`packages/python/core`](packages/python/core) |
 | PyPI | `sendmux-sending` | Sending API | `smx_mbx_*` | `pip install sendmux-sending` | [`packages/python/sending`](packages/python/sending) |
 | PyPI | `sendmux-mailbox` | Mailbox API | `smx_mbx_*` | `pip install sendmux-mailbox` | [`packages/python/mailbox`](packages/python/mailbox) |
@@ -64,6 +65,7 @@ Use mailbox-scoped `smx_mbx_*` keys for Sending and Mailbox clients. Use root `s
 For command-line access, install the CLI:
 
 ```sh
+brew install sendmux/tap/sendmux
 npm install -g @sendmux/cli
 sendmux --help
 ```

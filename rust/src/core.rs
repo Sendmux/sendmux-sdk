@@ -1,3 +1,4 @@
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, IF_MATCH, IF_NONE_MATCH, USER_AGENT};
 use reqwest::{Client, Method, StatusCode};
 use serde::de::DeserializeOwned;
@@ -105,6 +106,8 @@ pub enum Error {
     InvalidApiKeySurface { expected: ApiKeySurface },
     #[error("sendmux: invalid base URL")]
     InvalidBaseUrl(#[from] url::ParseError),
+    #[error("sendmux: base URL cannot be used for path segments")]
+    CannotBeBaseUrl,
     #[error("sendmux: invalid header value")]
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
     #[error("{0}")]
@@ -223,6 +226,14 @@ impl Transport {
             .await
     }
 
+    pub(crate) async fn get_raw_json<T>(&self, path: &str) -> Result<Response<T>>
+    where
+        T: DeserializeOwned,
+    {
+        self.request_raw_json::<(), T>(Method::GET, path, None, None)
+            .await
+    }
+
     pub(crate) async fn delete_json<T>(&self, path: &str) -> Result<Response<T>>
     where
         T: DeserializeOwned,
@@ -284,6 +295,35 @@ impl Transport {
         B: Serialize + ?Sized,
         T: DeserializeOwned,
     {
+        let (status, headers, bytes) = self.send_json_request(method, path, body, options).await?;
+        decode_enveloped_response(status, &headers, &bytes)
+    }
+
+    async fn request_raw_json<B, T>(
+        &self,
+        method: Method,
+        path: &str,
+        body: Option<&B>,
+        options: Option<&RequestOptions>,
+    ) -> Result<Response<T>>
+    where
+        B: Serialize + ?Sized,
+        T: DeserializeOwned,
+    {
+        let (status, headers, bytes) = self.send_json_request(method, path, body, options).await?;
+        decode_raw_response(status, &headers, &bytes)
+    }
+
+    async fn send_json_request<B>(
+        &self,
+        method: Method,
+        path: &str,
+        body: Option<&B>,
+        options: Option<&RequestOptions>,
+    ) -> Result<(StatusCode, HeaderMap, Vec<u8>)>
+    where
+        B: Serialize + ?Sized,
+    {
         let mut request = self
             .client
             .request(method, self.url(path)?)
@@ -308,12 +348,7 @@ impl Transport {
             ))));
         }
 
-        let envelope: SuccessEnvelope<T> = serde_json::from_slice(&bytes)?;
-        Ok(Response {
-            data: envelope.data,
-            meta: envelope.meta,
-            status,
-        })
+        Ok((status, headers, bytes.to_vec()))
     }
 
     fn default_headers(&self) -> Result<HeaderMap> {
@@ -331,10 +366,18 @@ impl Transport {
     }
 }
 
+pub(crate) fn encode_path_segment(segment: &str) -> String {
+    utf8_percent_encode(segment, NON_ALPHANUMERIC).to_string()
+}
+
 fn normalize_base_url(value: &str) -> Result<Url> {
     let mut trimmed = value.trim_end_matches('/').to_owned();
     trimmed.push('/');
-    Ok(Url::parse(&trimmed)?)
+    let url = Url::parse(&trimmed)?;
+    if url.cannot_be_a_base() {
+        return Err(Error::CannotBeBaseUrl);
+    }
+    Ok(url)
 }
 
 fn apply_options(
@@ -357,6 +400,39 @@ fn apply_options(
 struct SuccessEnvelope<T> {
     data: T,
     meta: ResponseMeta,
+}
+
+fn decode_enveloped_response<T>(
+    status: StatusCode,
+    _headers: &HeaderMap,
+    bytes: &[u8],
+) -> Result<Response<T>>
+where
+    T: DeserializeOwned,
+{
+    let envelope: SuccessEnvelope<T> = serde_json::from_slice(bytes)?;
+    Ok(Response {
+        data: envelope.data,
+        meta: envelope.meta,
+        status,
+    })
+}
+
+fn decode_raw_response<T>(
+    status: StatusCode,
+    headers: &HeaderMap,
+    bytes: &[u8],
+) -> Result<Response<T>>
+where
+    T: DeserializeOwned,
+{
+    Ok(Response {
+        data: serde_json::from_slice(bytes)?,
+        meta: ResponseMeta {
+            request_id: header_value(headers, "x-request-id").unwrap_or_default(),
+        },
+        status,
+    })
 }
 
 #[derive(Debug, Deserialize)]
@@ -453,5 +529,22 @@ mod tests {
         assert_eq!(error.code, "request_failed");
         assert!(error.retryable);
         assert_eq!(error.request_id.as_deref(), Some("req_header"));
+    }
+
+    #[test]
+    fn encodes_dynamic_path_segments() {
+        assert_eq!(encode_path_segment("folder/a?b=1"), "folder%2Fa%3Fb%3D1");
+        assert_eq!(encode_path_segment(".."), "%2E%2E");
+    }
+
+    #[test]
+    fn decodes_raw_json_response_without_success_envelope() {
+        let mut headers = HeaderMap::new();
+        headers.insert("x-request-id", HeaderValue::from_static("req_raw"));
+        let response: Response<serde_json::Value> =
+            decode_raw_response(StatusCode::OK, &headers, br#"{"openapi":"3.1.0"}"#).unwrap();
+
+        assert_eq!(response.data["openapi"], "3.1.0");
+        assert_eq!(response.request_id(), "req_raw");
     }
 }

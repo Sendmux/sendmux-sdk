@@ -1,4 +1,6 @@
-use crate::core::{ApiKeySurface, RequestOptions, Response, Result, Transport};
+use crate::core::{
+    encode_path_segment, ApiKeySurface, RequestOptions, Response, Result, Transport,
+};
 use reqwest::Client;
 use serde::Serialize;
 
@@ -45,8 +47,7 @@ impl MailboxClient {
     }
 
     pub async fn get_message(&self, message_id: &str) -> Result<Response<serde_json::Value>> {
-        self.raw_get(&format!("/mailbox/messages/{message_id}"))
-            .await
+        self.raw_get(&message_path(message_id)).await
     }
 
     pub async fn send_message<B>(&self, body: &B) -> Result<Response<serde_json::Value>>
@@ -99,5 +100,22 @@ impl MailboxClient {
 
     pub async fn raw_delete(&self, path: &str) -> Result<Response<serde_json::Value>> {
         self.transport.delete_json(path).await
+    }
+}
+
+fn message_path(message_id: &str) -> String {
+    format!("/mailbox/messages/{}", encode_path_segment(message_id))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn message_path_encodes_message_id_as_one_segment() {
+        assert_eq!(
+            message_path("folder/a?b=1"),
+            "/mailbox/messages/folder%2Fa%3Fb%3D1"
+        );
     }
 }

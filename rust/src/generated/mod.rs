@@ -4,7 +4,10 @@
 //! metadata. Hand-written client helpers live in `core`, `sending`, `mailbox`,
 //! and `management`.
 
-/// Committed OpenAPI snapshot used for the Sending surface.
+/// Repository-relative OpenAPI snapshot path used for Sendmux provenance.
+///
+/// This path is relative to the `sendmux-sdk` monorepo, not to downstream
+/// projects that install this crate from crates.io.
 pub const SENDING_OPENAPI_PATH: &str =
     "packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json";
 
@@ -12,7 +15,10 @@ pub const SENDING_OPENAPI_PATH: &str =
 pub const SENDING_OPENAPI_SHA256: &str =
     "881f0693f0dd6d49d4c594e452cd67d9ba739d91aba7ff2f8e2cd899ca552e90";
 
-/// Committed OpenAPI snapshot used for Mailbox and Management surfaces.
+/// Repository-relative OpenAPI snapshot path used for Sendmux provenance.
+///
+/// This path is relative to the `sendmux-sdk` monorepo, not to downstream
+/// projects that install this crate from crates.io.
 pub const APP_OPENAPI_PATH: &str = "packages/python/mcp/sendmux_mcp/openapi/openapi-app.json";
 
 /// SHA-256 of `APP_OPENAPI_PATH` at the time this crate surface was added.

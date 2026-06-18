@@ -1,4 +1,6 @@
-use crate::core::{ApiKeySurface, RequestOptions, Response, Result, Transport};
+use crate::core::{
+    encode_path_segment, ApiKeySurface, RequestOptions, Response, Result, Transport,
+};
 use reqwest::Client;
 use serde::Serialize;
 
@@ -37,7 +39,7 @@ impl ManagementClient {
     }
 
     pub async fn get_domain(&self, public_id: &str) -> Result<Response<serde_json::Value>> {
-        self.raw_get(&format!("/domains/{public_id}")).await
+        self.raw_get(&domain_path(public_id)).await
     }
 
     pub async fn list_mailboxes(&self) -> Result<Response<serde_json::Value>> {
@@ -45,7 +47,7 @@ impl ManagementClient {
     }
 
     pub async fn get_mailbox(&self, public_id: &str) -> Result<Response<serde_json::Value>> {
-        self.raw_get(&format!("/mailboxes/{public_id}")).await
+        self.raw_get(&mailbox_path(public_id)).await
     }
 
     pub async fn list_webhooks(&self) -> Result<Response<serde_json::Value>> {
@@ -118,5 +120,28 @@ impl ManagementClient {
 
     pub async fn raw_delete(&self, path: &str) -> Result<Response<serde_json::Value>> {
         self.transport.delete_json(path).await
+    }
+}
+
+fn domain_path(public_id: &str) -> String {
+    format!("/domains/{}", encode_path_segment(public_id))
+}
+
+fn mailbox_path(public_id: &str) -> String {
+    format!("/mailboxes/{}", encode_path_segment(public_id))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn domain_path_encodes_dot_segments() {
+        assert_eq!(domain_path(".."), "/domains/%2E%2E");
+    }
+
+    #[test]
+    fn mailbox_path_encodes_slashes() {
+        assert_eq!(mailbox_path("mailbox/a"), "/mailboxes/mailbox%2Fa");
     }
 }

@@ -50,6 +50,8 @@ jobs:
 
   verify-rust:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: rust

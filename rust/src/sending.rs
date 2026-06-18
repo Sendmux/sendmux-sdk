@@ -70,7 +70,7 @@ impl SendingClient {
     }
 
     pub async fn openapi(&self) -> Result<Response<serde_json::Value>> {
-        self.transport.get_json("/openapi.json").await
+        self.transport.get_raw_json("/openapi.json").await
     }
 }
 

@@ -90,6 +90,12 @@
       "tag-separator": "/",
       "initial-version": "1.0.0"
     },
+    "rust": {
+      "component": "rust",
+      "package-name": "sendmux",
+      "release-type": "rust",
+      "initial-version": "0.1.0"
+    },
     "packages/ruby/core": {
       "component": "ruby-core",
       "package-name": "sendmux-core",

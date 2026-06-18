@@ -7,9 +7,11 @@ on:
       - "package.json"
       - "packaging/chocolatey/**"
       - "packages/ts/cli/**"
+      - "scripts/chocolatey-asset-tools.mjs"
       - "scripts/build-chocolatey-asset.mjs"
       - "scripts/pack-cli-tarballs.mjs"
       - "scripts/prepare-chocolatey-packages.mjs"
+      - "scripts/test-chocolatey-asset-tools.mjs"
       - "scripts/test-windows-command-shims.mjs"
       - "scripts/windows-command-shims.mjs"
   release:
@@ -69,7 +71,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Verify workflow helper scripts
-        run: pnpm test:windows-command-shims
+        run: |
+          pnpm test:windows-command-shims
+          pnpm test:chocolatey-asset-tools
 
       - name: Install Windows packaging tools
         shell: powershell

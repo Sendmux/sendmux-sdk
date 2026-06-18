@@ -14,6 +14,7 @@ import {
 } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { tarExtractArgs } from "./chocolatey-asset-tools.mjs";
 
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const cliDir = join(rootDir, "packages/ts/cli");
@@ -44,7 +45,7 @@ rmSync(`${outFile}.sha256`, { force: true });
 const tempParent = mkdtempSync(join(tmpdir(), "sendmux-chocolatey-asset-"));
 
 try {
-  execFileSync("tar", ["-xzf", tarball, "-C", tempParent], { stdio: "inherit" });
+  execFileSync("tar", tarExtractArgs({ targetDir: tempParent, tarball }), { stdio: "inherit" });
 
   const extractedRoot = findExtractedRoot(tempParent);
   addShimIgnores(extractedRoot);

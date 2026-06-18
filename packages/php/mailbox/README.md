@@ -6,7 +6,7 @@
 
 Sendmux Mailbox API client for PHP.
 
-Read the PHP SDK guide at [docs.sendmux.ai/sdks/php](https://docs.sendmux.ai/sdks/php).
+Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdks/php).
 
 ## Requirements
 
@@ -59,9 +59,9 @@ The generated `MailboxAPIApi` exposes mailbox methods such as `mailboxGetMe()`, 
 
 For help, include the package name, version, API surface, and sanitised request details. Do not include API keys, tokens, passwords, webhook secrets, customer data, or private account details.
 
-- PHP SDK guide: [docs.sendmux.ai/sdks/php](https://docs.sendmux.ai/sdks/php)
-- Mailbox API reference: [docs.sendmux.ai/mailbox-api/introduction](https://docs.sendmux.ai/mailbox-api/introduction)
-- API keys guide: [docs.sendmux.ai/guides/api-keys](https://docs.sendmux.ai/guides/api-keys)
+- PHP SDK guide: [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdks/php)
+- Mailbox API reference: [sendmux.ai/docs/mailbox-api/introduction](https://sendmux.ai/docs/mailbox-api/introduction)
+- API keys guide: [sendmux.ai/docs/guides/api-keys](https://sendmux.ai/docs/guides/api-keys)
 - Source repository: [github.com/Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## License

@@ -9,7 +9,7 @@ Generated TypeScript client for the Sendmux Sending API.
 
 ## Documentation
 
-- Sending API reference: [docs.sendmux.ai/sending-api/introduction](https://docs.sendmux.ai/sending-api/introduction)
+- Sending API reference: [sendmux.ai/docs/sending-api/introduction](https://sendmux.ai/docs/sending-api/introduction)
 - Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## Requirements

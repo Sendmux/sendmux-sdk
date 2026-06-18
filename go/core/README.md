@@ -53,5 +53,5 @@ Most applications should import `sendmux.ai/go/sending`, `sendmux.ai/go/mailbox`
 
 ## Documentation
 
-- Guides: <https://docs.sendmux.ai>
+- Guides: <https://sendmux.ai/docs>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/core>

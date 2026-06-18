@@ -8,8 +8,8 @@ Ruby SDK package for the Sendmux Sending API.
 
 ## Documentation
 
-- Ruby SDK guide: https://docs.sendmux.ai/sdks/ruby
-- Sending API reference: https://docs.sendmux.ai/sending-api
+- Ruby SDK guide: https://sendmux.ai/docs/sdks/ruby
+- Sending API reference: https://sendmux.ai/docs/sending-api
 - Source: https://github.com/Sendmux/sendmux-sdk/tree/main/packages/ruby/sending
 - Changelog: https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ruby/sending/CHANGELOG.md
 
@@ -90,7 +90,7 @@ end
 
 ## Support
 
-- Documentation: https://docs.sendmux.ai
+- Documentation: https://sendmux.ai/docs
 - Contact: contact@sendmux.ai
 
 ## Licence

@@ -57,7 +57,7 @@ Description:
 
 Links:
 
-- Website: `https://docs.sendmux.ai`
+- Website: `https://sendmux.ai/docs`
 - Source code: `https://github.com/Sendmux/sendmux-sdk`
 - Issues/support: `https://github.com/Sendmux/sendmux-sdk/issues`
 - npm package: `https://www.npmjs.com/package/@sendmux/cli`

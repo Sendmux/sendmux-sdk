@@ -70,6 +70,6 @@ func main() {
 
 ## Documentation
 
-- Management API: <https://docs.sendmux.ai/api/introduction>
-- Domain guide: <https://docs.sendmux.ai/guides/domain-management>
+- Management API: <https://sendmux.ai/docs/api/introduction>
+- Domain guide: <https://sendmux.ai/docs/guides/domain-management>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/management>

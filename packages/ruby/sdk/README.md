@@ -8,7 +8,7 @@ Umbrella Ruby SDK package for Sendmux.
 
 ## Documentation
 
-- Ruby SDK guide: https://docs.sendmux.ai/sdks/ruby
+- Ruby SDK guide: https://sendmux.ai/docs/sdks/ruby
 - Source: https://github.com/Sendmux/sendmux-sdk/tree/main/packages/ruby/sdk
 - Changelog: https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ruby/sdk/CHANGELOG.md
 
@@ -94,7 +94,7 @@ Generated API errors are mapped to `Sendmux::Core::ApiError`.
 
 ## Support
 
-- Documentation: https://docs.sendmux.ai
+- Documentation: https://sendmux.ai/docs
 - Contact: contact@sendmux.ai
 
 ## Licence

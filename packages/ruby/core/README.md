@@ -8,7 +8,7 @@ Shared authentication, retry, pagination, header, and error helpers for the Send
 
 ## Documentation
 
-- Ruby SDK guide: https://docs.sendmux.ai/sdks/ruby
+- Ruby SDK guide: https://sendmux.ai/docs/sdks/ruby
 - Source: https://github.com/Sendmux/sendmux-sdk/tree/main/packages/ruby/core
 - Changelog: https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ruby/core/CHANGELOG.md
 
@@ -90,7 +90,7 @@ Retries are enabled for safe requests and for idempotent `POST` requests that us
 
 ## Support
 
-- Documentation: https://docs.sendmux.ai
+- Documentation: https://sendmux.ai/docs
 - Contact: contact@sendmux.ai
 
 ## Licence

@@ -6,7 +6,7 @@
 
 Sendmux Management API client for PHP.
 
-Read the PHP SDK guide at [docs.sendmux.ai/sdks/php](https://docs.sendmux.ai/sdks/php).
+Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdks/php).
 
 ## Requirements
 
@@ -67,9 +67,9 @@ The factory also exposes clients for billing, domain filters, emails, inboxes, m
 
 For help, include the package name, version, API surface, and sanitised request details. Do not include API keys, tokens, passwords, webhook secrets, customer data, or private account details.
 
-- PHP SDK guide: [docs.sendmux.ai/sdks/php](https://docs.sendmux.ai/sdks/php)
-- Management API reference: [docs.sendmux.ai/api/introduction](https://docs.sendmux.ai/api/introduction)
-- API keys guide: [docs.sendmux.ai/guides/api-keys](https://docs.sendmux.ai/guides/api-keys)
+- PHP SDK guide: [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdks/php)
+- Management API reference: [sendmux.ai/docs/api/introduction](https://sendmux.ai/docs/api/introduction)
+- API keys guide: [sendmux.ai/docs/guides/api-keys](https://sendmux.ai/docs/guides/api-keys)
 - Source repository: [github.com/Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## License

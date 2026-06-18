@@ -158,10 +158,10 @@ func main() {
 
 ## Documentation
 
-- Guides: <https://docs.sendmux.ai>
-- Sending API: <https://docs.sendmux.ai/sending-api/introduction>
-- Mailbox API: <https://docs.sendmux.ai/mailbox-api/introduction>
-- Management API: <https://docs.sendmux.ai/api/introduction>
+- Guides: <https://sendmux.ai/docs>
+- Sending API: <https://sendmux.ai/docs/sending-api/introduction>
+- Mailbox API: <https://sendmux.ai/docs/mailbox-api/introduction>
+- Management API: <https://sendmux.ai/docs/api/introduction>
 
 ## Support
 

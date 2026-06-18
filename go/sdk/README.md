@@ -31,5 +31,5 @@ import (
 
 ## Documentation
 
-- Guides: <https://docs.sendmux.ai>
+- Guides: <https://sendmux.ai/docs>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/sdk>

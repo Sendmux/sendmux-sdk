@@ -9,7 +9,7 @@ Generated TypeScript client for the Sendmux Management API.
 
 ## Documentation
 
-- Management API reference: [docs.sendmux.ai/api/introduction](https://docs.sendmux.ai/api/introduction)
+- Management API reference: [sendmux.ai/docs/api/introduction](https://sendmux.ai/docs/api/introduction)
 - Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## Requirements

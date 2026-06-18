@@ -11,7 +11,7 @@
     <iconUrl>https://sendmux.ai/favicon/favicon.svg</iconUrl>
     <licenseUrl>https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE</licenseUrl>
     <projectSourceUrl>https://github.com/Sendmux/sendmux-sdk</projectSourceUrl>
-    <docsUrl>https://docs.sendmux.ai</docsUrl>
+    <docsUrl>https://sendmux.ai/docs</docsUrl>
     <bugTrackerUrl>https://github.com/Sendmux/sendmux-sdk/issues</bugTrackerUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>sendmux email cli api mailbox mcp</tags>
@@ -25,7 +25,7 @@ After installation, run:
 sendmux --help
 ```
 
-Documentation: https://docs.sendmux.ai
+Documentation: https://sendmux.ai/docs
 Source: https://github.com/Sendmux/sendmux-sdk
 ]]></description>
     <releaseNotes>https://github.com/Sendmux/sendmux-sdk/releases/tag/{{RELEASE_TAG}}</releaseNotes>

@@ -10,11 +10,11 @@
 
 Official SDK, CLI, and MCP workspace for Sendmux.
 
-- Product documentation: [docs.sendmux.ai](https://docs.sendmux.ai)
-- Management API reference: [docs.sendmux.ai/api/introduction](https://docs.sendmux.ai/api/introduction)
-- Mailbox API reference: [docs.sendmux.ai/mailbox-api/introduction](https://docs.sendmux.ai/mailbox-api/introduction)
-- Sending API reference: [docs.sendmux.ai/sending-api/introduction](https://docs.sendmux.ai/sending-api/introduction)
-- MCP guide: [docs.sendmux.ai/guides/mcp](https://docs.sendmux.ai/guides/mcp)
+- Product documentation: [sendmux.ai/docs](https://sendmux.ai/docs)
+- Management API reference: [sendmux.ai/docs/api/introduction](https://sendmux.ai/docs/api/introduction)
+- Mailbox API reference: [sendmux.ai/docs/mailbox-api/introduction](https://sendmux.ai/docs/mailbox-api/introduction)
+- Sending API reference: [sendmux.ai/docs/sending-api/introduction](https://sendmux.ai/docs/sending-api/introduction)
+- MCP guide: [sendmux.ai/docs/guides/mcp](https://sendmux.ai/docs/guides/mcp)
 
 ## Packages
 

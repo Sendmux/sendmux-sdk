@@ -159,10 +159,10 @@ client helpers live under `sendmux::core`, `sendmux::sending`,
 
 ## Links
 
-- Product docs: <https://docs.sendmux.ai>
-- Sending API: <https://docs.sendmux.ai/sending-api/introduction>
-- Mailbox API: <https://docs.sendmux.ai/mailbox-api/introduction>
-- Management API: <https://docs.sendmux.ai/api/introduction>
+- Product docs: <https://sendmux.ai/docs>
+- Sending API: <https://sendmux.ai/docs/sending-api/introduction>
+- Mailbox API: <https://sendmux.ai/docs/mailbox-api/introduction>
+- Management API: <https://sendmux.ai/docs/api/introduction>
 - GitHub: <https://github.com/Sendmux/sendmux-sdk>
 - Support: <https://github.com/Sendmux/sendmux-sdk/issues>
 

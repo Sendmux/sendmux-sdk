@@ -80,6 +80,6 @@ params := mailbox.MailboxListMessagesParams{
 
 ## Documentation
 
-- Mailbox guide: <https://docs.sendmux.ai/guides/mailboxes>
-- Mailbox API: <https://docs.sendmux.ai/mailbox-api/introduction>
+- Mailbox guide: <https://sendmux.ai/docs/guides/mailboxes>
+- Mailbox API: <https://sendmux.ai/docs/mailbox-api/introduction>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/mailbox>

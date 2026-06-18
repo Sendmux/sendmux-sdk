@@ -130,7 +130,7 @@ async function sha256FromUrl(url) {
 function formulaFor({ sha256, tarballUrl, version }) {
   return `class Sendmux < Formula
   desc "Command-line access to Sendmux APIs"
-  homepage "https://docs.sendmux.ai"
+  homepage "https://sendmux.ai/docs"
   url "${tarballUrl}"
   sha256 "${sha256}"
   license "MIT"

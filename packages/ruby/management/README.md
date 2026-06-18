@@ -8,8 +8,8 @@ Ruby SDK package for the Sendmux Management API.
 
 ## Documentation
 
-- Ruby SDK guide: https://docs.sendmux.ai/sdks/ruby
-- Management API reference: https://docs.sendmux.ai/api-reference
+- Ruby SDK guide: https://sendmux.ai/docs/sdks/ruby
+- Management API reference: https://sendmux.ai/docs/api
 - Source: https://github.com/Sendmux/sendmux-sdk/tree/main/packages/ruby/management
 - Changelog: https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ruby/management/CHANGELOG.md
 
@@ -98,7 +98,7 @@ pager.each { |mailbox| puts mailbox.id }
 
 ## Support
 
-- Documentation: https://docs.sendmux.ai
+- Documentation: https://sendmux.ai/docs
 - Contact: contact@sendmux.ai
 
 ## Licence

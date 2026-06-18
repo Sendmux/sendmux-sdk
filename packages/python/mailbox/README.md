@@ -9,7 +9,7 @@ Generated Python client for the Sendmux Mailbox API.
 
 ## Documentation
 
-- Mailbox API reference: [docs.sendmux.ai/mailbox-api/introduction](https://docs.sendmux.ai/mailbox-api/introduction)
+- Mailbox API reference: [sendmux.ai/docs/mailbox-api/introduction](https://sendmux.ai/docs/mailbox-api/introduction)
 - Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## Requirements

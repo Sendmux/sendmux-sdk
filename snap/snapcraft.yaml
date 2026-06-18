@@ -17,7 +17,7 @@ license: MIT
 contact: https://github.com/Sendmux/sendmux-sdk/issues
 issues: https://github.com/Sendmux/sendmux-sdk/issues
 source-code: https://github.com/Sendmux/sendmux-sdk
-website: https://docs.sendmux.ai
+website: https://sendmux.ai/docs
 
 grade: stable
 confinement: strict

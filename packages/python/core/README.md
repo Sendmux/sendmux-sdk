@@ -9,7 +9,7 @@ Shared runtime helpers for the Sendmux Python SDK packages.
 
 ## Documentation
 
-- Sendmux docs: [docs.sendmux.ai](https://docs.sendmux.ai)
+- Sendmux docs: [sendmux.ai/docs](https://sendmux.ai/docs)
 - Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## Requirements

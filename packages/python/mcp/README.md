@@ -11,10 +11,10 @@ This package is the Sendmux product MCP. Keep it separate from any documentation
 
 ## Documentation
 
-- Sendmux docs: [docs.sendmux.ai](https://docs.sendmux.ai)
-- Management API reference: [docs.sendmux.ai/api/introduction](https://docs.sendmux.ai/api/introduction)
-- Mailbox API reference: [docs.sendmux.ai/mailbox-api/introduction](https://docs.sendmux.ai/mailbox-api/introduction)
-- Sending API reference: [docs.sendmux.ai/sending-api/introduction](https://docs.sendmux.ai/sending-api/introduction)
+- Sendmux docs: [sendmux.ai/docs](https://sendmux.ai/docs)
+- Management API reference: [sendmux.ai/docs/api/introduction](https://sendmux.ai/docs/api/introduction)
+- Mailbox API reference: [sendmux.ai/docs/mailbox-api/introduction](https://sendmux.ai/docs/mailbox-api/introduction)
+- Sending API reference: [sendmux.ai/docs/sending-api/introduction](https://sendmux.ai/docs/sending-api/introduction)
 - Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## Requirements

@@ -9,7 +9,7 @@ Shared runtime helpers and public types for the Sendmux TypeScript SDK packages.
 
 ## Documentation
 
-- Sendmux docs: [docs.sendmux.ai](https://docs.sendmux.ai)
+- Sendmux docs: [sendmux.ai/docs](https://sendmux.ai/docs)
 - Source repository: [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## Requirements

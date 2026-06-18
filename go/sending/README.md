@@ -79,6 +79,6 @@ func main() {
 
 ## Documentation
 
-- Sending guide: <https://docs.sendmux.ai/guides/sending-via-http>
-- Sending API: <https://docs.sendmux.ai/sending-api/introduction>
+- Sending guide: <https://sendmux.ai/docs/guides/sending-via-http>
+- Sending API: <https://sendmux.ai/docs/sending-api/introduction>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/sending>

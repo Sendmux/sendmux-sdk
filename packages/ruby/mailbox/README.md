@@ -8,8 +8,8 @@ Ruby SDK package for the Sendmux Mailbox API.
 
 ## Documentation
 
-- Ruby SDK guide: https://docs.sendmux.ai/sdks/ruby
-- Mailbox API reference: https://docs.sendmux.ai/mailbox-api
+- Ruby SDK guide: https://sendmux.ai/docs/sdks/ruby
+- Mailbox API reference: https://sendmux.ai/docs/mailbox-api
 - Source: https://github.com/Sendmux/sendmux-sdk/tree/main/packages/ruby/mailbox
 - Changelog: https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ruby/mailbox/CHANGELOG.md
 
@@ -92,7 +92,7 @@ end
 
 ## Support
 
-- Documentation: https://docs.sendmux.ai
+- Documentation: https://sendmux.ai/docs
 - Contact: contact@sendmux.ai
 
 ## Licence

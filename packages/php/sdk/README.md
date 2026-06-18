@@ -6,7 +6,7 @@
 
 Umbrella package for Sendmux PHP SDK clients.
 
-Read the PHP SDK guide at [docs.sendmux.ai/sdks/php](https://docs.sendmux.ai/sdks/php).
+Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdks/php).
 
 ## Requirements
 
@@ -64,11 +64,11 @@ The package also exposes `Sendmux\Sdk\Sdk::VERSION` for package-version checks.
 
 For help, include the package name, version, API surface, and sanitised request details. Do not include API keys, tokens, passwords, webhook secrets, customer data, or private account details.
 
-- PHP SDK guide: [docs.sendmux.ai/sdks/php](https://docs.sendmux.ai/sdks/php)
-- Sending API reference: [docs.sendmux.ai/sending-api/introduction](https://docs.sendmux.ai/sending-api/introduction)
-- Mailbox API reference: [docs.sendmux.ai/mailbox-api/introduction](https://docs.sendmux.ai/mailbox-api/introduction)
-- Management API reference: [docs.sendmux.ai/api/introduction](https://docs.sendmux.ai/api/introduction)
-- API keys guide: [docs.sendmux.ai/guides/api-keys](https://docs.sendmux.ai/guides/api-keys)
+- PHP SDK guide: [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdks/php)
+- Sending API reference: [sendmux.ai/docs/sending-api/introduction](https://sendmux.ai/docs/sending-api/introduction)
+- Mailbox API reference: [sendmux.ai/docs/mailbox-api/introduction](https://sendmux.ai/docs/mailbox-api/introduction)
+- Management API reference: [sendmux.ai/docs/api/introduction](https://sendmux.ai/docs/api/introduction)
+- API keys guide: [sendmux.ai/docs/guides/api-keys](https://sendmux.ai/docs/guides/api-keys)
 - Source repository: [github.com/Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk)
 
 ## License

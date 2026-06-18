@@ -14,16 +14,19 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { commandForWindowsShim, nodeBinCandidates } from "./windows-command-shims.mjs";
 
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const cliDir = join(rootDir, "packages/ts/cli");
 const sdkPackageJson = join(rootDir, "packages/ts/sdk/package.json");
 const rootLock = join(rootDir, "pnpm-lock.yaml");
-const oclifBin = firstExisting([
-  join(cliDir, "node_modules/.bin/oclif"),
-  join(rootDir, "node_modules/.pnpm/node_modules/.bin/oclif"),
-  join(rootDir, "node_modules/.bin/oclif"),
-]);
+const oclifBin = firstExisting(
+  nodeBinCandidates("oclif", [
+    join(cliDir, "node_modules/.bin"),
+    join(rootDir, "node_modules/.pnpm/node_modules/.bin"),
+    join(rootDir, "node_modules/.bin"),
+  ]),
+);
 const targets =
   process.env.SENDMUX_CLI_PACK_TARGETS ?? "linux-x64,linux-arm64,darwin-x64,darwin-arm64,win32-x64";
 const gitSha = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
@@ -55,19 +58,20 @@ const keepTmp = process.env.SENDMUX_CLI_KEEP_PACK_TMP === "true";
 
 try {
   stagePackage(stagingDir);
+  const oclifCommand = commandForWindowsShim(oclifBin, [
+    "pack",
+    "tarballs",
+    "--root",
+    stagingDir,
+    "--sha",
+    gitSha,
+    "--targets",
+    targets,
+    "--no-xz",
+  ]);
   execFileSync(
-    oclifBin,
-    [
-      "pack",
-      "tarballs",
-      "--root",
-      stagingDir,
-      "--sha",
-      gitSha,
-      "--targets",
-      targets,
-      "--no-xz",
-    ],
+    oclifCommand.command,
+    oclifCommand.args,
     {
       cwd: cliDir,
       env: {

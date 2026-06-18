@@ -3,7 +3,7 @@
   <metadata>
     <id>sendmux.portable</id>
     <version>{{VERSION}}</version>
-    <packageSourceUrl>https://github.com/Sendmux/sendmux-sdk/tree/{{RELEASE_TAG}}/packaging/chocolatey</packageSourceUrl>
+    <packageSourceUrl>{{PACKAGE_SOURCE_URL}}</packageSourceUrl>
     <owners>Sendmux</owners>
     <title>Sendmux CLI (Portable)</title>
     <authors>Sendmux</authors>

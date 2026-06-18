@@ -28,6 +28,7 @@ jobs:
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       paths_released: ${{ steps.release.outputs.paths_released }}
+      rust_release_created: ${{ steps.release.outputs['rust--release_created'] }}
     steps:
       - name: Run release-please
         id: release
@@ -117,6 +118,38 @@ jobs:
             exit 1
           fi
           gh release upload "$tag" "${assets[@]}" --clobber
+
+  publish-cratesio:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.rust_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - name: Check out SDK
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Verify crates.io package
+        run: cargo publish --dry-run --locked
+
+      - name: Authenticate to crates.io
+        id: auth
+        uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1.0.5
+
+      - name: Publish Rust crate to crates.io
+        run: cargo publish --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
 
   recover-ts-cli-release:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.recover_ts_cli_version != '' }}

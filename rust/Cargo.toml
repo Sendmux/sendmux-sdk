@@ -12,6 +12,7 @@ keywords = ["sendmux", "email", "sdk", "api", "mailbox"]
 categories = ["api-bindings", "email", "web-programming"]
 include = [
   "/Cargo.toml",
+  "/CHANGELOG.md",
   "/LICENSE",
   "/README.crates.io.md",
   "/src/**",

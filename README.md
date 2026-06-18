@@ -37,7 +37,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` | `go get sendmux.ai/go@v1.0.0` | [`go/mailbox`](go/mailbox) |
 | Go | `sendmux.ai/go/management` | Management API | `smx_root_*` | `go get sendmux.ai/go@v1.0.0` | [`go/management`](go/management) |
 | Go | `sendmux.ai/go/sdk` | Go umbrella package | surface-specific | `go get sendmux.ai/go@v1.0.0` | [`go/sdk`](go/sdk) |
-| crates.io | `sendmux` | Rust umbrella crate | surface-specific | `cargo add sendmux` | [`src`](src) |
+| crates.io | `sendmux` | Rust umbrella crate | surface-specific | `cargo add sendmux` | [`rust`](rust) |
 | Packagist | `sendmux/core` | Shared PHP helpers | n/a | `composer require sendmux/core:^1.0` | [`packages/php/core`](packages/php/core) |
 | Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` | `composer require sendmux/sending:^1.0` | [`packages/php/sending`](packages/php/sending) |
 | Packagist | `sendmux/mailbox` | Mailbox API | `smx_mbx_*` | `composer require sendmux/mailbox:^1.0` | [`packages/php/mailbox`](packages/php/mailbox) |
@@ -87,6 +87,7 @@ The hosted product MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP comma
 | [`packages/ts`](packages/ts) | TypeScript SDK packages and the `sendmux` CLI. |
 | [`packages/python`](packages/python) | Python SDK packages and the `sendmux-mcp` package. |
 | [`go`](go) | Go module `sendmux.ai/go` and subpackages. |
+| [`rust`](rust) | Rust crate published as `sendmux` on crates.io. |
 | [`packages/php`](packages/php) | PHP package sources used for Packagist packages and public split repositories. |
 | [`packages/ruby`](packages/ruby) | RubyGem package sources. |
 | [`codegen`](codegen) | Generator configuration and templates. |

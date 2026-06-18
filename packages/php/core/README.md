@@ -47,7 +47,7 @@ $retryOptions = new RetryOptions(maxAttempts: 3);
 
 ## Features
 
-- `Auth` validates `smx_root_` and `smx_mbx_` API key prefixes and configures bearer auth on generated clients.
+- `Auth` validates `smx_root_` prefixes for root clients and mailbox-compatible `smx_mbx_` or `smx_agent_` prefixes for mailbox clients.
 - `Headers` builds `Idempotency-Key`, `If-Match`, and `If-None-Match` header arrays.
 - `Pagination::iterate()` streams cursor-paginated responses.
 - `RetryMiddleware` and `RetryOptions` add retry and rate-limit backoff behaviour.

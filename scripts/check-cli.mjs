@@ -13,6 +13,7 @@ const operationsPath = "packages/ts/cli/src/generated/operations.ts";
 const operationRunnerPath = "packages/ts/cli/src/operation-runner.ts";
 const commandsDir = "packages/ts/cli/src/commands";
 const mailboxKey = "smx_mbx_testkey1234567890";
+const agentKey = "smx_agent_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
 const envelope = {
   ok: true,
@@ -142,6 +143,21 @@ try {
   const countRequest = latestRequest();
   assertSearchParam(countRequest.url, "min_size_bytes", "10");
   assertSearchParam(countRequest.url, "has_attachment", "true");
+
+  const agentMailboxResult = await runCli([
+    "mailbox:messages:list",
+    "--api-key",
+    agentKey,
+    "--base-url",
+    baseUrl,
+    "--json",
+  ]);
+
+  assertCliSuccess(agentMailboxResult, "mailbox:messages:list with agent token");
+
+  if (latestRequest().headers.authorization !== `Bearer ${agentKey}`) {
+    throw new Error("Agent token was not passed through for mailbox command");
+  }
 
   const requestsBeforeInvalidQuery = serverState.requests.length;
   const invalidQueryResult = await runCli([
@@ -309,6 +325,38 @@ try {
     throw new Error("Root command preflight made a network request before rejecting a mailbox key");
   }
 
+  const agentProfileResult = await runCli([
+    "profiles:set",
+    "agent",
+    "--api-key",
+    agentKey,
+  ]);
+
+  if (agentProfileResult.status !== 0) {
+    throw new Error(`profiles:set accepted mailbox-compatible agent token failed:\n${agentProfileResult.stderr}`);
+  }
+
+  const requestCountBeforeAgentRootPreflight = serverState.requests.length;
+  const agentRejectResult = await runCli([
+    "management:domains:list",
+    "--profile",
+    "agent",
+    "--base-url",
+    baseUrl,
+  ]);
+
+  if (agentRejectResult.status === 0) {
+    throw new Error("management:domains:list accepted an agent token");
+  }
+
+  if (!agentRejectResult.stderr.includes("requires a root API key")) {
+    throw new Error(`Expected root-key preflight error for agent token, got:\n${agentRejectResult.stderr}`);
+  }
+
+  if (serverState.requests.length !== requestCountBeforeAgentRootPreflight) {
+    throw new Error("Root command preflight made a network request before rejecting an agent token");
+  }
+
   const requestCountBeforeSendingPreflight = serverState.requests.length;
   const sendingRejectResult = await runCli([
     "sending:send",
@@ -349,6 +397,25 @@ try {
 
   if (latestRequest().headers["idempotency-key"] !== "idem_cli_send") {
     throw new Error("Idempotency-Key header was not passed through for sending:send");
+  }
+
+  const agentSendingResult = await runCli([
+    "sending:send",
+    "--api-key",
+    agentKey,
+    "--base-url",
+    baseUrl,
+    "--body",
+    "{}",
+    "--idempotency-key",
+    "idem_cli_agent_send",
+    "--json",
+  ]);
+
+  assertCliSuccess(agentSendingResult, "sending:send with agent token preflight");
+
+  if (latestRequest().headers.authorization !== `Bearer ${agentKey}`) {
+    throw new Error("Agent token was not passed through for sending command");
   }
 
   const rootResult = await runCli([

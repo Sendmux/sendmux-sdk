@@ -59,7 +59,7 @@ composer require sendmux/sending:^1.0
 gem install sendmux-sending
 ```
 
-Use mailbox-scoped `smx_mbx_*` keys for Sending and Mailbox clients. Use root `smx_root_*` keys for Management clients.
+Use mailbox-compatible `smx_mbx_*` or `smx_agent_*` tokens for Sending and Mailbox clients. Use root `smx_root_*` keys for Management clients. Agent tokens remain limited by server-side scopes.
 
 For command-line access, install the CLI:
 

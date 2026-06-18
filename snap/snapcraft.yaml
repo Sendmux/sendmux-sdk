@@ -1,0 +1,52 @@
+name: sendmux
+title: Sendmux CLI
+base: core26
+version: "1.0.1"
+summary: Official command-line interface for Sendmux email APIs
+description: |
+  Manage Sendmux from Linux terminals and automation with the official Sendmux CLI.
+
+  Use sendmux to configure local profiles, inspect available Management, Mailbox,
+  and Sending API commands, and run Sendmux workflows with JSON output for scripts.
+
+  The snap packages the published @sendmux/cli npm release with a bundled Node.js
+  runtime. API operations require your own Sendmux API key; no credentials are
+  included.
+
+license: MIT
+contact: https://github.com/Sendmux/sendmux-sdk/issues
+issues: https://github.com/Sendmux/sendmux-sdk/issues
+source-code: https://github.com/Sendmux/sendmux-sdk
+website: https://docs.sendmux.ai
+
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+  arm64:
+
+apps:
+  sendmux:
+    command: bin/sendmux
+    plugs:
+      - home
+      - network
+    environment:
+      SENDMUX_CONFIG_DIR: $SNAP_USER_COMMON/.config/sendmux
+      SENDMUX_DATA_DIR: $SNAP_USER_COMMON/.local/share/sendmux
+      SENDMUX_CACHE_DIR: $SNAP_USER_COMMON/.cache/sendmux
+
+parts:
+  sendmux:
+    plugin: npm
+    source: https://registry.npmjs.org/@sendmux/cli/-/cli-1.0.1.tgz
+    source-type: tar
+    source-checksum: sha512/b469f7761c5b13b638a15a7af9d0b575617493f037d1d909c5d584f7c73ac8c7162f39830ed0ecb79b4f4d535e7a62f2c3a8c14538f04cfaea084278a64a21ae
+    npm-include-node: true
+    npm-node-version: "22.22.3"
+
+lint:
+  ignore:
+    - metadata:
+        - donation

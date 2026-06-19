@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Annotated
 
 from fastmcp.server.auth import RemoteAuthProvider
 from fastmcp.server.auth.providers.jwt import JWTVerifier
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, TypeAdapter, UrlConstraints
+
+
+AuthorizationServerUrl = Annotated[AnyHttpUrl, UrlConstraints(preserve_empty_path=True)]
+AUTHORIZATION_SERVER_URL_ADAPTER = TypeAdapter(AuthorizationServerUrl)
 
 
 @dataclass(frozen=True)
@@ -38,7 +43,9 @@ def create_remote_auth_provider(config: HostedAuthConfig) -> RemoteAuthProvider:
 
     return RemoteAuthProvider(
         token_verifier=token_verifier,
-        authorization_servers=[AnyHttpUrl(server) for server in config.authorization_servers],
+        authorization_servers=[
+            AUTHORIZATION_SERVER_URL_ADAPTER.validate_python(server) for server in config.authorization_servers
+        ],
         base_url=config.resource_base_url,
         resource_base_url=config.resource_base_url,
         scopes_supported=list(config.scopes_supported) or None,

@@ -40,7 +40,7 @@ def test_remote_auth_provider_advertises_authorization_server_and_scopes() -> No
 
     auth_provider = create_remote_auth_provider(config)
 
-    assert [str(server) for server in auth_provider.authorization_servers] == ["https://app.sendmux.ai/"]
+    assert [str(server) for server in auth_provider.authorization_servers] == ["https://app.sendmux.ai"]
     assert auth_provider._scopes_supported == ["mailbox.read", "email.send"]
     assert auth_provider.resource_name == "Sendmux MCP"
 

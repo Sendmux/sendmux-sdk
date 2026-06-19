@@ -169,6 +169,21 @@ def test_hosted_server_exposes_mcp_headers_to_browser_requests() -> None:
     asyncio.run(run())
 
 
+def test_hosted_server_protected_resource_metadata_preserves_authorization_server_origin() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.get("/.well-known/oauth-protected-resource/mcp")
+
+        assert response.status_code == 200
+        assert response.json()["authorization_servers"] == ["https://app.sendmux.ai"]
+
+    asyncio.run(run())
+
+
 def test_hosted_surface_config_does_not_require_upstream_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("SENDMUX_API_KEY", raising=False)
 

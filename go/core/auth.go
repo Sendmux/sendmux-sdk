@@ -24,11 +24,15 @@ func ValidateAPIKey(apiKey string, surface KeySurface) error {
 		return errors.New("sendmux: api key must not contain control newlines")
 	case surface == KeySurfaceRoot && !strings.HasPrefix(apiKey, "smx_root_"):
 		return errors.New("sendmux: root API key must start with smx_root_")
-	case surface == KeySurfaceMailbox && !strings.HasPrefix(apiKey, "smx_mbx_"):
-		return errors.New("sendmux: mailbox API key must start with smx_mbx_")
+	case surface == KeySurfaceMailbox && !isMailboxCompatibleAPIKey(apiKey):
+		return errors.New("sendmux: mailbox API key must start with smx_mbx_ or smx_agent_")
 	case surface != KeySurfaceRoot && surface != KeySurfaceMailbox:
 		return errors.New("sendmux: unknown API key surface")
 	default:
 		return nil
 	}
+}
+
+func isMailboxCompatibleAPIKey(apiKey string) bool {
+	return strings.HasPrefix(apiKey, "smx_mbx_") || strings.HasPrefix(apiKey, "smx_agent_")
 }

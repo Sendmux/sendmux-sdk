@@ -149,7 +149,7 @@ func main() {
 
 ## Runtime behaviour
 
-- `sending.New` and `mailbox.New` accept mailbox-scoped API keys with the `smx_mbx_` prefix.
+- `sending.New` and `mailbox.New` accept mailbox-compatible tokens with the `smx_mbx_` or `smx_agent_` prefix.
 - `management.New` accepts root API keys with the `smx_root_` prefix.
 - Each surface supports `WithBaseURL`, `WithHTTPClient`, and `WithRetryOptions`.
 - Mutation methods accept idempotency headers through helpers such as `sending.IdempotencyKey`.

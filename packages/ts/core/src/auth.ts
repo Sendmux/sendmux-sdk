@@ -4,10 +4,14 @@ import type {
 } from "./types.js";
 
 export function assertApiKeyKind(apiKey: string, expected?: ApiKeyKind): ApiKeyKind {
-  const actual = apiKey.startsWith("smx_mbx_") ? "mailbox" : apiKey.startsWith("smx_root_") ? "root" : undefined;
+  const actual = apiKey.startsWith("smx_mbx_") || apiKey.startsWith("smx_agent_")
+    ? "mailbox"
+    : apiKey.startsWith("smx_root_")
+      ? "root"
+      : undefined;
 
   if (!actual) {
-    throw new Error("Sendmux API keys must start with smx_root_ or smx_mbx_");
+    throw new Error("Sendmux API keys must start with smx_root_, smx_mbx_, or smx_agent_");
   }
 
   if (expected && actual !== expected) {

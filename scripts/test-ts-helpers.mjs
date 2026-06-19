@@ -18,7 +18,9 @@ const { createSendingClient } = await import("../packages/ts/sending/dist/index.
 
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
 assert.equal(assertApiKeyKind("smx_mbx_test", "mailbox"), "mailbox");
+assert.equal(assertApiKeyKind("smx_agent_test", "mailbox"), "mailbox");
 assert.throws(() => assertApiKeyKind("smx_mbx_test", "root"), /Expected a root API key/);
+assert.throws(() => assertApiKeyKind("smx_agent_test", "root"), /Expected a root API key/);
 assert.deepEqual(idempotencyHeaders("idem_123"), { "Idempotency-Key": "idem_123" });
 assert.deepEqual(conditionalHeaders({ etag: "\"v1\"", ifNoneMatch: "\"v0\"" }), {
   "If-Match": "\"v1\"",
@@ -232,6 +234,17 @@ const sendingB = createSendingClient({
     return new Response("{}", { headers: { "Content-Type": "application/json" }, status: 200 });
   },
 });
+const sendingAgent = createSendingClient({
+  apiKey: "smx_agent_test_c",
+  baseUrl: "https://sdk-c.test",
+  fetch: async (request) => {
+    seenConfiguredRequests.push({
+      authorization: request.headers.get("Authorization"),
+      url: request.url,
+    });
+    return new Response("{}", { headers: { "Content-Type": "application/json" }, status: 200 });
+  },
+});
 
 await sendingA.get({
   security: [{ scheme: "bearer", type: "http" }],
@@ -241,14 +254,19 @@ await sendingB.get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/auth-check",
 });
+await sendingAgent.get({
+  security: [{ scheme: "bearer", type: "http" }],
+  url: "/auth-check",
+});
 assert.deepEqual(seenConfiguredRequests, [
   { authorization: "Bearer smx_mbx_test_a", url: "https://sdk-a.test/auth-check" },
   { authorization: "Bearer smx_mbx_test_b", url: "https://sdk-b.test/auth-check" },
+  { authorization: "Bearer smx_agent_test_c", url: "https://sdk-c.test/auth-check" },
 ]);
 
 const seenMailboxRequests = [];
 const mailboxClient = createMailboxClient({
-  apiKey: "smx_mbx_test_mailbox",
+  apiKey: "smx_agent_test_mailbox",
   baseUrl: "https://mailbox-sdk.test",
   fetch: async (request) => {
     seenMailboxRequests.push({
@@ -267,7 +285,7 @@ await mailboxGetIdentity({
 });
 assert.deepEqual(seenMailboxRequests, [
   {
-    authorization: "Bearer smx_mbx_test_mailbox",
+    authorization: "Bearer smx_agent_test_mailbox",
     url: "https://mailbox-sdk.test/mailbox/identity?mailbox_id=mbx_ts_target",
   },
 ]);

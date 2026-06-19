@@ -23,9 +23,10 @@ final class CoreTest extends TestCase
     {
         self::assertSame(ApiKeySurface::Root, Auth::assertApiKeySurface('smx_root_123', ApiKeySurface::Root));
         self::assertSame(ApiKeySurface::Mailbox, Auth::assertApiKeySurface('smx_mbx_123', ApiKeySurface::Mailbox));
+        self::assertSame(ApiKeySurface::Mailbox, Auth::assertApiKeySurface('smx_agent_123', ApiKeySurface::Mailbox));
 
         $this->expectException(\InvalidArgumentException::class);
-        Auth::assertApiKeySurface('smx_mbx_123', ApiKeySurface::Root);
+        Auth::assertApiKeySurface('smx_agent_123', ApiKeySurface::Root);
     }
 
     public function testHeaders(): void

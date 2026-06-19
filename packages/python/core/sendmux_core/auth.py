@@ -6,9 +6,17 @@ ApiKeySurface = Literal["root", "mailbox"]
 
 
 def validate_api_key(api_key: str, *, surface: ApiKeySurface) -> None:
-    expected_prefix = "smx_mbx_" if surface == "mailbox" else "smx_root_"
-    if not api_key.startswith(expected_prefix):
-        raise ValueError(f"Expected a {expected_prefix} API key for the {surface} surface")
+    if surface == "root":
+        if not api_key.startswith("smx_root_"):
+            raise ValueError("Expected a smx_root_ API key for the root surface")
+        return
+
+    if surface == "mailbox":
+        if not (api_key.startswith("smx_mbx_") or api_key.startswith("smx_agent_")):
+            raise ValueError("Expected a smx_mbx_ or smx_agent_ API key for the mailbox surface")
+        return
+
+    raise ValueError(f"Unknown Sendmux API key surface: {surface}")
 
 
 def configure_auth(configuration: Any, *, api_key: str) -> None:

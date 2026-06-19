@@ -44,7 +44,7 @@ const headers = {
 
 ## Helpers
 
-- `assertApiKeyKind` validates `smx_root_*` and `smx_mbx_*` prefixes.
+- `assertApiKeyKind` validates `smx_root_*` prefixes for root clients and mailbox-compatible `smx_mbx_*` or `smx_agent_*` prefixes for mailbox clients.
 - `paginate` iterates cursor-paginated Sendmux list responses.
 - `idempotencyHeaders`, `conditionalHeaders`, and `responseEtag` cover idempotency and conditional requests.
 - `createRetryingFetch` retries safe requests and idempotent `POST` requests with replayable bodies.

@@ -9,7 +9,11 @@ export function inferApiKeyKind(apiKey: string): ApiKeyKind {
     return "mailbox";
   }
 
-  throw new Error("Sendmux API keys must start with smx_root_ or smx_mbx_");
+  if (apiKey.startsWith("smx_agent_")) {
+    return "mailbox";
+  }
+
+  throw new Error("Sendmux API keys must start with smx_root_, smx_mbx_, or smx_agent_");
 }
 
 export function maskApiKey(apiKey: string): string {

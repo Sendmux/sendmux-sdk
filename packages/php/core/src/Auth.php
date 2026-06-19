@@ -10,12 +10,12 @@ final class Auth
 {
     public static function assertApiKeySurface(string $apiKey, ApiKeySurface $expected): ApiKeySurface
     {
-        $actual = str_starts_with($apiKey, 'smx_mbx_')
+        $actual = str_starts_with($apiKey, 'smx_mbx_') || str_starts_with($apiKey, 'smx_agent_')
             ? ApiKeySurface::Mailbox
             : (str_starts_with($apiKey, 'smx_root_') ? ApiKeySurface::Root : null);
 
         if ($actual === null) {
-            throw new InvalidArgumentException('Sendmux API keys must start with smx_root_ or smx_mbx_');
+            throw new InvalidArgumentException('Sendmux API keys must start with smx_root_, smx_mbx_, or smx_agent_');
         }
 
         if ($actual !== $expected) {

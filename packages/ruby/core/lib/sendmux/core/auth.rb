@@ -7,6 +7,7 @@ module Sendmux
     class Auth
       ROOT_PREFIX = 'smx_root_'
       MAILBOX_PREFIX = 'smx_mbx_'
+      AGENT_PREFIX = 'smx_agent_'
 
       def self.configure_bearer(configuration, api_key, expected_surface, base_url: nil)
         assert_api_key_surface(api_key, expected_surface)
@@ -21,7 +22,10 @@ module Sendmux
 
       def self.assert_api_key_surface(api_key, expected_surface)
         actual = surface_for(api_key)
-        raise ArgumentError, "Sendmux API keys must start with #{ROOT_PREFIX} or #{MAILBOX_PREFIX}" unless actual
+        unless actual
+          raise ArgumentError,
+                "Sendmux API keys must start with #{ROOT_PREFIX}, #{MAILBOX_PREFIX}, or #{AGENT_PREFIX}"
+        end
         return actual if actual == expected_surface
 
         raise ArgumentError, "Expected a #{expected_surface} API key, received a #{actual} API key"
@@ -30,6 +34,7 @@ module Sendmux
       def self.surface_for(api_key)
         return ApiKeySurface::ROOT if api_key.start_with?(ROOT_PREFIX)
         return ApiKeySurface::MAILBOX if api_key.start_with?(MAILBOX_PREFIX)
+        return ApiKeySurface::MAILBOX if api_key.start_with?(AGENT_PREFIX)
 
         nil
       end

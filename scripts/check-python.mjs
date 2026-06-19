@@ -9,6 +9,7 @@ const python = join(venv, "bin", "python");
 checkGeneratedMailboxBodyParamOrder();
 checkGeneratedMailboxTargeting();
 checkGeneratedPackageVersions();
+checkPythonPackageMetadata();
 
 if (!existsSync(python)) {
   mkdirSync(join(root, ".tmp"), { recursive: true });
@@ -156,6 +157,30 @@ function checkGeneratedPackageVersions() {
       ],
       forbiddenPattern: /SDK Package Version: (?!\{sdk_package_version\})[^"]+/,
     });
+  }
+}
+
+function checkPythonPackageMetadata() {
+  const packages = ["core", "sending", "mailbox", "management", "sdk", "mcp"];
+  const requiredSnippets = [
+    'requires-python = ">=3.10"',
+    'license = "MIT"',
+    '"License :: OSI Approved :: MIT License"',
+    '"Programming Language :: Python :: 3"',
+    '"Programming Language :: Python :: 3.10"',
+    '"Programming Language :: Python :: 3.11"',
+    '"Programming Language :: Python :: 3.12"',
+    '"Programming Language :: Python :: 3.13"',
+  ];
+
+  for (const packageName of packages) {
+    const pyprojectPath = join(root, "packages", "python", packageName, "pyproject.toml");
+    const pyproject = readFileSync(pyprojectPath, "utf8");
+    for (const snippet of requiredSnippets) {
+      if (!pyproject.includes(snippet)) {
+        throw new Error(`${pyprojectPath} is missing package metadata: ${snippet}`);
+      }
+    }
   }
 }
 

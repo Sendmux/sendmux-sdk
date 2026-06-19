@@ -325,6 +325,182 @@ jobs:
         with:
           packages-dir: .tmp/python-publish
 
+  publish-mcp-registry:
+    needs:
+      - release-please
+      - publish-pypi
+    if: >-
+      ${{
+        needs.release-please.outputs.releases_created == 'true' &&
+        contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/python/mcp') &&
+        needs.publish-pypi.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out SDK
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: "3.12"
+
+      - name: Prepare MCP Registry manifest
+        id: mcp-manifest
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import tomllib
+          from pathlib import Path
+
+          root = Path.cwd()
+          pyproject = tomllib.loads((root / "packages/python/mcp/pyproject.toml").read_text())
+          version = pyproject["project"]["version"]
+          server_path = root / "packages/python/mcp/server.json"
+          server = json.loads(server_path.read_text())
+
+          if server["name"] != "io.github.Sendmux/sendmux-mcp":
+            raise SystemExit(f"Unexpected MCP Registry name: {server['name']}")
+
+          marker = (root / "packages/python/mcp/README.md").read_text()
+          expected_marker = f"mcp-name: {server['name']}"
+          if expected_marker not in marker:
+            raise SystemExit(f"Missing README marker: {expected_marker}")
+
+          server["version"] = version
+          for package in server.get("packages", []):
+            if package.get("registryType") == "pypi" and package.get("identifier") == "sendmux-mcp":
+              package["version"] = version
+              break
+          else:
+            raise SystemExit("Missing PyPI package entry for sendmux-mcp")
+
+          server_path.write_text(json.dumps(server, indent=2) + "\n")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write(f"name={server['name']}\n")
+            output.write(f"version={version}\n")
+          print(f"Prepared {server['name']} {version}")
+          PY
+
+      - name: Wait for PyPI MCP package marker
+        env:
+          MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
+          MCP_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.version }}
+        run: |
+          set -euo pipefail
+          for attempt in {1..30}; do
+            if curl -fsSL "https://pypi.org/pypi/sendmux-mcp/${MCP_PACKAGE_VERSION}/json" -o /tmp/sendmux-mcp.json; then
+              if python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          data = json.loads(Path("/tmp/sendmux-mcp.json").read_text())
+          description = data["info"].get("description") or ""
+          expected_marker = f"mcp-name: {os.environ['MCP_SERVER_NAME']}"
+
+          if data["info"]["version"] != os.environ["MCP_PACKAGE_VERSION"]:
+            raise SystemExit("PyPI returned the wrong sendmux-mcp version")
+          if expected_marker not in description:
+            raise SystemExit(f"PyPI description missing marker: {expected_marker}")
+          PY
+              then
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "Timed out waiting for PyPI sendmux-mcp ${MCP_PACKAGE_VERSION} marker" >&2
+          exit 1
+
+      - name: Install MCP Registry publisher
+        run: |
+          set -euo pipefail
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher --help
+
+      - name: Validate MCP Registry manifest
+        run: ./mcp-publisher validate packages/python/mcp/server.json
+
+      - name: Check existing MCP Registry version
+        id: mcp-registry-status
+        env:
+          MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
+          MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
+        run: |
+          set -euo pipefail
+          encoded_name="$(python3 - <<'PY'
+          import os
+          import urllib.parse
+
+          print(urllib.parse.quote(os.environ["MCP_SERVER_NAME"], safe=""))
+          PY
+          )"
+          curl -fsSL "https://registry.modelcontextprotocol.io/v0.1/servers?search=${encoded_name}" -o /tmp/mcp-registry.json || echo '{"servers":[]}' > /tmp/mcp-registry.json
+          already_published="$(python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          data = json.loads(Path("/tmp/mcp-registry.json").read_text())
+          name = os.environ["MCP_SERVER_NAME"]
+          version = os.environ["MCP_SERVER_VERSION"]
+          exists = any(
+            item.get("server", {}).get("name") == name and
+            item.get("server", {}).get("version") == version
+            for item in data.get("servers", [])
+          )
+          print("true" if exists else "false")
+          PY
+          )"
+          echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to MCP Registry
+        if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish MCP Registry metadata
+        if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
+        run: ./mcp-publisher publish packages/python/mcp/server.json
+
+      - name: Verify MCP Registry metadata
+        env:
+          MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
+          MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
+        run: |
+          set -euo pipefail
+          encoded_name="$(python3 - <<'PY'
+          import os
+          import urllib.parse
+
+          print(urllib.parse.quote(os.environ["MCP_SERVER_NAME"], safe=""))
+          PY
+          )"
+          curl -fsSL "https://registry.modelcontextprotocol.io/v0.1/servers?search=${encoded_name}" -o /tmp/mcp-registry.json
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          data = json.loads(Path("/tmp/mcp-registry.json").read_text())
+          name = os.environ["MCP_SERVER_NAME"]
+          version = os.environ["MCP_SERVER_VERSION"]
+
+          for item in data.get("servers", []):
+            server = item.get("server", {})
+            if server.get("name") == name and server.get("version") == version:
+              print(f"Verified {name} {version}")
+              break
+          else:
+            raise SystemExit(f"Registry search did not return {name} {version}")
+          PY
+
   publish-rubygems:
     needs: release-please
     if: >-

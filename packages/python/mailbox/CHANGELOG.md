@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.0.3...python-mailbox-v1.0.4) (2026-06-19)
+
+
+### Bug Fixes
+
+* **python:** add package metadata classifiers ([9a79f5d](https://github.com/Sendmux/sendmux-sdk/commit/9a79f5d118766c5a59fdc9e568f4cf08874f1486))
+
 ## [1.0.3](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.0.2...python-mailbox-v1.0.3) (2026-06-18)
 
 

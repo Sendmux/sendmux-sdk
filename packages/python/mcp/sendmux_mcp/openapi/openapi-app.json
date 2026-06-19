@@ -6092,7 +6092,7 @@
             "type": "array"
           },
           "subject": {
-            "description": "Email subject line.",
+            "description": "Subject line for the outgoing email.",
             "type": "string"
           },
           "text_body": {

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.3](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.2...python-mcp-v1.1.3) (2026-06-19)
+
+
+### Bug Fixes
+
+* **python-mcp:** defer registry manifest until PyPI marker release ([90bc4a9](https://github.com/Sendmux/sendmux-sdk/commit/90bc4a9c232daa6fe54f698525c1fea61718930a))
+* **python-mcp:** prepare MCP registry publishing ([32e5cff](https://github.com/Sendmux/sendmux-sdk/commit/32e5cff343b4045c06c1a6c0676a1c298e759a05))
+
 ## [1.1.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.1...python-mcp-v1.1.2) (2026-06-18)
 
 

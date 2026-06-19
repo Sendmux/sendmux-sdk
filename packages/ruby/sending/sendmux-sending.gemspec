@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
     'source_code_uri' => "#{spec.homepage}/tree/main/packages/ruby/sending",
     'changelog_uri' => "#{spec.homepage}/blob/main/packages/ruby/sending/CHANGELOG.md"
   }
-  spec.files = Dir.chdir(__dir__) { Dir['lib/**/*.rb', 'README.md', 'CHANGELOG.md'] }
+  spec.files = Dir.chdir(__dir__) { Dir['lib/**/*.rb', 'README.md', 'CHANGELOG.md', 'LICENSE'] }
   spec.require_paths = ['lib']
   spec.add_dependency 'faraday', '~> 2.0'
   spec.add_dependency 'faraday-multipart', '~> 1.0'

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.1.2...python-core-v1.1.3) (2026-06-19)
+
+
+### Bug Fixes
+
+* **python:** add package metadata classifiers ([9a79f5d](https://github.com/Sendmux/sendmux-sdk/commit/9a79f5d118766c5a59fdc9e568f4cf08874f1486))
+
 ## [1.1.2](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.1.1...python-core-v1.1.2) (2026-06-18)
 
 

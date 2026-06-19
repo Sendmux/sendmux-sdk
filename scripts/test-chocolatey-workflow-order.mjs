@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 const workflow = readFileSync(".github/workflows/chocolatey.yml", "utf8");
 
 const zipUpload = stepBlock("Attach CLI ZIP assets to release");
+const generatePackages = stepBlock("Generate Chocolatey packages");
 const testPackages = stepBlock("Test Chocolatey packages");
 const packageUpload = stepBlock("Attach Chocolatey package artefacts to release");
 
@@ -27,6 +28,26 @@ assert.doesNotMatch(
   packageUpload.text,
   /sendmux-v\*-win32-x64\.zip/,
   "Package upload must not duplicate the pre-test CLI ZIP upload.",
+);
+assert.match(
+  generatePackages.text,
+  /github\.event_name.*pull_request/s,
+  "PR Chocolatey package generation must override the download URL.",
+);
+assert.match(
+  generatePackages.text,
+  /SENDMUX_CHOCOLATEY_DOWNLOAD_URL/,
+  "PR Chocolatey package generation must write a local download URL.",
+);
+assert.match(
+  testPackages.text,
+  /scripts\/serve-static\.mjs/,
+  "PR Chocolatey package tests must serve the just-built ZIP locally.",
+);
+assert.match(
+  testPackages.text,
+  /Stop-Process/,
+  "PR Chocolatey package tests must stop the local ZIP server.",
 );
 
 console.log("Chocolatey workflow order tests passed.");

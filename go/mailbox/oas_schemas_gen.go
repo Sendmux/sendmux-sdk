@@ -326,6 +326,7 @@ func (ApiErrorOk) AllValues() []ApiErrorOk {
 
 // Ref: #/components/schemas/BatchDeleteMailboxMessagesBody
 type BatchDeleteMailboxMessagesBody struct {
+	// Message IDs to delete, maximum 100.
 	Ids []string `json:"ids"`
 	// Optional message state token for stale-write protection.
 	IfInState OptString `json:"if_in_state"`
@@ -365,14 +366,17 @@ func (s *BatchDeleteMailboxMessagesBody) SetPermanent(val OptBool) {
 
 // Ref: #/components/schemas/BatchUpdateMailboxMessagesBody
 type BatchUpdateMailboxMessagesBody struct {
-	Flagged OptBool  `json:"flagged"`
-	Ids     []string `json:"ids"`
+	// Set or clear the flagged marker.
+	Flagged OptBool `json:"flagged"`
+	// Message IDs to update, maximum 100.
+	Ids []string `json:"ids"`
 	// Optional message state token for stale-write protection.
 	IfInState OptString `json:"if_in_state"`
 	// Map of message keyword names to booleans. `true` sets the keyword; `false` clears it. Keyword
 	// names are normalised to lowercase. Lifecycle keywords such as `$draft` are read-only.
 	Keywords OptBatchUpdateMailboxMessagesBodyKeywords `json:"keywords"`
-	Seen     OptBool                                   `json:"seen"`
+	// Set or clear the seen flag.
+	Seen OptBool `json:"seen"`
 }
 
 // GetFlagged returns the value of Flagged.
@@ -1053,16 +1057,26 @@ func (MailboxBatchDeleteMessagesResultResponseOk) AllValues() []MailboxBatchDele
 
 // Ref: #/components/schemas/MailboxBatchGetBody
 type MailboxBatchGetBody struct {
-	BodyMode           OptMailboxBatchGetBodyBodyMode           `json:"body_mode"`
-	Ids                []string                                 `json:"ids"`
+	// Body shape to include for each message.
+	BodyMode OptMailboxBatchGetBodyBodyMode `json:"body_mode"`
+	// Message IDs to fetch, maximum 100.
+	Ids []string `json:"ids"`
+	// Attachment detail to include. Contents are not returned.
 	IncludeAttachments OptMailboxBatchGetBodyIncludeAttachments `json:"include_attachments"`
-	IncludeHeaders     OptMailboxBatchGetBodyIncludeHeaders     `json:"include_headers"`
-	IncludeHTML        OptBool                                  `json:"include_html"`
-	IncludeLinks       OptBool                                  `json:"include_links"`
-	MaxBodyChars       OptInt                                   `json:"max_body_chars"`
-	Part               OptMailboxBatchGetBodyPart               `json:"part"`
-	StripQuotes        OptBool                                  `json:"strip_quotes"`
-	StripSignature     OptBool                                  `json:"strip_signature"`
+	// Header detail to include in each message.
+	IncludeHeaders OptMailboxBatchGetBodyIncludeHeaders `json:"include_headers"`
+	// When true, include HTML content when available.
+	IncludeHTML OptBool `json:"include_html"`
+	// When true, include links extracted from the body.
+	IncludeLinks OptBool `json:"include_links"`
+	// Maximum body characters per message before truncation.
+	MaxBodyChars OptInt `json:"max_body_chars"`
+	// Body part to return when body_mode is not `none`.
+	Part OptMailboxBatchGetBodyPart `json:"part"`
+	// When true, remove quoted reply text.
+	StripQuotes OptBool `json:"strip_quotes"`
+	// When true, remove detected email signatures.
+	StripSignature OptBool `json:"strip_signature"`
 }
 
 // GetBodyMode returns the value of BodyMode.
@@ -1165,6 +1179,7 @@ func (s *MailboxBatchGetBody) SetStripSignature(val OptBool) {
 	s.StripSignature = val
 }
 
+// Body shape to include for each message.
 type MailboxBatchGetBodyBodyMode string
 
 const (
@@ -1213,6 +1228,7 @@ func (s *MailboxBatchGetBodyBodyMode) UnmarshalText(data []byte) error {
 	}
 }
 
+// Attachment detail to include. Contents are not returned.
 type MailboxBatchGetBodyIncludeAttachments string
 
 const (
@@ -1254,6 +1270,7 @@ func (s *MailboxBatchGetBodyIncludeAttachments) UnmarshalText(data []byte) error
 	}
 }
 
+// Header detail to include in each message.
 type MailboxBatchGetBodyIncludeHeaders string
 
 const (
@@ -1302,6 +1319,7 @@ func (s *MailboxBatchGetBodyIncludeHeaders) UnmarshalText(data []byte) error {
 	}
 }
 
+// Body part to return when body_mode is not `none`.
 type MailboxBatchGetBodyPart string
 
 const (
@@ -2901,6 +2919,7 @@ type MailboxGetThreadContentBadRequest ApiError
 
 func (*MailboxGetThreadContentBadRequest) mailboxGetThreadContentRes() {}
 
+// Attachment detail to include. Contents are not returned.
 type MailboxGetThreadContentIncludeAttachments string
 
 const (
@@ -2942,6 +2961,7 @@ func (s *MailboxGetThreadContentIncludeAttachments) UnmarshalText(data []byte) e
 	}
 }
 
+// Header detail to include in the response.
 type MailboxGetThreadContentIncludeHeaders string
 
 const (
@@ -2999,6 +3019,7 @@ type MailboxGetThreadContentNotModified struct{}
 
 func (*MailboxGetThreadContentNotModified) mailboxGetThreadContentRes() {}
 
+// Body part to return. `auto` prefers text when available.
 type MailboxGetThreadContentPart string
 
 const (
@@ -3394,6 +3415,7 @@ type MailboxListBodyNotModified struct{}
 
 func (*MailboxListBodyNotModified) mailboxListBodyRes() {}
 
+// Body part to return.
 type MailboxListBodyPart string
 
 const (
@@ -3446,6 +3468,7 @@ type MailboxListContentBadRequest ApiError
 
 func (*MailboxListContentBadRequest) mailboxListContentRes() {}
 
+// Attachment detail to include. Contents are not returned.
 type MailboxListContentIncludeAttachments string
 
 const (
@@ -3487,6 +3510,7 @@ func (s *MailboxListContentIncludeAttachments) UnmarshalText(data []byte) error 
 	}
 }
 
+// Header detail to include in the response.
 type MailboxListContentIncludeHeaders string
 
 const (
@@ -3544,6 +3568,7 @@ type MailboxListContentNotModified struct{}
 
 func (*MailboxListContentNotModified) mailboxListContentRes() {}
 
+// Body part to return. `auto` prefers text when available.
 type MailboxListContentPart string
 
 const (
@@ -3620,6 +3645,7 @@ type MailboxListMessagesForbidden ApiError
 
 func (*MailboxListMessagesForbidden) mailboxListMessagesRes() {}
 
+// Message field to sort by.
 type MailboxListMessagesSortBy string
 
 const (
@@ -3689,6 +3715,7 @@ func (s *MailboxListMessagesSortBy) UnmarshalText(data []byte) error {
 	}
 }
 
+// Sort direction.
 type MailboxListMessagesSortDirection string
 
 const (
@@ -4050,6 +4077,7 @@ type MailboxListThreadMessagesNotFound ApiError
 
 func (*MailboxListThreadMessagesNotFound) mailboxListThreadMessagesRes() {}
 
+// Message sort direction within the thread.
 type MailboxListThreadMessagesSort string
 
 const (
@@ -4099,6 +4127,7 @@ type MailboxListThreadsForbidden ApiError
 
 func (*MailboxListThreadsForbidden) mailboxListThreadsRes() {}
 
+// Sort direction.
 type MailboxListThreadsSortDirection string
 
 const (
@@ -11756,52 +11785,6 @@ func (o OptInt) Or(d int) int {
 	return d
 }
 
-// NewOptMailboxAddress returns new OptMailboxAddress with value set to v.
-func NewOptMailboxAddress(v MailboxAddress) OptMailboxAddress {
-	return OptMailboxAddress{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptMailboxAddress is optional MailboxAddress.
-type OptMailboxAddress struct {
-	Value MailboxAddress
-	Set   bool
-}
-
-// IsSet returns true if OptMailboxAddress was set.
-func (o OptMailboxAddress) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptMailboxAddress) Reset() {
-	var v MailboxAddress
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptMailboxAddress) SetTo(v MailboxAddress) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptMailboxAddress) Get() (v MailboxAddress, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptMailboxAddress) Or(d MailboxAddress) MailboxAddress {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptMailboxBatchGetBody returns new OptMailboxBatchGetBody with value set to v.
 func NewOptMailboxBatchGetBody(v MailboxBatchGetBody) OptMailboxBatchGetBody {
 	return OptMailboxBatchGetBody{
@@ -13291,6 +13274,52 @@ func (o OptSendMailboxMessageBodyCustomHeaders) Or(d SendMailboxMessageBodyCusto
 	return d
 }
 
+// NewOptSendMailboxMessageBodyFrom returns new OptSendMailboxMessageBodyFrom with value set to v.
+func NewOptSendMailboxMessageBodyFrom(v SendMailboxMessageBodyFrom) OptSendMailboxMessageBodyFrom {
+	return OptSendMailboxMessageBodyFrom{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptSendMailboxMessageBodyFrom is optional SendMailboxMessageBodyFrom.
+type OptSendMailboxMessageBodyFrom struct {
+	Value SendMailboxMessageBodyFrom
+	Set   bool
+}
+
+// IsSet returns true if OptSendMailboxMessageBodyFrom was set.
+func (o OptSendMailboxMessageBodyFrom) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptSendMailboxMessageBodyFrom) Reset() {
+	var v SendMailboxMessageBodyFrom
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptSendMailboxMessageBodyFrom) SetTo(v SendMailboxMessageBodyFrom) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptSendMailboxMessageBodyFrom) Get() (v SendMailboxMessageBodyFrom, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptSendMailboxMessageBodyFrom) Or(d SendMailboxMessageBodyFrom) SendMailboxMessageBodyFrom {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -13474,16 +13503,25 @@ func (s *PatchMailboxMessageBodyKeywords) init() PatchMailboxMessageBodyKeywords
 
 // Ref: #/components/schemas/SendMailboxMessageBody
 type SendMailboxMessageBody struct {
-	Attachments   []SendMailboxMessageBodyAttachmentsItem `json:"attachments"`
-	Bcc           []MailboxAddress                        `json:"bcc"`
-	Cc            []MailboxAddress                        `json:"cc"`
-	CustomHeaders OptSendMailboxMessageBodyCustomHeaders  `json:"custom_headers"`
-	From          OptMailboxAddress                       `json:"from"`
-	HTMLBody      OptString                               `json:"html_body"`
-	ReplyTo       []MailboxAddress                        `json:"reply_to"`
-	Subject       string                                  `json:"subject"`
-	TextBody      OptString                               `json:"text_body"`
-	To            []MailboxAddress                        `json:"to"`
+	// Attachments to send with the message.
+	Attachments []SendMailboxMessageBodyAttachmentsItem `json:"attachments"`
+	// BCC recipients.
+	Bcc []MailboxAddress `json:"bcc"`
+	// CC recipients.
+	Cc []MailboxAddress `json:"cc"`
+	// Custom headers to include.
+	CustomHeaders OptSendMailboxMessageBodyCustomHeaders `json:"custom_headers"`
+	From          OptSendMailboxMessageBodyFrom          `json:"from"`
+	// HTML body.
+	HTMLBody OptString `json:"html_body"`
+	// Reply-To recipients.
+	ReplyTo []MailboxAddress `json:"reply_to"`
+	// Subject line for the outgoing email.
+	Subject string `json:"subject"`
+	// Plain text body.
+	TextBody OptString `json:"text_body"`
+	// Primary recipients.
+	To []MailboxAddress `json:"to"`
 }
 
 // GetAttachments returns the value of Attachments.
@@ -13507,7 +13545,7 @@ func (s *SendMailboxMessageBody) GetCustomHeaders() OptSendMailboxMessageBodyCus
 }
 
 // GetFrom returns the value of From.
-func (s *SendMailboxMessageBody) GetFrom() OptMailboxAddress {
+func (s *SendMailboxMessageBody) GetFrom() OptSendMailboxMessageBodyFrom {
 	return s.From
 }
 
@@ -13557,7 +13595,7 @@ func (s *SendMailboxMessageBody) SetCustomHeaders(val OptSendMailboxMessageBodyC
 }
 
 // SetFrom sets the value of From.
-func (s *SendMailboxMessageBody) SetFrom(val OptMailboxAddress) {
+func (s *SendMailboxMessageBody) SetFrom(val OptSendMailboxMessageBodyFrom) {
 	s.From = val
 }
 
@@ -13636,6 +13674,7 @@ func (s *SendMailboxMessageBodyAttachmentsItem) SetBlobID(val OptString) {
 	s.BlobID = val
 }
 
+// Custom headers to include.
 type SendMailboxMessageBodyCustomHeaders map[string]string
 
 func (s *SendMailboxMessageBodyCustomHeaders) init() SendMailboxMessageBodyCustomHeaders {
@@ -13645,6 +13684,31 @@ func (s *SendMailboxMessageBodyCustomHeaders) init() SendMailboxMessageBodyCusto
 		*s = m
 	}
 	return m
+}
+
+type SendMailboxMessageBodyFrom struct {
+	Email string    `json:"email"`
+	Name  NilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *SendMailboxMessageBodyFrom) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *SendMailboxMessageBodyFrom) GetName() NilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *SendMailboxMessageBodyFrom) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *SendMailboxMessageBodyFrom) SetName(val NilString) {
+	s.Name = val
 }
 
 // Ref: #/components/schemas/SendMailboxMessageResult

@@ -288,7 +288,7 @@ class ManagementCreateMailboxKeyRequest implements ModelInterface, ArrayAccess, 
     /**
      * Sets app_name
      *
-     * @param string $app_name app_name
+     * @param string $app_name Human-friendly label for the new API key.
      *
      * @return $this
      */

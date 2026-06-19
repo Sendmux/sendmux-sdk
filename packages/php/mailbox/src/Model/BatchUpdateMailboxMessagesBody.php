@@ -316,7 +316,7 @@ class BatchUpdateMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets flagged
      *
-     * @param bool|null $flagged flagged
+     * @param bool|null $flagged Set or clear the flagged marker.
      *
      * @return $this
      */
@@ -343,7 +343,7 @@ class BatchUpdateMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets ids
      *
-     * @param string[] $ids ids
+     * @param string[] $ids Message IDs to update, maximum 100.
      *
      * @return $this
      */
@@ -431,7 +431,7 @@ class BatchUpdateMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets seen
      *
-     * @param bool|null $seen seen
+     * @param bool|null $seen Set or clear the seen flag.
      *
      * @return $this
      */

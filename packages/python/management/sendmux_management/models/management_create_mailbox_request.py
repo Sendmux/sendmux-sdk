@@ -29,8 +29,8 @@ class ManagementCreateMailboxRequest(BaseModel):
     """
     ManagementCreateMailboxRequest
     """ # noqa: E501
-    display_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=254)]] = None
-    email: Annotated[str, Field(min_length=5, strict=True, max_length=254)]
+    display_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=254)]] = Field(default=None, description="Optional display name shown in outbound From headers.")
+    email: Annotated[str, Field(min_length=5, strict=True, max_length=254)] = Field(description="Mailbox email address to create.")
     quota_bytes: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).")
     send_scope: Optional[ManagementCreateMailboxRequestSendScope] = None
     __properties: ClassVar[List[str]] = ["display_name", "email", "quota_bytes", "send_scope"]

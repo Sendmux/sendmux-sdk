@@ -15,8 +15,10 @@ require 'time'
 
 module Sendmux::Management::Generated
   class ManagementCreateMailboxRequest < ApiModelBase
+    # Optional display name shown in outbound From headers.
     attr_accessor :display_name
 
+    # Mailbox email address to create.
     attr_accessor :email
 
     # Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).

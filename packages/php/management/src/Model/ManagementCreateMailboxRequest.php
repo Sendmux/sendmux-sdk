@@ -321,7 +321,7 @@ class ManagementCreateMailboxRequest implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets display_name
      *
-     * @param string|null $display_name display_name
+     * @param string|null $display_name Optional display name shown in outbound From headers.
      *
      * @return $this
      */
@@ -355,7 +355,7 @@ class ManagementCreateMailboxRequest implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets email
      *
-     * @param string $email email
+     * @param string $email Mailbox email address to create.
      *
      * @return $this
      */

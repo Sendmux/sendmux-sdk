@@ -30,16 +30,16 @@ class SendMailboxMessageBody(BaseModel):
     """
     SendMailboxMessageBody
     """ # noqa: E501
-    attachments: Optional[List[SendMailboxMessageBodyAttachmentsInner]] = None
-    bcc: Optional[List[MailboxAddress]] = None
-    cc: Optional[List[MailboxAddress]] = None
-    custom_headers: Optional[Dict[str, StrictStr]] = None
-    var_from: Optional[MailboxAddress] = Field(default=None, alias="from")
-    html_body: Optional[StrictStr] = None
-    reply_to: Optional[List[MailboxAddress]] = None
-    subject: StrictStr
-    text_body: Optional[StrictStr] = None
-    to: Annotated[List[MailboxAddress], Field(min_length=1)]
+    attachments: Optional[List[SendMailboxMessageBodyAttachmentsInner]] = Field(default=None, description="Attachments to send with the message.")
+    bcc: Optional[List[MailboxAddress]] = Field(default=None, description="BCC recipients.")
+    cc: Optional[List[MailboxAddress]] = Field(default=None, description="CC recipients.")
+    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers to include.")
+    var_from: Optional[MailboxAddress] = Field(default=None, description="Sender address. Defaults to mailbox identity.", alias="from")
+    html_body: Optional[StrictStr] = Field(default=None, description="HTML body.")
+    reply_to: Optional[List[MailboxAddress]] = Field(default=None, description="Reply-To recipients.")
+    subject: StrictStr = Field(description="Subject line for the outgoing email.")
+    text_body: Optional[StrictStr] = Field(default=None, description="Plain text body.")
+    to: Annotated[List[MailboxAddress], Field(min_length=1)] = Field(description="Primary recipients.")
     __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "custom_headers", "from", "html_body", "reply_to", "subject", "text_body", "to"]
 
     model_config = ConfigDict(

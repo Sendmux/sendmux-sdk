@@ -15,6 +15,7 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class BatchDeleteMailboxMessagesBody < ApiModelBase
+    # Message IDs to delete, maximum 100.
     attr_accessor :ids
 
     # Optional message state token for stale-write protection.

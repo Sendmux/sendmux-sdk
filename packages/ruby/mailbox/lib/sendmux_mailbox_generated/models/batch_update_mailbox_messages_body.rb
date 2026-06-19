@@ -15,8 +15,10 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class BatchUpdateMailboxMessagesBody < ApiModelBase
+    # Set or clear the flagged marker.
     attr_accessor :flagged
 
+    # Message IDs to update, maximum 100.
     attr_accessor :ids
 
     # Optional message state token for stale-write protection.
@@ -25,6 +27,7 @@ module Sendmux::Mailbox::Generated
     # Map of message keyword names to booleans. `true` sets the keyword; `false` clears it. Keyword names are normalised to lowercase. Lifecycle keywords such as `$draft` are read-only.
     attr_accessor :keywords
 
+    # Set or clear the seen flag.
     attr_accessor :seen
 
     # Attribute mapping from ruby-style variable name to JSON key.

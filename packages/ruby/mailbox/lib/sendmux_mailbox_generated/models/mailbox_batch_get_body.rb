@@ -15,24 +15,34 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxBatchGetBody < ApiModelBase
+    # Body shape to include for each message.
     attr_accessor :body_mode
 
+    # Message IDs to fetch, maximum 100.
     attr_accessor :ids
 
+    # Attachment detail to include. Contents are not returned.
     attr_accessor :include_attachments
 
+    # Header detail to include in each message.
     attr_accessor :include_headers
 
+    # When true, include HTML content when available.
     attr_accessor :include_html
 
+    # When true, include links extracted from the body.
     attr_accessor :include_links
 
+    # Maximum body characters per message before truncation.
     attr_accessor :max_body_chars
 
+    # Body part to return when body_mode is not `none`.
     attr_accessor :part
 
+    # When true, remove quoted reply text.
     attr_accessor :strip_quotes
 
+    # When true, remove detected email signatures.
     attr_accessor :strip_signature
 
     class EnumAttributeValidator

@@ -28,7 +28,7 @@ class BatchDeleteMailboxMessagesBody(BaseModel):
     """
     BatchDeleteMailboxMessagesBody
     """ # noqa: E501
-    ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)]
+    ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)] = Field(description="Message IDs to delete, maximum 100.")
     if_in_state: Optional[StrictStr] = Field(default=None, description="Optional message state token for stale-write protection.")
     permanent: Optional[StrictBool] = Field(default=None, description="When true, permanently deletes instead of moving to Trash.")
     __properties: ClassVar[List[str]] = ["ids", "if_in_state", "permanent"]

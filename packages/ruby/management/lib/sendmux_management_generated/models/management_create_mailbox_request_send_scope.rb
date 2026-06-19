@@ -14,11 +14,15 @@ require 'date'
 require 'time'
 
 module Sendmux::Management::Generated
+  # Optional outbound routing restrictions.
   class ManagementCreateMailboxRequestSendScope < ApiModelBase
+    # Delivery group public IDs allowed for sending when type is `group`.
     attr_accessor :group_public_ids
 
+    # Provider public IDs allowed for sending when type is `providers`.
     attr_accessor :provider_public_ids
 
+    # Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.
     attr_accessor :type
 
     class EnumAttributeValidator

@@ -15,6 +15,7 @@ require 'time'
 
 module Sendmux::Management::Generated
   class ManagementCreateMailboxKeyRequest < ApiModelBase
+    # Human-friendly label for the new API key.
     attr_accessor :app_name
 
     # Attribute mapping from ruby-style variable name to JSON key.

@@ -131,6 +131,7 @@ __all__ = [
     "Transaction",
     "TransactionCursorListResponse",
     "UpdateMailboxBody",
+    "UpdateMailboxBodySendScope",
     "WebhookCreateBody",
     "WebhookDeletedResponse",
     "WebhookDeliveryAttempt",
@@ -267,6 +268,7 @@ from sendmux_management.models.success_envelope import SuccessEnvelope as Succes
 from sendmux_management.models.transaction import Transaction as Transaction
 from sendmux_management.models.transaction_cursor_list_response import TransactionCursorListResponse as TransactionCursorListResponse
 from sendmux_management.models.update_mailbox_body import UpdateMailboxBody as UpdateMailboxBody
+from sendmux_management.models.update_mailbox_body_send_scope import UpdateMailboxBodySendScope as UpdateMailboxBodySendScope
 from sendmux_management.models.webhook_create_body import WebhookCreateBody as WebhookCreateBody
 from sendmux_management.models.webhook_deleted_response import WebhookDeletedResponse as WebhookDeletedResponse
 from sendmux_management.models.webhook_delivery_attempt import WebhookDeliveryAttempt as WebhookDeliveryAttempt

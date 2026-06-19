@@ -61,7 +61,7 @@ class UpdateMailboxBody implements ModelInterface, ArrayAccess, JsonSerializable
     protected static array $openAPITypes = [
         'display_name' => 'string',
         'quota_bytes' => 'int',
-        'send_scope' => '\Sendmux\Management\Model\ManagementCreateMailboxRequestSendScope'
+        'send_scope' => '\Sendmux\Management\Model\UpdateMailboxBodySendScope'
     ];
 
     /**
@@ -303,7 +303,7 @@ class UpdateMailboxBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets display_name
      *
-     * @param string|null $display_name display_name
+     * @param string|null $display_name Replace the display name; send null to clear it.
      *
      * @return $this
      */
@@ -366,9 +366,9 @@ class UpdateMailboxBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets send_scope
      *
-     * @return \Sendmux\Management\Model\ManagementCreateMailboxRequestSendScope|null
+     * @return \Sendmux\Management\Model\UpdateMailboxBodySendScope|null
      */
-    public function getSendScope(): ?\Sendmux\Management\Model\ManagementCreateMailboxRequestSendScope
+    public function getSendScope(): ?\Sendmux\Management\Model\UpdateMailboxBodySendScope
     {
         return $this->container['send_scope'];
     }
@@ -376,11 +376,11 @@ class UpdateMailboxBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets send_scope
      *
-     * @param \Sendmux\Management\Model\ManagementCreateMailboxRequestSendScope|null $send_scope send_scope
+     * @param \Sendmux\Management\Model\UpdateMailboxBodySendScope|null $send_scope send_scope
      *
      * @return $this
      */
-    public function setSendScope(?\Sendmux\Management\Model\ManagementCreateMailboxRequestSendScope $send_scope): static
+    public function setSendScope(?\Sendmux\Management\Model\UpdateMailboxBodySendScope $send_scope): static
     {
         if (is_null($send_scope)) {
             throw new InvalidArgumentException('non-nullable send_scope cannot be null');

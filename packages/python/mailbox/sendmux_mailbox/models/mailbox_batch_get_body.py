@@ -28,16 +28,16 @@ class MailboxBatchGetBody(BaseModel):
     """
     MailboxBatchGetBody
     """ # noqa: E501
-    body_mode: Optional[StrictStr] = None
-    ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)]
-    include_attachments: Optional[StrictStr] = None
-    include_headers: Optional[StrictStr] = None
-    include_html: Optional[StrictBool] = None
-    include_links: Optional[StrictBool] = None
-    max_body_chars: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = None
-    part: Optional[StrictStr] = None
-    strip_quotes: Optional[StrictBool] = None
-    strip_signature: Optional[StrictBool] = None
+    body_mode: Optional[StrictStr] = Field(default=None, description="Body shape to include for each message.")
+    ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)] = Field(description="Message IDs to fetch, maximum 100.")
+    include_attachments: Optional[StrictStr] = Field(default=None, description="Attachment detail to include. Contents are not returned.")
+    include_headers: Optional[StrictStr] = Field(default=None, description="Header detail to include in each message.")
+    include_html: Optional[StrictBool] = Field(default=None, description="When true, include HTML content when available.")
+    include_links: Optional[StrictBool] = Field(default=None, description="When true, include links extracted from the body.")
+    max_body_chars: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = Field(default=None, description="Maximum body characters per message before truncation.")
+    part: Optional[StrictStr] = Field(default=None, description="Body part to return when body_mode is not `none`.")
+    strip_quotes: Optional[StrictBool] = Field(default=None, description="When true, remove quoted reply text.")
+    strip_signature: Optional[StrictBool] = Field(default=None, description="When true, remove detected email signatures.")
     __properties: ClassVar[List[str]] = ["body_mode", "ids", "include_attachments", "include_headers", "include_html", "include_links", "max_body_chars", "part", "strip_quotes", "strip_signature"]
 
     @field_validator('body_mode')

@@ -15,24 +15,34 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class SendMailboxMessageBody < ApiModelBase
+    # Attachments to send with the message.
     attr_accessor :attachments
 
+    # BCC recipients.
     attr_accessor :bcc
 
+    # CC recipients.
     attr_accessor :cc
 
+    # Custom headers to include.
     attr_accessor :custom_headers
 
+    # Sender address. Defaults to mailbox identity.
     attr_accessor :from
 
+    # HTML body.
     attr_accessor :html_body
 
+    # Reply-To recipients.
     attr_accessor :reply_to
 
+    # Subject line for the outgoing email.
     attr_accessor :subject
 
+    # Plain text body.
     attr_accessor :text_body
 
+    # Primary recipients.
     attr_accessor :to
 
     # Attribute mapping from ruby-style variable name to JSON key.

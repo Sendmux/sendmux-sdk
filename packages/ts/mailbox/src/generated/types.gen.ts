@@ -41,6 +41,9 @@ export type SendMailboxMessageResult = {
 };
 
 export type SendMailboxMessageBody = {
+    /**
+     * Attachments to send with the message.
+     */
     attachments?: Array<{
         /**
          * Base64-encoded content for small inline attachments. Use /mailbox/attachments:upload for larger files.
@@ -56,16 +59,40 @@ export type SendMailboxMessageBody = {
         content_type: string;
         filename: string;
     }>;
+    /**
+     * BCC recipients.
+     */
     bcc?: Array<MailboxAddress>;
+    /**
+     * CC recipients.
+     */
     cc?: Array<MailboxAddress>;
+    /**
+     * Custom headers to include.
+     */
     custom_headers?: {
         [key: string]: string;
     };
-    from?: MailboxAddress;
+    from?: MailboxAddress & unknown;
+    /**
+     * HTML body.
+     */
     html_body?: string;
+    /**
+     * Reply-To recipients.
+     */
     reply_to?: Array<MailboxAddress>;
+    /**
+     * Subject line for the outgoing email.
+     */
     subject: string;
+    /**
+     * Plain text body.
+     */
     text_body?: string;
+    /**
+     * Primary recipients.
+     */
     to: Array<MailboxAddress>;
 };
 
@@ -820,15 +847,45 @@ export type MailboxBatchGetResult = {
 };
 
 export type MailboxBatchGetBody = {
+    /**
+     * Body shape to include for each message.
+     */
     body_mode?: 'none' | 'raw' | 'clean_json';
+    /**
+     * Message IDs to fetch, maximum 100.
+     */
     ids: Array<string>;
+    /**
+     * Attachment detail to include. Contents are not returned.
+     */
     include_attachments?: 'none' | 'metadata';
+    /**
+     * Header detail to include in each message.
+     */
     include_headers?: 'none' | 'selected' | 'full';
+    /**
+     * When true, include HTML content when available.
+     */
     include_html?: boolean;
+    /**
+     * When true, include links extracted from the body.
+     */
     include_links?: boolean;
+    /**
+     * Maximum body characters per message before truncation.
+     */
     max_body_chars?: number;
+    /**
+     * Body part to return when body_mode is not `none`.
+     */
     part?: 'auto' | 'text' | 'html' | 'both';
+    /**
+     * When true, remove quoted reply text.
+     */
     strip_quotes?: boolean;
+    /**
+     * When true, remove detected email signatures.
+     */
     strip_signature?: boolean;
 };
 
@@ -883,7 +940,13 @@ export type CreateMailboxFolderBody = {
 };
 
 export type BatchUpdateMailboxMessagesBody = {
+    /**
+     * Set or clear the flagged marker.
+     */
     flagged?: boolean;
+    /**
+     * Message IDs to update, maximum 100.
+     */
     ids: Array<string>;
     /**
      * Optional message state token for stale-write protection.
@@ -895,10 +958,16 @@ export type BatchUpdateMailboxMessagesBody = {
     keywords?: {
         [key: string]: boolean;
     };
+    /**
+     * Set or clear the seen flag.
+     */
     seen?: boolean;
 };
 
 export type BatchDeleteMailboxMessagesBody = {
+    /**
+     * Message IDs to delete, maximum 100.
+     */
     ids: Array<string>;
     /**
      * Optional message state token for stale-write protection.
@@ -1007,17 +1076,41 @@ export type MailboxGetChangesData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Legacy message state cursor to resume from.
+         */
         since_state?: string;
         /**
          * Comma-separated list: messages, folders, threads, submissions, identities, quotas.
          */
         types?: string;
+        /**
+         * Message state cursor to resume from.
+         */
         messages_since_state?: string;
+        /**
+         * Folder state cursor to resume from.
+         */
         folders_since_state?: string;
+        /**
+         * Thread state cursor to resume from.
+         */
         threads_since_state?: string;
+        /**
+         * Submission state cursor to resume from.
+         */
         submissions_since_state?: string;
+        /**
+         * Identity state cursor to resume from.
+         */
         identities_since_state?: string;
+        /**
+         * Quota state cursor to resume from.
+         */
         quotas_since_state?: string;
+        /**
+         * Maximum change records to return (default 50, max 500).
+         */
         limit?: number;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1105,7 +1198,13 @@ export type MailboxListFoldersData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Pagination cursor — the `next_cursor` from the previous response.
+         */
         cursor?: string;
+        /**
+         * Maximum results (default 50, max 100).
+         */
         limit?: number;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1339,7 +1438,13 @@ export type MailboxListIdentitiesData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Pagination cursor — the `next_cursor` from the previous response.
+         */
         cursor?: string;
+        /**
+         * Maximum results (default 50, max 100).
+         */
         limit?: number;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1549,28 +1654,97 @@ export type MailboxListMessagesData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Pagination cursor — the `next_cursor` from the previous response.
+         */
         cursor?: string;
+        /**
+         * Maximum results (default 50, max 100).
+         */
         limit?: number;
+        /**
+         * Filter to messages in this folder ID.
+         */
         folder_id?: string;
+        /**
+         * Filter to messages in this thread ID.
+         */
         thread_id?: string;
+        /**
+         * Full-text search query across message fields.
+         */
         q?: string;
+        /**
+         * Filter by sender email address or display name.
+         */
         from?: string;
+        /**
+         * Filter by To recipient email address or display name.
+         */
         to?: string;
+        /**
+         * Filter by CC recipient email address or display name.
+         */
         cc?: string;
+        /**
+         * Filter by BCC recipient email address or display name.
+         */
         bcc?: string;
+        /**
+         * Filter by subject text.
+         */
         subject?: string;
+        /**
+         * Filter by message body text.
+         */
         body?: string;
+        /**
+         * Header name to match with `header_value`.
+         */
         header_name?: string;
+        /**
+         * Header value to match with `header_name`.
+         */
         header_value?: string;
+        /**
+         * Minimum message size in bytes.
+         */
         min_size_bytes?: number;
+        /**
+         * Maximum message size in bytes.
+         */
         max_size_bytes?: number;
+        /**
+         * Require this message keyword, such as `$seen`.
+         */
         keyword?: string;
+        /**
+         * Exclude messages with this keyword.
+         */
         not_keyword?: string;
+        /**
+         * Filter to messages after this ISO 8601 timestamp.
+         */
         after?: string;
+        /**
+         * Filter to messages before this ISO 8601 timestamp.
+         */
         before?: string;
+        /**
+         * When true, only return messages with attachments.
+         */
         has_attachment?: boolean;
+        /**
+         * When true, only return unread messages.
+         */
         is_unread?: boolean;
+        /**
+         * Message field to sort by.
+         */
         sort_by?: 'received_at' | 'sent_at' | 'subject' | 'from' | 'to' | 'size_bytes';
+        /**
+         * Sort direction.
+         */
         sort_direction?: 'asc' | 'desc';
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1751,9 +1925,15 @@ export type MailboxDeleteMessageResponse = MailboxDeleteMessageResponses[keyof M
 export type MailboxGetMessageData = {
     body?: never;
     headers?: {
+        /**
+         * Weak ETag from a previous response. Returns 304 when unchanged.
+         */
         'If-None-Match'?: string;
     };
     path: {
+        /**
+         * Message ID.
+         */
         message_id: string;
     };
     query?: {
@@ -1874,13 +2054,25 @@ export type MailboxGetMessageAttachmentResponses = {
 export type MailboxListBodyData = {
     body?: never;
     headers?: {
+        /**
+         * Weak ETag from a previous response. Returns 304 when unchanged.
+         */
         'If-None-Match'?: string;
     };
     path: {
+        /**
+         * Message ID.
+         */
         message_id: string;
     };
     query?: {
+        /**
+         * Body part to return.
+         */
         part?: 'text' | 'html' | 'both';
+        /**
+         * Maximum body characters to return before truncation.
+         */
         max_body_chars?: number;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1915,19 +2107,49 @@ export type MailboxListBodyResponse = MailboxListBodyResponses[keyof MailboxList
 export type MailboxListContentData = {
     body?: never;
     headers?: {
+        /**
+         * Weak ETag from a previous response. Returns 304 when unchanged.
+         */
         'If-None-Match'?: string;
     };
     path: {
+        /**
+         * Message ID.
+         */
         message_id: string;
     };
     query?: {
+        /**
+         * Body part to return. `auto` prefers text when available.
+         */
         part?: 'auto' | 'text' | 'html';
+        /**
+         * Maximum body characters to return before truncation.
+         */
         max_body_chars?: number;
+        /**
+         * When true, remove detected email signatures.
+         */
         strip_signature?: boolean;
+        /**
+         * When true, remove quoted reply text.
+         */
         strip_quotes?: boolean;
+        /**
+         * When true, include links extracted from the body.
+         */
         include_links?: boolean;
+        /**
+         * When true, include HTML content when available.
+         */
         include_html?: boolean;
+        /**
+         * Header detail to include in the response.
+         */
         include_headers?: 'none' | 'selected' | 'full';
+        /**
+         * Attachment detail to include. Contents are not returned.
+         */
         include_attachments?: 'none' | 'metadata';
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1963,24 +2185,81 @@ export type MailboxCountMessagesData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Filter to messages in this folder ID.
+         */
         folder_id?: string;
+        /**
+         * Filter to messages in this thread ID.
+         */
         thread_id?: string;
+        /**
+         * Full-text search query across message fields.
+         */
         q?: string;
+        /**
+         * Filter by sender email address or display name.
+         */
         from?: string;
+        /**
+         * Filter by To recipient email address or display name.
+         */
         to?: string;
+        /**
+         * Filter by CC recipient email address or display name.
+         */
         cc?: string;
+        /**
+         * Filter by BCC recipient email address or display name.
+         */
         bcc?: string;
+        /**
+         * Filter by subject text.
+         */
         subject?: string;
+        /**
+         * Filter by message body text.
+         */
         body?: string;
+        /**
+         * Header name to match with `header_value`.
+         */
         header_name?: string;
+        /**
+         * Header value to match with `header_name`.
+         */
         header_value?: string;
+        /**
+         * Minimum message size in bytes.
+         */
         min_size_bytes?: number;
+        /**
+         * Maximum message size in bytes.
+         */
         max_size_bytes?: number;
+        /**
+         * Require this message keyword, such as `$seen`.
+         */
         keyword?: string;
+        /**
+         * Exclude messages with this keyword.
+         */
         not_keyword?: string;
+        /**
+         * Filter to messages after this ISO 8601 timestamp.
+         */
         after?: string;
+        /**
+         * Filter to messages before this ISO 8601 timestamp.
+         */
         before?: string;
+        /**
+         * When true, only return messages with attachments.
+         */
         has_attachment?: boolean;
+        /**
+         * When true, only return unread messages.
+         */
         is_unread?: boolean;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -2016,23 +2295,77 @@ export type MailboxQueryMessageChangesData = {
         limit?: number;
         up_to_id?: string;
         calculate_total?: boolean;
+        /**
+         * Filter to messages in this folder ID.
+         */
         folder_id?: string;
+        /**
+         * Full-text search query across message fields.
+         */
         q?: string;
+        /**
+         * Filter by sender email address or display name.
+         */
         from?: string;
+        /**
+         * Filter by To recipient email address or display name.
+         */
         to?: string;
+        /**
+         * Filter by CC recipient email address or display name.
+         */
         cc?: string;
+        /**
+         * Filter by BCC recipient email address or display name.
+         */
         bcc?: string;
+        /**
+         * Filter by subject text.
+         */
         subject?: string;
+        /**
+         * Filter by message body text.
+         */
         body?: string;
+        /**
+         * Header name to match with `header_value`.
+         */
         header_name?: string;
+        /**
+         * Header value to match with `header_name`.
+         */
         header_value?: string;
+        /**
+         * Minimum message size in bytes.
+         */
         min_size_bytes?: number;
+        /**
+         * Maximum message size in bytes.
+         */
         max_size_bytes?: number;
+        /**
+         * Require this message keyword, such as `$seen`.
+         */
         keyword?: string;
+        /**
+         * Exclude messages with this keyword.
+         */
         not_keyword?: string;
+        /**
+         * Filter to messages after this ISO 8601 timestamp.
+         */
         after?: string;
+        /**
+         * Filter to messages before this ISO 8601 timestamp.
+         */
         before?: string;
+        /**
+         * When true, only return messages with attachments.
+         */
         has_attachment?: boolean;
+        /**
+         * When true, only return unread messages.
+         */
         is_unread?: boolean;
         sort_by?: 'received_at' | 'sent_at' | 'subject' | 'from' | 'to' | 'size_bytes';
         sort_direction?: 'asc' | 'desc';
@@ -2066,28 +2399,85 @@ export type MailboxSearchMessageSnippetsData = {
     body?: never;
     path?: never;
     query: {
+        /**
+         * Filter to messages in this folder ID.
+         */
         folder_id?: string;
+        /**
+         * Filter by sender email address or display name.
+         */
         from?: string;
+        /**
+         * Filter by To recipient email address or display name.
+         */
         to?: string;
+        /**
+         * Filter by CC recipient email address or display name.
+         */
         cc?: string;
+        /**
+         * Filter by BCC recipient email address or display name.
+         */
         bcc?: string;
+        /**
+         * Filter by subject text.
+         */
         subject?: string;
+        /**
+         * Filter by message body text.
+         */
         body?: string;
+        /**
+         * Header name to match with `header_value`.
+         */
         header_name?: string;
+        /**
+         * Header value to match with `header_name`.
+         */
         header_value?: string;
+        /**
+         * Minimum message size in bytes.
+         */
         min_size_bytes?: number;
+        /**
+         * Maximum message size in bytes.
+         */
         max_size_bytes?: number;
+        /**
+         * Require this message keyword, such as `$seen`.
+         */
         keyword?: string;
+        /**
+         * Exclude messages with this keyword.
+         */
         not_keyword?: string;
+        /**
+         * Filter to messages after this ISO 8601 timestamp.
+         */
         after?: string;
+        /**
+         * Filter to messages before this ISO 8601 timestamp.
+         */
         before?: string;
+        /**
+         * When true, only return messages with attachments.
+         */
         has_attachment?: boolean;
+        /**
+         * When true, only return unread messages.
+         */
         is_unread?: boolean;
+        /**
+         * Search text used to generate snippets.
+         */
         q: string;
         /**
          * Comma-separated message IDs, maximum 100.
          */
         message_ids?: string;
+        /**
+         * Maximum results (default 50, max 100).
+         */
         limit?: number;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -2118,6 +2508,9 @@ export type MailboxSearchMessageSnippetsResponse = MailboxSearchMessageSnippetsR
 export type MailboxSendMessageData = {
     body?: SendMailboxMessageBody;
     headers?: {
+        /**
+         * Client-chosen unique key to safely retry the request. Cached for 24h per (mailbox, endpoint, key). Different body with same key returns 409 idempotency_conflict.
+         */
         'Idempotency-Key'?: string;
     };
     path?: never;
@@ -2233,6 +2626,9 @@ export type MailboxGetQuotaChangesResponse = MailboxGetQuotaChangesResponses[key
 export type MailboxGetSessionData = {
     body?: never;
     headers?: {
+        /**
+         * Weak ETag from a previous response. Returns 304 when unchanged.
+         */
         'If-None-Match'?: string;
     };
     path?: never;
@@ -2391,15 +2787,45 @@ export type MailboxListThreadsData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Pagination cursor — the `next_cursor` from the previous response.
+         */
         cursor?: string;
+        /**
+         * Maximum results (default 50, max 100).
+         */
         limit?: number;
+        /**
+         * Full-text search query across thread messages.
+         */
         q?: string;
+        /**
+         * Filter by participant email address or display name.
+         */
         participant?: string;
+        /**
+         * Filter to threads with messages in this folder ID.
+         */
         folder_id?: string;
+        /**
+         * Filter to threads updated after this ISO 8601 timestamp.
+         */
         after?: string;
+        /**
+         * Filter to threads updated before this ISO 8601 timestamp.
+         */
         before?: string;
+        /**
+         * When true, only return threads with attachments.
+         */
         has_attachment?: boolean;
+        /**
+         * When true, only return threads with unread messages.
+         */
         is_unread?: boolean;
+        /**
+         * Sort direction.
+         */
         sort_direction?: 'asc' | 'desc';
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -2438,9 +2864,15 @@ export type MailboxListThreadsResponse = MailboxListThreadsResponses[keyof Mailb
 export type MailboxGetThreadData = {
     body?: never;
     headers?: {
+        /**
+         * Weak ETag from a previous response. Returns 304 when unchanged.
+         */
         'If-None-Match'?: string;
     };
     path: {
+        /**
+         * Thread ID.
+         */
         thread_id: string;
     };
     query?: {
@@ -2479,13 +2911,37 @@ export type MailboxGetThreadContentData = {
         thread_id: string;
     };
     query?: {
+        /**
+         * Body part to return. `auto` prefers text when available.
+         */
         part?: 'auto' | 'text' | 'html';
+        /**
+         * Maximum body characters to return before truncation.
+         */
         max_body_chars?: number;
+        /**
+         * When true, remove detected email signatures.
+         */
         strip_signature?: boolean;
+        /**
+         * When true, remove quoted reply text.
+         */
         strip_quotes?: boolean;
+        /**
+         * When true, include links extracted from the body.
+         */
         include_links?: boolean;
+        /**
+         * When true, include HTML content when available.
+         */
         include_html?: boolean;
+        /**
+         * Header detail to include in the response.
+         */
         include_headers?: 'none' | 'selected' | 'full';
+        /**
+         * Attachment detail to include. Contents are not returned.
+         */
         include_attachments?: 'none' | 'metadata';
         cursor?: string;
         limit?: number;
@@ -2523,11 +2979,23 @@ export type MailboxGetThreadContentResponse = MailboxGetThreadContentResponses[k
 export type MailboxListThreadMessagesData = {
     body?: never;
     path: {
+        /**
+         * Thread ID.
+         */
         thread_id: string;
     };
     query?: {
+        /**
+         * Pagination cursor — the `next_cursor` from the previous response.
+         */
         cursor?: string;
+        /**
+         * Maximum results (default 50, max 100).
+         */
         limit?: number;
+        /**
+         * Message sort direction within the thread.
+         */
         sort?: 'asc' | 'desc';
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.

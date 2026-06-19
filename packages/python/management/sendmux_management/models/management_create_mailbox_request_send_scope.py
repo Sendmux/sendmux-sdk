@@ -26,11 +26,11 @@ from pydantic_core import to_jsonable_python
 
 class ManagementCreateMailboxRequestSendScope(BaseModel):
     """
-    ManagementCreateMailboxRequestSendScope
+    Optional outbound routing restrictions.
     """ # noqa: E501
-    group_public_ids: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = None
-    provider_public_ids: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = None
-    type: StrictStr
+    group_public_ids: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, description="Delivery group public IDs allowed for sending when type is `group`.")
+    provider_public_ids: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, description="Provider public IDs allowed for sending when type is `providers`.")
+    type: StrictStr = Field(description="Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.")
     __properties: ClassVar[List[str]] = ["group_public_ids", "provider_public_ids", "type"]
 
     @field_validator('type')

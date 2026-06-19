@@ -4351,6 +4351,7 @@ type ManagementCreateMailboxKeyNotFound ApiError
 func (*ManagementCreateMailboxKeyNotFound) managementCreateMailboxKeyRes() {}
 
 type ManagementCreateMailboxKeyReq struct {
+	// Human-friendly label for the new API key.
 	AppName string `json:"app_name"`
 }
 
@@ -4373,11 +4374,14 @@ type ManagementCreateMailboxKeyUnprocessableEntity ApiError
 func (*ManagementCreateMailboxKeyUnprocessableEntity) managementCreateMailboxKeyRes() {}
 
 type ManagementCreateMailboxReq struct {
+	// Optional display name shown in outbound From headers.
 	DisplayName OptString `json:"display_name"`
-	Email       string    `json:"email"`
+	// Mailbox email address to create.
+	Email string `json:"email"`
 	// Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).
-	QuotaBytes OptInt                                 `json:"quota_bytes"`
-	SendScope  OptManagementCreateMailboxReqSendScope `json:"send_scope"`
+	QuotaBytes OptInt `json:"quota_bytes"`
+	// Optional outbound routing restrictions.
+	SendScope OptManagementCreateMailboxReqSendScope `json:"send_scope"`
 }
 
 // GetDisplayName returns the value of DisplayName.
@@ -4420,10 +4424,15 @@ func (s *ManagementCreateMailboxReq) SetSendScope(val OptManagementCreateMailbox
 	s.SendScope = val
 }
 
+// Optional outbound routing restrictions.
 type ManagementCreateMailboxReqSendScope struct {
-	GroupPublicIds    []string                                `json:"group_public_ids"`
-	ProviderPublicIds []string                                `json:"provider_public_ids"`
-	Type              ManagementCreateMailboxReqSendScopeType `json:"type"`
+	// Delivery group public IDs allowed for sending when type is `group`.
+	GroupPublicIds []string `json:"group_public_ids"`
+	// Provider public IDs allowed for sending when type is `providers`.
+	ProviderPublicIds []string `json:"provider_public_ids"`
+	// Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with
+	// group_public_ids.
+	Type ManagementCreateMailboxReqSendScopeType `json:"type"`
 }
 
 // GetGroupPublicIds returns the value of GroupPublicIds.
@@ -4456,6 +4465,8 @@ func (s *ManagementCreateMailboxReqSendScope) SetType(val ManagementCreateMailbo
 	s.Type = val
 }
 
+// Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with
+// group_public_ids.
 type ManagementCreateMailboxReqSendScopeType string
 
 const (
@@ -5124,6 +5135,7 @@ type ManagementListEmailLogsForbidden ApiError
 
 func (*ManagementListEmailLogsForbidden) managementListEmailLogsRes() {}
 
+// Filter by delivery status.
 type ManagementListEmailLogsStatus string
 
 const (
@@ -13100,10 +13112,12 @@ func (s *TransactionType) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/UpdateMailboxBody
 type UpdateMailboxBody struct {
+	// Replace the display name; send null to clear it.
 	DisplayName OptNilString `json:"display_name"`
 	// Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).
-	QuotaBytes OptInt                        `json:"quota_bytes"`
-	SendScope  OptUpdateMailboxBodySendScope `json:"send_scope"`
+	QuotaBytes OptInt `json:"quota_bytes"`
+	// Replace outbound routing restrictions.
+	SendScope OptUpdateMailboxBodySendScope `json:"send_scope"`
 }
 
 // GetDisplayName returns the value of DisplayName.
@@ -13136,10 +13150,15 @@ func (s *UpdateMailboxBody) SetSendScope(val OptUpdateMailboxBodySendScope) {
 	s.SendScope = val
 }
 
+// Replace outbound routing restrictions.
 type UpdateMailboxBodySendScope struct {
-	GroupPublicIds    []string                       `json:"group_public_ids"`
-	ProviderPublicIds []string                       `json:"provider_public_ids"`
-	Type              UpdateMailboxBodySendScopeType `json:"type"`
+	// Delivery group public IDs allowed for sending when type is `group`.
+	GroupPublicIds []string `json:"group_public_ids"`
+	// Provider public IDs allowed for sending when type is `providers`.
+	ProviderPublicIds []string `json:"provider_public_ids"`
+	// Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with
+	// group_public_ids.
+	Type UpdateMailboxBodySendScopeType `json:"type"`
 }
 
 // GetGroupPublicIds returns the value of GroupPublicIds.
@@ -13172,6 +13191,8 @@ func (s *UpdateMailboxBodySendScope) SetType(val UpdateMailboxBodySendScopeType)
 	s.Type = val
 }
 
+// Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with
+// group_public_ids.
 type UpdateMailboxBodySendScopeType string
 
 const (

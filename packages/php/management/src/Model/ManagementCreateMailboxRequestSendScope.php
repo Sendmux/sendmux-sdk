@@ -37,6 +37,7 @@ use Sendmux\Management\ObjectSerializer;
 /**
  * ManagementCreateMailboxRequestSendScope Class Doc Comment
  *
+ * @description Optional outbound routing restrictions.
  * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
@@ -322,7 +323,7 @@ class ManagementCreateMailboxRequestSendScope implements ModelInterface, ArrayAc
     /**
      * Sets group_public_ids
      *
-     * @param string[]|null $group_public_ids group_public_ids
+     * @param string[]|null $group_public_ids Delivery group public IDs allowed for sending when type is `group`.
      *
      * @return $this
      */
@@ -349,7 +350,7 @@ class ManagementCreateMailboxRequestSendScope implements ModelInterface, ArrayAc
     /**
      * Sets provider_public_ids
      *
-     * @param string[]|null $provider_public_ids provider_public_ids
+     * @param string[]|null $provider_public_ids Provider public IDs allowed for sending when type is `providers`.
      *
      * @return $this
      */
@@ -376,7 +377,7 @@ class ManagementCreateMailboxRequestSendScope implements ModelInterface, ArrayAc
     /**
      * Sets type
      *
-     * @param string $type type
+     * @param string $type Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.
      *
      * @return $this
      */

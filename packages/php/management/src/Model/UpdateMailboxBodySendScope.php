@@ -1,11 +1,11 @@
 <?php
 
 /**
- * BatchDeleteMailboxMessagesBody
+ * UpdateMailboxBodySendScope
  *
  * PHP version 8.1
  *
- * @package  Sendmux\Mailbox
+ * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
@@ -26,23 +26,24 @@
  * Do not edit the class manually.
  */
 
-namespace Sendmux\Mailbox\Model;
+namespace Sendmux\Management\Model;
 
 use ArrayAccess;
 use JsonSerializable;
 use InvalidArgumentException;
 use ReturnTypeWillChange;
-use Sendmux\Mailbox\ObjectSerializer;
+use Sendmux\Management\ObjectSerializer;
 
 /**
- * BatchDeleteMailboxMessagesBody Class Doc Comment
+ * UpdateMailboxBodySendScope Class Doc Comment
  *
- * @package  Sendmux\Mailbox
+ * @description Replace outbound routing restrictions.
+ * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, JsonSerializable
+class UpdateMailboxBodySendScope implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +52,7 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'BatchDeleteMailboxMessagesBody';
+    protected static string $openAPIModelName = 'UpdateMailboxBody_send_scope';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,9 +60,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'ids' => 'string[]',
-        'if_in_state' => 'string',
-        'permanent' => 'bool'
+        'group_public_ids' => 'string[]',
+        'provider_public_ids' => 'string[]',
+        'type' => 'string'
     ];
 
     /**
@@ -70,9 +71,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'ids' => null,
-        'if_in_state' => null,
-        'permanent' => null
+        'group_public_ids' => null,
+        'provider_public_ids' => null,
+        'type' => null
     ];
 
     /**
@@ -81,9 +82,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'ids' => false,
-        'if_in_state' => false,
-        'permanent' => false
+        'group_public_ids' => false,
+        'provider_public_ids' => false,
+        'type' => false
     ];
 
     /**
@@ -162,9 +163,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'ids' => 'ids',
-        'if_in_state' => 'if_in_state',
-        'permanent' => 'permanent'
+        'group_public_ids' => 'group_public_ids',
+        'provider_public_ids' => 'provider_public_ids',
+        'type' => 'type'
     ];
 
     /**
@@ -173,9 +174,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      * @var array<string, string>
      */
     protected static array $setters = [
-        'ids' => 'setIds',
-        'if_in_state' => 'setIfInState',
-        'permanent' => 'setPermanent'
+        'group_public_ids' => 'setGroupPublicIds',
+        'provider_public_ids' => 'setProviderPublicIds',
+        'type' => 'setType'
     ];
 
     /**
@@ -184,9 +185,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      * @var array<string, string>
      */
     protected static array $getters = [
-        'ids' => 'getIds',
-        'if_in_state' => 'getIfInState',
-        'permanent' => 'getPermanent'
+        'group_public_ids' => 'getGroupPublicIds',
+        'provider_public_ids' => 'getProviderPublicIds',
+        'type' => 'getType'
     ];
 
     /**
@@ -221,6 +222,25 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
         return self::$openAPIModelName;
     }
 
+    public const TYPE_ALL = 'all';
+    public const TYPE_PROVIDERS = 'providers';
+    public const TYPE_GROUP = 'group';
+    public const TYPE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getTypeAllowableValues()
+    {
+        return [
+            self::TYPE_ALL,
+            self::TYPE_PROVIDERS,
+            self::TYPE_GROUP,
+            self::TYPE_UNKNOWN_DEFAULT_OPEN_API,
+        ];
+    }
 
     /**
      * Associative array for storing property values
@@ -236,9 +256,9 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('ids', $data ?? [], null);
-        $this->setIfExists('if_in_state', $data ?? [], null);
-        $this->setIfExists('permanent', $data ?? [], null);
+        $this->setIfExists('group_public_ids', $data ?? [], null);
+        $this->setIfExists('provider_public_ids', $data ?? [], null);
+        $this->setIfExists('type', $data ?? [], null);
     }
 
     /**
@@ -266,15 +286,16 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
     {
         $invalidProperties = [];
 
-        if ($this->container['ids'] === null) {
-            $invalidProperties[] = "'ids' can't be null";
+        if ($this->container['type'] === null) {
+            $invalidProperties[] = "'type' can't be null";
         }
-        if ((count($this->container['ids']) > 100)) {
-            $invalidProperties[] = "invalid value for 'ids', number of items must be less than or equal to 100.";
-        }
-
-        if ((count($this->container['ids']) < 1)) {
-            $invalidProperties[] = "invalid value for 'ids', number of items must be greater than or equal to 1.";
+        $allowedValues = self::getTypeAllowableValues();
+        if (!is_null($this->container['type']) && !in_array($this->container['type'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'type', must be one of '%s'",
+                $this->container['type'],
+                implode("', '", $allowedValues)
+            );
         }
 
         return $invalidProperties;
@@ -290,89 +311,86 @@ class BatchDeleteMailboxMessagesBody implements ModelInterface, ArrayAccess, Jso
 
 
     /**
-     * Gets ids
+     * Gets group_public_ids
      *
-     * @return string[]
+     * @return string[]|null
      */
-    public function getIds(): array
+    public function getGroupPublicIds(): ?array
     {
-        return $this->container['ids'];
+        return $this->container['group_public_ids'];
     }
 
     /**
-     * Sets ids
+     * Sets group_public_ids
      *
-     * @param string[] $ids Message IDs to delete, maximum 100.
+     * @param string[]|null $group_public_ids Delivery group public IDs allowed for sending when type is `group`.
      *
      * @return $this
      */
-    public function setIds(array $ids): static
+    public function setGroupPublicIds(?array $group_public_ids): static
     {
-        if (is_null($ids)) {
-            throw new InvalidArgumentException('non-nullable ids cannot be null');
+        if (is_null($group_public_ids)) {
+            throw new InvalidArgumentException('non-nullable group_public_ids cannot be null');
         }
-
-        if ((count($ids) > 100)) {
-            throw new InvalidArgumentException('invalid value for $ids when calling BatchDeleteMailboxMessagesBody., number of items must be less than or equal to 100.');
-        }
-        if ((count($ids) < 1)) {
-            throw new InvalidArgumentException('invalid length for $ids when calling BatchDeleteMailboxMessagesBody., number of items must be greater than or equal to 1.');
-        }
-        $this->container['ids'] = $ids;
+        $this->container['group_public_ids'] = $group_public_ids;
 
         return $this;
     }
 
     /**
-     * Gets if_in_state
+     * Gets provider_public_ids
      *
-     * @return string|null
+     * @return string[]|null
      */
-    public function getIfInState(): ?string
+    public function getProviderPublicIds(): ?array
     {
-        return $this->container['if_in_state'];
+        return $this->container['provider_public_ids'];
     }
 
     /**
-     * Sets if_in_state
+     * Sets provider_public_ids
      *
-     * @param string|null $if_in_state Optional message state token for stale-write protection.
+     * @param string[]|null $provider_public_ids Provider public IDs allowed for sending when type is `providers`.
      *
      * @return $this
      */
-    public function setIfInState(?string $if_in_state): static
+    public function setProviderPublicIds(?array $provider_public_ids): static
     {
-        if (is_null($if_in_state)) {
-            throw new InvalidArgumentException('non-nullable if_in_state cannot be null');
+        if (is_null($provider_public_ids)) {
+            throw new InvalidArgumentException('non-nullable provider_public_ids cannot be null');
         }
-        $this->container['if_in_state'] = $if_in_state;
+        $this->container['provider_public_ids'] = $provider_public_ids;
 
         return $this;
     }
 
     /**
-     * Gets permanent
+     * Gets type
      *
-     * @return bool|null
+     * @return string
      */
-    public function getPermanent(): ?bool
+    public function getType(): string
     {
-        return $this->container['permanent'];
+        return $this->container['type'];
     }
 
     /**
-     * Sets permanent
+     * Sets type
      *
-     * @param bool|null $permanent When true, permanently deletes instead of moving to Trash.
+     * @param string $type Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.
      *
      * @return $this
      */
-    public function setPermanent(?bool $permanent): static
+    public function setType(string $type): static
     {
-        if (is_null($permanent)) {
-            throw new InvalidArgumentException('non-nullable permanent cannot be null');
+        if (is_null($type)) {
+            throw new InvalidArgumentException('non-nullable type cannot be null');
         }
-        $this->container['permanent'] = $permanent;
+        $allowedValues = self::getTypeAllowableValues();
+        if (!in_array($type, $allowedValues, true)) {
+            $type = self::TYPE_UNKNOWN_DEFAULT_OPEN_API;
+        }
+        $this->container['type'] = $type;
 
         return $this;
     }

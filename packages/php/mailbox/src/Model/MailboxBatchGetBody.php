@@ -471,7 +471,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets body_mode
      *
-     * @param string|null $body_mode body_mode
+     * @param string|null $body_mode Body shape to include for each message.
      *
      * @return $this
      */
@@ -502,7 +502,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets ids
      *
-     * @param string[] $ids ids
+     * @param string[] $ids Message IDs to fetch, maximum 100.
      *
      * @return $this
      */
@@ -536,7 +536,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets include_attachments
      *
-     * @param string|null $include_attachments include_attachments
+     * @param string|null $include_attachments Attachment detail to include. Contents are not returned.
      *
      * @return $this
      */
@@ -567,7 +567,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets include_headers
      *
-     * @param string|null $include_headers include_headers
+     * @param string|null $include_headers Header detail to include in each message.
      *
      * @return $this
      */
@@ -598,7 +598,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets include_html
      *
-     * @param bool|null $include_html include_html
+     * @param bool|null $include_html When true, include HTML content when available.
      *
      * @return $this
      */
@@ -625,7 +625,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets include_links
      *
-     * @param bool|null $include_links include_links
+     * @param bool|null $include_links When true, include links extracted from the body.
      *
      * @return $this
      */
@@ -652,7 +652,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets max_body_chars
      *
-     * @param int|null $max_body_chars max_body_chars
+     * @param int|null $max_body_chars Maximum body characters per message before truncation.
      *
      * @return $this
      */
@@ -687,7 +687,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets part
      *
-     * @param string|null $part part
+     * @param string|null $part Body part to return when body_mode is not `none`.
      *
      * @return $this
      */
@@ -718,7 +718,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets strip_quotes
      *
-     * @param bool|null $strip_quotes strip_quotes
+     * @param bool|null $strip_quotes When true, remove quoted reply text.
      *
      * @return $this
      */
@@ -745,7 +745,7 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets strip_signature
      *
-     * @param bool|null $strip_signature strip_signature
+     * @param bool|null $strip_signature When true, remove detected email signatures.
      *
      * @return $this
      */

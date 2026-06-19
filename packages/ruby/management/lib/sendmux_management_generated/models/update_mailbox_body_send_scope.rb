@@ -14,21 +14,45 @@ require 'date'
 require 'time'
 
 module Sendmux::Management::Generated
-  class UpdateMailboxBody < ApiModelBase
-    # Replace the display name; send null to clear it.
-    attr_accessor :display_name
+  # Replace outbound routing restrictions.
+  class UpdateMailboxBodySendScope < ApiModelBase
+    # Delivery group public IDs allowed for sending when type is `group`.
+    attr_accessor :group_public_ids
 
-    # Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).
-    attr_accessor :quota_bytes
+    # Provider public IDs allowed for sending when type is `providers`.
+    attr_accessor :provider_public_ids
 
-    attr_accessor :send_scope
+    # Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.
+    attr_accessor :type
+
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'display_name' => :'display_name',
-        :'quota_bytes' => :'quota_bytes',
-        :'send_scope' => :'send_scope'
+        :'group_public_ids' => :'group_public_ids',
+        :'provider_public_ids' => :'provider_public_ids',
+        :'type' => :'type'
       }
     end
 
@@ -45,16 +69,15 @@ module Sendmux::Management::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'display_name' => :'String',
-        :'quota_bytes' => :'Integer',
-        :'send_scope' => :'UpdateMailboxBodySendScope'
+        :'group_public_ids' => :'Array<String>',
+        :'provider_public_ids' => :'Array<String>',
+        :'type' => :'String'
       }
     end
 
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
-        :'display_name',
       ])
     end
 
@@ -62,28 +85,34 @@ module Sendmux::Management::Generated
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Management::Generated::UpdateMailboxBody` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Management::Generated::UpdateMailboxBodySendScope` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Management::Generated::UpdateMailboxBody`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Management::Generated::UpdateMailboxBodySendScope`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
 
-      if attributes.key?(:'display_name')
-        self.display_name = attributes[:'display_name']
+      if attributes.key?(:'group_public_ids')
+        if (value = attributes[:'group_public_ids']).is_a?(Array)
+          self.group_public_ids = value
+        end
       end
 
-      if attributes.key?(:'quota_bytes')
-        self.quota_bytes = attributes[:'quota_bytes']
+      if attributes.key?(:'provider_public_ids')
+        if (value = attributes[:'provider_public_ids']).is_a?(Array)
+          self.provider_public_ids = value
+        end
       end
 
-      if attributes.key?(:'send_scope')
-        self.send_scope = attributes[:'send_scope']
+      if attributes.key?(:'type')
+        self.type = attributes[:'type']
+      else
+        self.type = nil
       end
     end
 
@@ -92,16 +121,8 @@ module Sendmux::Management::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if !@display_name.nil? && @display_name.to_s.length > 254
-        invalid_properties.push('invalid value for "display_name", the character length must be smaller than or equal to 254.')
-      end
-
-      if !@display_name.nil? && @display_name.to_s.length < 1
-        invalid_properties.push('invalid value for "display_name", the character length must be greater than or equal to 1.')
-      end
-
-      if !@quota_bytes.nil? && @quota_bytes < 1
-        invalid_properties.push('invalid value for "quota_bytes", must be greater than or equal to 1.')
+      if @type.nil?
+        invalid_properties.push('invalid value for "type", type cannot be nil.')
       end
 
       invalid_properties
@@ -111,38 +132,20 @@ module Sendmux::Management::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if !@display_name.nil? && @display_name.to_s.length > 254
-      return false if !@display_name.nil? && @display_name.to_s.length < 1
-      return false if !@quota_bytes.nil? && @quota_bytes < 1
+      return false if @type.nil?
+      type_validator = EnumAttributeValidator.new('String', ["all", "providers", "group", "unknown_default_open_api"])
+      return false unless type_validator.valid?(@type)
       true
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] display_name Value to be assigned
-    def display_name=(display_name)
-      if !display_name.nil? && display_name.to_s.length > 254
-        fail ArgumentError, 'invalid value for "display_name", the character length must be smaller than or equal to 254.'
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] type Object to be assigned
+    def type=(type)
+      validator = EnumAttributeValidator.new('String', ["all", "providers", "group", "unknown_default_open_api"])
+      unless validator.valid?(type)
+        fail ArgumentError, "invalid value for \"type\", must be one of #{validator.allowable_values}."
       end
-
-      if !display_name.nil? && display_name.to_s.length < 1
-        fail ArgumentError, 'invalid value for "display_name", the character length must be greater than or equal to 1.'
-      end
-
-      @display_name = display_name
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] quota_bytes Value to be assigned
-    def quota_bytes=(quota_bytes)
-      if quota_bytes.nil?
-        fail ArgumentError, 'quota_bytes cannot be nil'
-      end
-
-      if quota_bytes < 1
-        fail ArgumentError, 'invalid value for "quota_bytes", must be greater than or equal to 1.'
-      end
-
-      @quota_bytes = quota_bytes
+      @type = type
     end
 
     # Checks equality by comparing each attribute.
@@ -150,9 +153,9 @@ module Sendmux::Management::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          display_name == o.display_name &&
-          quota_bytes == o.quota_bytes &&
-          send_scope == o.send_scope
+          group_public_ids == o.group_public_ids &&
+          provider_public_ids == o.provider_public_ids &&
+          type == o.type
     end
 
     # @see the `==` method
@@ -164,7 +167,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [display_name, quota_bytes, send_scope].hash
+      [group_public_ids, provider_public_ids, type].hash
     end
 
     # Builds the object from hash

@@ -337,14 +337,29 @@ export type WebhookCreateBody = {
 };
 
 export type UpdateMailboxBody = {
+    /**
+     * Replace the display name; send null to clear it.
+     */
     display_name?: string | null;
     /**
      * Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).
      */
     quota_bytes?: number;
+    /**
+     * Replace outbound routing restrictions.
+     */
     send_scope?: {
+        /**
+         * Delivery group public IDs allowed for sending when type is `group`.
+         */
         group_public_ids?: Array<string>;
+        /**
+         * Provider public IDs allowed for sending when type is `providers`.
+         */
         provider_public_ids?: Array<string>;
+        /**
+         * Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.
+         */
         type: 'all' | 'providers' | 'group';
     };
 };
@@ -1767,6 +1782,9 @@ export type ManagementListEmailLogsData = {
          * Cursor from previous page
          */
         cursor?: string;
+        /**
+         * Filter by delivery status.
+         */
         status?: 'pending' | 'sent' | 'failed' | 'rejected';
         /**
          * ISO 8601 start date
@@ -2041,15 +2059,33 @@ export type ManagementListMailboxesResponse = ManagementListMailboxesResponses[k
 
 export type ManagementCreateMailboxData = {
     body?: {
+        /**
+         * Optional display name shown in outbound From headers.
+         */
         display_name?: string;
+        /**
+         * Mailbox email address to create.
+         */
         email: string;
         /**
          * Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).
          */
         quota_bytes?: number;
+        /**
+         * Optional outbound routing restrictions.
+         */
         send_scope?: {
+            /**
+             * Delivery group public IDs allowed for sending when type is `group`.
+             */
             group_public_ids?: Array<string>;
+            /**
+             * Provider public IDs allowed for sending when type is `providers`.
+             */
             provider_public_ids?: Array<string>;
+            /**
+             * Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.
+             */
             type: 'all' | 'providers' | 'group';
         };
     };
@@ -2302,6 +2338,9 @@ export type ManagementSetMailboxFiltersResponse = ManagementSetMailboxFiltersRes
 
 export type ManagementCreateMailboxKeyData = {
     body?: {
+        /**
+         * Human-friendly label for the new API key.
+         */
         app_name: string;
     };
     headers?: {

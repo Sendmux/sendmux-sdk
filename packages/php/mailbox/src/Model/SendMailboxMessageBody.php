@@ -350,7 +350,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets attachments
      *
-     * @param \Sendmux\Mailbox\Model\SendMailboxMessageBodyAttachmentsInner[]|null $attachments attachments
+     * @param \Sendmux\Mailbox\Model\SendMailboxMessageBodyAttachmentsInner[]|null $attachments Attachments to send with the message.
      *
      * @return $this
      */
@@ -377,7 +377,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets bcc
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $bcc bcc
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $bcc BCC recipients.
      *
      * @return $this
      */
@@ -404,7 +404,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets cc
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $cc cc
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $cc CC recipients.
      *
      * @return $this
      */
@@ -431,7 +431,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets custom_headers
      *
-     * @param array<string,string>|null $custom_headers custom_headers
+     * @param array<string,string>|null $custom_headers Custom headers to include.
      *
      * @return $this
      */
@@ -458,7 +458,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets from
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress|null $from from
+     * @param \Sendmux\Mailbox\Model\MailboxAddress|null $from Sender address. Defaults to mailbox identity.
      *
      * @return $this
      */
@@ -485,7 +485,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets html_body
      *
-     * @param string|null $html_body html_body
+     * @param string|null $html_body HTML body.
      *
      * @return $this
      */
@@ -512,7 +512,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets reply_to
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $reply_to reply_to
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $reply_to Reply-To recipients.
      *
      * @return $this
      */
@@ -539,7 +539,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets subject
      *
-     * @param string $subject subject
+     * @param string $subject Subject line for the outgoing email.
      *
      * @return $this
      */
@@ -566,7 +566,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets text_body
      *
-     * @param string|null $text_body text_body
+     * @param string|null $text_body Plain text body.
      *
      * @return $this
      */
@@ -593,7 +593,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets to
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[] $to to
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[] $to Primary recipients.
      *
      * @return $this
      */

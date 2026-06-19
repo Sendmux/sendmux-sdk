@@ -28,7 +28,7 @@ class ManagementCreateMailboxKeyRequest(BaseModel):
     """
     ManagementCreateMailboxKeyRequest
     """ # noqa: E501
-    app_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
+    app_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Human-friendly label for the new API key.")
     __properties: ClassVar[List[str]] = ["app_name"]
 
     model_config = ConfigDict(

@@ -17,23 +17,28 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class BatchUpdateMailboxMessagesBody(BaseModel):
+class UpdateMailboxBodySendScope(BaseModel):
     """
-    BatchUpdateMailboxMessagesBody
+    Replace outbound routing restrictions.
     """ # noqa: E501
-    flagged: Optional[StrictBool] = Field(default=None, description="Set or clear the flagged marker.")
-    ids: Annotated[List[StrictStr], Field(min_length=1, max_length=100)] = Field(description="Message IDs to update, maximum 100.")
-    if_in_state: Optional[StrictStr] = Field(default=None, description="Optional message state token for stale-write protection.")
-    keywords: Optional[Dict[str, StrictBool]] = Field(default=None, description="Map of message keyword names to booleans. `true` sets the keyword; `false` clears it. Keyword names are normalised to lowercase. Lifecycle keywords such as `$draft` are read-only.")
-    seen: Optional[StrictBool] = Field(default=None, description="Set or clear the seen flag.")
-    __properties: ClassVar[List[str]] = ["flagged", "ids", "if_in_state", "keywords", "seen"]
+    group_public_ids: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, description="Delivery group public IDs allowed for sending when type is `group`.")
+    provider_public_ids: Optional[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]]] = Field(default=None, description="Provider public IDs allowed for sending when type is `providers`.")
+    type: StrictStr = Field(description="Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.")
+    __properties: ClassVar[List[str]] = ["group_public_ids", "provider_public_ids", "type"]
+
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['all', 'providers', 'group']):
+            raise ValueError("must be one of enum values ('all', 'providers', 'group')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -53,7 +58,7 @@ class BatchUpdateMailboxMessagesBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of BatchUpdateMailboxMessagesBody from a JSON string"""
+        """Create an instance of UpdateMailboxBodySendScope from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -78,7 +83,7 @@ class BatchUpdateMailboxMessagesBody(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of BatchUpdateMailboxMessagesBody from a dict"""
+        """Create an instance of UpdateMailboxBodySendScope from a dict"""
         if obj is None:
             return None
 
@@ -86,10 +91,8 @@ class BatchUpdateMailboxMessagesBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "flagged": obj.get("flagged"),
-            "ids": obj.get("ids"),
-            "if_in_state": obj.get("if_in_state"),
-            "keywords": obj.get("keywords"),
-            "seen": obj.get("seen")
+            "group_public_ids": obj.get("group_public_ids"),
+            "provider_public_ids": obj.get("provider_public_ids"),
+            "type": obj.get("type")
         })
         return _obj

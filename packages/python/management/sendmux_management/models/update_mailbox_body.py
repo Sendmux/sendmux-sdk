@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from sendmux_management.models.management_create_mailbox_request_send_scope import ManagementCreateMailboxRequestSendScope
+from sendmux_management.models.update_mailbox_body_send_scope import UpdateMailboxBodySendScope
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -29,9 +29,9 @@ class UpdateMailboxBody(BaseModel):
     """
     UpdateMailboxBody
     """ # noqa: E501
-    display_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=254)]] = None
+    display_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=254)]] = Field(default=None, description="Replace the display name; send null to clear it.")
     quota_bytes: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).")
-    send_scope: Optional[ManagementCreateMailboxRequestSendScope] = None
+    send_scope: Optional[UpdateMailboxBodySendScope] = None
     __properties: ClassVar[List[str]] = ["display_name", "quota_bytes", "send_scope"]
 
     model_config = ConfigDict(
@@ -95,6 +95,6 @@ class UpdateMailboxBody(BaseModel):
         _obj = cls.model_validate({
             "display_name": obj.get("display_name"),
             "quota_bytes": obj.get("quota_bytes"),
-            "send_scope": ManagementCreateMailboxRequestSendScope.from_dict(obj["send_scope"]) if obj.get("send_scope") is not None else None
+            "send_scope": UpdateMailboxBodySendScope.from_dict(obj["send_scope"]) if obj.get("send_scope") is not None else None
         })
         return _obj

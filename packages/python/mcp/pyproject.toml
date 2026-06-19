@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "sendmux-mcp"
 version = "1.1.4"
-description = "Curated MCP servers for the Sendmux API surfaces."
+description = "Email inbox API and outbound sending tools for AI agents."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

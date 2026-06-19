@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Sendmux/sendmux-mcp",
-  "title": "Sendmux Email Inbox API + Sending",
-  "description": "Email inbox API for AI agents with MCP tools for Mailbox, Management, and Sending APIs.",
+  "title": "Email Inbox API + Sending by Sendmux",
+  "description": "Email inbox API, inbound mail, and outbound sending tools for AI agents, with inbound email, clean JSON parsing, webhooks, and multi-provider routing.",
   "websiteUrl": "https://sendmux.ai/docs/guides/mcp",
   "repository": {
     "url": "https://github.com/Sendmux/sendmux-sdk",

@@ -1,11 +1,11 @@
-# sendmux-mcp
+# Email Inbox API + Sending by Sendmux
 
 [![PyPI version](https://img.shields.io/pypi/v/sendmux-mcp)](https://pypi.org/project/sendmux-mcp/)
 [![Python versions](https://img.shields.io/pypi/pyversions/sendmux-mcp)](https://pypi.org/project/sendmux-mcp/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/sendmux-mcp)](https://pypi.org/project/sendmux-mcp/)
 [![Licence](https://img.shields.io/pypi/l/sendmux-mcp)](https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE)
 
-Curated Model Context Protocol servers for the Sendmux Mailbox, Management, and Sending API surfaces.
+Email inbox API, inbound mail, and outbound sending MCP servers for AI agents, with inbound email search, clean JSON parsing, webhooks, and multi-provider routing through Sendmux.
 
 This package is the Sendmux product MCP. Keep it separate from any documentation-search MCP used by docs tooling.
 

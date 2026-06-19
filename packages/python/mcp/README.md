@@ -9,6 +9,8 @@ Curated Model Context Protocol servers for the Sendmux Mailbox, Management, and 
 
 This package is the Sendmux product MCP. Keep it separate from any documentation-search MCP used by docs tooling.
 
+<!-- mcp-name: io.github.Sendmux/sendmux-mcp -->
+
 ## Documentation
 
 - Sendmux docs: [sendmux.ai/docs](https://sendmux.ai/docs)

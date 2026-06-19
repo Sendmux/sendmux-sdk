@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.4...python-mcp-v1.1.5) (2026-06-19)
+
+
+### Bug Fixes
+
+* **python-mcp:** refine MCP package metadata ([1972c77](https://github.com/Sendmux/sendmux-sdk/commit/1972c7788bad7dd38792b69b38ab2ecfbf00b92e))
+
 ## [1.1.4](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.3...python-mcp-v1.1.4) (2026-06-19)
 
 

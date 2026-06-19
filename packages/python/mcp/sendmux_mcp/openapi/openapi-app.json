@@ -211,6 +211,7 @@
         "additionalProperties": false,
         "properties": {
           "ids": {
+            "description": "Message IDs to delete, maximum 100.",
             "items": {
               "type": "string"
             },
@@ -236,9 +237,11 @@
         "additionalProperties": false,
         "properties": {
           "flagged": {
+            "description": "Set or clear the flagged marker.",
             "type": "boolean"
           },
           "ids": {
+            "description": "Message IDs to update, maximum 100.",
             "items": {
               "type": "string"
             },
@@ -263,6 +266,7 @@
             "type": "object"
           },
           "seen": {
+            "description": "Set or clear the seen flag.",
             "type": "boolean"
           }
         },
@@ -1304,6 +1308,7 @@
         "additionalProperties": false,
         "properties": {
           "body_mode": {
+            "description": "Body shape to include for each message.",
             "enum": [
               "none",
               "raw",
@@ -1312,6 +1317,7 @@
             "type": "string"
           },
           "ids": {
+            "description": "Message IDs to fetch, maximum 100.",
             "items": {
               "type": "string"
             },
@@ -1320,6 +1326,7 @@
             "type": "array"
           },
           "include_attachments": {
+            "description": "Attachment detail to include. Contents are not returned.",
             "enum": [
               "none",
               "metadata"
@@ -1327,6 +1334,7 @@
             "type": "string"
           },
           "include_headers": {
+            "description": "Header detail to include in each message.",
             "enum": [
               "none",
               "selected",
@@ -1335,17 +1343,21 @@
             "type": "string"
           },
           "include_html": {
+            "description": "When true, include HTML content when available.",
             "type": "boolean"
           },
           "include_links": {
+            "description": "When true, include links extracted from the body.",
             "type": "boolean"
           },
           "max_body_chars": {
+            "description": "Maximum body characters per message before truncation.",
             "maximum": 1000000,
             "minimum": 1,
             "type": "integer"
           },
           "part": {
+            "description": "Body part to return when body_mode is not `none`.",
             "enum": [
               "auto",
               "text",
@@ -1355,9 +1367,11 @@
             "type": "string"
           },
           "strip_quotes": {
+            "description": "When true, remove quoted reply text.",
             "type": "boolean"
           },
           "strip_signature": {
+            "description": "When true, remove detected email signatures.",
             "type": "boolean"
           }
         },
@@ -5986,6 +6000,7 @@
         "additionalProperties": false,
         "properties": {
           "attachments": {
+            "description": "Attachments to send with the message.",
             "items": {
               "anyOf": [
                 {
@@ -6035,12 +6050,14 @@
             "type": "array"
           },
           "bcc": {
+            "description": "BCC recipients.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
             "type": "array"
           },
           "cc": {
+            "description": "CC recipients.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
@@ -6050,27 +6067,40 @@
             "additionalProperties": {
               "type": "string"
             },
+            "description": "Custom headers to include.",
             "type": "object"
           },
           "from": {
-            "$ref": "#/components/schemas/MailboxAddress"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MailboxAddress"
+              },
+              {
+                "description": "Sender address. Defaults to mailbox identity."
+              }
+            ]
           },
           "html_body": {
+            "description": "HTML body.",
             "type": "string"
           },
           "reply_to": {
+            "description": "Reply-To recipients.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
             "type": "array"
           },
           "subject": {
+            "description": "Email subject line.",
             "type": "string"
           },
           "text_body": {
+            "description": "Plain text body.",
             "type": "string"
           },
           "to": {
+            "description": "Primary recipients.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
@@ -6542,6 +6572,7 @@
         "additionalProperties": false,
         "properties": {
           "display_name": {
+            "description": "Replace the display name; send null to clear it.",
             "maxLength": 254,
             "minLength": 1,
             "type": [
@@ -6557,8 +6588,10 @@
           },
           "send_scope": {
             "additionalProperties": false,
+            "description": "Replace outbound routing restrictions.",
             "properties": {
               "group_public_ids": {
+                "description": "Delivery group public IDs allowed for sending when type is `group`.",
                 "items": {
                   "maxLength": 128,
                   "minLength": 1,
@@ -6567,6 +6600,7 @@
                 "type": "array"
               },
               "provider_public_ids": {
+                "description": "Provider public IDs allowed for sending when type is `providers`.",
                 "items": {
                   "maxLength": 128,
                   "minLength": 1,
@@ -6575,6 +6609,7 @@
                 "type": "array"
               },
               "type": {
+                "description": "Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.",
                 "enum": [
                   "all",
                   "providers",
@@ -8440,6 +8475,7 @@
             "name": "status",
             "required": false,
             "schema": {
+              "description": "Filter by delivery status.",
               "enum": [
                 "pending",
                 "sent",
@@ -9012,6 +9048,7 @@
             "name": "since_state",
             "required": false,
             "schema": {
+              "description": "Legacy message state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9029,6 +9066,7 @@
             "name": "messages_since_state",
             "required": false,
             "schema": {
+              "description": "Message state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9037,6 +9075,7 @@
             "name": "folders_since_state",
             "required": false,
             "schema": {
+              "description": "Folder state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9045,6 +9084,7 @@
             "name": "threads_since_state",
             "required": false,
             "schema": {
+              "description": "Thread state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9053,6 +9093,7 @@
             "name": "submissions_since_state",
             "required": false,
             "schema": {
+              "description": "Submission state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9061,6 +9102,7 @@
             "name": "identities_since_state",
             "required": false,
             "schema": {
+              "description": "Identity state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9069,6 +9111,7 @@
             "name": "quotas_since_state",
             "required": false,
             "schema": {
+              "description": "Quota state cursor to resume from.",
               "type": "string"
             }
           },
@@ -9077,6 +9120,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum change records to return (default 50, max 500).",
               "maximum": 500,
               "minimum": 1,
               "type": "integer"
@@ -9275,6 +9319,7 @@
             "name": "cursor",
             "required": false,
             "schema": {
+              "description": "Pagination cursor — the `next_cursor` from the previous response.",
               "type": "string"
             }
           },
@@ -9283,6 +9328,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum results (default 50, max 100).",
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
@@ -9748,6 +9794,7 @@
             "name": "cursor",
             "required": false,
             "schema": {
+              "description": "Pagination cursor — the `next_cursor` from the previous response.",
               "type": "string"
             }
           },
@@ -9756,6 +9803,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum results (default 50, max 100).",
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
@@ -10172,6 +10220,7 @@
             "name": "cursor",
             "required": false,
             "schema": {
+              "description": "Pagination cursor — the `next_cursor` from the previous response.",
               "type": "string"
             }
           },
@@ -10180,6 +10229,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum results (default 50, max 100).",
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
@@ -10190,6 +10240,7 @@
             "name": "folder_id",
             "required": false,
             "schema": {
+              "description": "Filter to messages in this folder ID.",
               "type": "string"
             }
           },
@@ -10198,6 +10249,7 @@
             "name": "thread_id",
             "required": false,
             "schema": {
+              "description": "Filter to messages in this thread ID.",
               "type": "string"
             }
           },
@@ -10206,6 +10258,7 @@
             "name": "q",
             "required": false,
             "schema": {
+              "description": "Full-text search query across message fields.",
               "type": "string"
             }
           },
@@ -10214,6 +10267,7 @@
             "name": "from",
             "required": false,
             "schema": {
+              "description": "Filter by sender email address or display name.",
               "type": "string"
             }
           },
@@ -10222,6 +10276,7 @@
             "name": "to",
             "required": false,
             "schema": {
+              "description": "Filter by To recipient email address or display name.",
               "type": "string"
             }
           },
@@ -10230,6 +10285,7 @@
             "name": "cc",
             "required": false,
             "schema": {
+              "description": "Filter by CC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -10238,6 +10294,7 @@
             "name": "bcc",
             "required": false,
             "schema": {
+              "description": "Filter by BCC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -10246,6 +10303,7 @@
             "name": "subject",
             "required": false,
             "schema": {
+              "description": "Filter by subject text.",
               "type": "string"
             }
           },
@@ -10254,6 +10312,7 @@
             "name": "body",
             "required": false,
             "schema": {
+              "description": "Filter by message body text.",
               "type": "string"
             }
           },
@@ -10262,6 +10321,7 @@
             "name": "header_name",
             "required": false,
             "schema": {
+              "description": "Header name to match with `header_value`.",
               "type": "string"
             }
           },
@@ -10270,6 +10330,7 @@
             "name": "header_value",
             "required": false,
             "schema": {
+              "description": "Header value to match with `header_name`.",
               "type": "string"
             }
           },
@@ -10278,6 +10339,7 @@
             "name": "min_size_bytes",
             "required": false,
             "schema": {
+              "description": "Minimum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -10287,6 +10349,7 @@
             "name": "max_size_bytes",
             "required": false,
             "schema": {
+              "description": "Maximum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -10296,6 +10359,7 @@
             "name": "keyword",
             "required": false,
             "schema": {
+              "description": "Require this message keyword, such as `$seen`.",
               "type": "string"
             }
           },
@@ -10304,6 +10368,7 @@
             "name": "not_keyword",
             "required": false,
             "schema": {
+              "description": "Exclude messages with this keyword.",
               "type": "string"
             }
           },
@@ -10312,6 +10377,7 @@
             "name": "after",
             "required": false,
             "schema": {
+              "description": "Filter to messages after this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -10320,6 +10386,7 @@
             "name": "before",
             "required": false,
             "schema": {
+              "description": "Filter to messages before this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -10328,6 +10395,7 @@
             "name": "has_attachment",
             "required": false,
             "schema": {
+              "description": "When true, only return messages with attachments.",
               "type": "boolean"
             }
           },
@@ -10336,6 +10404,7 @@
             "name": "is_unread",
             "required": false,
             "schema": {
+              "description": "When true, only return unread messages.",
               "type": "boolean"
             }
           },
@@ -10344,6 +10413,7 @@
             "name": "sort_by",
             "required": false,
             "schema": {
+              "description": "Message field to sort by.",
               "enum": [
                 "received_at",
                 "sent_at",
@@ -10360,6 +10430,7 @@
             "name": "sort_direction",
             "required": false,
             "schema": {
+              "description": "Sort direction.",
               "enum": [
                 "asc",
                 "desc"
@@ -10721,6 +10792,7 @@
             "name": "message_id",
             "required": true,
             "schema": {
+              "description": "Message ID.",
               "type": "string"
             }
           },
@@ -10729,6 +10801,7 @@
             "name": "If-None-Match",
             "required": false,
             "schema": {
+              "description": "Weak ETag from a previous response. Returns 304 when unchanged.",
               "type": "string"
             }
           },
@@ -10958,6 +11031,7 @@
             "name": "message_id",
             "required": true,
             "schema": {
+              "description": "Message ID.",
               "type": "string"
             }
           },
@@ -10966,6 +11040,7 @@
             "name": "part",
             "required": false,
             "schema": {
+              "description": "Body part to return.",
               "enum": [
                 "text",
                 "html",
@@ -10979,6 +11054,7 @@
             "name": "max_body_chars",
             "required": false,
             "schema": {
+              "description": "Maximum body characters to return before truncation.",
               "maximum": 1000000,
               "minimum": 1,
               "type": "integer"
@@ -10989,6 +11065,7 @@
             "name": "If-None-Match",
             "required": false,
             "schema": {
+              "description": "Weak ETag from a previous response. Returns 304 when unchanged.",
               "type": "string"
             }
           },
@@ -11058,6 +11135,7 @@
             "name": "message_id",
             "required": true,
             "schema": {
+              "description": "Message ID.",
               "type": "string"
             }
           },
@@ -11066,6 +11144,7 @@
             "name": "part",
             "required": false,
             "schema": {
+              "description": "Body part to return. `auto` prefers text when available.",
               "enum": [
                 "auto",
                 "text",
@@ -11079,6 +11158,7 @@
             "name": "max_body_chars",
             "required": false,
             "schema": {
+              "description": "Maximum body characters to return before truncation.",
               "maximum": 1000000,
               "minimum": 1,
               "type": "integer"
@@ -11089,6 +11169,7 @@
             "name": "strip_signature",
             "required": false,
             "schema": {
+              "description": "When true, remove detected email signatures.",
               "type": "boolean"
             }
           },
@@ -11097,6 +11178,7 @@
             "name": "strip_quotes",
             "required": false,
             "schema": {
+              "description": "When true, remove quoted reply text.",
               "type": "boolean"
             }
           },
@@ -11105,6 +11187,7 @@
             "name": "include_links",
             "required": false,
             "schema": {
+              "description": "When true, include links extracted from the body.",
               "type": "boolean"
             }
           },
@@ -11113,6 +11196,7 @@
             "name": "include_html",
             "required": false,
             "schema": {
+              "description": "When true, include HTML content when available.",
               "type": "boolean"
             }
           },
@@ -11121,6 +11205,7 @@
             "name": "include_headers",
             "required": false,
             "schema": {
+              "description": "Header detail to include in the response.",
               "enum": [
                 "none",
                 "selected",
@@ -11134,6 +11219,7 @@
             "name": "include_attachments",
             "required": false,
             "schema": {
+              "description": "Attachment detail to include. Contents are not returned.",
               "enum": [
                 "none",
                 "metadata"
@@ -11146,6 +11232,7 @@
             "name": "If-None-Match",
             "required": false,
             "schema": {
+              "description": "Weak ETag from a previous response. Returns 304 when unchanged.",
               "type": "string"
             }
           },
@@ -11215,6 +11302,7 @@
             "name": "folder_id",
             "required": false,
             "schema": {
+              "description": "Filter to messages in this folder ID.",
               "type": "string"
             }
           },
@@ -11223,6 +11311,7 @@
             "name": "thread_id",
             "required": false,
             "schema": {
+              "description": "Filter to messages in this thread ID.",
               "type": "string"
             }
           },
@@ -11231,6 +11320,7 @@
             "name": "q",
             "required": false,
             "schema": {
+              "description": "Full-text search query across message fields.",
               "type": "string"
             }
           },
@@ -11239,6 +11329,7 @@
             "name": "from",
             "required": false,
             "schema": {
+              "description": "Filter by sender email address or display name.",
               "type": "string"
             }
           },
@@ -11247,6 +11338,7 @@
             "name": "to",
             "required": false,
             "schema": {
+              "description": "Filter by To recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11255,6 +11347,7 @@
             "name": "cc",
             "required": false,
             "schema": {
+              "description": "Filter by CC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11263,6 +11356,7 @@
             "name": "bcc",
             "required": false,
             "schema": {
+              "description": "Filter by BCC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11271,6 +11365,7 @@
             "name": "subject",
             "required": false,
             "schema": {
+              "description": "Filter by subject text.",
               "type": "string"
             }
           },
@@ -11279,6 +11374,7 @@
             "name": "body",
             "required": false,
             "schema": {
+              "description": "Filter by message body text.",
               "type": "string"
             }
           },
@@ -11287,6 +11383,7 @@
             "name": "header_name",
             "required": false,
             "schema": {
+              "description": "Header name to match with `header_value`.",
               "type": "string"
             }
           },
@@ -11295,6 +11392,7 @@
             "name": "header_value",
             "required": false,
             "schema": {
+              "description": "Header value to match with `header_name`.",
               "type": "string"
             }
           },
@@ -11303,6 +11401,7 @@
             "name": "min_size_bytes",
             "required": false,
             "schema": {
+              "description": "Minimum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -11312,6 +11411,7 @@
             "name": "max_size_bytes",
             "required": false,
             "schema": {
+              "description": "Maximum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -11321,6 +11421,7 @@
             "name": "keyword",
             "required": false,
             "schema": {
+              "description": "Require this message keyword, such as `$seen`.",
               "type": "string"
             }
           },
@@ -11329,6 +11430,7 @@
             "name": "not_keyword",
             "required": false,
             "schema": {
+              "description": "Exclude messages with this keyword.",
               "type": "string"
             }
           },
@@ -11337,6 +11439,7 @@
             "name": "after",
             "required": false,
             "schema": {
+              "description": "Filter to messages after this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -11345,6 +11448,7 @@
             "name": "before",
             "required": false,
             "schema": {
+              "description": "Filter to messages before this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -11353,6 +11457,7 @@
             "name": "has_attachment",
             "required": false,
             "schema": {
+              "description": "When true, only return messages with attachments.",
               "type": "boolean"
             }
           },
@@ -11361,6 +11466,7 @@
             "name": "is_unread",
             "required": false,
             "schema": {
+              "description": "When true, only return unread messages.",
               "type": "boolean"
             }
           },
@@ -11451,6 +11557,7 @@
             "name": "folder_id",
             "required": false,
             "schema": {
+              "description": "Filter to messages in this folder ID.",
               "type": "string"
             }
           },
@@ -11459,6 +11566,7 @@
             "name": "q",
             "required": false,
             "schema": {
+              "description": "Full-text search query across message fields.",
               "type": "string"
             }
           },
@@ -11467,6 +11575,7 @@
             "name": "from",
             "required": false,
             "schema": {
+              "description": "Filter by sender email address or display name.",
               "type": "string"
             }
           },
@@ -11475,6 +11584,7 @@
             "name": "to",
             "required": false,
             "schema": {
+              "description": "Filter by To recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11483,6 +11593,7 @@
             "name": "cc",
             "required": false,
             "schema": {
+              "description": "Filter by CC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11491,6 +11602,7 @@
             "name": "bcc",
             "required": false,
             "schema": {
+              "description": "Filter by BCC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11499,6 +11611,7 @@
             "name": "subject",
             "required": false,
             "schema": {
+              "description": "Filter by subject text.",
               "type": "string"
             }
           },
@@ -11507,6 +11620,7 @@
             "name": "body",
             "required": false,
             "schema": {
+              "description": "Filter by message body text.",
               "type": "string"
             }
           },
@@ -11515,6 +11629,7 @@
             "name": "header_name",
             "required": false,
             "schema": {
+              "description": "Header name to match with `header_value`.",
               "type": "string"
             }
           },
@@ -11523,6 +11638,7 @@
             "name": "header_value",
             "required": false,
             "schema": {
+              "description": "Header value to match with `header_name`.",
               "type": "string"
             }
           },
@@ -11531,6 +11647,7 @@
             "name": "min_size_bytes",
             "required": false,
             "schema": {
+              "description": "Minimum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -11540,6 +11657,7 @@
             "name": "max_size_bytes",
             "required": false,
             "schema": {
+              "description": "Maximum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -11549,6 +11667,7 @@
             "name": "keyword",
             "required": false,
             "schema": {
+              "description": "Require this message keyword, such as `$seen`.",
               "type": "string"
             }
           },
@@ -11557,6 +11676,7 @@
             "name": "not_keyword",
             "required": false,
             "schema": {
+              "description": "Exclude messages with this keyword.",
               "type": "string"
             }
           },
@@ -11565,6 +11685,7 @@
             "name": "after",
             "required": false,
             "schema": {
+              "description": "Filter to messages after this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -11573,6 +11694,7 @@
             "name": "before",
             "required": false,
             "schema": {
+              "description": "Filter to messages before this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -11581,6 +11703,7 @@
             "name": "has_attachment",
             "required": false,
             "schema": {
+              "description": "When true, only return messages with attachments.",
               "type": "boolean"
             }
           },
@@ -11589,6 +11712,7 @@
             "name": "is_unread",
             "required": false,
             "schema": {
+              "description": "When true, only return unread messages.",
               "type": "boolean"
             }
           },
@@ -11673,6 +11797,7 @@
             "name": "folder_id",
             "required": false,
             "schema": {
+              "description": "Filter to messages in this folder ID.",
               "type": "string"
             }
           },
@@ -11681,6 +11806,7 @@
             "name": "from",
             "required": false,
             "schema": {
+              "description": "Filter by sender email address or display name.",
               "type": "string"
             }
           },
@@ -11689,6 +11815,7 @@
             "name": "to",
             "required": false,
             "schema": {
+              "description": "Filter by To recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11697,6 +11824,7 @@
             "name": "cc",
             "required": false,
             "schema": {
+              "description": "Filter by CC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11705,6 +11833,7 @@
             "name": "bcc",
             "required": false,
             "schema": {
+              "description": "Filter by BCC recipient email address or display name.",
               "type": "string"
             }
           },
@@ -11713,6 +11842,7 @@
             "name": "subject",
             "required": false,
             "schema": {
+              "description": "Filter by subject text.",
               "type": "string"
             }
           },
@@ -11721,6 +11851,7 @@
             "name": "body",
             "required": false,
             "schema": {
+              "description": "Filter by message body text.",
               "type": "string"
             }
           },
@@ -11729,6 +11860,7 @@
             "name": "header_name",
             "required": false,
             "schema": {
+              "description": "Header name to match with `header_value`.",
               "type": "string"
             }
           },
@@ -11737,6 +11869,7 @@
             "name": "header_value",
             "required": false,
             "schema": {
+              "description": "Header value to match with `header_name`.",
               "type": "string"
             }
           },
@@ -11745,6 +11878,7 @@
             "name": "min_size_bytes",
             "required": false,
             "schema": {
+              "description": "Minimum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -11754,6 +11888,7 @@
             "name": "max_size_bytes",
             "required": false,
             "schema": {
+              "description": "Maximum message size in bytes.",
               "minimum": 0,
               "type": "integer"
             }
@@ -11763,6 +11898,7 @@
             "name": "keyword",
             "required": false,
             "schema": {
+              "description": "Require this message keyword, such as `$seen`.",
               "type": "string"
             }
           },
@@ -11771,6 +11907,7 @@
             "name": "not_keyword",
             "required": false,
             "schema": {
+              "description": "Exclude messages with this keyword.",
               "type": "string"
             }
           },
@@ -11779,6 +11916,7 @@
             "name": "after",
             "required": false,
             "schema": {
+              "description": "Filter to messages after this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -11787,6 +11925,7 @@
             "name": "before",
             "required": false,
             "schema": {
+              "description": "Filter to messages before this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -11795,6 +11934,7 @@
             "name": "has_attachment",
             "required": false,
             "schema": {
+              "description": "When true, only return messages with attachments.",
               "type": "boolean"
             }
           },
@@ -11803,6 +11943,7 @@
             "name": "is_unread",
             "required": false,
             "schema": {
+              "description": "When true, only return unread messages.",
               "type": "boolean"
             }
           },
@@ -11811,6 +11952,7 @@
             "name": "q",
             "required": true,
             "schema": {
+              "description": "Search text used to generate snippets.",
               "type": "string"
             }
           },
@@ -11828,6 +11970,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum results (default 50, max 100).",
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
@@ -11886,6 +12029,7 @@
             "name": "Idempotency-Key",
             "required": false,
             "schema": {
+              "description": "Client-chosen unique key to safely retry the request. Cached for 24h per (mailbox, endpoint, key). Different body with same key returns 409 idempotency_conflict.",
               "maxLength": 255,
               "type": "string"
             }
@@ -12179,6 +12323,7 @@
             "name": "If-None-Match",
             "required": false,
             "schema": {
+              "description": "Weak ETag from a previous response. Returns 304 when unchanged.",
               "type": "string"
             }
           },
@@ -12538,6 +12683,7 @@
             "name": "cursor",
             "required": false,
             "schema": {
+              "description": "Pagination cursor — the `next_cursor` from the previous response.",
               "type": "string"
             }
           },
@@ -12546,6 +12692,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum results (default 50, max 100).",
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
@@ -12556,6 +12703,7 @@
             "name": "q",
             "required": false,
             "schema": {
+              "description": "Full-text search query across thread messages.",
               "type": "string"
             }
           },
@@ -12564,6 +12712,7 @@
             "name": "participant",
             "required": false,
             "schema": {
+              "description": "Filter by participant email address or display name.",
               "type": "string"
             }
           },
@@ -12572,6 +12721,7 @@
             "name": "folder_id",
             "required": false,
             "schema": {
+              "description": "Filter to threads with messages in this folder ID.",
               "type": "string"
             }
           },
@@ -12580,6 +12730,7 @@
             "name": "after",
             "required": false,
             "schema": {
+              "description": "Filter to threads updated after this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -12588,6 +12739,7 @@
             "name": "before",
             "required": false,
             "schema": {
+              "description": "Filter to threads updated before this ISO 8601 timestamp.",
               "type": "string"
             }
           },
@@ -12596,6 +12748,7 @@
             "name": "has_attachment",
             "required": false,
             "schema": {
+              "description": "When true, only return threads with attachments.",
               "type": "boolean"
             }
           },
@@ -12604,6 +12757,7 @@
             "name": "is_unread",
             "required": false,
             "schema": {
+              "description": "When true, only return threads with unread messages.",
               "type": "boolean"
             }
           },
@@ -12612,6 +12766,7 @@
             "name": "sort_direction",
             "required": false,
             "schema": {
+              "description": "Sort direction.",
               "enum": [
                 "asc",
                 "desc"
@@ -12692,6 +12847,7 @@
             "name": "thread_id",
             "required": true,
             "schema": {
+              "description": "Thread ID.",
               "type": "string"
             }
           },
@@ -12700,6 +12856,7 @@
             "name": "If-None-Match",
             "required": false,
             "schema": {
+              "description": "Weak ETag from a previous response. Returns 304 when unchanged.",
               "type": "string"
             }
           },
@@ -12767,6 +12924,7 @@
             "name": "part",
             "required": false,
             "schema": {
+              "description": "Body part to return. `auto` prefers text when available.",
               "enum": [
                 "auto",
                 "text",
@@ -12780,6 +12938,7 @@
             "name": "max_body_chars",
             "required": false,
             "schema": {
+              "description": "Maximum body characters to return before truncation.",
               "maximum": 1000000,
               "minimum": 1,
               "type": "integer"
@@ -12790,6 +12949,7 @@
             "name": "strip_signature",
             "required": false,
             "schema": {
+              "description": "When true, remove detected email signatures.",
               "type": "boolean"
             }
           },
@@ -12798,6 +12958,7 @@
             "name": "strip_quotes",
             "required": false,
             "schema": {
+              "description": "When true, remove quoted reply text.",
               "type": "boolean"
             }
           },
@@ -12806,6 +12967,7 @@
             "name": "include_links",
             "required": false,
             "schema": {
+              "description": "When true, include links extracted from the body.",
               "type": "boolean"
             }
           },
@@ -12814,6 +12976,7 @@
             "name": "include_html",
             "required": false,
             "schema": {
+              "description": "When true, include HTML content when available.",
               "type": "boolean"
             }
           },
@@ -12822,6 +12985,7 @@
             "name": "include_headers",
             "required": false,
             "schema": {
+              "description": "Header detail to include in the response.",
               "enum": [
                 "none",
                 "selected",
@@ -12835,6 +12999,7 @@
             "name": "include_attachments",
             "required": false,
             "schema": {
+              "description": "Attachment detail to include. Contents are not returned.",
               "enum": [
                 "none",
                 "metadata"
@@ -12946,6 +13111,7 @@
             "name": "thread_id",
             "required": true,
             "schema": {
+              "description": "Thread ID.",
               "type": "string"
             }
           },
@@ -12954,6 +13120,7 @@
             "name": "cursor",
             "required": false,
             "schema": {
+              "description": "Pagination cursor — the `next_cursor` from the previous response.",
               "type": "string"
             }
           },
@@ -12962,6 +13129,7 @@
             "name": "limit",
             "required": false,
             "schema": {
+              "description": "Maximum results (default 50, max 100).",
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
@@ -12972,6 +13140,7 @@
             "name": "sort",
             "required": false,
             "schema": {
+              "description": "Message sort direction within the thread.",
               "enum": [
                 "asc",
                 "desc"
@@ -13184,11 +13353,13 @@
                 "additionalProperties": false,
                 "properties": {
                   "display_name": {
+                    "description": "Optional display name shown in outbound From headers.",
                     "maxLength": 254,
                     "minLength": 1,
                     "type": "string"
                   },
                   "email": {
+                    "description": "Mailbox email address to create.",
                     "maxLength": 254,
                     "minLength": 5,
                     "type": "string"
@@ -13201,8 +13372,10 @@
                   },
                   "send_scope": {
                     "additionalProperties": false,
+                    "description": "Optional outbound routing restrictions.",
                     "properties": {
                       "group_public_ids": {
+                        "description": "Delivery group public IDs allowed for sending when type is `group`.",
                         "items": {
                           "maxLength": 128,
                           "minLength": 1,
@@ -13211,6 +13384,7 @@
                         "type": "array"
                       },
                       "provider_public_ids": {
+                        "description": "Provider public IDs allowed for sending when type is `providers`.",
                         "items": {
                           "maxLength": 128,
                           "minLength": 1,
@@ -13219,6 +13393,7 @@
                         "type": "array"
                       },
                       "type": {
+                        "description": "Outbound routing strategy. Use `providers` with provider_public_ids, or `group` with group_public_ids.",
                         "enum": [
                           "all",
                           "providers",
@@ -13770,6 +13945,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "app_name": {
+                    "description": "Human-friendly label for the new API key.",
                     "maxLength": 255,
                     "minLength": 1,
                     "type": "string"

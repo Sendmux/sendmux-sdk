@@ -23,6 +23,107 @@ from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.server import create_server
 from sendmux_mcp.verification import structured_result
 
+EXPECTED_TOOL_NAMES_BY_SURFACE = {
+    "mailbox": {
+        "mailbox_batch_delete_messages",
+        "mailbox_batch_get_messages",
+        "mailbox_batch_update_messages",
+        "mailbox_count_messages",
+        "mailbox_get_changes",
+        "mailbox_get_identity",
+        "mailbox_get_me",
+        "mailbox_get_message",
+        "mailbox_get_session",
+        "mailbox_get_thread",
+        "mailbox_list_body",
+        "mailbox_list_content",
+        "mailbox_list_folders",
+        "mailbox_list_granted_mailboxes",
+        "mailbox_list_identities",
+        "mailbox_list_messages",
+        "mailbox_list_thread_messages",
+        "mailbox_list_threads",
+        "mailbox_search_message_snippets",
+        "mailbox_send_message",
+        "mailbox_update_identity",
+    },
+    "management": {
+        "management_create_domain",
+        "management_create_mailbox",
+        "management_create_mailbox_key",
+        "management_create_webhook",
+        "management_delete_mailbox_key",
+        "management_get_domain",
+        "management_get_domain_zone_file",
+        "management_get_email_log",
+        "management_get_email_metrics",
+        "management_get_mailbox",
+        "management_get_spend_summary",
+        "management_list_domains",
+        "management_list_email_logs",
+        "management_list_mailboxes",
+        "management_list_webhooks",
+        "management_resume_mailbox",
+        "management_suspend_mailbox",
+        "management_test_webhook",
+        "management_update_mailbox",
+        "management_verify_domain",
+    },
+    "sending": {
+        "sending_send_email",
+        "sending_send_email_batch",
+    },
+}
+
+READ_ONLY_TOOL_NAMES = {
+    "mailbox_batch_get_messages",
+    "mailbox_count_messages",
+    "mailbox_get_changes",
+    "mailbox_get_identity",
+    "mailbox_get_me",
+    "mailbox_get_message",
+    "mailbox_get_session",
+    "mailbox_get_thread",
+    "mailbox_list_body",
+    "mailbox_list_content",
+    "mailbox_list_folders",
+    "mailbox_list_granted_mailboxes",
+    "mailbox_list_identities",
+    "mailbox_list_messages",
+    "mailbox_list_thread_messages",
+    "mailbox_list_threads",
+    "mailbox_search_message_snippets",
+    "management_get_domain",
+    "management_get_domain_zone_file",
+    "management_get_email_log",
+    "management_get_email_metrics",
+    "management_get_mailbox",
+    "management_get_spend_summary",
+    "management_list_domains",
+    "management_list_email_logs",
+    "management_list_mailboxes",
+    "management_list_webhooks",
+}
+
+DESTRUCTIVE_TOOL_NAMES = {
+    "mailbox_batch_delete_messages",
+    "management_delete_mailbox_key",
+}
+
+IDEMPOTENT_WRITE_TOOL_NAMES = {
+    "mailbox_batch_update_messages",
+    "mailbox_update_identity",
+    "management_delete_mailbox_key",
+    "management_resume_mailbox",
+    "management_suspend_mailbox",
+    "management_update_mailbox",
+    "management_verify_domain",
+}
+
+NO_OUTPUT_SCHEMA_TOOL_NAMES = {
+    "management_get_domain_zone_file",
+}
+
 
 def test_toolsets_are_curated_and_key_split() -> None:
     async def check() -> None:
@@ -46,6 +147,9 @@ def test_toolsets_are_curated_and_key_split() -> None:
         assert mailbox_names == {tool.name for tool in TOOLS_BY_SURFACE["mailbox"]}
         assert management_names == {tool.name for tool in TOOLS_BY_SURFACE["management"]}
         assert sending_names == {tool.name for tool in TOOLS_BY_SURFACE["sending"]}
+        assert mailbox_names == EXPECTED_TOOL_NAMES_BY_SURFACE["mailbox"]
+        assert management_names == EXPECTED_TOOL_NAMES_BY_SURFACE["management"]
+        assert sending_names == EXPECTED_TOOL_NAMES_BY_SURFACE["sending"]
 
         assert "mailbox_send_message" in mailbox_names
         assert "mailbox_list_messages" in mailbox_names
@@ -60,6 +164,39 @@ def test_toolsets_are_curated_and_key_split() -> None:
         for tool in [*mailbox_tools, *management_tools, *sending_tools]:
             assert tool.description
             assert not tool.description.startswith("Executes ")
+
+    asyncio.run(check())
+
+
+def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
+    async def check() -> None:
+        servers = (
+            create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"), transport=ok_transport()),
+            create_server(ServerConfig(surfaces=("management",), api_key="smx_root_test"), transport=ok_transport()),
+            create_server(ServerConfig(surfaces=("sending",), api_key="smx_mbx_test"), transport=ok_transport()),
+        )
+        tools = []
+        for server in servers:
+            async with Client(server) as client:
+                tools.extend(await client.list_tools())
+
+        assert len(tools) == 43
+        assert {tool.name for tool in tools if tool.outputSchema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
+
+        for tool in tools:
+            annotations = tool.annotations
+            assert annotations is not None, tool.name
+            assert annotations.readOnlyHint is (tool.name in READ_ONLY_TOOL_NAMES)
+            assert annotations.destructiveHint is (tool.name in DESTRUCTIVE_TOOL_NAMES)
+            assert annotations.idempotentHint is (
+                tool.name in READ_ONLY_TOOL_NAMES or tool.name in IDEMPOTENT_WRITE_TOOL_NAMES
+            )
+            assert annotations.openWorldHint is True
+
+            properties = (tool.inputSchema or {}).get("properties") or {}
+            for property_name, schema in properties.items():
+                assert isinstance(schema, dict), f"{tool.name}.{property_name}"
+                assert str(schema.get("description") or "").strip(), f"{tool.name}.{property_name}"
 
     asyncio.run(check())
 

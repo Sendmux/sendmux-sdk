@@ -6,6 +6,7 @@ from typing import Any, cast
 
 from fastmcp.server.providers.openapi import MCPType, RouteMap
 from fastmcp.utilities.openapi import HttpMethod
+from mcp.types import ToolAnnotations
 
 from sendmux_mcp.config import Surface
 from sendmux_mcp.specs import operation_routes
@@ -298,6 +299,57 @@ TOOL_BY_OPERATION_ID = {
     for tool in tools
 }
 
+READ_ONLY_OPERATION_IDS = frozenset(
+    {
+        "mailboxListGrantedMailboxes",
+        "mailboxGetMe",
+        "mailboxGetSession",
+        "mailboxGetIdentity",
+        "mailboxListIdentities",
+        "mailboxListMessages",
+        "mailboxGetMessage",
+        "mailboxListBody",
+        "mailboxListContent",
+        "mailboxBatchGetMessages",
+        "mailboxCountMessages",
+        "mailboxSearchMessageSnippets",
+        "mailboxListThreads",
+        "mailboxGetThread",
+        "mailboxListThreadMessages",
+        "mailboxListFolders",
+        "mailboxGetChanges",
+        "managementListDomains",
+        "managementGetDomain",
+        "managementGetDomainZoneFile",
+        "managementListMailboxes",
+        "managementGetMailbox",
+        "managementListEmailLogs",
+        "managementGetEmailLog",
+        "managementGetEmailMetrics",
+        "managementGetSpendSummary",
+        "managementListWebhooks",
+    }
+)
+
+DESTRUCTIVE_OPERATION_IDS = frozenset(
+    {
+        "mailboxBatchDeleteMessages",
+        "managementDeleteMailboxKey",
+    }
+)
+
+IDEMPOTENT_WRITE_OPERATION_IDS = frozenset(
+    {
+        "mailboxUpdateIdentity",
+        "mailboxBatchUpdateMessages",
+        "managementVerifyDomain",
+        "managementUpdateMailbox",
+        "managementSuspendMailbox",
+        "managementResumeMailbox",
+        "managementDeleteMailboxKey",
+    }
+)
+
 
 def route_maps_for_surface(document: dict[str, Any], surface: Surface) -> list[RouteMap]:
     routes = operation_routes(document)
@@ -342,8 +394,53 @@ def customise_component(route: Any, component: Any) -> None:
     component.title = tool.title
     component.description = tool.description
     component.tags = set(getattr(component, "tags", set())) | {"sendmux", surface}
+    component.annotations = tool_annotations(tool)
+    ensure_parameter_descriptions(component)
     if has_text_response(route):
         component.output_schema = None
+
+
+def tool_annotations(tool: ToolSpec) -> ToolAnnotations:
+    read_only = tool.operation_id in READ_ONLY_OPERATION_IDS
+    return ToolAnnotations(
+        readOnlyHint=read_only,
+        destructiveHint=tool.operation_id in DESTRUCTIVE_OPERATION_IDS,
+        idempotentHint=read_only or tool.operation_id in IDEMPOTENT_WRITE_OPERATION_IDS,
+        openWorldHint=True,
+    )
+
+
+def ensure_parameter_descriptions(component: Any) -> None:
+    parameters = getattr(component, "parameters", None)
+    if not isinstance(parameters, dict):
+        return
+    properties = parameters.get("properties")
+    if not isinstance(properties, dict):
+        return
+
+    for schema in properties.values():
+        if not isinstance(schema, dict) or str(schema.get("description") or "").strip():
+            continue
+        description = nested_description(schema)
+        if description:
+            schema["description"] = description
+
+
+def nested_description(schema: dict[str, Any]) -> str | None:
+    for key in ("allOf", "anyOf", "oneOf"):
+        options = schema.get(key)
+        if not isinstance(options, list):
+            continue
+        for option in options:
+            if not isinstance(option, dict):
+                continue
+            description = option.get("description")
+            if isinstance(description, str) and description.strip():
+                return description
+            nested = nested_description(option)
+            if nested:
+                return nested
+    return None
 
 
 def has_text_response(route: Any) -> bool:

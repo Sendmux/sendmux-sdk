@@ -13,6 +13,7 @@ on:
       - "scripts/cli-tarball-tools.mjs"
       - "scripts/pack-cli-tarballs.mjs"
       - "scripts/prepare-chocolatey-packages.mjs"
+      - "scripts/serve-static.mjs"
       - "scripts/test-chocolatey-asset-tools.mjs"
       - "scripts/test-chocolatey-workflow-order.mjs"
       - "scripts/test-cli-tarball-tools.mjs"
@@ -76,6 +77,7 @@ jobs:
 
       - name: Verify workflow helper scripts
         run: |
+          node --check scripts/serve-static.mjs
           pnpm test:windows-command-shims
           pnpm test:chocolatey-asset-tools
           pnpm test:chocolatey-workflow-order
@@ -110,7 +112,19 @@ jobs:
 
       - name: Generate Chocolatey packages
         shell: bash
-        run: node scripts/prepare-chocolatey-packages.mjs
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            asset="$(find packages/ts/cli/dist -maxdepth 1 -type f -name "sendmux-v*-win32-x64.zip" | sort | tail -n 1)"
+            if [ -z "$asset" ]; then
+              echo "No local Windows ZIP asset found for PR Chocolatey install test."
+              exit 1
+            fi
+            local_url="http://127.0.0.1:8765/$(basename "$asset")"
+            echo "SENDMUX_CHOCOLATEY_DOWNLOAD_URL=$local_url" >> "$GITHUB_ENV"
+            export SENDMUX_CHOCOLATEY_DOWNLOAD_URL="$local_url"
+          fi
+          node scripts/prepare-chocolatey-packages.mjs
 
       - name: Pack Chocolatey packages
         shell: powershell
@@ -144,15 +158,27 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $source = Resolve-Path .tmp/chocolatey/pkg
+          $server = $null
 
-          choco install sendmux.portable --source "$source" -y --no-progress
-          sendmux --help
-          choco uninstall sendmux.portable -y --no-progress
+          if ('${{ github.event_name }}' -eq 'pull_request') {
+            $server = Start-Process -FilePath node -ArgumentList @('scripts/serve-static.mjs', 'packages/ts/cli/dist', '8765') -PassThru
+            Start-Sleep -Seconds 2
+          }
 
-          choco install sendmux --source "$source" -y --no-progress
-          sendmux --help
-          choco uninstall sendmux -y --no-progress
-          choco uninstall sendmux.portable -y --no-progress
+          try {
+            choco install sendmux.portable --source "$source" -y --no-progress
+            sendmux --help
+            choco uninstall sendmux.portable -y --no-progress
+
+            choco install sendmux --source "$source" -y --no-progress
+            sendmux --help
+            choco uninstall sendmux -y --no-progress
+            choco uninstall sendmux.portable -y --no-progress
+          } finally {
+            if ($server) {
+              Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
+            }
+          }
 
       - name: Upload workflow artefacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

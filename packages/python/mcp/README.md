@@ -5,7 +5,7 @@
 [![PyPI downloads](https://img.shields.io/pypi/dm/sendmux-mcp)](https://pypi.org/project/sendmux-mcp/)
 [![Licence](https://img.shields.io/pypi/l/sendmux-mcp)](https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE)
 
-Email inbox API, inbound mail, and outbound sending MCP servers for AI agents, with inbound email search, clean JSON parsing, webhooks, and multi-provider routing through Sendmux.
+Email inbox API, inbound mail, and outbound sending MCP servers for AI agents, with inbound email, clean JSON parsing, webhooks, and multi-provider routing through Sendmux.
 
 This package is the Sendmux product MCP. Keep it separate from any documentation-search MCP used by docs tooling.
 

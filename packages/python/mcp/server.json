@@ -1,0 +1,63 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Sendmux/sendmux-mcp",
+  "title": "Sendmux MCP",
+  "description": "Email inbox API for AI agents with MCP tools for Mailbox, Management, and Sending APIs.",
+  "websiteUrl": "https://sendmux.ai/docs/guides/mcp",
+  "repository": {
+    "url": "https://github.com/Sendmux/sendmux-sdk",
+    "source": "github",
+    "id": "1253958043",
+    "subfolder": "packages/python/mcp"
+  },
+  "version": "1.1.3",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.sendmux.ai/mcp"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "sendmux-mcp",
+      "version": "1.1.3",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Tool surfaces to run locally.",
+          "format": "string",
+          "isRequired": true,
+          "name": "SENDMUX_MCP_SURFACES",
+          "value": "mailbox,management,sending"
+        },
+        {
+          "description": "Mailbox API key for Mailbox API and Sending API tools.",
+          "format": "string",
+          "isRequired": true,
+          "isSecret": true,
+          "name": "SENDMUX_MAILBOX_API_KEY",
+          "placeholder": "smx_mbx_..."
+        },
+        {
+          "description": "Root API key for Management API tools.",
+          "format": "string",
+          "isRequired": true,
+          "isSecret": true,
+          "name": "SENDMUX_MANAGEMENT_API_KEY",
+          "placeholder": "smx_root_..."
+        },
+        {
+          "description": "Optional Sending API key when it differs from the Mailbox API key.",
+          "format": "string",
+          "isRequired": false,
+          "isSecret": true,
+          "name": "SENDMUX_SENDING_API_KEY",
+          "placeholder": "smx_mbx_..."
+        }
+      ]
+    }
+  ]
+}

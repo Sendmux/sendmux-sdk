@@ -12,7 +12,7 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 
 - PHP 8.2 or newer.
 - Composer.
-- A send-capable API key with the `smx_mbx_` prefix.
+- A send-capable `smx_mbx_` key or owner-approved Sending-resource `smx_agent_` token.
 
 ## Installation
 

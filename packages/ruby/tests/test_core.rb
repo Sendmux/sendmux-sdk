@@ -38,11 +38,13 @@ class SendmuxRubyCoreTest < Minitest::Test
                  Sendmux::Core::Auth.assert_api_key_surface('smx_agent_test', Sendmux::Core::ApiKeySurface::MAILBOX)
     assert_equal Sendmux::Core::ApiKeySurface::MAILBOX,
                  Sendmux::Core::Auth.assert_api_key_surface('smx_mbx_test', Sendmux::Core::ApiKeySurface::SENDING)
+    assert_equal Sendmux::Core::ApiKeySurface::MAILBOX,
+                 Sendmux::Core::Auth.assert_api_key_surface('smx_agent_test', Sendmux::Core::ApiKeySurface::SENDING)
   end
 
-  def test_agent_token_is_rejected_for_sending_surface
+  def test_root_key_is_rejected_for_sending_surface
     assert_raises(ArgumentError) do
-      Sendmux::Core::Auth.assert_api_key_surface('smx_agent_test', Sendmux::Core::ApiKeySurface::SENDING)
+      Sendmux::Core::Auth.assert_api_key_surface('smx_root_test', Sendmux::Core::ApiKeySurface::SENDING)
     end
   end
 

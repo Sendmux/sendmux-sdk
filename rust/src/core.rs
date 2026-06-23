@@ -16,7 +16,7 @@ pub enum ApiKeySurface {
     Root,
     /// Mailbox-scoped API keys or agent tokens with `smx_mbx_` or `smx_agent_` prefixes.
     Mailbox,
-    /// Send-capable API keys with the `smx_mbx_` prefix.
+    /// Send-capable API keys or owner-approved agent tokens with `smx_mbx_` or `smx_agent_` prefixes.
     Sending,
 }
 
@@ -49,7 +49,9 @@ pub fn validate_api_key(api_key: &str, surface: ApiKeySurface) -> Result<()> {
                 expected: ApiKeySurface::Mailbox,
             })
         }
-        ApiKeySurface::Sending if !api_key.starts_with("smx_mbx_") => {
+        ApiKeySurface::Sending
+            if !api_key.starts_with("smx_mbx_") && !api_key.starts_with("smx_agent_") =>
+        {
             Err(Error::InvalidApiKeySurface {
                 expected: ApiKeySurface::Sending,
             })
@@ -507,6 +509,7 @@ mod tests {
         assert!(validate_api_key("smx_mbx_test", ApiKeySurface::Mailbox).is_ok());
         assert!(validate_api_key("smx_agent_test", ApiKeySurface::Mailbox).is_ok());
         assert!(validate_api_key("smx_mbx_test", ApiKeySurface::Sending).is_ok());
+        assert!(validate_api_key("smx_agent_test", ApiKeySurface::Sending).is_ok());
         assert!(validate_api_key("smx_root_test", ApiKeySurface::Root).is_ok());
         assert!(matches!(
             validate_api_key("smx_mbx_test", ApiKeySurface::Root),
@@ -515,7 +518,7 @@ mod tests {
             })
         ));
         assert!(matches!(
-            validate_api_key("smx_agent_test", ApiKeySurface::Sending),
+            validate_api_key("smx_root_test", ApiKeySurface::Sending),
             Err(Error::InvalidApiKeySurface {
                 expected: ApiKeySurface::Sending
             })

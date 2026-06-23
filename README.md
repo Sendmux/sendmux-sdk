@@ -21,31 +21,31 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | Ecosystem | Package | Surface | API key or auth | Install | Source |
 | --- | --- | --- | --- | --- | --- |
 | npm | `@sendmux/core` | Shared TypeScript helpers | n/a | `npm install @sendmux/core` | [`packages/ts/core`](packages/ts/core) |
-| npm | `@sendmux/sending` | Sending API | `smx_mbx_*` | `npm install @sendmux/sending` | [`packages/ts/sending`](packages/ts/sending) |
+| npm | `@sendmux/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `npm install @sendmux/sending` | [`packages/ts/sending`](packages/ts/sending) |
 | npm | `@sendmux/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `npm install @sendmux/mailbox` | [`packages/ts/mailbox`](packages/ts/mailbox) |
 | npm | `@sendmux/management` | Management API | `smx_root_*` | `npm install @sendmux/management` | [`packages/ts/management`](packages/ts/management) |
 | npm | `@sendmux/sdk` | TypeScript umbrella package | surface-specific | `npm install @sendmux/sdk` | [`packages/ts/sdk`](packages/ts/sdk) |
 | npm | `@sendmux/cli` | `sendmux` CLI | command/profile-specific | `npm install -g @sendmux/cli` | [`packages/ts/cli`](packages/ts/cli) |
 | Homebrew | `sendmux` | `sendmux` CLI | command/profile-specific | `brew install sendmux/tap/sendmux` | [`Sendmux/homebrew-tap`](https://github.com/Sendmux/homebrew-tap) |
 | PyPI | `sendmux-core` | Shared Python helpers | n/a | `pip install sendmux-core` | [`packages/python/core`](packages/python/core) |
-| PyPI | `sendmux-sending` | Sending API | `smx_mbx_*` | `pip install sendmux-sending` | [`packages/python/sending`](packages/python/sending) |
+| PyPI | `sendmux-sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `pip install sendmux-sending` | [`packages/python/sending`](packages/python/sending) |
 | PyPI | `sendmux-mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `pip install sendmux-mailbox` | [`packages/python/mailbox`](packages/python/mailbox) |
 | PyPI | `sendmux-management` | Management API | `smx_root_*` | `pip install sendmux-management` | [`packages/python/management`](packages/python/management) |
 | PyPI | `sendmux-sdk` | Python umbrella package | surface-specific | `pip install sendmux-sdk` | [`packages/python/sdk`](packages/python/sdk) |
 | PyPI | `sendmux-mcp` | Local, self-hosted, and hosted MCP servers | OAuth for hosted; surface-specific keys for local | `pip install sendmux-mcp` | [`packages/python/mcp`](packages/python/mcp) |
 | Go | `sendmux.ai/go/core` | Shared Go helpers | n/a | `go get sendmux.ai/go@v1.0.0` | [`go/core`](go/core) |
-| Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` | `go get sendmux.ai/go@v1.0.0` | [`go/sending`](go/sending) |
+| Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/sending`](go/sending) |
 | Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/mailbox`](go/mailbox) |
 | Go | `sendmux.ai/go/management` | Management API | `smx_root_*` | `go get sendmux.ai/go@v1.0.0` | [`go/management`](go/management) |
 | Go | `sendmux.ai/go/sdk` | Go umbrella package | surface-specific | `go get sendmux.ai/go@v1.0.0` | [`go/sdk`](go/sdk) |
 | crates.io | `sendmux` | Rust umbrella crate | surface-specific | `cargo add sendmux` | [`rust`](rust) |
 | Packagist | `sendmux/core` | Shared PHP helpers | n/a | `composer require sendmux/core:^1.0` | [`packages/php/core`](packages/php/core) |
-| Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` | `composer require sendmux/sending:^1.0` | [`packages/php/sending`](packages/php/sending) |
+| Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `composer require sendmux/sending:^1.0` | [`packages/php/sending`](packages/php/sending) |
 | Packagist | `sendmux/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `composer require sendmux/mailbox:^1.0` | [`packages/php/mailbox`](packages/php/mailbox) |
 | Packagist | `sendmux/management` | Management API | `smx_root_*` | `composer require sendmux/management:^1.0` | [`packages/php/management`](packages/php/management) |
 | Packagist | `sendmux/sdk` | PHP umbrella package | surface-specific | `composer require sendmux/sdk:^1.0` | [`packages/php/sdk`](packages/php/sdk) |
 | RubyGems | `sendmux-core` | Shared Ruby helpers | n/a | `gem install sendmux-core` | [`packages/ruby/core`](packages/ruby/core) |
-| RubyGems | `sendmux-sending` | Sending API | `smx_mbx_*` | `gem install sendmux-sending` | [`packages/ruby/sending`](packages/ruby/sending) |
+| RubyGems | `sendmux-sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `gem install sendmux-sending` | [`packages/ruby/sending`](packages/ruby/sending) |
 | RubyGems | `sendmux-mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `gem install sendmux-mailbox` | [`packages/ruby/mailbox`](packages/ruby/mailbox) |
 | RubyGems | `sendmux-management` | Management API | `smx_root_*` | `gem install sendmux-management` | [`packages/ruby/management`](packages/ruby/management) |
 | RubyGems | `sendmux-sdk` | Ruby umbrella package | surface-specific | `gem install sendmux-sdk` | [`packages/ruby/sdk`](packages/ruby/sdk) |
@@ -63,7 +63,7 @@ composer require sendmux/sending:^1.0
 gem install sendmux-sending
 ```
 
-Use send-capable `smx_mbx_*` keys for Sending clients. Use `smx_mbx_*` keys or scoped `smx_agent_*` tokens for Mailbox clients. Use root `smx_root_*` keys for Management clients. Agent tokens remain limited by server-side scopes; self-registered agent tokens do not include `email.send`.
+Use send-capable `smx_mbx_*` keys or owner-approved Sending-resource `smx_agent_*` tokens for Sending clients. Use `smx_mbx_*` keys or scoped `smx_agent_*` tokens for Mailbox clients. Use root `smx_root_*` keys for Management clients. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
 
 For command-line access, install the CLI:
 

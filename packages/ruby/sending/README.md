@@ -16,7 +16,7 @@ Ruby SDK package for the Sendmux Sending API.
 ## Requirements
 
 - Ruby 3.1 or newer.
-- A send-capable Sendmux API key beginning with `smx_mbx_`.
+- A send-capable `smx_mbx_` key or owner-approved Sending-resource `smx_agent_` token.
 
 ## Installation
 

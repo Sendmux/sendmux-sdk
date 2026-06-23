@@ -21,7 +21,7 @@ final class Auth
         }
 
         $isCompatible = $actual === $expected
-            || ($expected === ApiKeySurface::Sending && $isMailboxKey)
+            || ($expected === ApiKeySurface::Sending && ($isMailboxKey || $isAgentToken))
             || ($expected === ApiKeySurface::Mailbox && $actual === ApiKeySurface::Mailbox);
 
         if (!$isCompatible) {

@@ -17,7 +17,7 @@ Optional umbrella package for the Sendmux TypeScript SDK.
 
 ## Requirements
 
-- A send-capable `smx_mbx_*` key for Sending clients.
+- A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token for Sending clients.
 - A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox clients.
 - A root `smx_root_*` key for Management clients.
 - A JavaScript runtime with the standard Fetch API.

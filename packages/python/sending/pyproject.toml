@@ -21,7 +21,7 @@ dependencies = [
   "certifi",
   "pydantic>=2,<3",
   "python-dateutil>=2.8.2",
-  "sendmux-core>=1.0.0,<2.0.0",
+  "sendmux-core>=1.1.4,<2.0.0",
   "typing-extensions>=4.7.1",
   "urllib3>=2.3.0,<3",
 ]

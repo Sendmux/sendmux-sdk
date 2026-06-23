@@ -42,7 +42,7 @@ headers = {
 
 ## Helpers
 
-- `validate_api_key` checks `smx_root_*` prefixes for root clients, send-capable `smx_mbx_*` prefixes for Sending clients, and mailbox-compatible `smx_mbx_*` or `smx_agent_*` prefixes for Mailbox clients.
+- `validate_api_key` checks `smx_root_*` prefixes for root clients, send-capable `smx_mbx_*` prefixes or owner-approved Sending-resource `smx_agent_*` tokens for Sending clients, and mailbox-compatible `smx_mbx_*` or `smx_agent_*` prefixes for Mailbox clients.
 - `configure_auth` applies bearer auth to generated client configuration objects.
 - `idempotency_headers` and `conditional_headers` prepare request headers.
 - `iter_cursor_pages` iterates cursor-paginated list responses.

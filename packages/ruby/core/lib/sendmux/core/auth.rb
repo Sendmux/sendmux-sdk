@@ -33,7 +33,8 @@ module Sendmux
 
       def self.compatible_surface?(api_key, actual, expected_surface)
         return true if actual == expected_surface
-        return true if expected_surface == ApiKeySurface::SENDING && api_key.start_with?(MAILBOX_PREFIX)
+        return true if expected_surface == ApiKeySurface::SENDING &&
+                       (api_key.start_with?(MAILBOX_PREFIX) || api_key.start_with?(AGENT_PREFIX))
         return true if expected_surface == ApiKeySurface::MAILBOX && actual == ApiKeySurface::MAILBOX
 
         false

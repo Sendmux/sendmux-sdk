@@ -19,7 +19,7 @@ export function inferApiKeyKind(apiKey: string): ApiKeyKind {
 
 export function isApiKeyCompatibleWithKind(apiKey: string, expectedKind: RequiredApiKeyKind): boolean {
   if (expectedKind === "sending") {
-    return apiKey.startsWith("smx_mbx_");
+    return apiKey.startsWith("smx_mbx_") || apiKey.startsWith("smx_agent_");
   }
 
   return inferApiKeyKind(apiKey) === expectedKind;

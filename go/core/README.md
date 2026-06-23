@@ -49,7 +49,7 @@ func newHTTPClient() *http.Client {
 }
 ```
 
-Use `KeySurfaceSending` for send-capable `smx_mbx_` keys, `KeySurfaceMailbox` for `smx_mbx_` keys or scoped `smx_agent_` tokens, and `KeySurfaceRoot` for `smx_root_` keys.
+Use `KeySurfaceSending` for send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens, `KeySurfaceMailbox` for `smx_mbx_` keys or scoped `smx_agent_` tokens, and `KeySurfaceRoot` for `smx_root_` keys.
 
 Most applications should import `sendmux.ai/go/sending`, `sendmux.ai/go/mailbox`, or `sendmux.ai/go/management` directly. Those packages apply the core helpers for you.
 

@@ -413,16 +413,14 @@ try {
     "idem_cli_agent_send",
   ]);
 
-  if (agentSendingResult.status === 0) {
-    throw new Error("sending:send accepted an agent token");
+  assertCliSuccess(agentSendingResult, "sending:send with agent token");
+
+  if (latestRequest().headers["idempotency-key"] !== "idem_cli_agent_send") {
+    throw new Error("Idempotency-Key header was not passed through for sending:send with agent token");
   }
 
-  if (!agentSendingResult.stderr.includes("requires a sending API key")) {
-    throw new Error(`Expected sending-key preflight error for agent token, got:\nstdout:\n${agentSendingResult.stdout}\nstderr:\n${agentSendingResult.stderr}`);
-  }
-
-  if (serverState.requests.length !== requestCountBeforeAgentSendingPreflight) {
-    throw new Error("Sending command preflight made a network request before rejecting an agent token");
+  if (serverState.requests.length !== requestCountBeforeAgentSendingPreflight + 1) {
+    throw new Error("Sending command did not make exactly one request with an agent token");
   }
 
   const rootResult = await runCli([

@@ -17,8 +17,8 @@ def validate_api_key(api_key: str, *, surface: ApiKeySurface) -> None:
         return
 
     if surface == "sending":
-        if not api_key.startswith("smx_mbx_"):
-            raise ValueError("Expected a smx_mbx_ API key for the sending surface")
+        if not (api_key.startswith("smx_mbx_") or api_key.startswith("smx_agent_")):
+            raise ValueError("Expected a smx_mbx_ or owner-approved smx_agent_ API key for the sending surface")
         return
 
     raise ValueError(f"Unknown Sendmux API key surface: {surface}")

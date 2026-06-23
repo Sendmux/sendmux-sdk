@@ -15,7 +15,7 @@ export function assertApiKeyKind(apiKey: string, expected?: ApiKeyKind): ApiKeyK
   const isCompatible =
     !expected ||
     actual === expected ||
-    (expected === "sending" && isMailboxKey) ||
+    (expected === "sending" && (isMailboxKey || isAgentToken)) ||
     (expected === "mailbox" && actual === "mailbox");
 
   if (!isCompatible) {

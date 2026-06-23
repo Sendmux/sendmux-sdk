@@ -14,7 +14,7 @@ pub use crate::mailbox::MailboxClient;
 pub use crate::management::ManagementClient;
 pub use crate::sending::SendingClient;
 
-/// Creates a Sending API client with a send-capable `smx_mbx_*` API key.
+/// Creates a Sending API client with a send-capable `smx_mbx_*` key or owner-approved `smx_agent_*` token.
 pub fn sending(api_key: impl Into<String>) -> Result<SendingClient> {
     SendingClient::new(api_key)
 }

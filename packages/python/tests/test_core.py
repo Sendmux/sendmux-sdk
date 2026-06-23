@@ -18,6 +18,7 @@ def test_api_key_prefix_validation() -> None:
     validate_api_key("smx_mbx_123", surface="mailbox")
     validate_api_key("smx_agent_123", surface="mailbox")
     validate_api_key("smx_mbx_123", surface="sending")
+    validate_api_key("smx_agent_123", surface="sending")
 
     with pytest.raises(ValueError):
         validate_api_key("smx_mbx_123", surface="root")
@@ -26,7 +27,7 @@ def test_api_key_prefix_validation() -> None:
         validate_api_key("smx_agent_123", surface="root")
 
     with pytest.raises(ValueError):
-        validate_api_key("smx_agent_123", surface="sending")
+        validate_api_key("smx_root_123", surface="sending")
 
 
 def test_configure_auth_uses_generated_bearer_access_token() -> None:

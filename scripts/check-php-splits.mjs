@@ -6,7 +6,7 @@ const root = process.cwd();
 const splitRoot = join(root, ".tmp", "php-splits");
 const consumerRoot = join(root, ".tmp", "php-split-consumer");
 const packages = [
-  { name: "core", composer: "sendmux/core", repo: "sendmux-php-core" },
+  { name: "core", composer: "sendmux/core", repo: "sendmux-php-core", version: "1.0.1" },
   { name: "sending", composer: "sendmux/sending", repo: "sendmux-php-sending" },
   { name: "mailbox", composer: "sendmux/mailbox", repo: "sendmux-php-mailbox" },
   { name: "management", composer: "sendmux/management", repo: "sendmux-php-management" },
@@ -45,7 +45,7 @@ writeFileSync(
         options: {
           symlink: false,
           versions: {
-            [pkg.composer]: "1.0.0",
+            [pkg.composer]: pkg.version ?? "1.0.0",
           },
         },
       })),

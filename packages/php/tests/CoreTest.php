@@ -25,12 +25,13 @@ final class CoreTest extends TestCase
         self::assertSame(ApiKeySurface::Mailbox, Auth::assertApiKeySurface('smx_mbx_123', ApiKeySurface::Mailbox));
         self::assertSame(ApiKeySurface::Mailbox, Auth::assertApiKeySurface('smx_agent_123', ApiKeySurface::Mailbox));
         self::assertSame(ApiKeySurface::Mailbox, Auth::assertApiKeySurface('smx_mbx_123', ApiKeySurface::Sending));
+        self::assertSame(ApiKeySurface::Mailbox, Auth::assertApiKeySurface('smx_agent_123', ApiKeySurface::Sending));
     }
 
-    public function testAgentTokenIsRejectedForSendingSurface(): void
+    public function testRootKeyIsRejectedForSendingSurface(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        Auth::assertApiKeySurface('smx_agent_123', ApiKeySurface::Sending);
+        Auth::assertApiKeySurface('smx_root_123', ApiKeySurface::Sending);
     }
 
     public function testAgentTokenIsRejectedForRootSurface(): void

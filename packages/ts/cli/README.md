@@ -19,8 +19,8 @@ Agent-drivable command line interface for Sendmux.
 
 - npm global installs, `npx`, or a downloaded release tarball.
 - A root `smx_root_*` key for Management commands.
-- A send-capable `smx_mbx_*` key for Sending commands.
-- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox commands. Agent tokens remain limited by server-side scopes; self-registered agent tokens do not include `email.send`.
+- A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token for Sending commands.
+- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox commands. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
 
 ## Installation
 

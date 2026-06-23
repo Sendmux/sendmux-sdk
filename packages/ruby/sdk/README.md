@@ -15,7 +15,7 @@ Umbrella Ruby SDK package for Sendmux.
 ## Requirements
 
 - Ruby 3.1 or newer.
-- A send-capable key beginning with `smx_mbx_` for sending clients.
+- A send-capable `smx_mbx_` key or owner-approved Sending-resource `smx_agent_` token for sending clients.
 - A mailbox-scoped key beginning with `smx_mbx_` or scoped token beginning with `smx_agent_` for mailbox clients.
 - A root key beginning with `smx_root_` for management clients.
 

@@ -8,7 +8,7 @@ public Sendmux API surfaces. The Sending client includes typed request and
 response models; Mailbox and Management expose typed surface clients with raw
 JSON helpers while generated Rust model coverage expands:
 
-- `sendmux::sending` for Sending API requests with send-capable `smx_mbx_*` keys.
+- `sendmux::sending` for Sending API requests with send-capable `smx_mbx_*` keys or owner-approved Sending-resource `smx_agent_*` tokens.
 - `sendmux::mailbox` for Mailbox API requests with `smx_mbx_*` keys or scoped `smx_agent_*` tokens.
 - `sendmux::management` for Management API requests with `smx_root_*` keys.
 
@@ -43,7 +43,7 @@ async fn main() -> sendmux::Result<()> {
 
 ## Sending API
 
-Use a send-capable API key beginning with `smx_mbx_`.
+Use a send-capable `smx_mbx_` key or owner-approved Sending-resource `smx_agent_` token.
 
 ```rust,no_run
 use sendmux::core::RequestOptions;
@@ -120,7 +120,7 @@ async fn main() -> sendmux::Result<()> {
 
 Do not hard-code API keys or commit them to source control.
 
-- Sending clients require send-capable keys with the `smx_mbx_` prefix.
+- Sending clients accept send-capable keys with the `smx_mbx_` prefix or owner-approved Sending-resource `smx_agent_` tokens.
 - Mailbox clients accept `smx_mbx_` keys or scoped `smx_agent_` tokens.
 - Management clients require root keys with the `smx_root_` prefix.
 - Store keys in your secret manager and pass them through environment variables

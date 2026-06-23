@@ -251,11 +251,15 @@ def test_wrong_key_prefix_rejected_before_server_start() -> None:
     with pytest.raises(ValueError):
         create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_root_test"), transport=ok_transport())
 
+    create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_agent_test"), transport=ok_transport())
+
     with pytest.raises(ValueError):
         create_server(ServerConfig(surfaces=("management",), api_key="smx_mbx_test"), transport=ok_transport())
 
     with pytest.raises(ValueError):
         create_server(ServerConfig(surfaces=("sending",), api_key="smx_root_test"), transport=ok_transport())
+
+    create_server(ServerConfig(surfaces=("sending",), api_key="smx_agent_test"), transport=ok_transport())
 
     with pytest.raises(ValueError):
         create_server(

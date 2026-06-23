@@ -10,7 +10,7 @@
     "ext-mbstring": "*",
     "guzzlehttp/guzzle": "^7.10",
     "guzzlehttp/psr7": "^2.7",
-    "sendmux/core": "^1.0"
+    "sendmux/core": "^1.0.1"
   },
   "autoload": {
     "psr-4": {

@@ -15,8 +15,8 @@ go get sendmux.ai/go@latest
 | Package | Import path | API key |
 | --- | --- | --- |
 | Core helpers | `sendmux.ai/go/core` | n/a |
-| Sending client | `sendmux.ai/go/sending` | `smx_mbx_*` |
-| Mailbox client | `sendmux.ai/go/mailbox` | `smx_mbx_*` |
+| Sending client | `sendmux.ai/go/sending` | `smx_mbx_*` or owner-approved `smx_agent_*` |
+| Mailbox client | `sendmux.ai/go/mailbox` | `smx_mbx_*` or `smx_agent_*` |
 | Management client | `sendmux.ai/go/management` | `smx_root_*` |
 | Module anchor | `sendmux.ai/go/sdk` | n/a |
 
@@ -149,7 +149,8 @@ func main() {
 
 ## Runtime behaviour
 
-- `sending.New` and `mailbox.New` accept mailbox-compatible tokens with the `smx_mbx_` or `smx_agent_` prefix.
+- `sending.New` accepts send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens.
+- `mailbox.New` accepts mailbox `smx_mbx_` keys or scoped `smx_agent_` tokens.
 - `management.New` accepts root API keys with the `smx_root_` prefix.
 - Each surface supports `WithBaseURL`, `WithHTTPClient`, and `WithRetryOptions`.
 - Mutation methods accept idempotency headers through helpers such as `sending.IdempotencyKey`.

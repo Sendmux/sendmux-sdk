@@ -4144,7 +4144,7 @@ export const operations = {
     "queryParams": [],
     "responseKind": "json",
     "requestBodyRequired": false,
-    "requiredKeyKind": "mailbox",
+    "requiredKeyKind": "sending",
     "surface": "sending"
   },
   sendingSendEmail: {
@@ -4168,7 +4168,7 @@ export const operations = {
     "queryParams": [],
     "responseKind": "json",
     "requestBodyRequired": true,
-    "requiredKeyKind": "mailbox",
+    "requiredKeyKind": "sending",
     "surface": "sending"
   },
   sendingSendEmailBatch: {
@@ -4192,7 +4192,7 @@ export const operations = {
     "queryParams": [],
     "responseKind": "json",
     "requestBodyRequired": true,
-    "requiredKeyKind": "mailbox",
+    "requiredKeyKind": "sending",
     "surface": "sending"
   },
 } as const satisfies Record<string, OperationDefinition>;

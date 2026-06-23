@@ -22,7 +22,8 @@ This package is the Sendmux product MCP. Keep it separate from any documentation
 ## Requirements
 
 - Python 3.10 or newer.
-- A mailbox-scoped `smx_mbx_*` key for Mailbox and Sending tools.
+- A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token for Sending tools.
+- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox tools.
 - A root `smx_root_*` key for Management tools.
 
 ## Installation
@@ -94,7 +95,7 @@ The packaged `sendmux-mcp-hosted` command runs the hosted server runtime. Local 
 | API key fallback | `SENDMUX_API_KEY` | accepted for compatible single-key setups |
 | Mailbox API key | `SENDMUX_MAILBOX_API_KEY` | required when mailbox is selected unless a compatible fallback is provided |
 | Management API key | `SENDMUX_MANAGEMENT_API_KEY` | required when management is selected unless a compatible fallback is provided |
-| Sending API key | `SENDMUX_SENDING_API_KEY` | required when sending is selected unless a compatible mailbox key is provided |
+| Sending API key | `SENDMUX_SENDING_API_KEY` | required when sending is selected unless the fallback key is a send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token |
 | App API base URL | `SENDMUX_APP_BASE_URL` | `https://app.sendmux.ai/api/v1` |
 | Sending API base URL | `SENDMUX_SENDING_BASE_URL` | `https://smtp.sendmux.ai/api/v1` |
 | Transport | `SENDMUX_MCP_TRANSPORT` | `stdio` |
@@ -114,9 +115,9 @@ Packaged OpenAPI snapshots are the default so released tool names, schemas, and 
 
 ## Tool Surfaces
 
-- Mailbox: `21` tools for granted mailboxes, profile/session discovery, messages, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key.
+- Mailbox: `21` tools for granted mailboxes, profile/session discovery, messages, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
 - Management: `20` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
-- Sending: `2` tools for single and batch sends. Requires an `smx_mbx_*` key.
+- Sending: `2` tools for single and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
 
 The server rejects keys with the wrong prefix before starting.
 

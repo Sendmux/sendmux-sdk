@@ -8,4 +8,5 @@ enum ApiKeySurface: string
 {
     case Root = 'root';
     case Mailbox = 'mailbox';
+    case Sending = 'sending';
 }

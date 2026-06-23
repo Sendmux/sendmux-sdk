@@ -1,4 +1,4 @@
-export type ApiKeyKind = "root" | "mailbox";
+export type ApiKeyKind = "root" | "mailbox" | "sending";
 
 export interface ResponseMeta {
   request_id: string;

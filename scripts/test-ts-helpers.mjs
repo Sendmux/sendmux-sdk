@@ -19,6 +19,8 @@ const { createSendingClient } = await import("../packages/ts/sending/dist/index.
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
 assert.equal(assertApiKeyKind("smx_mbx_test", "mailbox"), "mailbox");
 assert.equal(assertApiKeyKind("smx_agent_test", "mailbox"), "mailbox");
+assert.doesNotThrow(() => assertApiKeyKind("smx_mbx_test", "sending"));
+assert.doesNotThrow(() => assertApiKeyKind("smx_agent_test", "sending"));
 assert.throws(() => assertApiKeyKind("smx_mbx_test", "root"), /Expected a root API key/);
 assert.throws(() => assertApiKeyKind("smx_agent_test", "root"), /Expected a root API key/);
 assert.deepEqual(idempotencyHeaders("idem_123"), { "Idempotency-Key": "idem_123" });

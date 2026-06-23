@@ -24,7 +24,7 @@ final class ClientFactory
         }
 
         /** @var Configuration $configured */
-        $configured = Auth::configureBearer($configuration, $apiKey, ApiKeySurface::Mailbox);
+        $configured = Auth::configureBearer($configuration, $apiKey, ApiKeySurface::Sending);
         return $configured;
     }
 

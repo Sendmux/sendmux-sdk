@@ -8,7 +8,7 @@ from sendmux_core import validate_api_key
 
 Surface = Literal["mailbox", "management", "sending"]
 Transport = Literal["stdio", "http", "streamable-http"]
-KeySurface = Literal["root", "mailbox"]
+KeySurface = Literal["root", "mailbox", "sending"]
 
 SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 
@@ -54,7 +54,11 @@ class ServerConfig:
 
     @staticmethod
     def required_key_surface_for(surface: Surface) -> KeySurface:
-        return "root" if surface == "management" else "mailbox"
+        if surface == "management":
+            return "root"
+        if surface == "sending":
+            return "sending"
+        return "mailbox"
 
     @property
     def api_base_url(self) -> str:

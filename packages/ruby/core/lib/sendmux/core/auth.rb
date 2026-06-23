@@ -26,9 +26,18 @@ module Sendmux
           raise ArgumentError,
                 "Sendmux API keys must start with #{ROOT_PREFIX}, #{MAILBOX_PREFIX}, or #{AGENT_PREFIX}"
         end
-        return actual if actual == expected_surface
+        return actual if compatible_surface?(api_key, actual, expected_surface)
 
         raise ArgumentError, "Expected a #{expected_surface} API key, received a #{actual} API key"
+      end
+
+      def self.compatible_surface?(api_key, actual, expected_surface)
+        return true if actual == expected_surface
+        return true if expected_surface == ApiKeySurface::SENDING &&
+                       (api_key.start_with?(MAILBOX_PREFIX) || api_key.start_with?(AGENT_PREFIX))
+        return true if expected_surface == ApiKeySurface::MAILBOX && actual == ApiKeySurface::MAILBOX
+
+        false
       end
 
       def self.surface_for(api_key)

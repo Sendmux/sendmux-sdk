@@ -50,7 +50,7 @@
           "placeholder": "smx_root_..."
         },
         {
-          "description": "Optional Sending API key when it differs from the Mailbox API key.",
+          "description": "Optional send-capable smx_mbx_ key or owner-approved smx_agent_ token for Sending API tools when it differs from the Mailbox API key.",
           "format": "string",
           "isRequired": false,
           "isSecret": true,

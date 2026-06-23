@@ -1,6 +1,6 @@
 // Package sending contains the Sendmux Sending API client.
 //
-// Create a client with New and a mailbox-scoped API key using the smx_mbx_
+// Create a client with New and a send-capable smx_mbx_ key or owner-approved smx_agent_ token
 // prefix. The client exposes generated methods for the Sending API, typed
 // request and response models, idempotency header helpers, retry configuration,
 // and API error mapping through APIErrorFromResponse.

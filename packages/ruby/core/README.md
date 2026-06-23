@@ -44,7 +44,7 @@ surface = Sendmux::Core::Auth.assert_api_key_surface(
 puts surface
 ```
 
-Use `Sendmux::Core::ApiKeySurface::ROOT` for root-key management clients and `Sendmux::Core::ApiKeySurface::MAILBOX` for mailbox-compatible sending and mailbox clients. Mailbox-compatible credentials can start with `smx_mbx_` or `smx_agent_`.
+Use `Sendmux::Core::ApiKeySurface::ROOT` for root-key management clients, `Sendmux::Core::ApiKeySurface::SENDING` for send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens, and `Sendmux::Core::ApiKeySurface::MAILBOX` for mailbox-compatible credentials. Mailbox-compatible credentials can start with `smx_mbx_` or `smx_agent_`.
 
 ### Header helpers
 

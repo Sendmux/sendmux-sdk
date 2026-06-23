@@ -18,7 +18,8 @@ Optional umbrella package for the Sendmux Python SDK.
 ## Requirements
 
 - Python 3.10 or newer.
-- A mailbox-scoped `smx_mbx_*` key for Sending and Mailbox clients.
+- A send-capable `smx_mbx_*` key for Sending clients.
+- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox clients.
 - A root `smx_root_*` key for Management clients.
 
 ## Installation

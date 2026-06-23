@@ -373,8 +373,8 @@ try {
     throw new Error("sending:send accepted a root API key");
   }
 
-  if (!sendingRejectResult.stderr.includes("requires a mailbox API key")) {
-    throw new Error(`Expected mailbox-key preflight error, got:\n${sendingRejectResult.stderr}`);
+  if (!sendingRejectResult.stderr.includes("requires a sending API key")) {
+    throw new Error(`Expected sending-key preflight error, got:\n${sendingRejectResult.stderr}`);
   }
 
   if (serverState.requests.length !== requestCountBeforeSendingPreflight) {
@@ -400,6 +400,7 @@ try {
     throw new Error("Idempotency-Key header was not passed through for sending:send");
   }
 
+  const requestCountBeforeAgentSendingPreflight = serverState.requests.length;
   const agentSendingResult = await runCli([
     "sending:send",
     "--api-key",
@@ -410,13 +411,18 @@ try {
     "{}",
     "--idempotency-key",
     "idem_cli_agent_send",
-    "--json",
   ]);
 
-  assertCliSuccess(agentSendingResult, "sending:send with agent token preflight");
+  if (agentSendingResult.status === 0) {
+    throw new Error("sending:send accepted an agent token");
+  }
 
-  if (latestRequest().headers.authorization !== `Bearer ${agentKey}`) {
-    throw new Error("Agent token was not passed through for sending command");
+  if (!agentSendingResult.stderr.includes("requires a sending API key")) {
+    throw new Error(`Expected sending-key preflight error for agent token, got:\nstdout:\n${agentSendingResult.stdout}\nstderr:\n${agentSendingResult.stderr}`);
+  }
+
+  if (serverState.requests.length !== requestCountBeforeAgentSendingPreflight) {
+    throw new Error("Sending command preflight made a network request before rejecting an agent token");
   }
 
   const rootResult = await runCli([

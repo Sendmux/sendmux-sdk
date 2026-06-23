@@ -16,7 +16,7 @@ Ruby SDK package for the Sendmux Mailbox API.
 ## Requirements
 
 - Ruby 3.1 or newer.
-- A mailbox-scoped Sendmux API key beginning with `smx_mbx_`.
+- A mailbox-scoped `smx_mbx_` key or scoped `smx_agent_` token.
 
 ## Installation
 
@@ -32,7 +32,7 @@ gem "sendmux-mailbox", "~> 1.0"
 
 ## Usage
 
-Create a mailbox client with a mailbox key before calling generated operations.
+Create a mailbox client with a mailbox key or scoped agent token before calling generated operations.
 
 ```ruby
 require "sendmux/mailbox"

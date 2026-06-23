@@ -18,7 +18,7 @@ import "sendmux.ai/go/sending"
 
 ## Authentication
 
-Use a mailbox-scoped API key with the `smx_mbx_` prefix. `sending.New` validates the prefix before creating the client.
+Use a send-capable API key with the `smx_mbx_` prefix. `sending.New` validates the prefix before creating the client.
 
 ## Quickstart
 

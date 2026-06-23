@@ -16,7 +16,7 @@ Ruby SDK package for the Sendmux Sending API.
 ## Requirements
 
 - Ruby 3.1 or newer.
-- A mailbox-scoped Sendmux API key beginning with `smx_mbx_`.
+- A send-capable Sendmux API key beginning with `smx_mbx_`.
 
 ## Installation
 
@@ -32,7 +32,7 @@ gem "sendmux-sending", "~> 1.0"
 
 ## Usage
 
-Create a sending client with a mailbox key before calling generated operations.
+Create a sending client with a send-capable key before calling generated operations.
 
 ```ruby
 require "sendmux/sending"

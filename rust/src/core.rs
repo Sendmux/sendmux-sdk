@@ -14,8 +14,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum ApiKeySurface {
     /// Root/team API keys with the `smx_root_` prefix.
     Root,
-    /// Mailbox-scoped API keys with the `smx_mbx_` prefix.
+    /// Mailbox-scoped API keys or agent tokens with `smx_mbx_` or `smx_agent_` prefixes.
     Mailbox,
+    /// Send-capable API keys with the `smx_mbx_` prefix.
+    Sending,
 }
 
 impl fmt::Display for ApiKeySurface {
@@ -23,6 +25,7 @@ impl fmt::Display for ApiKeySurface {
         match self {
             ApiKeySurface::Root => f.write_str("root"),
             ApiKeySurface::Mailbox => f.write_str("mailbox"),
+            ApiKeySurface::Sending => f.write_str("sending"),
         }
     }
 }
@@ -38,8 +41,17 @@ pub fn validate_api_key(api_key: &str, surface: ApiKeySurface) -> Result<()> {
             })
         }
         ApiKeySurface::Mailbox if !api_key.starts_with("smx_mbx_") => {
+            if api_key.starts_with("smx_agent_") {
+                return Ok(());
+            }
+
             Err(Error::InvalidApiKeySurface {
                 expected: ApiKeySurface::Mailbox,
+            })
+        }
+        ApiKeySurface::Sending if !api_key.starts_with("smx_mbx_") => {
+            Err(Error::InvalidApiKeySurface {
+                expected: ApiKeySurface::Sending,
             })
         }
         _ => Ok(()),
@@ -493,11 +505,19 @@ mod tests {
     #[test]
     fn validates_expected_api_key_prefixes() {
         assert!(validate_api_key("smx_mbx_test", ApiKeySurface::Mailbox).is_ok());
+        assert!(validate_api_key("smx_agent_test", ApiKeySurface::Mailbox).is_ok());
+        assert!(validate_api_key("smx_mbx_test", ApiKeySurface::Sending).is_ok());
         assert!(validate_api_key("smx_root_test", ApiKeySurface::Root).is_ok());
         assert!(matches!(
             validate_api_key("smx_mbx_test", ApiKeySurface::Root),
             Err(Error::InvalidApiKeySurface {
                 expected: ApiKeySurface::Root
+            })
+        ));
+        assert!(matches!(
+            validate_api_key("smx_agent_test", ApiKeySurface::Sending),
+            Err(Error::InvalidApiKeySurface {
+                expected: ApiKeySurface::Sending
             })
         ));
         assert!(matches!(

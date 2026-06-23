@@ -230,7 +230,7 @@ function normalizePythonFiles(directory) {
 function writeSurfaceClient(surface) {
   const packageDir = join(root, "packages", "python", surface.name, surface.packageName);
   const className = toPascal(surface.name);
-  const keySurface = surface.name === "management" ? "root" : "mailbox";
+  const keySurface = surface.name === "management" ? "root" : surface.name === "sending" ? "sending" : "mailbox";
   const defaultBaseUrl =
     surface.name === "sending" ? "https://smtp.sendmux.ai/api/v1" : "https://app.sendmux.ai/api/v1";
 

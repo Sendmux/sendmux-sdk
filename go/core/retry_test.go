@@ -82,11 +82,17 @@ func TestValidateAPIKey(t *testing.T) {
 	if err := ValidateAPIKey("smx_agent_example", KeySurfaceMailbox); err != nil {
 		t.Fatalf("agent key rejected for mailbox surface: %v", err)
 	}
+	if err := ValidateAPIKey("smx_mbx_example", KeySurfaceSending); err != nil {
+		t.Fatalf("mailbox key rejected for sending surface: %v", err)
+	}
 	if err := ValidateAPIKey("smx_mbx_example", KeySurfaceRoot); err == nil {
 		t.Fatal("mailbox key accepted for root surface")
 	}
 	if err := ValidateAPIKey("smx_agent_example", KeySurfaceRoot); err == nil {
 		t.Fatal("agent key accepted for root surface")
+	}
+	if err := ValidateAPIKey("smx_agent_example", KeySurfaceSending); err == nil {
+		t.Fatal("agent key accepted for sending surface")
 	}
 }
 

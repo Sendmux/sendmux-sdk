@@ -14,7 +14,7 @@ Generated TypeScript client for the Sendmux Sending API.
 
 ## Requirements
 
-- A mailbox-scoped Sendmux API key with the `smx_mbx_*` prefix.
+- A send-capable Sendmux API key with the `smx_mbx_*` prefix.
 - A JavaScript runtime with the standard Fetch API.
 
 ## Installation

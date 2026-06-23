@@ -16,7 +16,7 @@ const surfaces = [
     namespace: "Sendmux\\Sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
     tags: ["Emails", "Meta"],
-    keySurface: "Mailbox",
+    keySurface: "Sending",
   },
   {
     name: "mailbox",

@@ -11,8 +11,10 @@ type KeySurface string
 const (
 	// KeySurfaceRoot accepts root/team API keys.
 	KeySurfaceRoot KeySurface = "root"
-	// KeySurfaceMailbox accepts mailbox-scoped API keys.
+	// KeySurfaceMailbox accepts mailbox-scoped API keys or scoped agent tokens.
 	KeySurfaceMailbox KeySurface = "mailbox"
+	// KeySurfaceSending accepts send-capable mailbox API keys.
+	KeySurfaceSending KeySurface = "sending"
 )
 
 // ValidateAPIKey validates the key prefix for a Sendmux surface.
@@ -26,7 +28,9 @@ func ValidateAPIKey(apiKey string, surface KeySurface) error {
 		return errors.New("sendmux: root API key must start with smx_root_")
 	case surface == KeySurfaceMailbox && !isMailboxCompatibleAPIKey(apiKey):
 		return errors.New("sendmux: mailbox API key must start with smx_mbx_ or smx_agent_")
-	case surface != KeySurfaceRoot && surface != KeySurfaceMailbox:
+	case surface == KeySurfaceSending && !strings.HasPrefix(apiKey, "smx_mbx_"):
+		return errors.New("sendmux: sending API key must start with smx_mbx_")
+	case surface != KeySurfaceRoot && surface != KeySurfaceMailbox && surface != KeySurfaceSending:
 		return errors.New("sendmux: unknown API key surface")
 	default:
 		return nil

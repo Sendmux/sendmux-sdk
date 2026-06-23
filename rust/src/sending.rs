@@ -14,7 +14,7 @@ pub struct SendingClient {
 impl SendingClient {
     pub fn new(api_key: impl Into<String>) -> Result<Self> {
         Ok(Self {
-            transport: Transport::new(api_key, ApiKeySurface::Mailbox, DEFAULT_BASE_URL)?,
+            transport: Transport::new(api_key, ApiKeySurface::Sending, DEFAULT_BASE_URL)?,
         })
     }
 

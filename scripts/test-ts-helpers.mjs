@@ -19,6 +19,8 @@ const { createSendingClient } = await import("../packages/ts/sending/dist/index.
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
 assert.equal(assertApiKeyKind("smx_mbx_test", "mailbox"), "mailbox");
 assert.equal(assertApiKeyKind("smx_agent_test", "mailbox"), "mailbox");
+assert.doesNotThrow(() => assertApiKeyKind("smx_mbx_test", "sending"));
+assert.throws(() => assertApiKeyKind("smx_agent_test", "sending"), /Expected a sending API key/);
 assert.throws(() => assertApiKeyKind("smx_mbx_test", "root"), /Expected a root API key/);
 assert.throws(() => assertApiKeyKind("smx_agent_test", "root"), /Expected a root API key/);
 assert.deepEqual(idempotencyHeaders("idem_123"), { "Idempotency-Key": "idem_123" });
@@ -254,14 +256,20 @@ await sendingB.get({
   security: [{ scheme: "bearer", type: "http" }],
   url: "/auth-check",
 });
-await sendingAgent.get({
-  security: [{ scheme: "bearer", type: "http" }],
-  url: "/auth-check",
-});
+await assert.rejects(
+  () => sendingAgent.get({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/auth-check",
+  }),
+  (error) => {
+    assert.ok(error instanceof SendmuxApiError);
+    assert.match(error.cause?.message ?? "", /Expected a sending API key/);
+    return true;
+  },
+);
 assert.deepEqual(seenConfiguredRequests, [
   { authorization: "Bearer smx_mbx_test_a", url: "https://sdk-a.test/auth-check" },
   { authorization: "Bearer smx_mbx_test_b", url: "https://sdk-b.test/auth-check" },
-  { authorization: "Bearer smx_agent_test_c", url: "https://sdk-c.test/auth-check" },
 ]);
 
 const seenMailboxRequests = [];

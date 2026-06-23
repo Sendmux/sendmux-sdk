@@ -51,7 +51,7 @@ func WithRetryOptions(options core.RetryOptions) SendmuxOption {
 
 // New returns a Sendmux Sending API client.
 func New(apiKey string, opts ...SendmuxOption) (*Client, error) {
-	if err := core.ValidateAPIKey(apiKey, core.KeySurfaceMailbox); err != nil {
+	if err := core.ValidateAPIKey(apiKey, core.KeySurfaceSending); err != nil {
 		return nil, err
 	}
 

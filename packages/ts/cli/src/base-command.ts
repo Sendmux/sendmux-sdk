@@ -1,8 +1,11 @@
 import { Command, Flags } from "@oclif/core";
 
 import {
+  apiKeyKindLabel,
   inferApiKeyKind,
+  isApiKeyCompatibleWithKind,
   type ApiKeyKind,
+  type RequiredApiKeyKind,
 } from "./key-kind.js";
 import { readCliConfig } from "./profiles.js";
 
@@ -38,7 +41,7 @@ export const authFlags = {
 export abstract class SendmuxCommand extends Command {
   static enableJsonFlag = true;
 
-  async resolveAuth(flags: AuthFlags, expectedKind: ApiKeyKind): Promise<ResolvedAuth> {
+  async resolveAuth(flags: AuthFlags, expectedKind: RequiredApiKeyKind): Promise<ResolvedAuth> {
     const envApiKey = process.env.SENDMUX_API_KEY;
     const envBaseUrl = process.env.SENDMUX_BASE_URL;
 
@@ -133,9 +136,9 @@ export abstract class SendmuxCommand extends Command {
       this.error(error instanceof Error ? error.message : "Invalid Sendmux API key", { exit: 2 });
     }
 
-    if (apiKeyKind !== expectedKind) {
-      const expectedLabel = expectedKind === "root" ? "root" : "mailbox";
-      const actualLabel = apiKeyKind === "root" ? "root" : "mailbox";
+    if (!isApiKeyCompatibleWithKind(apiKey, expectedKind)) {
+      const expectedLabel = apiKeyKindLabel(expectedKind);
+      const actualLabel = apiKeyKindLabel(apiKeyKind);
       this.error(`Command requires a ${expectedLabel} API key, but ${source} contains a ${actualLabel} API key.`, {
         exit: 2,
       });
@@ -163,6 +166,6 @@ function binaryBuffer(value: ArrayBuffer | ArrayBufferView | string): Buffer {
 interface KeyKindInput {
   apiKey: string;
   baseUrl?: string;
-  expectedKind: ApiKeyKind;
+  expectedKind: RequiredApiKeyKind;
   source: string;
 }

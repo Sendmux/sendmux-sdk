@@ -19,7 +19,7 @@ module Sendmux
         @configuration = Sendmux::Core::Auth.configure_bearer(
           Generated::Configuration.new,
           api_key,
-          Sendmux::Core::ApiKeySurface::MAILBOX,
+          Sendmux::Core::ApiKeySurface::SENDING,
           base_url: base_url
         )
         Sendmux::Core::Retry.configure(@configuration, retry_options)

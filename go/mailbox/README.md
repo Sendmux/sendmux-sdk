@@ -18,7 +18,7 @@ import "sendmux.ai/go/mailbox"
 
 ## Authentication
 
-Use a mailbox-scoped API key with the `smx_mbx_` prefix. `mailbox.New` validates the prefix before creating the client.
+Use a mailbox-scoped `smx_mbx_` key or a scoped `smx_agent_` token. `mailbox.New` validates the prefix before creating the client.
 
 ## Quickstart
 

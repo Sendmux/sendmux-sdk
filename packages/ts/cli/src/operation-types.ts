@@ -1,4 +1,4 @@
-import type { ApiKeyKind } from "./key-kind.js";
+import type { RequiredApiKeyKind } from "./key-kind.js";
 
 export interface OperationParameter {
   name: string;
@@ -37,6 +37,6 @@ export interface OperationDefinition {
   queryParams: readonly OperationParameter[];
   responseKind: "binary" | "json" | "text";
   requestBodyRequired: boolean;
-  requiredKeyKind: ApiKeyKind;
+  requiredKeyKind: RequiredApiKeyKind;
   surface: "mailbox" | "management" | "sending";
 }

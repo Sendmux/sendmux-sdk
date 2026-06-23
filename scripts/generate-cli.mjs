@@ -285,7 +285,13 @@ function surfaceForOperationId(operationId) {
 }
 
 function requiredKeyKindForSurface(surface) {
-  return surface === "management" ? "root" : "mailbox";
+  if (surface === "management") {
+    return "root";
+  }
+  if (surface === "sending") {
+    return "sending";
+  }
+  return "mailbox";
 }
 
 function defaultCommand(surface, operationId) {

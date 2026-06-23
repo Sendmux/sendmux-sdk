@@ -12,7 +12,7 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 
 - PHP 8.2 or newer.
 - Composer.
-- A mailbox-scoped API key with the `smx_mbx_` prefix.
+- A send-capable API key with the `smx_mbx_` prefix.
 
 ## Installation
 
@@ -22,7 +22,7 @@ composer require sendmux/sending:^1.0
 
 ## Usage
 
-Create the API group client with a mailbox-scoped key.
+Create the API group client with a send-capable key.
 
 ```php
 <?php

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-ApiKeySurface = Literal["root", "mailbox"]
+ApiKeySurface = Literal["root", "mailbox", "sending"]
 
 
 def validate_api_key(api_key: str, *, surface: ApiKeySurface) -> None:
@@ -14,6 +14,11 @@ def validate_api_key(api_key: str, *, surface: ApiKeySurface) -> None:
     if surface == "mailbox":
         if not (api_key.startswith("smx_mbx_") or api_key.startswith("smx_agent_")):
             raise ValueError("Expected a smx_mbx_ or smx_agent_ API key for the mailbox surface")
+        return
+
+    if surface == "sending":
+        if not api_key.startswith("smx_mbx_"):
+            raise ValueError("Expected a smx_mbx_ API key for the sending surface")
         return
 
     raise ValueError(f"Unknown Sendmux API key surface: {surface}")

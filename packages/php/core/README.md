@@ -47,7 +47,7 @@ $retryOptions = new RetryOptions(maxAttempts: 3);
 
 ## Features
 
-- `Auth` validates `smx_root_` prefixes for root clients and mailbox-compatible `smx_mbx_` or `smx_agent_` prefixes for mailbox clients.
+- `Auth` validates `smx_root_` prefixes for root clients, send-capable `smx_mbx_` prefixes for Sending clients, and mailbox-compatible `smx_mbx_` or `smx_agent_` prefixes for Mailbox clients.
 - `Headers` builds `Idempotency-Key`, `If-Match`, and `If-None-Match` header arrays.
 - `Pagination::iterate()` streams cursor-paginated responses.
 - `RetryMiddleware` and `RetryOptions` add retry and rate-limit backoff behaviour.

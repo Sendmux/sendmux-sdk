@@ -104,7 +104,7 @@ function loadOperations(dir) {
         const surface = surfaceForOperationId(operation.operationId);
         out.push({
           bodyKind: bodyKindForOperation(operation),
-          commandKeyKind: surface === "management" ? "root" : "mailbox",
+          commandKeyKind: surface === "management" ? "root" : surface === "sending" ? "sending" : "mailbox",
           description: oneLine(operation.summary ?? operation.description ?? operation.operationId),
           headerParams: parameters.filter((parameter) => parameter.in === "header").map(toPublicParameter),
           method,

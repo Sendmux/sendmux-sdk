@@ -5,6 +5,7 @@ module Sendmux
     module ApiKeySurface
       ROOT = 'root'
       MAILBOX = 'mailbox'
+      SENDING = 'sending'
     end
   end
 end

@@ -15,7 +15,7 @@ Generated Python client for the Sendmux Sending API.
 ## Requirements
 
 - Python 3.10 or newer.
-- A mailbox-scoped Sendmux API key with the `smx_mbx_*` prefix.
+- A send-capable Sendmux API key with the `smx_mbx_*` prefix.
 
 ## Installation
 

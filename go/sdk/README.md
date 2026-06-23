@@ -25,7 +25,7 @@ import (
 | Surface | Import path | API key |
 | --- | --- | --- |
 | Sending | `sendmux.ai/go/sending` | `smx_mbx_*` |
-| Mailbox | `sendmux.ai/go/mailbox` | `smx_mbx_*` |
+| Mailbox | `sendmux.ai/go/mailbox` | `smx_mbx_*` or `smx_agent_*` |
 | Management | `sendmux.ai/go/management` | `smx_root_*` |
 | Core helpers | `sendmux.ai/go/core` | n/a |
 

@@ -13,7 +13,7 @@ const surfaces = [
     generatedGemName: "sendmux_sending_generated",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
     tags: ["Emails", "Meta"],
-    keySurface: "MAILBOX",
+    keySurface: "SENDING",
     defaultBaseUrl: "https://smtp.sendmux.ai/api/v1",
     modelNameMappings: [],
   },

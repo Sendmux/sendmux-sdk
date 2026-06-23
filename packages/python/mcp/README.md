@@ -7,7 +7,7 @@
 
 Email inbox API, inbound mail, and outbound sending MCP servers for AI agents, with inbound email, clean JSON parsing, webhooks, and multi-provider routing through Sendmux.
 
-This package is the Sendmux product MCP. Keep it separate from any documentation-search MCP used by docs tooling.
+This package is the Sendmux MCP. Keep it separate from any documentation-search MCP used by docs tooling.
 
 <!-- mcp-name: io.github.Sendmux/sendmux-mcp -->
 

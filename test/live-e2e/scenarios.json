@@ -1291,6 +1291,36 @@
       "mode": "destructive_cleanup_only",
       "risk": "destructive"
     },
+    "managementCheckMailboxAvailability": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_check_mailbox_availability",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [
+          "email"
+        ],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read_fixture",
+      "risk": "read"
+    },
     "managementCreateDomain": {
       "adapters": {
         "cli": true,

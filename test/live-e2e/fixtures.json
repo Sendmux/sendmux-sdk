@@ -103,6 +103,17 @@
       "selectors": ["data.0.id"],
       "surface": "management"
     },
+    "managementMailboxEmail": {
+      "env": "SENDMUX_LIVE_E2E_MANAGEMENT_MAILBOX_EMAIL",
+      "operationId": "managementListMailboxes",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": ["data.0.email"],
+      "surface": "management"
+    },
     "managementProviderId": {
       "env": "SENDMUX_LIVE_E2E_PROVIDER_ID",
       "operationId": "managementListProviders",
@@ -158,6 +169,16 @@
     }
   },
   "operations": {
+    "managementCheckMailboxAvailability": {
+      "inputs": {
+        "query": {
+          "email": {
+            "source": "managementMailboxEmail"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
     "mailboxGetFolder": {
       "inputs": {
         "path": {

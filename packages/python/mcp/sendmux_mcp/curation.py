@@ -187,6 +187,12 @@ MANAGEMENT_TOOLS: tuple[ToolSpec, ...] = (
         description="Use this to list team mailboxes. Pass a small limit and continue by cursor only when more mailboxes are needed.",
     ),
     ToolSpec(
+        operation_id="managementCheckMailboxAvailability",
+        name="management_check_mailbox_availability",
+        title="Check Mailbox Availability",
+        description="Use this before creating a mailbox to confirm whether an address can be reserved. It is read-only and requires the email address to check.",
+    ),
+    ToolSpec(
         operation_id="managementCreateMailbox",
         name="management_create_mailbox",
         title="Create Mailbox",
@@ -322,6 +328,7 @@ READ_ONLY_OPERATION_IDS = frozenset(
         "managementGetDomain",
         "managementGetDomainZoneFile",
         "managementListMailboxes",
+        "managementCheckMailboxAvailability",
         "managementGetMailbox",
         "managementListEmailLogs",
         "managementGetEmailLog",

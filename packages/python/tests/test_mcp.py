@@ -48,6 +48,7 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "mailbox_update_identity",
     },
     "management": {
+        "management_check_mailbox_availability",
         "management_create_domain",
         "management_create_mailbox",
         "management_create_mailbox_key",
@@ -99,6 +100,7 @@ READ_ONLY_TOOL_NAMES = {
     "management_get_email_metrics",
     "management_get_mailbox",
     "management_get_spend_summary",
+    "management_check_mailbox_availability",
     "management_list_domains",
     "management_list_email_logs",
     "management_list_mailboxes",
@@ -180,7 +182,7 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
             async with Client(server) as client:
                 tools.extend(await client.list_tools())
 
-        assert len(tools) == 43
+        assert len(tools) == 44
         assert {tool.name for tool in tools if tool.outputSchema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
 
         for tool in tools:

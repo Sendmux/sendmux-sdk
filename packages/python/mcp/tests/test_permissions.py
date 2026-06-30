@@ -31,6 +31,7 @@ def test_permission_lookup_returns_required_permissions_for_tool() -> None:
     )
     assert permissions_for_tool("mailbox_list_granted_mailboxes") == ("mailbox.read",)
     assert permissions_for_tool("management_create_domain") == ("domain.create",)
+    assert permissions_for_tool("management_check_mailbox_availability") == ("mailbox.admin.create",)
     assert permissions_for_tool("sending_send_email_batch") == ("email.send",)
 
 
@@ -77,6 +78,12 @@ def test_authorised_tools_respect_management_wildcards() -> None:
         "management_list_mailboxes",
         "management_get_mailbox",
     }
+
+
+def test_authorised_tools_include_mailbox_availability_for_create_permission() -> None:
+    granted = ("mailbox.admin.create",)
+
+    assert "management_check_mailbox_availability" in authorised_tool_names("management", granted)
 
 
 def test_authorised_tool_names_rejects_unknown_surface() -> None:

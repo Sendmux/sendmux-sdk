@@ -39,6 +39,7 @@ TOOL_PERMISSION_REQUIREMENTS: Mapping[str, PermissionRequirement] = MappingProxy
         "management_get_domain_zone_file": ("domain.read",),
         "management_verify_domain": ("domain.verify",),
         "management_list_mailboxes": ("mailbox.admin.read",),
+        "management_check_mailbox_availability": ("mailbox.admin.create",),
         "management_create_mailbox": ("mailbox.admin.create",),
         "management_get_mailbox": ("mailbox.admin.read",),
         "management_update_mailbox": ("mailbox.admin.manage",),

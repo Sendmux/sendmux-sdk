@@ -20,7 +20,7 @@ module = [
   "sendmux_mailbox.*",
   "sendmux_management.*",
   "fastmcp.*",
-  "sentry_sdk.*",
+  "posthog.*",
   "starlette.*",
 ]
 ignore_missing_imports = true

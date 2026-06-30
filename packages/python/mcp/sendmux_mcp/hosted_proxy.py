@@ -4,6 +4,7 @@ import base64
 import json
 import re
 from dataclasses import dataclass
+from time import monotonic
 from typing import Any, Mapping
 
 import httpx
@@ -11,6 +12,7 @@ from fastmcp.server.dependencies import get_access_token
 
 from sendmux_mcp.config import Surface
 from sendmux_mcp.curation import TOOLS_BY_SURFACE
+from sendmux_mcp.observability import get_posthog_observability
 from sendmux_mcp.permissions import permissions_for_tool
 from sendmux_mcp.specs import operation_routes
 
@@ -75,19 +77,63 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
         self._base_path = httpx.URL(config.upstream_base_url).path.rstrip("/")
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        started = monotonic()
         body = await request.aread()
         relative_path = self._relative_path(request.url)
         route = self.manifest.resolve(request.method, relative_path)
         if route is None:
+            capture_proxy_attempt(
+                method=request.method,
+                route=None,
+                success=False,
+                latency_ms=elapsed_ms(started),
+                status_code=403,
+                error_class="operation_not_allowed",
+                grant_id=None,
+                mailbox_id=None,
+            )
             return httpx.Response(403, json={"error": "operation_not_allowed"}, request=request)
 
         grant_id = current_grant_id()
         if grant_id is None:
+            capture_proxy_attempt(
+                method=request.method,
+                route=route,
+                success=False,
+                latency_ms=elapsed_ms(started),
+                status_code=401,
+                error_class="invalid_token",
+                grant_id=None,
+                mailbox_id=None,
+            )
             return httpx.Response(401, json={"error": "invalid_token"}, request=request)
 
         proxy_request = self._proxy_request(request, route, grant_id, relative_path, body)
-        proxy_response = await self.inner.handle_async_request(proxy_request)
+        mailbox_id = hosted_mailbox_id(request.url, route)
+        try:
+            proxy_response = await self.inner.handle_async_request(proxy_request)
+        except Exception as exc:
+            capture_proxy_attempt(
+                method=request.method,
+                route=route,
+                success=False,
+                latency_ms=elapsed_ms(started),
+                error_class=type(exc).__name__,
+                grant_id=grant_id,
+                mailbox_id=mailbox_id,
+            )
+            raise
         proxy_body = await proxy_response.aread()
+        capture_proxy_attempt(
+            method=request.method,
+            route=route,
+            success=200 <= proxy_response.status_code < 400,
+            latency_ms=elapsed_ms(started),
+            status_code=proxy_response.status_code,
+            error_class=None if proxy_response.status_code < 400 else f"http_{proxy_response.status_code}",
+            grant_id=grant_id,
+            mailbox_id=mailbox_id,
+        )
 
         return httpx.Response(
             status_code=proxy_response.status_code,
@@ -179,6 +225,37 @@ def current_grant_id() -> str | None:
     claims = token.claims or {}
     grant_id = claims.get("grant_id")
     return grant_id if isinstance(grant_id, str) and grant_id else None
+
+
+def capture_proxy_attempt(
+    *,
+    method: str,
+    route: HostedOperationRoute | None,
+    success: bool,
+    latency_ms: float,
+    status_code: int | None = None,
+    error_class: str | None = None,
+    grant_id: str | None = None,
+    mailbox_id: str | None = None,
+) -> None:
+    observability = get_posthog_observability()
+    if observability is None:
+        return
+    observability.capture_tool_call(
+        method=method,
+        tool_name=route.tool_name if route else None,
+        surface=route.surface if route else None,
+        success=success,
+        latency_ms=latency_ms,
+        status_code=status_code,
+        error_class=error_class,
+        grant_id=grant_id,
+        mailbox_id=mailbox_id,
+    )
+
+
+def elapsed_ms(started: float) -> float:
+    return (monotonic() - started) * 1000
 
 
 def hosted_mailbox_id(url: httpx.URL, route: HostedOperationRoute) -> str | None:

@@ -15,7 +15,7 @@ from starlette.responses import JSONResponse
 from sendmux_mcp.config import DEFAULT_APP_BASE_URL, ServerConfig, Surface, config_from_env, parse_csv
 from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider
 from sendmux_mcp.hosted_proxy import HostedProxyConfig
-from sendmux_mcp.observability import init_sentry_from_env
+from sendmux_mcp.observability import init_posthog_from_env, posthog_exception_middleware
 from sendmux_mcp.permissions import tool_permission_auth_check
 from sendmux_mcp.security import OriginGuardMiddleware
 from sendmux_mcp.server import create_server
@@ -121,18 +121,22 @@ def create_hosted_server(runtime: HostedServerRuntimeConfig | None = None) -> Fa
 
 
 def run_hosted() -> None:
-    init_sentry_from_env()
+    observability = init_posthog_from_env()
     runtime = hosted_runtime_config_from_env()
     server = create_hosted_server(runtime)
-    server.run(
-        transport="http",
-        host=runtime.host,
-        port=runtime.port,
-        path=runtime.mcp_path,
-        middleware=hosted_http_middleware(runtime.allowed_origins),
-        stateless_http=runtime.stateless_http,
-        show_banner=False,
-    )
+    try:
+        server.run(
+            transport="http",
+            host=runtime.host,
+            port=runtime.port,
+            path=runtime.mcp_path,
+            middleware=hosted_http_middleware(runtime.allowed_origins),
+            stateless_http=runtime.stateless_http,
+            show_banner=False,
+        )
+    finally:
+        if observability is not None:
+            observability.shutdown()
 
 
 def hosted_http_middleware(allowed_origins: Sequence[str] | None = None) -> list[Middleware]:
@@ -140,6 +144,7 @@ def hosted_http_middleware(allowed_origins: Sequence[str] | None = None) -> list
         allowed_origins or default_hosted_allowed_origins(DEFAULT_MCP_APP_ORIGIN)
     )
     return [
+        posthog_exception_middleware(),
         Middleware(OriginGuardMiddleware, allowed_origins=origins),
         Middleware(
             CORSMiddleware,

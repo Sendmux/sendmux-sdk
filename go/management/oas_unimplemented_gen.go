@@ -33,6 +33,17 @@ func (UnimplementedHandler) ManagementCancelSharedAmazonSesLimitRequest(ctx cont
 	return r, ht.ErrNotImplemented
 }
 
+// ManagementCheckMailboxAvailability implements managementCheckMailboxAvailability operation.
+//
+// Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability
+// is global across all teams; custom-domain availability is scoped to the caller's team and requires
+// a verified send/receive mailbox domain.
+//
+// GET /mailboxes/availability
+func (UnimplementedHandler) ManagementCheckMailboxAvailability(ctx context.Context, params ManagementCheckMailboxAvailabilityParams) (r ManagementCheckMailboxAvailabilityRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ManagementCreateDomain implements managementCreateDomain operation.
 //
 // Creates a new domain and returns the DNS records the customer must place before verification can

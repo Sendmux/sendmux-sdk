@@ -19,6 +19,70 @@ module Sendmux::Management::Generated
     def initialize(api_client = ApiClient.default)
       @api_client = api_client
     end
+    # Check mailbox address availability
+    # Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability is global across all teams; custom-domain availability is scoped to the caller's team and requires a verified send/receive mailbox domain.
+    # @param email [String]
+    # @param [Hash] opts the optional parameters
+    # @return [MailboxAvailabilityResponse]
+    def management_check_mailbox_availability(email, opts = {})
+      data, _status_code, _headers = management_check_mailbox_availability_with_http_info(email, opts)
+      data
+    end
+
+    # Check mailbox address availability
+    # Checks whether an email address can be reserved for mailbox creation. &#x60;@myagent.mx&#x60; availability is global across all teams; custom-domain availability is scoped to the caller&#39;s team and requires a verified send/receive mailbox domain.
+    # @param email [String]
+    # @param [Hash] opts the optional parameters
+    # @return [Array<(MailboxAvailabilityResponse, Integer, Hash)>] MailboxAvailabilityResponse data, response status code and response headers
+    def management_check_mailbox_availability_with_http_info(email, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxesApi.management_check_mailbox_availability ...'
+      end
+      # verify the required parameter 'email' is set
+      if @api_client.config.client_side_validation && email.nil?
+        fail ArgumentError, "Missing the required parameter 'email' when calling MailboxesApi.management_check_mailbox_availability"
+      end
+      # resource path
+      local_var_path = '/mailboxes/availability'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'email'] = email
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxAvailabilityResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxesApi.management_check_mailbox_availability",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxesApi#management_check_mailbox_availability\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Create a mailbox
     # Provisions a new mailbox plus an initial bearer token and matching IMAP/SMTP mailbox password. The domain portion of the email must already be verified via POST /domains. If supplied, `quota_bytes` must be one of the current storage tiers: 1073741824 (1 GB), 5368709120 (5 GB), or 53687091200 (50 GB). Creation provisions resources on our mail platform and, for `@myagent.mx` addresses, on Amazon SES — any failure rolls the partial state back automatically.  Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
     # @param [Hash] opts the optional parameters

@@ -8,6 +8,7 @@ type OperationName = string
 const (
 	ManagementActivateProviderOperation                   OperationName = "ManagementActivateProvider"
 	ManagementCancelSharedAmazonSesLimitRequestOperation  OperationName = "ManagementCancelSharedAmazonSesLimitRequest"
+	ManagementCheckMailboxAvailabilityOperation           OperationName = "ManagementCheckMailboxAvailability"
 	ManagementCreateDomainOperation                       OperationName = "ManagementCreateDomain"
 	ManagementCreateMailboxOperation                      OperationName = "ManagementCreateMailbox"
 	ManagementCreateMailboxKeyOperation                   OperationName = "ManagementCreateMailboxKey"

@@ -2901,6 +2901,206 @@ func (MailboxAppPasswordResultResponseOk) AllValues() []MailboxAppPasswordResult
 	}
 }
 
+// Ref: #/components/schemas/MailboxAvailabilityReason
+type MailboxAvailabilityReason string
+
+const (
+	MailboxAvailabilityReasonAvailable          MailboxAvailabilityReason = "available"
+	MailboxAvailabilityReasonInvalidEmail       MailboxAvailabilityReason = "invalid_email"
+	MailboxAvailabilityReasonDomainNotAvailable MailboxAvailabilityReason = "domain_not_available"
+	MailboxAvailabilityReasonTaken              MailboxAvailabilityReason = "taken"
+	MailboxAvailabilityReasonReserved           MailboxAvailabilityReason = "reserved"
+	MailboxAvailabilityReasonCleanupPending     MailboxAvailabilityReason = "cleanup_pending"
+)
+
+// AllValues returns all MailboxAvailabilityReason values.
+func (MailboxAvailabilityReason) AllValues() []MailboxAvailabilityReason {
+	return []MailboxAvailabilityReason{
+		MailboxAvailabilityReasonAvailable,
+		MailboxAvailabilityReasonInvalidEmail,
+		MailboxAvailabilityReasonDomainNotAvailable,
+		MailboxAvailabilityReasonTaken,
+		MailboxAvailabilityReasonReserved,
+		MailboxAvailabilityReasonCleanupPending,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxAvailabilityReason) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxAvailabilityReasonAvailable:
+		return []byte(s), nil
+	case MailboxAvailabilityReasonInvalidEmail:
+		return []byte(s), nil
+	case MailboxAvailabilityReasonDomainNotAvailable:
+		return []byte(s), nil
+	case MailboxAvailabilityReasonTaken:
+		return []byte(s), nil
+	case MailboxAvailabilityReasonReserved:
+		return []byte(s), nil
+	case MailboxAvailabilityReasonCleanupPending:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxAvailabilityReason) UnmarshalText(data []byte) error {
+	switch MailboxAvailabilityReason(data) {
+	case MailboxAvailabilityReasonAvailable:
+		*s = MailboxAvailabilityReasonAvailable
+		return nil
+	case MailboxAvailabilityReasonInvalidEmail:
+		*s = MailboxAvailabilityReasonInvalidEmail
+		return nil
+	case MailboxAvailabilityReasonDomainNotAvailable:
+		*s = MailboxAvailabilityReasonDomainNotAvailable
+		return nil
+	case MailboxAvailabilityReasonTaken:
+		*s = MailboxAvailabilityReasonTaken
+		return nil
+	case MailboxAvailabilityReasonReserved:
+		*s = MailboxAvailabilityReasonReserved
+		return nil
+	case MailboxAvailabilityReasonCleanupPending:
+		*s = MailboxAvailabilityReasonCleanupPending
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxAvailabilityResponse
+type MailboxAvailabilityResponse struct {
+	// Merged property.
+	Meta MailboxAvailabilityResponseMeta `json:"meta"`
+	Ok   MailboxAvailabilityResponseOk   `json:"ok"`
+	Data MailboxAvailabilityResult       `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxAvailabilityResponse) GetMeta() MailboxAvailabilityResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxAvailabilityResponse) GetOk() MailboxAvailabilityResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxAvailabilityResponse) GetData() MailboxAvailabilityResult {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxAvailabilityResponse) SetMeta(val MailboxAvailabilityResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxAvailabilityResponse) SetOk(val MailboxAvailabilityResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxAvailabilityResponse) SetData(val MailboxAvailabilityResult) {
+	s.Data = val
+}
+
+func (*MailboxAvailabilityResponse) managementCheckMailboxAvailabilityRes() {}
+
+// Merged schema.
+type MailboxAvailabilityResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxAvailabilityResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxAvailabilityResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxAvailabilityResponseMeta) GetAdditionalProps() MailboxAvailabilityResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxAvailabilityResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxAvailabilityResponseMeta) SetAdditionalProps(val MailboxAvailabilityResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxAvailabilityResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxAvailabilityResponseMetaAdditional) init() MailboxAvailabilityResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxAvailabilityResponseOk bool
+
+const (
+	MailboxAvailabilityResponseOkTrue MailboxAvailabilityResponseOk = true
+)
+
+// AllValues returns all MailboxAvailabilityResponseOk values.
+func (MailboxAvailabilityResponseOk) AllValues() []MailboxAvailabilityResponseOk {
+	return []MailboxAvailabilityResponseOk{
+		MailboxAvailabilityResponseOkTrue,
+	}
+}
+
+// Ref: #/components/schemas/MailboxAvailabilityResult
+type MailboxAvailabilityResult struct {
+	// Whether this address can be reserved for mailbox creation.
+	Available bool `json:"available"`
+	// Normalised mailbox email address checked.
+	Email  string                    `json:"email"`
+	Reason MailboxAvailabilityReason `json:"reason"`
+}
+
+// GetAvailable returns the value of Available.
+func (s *MailboxAvailabilityResult) GetAvailable() bool {
+	return s.Available
+}
+
+// GetEmail returns the value of Email.
+func (s *MailboxAvailabilityResult) GetEmail() string {
+	return s.Email
+}
+
+// GetReason returns the value of Reason.
+func (s *MailboxAvailabilityResult) GetReason() MailboxAvailabilityReason {
+	return s.Reason
+}
+
+// SetAvailable sets the value of Available.
+func (s *MailboxAvailabilityResult) SetAvailable(val bool) {
+	s.Available = val
+}
+
+// SetEmail sets the value of Email.
+func (s *MailboxAvailabilityResult) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetReason sets the value of Reason.
+func (s *MailboxAvailabilityResult) SetReason(val MailboxAvailabilityReason) {
+	s.Reason = val
+}
+
 // Ref: #/components/schemas/MailboxCreateResult
 type MailboxCreateResult struct {
 	Credential NilMailboxCredential `json:"credential"`
@@ -4249,6 +4449,14 @@ type ManagementCancelSharedAmazonSesLimitRequestNotFound ApiError
 func (*ManagementCancelSharedAmazonSesLimitRequestNotFound) managementCancelSharedAmazonSesLimitRequestRes() {
 }
 
+type ManagementCheckMailboxAvailabilityForbidden ApiError
+
+func (*ManagementCheckMailboxAvailabilityForbidden) managementCheckMailboxAvailabilityRes() {}
+
+type ManagementCheckMailboxAvailabilityUnauthorized ApiError
+
+func (*ManagementCheckMailboxAvailabilityUnauthorized) managementCheckMailboxAvailabilityRes() {}
+
 type ManagementCreateDomainBadRequest ApiError
 
 func (*ManagementCreateDomainBadRequest) managementCreateDomainRes() {}
@@ -5248,9 +5456,8 @@ type ManagementListMailboxesForbidden ApiError
 
 func (*ManagementListMailboxesForbidden) managementListMailboxesRes() {}
 
-// Set to `true` to include soft-deleted mailboxes (status `deleted`) in the response. Default
-// `false`. Soft-deleted mailboxes are retained for tenant-isolation references in delivery logs and
-// API keys.
+// Set to `true` to include deleted mailboxes in the response. Default `false`. Deleted mailboxes are
+// retained for audit and delivery history.
 type ManagementListMailboxesIncludeDeleted string
 
 const (

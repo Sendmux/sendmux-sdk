@@ -22,6 +22,14 @@ type Handler interface {
 	//
 	// DELETE /providers/shared-amazon-ses-limit-request/{request_id}
 	ManagementCancelSharedAmazonSesLimitRequest(ctx context.Context, params ManagementCancelSharedAmazonSesLimitRequestParams) (ManagementCancelSharedAmazonSesLimitRequestRes, error)
+	// ManagementCheckMailboxAvailability implements managementCheckMailboxAvailability operation.
+	//
+	// Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability
+	// is global across all teams; custom-domain availability is scoped to the caller's team and requires
+	// a verified send/receive mailbox domain.
+	//
+	// GET /mailboxes/availability
+	ManagementCheckMailboxAvailability(ctx context.Context, params ManagementCheckMailboxAvailabilityParams) (ManagementCheckMailboxAvailabilityRes, error)
 	// ManagementCreateDomain implements managementCreateDomain operation.
 	//
 	// Creates a new domain and returns the DNS records the customer must place before verification can

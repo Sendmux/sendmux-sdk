@@ -1249,6 +1249,62 @@
         ],
         "unevaluatedProperties": false
       },
+      "MailboxAvailabilityReason": {
+        "enum": [
+          "available",
+          "invalid_email",
+          "domain_not_available",
+          "taken",
+          "reserved",
+          "cleanup_pending"
+        ],
+        "type": "string"
+      },
+      "MailboxAvailabilityResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxAvailabilityResult"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "MailboxAvailabilityResult": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "description": "Whether this address can be reserved for mailbox creation.",
+            "type": "boolean"
+          },
+          "email": {
+            "description": "Normalised mailbox email address checked.",
+            "example": "agent@myagent.mx",
+            "type": "string"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/MailboxAvailabilityReason"
+          }
+        },
+        "required": [
+          "email",
+          "available",
+          "reason"
+        ],
+        "type": "object"
+      },
       "MailboxBatchDeleteMessagesResult": {
         "additionalProperties": false,
         "properties": {
@@ -8490,7 +8546,7 @@
             "name": "from_date",
             "required": false,
             "schema": {
-              "description": "ISO 8601 start date",
+              "description": "ISO 8601 start date. Date-only values start at 00:00 UTC.",
               "type": "string"
             }
           },
@@ -8499,7 +8555,7 @@
             "name": "to_date",
             "required": false,
             "schema": {
-              "description": "ISO 8601 end date",
+              "description": "ISO 8601 end date. Date-only values include the full UTC day.",
               "type": "string"
             }
           },
@@ -8816,7 +8872,7 @@
             "name": "from_date",
             "required": false,
             "schema": {
-              "description": "ISO 8601 start date",
+              "description": "ISO 8601 start date. Date-only values start at 00:00 UTC.",
               "type": "string"
             }
           },
@@ -8825,7 +8881,7 @@
             "name": "to_date",
             "required": false,
             "schema": {
-              "description": "ISO 8601 end date",
+              "description": "ISO 8601 end date. Date-only values include the full UTC day.",
               "type": "string"
             }
           },
@@ -13280,7 +13336,7 @@
             "name": "include_deleted",
             "required": false,
             "schema": {
-              "description": "Set to `true` to include soft-deleted mailboxes (status `deleted`) in the response. Default `false`. Soft-deleted mailboxes are retained for tenant-isolation references in delivery logs and API keys.",
+              "description": "Set to `true` to include deleted mailboxes in the response. Default `false`. Deleted mailboxes are retained for audit and delivery history.",
               "enum": [
                 "true"
               ],
@@ -14272,6 +14328,65 @@
           }
         ],
         "summary": "Suspend a mailbox",
+        "tags": [
+          "Mailboxes"
+        ]
+      }
+    },
+    "/mailboxes/availability": {
+      "get": {
+        "description": "Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability is global across all teams; custom-domain availability is scoped to the caller's team and requires a verified send/receive mailbox domain.",
+        "operationId": "managementCheckMailboxAvailability",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "email",
+            "required": true,
+            "schema": {
+              "description": "Email address to check.",
+              "example": "agent@myagent.mx",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxAvailabilityResponse"
+                }
+              }
+            },
+            "description": "Mailbox address availability"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Root API key with mailbox.admin.create is required"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Check mailbox address availability",
         "tags": [
           "Mailboxes"
         ]

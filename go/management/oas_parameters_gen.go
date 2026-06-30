@@ -218,6 +218,63 @@ func decodeManagementCancelSharedAmazonSesLimitRequestParams(args [1]string, arg
 	return params, nil
 }
 
+// ManagementCheckMailboxAvailabilityParams is parameters of managementCheckMailboxAvailability operation.
+type ManagementCheckMailboxAvailabilityParams struct {
+	Email string
+}
+
+func unpackManagementCheckMailboxAvailabilityParams(packed middleware.Parameters) (params ManagementCheckMailboxAvailabilityParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "email",
+			In:   "query",
+		}
+		params.Email = packed[key].(string)
+	}
+	return params
+}
+
+func decodeManagementCheckMailboxAvailabilityParams(args [0]string, argsEscaped bool, r *http.Request) (params ManagementCheckMailboxAvailabilityParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: email.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "email",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.Email = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "email",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ManagementCreateDomainParams is parameters of managementCreateDomain operation.
 type ManagementCreateDomainParams struct {
 	IdempotencyKey OptString

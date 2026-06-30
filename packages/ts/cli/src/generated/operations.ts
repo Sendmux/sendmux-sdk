@@ -2545,6 +2545,29 @@ export const operations = {
     "requiredKeyKind": "root",
     "surface": "management"
   },
+  managementCheckMailboxAvailability: {
+    "bodyKind": "none",
+    "command": "management:check-mailbox-availability",
+    "description": "Check mailbox address availability",
+    "headerParams": [],
+    "method": "get",
+    "operationId": "managementCheckMailboxAvailability",
+    "path": "/mailboxes/availability",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "email",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
   managementCreateDomain: {
     "bodyKind": "json",
     "command": "management:create-domain",

@@ -1040,6 +1040,25 @@ export type MailboxCreateResult = {
     warning: string | null;
 };
 
+export type MailboxAvailabilityResult = {
+    /**
+     * Whether this address can be reserved for mailbox creation.
+     */
+    available: boolean;
+    /**
+     * Normalised mailbox email address checked.
+     */
+    email: string;
+    reason: MailboxAvailabilityReason;
+};
+
+export type MailboxAvailabilityReason = 'available' | 'invalid_email' | 'domain_not_available' | 'taken' | 'reserved' | 'cleanup_pending';
+
+export type MailboxAvailabilityResponse = SuccessEnvelope & {
+    data: MailboxAvailabilityResult;
+    meta?: ResponseMeta;
+};
+
 export type MailboxAppPasswordResultResponse = SuccessEnvelope & {
     data: MailboxAppPasswordResult;
     meta?: ResponseMeta;
@@ -1787,11 +1806,11 @@ export type ManagementListEmailLogsData = {
          */
         status?: 'pending' | 'sent' | 'failed' | 'rejected';
         /**
-         * ISO 8601 start date
+         * ISO 8601 start date. Date-only values start at 00:00 UTC.
          */
         from_date?: string;
         /**
-         * ISO 8601 end date
+         * ISO 8601 end date. Date-only values include the full UTC day.
          */
         to_date?: string;
         /**
@@ -1940,11 +1959,11 @@ export type ManagementListInboxLogsData = {
         mailbox_id?: string;
         event_type?: 'message.received' | 'message.received.spam';
         /**
-         * ISO 8601 start date
+         * ISO 8601 start date. Date-only values start at 00:00 UTC.
          */
         from_date?: string;
         /**
-         * ISO 8601 end date
+         * ISO 8601 end date. Date-only values include the full UTC day.
          */
         to_date?: string;
         /**
@@ -2028,7 +2047,7 @@ export type ManagementListMailboxesData = {
          */
         limit?: number;
         /**
-         * Set to `true` to include soft-deleted mailboxes (status `deleted`) in the response. Default `false`. Soft-deleted mailboxes are retained for tenant-isolation references in delivery logs and API keys.
+         * Set to `true` to include deleted mailboxes in the response. Default `false`. Deleted mailboxes are retained for audit and delivery history.
          */
         include_deleted?: 'true';
     };
@@ -2522,6 +2541,40 @@ export type ManagementSuspendMailboxResponses = {
 };
 
 export type ManagementSuspendMailboxResponse = ManagementSuspendMailboxResponses[keyof ManagementSuspendMailboxResponses];
+
+export type ManagementCheckMailboxAvailabilityData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Email address to check.
+         */
+        email: string;
+    };
+    url: '/mailboxes/availability';
+};
+
+export type ManagementCheckMailboxAvailabilityErrors = {
+    /**
+     * Authentication required
+     */
+    401: ApiError;
+    /**
+     * Root API key with mailbox.admin.create is required
+     */
+    403: ApiError;
+};
+
+export type ManagementCheckMailboxAvailabilityError = ManagementCheckMailboxAvailabilityErrors[keyof ManagementCheckMailboxAvailabilityErrors];
+
+export type ManagementCheckMailboxAvailabilityResponses = {
+    /**
+     * Mailbox address availability
+     */
+    200: MailboxAvailabilityResponse;
+};
+
+export type ManagementCheckMailboxAvailabilityResponse = ManagementCheckMailboxAvailabilityResponses[keyof ManagementCheckMailboxAvailabilityResponses];
 
 export type ManagementListProvidersData = {
     body?: never;

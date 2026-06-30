@@ -26,6 +26,18 @@ func (r *ManagementCancelSharedAmazonSesLimitRequestNotFound) APIError() *core.A
 	return err
 }
 
+// APIError maps ManagementCheckMailboxAvailabilityForbidden into the shared typed API error.
+func (r *ManagementCheckMailboxAvailabilityForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps ManagementCheckMailboxAvailabilityUnauthorized into the shared typed API error.
+func (r *ManagementCheckMailboxAvailabilityUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
 // APIError maps ManagementCreateDomainBadRequest into the shared typed API error.
 func (r *ManagementCreateDomainBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)

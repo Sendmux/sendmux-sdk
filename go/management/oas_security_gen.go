@@ -38,6 +38,7 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 var operationRolesBearerAuth = map[string][]string{
 	ManagementActivateProviderOperation:                   []string{},
 	ManagementCancelSharedAmazonSesLimitRequestOperation:  []string{},
+	ManagementCheckMailboxAvailabilityOperation:           []string{},
 	ManagementCreateDomainOperation:                       []string{},
 	ManagementCreateMailboxOperation:                      []string{},
 	ManagementCreateMailboxKeyOperation:                   []string{},

@@ -43,6 +43,14 @@ type Invoker interface {
 	//
 	// DELETE /providers/shared-amazon-ses-limit-request/{request_id}
 	ManagementCancelSharedAmazonSesLimitRequest(ctx context.Context, params ManagementCancelSharedAmazonSesLimitRequestParams) (ManagementCancelSharedAmazonSesLimitRequestRes, error)
+	// ManagementCheckMailboxAvailability invokes managementCheckMailboxAvailability operation.
+	//
+	// Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability
+	// is global across all teams; custom-domain availability is scoped to the caller's team and requires
+	// a verified send/receive mailbox domain.
+	//
+	// GET /mailboxes/availability
+	ManagementCheckMailboxAvailability(ctx context.Context, params ManagementCheckMailboxAvailabilityParams) (ManagementCheckMailboxAvailabilityRes, error)
 	// ManagementCreateDomain invokes managementCreateDomain operation.
 	//
 	// Creates a new domain and returns the DNS records the customer must place before verification can
@@ -750,6 +758,131 @@ func (c *Client) sendManagementCancelSharedAmazonSesLimitRequest(ctx context.Con
 
 	stage = "DecodeResponse"
 	result, err := decodeManagementCancelSharedAmazonSesLimitRequestResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ManagementCheckMailboxAvailability invokes managementCheckMailboxAvailability operation.
+//
+// Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability
+// is global across all teams; custom-domain availability is scoped to the caller's team and requires
+// a verified send/receive mailbox domain.
+//
+// GET /mailboxes/availability
+func (c *Client) ManagementCheckMailboxAvailability(ctx context.Context, params ManagementCheckMailboxAvailabilityParams) (ManagementCheckMailboxAvailabilityRes, error) {
+	res, err := c.sendManagementCheckMailboxAvailability(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendManagementCheckMailboxAvailability(ctx context.Context, params ManagementCheckMailboxAvailabilityParams) (res ManagementCheckMailboxAvailabilityRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("managementCheckMailboxAvailability"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailboxes/availability"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ManagementCheckMailboxAvailabilityOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/mailboxes/availability"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "email" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "email",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.Email))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ManagementCheckMailboxAvailabilityOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeManagementCheckMailboxAvailabilityResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

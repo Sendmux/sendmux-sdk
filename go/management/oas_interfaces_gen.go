@@ -9,6 +9,10 @@ type ManagementCancelSharedAmazonSesLimitRequestRes interface {
 	managementCancelSharedAmazonSesLimitRequestRes()
 }
 
+type ManagementCheckMailboxAvailabilityRes interface {
+	managementCheckMailboxAvailabilityRes()
+}
+
 type ManagementCreateDomainRes interface {
 	managementCreateDomainRes()
 }

@@ -75,6 +75,9 @@ class MailboxesApi
 
     /** @var string[] $contentTypes **/
     public const contentTypes = [
+        'managementCheckMailboxAvailability' => [
+            'application/json',
+        ],
         'managementCreateMailbox' => [
             'application/json',
         ],
@@ -148,6 +151,341 @@ class MailboxesApi
     public function getConfig(): Configuration
     {
         return $this->config;
+    }
+
+    /**
+     * Operation managementCheckMailboxAvailability
+     *
+     * Check mailbox address availability
+     *
+     * @param  string $email email (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCheckMailboxAvailability'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Management\Model\MailboxAvailabilityResponse|\Sendmux\Management\Model\ApiError
+     */
+    public function managementCheckMailboxAvailability(
+        string $email,
+        string $contentType = self::contentTypes['managementCheckMailboxAvailability'][0]
+    ): \Sendmux\Management\Model\MailboxAvailabilityResponse|\Sendmux\Management\Model\ApiError {
+        list($response) = $this->managementCheckMailboxAvailabilityWithHttpInfo(
+            $email,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation managementCheckMailboxAvailabilityWithHttpInfo
+     *
+     * Check mailbox address availability
+     *
+     * @param  string $email email (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCheckMailboxAvailability'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Management\Model\MailboxAvailabilityResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function managementCheckMailboxAvailabilityWithHttpInfo(
+        string $email,
+        string $contentType = self::contentTypes['managementCheckMailboxAvailability'][0]
+    ): array {
+        $request = $this->managementCheckMailboxAvailabilityRequest(
+            $email,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\MailboxAvailabilityResponse',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Management\Model\MailboxAvailabilityResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\MailboxAvailabilityResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation managementCheckMailboxAvailabilityAsync
+     *
+     * Check mailbox address availability
+     *
+     * @param  string $email email (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCheckMailboxAvailability'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementCheckMailboxAvailabilityAsync(
+        string $email,
+        string $contentType = self::contentTypes['managementCheckMailboxAvailability'][0]
+    ): PromiseInterface {
+        return $this->managementCheckMailboxAvailabilityAsyncWithHttpInfo(
+            $email,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation managementCheckMailboxAvailabilityAsyncWithHttpInfo
+     *
+     * Check mailbox address availability
+     *
+     * @param  string $email email (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCheckMailboxAvailability'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementCheckMailboxAvailabilityAsyncWithHttpInfo(
+        string $email,
+        string $contentType = self::contentTypes['managementCheckMailboxAvailability'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Management\Model\MailboxAvailabilityResponse';
+        $request = $this->managementCheckMailboxAvailabilityRequest(
+            $email,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'managementCheckMailboxAvailability'
+     *
+     * @param  string $email email (required)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementCheckMailboxAvailability'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function managementCheckMailboxAvailabilityRequest(
+        string $email,
+        string $contentType = self::contentTypes['managementCheckMailboxAvailability'][0]
+    ): Request {
+
+        // verify the required parameter 'email' is set
+        if ($email === null || (is_array($email) && count($email) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $email when calling managementCheckMailboxAvailability'
+            );
+        }
+
+
+        $resourcePath = '/mailboxes/availability';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $email,
+            'email', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            true // required
+        ) ?? []);
+
+
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
     }
 
     /**

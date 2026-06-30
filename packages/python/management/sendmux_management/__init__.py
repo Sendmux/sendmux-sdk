@@ -68,6 +68,9 @@ __all__ = [
     "MailboxAppPasswordResult",
     "MailboxAppPasswordResultCredential",
     "MailboxAppPasswordResultResponse",
+    "MailboxAvailabilityReason",
+    "MailboxAvailabilityResponse",
+    "MailboxAvailabilityResult",
     "MailboxCreateResult",
     "MailboxCreateResultResponse",
     "MailboxCredential",
@@ -205,6 +208,9 @@ from sendmux_management.models.mailbox import Mailbox as Mailbox
 from sendmux_management.models.mailbox_app_password_result import MailboxAppPasswordResult as MailboxAppPasswordResult
 from sendmux_management.models.mailbox_app_password_result_credential import MailboxAppPasswordResultCredential as MailboxAppPasswordResultCredential
 from sendmux_management.models.mailbox_app_password_result_response import MailboxAppPasswordResultResponse as MailboxAppPasswordResultResponse
+from sendmux_management.models.mailbox_availability_reason import MailboxAvailabilityReason as MailboxAvailabilityReason
+from sendmux_management.models.mailbox_availability_response import MailboxAvailabilityResponse as MailboxAvailabilityResponse
+from sendmux_management.models.mailbox_availability_result import MailboxAvailabilityResult as MailboxAvailabilityResult
 from sendmux_management.models.mailbox_create_result import MailboxCreateResult as MailboxCreateResult
 from sendmux_management.models.mailbox_create_result_response import MailboxCreateResultResponse as MailboxCreateResultResponse
 from sendmux_management.models.mailbox_credential import MailboxCredential as MailboxCredential

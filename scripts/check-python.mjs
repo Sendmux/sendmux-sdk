@@ -10,6 +10,7 @@ checkGeneratedMailboxBodyParamOrder();
 checkGeneratedMailboxTargeting();
 checkGeneratedPackageVersions();
 checkPythonPackageMetadata();
+checkPythonSdkDependencyFloors();
 
 if (!existsSync(python)) {
   mkdirSync(join(root, ".tmp"), { recursive: true });
@@ -180,6 +181,29 @@ function checkPythonPackageMetadata() {
       if (!pyproject.includes(snippet)) {
         throw new Error(`${pyprojectPath} is missing package metadata: ${snippet}`);
       }
+    }
+  }
+}
+
+function checkPythonSdkDependencyFloors() {
+  const manifest = JSON.parse(readFileSync(join(root, ".release-please-manifest.json"), "utf8"));
+  const pyprojectPath = join(root, "packages", "python", "sdk", "pyproject.toml");
+  const pyproject = readFileSync(pyprojectPath, "utf8");
+  const dependencies = [
+    ["sendmux-core", manifest["packages/python/core"]],
+    ["sendmux-mailbox", manifest["packages/python/mailbox"]],
+    ["sendmux-management", manifest["packages/python/management"]],
+    ["sendmux-sending", manifest["packages/python/sending"]],
+  ];
+
+  for (const [packageName, version] of dependencies) {
+    if (typeof version !== "string") {
+      throw new Error(`Could not read release manifest version for ${packageName}`);
+    }
+
+    const expected = `"${packageName}>=${version},<2.0.0"`;
+    if (!pyproject.includes(expected)) {
+      throw new Error(`${pyprojectPath} must require ${expected}`);
     }
   }
 }

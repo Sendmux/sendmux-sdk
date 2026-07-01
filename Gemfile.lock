@@ -1,7 +1,7 @@
 PATH
   remote: packages/ruby/core
   specs:
-    sendmux-core (1.0.1)
+    sendmux-core (1.1.0)
       faraday (~> 2.0)
       faraday-retry (>= 2.4, < 3.0)
 
@@ -37,12 +37,12 @@ PATH
 PATH
   remote: packages/ruby/sending
   specs:
-    sendmux-sending (1.0.0)
+    sendmux-sending (1.1.0)
       faraday (~> 2.0)
       faraday-multipart (~> 1.0)
       faraday-retry (>= 2.4, < 3.0)
       marcel (~> 1.0)
-      sendmux-core (>= 1.0.1, < 2.0)
+      sendmux-core (>= 1.1.0, < 2.0)
 
 GEM
   remote: https://rubygems.org/

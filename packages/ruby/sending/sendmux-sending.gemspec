@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'faraday-multipart', '~> 1.0'
   spec.add_dependency 'faraday-retry', '>= 2.4', '< 3.0'
   spec.add_dependency 'marcel', '~> 1.0'
-  spec.add_dependency 'sendmux-core', '>= 1.0.1', '< 2.0'
+  spec.add_dependency 'sendmux-core', '>= 1.1.0', '< 2.0'
 end

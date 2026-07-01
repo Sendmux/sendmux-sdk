@@ -18,6 +18,7 @@ for (const name of packages) {
 }
 
 runShell(`find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ${ruby.join(" ")} -c`);
+checkRubyDependencyFloors();
 run(bundle, ["exec", "rubocop", "packages/ruby"]);
 run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_core.rb"]);
 
@@ -36,6 +37,64 @@ function readVersion(name) {
     throw new Error(`Could not read Ruby version for ${name}`);
   }
   return match[1];
+}
+
+function checkRubyDependencyFloors() {
+  const manifest = JSON.parse(readFileSync(`${root}/.release-please-manifest.json`, "utf8"));
+  const dependencyChecks = [
+    {
+      gemspecPath: "packages/ruby/sending/sendmux-sending.gemspec",
+      dependencies: [["sendmux-core", manifest["packages/ruby/core"]]],
+    },
+    {
+      gemspecPath: "packages/ruby/sdk/sendmux-sdk.gemspec",
+      dependencies: [
+        ["sendmux-core", manifest["packages/ruby/core"]],
+        ["sendmux-mailbox", manifest["packages/ruby/mailbox"]],
+        ["sendmux-management", manifest["packages/ruby/management"]],
+        ["sendmux-sending", manifest["packages/ruby/sending"]],
+      ],
+    },
+  ];
+
+  for (const { gemspecPath, dependencies } of dependencyChecks) {
+    const source = readFileSync(`${root}/${gemspecPath}`, "utf8");
+    for (const [dependency, minimumVersion] of dependencies) {
+      if (typeof minimumVersion !== "string") {
+        throw new Error(`Could not read release manifest version for ${dependency}`);
+      }
+
+      const dependencyPattern = new RegExp(
+        `spec\\.add_dependency '${dependency}', '>= ([^']+)', '< 2\\.0'`,
+      );
+      const actualVersion = source.match(dependencyPattern)?.[1];
+      if (!actualVersion) {
+        throw new Error(`${gemspecPath} must require ${dependency} with an explicit >= floor and < 2.0 upper bound`);
+      }
+      if (compareSemver(actualVersion, minimumVersion) < 0) {
+        throw new Error(`${gemspecPath} must require ${dependency} >= ${minimumVersion}; found >= ${actualVersion}`);
+      }
+    }
+  }
+}
+
+function compareSemver(left, right) {
+  const leftParts = parseSemver(left);
+  const rightParts = parseSemver(right);
+  for (let index = 0; index < 3; index += 1) {
+    if (leftParts[index] !== rightParts[index]) {
+      return leftParts[index] - rightParts[index];
+    }
+  }
+  return 0;
+}
+
+function parseSemver(version) {
+  const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+  if (!match) {
+    throw new Error(`Unsupported Ruby dependency version: ${version}`);
+  }
+  return match.slice(1).map(Number);
 }
 
 function run(commandParts, args, options = {}) {

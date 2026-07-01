@@ -100,30 +100,35 @@
       "component": "ruby-core",
       "package-name": "sendmux-core",
       "release-type": "ruby",
+      "version-file": "lib/sendmux/core/version.rb",
       "initial-version": "1.0.0"
     },
     "packages/ruby/sending": {
       "component": "ruby-sending",
       "package-name": "sendmux-sending",
       "release-type": "ruby",
+      "version-file": "lib/sendmux/sending/version.rb",
       "initial-version": "1.0.0"
     },
     "packages/ruby/mailbox": {
       "component": "ruby-mailbox",
       "package-name": "sendmux-mailbox",
       "release-type": "ruby",
+      "version-file": "lib/sendmux/mailbox/version.rb",
       "initial-version": "1.0.0"
     },
     "packages/ruby/management": {
       "component": "ruby-management",
       "package-name": "sendmux-management",
       "release-type": "ruby",
+      "version-file": "lib/sendmux/management/version.rb",
       "initial-version": "1.0.0"
     },
     "packages/ruby/sdk": {
       "component": "ruby-sdk",
       "package-name": "sendmux-sdk",
       "release-type": "ruby",
+      "version-file": "lib/sendmux/sdk/version.rb",
       "initial-version": "1.0.0"
     }
   }

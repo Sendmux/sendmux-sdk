@@ -551,6 +551,8 @@ jobs:
 
       - name: Build Ruby gems
         run: pnpm build:ruby
+        env:
+          RUBY_PATHS_RELEASED: ${{ needs.release-please.outputs.paths_released }}
 
       - name: Configure RubyGems trusted publishing credentials
         uses: rubygems/configure-rubygems-credentials@762a4b77c3300434bb57c7ce80b20e36231927aa # v2.0.0

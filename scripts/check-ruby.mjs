@@ -41,12 +41,15 @@ function readVersion(name) {
 
 function checkRubyDependencyFloors() {
   const manifest = JSON.parse(readFileSync(`${root}/.release-please-manifest.json`, "utf8"));
+  const changedPackages = readChangedRubyPackages();
   const dependencyChecks = [
     {
+      packageName: "sending",
       gemspecPath: "packages/ruby/sending/sendmux-sending.gemspec",
       dependencies: [["sendmux-core", manifest["packages/ruby/core"]]],
     },
     {
+      packageName: "sdk",
       gemspecPath: "packages/ruby/sdk/sendmux-sdk.gemspec",
       dependencies: [
         ["sendmux-core", manifest["packages/ruby/core"]],
@@ -57,8 +60,9 @@ function checkRubyDependencyFloors() {
     },
   ];
 
-  for (const { gemspecPath, dependencies } of dependencyChecks) {
+  for (const { packageName, gemspecPath, dependencies } of dependencyChecks) {
     const source = readFileSync(`${root}/${gemspecPath}`, "utf8");
+    const enforceManifestFloor = changedPackages.has(packageName);
     for (const [dependency, minimumVersion] of dependencies) {
       if (typeof minimumVersion !== "string") {
         throw new Error(`Could not read release manifest version for ${dependency}`);
@@ -71,11 +75,92 @@ function checkRubyDependencyFloors() {
       if (!actualVersion) {
         throw new Error(`${gemspecPath} must require ${dependency} with an explicit >= floor and < 2.0 upper bound`);
       }
-      if (compareSemver(actualVersion, minimumVersion) < 0) {
+      if (enforceManifestFloor && compareSemver(actualVersion, minimumVersion) < 0) {
         throw new Error(`${gemspecPath} must require ${dependency} >= ${minimumVersion}; found >= ${actualVersion}`);
       }
     }
   }
+}
+
+function readChangedRubyPackages() {
+  const override = process.env.RUBY_CHANGED_PACKAGES;
+  if (override) {
+    return new Set(
+      override
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .map(validateRubyPackageName),
+    );
+  }
+
+  const releasedPackages = readRubyPackagesFromPaths(process.env.RUBY_PATHS_RELEASED);
+  if (releasedPackages.size > 0) {
+    return releasedPackages;
+  }
+
+  const changedFiles = readChangedFiles();
+  const changedPackages = new Set();
+  for (const filePath of changedFiles) {
+    const match = filePath.match(/^packages\/ruby\/([^/]+)\//);
+    if (match && packages.includes(match[1])) {
+      changedPackages.add(validateRubyPackageName(match[1]));
+    }
+  }
+  return changedPackages;
+}
+
+function readRubyPackagesFromPaths(value) {
+  if (!value) {
+    return new Set();
+  }
+
+  let paths;
+  try {
+    const parsed = JSON.parse(value);
+    paths = Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    paths = value.split(/[\s,]+/);
+  }
+
+  const rubyPackages = new Set();
+  for (const filePath of paths) {
+    if (typeof filePath !== "string") {
+      continue;
+    }
+    const match = filePath.match(/^packages\/ruby\/([^/]+)$/);
+    if (match && packages.includes(match[1])) {
+      rubyPackages.add(validateRubyPackageName(match[1]));
+    }
+  }
+  return rubyPackages;
+}
+
+function readChangedFiles() {
+  const ranges = [];
+  if (process.env.GITHUB_BASE_REF) {
+    ranges.push(`origin/${process.env.GITHUB_BASE_REF}...HEAD`);
+  }
+  ranges.push("origin/main...HEAD");
+
+  for (const range of ranges) {
+    const result = spawnSync("git", ["diff", "--name-only", range], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    if (result.status === 0) {
+      return result.stdout.split("\n").filter(Boolean);
+    }
+  }
+  return [];
+}
+
+function validateRubyPackageName(name) {
+  if (!packages.includes(name)) {
+    throw new Error(`Unknown Ruby package name: ${name}`);
+  }
+  return name;
 }
 
 function compareSemver(left, right) {

@@ -28,11 +28,11 @@ PATH
 PATH
   remote: packages/ruby/sdk
   specs:
-    sendmux-sdk (1.0.0)
-      sendmux-core (>= 1.0.0, < 2.0)
+    sendmux-sdk (1.1.0)
+      sendmux-core (>= 1.1.0, < 2.0)
       sendmux-mailbox (>= 1.0.0, < 2.0)
       sendmux-management (>= 1.0.0, < 2.0)
-      sendmux-sending (>= 1.0.0, < 2.0)
+      sendmux-sending (>= 1.1.0, < 2.0)
 
 PATH
   remote: packages/ruby/sending

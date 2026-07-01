@@ -91,6 +91,7 @@ assert.equal(gatedPlan.summary.gated, 0);
 assert.equal(gatedPlan.summary.blocked, 0);
 
 const runnerSource = readFileSync("scripts/run-live-e2e.mjs", "utf8");
+const manifestWriterSource = readFileSync("scripts/write-live-e2e-audit-manifest.mjs", "utf8");
 const goLiveE2eSource = readFileSync("go/livee2e/main.go", "utf8");
 const ownedMailboxCreateMatch = runnerSource.match(/async function createOwnedManagementMailbox[\s\S]*?\n}/);
 assert.ok(ownedMailboxCreateMatch, "createOwnedManagementMailbox helper must exist");
@@ -109,6 +110,76 @@ assert.match(
   runnerSource,
   /async function waitForMailboxCredentialVisible[\s\S]*?mailboxCredentialVisibilityRetryDelaysMs[\s\S]*?mailboxListGrantedMailboxes/,
   "mailbox readiness must use the bounded credential-visibility poll",
+);
+assert.match(
+  runnerSource,
+  /async function runMailboxStreamSdkOperation[\s\S]*?new AbortController\(\)[\s\S]*?mailboxStreamTimeoutMs\(prepared\.request\)[\s\S]*?signal:\s*controller\.signal[\s\S]*?Promise\.race[\s\S]*?controller\.abort\(\)/,
+  "TypeScript stream live E2E must abort hung SSE handshakes with a bounded timeout",
+);
+assert.match(
+  runnerSource,
+  /function mailboxStreamTimeoutMs\(request\)[\s\S]*?close_after[\s\S]*?\+ 15\)\s*\* 1_000/,
+  "mailboxStreamEvents timeout must include the requested close_after window plus buffer",
+);
+assert.match(
+  runnerSource,
+  /function cliTimeoutMsFor\(operation, request\)[\s\S]*?return mailboxStreamTimeoutMs\(request\);/,
+  "CLI and TypeScript stream paths must share the same mailboxStreamEvents timeout budget",
+);
+assert.match(
+  runnerSource,
+  /runCli\(cliArgs, tempHome, cliTimeoutMsFor\(operation, prepared\.request\), \{\s*SENDMUX_API_KEY:\s*apiKey,\s*SENDMUX_BASE_URL:\s*baseUrl,\s*\}\)/,
+  "live E2E CLI invocations must pass credentials through child env, not argv",
+);
+assert.doesNotMatch(
+  runnerSource.match(/async function runCliOperation[\s\S]*?function runCli/)?.[0] ?? "",
+  /"--api-key"|"--base-url"/,
+  "live E2E CLI argv must not include API keys or base URLs",
+);
+assert.match(
+  runnerSource,
+  /const teardownOnce = \(\) => \{[\s\S]*?fixtureRuntime\.teardown\(\)[\s\S]*?installTeardownSignalHandlers\(teardownOnce\)/,
+  "live E2E runner must share normal and signal-triggered teardown through one teardown promise",
+);
+assert.match(
+  runnerSource,
+  /process\.once\("SIGINT", handleSignal\);[\s\S]*?process\.once\("SIGTERM", handleSignal\);/,
+  "live E2E runner must attempt fixture teardown before exiting on SIGINT/SIGTERM",
+);
+assert.match(
+  runnerSource,
+  /async function prepareSharedSesLimitRequest[\s\S]*?canCreateSharedSesLimitRequest\(fixtureRuntime\)[\s\S]*?expectedErrorCodes:\s*canRequest \? undefined : \["validation_error", "conflict"\]/,
+  "shared SES limit request live E2E must accept the API's unavailable/pending business-rule errors when the limit is not requestable",
+);
+assert.match(
+  runnerSource,
+  /async function prepareOwnedSharedSesLimitRequestCancel[\s\S]*?canCreateSharedSesLimitRequest\(fixtureRuntime\)[\s\S]*?expectedErrorCodes:\s*\["not_found"\][\s\S]*?slir_live_e2e_missing_/,
+  "shared SES limit cancellation live E2E must use a safe not_found probe when no owned request can be created",
+);
+assert.match(
+  runnerSource,
+  /async function canCreateSharedSesLimitRequest[\s\S]*?managementGetSharedAmazonSesLimitRequest[\s\S]*?data\.limit\.can_request_increase/,
+  "shared SES requestability must be derived from the dedicated read endpoint",
+);
+assert.match(
+  manifestWriterSource,
+  /commitSha:\s*args\.commit\s*\|\|\s*gitSha\(\)/,
+  "live E2E audit manifest writer must default blank commit args to git rev-parse HEAD",
+);
+assert.match(
+  manifestWriterSource,
+  /generatedAt:\s*args\.generatedAt\s*\|\|\s*new Date\(\)\.toISOString\(\)/,
+  "live E2E audit manifest writer must default blank generated-at args to the current timestamp",
+);
+assert.match(
+  manifestWriterSource,
+  /source:\s*args\.source\s*\|\|\s*"protected-live-e2e"/,
+  "live E2E audit manifest writer must default blank source args to a non-empty source",
+);
+assert.match(
+  manifestWriterSource,
+  /assert\.match\(\s*manifest\.run\.generated_at[\s\S]*?Date\.parse\(manifest\.run\.generated_at\)/,
+  "live E2E audit manifest validator must reject empty or unparsable generated_at values",
 );
 
 for (const helperName of [

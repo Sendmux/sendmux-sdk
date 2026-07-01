@@ -36,10 +36,10 @@ if (!args.result) {
 }
 
 const manifest = buildManifest({
-  commitSha: args.commit ?? gitSha(),
-  generatedAt: args.generatedAt ?? new Date().toISOString(),
+  commitSha: args.commit || gitSha(),
+  generatedAt: args.generatedAt || new Date().toISOString(),
   result: readJson(args.result),
-  source: args.source ?? "protected-live-e2e",
+  source: args.source || "protected-live-e2e",
 });
 
 validateManifest(manifest);
@@ -196,6 +196,12 @@ function validateManifest(manifest) {
   assert.equal(manifest.schema_version, 1);
   assert.equal(manifest.kind, "sendmux-live-e2e-audit-manifest");
   assert.match(manifest.run.commit_sha, /^[0-9a-f]{40}$/);
+  assert.match(
+    manifest.run.generated_at,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})$/,
+  );
+  assert.ok(Number.isFinite(Date.parse(manifest.run.generated_at)));
+  assert.ok(typeof manifest.run.source === "string" && manifest.run.source.length > 0);
   assert.doesNotMatch(JSON.stringify(manifest), /smx_(root|mbx)_/);
 
   const plan = livePlanForGates(manifest.gates);

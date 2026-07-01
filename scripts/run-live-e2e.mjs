@@ -103,6 +103,12 @@ const sdk = await import("@sendmux/sdk");
 const credentials = credentialsForRun(sdk);
 const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId: randomUUID(), sdk });
 const results = [];
+let teardownPromise;
+const teardownOnce = () => {
+  teardownPromise ??= fixtureRuntime.teardown();
+  return teardownPromise;
+};
+const removeSignalHandlers = installTeardownSignalHandlers(teardownOnce);
 
 try {
   for (const operation of selectedOperations) {
@@ -152,8 +158,9 @@ try {
 } catch (error) {
   results.push(failResult("runner", "live-e2e", error));
 } finally {
+  removeSignalHandlers();
   try {
-    await fixtureRuntime.teardown();
+    await teardownOnce();
   } catch (error) {
     results.push(failResult("runner", "teardown", error));
   }
@@ -205,6 +212,32 @@ function parseArgs(argv) {
   }
 
   return parsed;
+}
+
+function installTeardownSignalHandlers(teardown) {
+  let isHandlingSignal = false;
+  const handleSignal = async (signal) => {
+    if (isHandlingSignal) {
+      return;
+    }
+    isHandlingSignal = true;
+    process.exitCode = signal === "SIGINT" ? 130 : 143;
+    try {
+      await teardown();
+    } catch (error) {
+      process.stderr.write(`Live E2E teardown failed after ${signal}: ${errorMessage(error)}\n`);
+      process.exitCode = 1;
+    } finally {
+      process.exit();
+    }
+  };
+
+  process.once("SIGINT", handleSignal);
+  process.once("SIGTERM", handleSignal);
+  return () => {
+    process.off("SIGINT", handleSignal);
+    process.off("SIGTERM", handleSignal);
+  };
 }
 
 function requireArgValue(argv, index, name) {
@@ -564,11 +597,18 @@ async function runSdkOperation({ credentials, operation, prepared, sdk }) {
     const sdkOperation = module?.[operation.operationId];
     assert.equal(typeof sdkOperation, "function", `${operation.operationId} is not exported by @sendmux/sdk`);
 
+    if (operation.operationId === "mailboxStreamEvents") {
+      const { response, value } = await runMailboxStreamSdkOperation({ client, prepared, sdkOperation });
+      assertPreparedResponse(value, operation, prepared);
+      await prepared.afterResult?.(value);
+      return passResult(typescriptSdkAdapter, operation.operationId, response.response?.status);
+    }
+
     const response = await sdkOperation({
       client,
       ...prepared.request,
     });
-    const value = operation.operationId === "mailboxStreamEvents" ? await firstSseEvent(response) : response.data;
+    const value = response.data;
     assertPreparedResponse(value, operation, prepared);
     await prepared.afterResult?.(value);
 
@@ -578,6 +618,38 @@ async function runSdkOperation({ credentials, operation, prepared, sdk }) {
       return passResult(typescriptSdkAdapter, operation.operationId);
     }
     return failResult(typescriptSdkAdapter, operation.operationId, error);
+  }
+}
+
+async function runMailboxStreamSdkOperation({ client, prepared, sdkOperation }) {
+  const controller = new AbortController();
+  const timeoutMs = mailboxStreamTimeoutMs(prepared.request);
+  let timeout;
+  const operationPromise = (async () => {
+    const response = await sdkOperation({
+      client,
+      ...prepared.request,
+      signal: controller.signal,
+    });
+    return { response, value: await firstSseEvent(response, { controller }) };
+  })();
+  operationPromise.catch(() => undefined);
+
+  try {
+    return await Promise.race([
+      operationPromise,
+      new Promise((_, reject) => {
+        timeout = setTimeout(() => {
+          controller.abort();
+          reject(new Error(`mailboxStreamEvents timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    controller.abort();
   }
 }
 
@@ -610,14 +682,13 @@ async function runCliOperation({ credentials, operation, prepared }) {
     const baseUrl = operation.surface === "sending" ? credentials.sendingBaseUrl : credentials.appBaseUrl;
     const cliArgs = [
       operation.command,
-      "--api-key",
-      apiKey,
-      "--base-url",
-      baseUrl,
       "--json",
       ...cliRequestArgsFor(prepared.request, operation),
     ];
-    const result = await runCli(cliArgs, tempHome, cliTimeoutMsFor(operation, prepared.request));
+    const result = await runCli(cliArgs, tempHome, cliTimeoutMsFor(operation, prepared.request), {
+      SENDMUX_API_KEY: apiKey,
+      SENDMUX_BASE_URL: baseUrl,
+    });
     if (result.status !== 0) {
       if (expectedCliErrorMatches(result, prepared)) {
         return passResult("cli", operation.operationId);
@@ -635,7 +706,7 @@ async function runCliOperation({ credentials, operation, prepared }) {
   }
 }
 
-function runCli(args, tempHome, timeoutMs = 30_000) {
+function runCli(args, tempHome, timeoutMs = 30_000, envOverrides = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliPath, ...args], {
       env: {
@@ -645,6 +716,7 @@ function runCli(args, tempHome, timeoutMs = 30_000) {
         SENDMUX_BASE_URL: "",
         SENDMUX_PROFILE: "",
         XDG_CONFIG_HOME: join(tempHome, ".config"),
+        ...envOverrides,
       },
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -679,6 +751,10 @@ function cliTimeoutMsFor(operation, request) {
     return 30_000;
   }
 
+  return mailboxStreamTimeoutMs(request);
+}
+
+function mailboxStreamTimeoutMs(request) {
   const closeAfterSeconds = Number(request.query?.close_after ?? 30);
   const boundedCloseAfterSeconds =
     Number.isFinite(closeAfterSeconds) && closeAfterSeconds > 0 ? closeAfterSeconds : 30;
@@ -781,7 +857,7 @@ function cliRequestArgsFor(request, operation) {
   return args;
 }
 
-async function firstSseEvent(response) {
+async function firstSseEvent(response, { controller } = {}) {
   const stream = response?.stream;
   if (!stream || typeof stream[Symbol.asyncIterator] !== "function") {
     throw new Error("mailboxStreamEvents did not return an async stream");
@@ -793,9 +869,9 @@ async function firstSseEvent(response) {
       iterator.next(),
       new Promise((_, reject) => {
         timeout = setTimeout(() => {
+          controller?.abort();
           reject(new Error("mailboxStreamEvents timed out waiting for an event"));
         }, 20_000);
-        timeout.unref?.();
       }),
     ]);
     if (!next.done) {
@@ -805,6 +881,7 @@ async function firstSseEvent(response) {
     if (timeout) {
       clearTimeout(timeout);
     }
+    controller?.abort();
     await closeAsyncIterator(iterator);
   }
   throw new Error("mailboxStreamEvents ended before yielding an event");
@@ -1491,7 +1568,9 @@ async function prepareSendingAccountLimitRequest({ fixtureRuntime }) {
 }
 
 async function prepareSharedSesLimitRequest({ fixtureRuntime }) {
+  const canRequest = await canCreateSharedSesLimitRequest(fixtureRuntime);
   return {
+    expectedErrorCodes: canRequest ? undefined : ["validation_error", "conflict"],
     cleanupSelectors: ["data.request.id"],
     request: {
       headers: { "Idempotency-Key": fixtureRuntime.idempotencyKey("management-shared-ses-limit-request") },
@@ -1504,8 +1583,20 @@ async function prepareSharedSesLimitRequest({ fixtureRuntime }) {
 }
 
 async function prepareOwnedSharedSesLimitRequestCancel({ fixtureRuntime }) {
+  const canRequest = await canCreateSharedSesLimitRequest(fixtureRuntime);
+  if (!canRequest) {
+    return {
+      expectedErrorCodes: ["not_found"],
+      request: { path: { request_id: `slir_live_e2e_missing_${fixtureRuntime.runId.replace(/-/g, "")}` } },
+    };
+  }
   const requestId = await createSharedSesLimitRequest(fixtureRuntime, "cancel-shared-ses-limit-request");
   return { request: { path: { request_id: requestId } } };
+}
+
+async function canCreateSharedSesLimitRequest(fixtureRuntime) {
+  const response = await fixtureRuntime.runOperation("managementGetSharedAmazonSesLimitRequest");
+  return selectFirstValue(response, ["data.limit.can_request_increase"]) === true;
 }
 
 async function createSharedSesLimitRequest(fixtureRuntime, label) {

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.0.0...ts-management-v1.0.1) (2026-07-01)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/core bumped to 1.1.0
+
 ## 1.0.0 (2026-05-30)
 
 

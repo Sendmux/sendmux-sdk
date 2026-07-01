@@ -98,7 +98,8 @@ On a Linux host with snapd, Snapcraft, and a configured build provider:
 ```sh
 cd /path/to/sendmux-sdk
 snapcraft pack
-sudo snap install ./sendmux_1.0.1_*.snap --dangerous
+VERSION=$(grep '^version:' snap/snapcraft.yaml | cut -d'"' -f2)
+sudo snap install ./sendmux_${VERSION}_*.snap --dangerous
 sendmux --help
 sendmux profiles:list --json
 sudo snap remove sendmux
@@ -151,7 +152,10 @@ add `removable-media` later only if there is a verified user need.
    - Or, after confirming Launchpad public/private upload policy:
      `snapcraft remote-build --build-for amd64,arm64`
 4. Upload first to edge:
-   - `snapcraft upload ./sendmux_1.0.1_*.snap --release=edge`
+   ```sh
+   VERSION=$(grep '^version:' snap/snapcraft.yaml | cut -d'"' -f2)
+   snapcraft upload ./sendmux_${VERSION}_*.snap --release=edge
+   ```
 5. Smoke-test from the store on a separate Linux host:
    - `sudo snap install sendmux --edge`
    - `sendmux --help`

@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.5...python-mcp-v1.2.0) (2026-07-01)
+
+
+### Features
+
+* allow owner-approved agent tokens for sending ([9d1cb7d](https://github.com/Sendmux/sendmux-sdk/commit/9d1cb7df3df5aef1f59a4990dc087178ba3a7b21))
+
+
+### Bug Fixes
+
+* **python-mcp:** require current core version ([d4fdfac](https://github.com/Sendmux/sendmux-sdk/commit/d4fdfacc3f1aca3029eebb0141ad24c4220e91fc))
+* **python-mcp:** require current core version ([f9b3913](https://github.com/Sendmux/sendmux-sdk/commit/f9b3913ac9ddfa690b76afb0216ab109f679d934))
+
+
+### Documentation
+
+* **mcp:** rename Product MCP to MCP across SDK READMEs ([96dedc1](https://github.com/Sendmux/sendmux-sdk/commit/96dedc17678096a884e751866736bd4747489501))
+
 ## [1.1.5](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.4...python-mcp-v1.1.5) (2026-06-19)
 
 

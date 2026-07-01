@@ -11,6 +11,7 @@ checkGeneratedMailboxTargeting();
 checkGeneratedPackageVersions();
 checkPythonPackageMetadata();
 checkPythonSdkDependencyFloors();
+checkPythonMcpDependencyFloors();
 
 if (!existsSync(python)) {
   mkdirSync(join(root, ".tmp"), { recursive: true });
@@ -205,6 +206,22 @@ function checkPythonSdkDependencyFloors() {
     if (!pyproject.includes(expected)) {
       throw new Error(`${pyprojectPath} must require ${expected}`);
     }
+  }
+}
+
+function checkPythonMcpDependencyFloors() {
+  const manifest = JSON.parse(readFileSync(join(root, ".release-please-manifest.json"), "utf8"));
+  const pyprojectPath = join(root, "packages", "python", "mcp", "pyproject.toml");
+  const pyproject = readFileSync(pyprojectPath, "utf8");
+  const coreVersion = manifest["packages/python/core"];
+
+  if (typeof coreVersion !== "string") {
+    throw new Error("Could not read release manifest version for sendmux-core");
+  }
+
+  const expected = `"sendmux-core>=${coreVersion},<2.0.0"`;
+  if (!pyproject.includes(expected)) {
+    throw new Error(`${pyprojectPath} must require ${expected}`);
   }
 }
 

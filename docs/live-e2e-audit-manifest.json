@@ -3,9 +3,9 @@
   "kind": "sendmux-live-e2e-audit-manifest",
   "note": "Sanitized audit record only: no API keys, bearer tokens, base URLs, request bodies, or response bodies.",
   "run": {
-    "commit_sha": "bceb3204e9a22f7726c8005333d9e65d2b0269e1",
-    "generated_at": "2026-07-01T03:48:32.308Z",
-    "source": "local-protected-live-e2e:20260701-full-gated-after-cleanup"
+    "commit_sha": "acc73e70fcaacc76e2ac02d7e9b92e8bbb603702",
+    "generated_at": "2026-07-01T04:50:46.405Z",
+    "source": "local-protected-live-e2e:20260701-full-gated-rebased"
   },
   "ci_refresh": {
     "workflow": ".github/workflows/live-e2e.yml",

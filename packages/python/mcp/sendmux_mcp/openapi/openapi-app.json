@@ -3519,7 +3519,6 @@
               }
             },
             "required": [
-              "attachments",
               "rfc5322_message_id",
               "body"
             ],

@@ -152,8 +152,6 @@ module Sendmux::Mailbox::Generated
         if (value = attributes[:'attachments']).is_a?(Array)
           self.attachments = value
         end
-      else
-        self.attachments = nil
       end
 
       if attributes.key?(:'bcc')
@@ -274,10 +272,6 @@ module Sendmux::Mailbox::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @attachments.nil?
-        invalid_properties.push('invalid value for "attachments", attachments cannot be nil.')
-      end
-
       if @bcc.nil?
         invalid_properties.push('invalid value for "bcc", bcc cannot be nil.')
       end
@@ -321,7 +315,6 @@ module Sendmux::Mailbox::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @attachments.nil?
       return false if @bcc.nil?
       return false if @cc.nil?
       return false if @flags.nil?
@@ -332,16 +325,6 @@ module Sendmux::Mailbox::Generated
       return false if @to.nil?
       return false if @body.nil?
       true
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] attachments Value to be assigned
-    def attachments=(attachments)
-      if attachments.nil?
-        fail ArgumentError, 'attachments cannot be nil'
-      end
-
-      @attachments = attachments
     end
 
     # Custom attribute writer method with validation

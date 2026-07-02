@@ -77,3 +77,42 @@ def test_iter_mailbox_events_yields_typed_events_and_closes_response(monkeypatch
     }
     assert response.closed is True
     assert response.released is True
+
+
+def test_realtime_event_message_allows_omitted_attachments() -> None:
+    event = MailboxRealtimeEvent.from_dict(
+        {
+            "event_type": "message.received",
+            "is_spam": False,
+            "mailbox_id": "mbx_py_stream",
+            "message": {
+                "bcc": [],
+                "body": {"html": None, "is_truncated": False, "max_bytes": 65536, "text": "hello"},
+                "cc": [],
+                "flags": {"answered": False, "draft": False, "flagged": False, "seen": False},
+                "folder_ids": ["inbox"],
+                "from": {"email": "sender@example.com", "name": None},
+                "has_attachments": False,
+                "id": "msg_py_stream",
+                "keywords": [],
+                "preview": "hello",
+                "received_at": "2026-07-02T00:00:00.000Z",
+                "rfc5322_message_id": "<msg_py_stream@example.com>",
+                "sent_at": None,
+                "size_bytes": 512,
+                "subject": "Hello",
+                "thread_id": "thr_py_stream",
+                "to": [{"email": "agent@example.com", "name": None}],
+            },
+            "message_id": "msg_py_stream",
+            "message_id_kind": "provider",
+            "occurred_at": "2026-07-02T00:00:00.000Z",
+            "recipients": ["agent@example.com"],
+            "sender": "sender@example.com",
+            "team_public_id": "team_py_stream",
+        }
+    )
+
+    assert event is not None
+    assert event.message is not None
+    assert event.message.attachments is None

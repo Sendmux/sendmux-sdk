@@ -556,7 +556,7 @@ export type MailboxSearchSnippetsResult = {
 };
 
 export type MailboxRealtimeMessage = (MailboxMessageSummary & {
-    attachments: Array<MailboxAttachment>;
+    attachments?: Array<MailboxAttachment>;
     body: {
         html: string | null;
         is_truncated: boolean;

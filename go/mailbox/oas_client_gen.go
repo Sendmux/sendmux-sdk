@@ -2788,23 +2788,6 @@ func (c *Client) sendMailboxGetMessageAttachment(ctx context.Context, params Mai
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "download_token" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "download_token",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.DownloadToken.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
 		// Encode "mailbox_id" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "mailbox_id",
@@ -2814,6 +2797,23 @@ func (c *Client) sendMailboxGetMessageAttachment(ctx context.Context, params Mai
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "download_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "download_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.DownloadToken.Get(); ok {
 				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil

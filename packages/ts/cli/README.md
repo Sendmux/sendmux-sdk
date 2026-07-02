@@ -58,7 +58,6 @@ Upload a file, then use the returned `blob_id` in `mailbox:send-message`.
 sendmux mailbox:upload-attachment \
   --profile mailbox \
   --query filename=report.md \
-  --header Content-Type=text/markdown \
   --body-file ./report.md \
   --json
 ```

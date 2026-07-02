@@ -11032,15 +11032,6 @@
             }
           },
           {
-            "in": "query",
-            "name": "download_token",
-            "required": false,
-            "schema": {
-              "description": "Short-lived token embedded in attachment metadata `download_url` values. Clients normally fetch the full URL rather than constructing this parameter manually.",
-              "type": "string"
-            }
-          },
-          {
             "in": "header",
             "name": "Range",
             "required": false,
@@ -11055,6 +11046,15 @@
             "name": "mailbox_id",
             "required": false,
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "download_token",
+            "required": false,
+            "schema": {
+              "description": "Short-lived token embedded in attachment metadata `download_url` values. Clients normally fetch the full URL rather than constructing this parameter manually.",
               "type": "string"
             }
           }

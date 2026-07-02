@@ -2030,13 +2030,13 @@ export type MailboxGetMessageAttachmentData = {
     };
     query?: {
         /**
-         * Short-lived token embedded in attachment metadata `download_url` values. Clients normally fetch the full URL rather than constructing this parameter manually.
-         */
-        download_token?: string;
-        /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
          */
         mailbox_id?: string;
+        /**
+         * Short-lived token embedded in attachment metadata `download_url` values. Clients normally fetch the full URL rather than constructing this parameter manually.
+         */
+        download_token?: string;
     };
     url: '/mailbox/messages/{message_id}/attachments/{attachment_id}';
 };

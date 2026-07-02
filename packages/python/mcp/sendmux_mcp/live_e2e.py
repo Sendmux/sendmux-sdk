@@ -19,6 +19,7 @@ class PlannedOperation(TypedDict):
     cleanupSelectors: list[str] | None
     expectedErrorCodes: list[str] | None
     operationId: str
+    returnResult: bool | None
     responseKind: Literal["binary", "json", "text"]
     surface: Surface
     toolName: str
@@ -64,6 +65,8 @@ async def main() -> None:
                     }
                     if cleanup is not None:
                         entry["cleanup"] = cleanup
+                    if operation.get("returnResult") is True and operation.get("responseKind") != "text":
+                        entry["result"] = result
                     results.append(entry)
                 except Exception as error:  # pragma: no cover - exercised by live runner
                     if expected_api_error_exception(error, operation.get("expectedErrorCodes")):

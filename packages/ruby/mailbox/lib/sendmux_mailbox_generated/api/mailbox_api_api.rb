@@ -988,9 +988,9 @@ module Sendmux::Mailbox::Generated
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
-    # @option opts [String] :download_token
     # @option opts [String] :range
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @option opts [String] :download_token
     # @return [nil]
     def mailbox_get_message_attachment(message_id, attachment_id, opts = {})
       mailbox_get_message_attachment_with_http_info(message_id, attachment_id, opts)
@@ -1002,9 +1002,9 @@ module Sendmux::Mailbox::Generated
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
-    # @option opts [String] :download_token
     # @option opts [String] :range
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @option opts [String] :download_token
     # @return [Array<(nil, Integer, Hash)>] nil, response status code and response headers
     def mailbox_get_message_attachment_with_http_info(message_id, attachment_id, opts = {})
       if @api_client.config.debugging
@@ -1023,8 +1023,8 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
-      query_params[:'download_token'] = opts[:'download_token'] if !opts[:'download_token'].nil?
       query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+      query_params[:'download_token'] = opts[:'download_token'] if !opts[:'download_token'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}

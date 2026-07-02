@@ -1056,6 +1056,7 @@ async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
       });
       await assertPresignedAttachmentRejectsTamper(downloadUrl);
     },
+    returnResult: adapter === "mcp",
   };
 }
 
@@ -1086,6 +1087,7 @@ async function prepareMailboxWaitForMessage({ fixtureRuntime }) {
         expectedContent: owned.attachmentContent,
       });
     },
+    returnResult: true,
   };
 }
 
@@ -2349,6 +2351,7 @@ async function runMcpOperations({ credentials, operations, requests }) {
         expectedErrorCodes: prepared.expectedErrorCodes,
         operationId: operation.operationId,
         responseKind: operation.responseKind,
+        returnResult: prepared.returnResult === true,
         surface: operation.surface,
         toolName: scenarios[operation.operationId].adapters.mcp,
       };
@@ -2390,11 +2393,14 @@ async function runMcpOperations({ credentials, operations, requests }) {
   for (const result of mcpResults) {
     if (result.status !== "passed") continue;
     const prepared = preparedById.get(result.operationId);
-    if (prepared?.afterResult && result.cleanup) {
-      await prepared.afterResult(result.cleanup);
+    if (prepared?.afterResult) {
+      const value = result.result ?? result.cleanup;
+      if (value !== undefined) {
+        await prepared.afterResult(value);
+      }
     }
   }
-  return [...skipped, ...mcpResults.map(({ cleanup, ...result }) => result)];
+  return [...skipped, ...mcpResults.map(({ cleanup, result, ...item }) => item)];
 }
 
 async function runLanguageSdkOperations({ adapter, credentials, operations, requests }) {

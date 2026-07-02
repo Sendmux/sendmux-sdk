@@ -2777,10 +2777,6 @@ func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEs
 					In:   "path",
 				}: params.AttachmentID,
 				{
-					Name: "download_token",
-					In:   "query",
-				}: params.DownloadToken,
-				{
 					Name: "Range",
 					In:   "header",
 				}: params.Range,
@@ -2788,6 +2784,10 @@ func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEs
 					Name: "mailbox_id",
 					In:   "query",
 				}: params.MailboxID,
+				{
+					Name: "download_token",
+					In:   "query",
+				}: params.DownloadToken,
 			},
 			Raw: r,
 		}

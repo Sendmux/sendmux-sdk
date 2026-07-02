@@ -3014,13 +3014,13 @@ func decodeMailboxGetMessageParams(args [1]string, argsEscaped bool, r *http.Req
 
 // MailboxGetMessageAttachmentParams is parameters of mailboxGetMessageAttachment operation.
 type MailboxGetMessageAttachmentParams struct {
-	MessageID     string
-	AttachmentID  string
-	DownloadToken OptString
-	Range         OptString
+	MessageID    string
+	AttachmentID string
+	Range        OptString
 	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
 	// the credential is scoped to exactly one mailbox.
-	MailboxID OptString
+	MailboxID     OptString
+	DownloadToken OptString
 }
 
 func unpackMailboxGetMessageAttachmentParams(packed middleware.Parameters) (params MailboxGetMessageAttachmentParams) {
@@ -3040,15 +3040,6 @@ func unpackMailboxGetMessageAttachmentParams(packed middleware.Parameters) (para
 	}
 	{
 		key := middleware.ParameterKey{
-			Name: "download_token",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.DownloadToken = v.(OptString)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
 			Name: "Range",
 			In:   "header",
 		}
@@ -3063,6 +3054,15 @@ func unpackMailboxGetMessageAttachmentParams(packed middleware.Parameters) (para
 		}
 		if v, ok := packed[key]; ok {
 			params.MailboxID = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "download_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.DownloadToken = v.(OptString)
 		}
 	}
 	return params
@@ -3161,47 +3161,6 @@ func decodeMailboxGetMessageAttachmentParams(args [2]string, argsEscaped bool, r
 			Err:  err,
 		}
 	}
-	// Decode query: download_token.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "download_token",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotDownloadTokenVal string
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToString(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotDownloadTokenVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.DownloadToken.SetTo(paramsDotDownloadTokenVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "download_token",
-			In:   "query",
-			Err:  err,
-		}
-	}
 	// Decode header: Range.
 	if err := func() error {
 		cfg := uri.HeaderParameterDecodingConfig{
@@ -3278,6 +3237,47 @@ func decodeMailboxGetMessageAttachmentParams(args [2]string, argsEscaped bool, r
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: download_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "download_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotDownloadTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotDownloadTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.DownloadToken.SetTo(paramsDotDownloadTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "download_token",
 			In:   "query",
 			Err:  err,
 		}

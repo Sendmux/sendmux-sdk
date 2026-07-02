@@ -4350,9 +4350,9 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         attachment_id: StrictStr,
-        download_token: Optional[StrictStr] = None,
         range: Optional[StrictStr] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        download_token: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4374,12 +4374,12 @@ class MailboxAPIApi:
         :type message_id: str
         :param attachment_id: (required)
         :type attachment_id: str
-        :param download_token:
-        :type download_token: str
         :param range:
         :type range: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
+        :param download_token:
+        :type download_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4405,9 +4405,9 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_attachment_serialize(
             message_id=message_id,
             attachment_id=attachment_id,
-            download_token=download_token,
             range=range,
             mailbox_id=mailbox_id,
+            download_token=download_token,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4436,9 +4436,9 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         attachment_id: StrictStr,
-        download_token: Optional[StrictStr] = None,
         range: Optional[StrictStr] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        download_token: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4460,12 +4460,12 @@ class MailboxAPIApi:
         :type message_id: str
         :param attachment_id: (required)
         :type attachment_id: str
-        :param download_token:
-        :type download_token: str
         :param range:
         :type range: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
+        :param download_token:
+        :type download_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4491,9 +4491,9 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_attachment_serialize(
             message_id=message_id,
             attachment_id=attachment_id,
-            download_token=download_token,
             range=range,
             mailbox_id=mailbox_id,
+            download_token=download_token,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4522,9 +4522,9 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         attachment_id: StrictStr,
-        download_token: Optional[StrictStr] = None,
         range: Optional[StrictStr] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        download_token: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -4546,12 +4546,12 @@ class MailboxAPIApi:
         :type message_id: str
         :param attachment_id: (required)
         :type attachment_id: str
-        :param download_token:
-        :type download_token: str
         :param range:
         :type range: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
+        :param download_token:
+        :type download_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -4577,9 +4577,9 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_attachment_serialize(
             message_id=message_id,
             attachment_id=attachment_id,
-            download_token=download_token,
             range=range,
             mailbox_id=mailbox_id,
+            download_token=download_token,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -4603,9 +4603,9 @@ class MailboxAPIApi:
         self,
         message_id,
         attachment_id,
-        download_token,
         range,
         mailbox_id,
+        download_token,
         _request_auth,
         _content_type,
         _headers,
@@ -4632,13 +4632,13 @@ class MailboxAPIApi:
         if attachment_id is not None:
             _path_params['attachment_id'] = attachment_id
         # process the query parameters
-        if download_token is not None:
-            
-            _query_params.append(('download_token', download_token))
-            
         if mailbox_id is not None:
             
             _query_params.append(('mailbox_id', mailbox_id))
+            
+        if download_token is not None:
+            
+            _query_params.append(('download_token', download_token))
             
         # process the header parameters
         if range is not None:

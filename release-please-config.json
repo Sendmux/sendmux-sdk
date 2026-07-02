@@ -79,7 +79,19 @@
       "component": "python-mcp",
       "package-name": "sendmux-mcp",
       "release-type": "python",
-      "initial-version": "1.0.0"
+      "initial-version": "1.0.0",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "server.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "server.json",
+          "jsonpath": "$.packages[0].version"
+        }
+      ]
     },
     "go": {
       "component": "go",

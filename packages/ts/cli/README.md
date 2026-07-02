@@ -52,13 +52,35 @@ Commands reject mismatched key types before making a network request.
 
 ## Attachments And Events
 
-Upload a file, then use the returned `blob_id` in `mailbox:send-message`.
+Send a mailbox message with a local file in one command:
+
+```sh
+sendmux mailbox:send-message \
+  --profile mailbox \
+  --idempotency-key "$IDEMPOTENCY_KEY" \
+  --attach ./report.md \
+  --body '{"to":[{"email":"recipient@example.com","name":null}],"subject":"Report","text_body":"Attached."}' \
+  --json
+```
+
+`--attach` can be repeated. The CLI reads and uploads each local file before sending, so the file bytes do not pass through model context. Mailbox uploads use the mailbox attachment cap, currently `7,500,000` bytes per attachment; Sending API sends use the generated Sending API request-body limits.
+
+Upload a file first, then use the returned `blob_id` in `mailbox:send-message`:
 
 ```sh
 sendmux mailbox:upload-attachment \
   --profile mailbox \
-  --query filename=report.md \
-  --body-file ./report.md \
+  --file ./report.md \
+  --json
+```
+
+Use presigned upload when a shell should upload without an API key:
+
+```sh
+sendmux mailbox:upload-attachment \
+  --profile mailbox \
+  --file ./report.md \
+  --via-presigned \
   --json
 ```
 
@@ -76,9 +98,9 @@ sendmux mailbox:stream-events \
 
 ## Commands
 
-The CLI includes `96` generated API operation commands:
+The CLI includes `97` generated API operation commands:
 
-- `40` Mailbox commands, including `mailbox:messages:list`, `mailbox:messages:get`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
+- `41` Mailbox commands, including `mailbox:messages:list`, `mailbox:messages:get`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
 - `53` Management commands, including `management:domains:list`, `management:create-mailbox`, `management:get-spend-summary`, and `management:create-webhook`.
 - `3` Sending commands: `sending:get-open-api-spec`, `sending:send`, and `sending:send:batch`.
 - Profile commands: `profiles:list`, `profiles:set`, and `profiles:show`.
@@ -99,6 +121,10 @@ Operation commands support:
 - `--profile` / `-p`
 - `--body`
 - `--body-file`
+- `--attach`
+- `--file`
+- `--via-presigned`
+- `--content-type`
 - `--header`
 - `--idempotency-key`
 - `--if-match`
@@ -108,6 +134,8 @@ Operation commands support:
 - `--json`
 
 `--path`, `--query`, and `--header` use `name=value` syntax and can be repeated when the operation accepts multiple values.
+
+Attachment flags are command-specific: `--attach` works on supported send commands, while `--file` and `--via-presigned` work on mailbox attachment upload commands. Mailbox upload commands share the `7,500,000` byte per-attachment cap.
 
 `mailbox:stream-events` also supports `--follow` to keep printing events until the stream closes or the process is interrupted.
 

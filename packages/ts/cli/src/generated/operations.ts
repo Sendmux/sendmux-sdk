@@ -230,6 +230,29 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxCreateAttachmentUpload: {
+    "bodyKind": "json",
+    "command": "mailbox:create-attachment-upload",
+    "description": "Create a presigned mailbox attachment upload",
+    "headerParams": [],
+    "method": "post",
+    "operationId": "mailboxCreateAttachmentUpload",
+    "path": "/mailbox/attachment-uploads",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxCreateFolder: {
     "bodyKind": "json",
     "command": "mailbox:create-folder",

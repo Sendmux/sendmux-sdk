@@ -19,11 +19,15 @@ Decision: MCP does not expose raw attachment bytes as a tool result. `mailbox_ge
 
 Reasoning: MCP tools are designed around content blocks and structured outputs with optional `outputSchema`; arbitrary `application/octet-stream` bytes are not the canonical tool-result surface. [research:https://modelcontextprotocol.io/specification/2025-06-18/server/tools] FastMCP also documents structured outputs and schemas as the normal path for machine-readable tool results. [research:https://gofastmcp.com/servers/tools]
 
-### MCP Upload Size
+### MCP Upload Size And Modes
 
-Decision: `mailbox_upload_attachment` accepts base64 content and caps decoded payloads at `5,000,000` bytes. [file:packages/python/mcp/sendmux_mcp/server.py]
+Decision: `mailbox_upload_attachment` accepts exactly one of `file_path`, `presign_upload_url=true`, or `content_base64`. Inline base64 is capped at `32 KiB` decoded; local file and presigned modes use the backend mailbox attachment upload cap, currently `7,500,000` bytes per attachment. [file:packages/python/mcp/sendmux_mcp/server.py] [file:/Users/rj/Desktop/GIT-REPOS/sendmux-attachments-first-class/src/server/api-v1/mailbox-api.ts]
 
-Reasoning: MCP tool calls carry JSON payloads, so the MCP lane should stay below the backend binary upload ceiling and avoid large base64 request bodies. Larger attachments use SDK or CLI binary upload paths. [file:packages/ts/cli/src/operation-flags.ts]
+Reasoning: MCP tool calls carry JSON payloads, so inline base64 should be reserved for tiny agent-authored content. Local stdio can read files through MCP roots, and hosted/shell-capable agents can use a presigned upload URL to move bytes outside model context. [file:packages/python/mcp/sendmux_mcp/server.py] [research:https://modelcontextprotocol.io/specification/2025-06-18/client/roots]
+
+Decision: The signed upload `PUT` is treated as an opaque URL returned by `mailboxCreateAttachmentUpload`, not as a generated SDK operation. [file:packages/python/mcp/sendmux_mcp/openapi/openapi-app.json] [file:packages/ts/mailbox/src/node.ts]
+
+Reasoning: Generated SDKs should call the authenticated mint operation, then use the returned absolute `upload_url` with ordinary HTTP and exact returned headers. This avoids adding a separate unauthenticated generated API surface while preserving the presigned capability URL workflow. [file:packages/ts/mailbox/src/node.ts] [research:https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html]
 
 ### Wait For Email In MCP
 

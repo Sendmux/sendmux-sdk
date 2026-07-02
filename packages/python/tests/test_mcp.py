@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -461,6 +462,205 @@ def test_mailbox_upload_attachment_decodes_base64_and_posts_binary() -> None:
     assert requests[0].url.params["mailbox_id"] == "mbx_test"
     assert requests[0].headers["content-type"] == "text/plain"
     assert requests[0].content == b"attachment bytes"
+
+
+def test_mailbox_upload_attachment_mints_presigned_url() -> None:
+    requests: list[httpx.Request] = []
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        payload = json.loads((await request.aread()).decode("utf8"))
+        return httpx.Response(
+            200,
+            json={
+                "ok": True,
+                "data": {
+                    "upload_id": "upl_test",
+                    "upload_url": "https://app.sendmux.ai/api/v1/mailbox/attachment-uploads/upl_test?upload_token=tok",
+                    "method": "PUT",
+                    "expires_at": "2026-07-02T06:10:00.000Z",
+                    "headers": {"Content-Type": payload["content_type"], "Content-Length": str(payload["size_bytes"])},
+                    "max_size_bytes": 7_500_000,
+                },
+                "meta": {"request_id": "req_test"},
+            },
+            request=request,
+        )
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_upload_attachment",
+                    {
+                        "content_type": "application/pdf",
+                        "filename": "report.pdf",
+                        "mailbox_id": "mbx_test",
+                        "presign_upload_url": True,
+                        "size_bytes": 5_242_880,
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["upload_id"] == "upl_test"
+        assert result["data"]["upload_url"].endswith("upload_token=tok")
+
+    asyncio.run(check())
+
+    assert len(requests) == 1
+    assert requests[0].method == "POST"
+    assert requests[0].url.path == "/api/v1/mailbox/attachment-uploads"
+    assert requests[0].url.params["mailbox_id"] == "mbx_test"
+    assert json.loads(requests[0].content) == {
+        "content_type": "application/pdf",
+        "filename": "report.pdf",
+        "size_bytes": 5_242_880,
+    }
+
+
+def test_mailbox_upload_attachment_reads_file_path_from_client_roots(tmp_path: Path) -> None:
+    requests: list[httpx.Request] = []
+    attachment = tmp_path / "report.pdf"
+    attachment.write_bytes(b"pdf bytes")
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        body = await request.aread()
+        return httpx.Response(
+            200,
+            json={
+                "ok": True,
+                "data": {
+                    "blob_id": "blob_file",
+                    "filename": request.url.params["filename"],
+                    "content_type": request.headers["content-type"],
+                    "size_bytes": len(body),
+                },
+                "meta": {"request_id": "req_test"},
+            },
+            request=request,
+        )
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server, roots=[tmp_path.as_uri()]) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_upload_attachment",
+                    {
+                        "content_type": "application/pdf",
+                        "file_path": str(attachment),
+                        "filename": "report.pdf",
+                        "mailbox_id": "mbx_test",
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["blob_id"] == "blob_file"
+
+    asyncio.run(check())
+
+    assert len(requests) == 1
+    assert requests[0].url.path == "/api/v1/mailbox/attachments:upload"
+    assert requests[0].content == b"pdf bytes"
+
+
+def test_mailbox_upload_attachment_rejects_hosted_file_path(tmp_path: Path) -> None:
+    attachment = tmp_path / "report.pdf"
+    attachment.write_bytes(b"pdf bytes")
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",)),
+            transport=ok_transport(),
+            hosted_proxy_config=HostedProxyConfig(
+                proxy_url="https://mcp.sendmux.ai/internal/proxy",
+                upstream_base_url="https://app.sendmux.ai/api/v1",
+            ),
+        )
+        async with Client(server, roots=[tmp_path.as_uri()]) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_upload_attachment",
+                    {
+                        "content_type": "application/pdf",
+                        "file_path": str(attachment),
+                        "filename": "report.pdf",
+                    },
+                )
+            )
+
+        assert result["ok"] is False
+        assert result["error"]["code"] == "invalid_parameter"
+        assert result["error"]["param"] == "file_path"
+        assert "presign_upload_url" in result["error"]["message"]
+
+    asyncio.run(check())
+
+
+def test_mailbox_upload_attachment_rejects_inline_base64_over_mcp_cap() -> None:
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=ok_transport(),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_upload_attachment",
+                    {
+                        "content_base64": base64.b64encode(b"x" * 32_769).decode("ascii"),
+                        "content_type": "application/octet-stream",
+                        "filename": "large.bin",
+                    },
+                )
+            )
+
+        assert result["ok"] is False
+        assert result["error"]["code"] == "invalid_parameter"
+        assert result["error"]["param"] == "content_base64"
+        assert "file_path" in result["error"]["message"]
+        assert "presign_upload_url" in result["error"]["message"]
+
+    asyncio.run(check())
+
+
+def test_mailbox_upload_attachment_requires_exactly_one_input_mode(tmp_path: Path) -> None:
+    attachment = tmp_path / "report.pdf"
+    attachment.write_bytes(b"pdf bytes")
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=ok_transport(),
+        )
+        async with Client(server, roots=[tmp_path.as_uri()]) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_upload_attachment",
+                    {
+                        "content_base64": base64.b64encode(b"inline").decode("ascii"),
+                        "content_type": "application/pdf",
+                        "file_path": str(attachment),
+                        "filename": "report.pdf",
+                    },
+                )
+            )
+
+        assert result["ok"] is False
+        assert result["error"]["code"] == "invalid_parameter"
+        assert result["error"]["message"].startswith("Provide exactly one")
+
+    asyncio.run(check())
 
 
 def test_mailbox_wait_for_message_returns_matching_message() -> None:

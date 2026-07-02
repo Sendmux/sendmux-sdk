@@ -41,6 +41,10 @@ __all__ = [
     "Mailbox",
     "MailboxAddress",
     "MailboxAttachment",
+    "MailboxAttachmentUploadIntentBody",
+    "MailboxAttachmentUploadIntentResult",
+    "MailboxAttachmentUploadIntentResultHeaders",
+    "MailboxAttachmentUploadIntentResultResponse",
     "MailboxAttachmentUploadResult",
     "MailboxAttachmentUploadResultResponse",
     "MailboxBatchDeleteMessagesResult",
@@ -183,6 +187,10 @@ from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxL
 from sendmux_mailbox.models.mailbox import Mailbox as Mailbox
 from sendmux_mailbox.models.mailbox_address import MailboxAddress as MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment as MailboxAttachment
+from sendmux_mailbox.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody as MailboxAttachmentUploadIntentBody
+from sendmux_mailbox.models.mailbox_attachment_upload_intent_result import MailboxAttachmentUploadIntentResult as MailboxAttachmentUploadIntentResult
+from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_headers import MailboxAttachmentUploadIntentResultHeaders as MailboxAttachmentUploadIntentResultHeaders
+from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_response import MailboxAttachmentUploadIntentResultResponse as MailboxAttachmentUploadIntentResultResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_result import MailboxAttachmentUploadResult as MailboxAttachmentUploadResult
 from sendmux_mailbox.models.mailbox_attachment_upload_result_response import MailboxAttachmentUploadResultResponse as MailboxAttachmentUploadResultResponse
 from sendmux_mailbox.models.mailbox_batch_delete_messages_result import MailboxBatchDeleteMessagesResult as MailboxBatchDeleteMessagesResult
@@ -305,3 +313,9 @@ from sendmux_mailbox.client import (
 )
 
 from sendmux_mailbox.events import iter_mailbox_events
+from sendmux_mailbox.attachments import (
+    create_mailbox_attachment_upload_from_file,
+    send_mailbox_message_with_files,
+    upload_mailbox_attachment_from_file,
+    upload_mailbox_attachment_via_presigned_file,
+)

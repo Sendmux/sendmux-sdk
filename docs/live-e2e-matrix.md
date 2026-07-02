@@ -15,16 +15,16 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 
 ## Summary
 
-- Operations: 97 total; 96 OpenAPI operations and 1 custom MCP operation.
-- OpenAPI operations by surface: management 53, mailbox 40, sending 3.
+- Operations: 98 total; 97 OpenAPI operations and 1 custom MCP operation.
+- OpenAPI operations by surface: management 53, mailbox 41, sending 3.
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
-- MCP adapters required for curated tools: 47.
+- MCP adapters required for curated tools: 48.
 - Default executable live operations: 54.
-- Blocked behind safety gates: 43.
+- Blocked behind safety gates: 44.
 - Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
-- Risks: binary 2, destructive 8, mutation 30, read 54, send 2, stream 1.
-- Modes: binary_fixture 2, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 15, read 33, read_fixture 21, send 2, stream 1, update_restore 8.
+- Risks: binary 3, destructive 8, mutation 30, read 54, send 2, stream 1.
+- Modes: binary_fixture 3, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 15, read 33, read_fixture 21, send 2, stream 1, update_restore 8.
 
 ## Matrix
 
@@ -34,6 +34,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | mailbox | `mailboxBatchGetMessages` | POST | `/mailbox/messages:batch-get` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_get_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | mailbox | `mailboxBatchUpdateMessages` | POST | `/mailbox/messages:batch-update` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_update_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | mailbox | `mailboxCountMessages` | GET | `/mailbox/messages/count` | read | read | typescript, python, go, php, ruby | yes | mailbox_count_messages | none | fixture |
+| mailbox | `mailboxCreateAttachmentUpload` | POST | `/mailbox/attachment-uploads` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_upload_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |
 | mailbox | `mailboxCreateFolder` | POST | `/mailbox/folders` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
 | mailbox | `mailboxDeleteFolder` | DELETE | `/mailbox/folders/{folder_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | mailbox | `mailboxDeleteMessage` | DELETE | `/mailbox/messages/{message_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |

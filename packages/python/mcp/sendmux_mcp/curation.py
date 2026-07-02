@@ -115,7 +115,7 @@ OPENAPI_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="mailboxSendMessage",
         name="mailbox_send_message",
         title="Send Mailbox Message",
-        description="Use this to send a message from the authenticated mailbox. Attach small files inline with base64 content, or call mailbox_upload_attachment first and pass its blob_id. Include an Idempotency-Key for retries.",
+        description="Use this to send a message from the authenticated mailbox. For attachments, call mailbox_upload_attachment first using file_path, presign_upload_url, or tiny content_base64, then pass the returned blob_id. Include an Idempotency-Key for retries.",
     ),
     ToolSpec(
         operation_id="mailboxListThreads",
@@ -160,7 +160,14 @@ MAILBOX_UPLOAD_ATTACHMENT_TOOL = ToolSpec(
     operation_id="mailboxUploadAttachment",
     name="mailbox_upload_attachment",
     title="Upload Attachment",
-    description="Use this before sending a larger mailbox attachment. Provide base64 content up to 5,000,000 decoded bytes; the result returns a blob_id to pass into mailbox_send_message attachments.",
+    description="Use this before sending a mailbox attachment. Cheapest local mode is file_path on stdio MCP, guarded by client-declared roots and using no model-context bytes. Hosted or shell-capable agents should set presign_upload_url=true, then PUT the file to the short-lived URL and send the returned blob_id. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded.",
+)
+
+MAILBOX_CREATE_ATTACHMENT_UPLOAD_BACKING_TOOL = ToolSpec(
+    operation_id="mailboxCreateAttachmentUpload",
+    name="mailbox_upload_attachment",
+    title="Upload Attachment",
+    description="Backing operation used by mailbox_upload_attachment when presign_upload_url=true.",
 )
 
 MAILBOX_WAIT_FOR_MESSAGE_TOOL = ToolSpec(
@@ -312,13 +319,13 @@ SENDING_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="sendingSendEmail",
         name="sending_send_email",
         title="Send Email",
-        description="Use this to send one outbound email through the sending API. Attach up to 10 files as base64 attachments and include an Idempotency-Key so retries do not create duplicate sends.",
+        description="Use this to send one outbound email through the sending API. This API accepts attachments as base64 content in the request body; for local files, prefer SDK or CLI attach-from-file helpers so base64 is created outside model context. Include an Idempotency-Key so retries do not create duplicate sends.",
     ),
     ToolSpec(
         operation_id="sendingSendEmailBatch",
         name="sending_send_email_batch",
         title="Send Email Batch",
-        description="Use this to send multiple outbound emails in one request. Each message can include up to 10 base64 attachments; use it only when the user confirms every recipient and message.",
+        description="Use this to send multiple outbound emails in one request. Each message can include up to 10 base64 attachments; for local files, prefer SDK or CLI helpers outside MCP so base64 does not enter model context. Use it only when the user confirms every recipient and message.",
     ),
 )
 
@@ -337,6 +344,7 @@ TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
 HOSTED_BACKING_TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
     "mailbox": (
         MAILBOX_UPLOAD_ATTACHMENT_TOOL,
+        MAILBOX_CREATE_ATTACHMENT_UPLOAD_BACKING_TOOL,
     ),
     "management": (),
     "sending": (),

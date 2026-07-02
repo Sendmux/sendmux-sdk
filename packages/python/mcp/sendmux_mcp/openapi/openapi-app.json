@@ -1205,6 +1205,109 @@
         ],
         "type": "object"
       },
+      "MailboxAttachmentUploadIntentBody": {
+        "additionalProperties": false,
+        "properties": {
+          "content_type": {
+            "description": "Content-Type that must be sent on the later PUT request.",
+            "example": "application/pdf",
+            "type": "string"
+          },
+          "filename": {
+            "description": "Filename to use when sending the uploaded attachment.",
+            "type": "string"
+          },
+          "size_bytes": {
+            "description": "Exact byte length that must be sent on the later PUT request.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filename",
+          "content_type",
+          "size_bytes"
+        ],
+        "type": "object"
+      },
+      "MailboxAttachmentUploadIntentResult": {
+        "additionalProperties": false,
+        "properties": {
+          "expires_at": {
+            "description": "Upload URL expiry time.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": false,
+            "description": "Headers that must be sent exactly with the PUT request.",
+            "properties": {
+              "Content-Length": {
+                "type": "string"
+              },
+              "Content-Type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "Content-Type",
+              "Content-Length"
+            ],
+            "type": "object"
+          },
+          "max_size_bytes": {
+            "description": "Maximum accepted attachment size in bytes.",
+            "type": "integer"
+          },
+          "method": {
+            "description": "HTTP method to use with `upload_url`.",
+            "enum": [
+              "PUT"
+            ],
+            "type": "string"
+          },
+          "upload_id": {
+            "description": "Short-lived upload intent ID.",
+            "type": "string"
+          },
+          "upload_url": {
+            "description": "Short-lived signed PUT URL for this exact attachment. Upload promptly; if it expires, create a new upload URL.",
+            "example": "https://app.sendmux.ai/api/v1/mailbox/attachment-uploads/upl_123?upload_token=...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "upload_id",
+          "upload_url",
+          "method",
+          "expires_at",
+          "headers",
+          "max_size_bytes"
+        ],
+        "type": "object"
+      },
+      "MailboxAttachmentUploadIntentResultResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxAttachmentUploadIntentResult"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
       "MailboxAttachmentUploadResult": {
         "additionalProperties": false,
         "properties": {
@@ -9017,6 +9120,83 @@
         ]
       }
     },
+    "/mailbox/attachment-uploads": {
+      "post": {
+        "description": "Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.",
+        "operationId": "mailboxCreateAttachmentUpload",
+        "parameters": [
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MailboxAttachmentUploadIntentBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxAttachmentUploadIntentResultResponse"
+                }
+              }
+            },
+            "description": "Attachment upload URL created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid upload request"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Attachment too large"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Attachment uploads unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create a presigned mailbox attachment upload",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
     "/mailbox/attachments:upload": {
       "post": {
         "description": "Uploads one attachment as binary data and returns a blob ID that can be supplied to `POST /mailbox/messages/send`.",
@@ -12097,7 +12277,7 @@
     },
     "/mailbox/messages/send": {
       "post": {
-        "description": "Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.",
+        "description": "Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.",
         "operationId": "mailboxSendMessage",
         "parameters": [
           {

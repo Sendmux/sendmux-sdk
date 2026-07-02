@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* export Node attachment helpers from the umbrella SDK package
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.0.0...ts-sdk-v1.1.0) (2026-07-01)
 
 

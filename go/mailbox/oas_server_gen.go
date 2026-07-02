@@ -35,6 +35,15 @@ type Handler interface {
 	//
 	// GET /mailbox/messages/count
 	MailboxCountMessages(ctx context.Context, params MailboxCountMessagesParams) (MailboxCountMessagesRes, error)
+	// MailboxCreateAttachmentUpload implements mailboxCreateAttachmentUpload operation.
+	//
+	// Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
+	// the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
+	// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+	// /mailbox/messages/send`.
+	//
+	// POST /mailbox/attachment-uploads
+	MailboxCreateAttachmentUpload(ctx context.Context, req OptMailboxAttachmentUploadIntentBody, params MailboxCreateAttachmentUploadParams) (MailboxCreateAttachmentUploadRes, error)
 	// MailboxCreateFolder implements mailboxCreateFolder operation.
 	//
 	// Creates a folder in the authenticated mailbox.
@@ -243,7 +252,7 @@ type Handler interface {
 	//
 	// Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
 	// safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST
-	// /mailbox/attachments:upload`.
+	// /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 	//
 	// POST /mailbox/messages/send
 	MailboxSendMessage(ctx context.Context, req OptSendMailboxMessageBody, params MailboxSendMessageParams) (MailboxSendMessageRes, error)

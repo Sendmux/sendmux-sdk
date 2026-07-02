@@ -136,7 +136,13 @@ When a message has attachments:
 3. Fetch `download_url` promptly with a plain HTTP client and no `Authorization` header.
 4. If the URL has expired, call `mailbox_get_attachment` again to mint a fresh URL.
 
-Use `mailbox_upload_attachment` for outbound attachments over MCP. It accepts base64 content and enforces a decoded payload cap of `5,000,000` bytes; for larger files, use an SDK or CLI upload path that can stream binary bytes directly.
+Use `mailbox_upload_attachment` for outbound attachments over MCP. It accepts exactly one input mode:
+
+- `file_path` for local stdio MCP when the file is inside a client-declared filesystem root.
+- `presign_upload_url=true` for hosted MCP or shell-capable agents; upload the file to the returned URL with exact headers and no API key, then send with the returned `blob_id`.
+- `content_base64` only for tiny agent-authored files, capped at `32 KiB` decoded. If it is too large, switch to `file_path`, presigned upload, CLI `--attach`, or SDK file helpers.
+
+`file_path` and presigned upload modes use the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
 
 For sending, `mailbox_send_message` accepts either inline base64 attachment objects (`content`, `filename`, `content_type`) or uploaded attachment references (`blob_id`, `filename`, `content_type`). The Sending API tools support the generated Sending API attachment body shape.
 

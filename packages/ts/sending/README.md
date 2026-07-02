@@ -54,6 +54,30 @@ The package exports every generated Sending operation plus:
 - `createSendingClient`
 - `configureSending`
 - `SendingClient`
+- Node-only helpers from `@sendmux/sending/node`: `attachmentFromFile` and `sendEmailWithFiles`
+
+## Attachments
+
+The Sending API accepts attachment content in the request body. It supports up to 10 attachments and rejects request bodies over 25 MB. In Node, avoid manual base64 encoding by using the helper subpath:
+
+```ts
+import { createSendingClient } from "@sendmux/sending";
+import { sendEmailWithFiles } from "@sendmux/sending/node";
+
+const client = createSendingClient({ apiKey: process.env.SENDMUX_SENDING_API_KEY! });
+
+await sendEmailWithFiles({
+  client,
+  files: ["./report.pdf"],
+  headers: { "Idempotency-Key": "report-123" },
+  body: {
+    from: { email: "sender@example.com" },
+    to: { email: "recipient@example.com" },
+    subject: "Report",
+    html_body: "<p>Attached.</p>",
+  },
+});
+```
 
 ## Request helpers
 

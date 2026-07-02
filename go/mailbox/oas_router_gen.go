@@ -61,24 +61,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "attachments:upload"
+			case 'a': // Prefix: "attachment"
 
-				if l := len("attachments:upload"); len(elem) >= l && elem[0:l] == "attachments:upload" {
+				if l := len("attachment"); len(elem) >= l && elem[0:l] == "attachment" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "POST":
-						s.handleMailboxUploadAttachmentRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "POST")
+					break
+				}
+				switch elem[0] {
+				case '-': // Prefix: "-uploads"
+
+					if l := len("-uploads"); len(elem) >= l && elem[0:l] == "-uploads" {
+						elem = elem[l:]
+					} else {
+						break
 					}
 
-					return
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleMailboxCreateAttachmentUploadRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				case 's': // Prefix: "s:upload"
+
+					if l := len("s:upload"); len(elem) >= l && elem[0:l] == "s:upload" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleMailboxUploadAttachmentRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
 				}
 
 			case 'c': // Prefix: "changes"
@@ -1046,28 +1080,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "attachments:upload"
+			case 'a': // Prefix: "attachment"
 
-				if l := len("attachments:upload"); len(elem) >= l && elem[0:l] == "attachments:upload" {
+				if l := len("attachment"); len(elem) >= l && elem[0:l] == "attachment" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
-					switch method {
-					case "POST":
-						r.name = MailboxUploadAttachmentOperation
-						r.summary = "Upload a mailbox attachment"
-						r.operationID = "mailboxUploadAttachment"
-						r.pathPattern = "/mailbox/attachments:upload"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
+					break
+				}
+				switch elem[0] {
+				case '-': // Prefix: "-uploads"
+
+					if l := len("-uploads"); len(elem) >= l && elem[0:l] == "-uploads" {
+						elem = elem[l:]
+					} else {
+						break
 					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = MailboxCreateAttachmentUploadOperation
+							r.summary = "Create a presigned mailbox attachment upload"
+							r.operationID = "mailboxCreateAttachmentUpload"
+							r.pathPattern = "/mailbox/attachment-uploads"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 's': // Prefix: "s:upload"
+
+					if l := len("s:upload"); len(elem) >= l && elem[0:l] == "s:upload" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = MailboxUploadAttachmentOperation
+							r.summary = "Upload a mailbox attachment"
+							r.operationID = "mailboxUploadAttachment"
+							r.pathPattern = "/mailbox/attachments:upload"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
 				}
 
 			case 'c': // Prefix: "changes"

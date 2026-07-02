@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const {
   SendmuxApiError,
@@ -18,7 +21,21 @@ const {
   mailboxGetIdentity,
   streamMailboxEvents,
 } = await import("../packages/ts/mailbox/dist/index.js");
+const {
+  createMailboxAttachmentUploadFromFile,
+  sendMailboxMessageWithFiles,
+  uploadMailboxAttachmentFromFile,
+  uploadMailboxAttachmentViaPresignedFile,
+} = await import("../packages/ts/mailbox/dist/node.js");
 const { createSendingClient } = await import("../packages/ts/sending/dist/index.js");
+const {
+  attachmentFromFile,
+  sendEmailWithFiles,
+} = await import("../packages/ts/sending/dist/node.js");
+const sdkNode = await import("../packages/ts/sdk/dist/node.js");
+
+assert.equal(sdkNode.mailbox.uploadMailboxAttachmentFromFile, uploadMailboxAttachmentFromFile);
+assert.equal(sdkNode.sending.attachmentFromFile, attachmentFromFile);
 
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
 assert.equal(assertApiKeyKind("smx_mbx_test", "mailbox"), "mailbox");
@@ -336,5 +353,208 @@ assert.equal(mailboxStreamUrl.origin, "https://mailbox-stream-sdk.test");
 assert.equal(mailboxStreamUrl.pathname, "/mailbox/events");
 assert.equal(mailboxStreamUrl.searchParams.get("close_after"), "30");
 assert.equal(mailboxStreamUrl.searchParams.get("event_types"), "message.received");
+
+const tempDir = await mkdtemp(join(tmpdir(), "sendmux-ts-helpers-"));
+try {
+  const reportPath = join(tempDir, "report.txt");
+  const reportBytes = Buffer.from("typed helper attachment\n", "utf8");
+  await writeFile(reportPath, reportBytes);
+
+  const seenMailboxFileRequests = [];
+  const mailboxFileClient = createMailboxClient({
+    apiKey: "smx_agent_test_mailbox_file",
+    baseUrl: "https://mailbox-file-sdk.test",
+    fetch: async (request) => {
+      const body = Buffer.from(await request.arrayBuffer());
+      seenMailboxFileRequests.push({
+        authorization: request.headers.get("Authorization"),
+        body,
+        contentType: request.headers.get("Content-Type"),
+        method: request.method,
+        url: request.url,
+      });
+      const url = new URL(request.url);
+      if (url.pathname === "/mailbox/attachment-uploads") {
+        const parsed = JSON.parse(body.toString("utf8"));
+        return new Response(JSON.stringify({
+          ok: true,
+          data: {
+            expires_at: "2026-07-02T00:10:00.000Z",
+            headers: {
+              "Content-Length": String(parsed.size_bytes),
+              "Content-Type": parsed.content_type,
+            },
+            max_size_bytes: 7500000,
+            method: "PUT",
+            upload_id: "upl_ts_helper",
+            upload_url: "https://upload-sdk.test/mailbox/attachment-uploads/upl_ts_helper?upload_token=tok",
+          },
+          meta: { request_id: "req_ts_intent" },
+        }), {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      if (url.pathname === "/mailbox/attachments:upload") {
+        return new Response(JSON.stringify({
+          ok: true,
+          data: {
+            blob_id: "blob_ts_report",
+            content_type: request.headers.get("Content-Type"),
+            filename: url.searchParams.get("filename"),
+            size_bytes: body.byteLength,
+          },
+          meta: { request_id: "req_ts_upload" },
+        }), {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      if (url.pathname === "/mailbox/messages/send") {
+        return new Response(JSON.stringify({
+          ok: true,
+          data: { message_id: "msg_ts_file", status: "queued" },
+          meta: { request_id: "req_ts_send" },
+        }), {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      throw new Error(`Unexpected mailbox helper request: ${request.method} ${request.url}`);
+    },
+  });
+
+  const directUpload = await uploadMailboxAttachmentFromFile({
+    client: mailboxFileClient,
+    filePath: reportPath,
+    mailboxId: "mbx_ts_file",
+  });
+  assert.equal(directUpload.data.blob_id, "blob_ts_report");
+  assert.equal(seenMailboxFileRequests.at(-1).contentType, "text/plain");
+  assert.equal(seenMailboxFileRequests.at(-1).url, "https://mailbox-file-sdk.test/mailbox/attachments:upload?filename=report.txt&mailbox_id=mbx_ts_file");
+  assert.deepEqual(seenMailboxFileRequests.at(-1).body, reportBytes);
+
+  const sentWithFiles = await sendMailboxMessageWithFiles({
+    client: mailboxFileClient,
+    files: [reportPath],
+    query: { mailbox_id: "mbx_ts_file" },
+    body: {
+      subject: "TS file",
+      text_body: "Attached",
+      to: [{ email: "agent@example.com", name: null }],
+    },
+  });
+  assert.equal(sentWithFiles.data.message_id, "msg_ts_file");
+  const sendRequest = seenMailboxFileRequests.at(-1);
+  assert.equal(sendRequest.url, "https://mailbox-file-sdk.test/mailbox/messages/send?mailbox_id=mbx_ts_file");
+  assert.deepEqual(JSON.parse(sendRequest.body.toString("utf8")).attachments, [
+    {
+      blob_id: "blob_ts_report",
+      content_type: "text/plain",
+      filename: "report.txt",
+    },
+  ]);
+
+  const intent = await createMailboxAttachmentUploadFromFile({
+    client: mailboxFileClient,
+    filePath: reportPath,
+    mailboxId: "mbx_ts_file",
+  });
+  assert.equal(intent.data.upload_id, "upl_ts_helper");
+  const intentRequest = seenMailboxFileRequests.at(-1);
+  assert.equal(intentRequest.url, "https://mailbox-file-sdk.test/mailbox/attachment-uploads?mailbox_id=mbx_ts_file");
+  assert.deepEqual(JSON.parse(intentRequest.body.toString("utf8")), {
+    content_type: "text/plain",
+    filename: "report.txt",
+    size_bytes: reportBytes.byteLength,
+  });
+
+  const seenPresignedPuts = [];
+  const presignedResult = await uploadMailboxAttachmentViaPresignedFile({
+    client: mailboxFileClient,
+    filePath: reportPath,
+    mailboxId: "mbx_ts_file",
+    fetch: async (url, init) => {
+      seenPresignedPuts.push({
+        body: Buffer.from(await new Response(init.body).arrayBuffer()),
+        headers: init.headers,
+        method: init.method,
+        url: String(url),
+      });
+      return new Response(JSON.stringify({
+        ok: true,
+        data: {
+          blob_id: "blob_ts_presigned",
+          content_type: "text/plain",
+          filename: "report.txt",
+          size_bytes: reportBytes.byteLength,
+        },
+        meta: { request_id: "req_ts_put" },
+      }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      });
+    },
+  });
+  assert.equal(presignedResult.data.blob_id, "blob_ts_presigned");
+  assert.deepEqual(seenPresignedPuts, [
+    {
+      body: reportBytes,
+      headers: {
+        "Content-Length": String(reportBytes.byteLength),
+        "Content-Type": "text/plain",
+      },
+      method: "PUT",
+      url: "https://upload-sdk.test/mailbox/attachment-uploads/upl_ts_helper?upload_token=tok",
+    },
+  ]);
+
+  const sendingAttachment = await attachmentFromFile(reportPath);
+  assert.deepEqual(sendingAttachment, {
+    content: reportBytes.toString("base64"),
+    encoding: "base64",
+    filename: "report.txt",
+    type: "text/plain",
+  });
+
+  const seenSendingFileRequests = [];
+  const sendingFileClient = createSendingClient({
+    apiKey: "smx_mbx_test_sending_file",
+    baseUrl: "https://sending-file-sdk.test",
+    fetch: async (request) => {
+      const body = Buffer.from(await request.arrayBuffer());
+      seenSendingFileRequests.push({
+        authorization: request.headers.get("Authorization"),
+        body,
+        contentType: request.headers.get("Content-Type"),
+        method: request.method,
+        url: request.url,
+      });
+      return new Response(JSON.stringify({
+        ok: true,
+        data: { message_id: "msg_ts_sending_file", status: "queued" },
+        meta: { request_id: "req_ts_sending_file" },
+      }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      });
+    },
+  });
+  const sendingWithFiles = await sendEmailWithFiles({
+    client: sendingFileClient,
+    files: [reportPath],
+    body: {
+      from: { email: "from@example.com" },
+      html_body: "<p>Attached</p>",
+      subject: "TS file",
+      to: { email: "agent@example.com" },
+    },
+  });
+  assert.equal(sendingWithFiles.data.message_id, "msg_ts_sending_file");
+  assert.equal(seenSendingFileRequests[0].authorization, "Bearer smx_mbx_test_sending_file");
+  assert.deepEqual(JSON.parse(seenSendingFileRequests[0].body.toString("utf8")).attachments, [sendingAttachment]);
+} finally {
+  await rm(tempDir, { force: true, recursive: true });
+}
 
 console.log("TypeScript core helper tests passed.");

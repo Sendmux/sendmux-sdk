@@ -4,7 +4,7 @@
 
 ### Features
 
-* regenerate mailbox models for short-lived attachment download URLs
+* regenerate mailbox models for short-lived attachment download URLs and upload intents
 
 ## 1.0.0 (2026-06-02)
 

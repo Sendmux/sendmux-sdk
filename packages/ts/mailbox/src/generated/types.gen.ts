@@ -926,6 +926,56 @@ export type MailboxAttachmentUploadResult = {
     size_bytes: number;
 };
 
+export type MailboxAttachmentUploadIntentResultResponse = SuccessEnvelope & {
+    data: MailboxAttachmentUploadIntentResult;
+    meta?: ResponseMeta;
+};
+
+export type MailboxAttachmentUploadIntentResult = {
+    /**
+     * Upload URL expiry time.
+     */
+    expires_at: string;
+    /**
+     * Headers that must be sent exactly with the PUT request.
+     */
+    headers: {
+        'Content-Length': string;
+        'Content-Type': string;
+    };
+    /**
+     * Maximum accepted attachment size in bytes.
+     */
+    max_size_bytes: number;
+    /**
+     * HTTP method to use with `upload_url`.
+     */
+    method: 'PUT';
+    /**
+     * Short-lived upload intent ID.
+     */
+    upload_id: string;
+    /**
+     * Short-lived signed PUT URL for this exact attachment. Upload promptly; if it expires, create a new upload URL.
+     */
+    upload_url: string;
+};
+
+export type MailboxAttachmentUploadIntentBody = {
+    /**
+     * Content-Type that must be sent on the later PUT request.
+     */
+    content_type: string;
+    /**
+     * Filename to use when sending the uploaded attachment.
+     */
+    filename: string;
+    /**
+     * Exact byte length that must be sent on the later PUT request.
+     */
+    size_bytes: number;
+};
+
 export type GrantedMailboxListResponse = SuccessEnvelope & {
     data: Array<GrantedMailbox>;
     meta?: ResponseMeta;
@@ -1036,6 +1086,44 @@ export type ApiError = {
     };
     ok: false;
 };
+
+export type MailboxCreateAttachmentUploadData = {
+    body?: MailboxAttachmentUploadIntentBody;
+    path?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/attachment-uploads';
+};
+
+export type MailboxCreateAttachmentUploadErrors = {
+    /**
+     * Invalid upload request
+     */
+    400: ApiError;
+    /**
+     * Attachment too large
+     */
+    413: ApiError;
+    /**
+     * Attachment uploads unavailable
+     */
+    503: ApiError;
+};
+
+export type MailboxCreateAttachmentUploadError = MailboxCreateAttachmentUploadErrors[keyof MailboxCreateAttachmentUploadErrors];
+
+export type MailboxCreateAttachmentUploadResponses = {
+    /**
+     * Attachment upload URL created
+     */
+    200: MailboxAttachmentUploadIntentResultResponse;
+};
+
+export type MailboxCreateAttachmentUploadResponse = MailboxCreateAttachmentUploadResponses[keyof MailboxCreateAttachmentUploadResponses];
 
 export type MailboxUploadAttachmentData = {
     /**

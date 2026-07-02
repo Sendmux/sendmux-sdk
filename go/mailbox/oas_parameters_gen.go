@@ -1296,6 +1296,72 @@ func decodeMailboxCountMessagesParams(args [0]string, argsEscaped bool, r *http.
 	return params, nil
 }
 
+// MailboxCreateAttachmentUploadParams is parameters of mailboxCreateAttachmentUpload operation.
+type MailboxCreateAttachmentUploadParams struct {
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxCreateAttachmentUploadParams(packed middleware.Parameters) (params MailboxCreateAttachmentUploadParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxCreateAttachmentUploadParams(args [0]string, argsEscaped bool, r *http.Request) (params MailboxCreateAttachmentUploadParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // MailboxCreateFolderParams is parameters of mailboxCreateFolder operation.
 type MailboxCreateFolderParams struct {
 	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when

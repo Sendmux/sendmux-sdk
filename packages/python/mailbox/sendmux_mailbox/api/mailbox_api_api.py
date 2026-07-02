@@ -22,6 +22,8 @@ from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDelet
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody
 from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse
+from sendmux_mailbox.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody
+from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_response import MailboxAttachmentUploadIntentResultResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_result_response import MailboxAttachmentUploadResultResponse
 from sendmux_mailbox.models.mailbox_batch_delete_messages_result_response import MailboxBatchDeleteMessagesResultResponse
 from sendmux_mailbox.models.mailbox_batch_get_body import MailboxBatchGetBody
@@ -1542,6 +1544,306 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/mailbox/messages/count',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_create_attachment_upload(
+        self,
+        mailbox_attachment_upload_intent_body: Optional[MailboxAttachmentUploadIntentBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxAttachmentUploadIntentResultResponse:
+        """Create a presigned mailbox attachment upload
+
+        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param mailbox_attachment_upload_intent_body:
+        :type mailbox_attachment_upload_intent_body: MailboxAttachmentUploadIntentBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_create_attachment_upload_serialize(
+            mailbox_id=mailbox_id,
+            mailbox_attachment_upload_intent_body=mailbox_attachment_upload_intent_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentUploadIntentResultResponse",
+            '400': "ApiError",
+            '413': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_create_attachment_upload_with_http_info(
+        self,
+        mailbox_attachment_upload_intent_body: Optional[MailboxAttachmentUploadIntentBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxAttachmentUploadIntentResultResponse]:
+        """Create a presigned mailbox attachment upload
+
+        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param mailbox_attachment_upload_intent_body:
+        :type mailbox_attachment_upload_intent_body: MailboxAttachmentUploadIntentBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_create_attachment_upload_serialize(
+            mailbox_id=mailbox_id,
+            mailbox_attachment_upload_intent_body=mailbox_attachment_upload_intent_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentUploadIntentResultResponse",
+            '400': "ApiError",
+            '413': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_create_attachment_upload_without_preload_content(
+        self,
+        mailbox_attachment_upload_intent_body: Optional[MailboxAttachmentUploadIntentBody] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create a presigned mailbox attachment upload
+
+        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param mailbox_attachment_upload_intent_body:
+        :type mailbox_attachment_upload_intent_body: MailboxAttachmentUploadIntentBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_create_attachment_upload_serialize(
+            mailbox_id=mailbox_id,
+            mailbox_attachment_upload_intent_body=mailbox_attachment_upload_intent_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentUploadIntentResultResponse",
+            '400': "ApiError",
+            '413': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_create_attachment_upload_serialize(
+        self,
+        mailbox_id,
+        mailbox_attachment_upload_intent_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if mailbox_id is not None:
+            
+            _query_params.append(('mailbox_id', mailbox_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if mailbox_attachment_upload_intent_body is not None:
+            _body_params = mailbox_attachment_upload_intent_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/mailbox/attachment-uploads',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -12496,7 +12798,7 @@ class MailboxAPIApi:
     ) -> MailboxSendResultResponse:
         """Send a mailbox message
 
-        Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.
+        Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 
         :param idempotency_key:
         :type idempotency_key: str
@@ -12575,7 +12877,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxSendResultResponse]:
         """Send a mailbox message
 
-        Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.
+        Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 
         :param idempotency_key:
         :type idempotency_key: str
@@ -12654,7 +12956,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Send a mailbox message
 
-        Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.
+        Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 
         :param idempotency_key:
         :type idempotency_key: str

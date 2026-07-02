@@ -121,6 +121,37 @@
       "mode": "read",
       "risk": "read"
     },
+    "mailboxCreateAttachmentUpload": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_upload_attachment",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
     "mailboxCreateFolder": {
       "adapters": {
         "cli": true,

@@ -56,6 +56,15 @@ type Invoker interface {
 	//
 	// GET /mailbox/messages/count
 	MailboxCountMessages(ctx context.Context, params MailboxCountMessagesParams) (MailboxCountMessagesRes, error)
+	// MailboxCreateAttachmentUpload invokes mailboxCreateAttachmentUpload operation.
+	//
+	// Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
+	// the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
+	// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+	// /mailbox/messages/send`.
+	//
+	// POST /mailbox/attachment-uploads
+	MailboxCreateAttachmentUpload(ctx context.Context, request OptMailboxAttachmentUploadIntentBody, params MailboxCreateAttachmentUploadParams) (MailboxCreateAttachmentUploadRes, error)
 	// MailboxCreateFolder invokes mailboxCreateFolder operation.
 	//
 	// Creates a folder in the authenticated mailbox.
@@ -264,7 +273,7 @@ type Invoker interface {
 	//
 	// Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
 	// safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST
-	// /mailbox/attachments:upload`.
+	// /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 	//
 	// POST /mailbox/messages/send
 	MailboxSendMessage(ctx context.Context, request OptSendMailboxMessageBody, params MailboxSendMessageParams) (MailboxSendMessageRes, error)
@@ -1183,6 +1192,138 @@ func (c *Client) sendMailboxCountMessages(ctx context.Context, params MailboxCou
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxCountMessagesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxCreateAttachmentUpload invokes mailboxCreateAttachmentUpload operation.
+//
+// Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
+// the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
+// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+// /mailbox/messages/send`.
+//
+// POST /mailbox/attachment-uploads
+func (c *Client) MailboxCreateAttachmentUpload(ctx context.Context, request OptMailboxAttachmentUploadIntentBody, params MailboxCreateAttachmentUploadParams) (MailboxCreateAttachmentUploadRes, error) {
+	res, err := c.sendMailboxCreateAttachmentUpload(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxCreateAttachmentUpload(ctx context.Context, request OptMailboxAttachmentUploadIntentBody, params MailboxCreateAttachmentUploadParams) (res MailboxCreateAttachmentUploadRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxCreateAttachmentUpload"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/mailbox/attachment-uploads"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxCreateAttachmentUploadOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/mailbox/attachment-uploads"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeMailboxCreateAttachmentUploadRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxCreateAttachmentUploadOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxCreateAttachmentUploadResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -7888,7 +8029,7 @@ func (c *Client) sendMailboxSearchMessageSnippets(ctx context.Context, params Ma
 //
 // Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
 // safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST
-// /mailbox/attachments:upload`.
+// /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 //
 // POST /mailbox/messages/send
 func (c *Client) MailboxSendMessage(ctx context.Context, request OptSendMailboxMessageBody, params MailboxSendMessageParams) (MailboxSendMessageRes, error) {

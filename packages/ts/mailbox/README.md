@@ -50,10 +50,13 @@ The package exports every generated Mailbox operation plus:
 - `configureMailbox`
 - `MailboxClient`
 - `streamMailboxEvents`
+- Node-only helpers from `@sendmux/mailbox/node`: `uploadMailboxAttachmentFromFile`, `createMailboxAttachmentUploadFromFile`, `uploadMailboxAttachmentViaPresignedFile`, and `sendMailboxMessageWithFiles`
 
 ## Attachments
 
 Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client; no `Authorization` header is needed. If the URL has expired, call `mailboxGetMessage` or list/search messages again to receive fresh metadata.
+
+Mailbox direct uploads, presigned uploads, and Node file helpers share the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
 
 ```ts
 import {
@@ -97,7 +100,27 @@ await mailboxSendMessage({
 });
 ```
 
-Inline base64 attachments remain available for small sends through the generated `attachments[].content` body shape. Use upload plus `blob_id` when content is large enough that base64 would be awkward for an SDK or agent payload.
+For local files in Node, use the helper subpath so file bytes stay out of model context and browser bundles:
+
+```ts
+import { createMailboxClient } from "@sendmux/mailbox";
+import { sendMailboxMessageWithFiles } from "@sendmux/mailbox/node";
+
+const client = createMailboxClient({ apiKey: process.env.SENDMUX_MAILBOX_API_KEY! });
+
+await sendMailboxMessageWithFiles({
+  client,
+  files: ["./report.pdf"],
+  headers: { "Idempotency-Key": "report-123" },
+  body: {
+    to: [{ email: "recipient@example.com", name: null }],
+    subject: "Report",
+    text_body: "Attached.",
+  },
+});
+```
+
+Use `uploadMailboxAttachmentViaPresignedFile(...)` when you want the upload step to use the short-lived signed URL and no API key on the file `PUT`. Inline base64 attachments remain available for tiny generated sends through the generated `attachments[].content` body shape.
 
 ## Events
 

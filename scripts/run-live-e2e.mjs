@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -49,6 +49,7 @@ const operationRequestFactories = {
   mailboxBatchDeleteMessages: prepareOwnedMailboxBatchDelete,
   mailboxBatchGetMessages: prepareOwnedMailboxBatchGet,
   mailboxBatchUpdateMessages: prepareOwnedMailboxBatchUpdate,
+  mailboxCreateAttachmentUpload: prepareMailboxCreateAttachmentUpload,
   mailboxCreateFolder: prepareMailboxCreateFolder,
   mailboxDeleteFolder: prepareOwnedMailboxDeleteFolder,
   mailboxDeleteMessage: prepareOwnedMailboxDeleteMessage,
@@ -883,6 +884,18 @@ function cliRequestArgsFor(request, operation) {
   for (const [name, value] of Object.entries(request.headers ?? {})) {
     args.push("--header", `${name}=${String(value)}`);
   }
+  for (const filePath of request.attach ?? []) {
+    args.push("--attach", String(filePath));
+  }
+  if (request.file) {
+    args.push("--file", String(request.file));
+  }
+  if (request.viaPresigned) {
+    args.push("--via-presigned");
+  }
+  if (request.contentType) {
+    args.push("--content-type", String(request.contentType));
+  }
   if (request.body !== undefined) {
     args.push("--body", operation.bodyKind === "binary" ? String(request.body) : JSON.stringify(request.body));
   }
@@ -1011,6 +1024,24 @@ async function restoreMailboxIdentity(fixtureRuntime, body) {
 async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
   const content = `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`;
   const filename = `live-e2e-${fixtureRuntime.runId}.txt`;
+  if (adapter === "cli") {
+    const file = createLiveAttachmentFile(fixtureRuntime, "presigned-upload", content);
+    return {
+      request: {
+        contentType: "text/plain",
+        file: file.filePath,
+        viaPresigned: true,
+      },
+      afterResult: async (value) => {
+        await assertUploadedAttachmentRoundTrip({
+          expectedContent: content,
+          fixtureRuntime,
+          label: "presigned-upload",
+          uploadResult: value,
+        });
+      },
+    };
+  }
   if (adapter === "mcp") {
     return {
       request: {
@@ -1027,6 +1058,31 @@ async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
       body: content,
       query: {
         filename,
+      },
+    },
+  };
+}
+
+async function prepareMailboxCreateAttachmentUpload({ adapter, fixtureRuntime }) {
+  if (adapter === "mcp") {
+    return {
+      request: {
+        body: {
+          content_type: "text/plain",
+          filename: `live-e2e-presign-${fixtureRuntime.runId}.txt`,
+          presign_upload_url: true,
+          size_bytes: 1,
+        },
+      },
+    };
+  }
+  return {
+    expectedErrorCodes: ["payload_too_large"],
+    request: {
+      body: {
+        content_type: "text/plain",
+        filename: `live-e2e-oversize-${fixtureRuntime.runId}.txt`,
+        size_bytes: 7_500_001,
       },
     },
   };
@@ -1094,12 +1150,21 @@ async function prepareMailboxWaitForMessage({ fixtureRuntime }) {
   };
 }
 
-async function prepareMailboxSendMessage({ fixtureRuntime }) {
+async function prepareMailboxSendMessage({ adapter, fixtureRuntime }) {
   const recipient = await fixtureRuntime.resolveSource("mailboxSelfEmail");
   assertFixtureRecipientAllowed({ recipient, sourceName: "mailboxSendMessage" });
+  const attachmentFile =
+    adapter === "cli"
+      ? createLiveAttachmentFile(
+          fixtureRuntime,
+          "cli-attach-send",
+          `Sendmux live E2E CLI attachment ${fixtureRuntime.runId}\n`,
+        )
+      : null;
   return {
     cleanupSelectors: ["data.message_id"],
     request: {
+      ...(attachmentFile ? { attach: [attachmentFile.filePath] } : {}),
       body: mailboxSendBody({ fixtureRuntime, recipient, subjectLabel: "mailbox-send-message" }),
       headers: {
         "Idempotency-Key": fixtureRuntime.idempotencyKey("mailbox-send-message"),
@@ -1107,7 +1172,19 @@ async function prepareMailboxSendMessage({ fixtureRuntime }) {
     },
     afterResult: async (value) => {
       const messageId = selectFirstValue(value, ["data.message_id"]);
-      if (messageId) await cleanupMailboxMessage(fixtureRuntime, messageId);
+      if (!messageId) return;
+      try {
+        if (attachmentFile) {
+          await pollForMailboxMessageVisible({ fixtureRuntime, messageId });
+          await assertMailboxMessageAttachmentDownload({
+            expectedContent: attachmentFile.content,
+            fixtureRuntime,
+            messageId,
+          });
+        }
+      } finally {
+        await cleanupMailboxMessage(fixtureRuntime, messageId);
+      }
     },
   };
 }
@@ -1254,6 +1331,37 @@ async function uploadOwnedMailboxAttachment(fixtureRuntime, label) {
   };
 }
 
+function createLiveAttachmentFile(fixtureRuntime, label, content) {
+  const dir = mkdtempSync(join(tmpdir(), "sendmux-live-e2e-attachment-"));
+  const filePath = join(dir, `${fixtureRuntime.resourceLabel(label)}.txt`);
+  writeFileSync(filePath, content, "utf8");
+  fixtureRuntime.addTeardown(() => rmSync(dir, { force: true, recursive: true }));
+  return { content, filePath };
+}
+
+async function assertUploadedAttachmentRoundTrip({ expectedContent, fixtureRuntime, label, uploadResult }) {
+  const recipient = await fixtureRuntime.resolveSource("mailboxSelfEmail");
+  assertFixtureRecipientAllowed({ recipient, sourceName: label });
+  const attachment = {
+    blob_id: requireSelectedValue(uploadResult, ["data.blob_id"], `${label} blob id`),
+    content_type: selectFirstValue(uploadResult, ["data.content_type"]) ?? "text/plain",
+    filename: selectFirstValue(uploadResult, ["data.filename"]) ?? `${label}.txt`,
+  };
+  const response = await fixtureRuntime.runOperation("mailboxSendMessage", {
+    body: mailboxSendBody({ attachment, fixtureRuntime, recipient, subjectLabel: label }),
+    headers: {
+      "Idempotency-Key": fixtureRuntime.idempotencyKey(label),
+    },
+  });
+  const messageId = requireSelectedValue(response, ["data.message_id"], `${label} message id`);
+  try {
+    await pollForMailboxMessageVisible({ fixtureRuntime, messageId });
+    await assertMailboxMessageAttachmentDownload({ expectedContent, fixtureRuntime, messageId });
+  } finally {
+    await cleanupMailboxMessage(fixtureRuntime, messageId);
+  }
+}
+
 function mailboxSendBody({ attachment = null, fixtureRuntime, recipient, subjectLabel }) {
   return dropEmpty({
     attachments: attachment
@@ -1321,6 +1429,28 @@ async function pollForMailboxAttachmentDownload({ attachmentId, fixtureRuntime, 
     }
   }
   throw new Error(`Owned message ${messageId} attachment ${attachmentId} was not downloadable within 30s.`);
+}
+
+async function assertMailboxMessageAttachmentDownload({ expectedContent, fixtureRuntime, messageId }) {
+  const attachment = await pollForMailboxAttachmentMetadata({ fixtureRuntime, messageId });
+  await assertPresignedAttachmentDownload({
+    downloadUrl: attachment.download_url,
+    expectedContent,
+  });
+}
+
+async function pollForMailboxAttachmentMetadata({ fixtureRuntime, messageId }) {
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    const response = await fixtureRuntime.runOperation("mailboxGetMessage", { path: { message_id: messageId } });
+    const attachments = valueAtPath(response, "data.attachments");
+    const attachment = Array.isArray(attachments)
+      ? attachments.find((item) => typeof item?.download_url === "string")
+      : null;
+    if (attachment) return attachment;
+    await sleep(1_000);
+  }
+  throw new Error(`Owned message ${messageId} did not expose attachment metadata with download_url within 30s.`);
 }
 
 async function assertPresignedAttachmentDownload({ downloadUrl, expectedContent }) {
@@ -1643,11 +1773,20 @@ async function prepareOwnedDomainVerify({ fixtureRuntime }) {
   return { request: { path: { public_id: domainId } } };
 }
 
-async function prepareSendingSendEmail({ fixtureRuntime }) {
+async function prepareSendingSendEmail({ adapter, fixtureRuntime }) {
   const email = await fixtureRuntime.resolveSource("mailboxSelfEmail");
   assertFixtureRecipientAllowed({ recipient: email, sourceName: "sendingSendEmail" });
+  const attachmentFile =
+    adapter === "cli"
+      ? createLiveAttachmentFile(
+          fixtureRuntime,
+          "sending-cli-attach",
+          `Sendmux live E2E Sending attachment ${fixtureRuntime.runId}\n`,
+        )
+      : null;
   return {
     request: {
+      ...(attachmentFile ? { attach: [attachmentFile.filePath] } : {}),
       body: sendingEmailBody({ email, fixtureRuntime, subjectLabel: "send" }),
       headers: { "Idempotency-Key": fixtureRuntime.idempotencyKey("sending-send-email") },
     },

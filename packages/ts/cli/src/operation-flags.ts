@@ -13,8 +13,11 @@ import type {
 } from "./operation-types.js";
 
 export interface OperationFlags extends AuthFlags {
+  attach?: string[];
   body?: string;
   "body-file"?: string;
+  "content-type"?: string;
+  file?: string;
   follow?: boolean;
   header?: string[];
   "idempotency-key"?: string;
@@ -22,6 +25,7 @@ export interface OperationFlags extends AuthFlags {
   "if-none-match"?: string;
   path?: string[];
   query?: string[];
+  "via-presigned"?: boolean;
 }
 
 export interface ParsedOperationOptions {
@@ -33,11 +37,21 @@ export interface ParsedOperationOptions {
 
 export const operationFlags = {
   ...authFlags,
+  attach: Flags.string({
+    description: "Local file path to attach to mailbox:send-message or sending:send. Repeat for multiple files.",
+    multiple: true,
+  }),
   body: Flags.string({
     description: "JSON request body, or UTF-8 bytes for binary operations.",
   }),
   "body-file": Flags.string({
     description: "Path to a JSON request body file, or a binary file for binary operations.",
+  }),
+  "content-type": Flags.string({
+    description: "Override the inferred Content-Type for --file or --attach.",
+  }),
+  file: Flags.string({
+    description: "Local file path for attachment upload convenience commands.",
   }),
   header: Flags.string({
     description: "Header as name=value. Repeat for multiple headers.",
@@ -60,6 +74,9 @@ export const operationFlags = {
     description: "Query parameter as name=value. Repeat for multiple query parameters.",
     multiple: true,
   }),
+  "via-presigned": Flags.boolean({
+    description: "For mailbox:upload-attachment --file, mint a short-lived upload URL and PUT the file without sending an API key.",
+  }),
 };
 
 export async function parseOperationOptions(
@@ -68,7 +85,7 @@ export async function parseOperationOptions(
   flags: OperationFlags,
 ): Promise<ParsedOperationOptions> {
   const path = parseParameterPairs(command, operation.pathParams, flags.path ?? [], "--path");
-  const query = parseParameterPairs(command, operation.queryParams, flags.query ?? [], "--query");
+  const query = parseParameterPairs(command, operation.queryParams, flags.query ?? [], "--query", fileSuppliedQueryParams(operation, flags));
   const headers = parseParameterPairs(command, operation.headerParams, flags.header ?? [], "--header");
   if (flags["idempotency-key"]) {
     addHeaderFlag(command, operation, headers, "Idempotency-Key", flags["idempotency-key"]);
@@ -97,6 +114,7 @@ function parseParameterPairs(
   parameters: readonly OperationParameter[],
   values: string[],
   flagName: string,
+  suppliedByConvenienceFlag: ReadonlySet<string> = new Set(),
 ): Record<string, unknown> {
   const parameterMap = new Map(parameters.map((parameter) => [keyForParameter(flagName, parameter.name), parameter]));
   const pairs: Record<string, unknown> = {};
@@ -133,7 +151,7 @@ function parseParameterPairs(
   }
 
   for (const parameter of parameters) {
-    if (parameter.required && pairs[parameter.name] === undefined) {
+    if (parameter.required && pairs[parameter.name] === undefined && !suppliedByConvenienceFlag.has(parameter.name)) {
       command.error(`Missing ${labelForFlag(flagName)} parameter "${parameter.name}". Pass ${flagName} ${parameter.name}=<value>.`, {
         exit: 2,
       });
@@ -159,6 +177,10 @@ async function parseBody(
   operation: OperationDefinition,
   flags: OperationFlags,
 ): Promise<unknown> {
+  if (flags.file && (flags.body || flags["body-file"])) {
+    command.error("Pass only one of --file, --body, or --body-file.", { exit: 2 });
+  }
+
   if (flags.body && flags["body-file"]) {
     command.error("Pass only one of --body or --body-file.", { exit: 2 });
   }
@@ -173,7 +195,7 @@ async function parseBody(
 
   const hasBodyInput = flags.body !== undefined || flags["body-file"] !== undefined;
   if (!hasBodyInput) {
-    if (operation.requestBodyRequired) {
+    if (operation.requestBodyRequired && !fileSuppliesBody(operation, flags)) {
       const label = operation.bodyKind === "binary" ? "request body file" : "JSON body";
       command.error(`This command requires a ${label}. Pass --body${operation.bodyKind === "binary" ? "-file" : " or --body-file"}.`, {
         exit: 2,
@@ -201,6 +223,18 @@ async function parseBody(
   } catch {
     command.error("Request body must be valid JSON.", { exit: 2 });
   }
+}
+
+function fileSuppliesBody(operation: OperationDefinition, flags: OperationFlags): boolean {
+  return Boolean(flags.file) && operation.operationId === "mailboxUploadAttachment";
+}
+
+function fileSuppliedQueryParams(operation: OperationDefinition, flags: OperationFlags): ReadonlySet<string> {
+  if (flags.file && operation.operationId === "mailboxUploadAttachment") {
+    return new Set(["filename"]);
+  }
+
+  return new Set();
 }
 
 function addHeaderFlag(

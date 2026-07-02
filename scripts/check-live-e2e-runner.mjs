@@ -20,13 +20,13 @@ assert.equal(result.status, 0, result.stderr || result.stdout);
 const plan = JSON.parse(result.stdout);
 assert.equal(plan.ok, true);
 assert.deepEqual(plan.adapters, ["typescript", "python", "go", "php", "ruby", "cli", "mcp"]);
-assert.equal(plan.summary.total, 97);
+assert.equal(plan.summary.total, 98);
 assert.equal(plan.summary.executable, 54);
-assert.equal(plan.summary.gated, 43);
+assert.equal(plan.summary.gated, 44);
 assert.equal(plan.summary.blocked, 0);
 assert.equal(plan.summary.gatedByRisk.mutation, 30);
 assert.equal(plan.summary.gatedByRisk.destructive, 8);
-assert.equal(plan.summary.gatedByRisk.binary, 2);
+assert.equal(plan.summary.gatedByRisk.binary, 3);
 assert.equal(plan.summary.gatedByRisk.send, 2);
 assert.equal(plan.summary.gatedByRisk.stream, 1);
 
@@ -87,8 +87,8 @@ const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--
 
 assert.equal(gatedResult.status, 0, gatedResult.stderr || gatedResult.stdout);
 const gatedPlan = JSON.parse(gatedResult.stdout);
-assert.equal(gatedPlan.summary.total, 97);
-assert.equal(gatedPlan.summary.executable, 97);
+assert.equal(gatedPlan.summary.total, 98);
+assert.equal(gatedPlan.summary.executable, 98);
 assert.equal(gatedPlan.summary.gated, 0);
 assert.equal(gatedPlan.summary.blocked, 0);
 

@@ -10,7 +10,7 @@
     "id": "1253958043",
     "subfolder": "packages/python/mcp"
   },
-  "version": "1.2.0",
+  "version": "1.2.1",
   "remotes": [
     {
       "type": "streamable-http",
@@ -21,7 +21,7 @@
     {
       "registryType": "pypi",
       "identifier": "sendmux-mcp",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "transport": {
         "type": "stdio"
       },

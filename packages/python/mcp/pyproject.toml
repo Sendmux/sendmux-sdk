@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sendmux-mcp"
-version = "1.2.0"
+version = "1.2.1"
 description = "Email inbox API and outbound sending tools for AI Agents."
 readme = "README.md"
 requires-python = ">=3.10"

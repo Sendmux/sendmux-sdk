@@ -67,21 +67,23 @@ function verifyRegistryVersion() {
 }
 
 function readProjectVersion(pyprojectPath) {
-  const result = spawnSync("python3", [
-    "-c",
-    "import pathlib, tomllib; print(tomllib.loads(pathlib.Path(__import__('sys').argv[1]).read_text())['project']['version'])",
-    pyprojectPath,
-  ], { cwd: root, encoding: "utf8" });
+  let inProjectSection = false;
 
-  if (result.status !== 0) {
-    throw new Error(`Could not parse ${pyprojectPath}: ${result.stderr.trim()}`);
+  for (const line of readFileSync(pyprojectPath, "utf8").split(/\r?\n/)) {
+    if (/^\[.+\]$/.test(line)) {
+      inProjectSection = line === "[project]";
+      continue;
+    }
+
+    if (!inProjectSection) {
+      continue;
+    }
+
+    const version = line.match(/^version = "([^"]+)"$/)?.[1];
+    if (version) {
+      return version;
+    }
   }
 
-  const version = result.stdout.trim();
-
-  if (!version) {
-    throw new Error("Could not read packages/python/mcp/pyproject.toml project version");
-  }
-
-  return version;
+  throw new Error("Could not read packages/python/mcp/pyproject.toml project version");
 }

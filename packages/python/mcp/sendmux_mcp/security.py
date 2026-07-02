@@ -3,8 +3,10 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, Sequence
 
 from starlette.datastructures import Headers
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware import Middleware
-from starlette.responses import JSONResponse
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from sendmux_mcp.config import ServerConfig
@@ -47,6 +49,20 @@ class HttpBearerMiddleware:
             return
 
         await self.app(scope, receive, send)
+
+
+class BearerScopeChallengeMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app: ASGIApp, *, scopes: Sequence[str]) -> None:
+        super().__init__(app)
+        self.scope_value = " ".join(scopes)
+
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+        response = await call_next(request)
+        challenge = response.headers.get("www-authenticate")
+        if response.status_code == 401 and challenge and "bearer" in challenge.lower() and self.scope_value:
+            if 'scope="' not in challenge.lower():
+                response.headers["WWW-Authenticate"] = f'{challenge}, scope="{self.scope_value}"'
+        return response
 
 
 def middleware_for_config(config: ServerConfig) -> list[Middleware]:

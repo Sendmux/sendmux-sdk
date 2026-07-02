@@ -524,6 +524,7 @@ def test_mailbox_wait_for_message_returns_matching_message() -> None:
     assert requests[0].url.params["after"] == "2026-07-02T15:59:00Z"
     assert requests[0].url.params["from"] == "sender@example.com"
     assert requests[0].url.params["has_attachment"] == "true"
+    assert requests[0].url.params["include_attachments"] == "metadata"
     assert requests[0].url.params["mailbox_id"] == "mbx_test"
     assert requests[0].url.params["limit"] == "1"
 

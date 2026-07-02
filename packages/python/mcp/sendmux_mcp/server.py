@@ -324,6 +324,7 @@ def add_mailbox_custom_tools(server: FastMCP, client: httpx.AsyncClient) -> None
                 after=checkpoint,
                 folder_id=folder_id,
                 has_attachment=has_attachment,
+                include_attachments="metadata",
                 keyword=keyword,
                 limit=1,
                 mailbox_id=mailbox_id,

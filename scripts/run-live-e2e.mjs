@@ -1061,6 +1061,8 @@ async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
 }
 
 async function prepareMailboxWaitForMessage({ fixtureRuntime }) {
+  const after = new Date(Date.now() - 60_000).toISOString();
+  const subject = `Sendmux live E2E wait-for-message ${fixtureRuntime.runId}`;
   const owned = await createOwnedMailboxMessage(fixtureRuntime, {
     attachment: true,
     label: "wait-for-message",
@@ -1068,18 +1070,19 @@ async function prepareMailboxWaitForMessage({ fixtureRuntime }) {
   return {
     request: {
       body: {
+        after,
         has_attachment: true,
-        message_id: owned.messageId,
+        subject,
         timeout_seconds: 5,
       },
     },
     afterResult: async (value) => {
       const message = valueAtPath(value, "data.message");
       assert.ok(message && typeof message === "object", "mailbox_wait_for_message did not return data.message");
-      assert.equal(valueAtPath(value, "data.message.id"), owned.messageId);
+      assert.equal(valueAtPath(value, "data.message.subject"), subject);
       const attachments = valueAtPath(value, "data.message.attachments");
       assert.ok(Array.isArray(attachments), "mailbox_wait_for_message did not return attachment metadata");
-      const attachment = attachments.find((item) => item?.id === owned.attachmentId);
+      const attachment = attachments.find((item) => typeof item?.download_url === "string");
       assert.ok(attachment, "mailbox_wait_for_message did not return the owned attachment");
       assert.equal(typeof attachment.download_url, "string", "waited attachment did not include download_url");
       await assertPresignedAttachmentDownload({

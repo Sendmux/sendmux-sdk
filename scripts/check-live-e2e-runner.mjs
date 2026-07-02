@@ -113,6 +113,28 @@ assert.match(
   /async function waitForMailboxCredentialVisible[\s\S]*?mailboxCredentialVisibilityRetryDelaysMs[\s\S]*?mailboxListGrantedMailboxes/,
   "mailbox readiness must use the bounded credential-visibility poll",
 );
+const waitForMessageMatch = runnerSource.match(/async function prepareMailboxWaitForMessage[\s\S]*?\n}/);
+assert.ok(waitForMessageMatch, "prepareMailboxWaitForMessage helper must exist");
+assert.match(
+  waitForMessageMatch[0],
+  /const after = new Date\(Date\.now\(\) - 60_000\)\.toISOString\(\);[\s\S]*?\bsubject,[\s\S]*?timeout_seconds:\s*5/,
+  "mailboxWaitForMessage live E2E must filter by a supported subject plus an after checkpoint",
+);
+assert.doesNotMatch(
+  waitForMessageMatch[0],
+  /message_id:/,
+  "mailboxWaitForMessage live E2E must not pass unsupported message_id tool arguments",
+);
+assert.doesNotMatch(
+  waitForMessageMatch[0],
+  /data\.message\.id/,
+  "mailboxWaitForMessage live E2E must not assume sent and received self-mail message IDs match",
+);
+assert.match(
+  waitForMessageMatch[0],
+  /data\.message\.subject"\), subject/,
+  "mailboxWaitForMessage live E2E must identify the owned self-mail message by subject",
+);
 assert.match(
   runnerSource,
   /async function runMailboxStreamSdkOperation[\s\S]*?new AbortController\(\)[\s\S]*?mailboxStreamTimeoutMs\(prepared\.request\)[\s\S]*?signal:\s*controller\.signal[\s\S]*?Promise\.race[\s\S]*?controller\.abort\(\)/,

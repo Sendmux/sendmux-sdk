@@ -87,6 +87,8 @@ The public hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`.
 
 For hosted clients, use HTTP transport with OAuth. Do not add manual `Authorization` headers, API keys, custom OAuth endpoints, or custom scopes unless your client explicitly requires them.
 
+Hosted OAuth clients that omit requested scopes during registration or authorization are supported; the server advertises the hosted scope set through discovery and bearer challenges.
+
 The packaged `sendmux-mcp-hosted` command runs the hosted server runtime. Local and private deployments should use the local commands above unless you are operating a compatible OAuth-backed hosted environment.
 
 ## Configuration

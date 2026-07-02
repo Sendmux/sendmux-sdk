@@ -467,7 +467,26 @@ jobs:
 
       - name: Publish MCP Registry metadata
         if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
-        run: ./mcp-publisher publish packages/python/mcp/server.json
+        run: |
+          set -euo pipefail
+          attempts=12
+          for ((attempt = 1; attempt <= attempts; attempt++)); do
+            if ./mcp-publisher publish packages/python/mcp/server.json 2>&1 | tee /tmp/mcp-publish.log; then
+              exit 0
+            fi
+
+            if ! grep -q "PyPI package 'sendmux-mcp' not found (status: 404)" /tmp/mcp-publish.log; then
+              exit 1
+            fi
+
+            if [ "${attempt}" -lt "${attempts}" ]; then
+              sleep_seconds=$((attempt * 10))
+              echo "MCP Registry cannot see PyPI package yet; retrying in ${sleep_seconds}s." >&2
+              sleep "${sleep_seconds}"
+            fi
+          done
+          echo "MCP Registry still cannot see PyPI package after ${attempts} attempts." >&2
+          exit 1
 
       - name: Verify MCP Registry metadata
         env:

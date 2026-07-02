@@ -11090,7 +11090,8 @@
         "security": [
           {
             "bearerAuth": []
-          }
+          },
+          {}
         ],
         "summary": "Download a message attachment",
         "tags": [

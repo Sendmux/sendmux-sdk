@@ -631,6 +631,13 @@ export const operations = {
     ],
     "queryParams": [
       {
+        "name": "download_token",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
         "name": "mailbox_id",
         "required": false,
         "schema": {

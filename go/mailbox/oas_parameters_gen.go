@@ -3014,9 +3014,10 @@ func decodeMailboxGetMessageParams(args [1]string, argsEscaped bool, r *http.Req
 
 // MailboxGetMessageAttachmentParams is parameters of mailboxGetMessageAttachment operation.
 type MailboxGetMessageAttachmentParams struct {
-	MessageID    string
-	AttachmentID string
-	Range        OptString
+	MessageID     string
+	AttachmentID  string
+	DownloadToken OptString
+	Range         OptString
 	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
 	// the credential is scoped to exactly one mailbox.
 	MailboxID OptString
@@ -3036,6 +3037,15 @@ func unpackMailboxGetMessageAttachmentParams(packed middleware.Parameters) (para
 			In:   "path",
 		}
 		params.AttachmentID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "download_token",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.DownloadToken = v.(OptString)
+		}
 	}
 	{
 		key := middleware.ParameterKey{
@@ -3148,6 +3158,47 @@ func decodeMailboxGetMessageAttachmentParams(args [2]string, argsEscaped bool, r
 		return params, &ogenerrors.DecodeParamError{
 			Name: "attachment_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: download_token.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "download_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotDownloadTokenVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotDownloadTokenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.DownloadToken.SetTo(paramsDotDownloadTokenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "download_token",
+			In:   "query",
 			Err:  err,
 		}
 	}

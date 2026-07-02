@@ -78,6 +78,14 @@ client.mailbox_api.mailbox_delete_message(
 )
 ```
 
+### Attachments and events
+
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client and no `Authorization` header. If it expires, re-fetch the message or attachment metadata to receive a fresh URL.
+
+Use `mailbox_upload_attachment` to upload bytes and pass the returned `blob_id` into `mailbox_send_message` attachments. Inline base64 attachments remain available in the generated send body shape for small payloads.
+
+`mailbox_stream_events` exposes the Mailbox SSE endpoint for clients that want live `message.received` events.
+
 ### Errors
 
 Generated API errors are mapped to `Sendmux::Core::ApiError`.

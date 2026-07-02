@@ -59,6 +59,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
+        'attachments' => '\Sendmux\Mailbox\Model\MailboxAttachment[]',
         'bcc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'cc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'flags' => '\Sendmux\Mailbox\Model\MailboxMessageFlags',
@@ -74,7 +75,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'subject' => 'string',
         'thread_id' => 'string',
         'to' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
-        'attachments' => '\Sendmux\Mailbox\Model\MailboxAttachment[]',
         'body' => '\Sendmux\Mailbox\Model\MailboxRealtimeMessageAllOfBody',
         'rfc5322_message_id' => 'string'
     ];
@@ -85,6 +85,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
+        'attachments' => null,
         'bcc' => null,
         'cc' => null,
         'flags' => null,
@@ -100,7 +101,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'subject' => null,
         'thread_id' => null,
         'to' => null,
-        'attachments' => null,
         'body' => null,
         'rfc5322_message_id' => null
     ];
@@ -111,6 +111,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
+        'attachments' => false,
         'bcc' => false,
         'cc' => false,
         'flags' => false,
@@ -126,7 +127,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'subject' => true,
         'thread_id' => true,
         'to' => false,
-        'attachments' => false,
         'body' => false,
         'rfc5322_message_id' => true
     ];
@@ -207,6 +207,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $attributeMap = [
+        'attachments' => 'attachments',
         'bcc' => 'bcc',
         'cc' => 'cc',
         'flags' => 'flags',
@@ -222,7 +223,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'subject' => 'subject',
         'thread_id' => 'thread_id',
         'to' => 'to',
-        'attachments' => 'attachments',
         'body' => 'body',
         'rfc5322_message_id' => 'rfc5322_message_id'
     ];
@@ -233,6 +233,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $setters = [
+        'attachments' => 'setAttachments',
         'bcc' => 'setBcc',
         'cc' => 'setCc',
         'flags' => 'setFlags',
@@ -248,7 +249,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'subject' => 'setSubject',
         'thread_id' => 'setThreadId',
         'to' => 'setTo',
-        'attachments' => 'setAttachments',
         'body' => 'setBody',
         'rfc5322_message_id' => 'setRfc5322MessageId'
     ];
@@ -259,6 +259,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      * @var array<string, string>
      */
     protected static array $getters = [
+        'attachments' => 'getAttachments',
         'bcc' => 'getBcc',
         'cc' => 'getCc',
         'flags' => 'getFlags',
@@ -274,7 +275,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'subject' => 'getSubject',
         'thread_id' => 'getThreadId',
         'to' => 'getTo',
-        'attachments' => 'getAttachments',
         'body' => 'getBody',
         'rfc5322_message_id' => 'getRfc5322MessageId'
     ];
@@ -326,6 +326,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
      */
     public function __construct(?array $data = null)
     {
+        $this->setIfExists('attachments', $data ?? [], null);
         $this->setIfExists('bcc', $data ?? [], null);
         $this->setIfExists('cc', $data ?? [], null);
         $this->setIfExists('flags', $data ?? [], null);
@@ -341,7 +342,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         $this->setIfExists('subject', $data ?? [], null);
         $this->setIfExists('thread_id', $data ?? [], null);
         $this->setIfExists('to', $data ?? [], null);
-        $this->setIfExists('attachments', $data ?? [], null);
         $this->setIfExists('body', $data ?? [], null);
         $this->setIfExists('rfc5322_message_id', $data ?? [], null);
     }
@@ -371,6 +371,9 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
+        if ($this->container['attachments'] === null) {
+            $invalidProperties[] = "'attachments' can't be null";
+        }
         if ($this->container['bcc'] === null) {
             $invalidProperties[] = "'bcc' can't be null";
         }
@@ -416,9 +419,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['to'] === null) {
             $invalidProperties[] = "'to' can't be null";
         }
-        if ($this->container['attachments'] === null) {
-            $invalidProperties[] = "'attachments' can't be null";
-        }
         if ($this->container['body'] === null) {
             $invalidProperties[] = "'body' can't be null";
         }
@@ -436,6 +436,33 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         return count($this->listInvalidProperties()) === 0;
     }
 
+
+    /**
+     * Gets attachments
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]
+     */
+    public function getAttachments(): array
+    {
+        return $this->container['attachments'];
+    }
+
+    /**
+     * Sets attachments
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxAttachment[] $attachments attachments
+     *
+     * @return $this
+     */
+    public function setAttachments(array $attachments): static
+    {
+        if (is_null($attachments)) {
+            throw new InvalidArgumentException('non-nullable attachments cannot be null');
+        }
+        $this->container['attachments'] = $attachments;
+
+        return $this;
+    }
 
     /**
      * Gets bcc
@@ -887,33 +914,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
             throw new InvalidArgumentException('non-nullable to cannot be null');
         }
         $this->container['to'] = $to;
-
-        return $this;
-    }
-
-    /**
-     * Gets attachments
-     *
-     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]
-     */
-    public function getAttachments(): array
-    {
-        return $this->container['attachments'];
-    }
-
-    /**
-     * Sets attachments
-     *
-     * @param \Sendmux\Mailbox\Model\MailboxAttachment[] $attachments attachments
-     *
-     * @return $this
-     */
-    public function setAttachments(array $attachments): static
-    {
-        if (is_null($attachments)) {
-            throw new InvalidArgumentException('non-nullable attachments cannot be null');
-        }
-        $this->container['attachments'] = $attachments;
 
         return $this;
     }

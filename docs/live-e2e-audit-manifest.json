@@ -24,8 +24,8 @@
     "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST": true
   },
   "operation_counts": {
-    "total": 96,
-    "executable": 96,
+    "total": 97,
+    "executable": 97,
     "gated": 0,
     "blocked": 0,
     "gated_by_risk": {}

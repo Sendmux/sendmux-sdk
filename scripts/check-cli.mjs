@@ -53,6 +53,35 @@ const server = createServer(async (request, response) => {
     method: request.method,
     url: request.url ?? "",
   });
+  if ((request.url ?? "").startsWith("/mailbox/events")) {
+    response.setHeader("Content-Type", "text/event-stream");
+    response.write(
+      `event: message.received\ndata: ${JSON.stringify({
+        event_type: "message.received",
+        mailbox_id: "mbx_cli_stream",
+        message_id: "msg_cli_stream_1",
+        message_id_kind: "provider",
+        occurred_at: "2026-07-02T00:00:00.000Z",
+        recipients: ["agent@example.com"],
+        sender: "sender@example.com",
+        team_public_id: "team_cli_stream",
+      })}\n\n`,
+    );
+    response.write(
+      `event: message.received\ndata: ${JSON.stringify({
+        event_type: "message.received",
+        mailbox_id: "mbx_cli_stream",
+        message_id: "msg_cli_stream_2",
+        message_id_kind: "provider",
+        occurred_at: "2026-07-02T00:00:01.000Z",
+        recipients: ["agent@example.com"],
+        sender: "sender@example.com",
+        team_public_id: "team_cli_stream",
+      })}\n\n`,
+    );
+    response.end();
+    return;
+  }
   response.setHeader("Content-Type", "application/json");
   response.end(JSON.stringify((request.url ?? "").startsWith("/openapi.json") ? openApiDocument : envelope));
 });
@@ -274,6 +303,43 @@ try {
   if (!uploadRequest.body.equals(attachmentBytes)) {
     throw new Error("Binary upload body was not passed through unchanged");
   }
+
+  const streamResult = await runCli([
+    "mailbox:stream-events",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--query",
+    "close_after=30",
+    "--json",
+  ]);
+
+  assertCliSuccess(streamResult, "mailbox:stream-events first event");
+  assertDeepEqual(JSON.parse(streamResult.stdout).message_id, "msg_cli_stream_1", "stream command must return the first event by default");
+
+  const followResult = await runCli([
+    "mailbox:stream-events",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--query",
+    "close_after=30",
+    "--follow",
+  ]);
+
+  assertCliSuccess(followResult, "mailbox:stream-events --follow");
+  const followedEvents = followResult.stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  assertDeepEqual(
+    followedEvents.map((event) => event.message_id),
+    ["msg_cli_stream_1", "msg_cli_stream_2"],
+    "stream follow mode must print each event as one JSON line",
+  );
 
   const missingRequiredQueryResult = await runCli([
     "mailbox:upload-attachment",

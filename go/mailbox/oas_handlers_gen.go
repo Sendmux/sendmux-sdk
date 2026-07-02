@@ -2629,7 +2629,9 @@ func (s *Server) handleMailboxGetMessageRequest(args [1]string, argsEscaped bool
 
 // handleMailboxGetMessageAttachmentRequest handles mailboxGetMessageAttachment operation.
 //
-// Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
+// also provides short-lived download URLs for clients that cannot add an Authorization header.
+// Supports standard byte ranges.
 //
 // GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -2773,6 +2775,10 @@ func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEs
 					Name: "attachment_id",
 					In:   "path",
 				}: params.AttachmentID,
+				{
+					Name: "download_token",
+					In:   "query",
+				}: params.DownloadToken,
 				{
 					Name: "Range",
 					In:   "header",

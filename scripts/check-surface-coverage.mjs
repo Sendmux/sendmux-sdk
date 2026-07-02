@@ -53,9 +53,11 @@ for (const operation of operations) {
   });
 }
 
-for (const operationId of curatedMcp.keys()) {
+for (const [operationId, tool] of curatedMcp.entries()) {
   if (!operations.some((operation) => operation.operationId === operationId)) {
-    failures.push(`${operationId}: curated MCP operation is not present in the OpenAPI snapshots`);
+    if (!tool.customOnly) {
+      failures.push(`${operationId}: curated MCP operation is not present in the OpenAPI snapshots`);
+    }
   }
 }
 
@@ -138,9 +140,13 @@ function loadCliOperations() {
 function loadMcpCuration() {
   const source = readFileSync("packages/python/mcp/sendmux_mcp/curation.py", "utf8");
   const entries = new Map();
+  const customOperationIds = customMcpOperationIds(source);
 
   for (const match of source.matchAll(/operation_id="([^"]+)"[\s\S]*?name="([^"]+)"/g)) {
-    entries.set(match[1], match[2]);
+    entries.set(match[1], {
+      customOnly: customOperationIds.has(match[1]),
+      name: match[2],
+    });
   }
 
   if (entries.size === 0) {
@@ -148,6 +154,25 @@ function loadMcpCuration() {
   }
 
   return entries;
+}
+
+function customMcpOperationIds(source) {
+  const byConstant = new Map();
+  for (const match of source.matchAll(/^([A-Z][A-Z0-9_]+_TOOL)\s*=\s*ToolSpec\(\s*operation_id="([^"]+)"/gm)) {
+    byConstant.set(match[1], match[2]);
+  }
+
+  const out = new Set();
+  for (const tupleMatch of source.matchAll(/^CUSTOM_[A-Z0-9_]+_TOOLS:[\s\S]*?=\s*\(([\s\S]*?)^\)/gm)) {
+    for (const constantMatch of tupleMatch[1].matchAll(/\b([A-Z][A-Z0-9_]+_TOOL)\b/g)) {
+      const operationId = byConstant.get(constantMatch[1]);
+      if (operationId) {
+        out.add(operationId);
+      }
+    }
+  }
+
+  return out;
 }
 
 function normaliseParameters(spec, parameters) {
@@ -319,12 +344,14 @@ function compareCliOperation(operation, cli) {
 }
 
 function mcpDecision(operation, curatedMcp) {
-  const toolName = curatedMcp.get(operation.operationId);
-  if (toolName) {
+  const tool = curatedMcp.get(operation.operationId);
+  if (tool) {
     return {
       included: true,
-      reason: "Included in the curated agentic toolset.",
-      toolName,
+      reason: tool.customOnly
+        ? "Included as a custom MCP wrapper because the OpenAPI operation is binary or MCP-specific."
+        : "Included in the curated agentic toolset.",
+      toolName: tool.name,
     };
   }
 

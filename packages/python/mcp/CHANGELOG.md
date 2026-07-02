@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* add curated mailbox attachment tools and bounded wait-for-message support
+
 ## [1.2.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.2.0...python-mcp-v1.2.1) (2026-07-02)
 
 

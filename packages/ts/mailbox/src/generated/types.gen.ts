@@ -187,7 +187,30 @@ export type MailboxMessageFlags = {
     seen: boolean;
 };
 
+export type MailboxAttachment = {
+    /**
+     * Content ID for inline attachments, when present.
+     */
+    content_id: string | null;
+    content_type: string;
+    disposition: string | null;
+    /**
+     * Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.
+     */
+    download_url?: string;
+    filename: string | null;
+    /**
+     * Attachment blob ID.
+     */
+    id: string;
+    size_bytes: number | null;
+};
+
 export type MailboxMessageSummary = {
+    /**
+     * Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+     */
+    attachments: Array<MailboxAttachment>;
     bcc: Array<MailboxAddress>;
     cc: Array<MailboxAddress>;
     flags: MailboxMessageFlags;
@@ -269,19 +292,6 @@ export type MailboxContentHeaders = {
         references: Array<string>;
         reply_to: Array<MailboxAddress>;
     } | null;
-};
-
-export type MailboxAttachment = {
-    content_id: string | null;
-    content_type: string;
-    disposition: string | null;
-    download_url?: string;
-    filename: string | null;
-    /**
-     * Attachment ID
-     */
-    id: string;
-    size_bytes: number | null;
 };
 
 export type MailboxMessageContent = {
@@ -546,7 +556,7 @@ export type MailboxSearchSnippetsResult = {
 };
 
 export type MailboxRealtimeMessage = (MailboxMessageSummary & {
-    attachments: Array<MailboxAttachment>;
+    attachments?: Array<MailboxAttachment>;
     body: {
         html: string | null;
         is_truncated: boolean;
@@ -645,7 +655,7 @@ export type MailboxMessageDetailResponse = SuccessEnvelope & {
 };
 
 export type MailboxMessage = MailboxMessageSummary & {
-    attachments: Array<MailboxAttachment>;
+    attachments?: Array<MailboxAttachment>;
     html_body: string | null;
     text_body: string | null;
 };
@@ -2019,6 +2029,10 @@ export type MailboxGetMessageAttachmentData = {
         attachment_id: string;
     };
     query?: {
+        /**
+         * Short-lived token embedded in attachment metadata `download_url` values. Clients normally fetch the full URL rather than constructing this parameter manually.
+         */
+        download_token?: string;
         /**
          * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
          */

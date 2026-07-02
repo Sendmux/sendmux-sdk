@@ -4350,6 +4350,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         attachment_id: StrictStr,
+        download_token: Optional[StrictStr] = None,
         range: Optional[StrictStr] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
@@ -4367,12 +4368,14 @@ class MailboxAPIApi:
     ) -> None:
         """Download a message attachment
 
-        Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+        Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
 
         :param message_id: (required)
         :type message_id: str
         :param attachment_id: (required)
         :type attachment_id: str
+        :param download_token:
+        :type download_token: str
         :param range:
         :type range: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -4402,6 +4405,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_attachment_serialize(
             message_id=message_id,
             attachment_id=attachment_id,
+            download_token=download_token,
             range=range,
             mailbox_id=mailbox_id,
             _request_auth=_request_auth,
@@ -4432,6 +4436,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         attachment_id: StrictStr,
+        download_token: Optional[StrictStr] = None,
         range: Optional[StrictStr] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
@@ -4449,12 +4454,14 @@ class MailboxAPIApi:
     ) -> ApiResponse[None]:
         """Download a message attachment
 
-        Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+        Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
 
         :param message_id: (required)
         :type message_id: str
         :param attachment_id: (required)
         :type attachment_id: str
+        :param download_token:
+        :type download_token: str
         :param range:
         :type range: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -4484,6 +4491,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_attachment_serialize(
             message_id=message_id,
             attachment_id=attachment_id,
+            download_token=download_token,
             range=range,
             mailbox_id=mailbox_id,
             _request_auth=_request_auth,
@@ -4514,6 +4522,7 @@ class MailboxAPIApi:
         self,
         message_id: StrictStr,
         attachment_id: StrictStr,
+        download_token: Optional[StrictStr] = None,
         range: Optional[StrictStr] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
@@ -4531,12 +4540,14 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Download a message attachment
 
-        Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+        Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
 
         :param message_id: (required)
         :type message_id: str
         :param attachment_id: (required)
         :type attachment_id: str
+        :param download_token:
+        :type download_token: str
         :param range:
         :type range: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -4566,6 +4577,7 @@ class MailboxAPIApi:
         _param = self._mailbox_get_message_attachment_serialize(
             message_id=message_id,
             attachment_id=attachment_id,
+            download_token=download_token,
             range=range,
             mailbox_id=mailbox_id,
             _request_auth=_request_auth,
@@ -4591,6 +4603,7 @@ class MailboxAPIApi:
         self,
         message_id,
         attachment_id,
+        download_token,
         range,
         mailbox_id,
         _request_auth,
@@ -4619,6 +4632,10 @@ class MailboxAPIApi:
         if attachment_id is not None:
             _path_params['attachment_id'] = attachment_id
         # process the query parameters
+        if download_token is not None:
+            
+            _query_params.append(('download_token', download_token))
+            
         if mailbox_id is not None:
             
             _query_params.append(('mailbox_id', mailbox_id))

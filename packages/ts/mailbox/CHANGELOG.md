@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* expose short-lived attachment download URLs and typed mailbox event streaming helper
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.0.1...ts-mailbox-v1.1.0) (2026-07-01)
 
 

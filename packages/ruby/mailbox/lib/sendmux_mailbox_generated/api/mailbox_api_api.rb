@@ -984,10 +984,11 @@ module Sendmux::Mailbox::Generated
     end
 
     # Download a message attachment
-    # Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+    # Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :download_token
     # @option opts [String] :range
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [nil]
@@ -997,10 +998,11 @@ module Sendmux::Mailbox::Generated
     end
 
     # Download a message attachment
-    # Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+    # Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :download_token
     # @option opts [String] :range
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(nil, Integer, Hash)>] nil, response status code and response headers
@@ -1021,6 +1023,7 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'download_token'] = opts[:'download_token'] if !opts[:'download_token'].nil?
       query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters

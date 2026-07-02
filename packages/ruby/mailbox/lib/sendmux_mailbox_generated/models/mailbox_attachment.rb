@@ -15,17 +15,19 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxAttachment < ApiModelBase
+    # Content ID for inline attachments, when present.
     attr_accessor :content_id
 
     attr_accessor :content_type
 
     attr_accessor :disposition
 
+    # Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.
     attr_accessor :download_url
 
     attr_accessor :filename
 
-    # Attachment ID
+    # Attachment blob ID.
     attr_accessor :id
 
     attr_accessor :size_bytes

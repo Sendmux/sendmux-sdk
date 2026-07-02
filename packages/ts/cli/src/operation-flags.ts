@@ -15,6 +15,7 @@ import type {
 export interface OperationFlags extends AuthFlags {
   body?: string;
   "body-file"?: string;
+  follow?: boolean;
   header?: string[];
   "idempotency-key"?: string;
   "if-match"?: string;

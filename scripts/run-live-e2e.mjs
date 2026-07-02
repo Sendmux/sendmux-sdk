@@ -28,6 +28,23 @@ const managementMailboxIdSelectors = ["data.mailbox.id"];
 const managementMailboxKeyIdSelectors = ["data.credential.public_id"];
 const managementMailboxKeySecretSelectors = ["data.credential.secret"];
 const mailboxCredentialVisibilityRetryDelaysMs = [0, 250, 500, 1_000, 2_000, 4_000, 8_000, 15_000];
+const customMcpOperations = [
+  {
+    bodyKind: "json",
+    commandKeyKind: "mailbox",
+    customMcpOnly: true,
+    description: "Wait briefly for a mailbox message through the curated MCP server.",
+    headerParams: [],
+    method: "mcp",
+    operationId: "mailboxWaitForMessage",
+    path: "mcp://mailbox_wait_for_message",
+    pathParams: [],
+    queryParams: [],
+    requestBodyRequired: false,
+    responseKind: "json",
+    surface: "mailbox",
+  },
+];
 const operationRequestFactories = {
   mailboxBatchDeleteMessages: prepareOwnedMailboxBatchDelete,
   mailboxBatchGetMessages: prepareOwnedMailboxBatchGet,
@@ -36,6 +53,7 @@ const operationRequestFactories = {
   mailboxDeleteFolder: prepareOwnedMailboxDeleteFolder,
   mailboxDeleteMessage: prepareOwnedMailboxDeleteMessage,
   mailboxGetMessageAttachment: prepareMailboxGetMessageAttachment,
+  mailboxWaitForMessage: prepareMailboxWaitForMessage,
   mailboxSendMessage: prepareMailboxSendMessage,
   mailboxStreamEvents: prepareMailboxStreamEvents,
   mailboxUpdateFolder: prepareOwnedMailboxUpdateFolder,
@@ -74,7 +92,9 @@ const operationRequestFactories = {
 };
 
 const args = parseArgs(process.argv.slice(2));
-const operations = loadOperations();
+const operations = [...loadOperations(), ...customMcpOperations].sort((left, right) =>
+  left.operationId.localeCompare(right.operationId),
+);
 const scenarios = readJson(scenarioPath).scenarios ?? {};
 const fixtures = readJson(fixtureRegistryPath);
 const operationPlan = buildOperationPlan(operations, scenarios, fixtures);
@@ -113,6 +133,16 @@ const removeSignalHandlers = installTeardownSignalHandlers(teardownOnce);
 try {
   for (const operation of selectedOperations) {
     for (const adapter of adapters) {
+      if (operation.customMcpOnly && adapter !== "mcp") {
+        results.push({
+          adapter,
+          operationId: operation.operationId,
+          reason: "custom MCP-only operation",
+          status: "skipped",
+        });
+        continue;
+      }
+
       if (adapter === "mcp" && !isMcpCurated(operation)) {
         results.push(skippedMcpResult(operation));
         continue;
@@ -376,7 +406,9 @@ function isValidFixtureRegistryEntry(operation, entry) {
 }
 
 function selectOperations(plan, requestedIds) {
-  const executable = plan.filter((entry) => entry.status === "executable").map((entry) => entry.operation);
+  const executable = plan
+    .filter((entry) => entry.status === "executable" && !entry.operation.customMcpOnly)
+    .map((entry) => entry.operation);
   if (requestedIds.length === 0) {
     return executable;
   }
@@ -976,18 +1008,31 @@ async function restoreMailboxIdentity(fixtureRuntime, body) {
   await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxUpdateIdentity", { body }));
 }
 
-async function prepareMailboxUploadAttachment({ fixtureRuntime }) {
+async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
+  const content = `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`;
+  const filename = `live-e2e-${fixtureRuntime.runId}.txt`;
+  if (adapter === "mcp") {
+    return {
+      request: {
+        body: {
+          content_base64: Buffer.from(content, "utf8").toString("base64"),
+          content_type: "text/plain",
+          filename,
+        },
+      },
+    };
+  }
   return {
     request: {
-      body: `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`,
+      body: content,
       query: {
-        filename: `live-e2e-${fixtureRuntime.runId}.txt`,
+        filename,
       },
     },
   };
 }
 
-async function prepareMailboxGetMessageAttachment({ fixtureRuntime }) {
+async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
   const owned = await fixtureRuntime.cachedFixture("mailbox-message-attachment", () =>
     createOwnedMailboxMessage(fixtureRuntime, {
       attachment: true,
@@ -1000,6 +1045,46 @@ async function prepareMailboxGetMessageAttachment({ fixtureRuntime }) {
         attachment_id: owned.attachmentId,
         message_id: owned.messageId,
       },
+    },
+    afterResult: async (value) => {
+      if (adapter !== "mcp") return;
+      const downloadUrl = selectFirstValue(value, ["data.download_url"]);
+      assert.equal(typeof downloadUrl, "string", "mailbox_get_attachment did not return data.download_url");
+      await assertPresignedAttachmentDownload({
+        downloadUrl,
+        expectedContent: owned.attachmentContent,
+      });
+      await assertPresignedAttachmentRejectsTamper(downloadUrl);
+    },
+  };
+}
+
+async function prepareMailboxWaitForMessage({ fixtureRuntime }) {
+  const owned = await createOwnedMailboxMessage(fixtureRuntime, {
+    attachment: true,
+    label: "wait-for-message",
+  });
+  return {
+    request: {
+      body: {
+        has_attachment: true,
+        message_id: owned.messageId,
+        timeout_seconds: 5,
+      },
+    },
+    afterResult: async (value) => {
+      const message = valueAtPath(value, "data.message");
+      assert.ok(message && typeof message === "object", "mailbox_wait_for_message did not return data.message");
+      assert.equal(valueAtPath(value, "data.message.id"), owned.messageId);
+      const attachments = valueAtPath(value, "data.message.attachments");
+      assert.ok(Array.isArray(attachments), "mailbox_wait_for_message did not return attachment metadata");
+      const attachment = attachments.find((item) => item?.id === owned.attachmentId);
+      assert.ok(attachment, "mailbox_wait_for_message did not return the owned attachment");
+      assert.equal(typeof attachment.download_url, "string", "waited attachment did not include download_url");
+      await assertPresignedAttachmentDownload({
+        downloadUrl: attachment.download_url,
+        expectedContent: owned.attachmentContent,
+      });
     },
   };
 }
@@ -1118,9 +1203,11 @@ function isTransientMailboxFolderCreateError(error) {
 async function createOwnedMailboxMessage(fixtureRuntime, opts = {}) {
   const recipient = await fixtureRuntime.resolveSource("mailboxSelfEmail");
   assertFixtureRecipientAllowed({ recipient, sourceName: opts.label ?? "ownedMailboxMessage" });
-  const attachment = opts.attachment ? await uploadOwnedMailboxAttachment(fixtureRuntime, opts.label ?? "owned-message") : null;
+  const uploadedAttachment = opts.attachment
+    ? await uploadOwnedMailboxAttachment(fixtureRuntime, opts.label ?? "owned-message")
+    : null;
   const body = mailboxSendBody({
-    attachment,
+    attachment: uploadedAttachment?.attachment ?? null,
     fixtureRuntime,
     recipient,
     subjectLabel: opts.label ?? "owned-message",
@@ -1142,19 +1229,23 @@ async function createOwnedMailboxMessage(fixtureRuntime, opts = {}) {
 
   const attachmentId = await pollForMailboxAttachment({ fixtureRuntime, messageId });
   await pollForMailboxAttachmentDownload({ attachmentId, fixtureRuntime, messageId });
-  return { attachmentId, messageId };
+  return { attachmentContent: uploadedAttachment.content, attachmentId, messageId };
 }
 
 async function uploadOwnedMailboxAttachment(fixtureRuntime, label) {
   const filename = `live-e2e-${label}-${fixtureRuntime.runId}.txt`;
+  const content = `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`;
   const response = await fixtureRuntime.runOperation("mailboxUploadAttachment", {
-    body: `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`,
+    body: content,
     query: { filename },
   });
   return {
-    blob_id: requireSelectedValue(response, ["data.blob_id"], `${label} attachment blob id`),
-    content_type: selectFirstValue(response, ["data.content_type"]) ?? "text/plain",
-    filename: selectFirstValue(response, ["data.filename"]) ?? filename,
+    attachment: {
+      blob_id: requireSelectedValue(response, ["data.blob_id"], `${label} attachment blob id`),
+      content_type: selectFirstValue(response, ["data.content_type"]) ?? "text/plain",
+      filename: selectFirstValue(response, ["data.filename"]) ?? filename,
+    },
+    content,
   };
 }
 
@@ -1225,6 +1316,25 @@ async function pollForMailboxAttachmentDownload({ attachmentId, fixtureRuntime, 
     }
   }
   throw new Error(`Owned message ${messageId} attachment ${attachmentId} was not downloadable within 30s.`);
+}
+
+async function assertPresignedAttachmentDownload({ downloadUrl, expectedContent }) {
+  const response = await fetch(downloadUrl);
+  assert.equal(response.status, 200, `presigned attachment download returned ${response.status}`);
+  const actual = await response.text();
+  assert.equal(actual, expectedContent, "presigned attachment download returned unexpected bytes");
+}
+
+async function assertPresignedAttachmentRejectsTamper(downloadUrl) {
+  const url = new URL(downloadUrl);
+  const token = url.searchParams.get("download_token");
+  assert.equal(typeof token, "string", "presigned attachment URL is missing download_token");
+  url.searchParams.set("download_token", `${token}tampered`);
+  const response = await fetch(url);
+  assert.ok(
+    response.status === 401 || response.status === 403,
+    `tampered presigned attachment URL returned ${response.status}`,
+  );
 }
 
 async function prepareManagementCreateProvider({ fixtureRuntime }) {
@@ -2479,6 +2589,14 @@ function assertLiveResponse(value, operation) {
       ["message.received", "message.received.spam", "sync_required"].includes(value.event_type ?? value.event),
       "mailboxStreamEvents did not return a mailbox realtime event",
     );
+    return;
+  }
+  if (
+    operationId === "mailboxGetMessageAttachment" &&
+    value?.ok === true &&
+    typeof value?.data?.download_url === "string"
+  ) {
+    assert.equal(typeof value?.meta?.request_id, "string", `${operationId} did not return meta.request_id`);
     return;
   }
   if (responseKind === "binary" || operationId === "mailboxGetMessageAttachment") {

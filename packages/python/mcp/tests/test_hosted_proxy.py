@@ -48,6 +48,19 @@ def test_operation_manifest_resolves_curated_route_to_operation_id() -> None:
     assert route.permissions == ("domain.read",)
 
 
+def test_operation_manifest_allows_custom_upload_backing_route() -> None:
+    config = ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test")
+    spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
+    manifest = build_hosted_operation_manifest(spec, "mailbox")
+
+    route = manifest.resolve("POST", "/mailbox/attachments:upload")
+
+    assert route is not None
+    assert route.operation_id == "mailboxUploadAttachment"
+    assert route.tool_name == "mailbox_upload_attachment"
+    assert route.permissions == ("email.send",)
+
+
 def test_proxy_transport_sends_operation_envelope_without_token_passthrough(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

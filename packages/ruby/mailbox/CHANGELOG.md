@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* regenerate mailbox models for short-lived attachment download URLs
+
 ## 1.0.0 (2026-06-02)
 
 

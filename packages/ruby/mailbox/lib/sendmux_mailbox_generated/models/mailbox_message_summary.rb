@@ -15,6 +15,9 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxMessageSummary < ApiModelBase
+    # Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+    attr_accessor :attachments
+
     attr_accessor :bcc
 
     attr_accessor :cc
@@ -50,6 +53,7 @@ module Sendmux::Mailbox::Generated
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'attachments' => :'attachments',
         :'bcc' => :'bcc',
         :'cc' => :'cc',
         :'flags' => :'flags',
@@ -81,6 +85,7 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
+        :'attachments' => :'Array<MailboxAttachment>',
         :'bcc' => :'Array<MailboxAddress>',
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
@@ -127,6 +132,14 @@ module Sendmux::Mailbox::Generated
         end
         h[k.to_sym] = v
       }
+
+      if attributes.key?(:'attachments')
+        if (value = attributes[:'attachments']).is_a?(Array)
+          self.attachments = value
+        end
+      else
+        self.attachments = nil
+      end
 
       if attributes.key?(:'bcc')
         if (value = attributes[:'bcc']).is_a?(Array)
@@ -234,6 +247,10 @@ module Sendmux::Mailbox::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
+      if @attachments.nil?
+        invalid_properties.push('invalid value for "attachments", attachments cannot be nil.')
+      end
+
       if @bcc.nil?
         invalid_properties.push('invalid value for "bcc", bcc cannot be nil.')
       end
@@ -273,6 +290,7 @@ module Sendmux::Mailbox::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
+      return false if @attachments.nil?
       return false if @bcc.nil?
       return false if @cc.nil?
       return false if @flags.nil?
@@ -282,6 +300,16 @@ module Sendmux::Mailbox::Generated
       return false if @keywords.nil?
       return false if @to.nil?
       true
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] attachments Value to be assigned
+    def attachments=(attachments)
+      if attachments.nil?
+        fail ArgumentError, 'attachments cannot be nil'
+      end
+
+      @attachments = attachments
     end
 
     # Custom attribute writer method with validation
@@ -369,6 +397,7 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          attachments == o.attachments &&
           bcc == o.bcc &&
           cc == o.cc &&
           flags == o.flags &&
@@ -395,7 +424,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to].hash
+      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to].hash
     end
 
     # Builds the object from hash

@@ -2097,6 +2097,17 @@ func (s *MailboxMessage) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
+		if s.Attachments == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "attachments",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if s.Bcc == nil {
 			return errors.New("nil is invalid value")
 		}
@@ -2217,17 +2228,6 @@ func (s *MailboxMessage) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "to",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if s.Attachments == nil {
-			return errors.New("nil is invalid value")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "attachments",
 			Error: err,
 		})
 	}
@@ -3020,6 +3020,17 @@ func (s *MailboxMessageSummary) Validate() error {
 	}
 
 	var failures []validate.FieldError
+	if err := func() error {
+		if s.Attachments == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "attachments",
+			Error: err,
+		})
+	}
 	if err := func() error {
 		if s.Bcc == nil {
 			return errors.New("nil is invalid value")

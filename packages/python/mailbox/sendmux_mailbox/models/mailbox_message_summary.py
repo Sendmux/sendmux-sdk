@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
+from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment
 from sendmux_mailbox.models.mailbox_message_flags import MailboxMessageFlags
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,6 +30,7 @@ class MailboxMessageSummary(BaseModel):
     """
     MailboxMessageSummary
     """ # noqa: E501
+    attachments: List[MailboxAttachment] = Field(description="Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.")
     bcc: List[MailboxAddress]
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
@@ -44,7 +46,7 @@ class MailboxMessageSummary(BaseModel):
     subject: Optional[StrictStr]
     thread_id: Optional[StrictStr]
     to: List[MailboxAddress]
-    __properties: ClassVar[List[str]] = ["bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "thread_id", "to"]
+    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "thread_id", "to"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -85,6 +87,13 @@ class MailboxMessageSummary(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
+        _items = []
+        if self.attachments:
+            for _item_attachments in self.attachments:
+                if _item_attachments:
+                    _items.append(_item_attachments.to_dict())
+            _dict['attachments'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in bcc (list)
         _items = []
         if self.bcc:
@@ -159,6 +168,7 @@ class MailboxMessageSummary(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "attachments": [MailboxAttachment.from_dict(_item) for _item in obj["attachments"]] if obj.get("attachments") is not None else None,
             "bcc": [MailboxAddress.from_dict(_item) for _item in obj["bcc"]] if obj.get("bcc") is not None else None,
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "flags": MailboxMessageFlags.from_dict(obj["flags"]) if obj.get("flags") is not None else None,

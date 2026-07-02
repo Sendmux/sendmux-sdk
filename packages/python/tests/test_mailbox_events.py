@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+from typing import Any, cast
+
+import sendmux_mailbox.events as events_module
+from sendmux_mailbox.api_client import ApiClient
+from sendmux_mailbox.events import iter_mailbox_events
+from sendmux_mailbox.models.mailbox_realtime_event import MailboxRealtimeEvent
+
+
+EVENT_PAYLOAD = (
+    b'event: message.received\n'
+    b'data: {"event_type":"message.received","mailbox_id":"mbx_py_stream","message_id":"msg_py_stream",'
+    b'"message_id_kind":"provider","occurred_at":"2026-07-02T00:00:00.000Z",'
+    b'"recipients":["agent@example.com"],"sender":"sender@example.com",'
+    b'"team_public_id":"team_py_stream","message":null,"is_spam":false}\n\n'
+)
+
+
+class FakeResponse:
+    def __init__(self, chunks: list[bytes]) -> None:
+        self.chunks = chunks
+        self.closed = False
+        self.released = False
+
+    def stream(self, *, decode_content: bool) -> list[bytes]:
+        assert decode_content is True
+        return self.chunks
+
+    def close(self) -> None:
+        self.closed = True
+
+    def release_conn(self) -> None:
+        self.released = True
+
+
+class FakeMailboxApi:
+    def __init__(self, response: FakeResponse) -> None:
+        self.response = response
+        self.kwargs: dict[str, Any] = {}
+
+    def mailbox_stream_events_without_preload_content(self, **kwargs: Any) -> FakeResponse:
+        self.kwargs = kwargs
+        return self.response
+
+
+def test_iter_mailbox_events_yields_typed_events_and_closes_response(monkeypatch: Any) -> None:
+    response = FakeResponse([EVENT_PAYLOAD])
+    api = FakeMailboxApi(response)
+    monkeypatch.setattr(events_module, "MailboxAPIApi", lambda _api_client: api)
+
+    events = list(
+        iter_mailbox_events(
+            cast(ApiClient, object()),
+            close_after=30,
+            event_types="message.received",
+            last_event_id="evt_query",
+            last_event_id_header="evt_header",
+            mailbox_id="mbx_py_stream",
+            ping=15,
+            request_timeout=35,
+        ),
+    )
+
+    assert len(events) == 1
+    assert isinstance(events[0], MailboxRealtimeEvent)
+    assert events[0].event_type == "message.received"
+    assert events[0].message_id == "msg_py_stream"
+    assert api.kwargs == {
+        "close_after": 30,
+        "event_types": "message.received",
+        "last_event_id": "evt_query",
+        "last_event_id2": "evt_header",
+        "mailbox_id": "mbx_py_stream",
+        "ping": 15,
+        "_request_timeout": 35,
+    }
+    assert response.closed is True
+    assert response.released is True

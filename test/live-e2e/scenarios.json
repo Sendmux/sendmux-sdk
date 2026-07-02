@@ -403,7 +403,7 @@
     "mailboxGetMessageAttachment": {
       "adapters": {
         "cli": true,
-        "mcp": null,
+        "mcp": "mailbox_get_attachment",
         "sdk": [
           "typescript",
           "python",
@@ -1193,7 +1193,7 @@
     "mailboxUploadAttachment": {
       "adapters": {
         "cli": true,
-        "mcp": null,
+        "mcp": "mailbox_upload_attachment",
         "sdk": [
           "typescript",
           "python",
@@ -1222,6 +1222,33 @@
       ],
       "mode": "binary_fixture",
       "risk": "binary"
+    },
+    "mailboxWaitForMessage": {
+      "adapters": {
+        "cli": false,
+        "mcp": "mailbox_wait_for_message",
+        "sdk": []
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "message-with-attachment",
+        "presigned-download-url"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_MUTATIONS=1",
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "mutation_fixture",
+      "risk": "mutation"
     },
     "managementActivateProvider": {
       "adapters": {

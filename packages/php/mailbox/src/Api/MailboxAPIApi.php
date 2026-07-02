@@ -5550,6 +5550,7 @@ class MailboxAPIApi
      *
      * @param  string $message_id message_id (required)
      * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $download_token download_token (optional)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
@@ -5561,6 +5562,7 @@ class MailboxAPIApi
     public function mailboxGetMessageAttachment(
         string $message_id,
         string $attachment_id,
+        ?string $download_token = null,
         ?string $range = null,
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
@@ -5568,6 +5570,7 @@ class MailboxAPIApi
         list($response) = $this->mailboxGetMessageAttachmentWithHttpInfo(
             $message_id,
             $attachment_id,
+            $download_token,
             $range,
             $mailbox_id,
             $contentType
@@ -5582,6 +5585,7 @@ class MailboxAPIApi
      *
      * @param  string $message_id message_id (required)
      * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $download_token download_token (optional)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
@@ -5593,6 +5597,7 @@ class MailboxAPIApi
     public function mailboxGetMessageAttachmentWithHttpInfo(
         string $message_id,
         string $attachment_id,
+        ?string $download_token = null,
         ?string $range = null,
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
@@ -5600,6 +5605,7 @@ class MailboxAPIApi
         $request = $this->mailboxGetMessageAttachmentRequest(
             $message_id,
             $attachment_id,
+            $download_token,
             $range,
             $mailbox_id,
             $contentType
@@ -5660,6 +5666,7 @@ class MailboxAPIApi
      *
      * @param  string $message_id message_id (required)
      * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $download_token download_token (optional)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
@@ -5670,6 +5677,7 @@ class MailboxAPIApi
     public function mailboxGetMessageAttachmentAsync(
         string $message_id,
         string $attachment_id,
+        ?string $download_token = null,
         ?string $range = null,
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
@@ -5677,6 +5685,7 @@ class MailboxAPIApi
         return $this->mailboxGetMessageAttachmentAsyncWithHttpInfo(
             $message_id,
             $attachment_id,
+            $download_token,
             $range,
             $mailbox_id,
             $contentType
@@ -5695,6 +5704,7 @@ class MailboxAPIApi
      *
      * @param  string $message_id message_id (required)
      * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $download_token download_token (optional)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
@@ -5705,6 +5715,7 @@ class MailboxAPIApi
     public function mailboxGetMessageAttachmentAsyncWithHttpInfo(
         string $message_id,
         string $attachment_id,
+        ?string $download_token = null,
         ?string $range = null,
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
@@ -5713,6 +5724,7 @@ class MailboxAPIApi
         $request = $this->mailboxGetMessageAttachmentRequest(
             $message_id,
             $attachment_id,
+            $download_token,
             $range,
             $mailbox_id,
             $contentType
@@ -5762,6 +5774,7 @@ class MailboxAPIApi
      *
      * @param  string $message_id message_id (required)
      * @param  string $attachment_id attachment_id (required)
+     * @param  string|null $download_token download_token (optional)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
@@ -5772,6 +5785,7 @@ class MailboxAPIApi
     public function mailboxGetMessageAttachmentRequest(
         string $message_id,
         string $attachment_id,
+        ?string $download_token = null,
         ?string $range = null,
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
@@ -5794,6 +5808,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/messages/{message_id}/attachments/{attachment_id}';
         $formParams = [];
         $queryParams = [];
@@ -5801,6 +5816,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $download_token,
+            'download_token', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
         // query params
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
             $mailbox_id,

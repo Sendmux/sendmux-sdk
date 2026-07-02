@@ -688,12 +688,15 @@ func (s *MailboxAddress) SetName(val NilString) {
 
 // Ref: #/components/schemas/MailboxAttachment
 type MailboxAttachment struct {
+	// Content ID for inline attachments, when present.
 	ContentID   NilString `json:"content_id"`
 	ContentType string    `json:"content_type"`
 	Disposition NilString `json:"disposition"`
+	// Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or
+	// attachment metadata endpoint again to receive a fresh URL.
 	DownloadURL OptString `json:"download_url"`
 	Filename    NilString `json:"filename"`
-	// Attachment ID.
+	// Attachment blob ID.
 	ID        string `json:"id"`
 	SizeBytes NilInt `json:"size_bytes"`
 }
@@ -4398,26 +4401,32 @@ func (MailboxMeItemResponseOk) AllValues() []MailboxMeItemResponseOk {
 // Merged schema.
 // Ref: #/components/schemas/MailboxMessage
 type MailboxMessage struct {
-	Bcc            []MailboxAddress    `json:"bcc"`
-	Cc             []MailboxAddress    `json:"cc"`
-	Flags          MailboxMessageFlags `json:"flags"`
-	FolderIds      []string            `json:"folder_ids"`
-	From           NilMailboxAddress   `json:"from"`
-	HasAttachments bool                `json:"has_attachments"`
+	// Merged property.
+	Attachments    []MailboxMessageAttachmentsItem `json:"attachments"`
+	Bcc            []MailboxAddress                `json:"bcc"`
+	Cc             []MailboxAddress                `json:"cc"`
+	Flags          MailboxMessageFlags             `json:"flags"`
+	FolderIds      []string                        `json:"folder_ids"`
+	From           NilMailboxAddress               `json:"from"`
+	HasAttachments bool                            `json:"has_attachments"`
 	// Message ID.
 	ID string `json:"id"`
 	// Active message keywords, including system flags and custom labels.
-	Keywords    []string            `json:"keywords"`
-	Preview     NilString           `json:"preview"`
-	ReceivedAt  NilString           `json:"received_at"`
-	SentAt      NilString           `json:"sent_at"`
-	SizeBytes   NilInt              `json:"size_bytes"`
-	Subject     NilString           `json:"subject"`
-	ThreadID    NilString           `json:"thread_id"`
-	To          []MailboxAddress    `json:"to"`
-	Attachments []MailboxAttachment `json:"attachments"`
-	HTMLBody    NilString           `json:"html_body"`
-	TextBody    NilString           `json:"text_body"`
+	Keywords   []string         `json:"keywords"`
+	Preview    NilString        `json:"preview"`
+	ReceivedAt NilString        `json:"received_at"`
+	SentAt     NilString        `json:"sent_at"`
+	SizeBytes  NilInt           `json:"size_bytes"`
+	Subject    NilString        `json:"subject"`
+	ThreadID   NilString        `json:"thread_id"`
+	To         []MailboxAddress `json:"to"`
+	HTMLBody   NilString        `json:"html_body"`
+	TextBody   NilString        `json:"text_body"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *MailboxMessage) GetAttachments() []MailboxMessageAttachmentsItem {
+	return s.Attachments
 }
 
 // GetBcc returns the value of Bcc.
@@ -4495,11 +4504,6 @@ func (s *MailboxMessage) GetTo() []MailboxAddress {
 	return s.To
 }
 
-// GetAttachments returns the value of Attachments.
-func (s *MailboxMessage) GetAttachments() []MailboxAttachment {
-	return s.Attachments
-}
-
 // GetHTMLBody returns the value of HTMLBody.
 func (s *MailboxMessage) GetHTMLBody() NilString {
 	return s.HTMLBody
@@ -4508,6 +4512,11 @@ func (s *MailboxMessage) GetHTMLBody() NilString {
 // GetTextBody returns the value of TextBody.
 func (s *MailboxMessage) GetTextBody() NilString {
 	return s.TextBody
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *MailboxMessage) SetAttachments(val []MailboxMessageAttachmentsItem) {
+	s.Attachments = val
 }
 
 // SetBcc sets the value of Bcc.
@@ -4585,11 +4594,6 @@ func (s *MailboxMessage) SetTo(val []MailboxAddress) {
 	s.To = val
 }
 
-// SetAttachments sets the value of Attachments.
-func (s *MailboxMessage) SetAttachments(val []MailboxAttachment) {
-	s.Attachments = val
-}
-
 // SetHTMLBody sets the value of HTMLBody.
 func (s *MailboxMessage) SetHTMLBody(val NilString) {
 	s.HTMLBody = val
@@ -4598,6 +4602,94 @@ func (s *MailboxMessage) SetHTMLBody(val NilString) {
 // SetTextBody sets the value of TextBody.
 func (s *MailboxMessage) SetTextBody(val NilString) {
 	s.TextBody = val
+}
+
+// Merged schema.
+type MailboxMessageAttachmentsItem struct {
+	// Merged property.
+	ContentID NilString `json:"content_id"`
+	// Merged property.
+	ContentType string `json:"content_type"`
+	// Merged property.
+	Disposition NilString `json:"disposition"`
+	// Merged property.
+	DownloadURL OptString `json:"download_url"`
+	// Merged property.
+	Filename NilString `json:"filename"`
+	// Merged property.
+	ID string `json:"id"`
+	// Merged property.
+	SizeBytes NilInt `json:"size_bytes"`
+}
+
+// GetContentID returns the value of ContentID.
+func (s *MailboxMessageAttachmentsItem) GetContentID() NilString {
+	return s.ContentID
+}
+
+// GetContentType returns the value of ContentType.
+func (s *MailboxMessageAttachmentsItem) GetContentType() string {
+	return s.ContentType
+}
+
+// GetDisposition returns the value of Disposition.
+func (s *MailboxMessageAttachmentsItem) GetDisposition() NilString {
+	return s.Disposition
+}
+
+// GetDownloadURL returns the value of DownloadURL.
+func (s *MailboxMessageAttachmentsItem) GetDownloadURL() OptString {
+	return s.DownloadURL
+}
+
+// GetFilename returns the value of Filename.
+func (s *MailboxMessageAttachmentsItem) GetFilename() NilString {
+	return s.Filename
+}
+
+// GetID returns the value of ID.
+func (s *MailboxMessageAttachmentsItem) GetID() string {
+	return s.ID
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *MailboxMessageAttachmentsItem) GetSizeBytes() NilInt {
+	return s.SizeBytes
+}
+
+// SetContentID sets the value of ContentID.
+func (s *MailboxMessageAttachmentsItem) SetContentID(val NilString) {
+	s.ContentID = val
+}
+
+// SetContentType sets the value of ContentType.
+func (s *MailboxMessageAttachmentsItem) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetDisposition sets the value of Disposition.
+func (s *MailboxMessageAttachmentsItem) SetDisposition(val NilString) {
+	s.Disposition = val
+}
+
+// SetDownloadURL sets the value of DownloadURL.
+func (s *MailboxMessageAttachmentsItem) SetDownloadURL(val OptString) {
+	s.DownloadURL = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *MailboxMessageAttachmentsItem) SetFilename(val NilString) {
+	s.Filename = val
+}
+
+// SetID sets the value of ID.
+func (s *MailboxMessageAttachmentsItem) SetID(val string) {
+	s.ID = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *MailboxMessageAttachmentsItem) SetSizeBytes(val NilInt) {
+	s.SizeBytes = val
 }
 
 // Ref: #/components/schemas/MailboxMessageContent
@@ -5957,6 +6049,9 @@ func (MailboxMessageQueryChangesResponseOk) AllValues() []MailboxMessageQueryCha
 
 // Ref: #/components/schemas/MailboxMessageSummary
 type MailboxMessageSummary struct {
+	// Attachment metadata for this message. Each item includes a short-lived `download_url`; if it
+	// expires, fetch message metadata again.
+	Attachments    []MailboxAttachment `json:"attachments"`
 	Bcc            []MailboxAddress    `json:"bcc"`
 	Cc             []MailboxAddress    `json:"cc"`
 	Flags          MailboxMessageFlags `json:"flags"`
@@ -5974,6 +6069,11 @@ type MailboxMessageSummary struct {
 	Subject    NilString        `json:"subject"`
 	ThreadID   NilString        `json:"thread_id"`
 	To         []MailboxAddress `json:"to"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *MailboxMessageSummary) GetAttachments() []MailboxAttachment {
+	return s.Attachments
 }
 
 // GetBcc returns the value of Bcc.
@@ -6049,6 +6149,11 @@ func (s *MailboxMessageSummary) GetThreadID() NilString {
 // GetTo returns the value of To.
 func (s *MailboxMessageSummary) GetTo() []MailboxAddress {
 	return s.To
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *MailboxMessageSummary) SetAttachments(val []MailboxAttachment) {
+	s.Attachments = val
 }
 
 // SetBcc sets the value of Bcc.

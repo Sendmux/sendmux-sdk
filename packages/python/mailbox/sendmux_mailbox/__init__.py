@@ -303,3 +303,5 @@ from sendmux_mailbox.client import (
     configure_mailbox,
     create_mailbox_client,
 )
+
+from sendmux_mailbox.events import iter_mailbox_events

@@ -1154,6 +1154,7 @@
         "additionalProperties": false,
         "properties": {
           "content_id": {
+            "description": "Content ID for inline attachments, when present.",
             "type": [
               "string",
               "null"
@@ -1164,25 +1165,30 @@
             "type": "string"
           },
           "disposition": {
+            "example": "attachment",
             "type": [
               "string",
               "null"
             ]
           },
           "download_url": {
+            "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
+            "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachments/blob_123?download_token=...",
             "type": "string"
           },
           "filename": {
+            "example": "invoice.pdf",
             "type": [
               "string",
               "null"
             ]
           },
           "id": {
-            "description": "Attachment ID",
+            "description": "Attachment blob ID.",
             "type": "string"
           },
           "size_bytes": {
+            "example": 12345,
             "type": [
               "integer",
               "null"
@@ -2596,8 +2602,7 @@
             },
             "required": [
               "text_body",
-              "html_body",
-              "attachments"
+              "html_body"
             ],
             "type": "object"
           }
@@ -3036,6 +3041,13 @@
       "MailboxMessageSummary": {
         "additionalProperties": false,
         "properties": {
+          "attachments": {
+            "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAttachment"
+            },
+            "type": "array"
+          },
           "bcc": {
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
@@ -3146,6 +3158,7 @@
           "sent_at",
           "size_bytes",
           "has_attachments",
+          "attachments",
           "keywords",
           "flags"
         ],
@@ -3508,7 +3521,6 @@
             },
             "required": [
               "rfc5322_message_id",
-              "attachments",
               "body"
             ],
             "type": [
@@ -11000,7 +11012,7 @@
     },
     "/mailbox/messages/{message_id}/attachments/{attachment_id}": {
       "get": {
-        "description": "Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.",
+        "description": "Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.",
         "operationId": "mailboxGetMessageAttachment",
         "parameters": [
           {
@@ -11016,6 +11028,15 @@
             "name": "attachment_id",
             "required": true,
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "download_token",
+            "required": false,
+            "schema": {
+              "description": "Short-lived token embedded in attachment metadata `download_url` values. Clients normally fetch the full URL rather than constructing this parameter manually.",
               "type": "string"
             }
           },

@@ -46,6 +46,9 @@ export async function runSdkOperation(
       ...operationOptions,
       signal: controller.signal,
     });
+    if (flags.follow) {
+      return streamEvents(command, response, controller);
+    }
     return command.renderResult(await firstStreamEvent(response, controller));
   }
 
@@ -97,6 +100,35 @@ async function firstStreamEvent(value: unknown, controller: AbortController): Pr
     if (timer) {
       clearTimeout(timer);
     }
+    controller.abort();
+    await closeAsyncIterator(iterator);
+  }
+}
+
+async function streamEvents(command: SendmuxCommand, value: unknown, controller: AbortController): Promise<void> {
+  const stream = (value as { stream?: AsyncIterable<unknown> } | null)?.stream;
+  if (!stream || typeof stream[Symbol.asyncIterator] !== "function") {
+    throw new Error("SDK operation mailboxStreamEvents did not return an async stream");
+  }
+
+  const iterator = stream[Symbol.asyncIterator]();
+  const abort = () => {
+    controller.abort();
+  };
+  process.once("SIGINT", abort);
+  process.once("SIGTERM", abort);
+
+  try {
+    while (true) {
+      const next = await iterator.next();
+      if (next.done) {
+        return;
+      }
+      command.log(JSON.stringify(next.value));
+    }
+  } finally {
+    process.off("SIGINT", abort);
+    process.off("SIGTERM", abort);
     controller.abort();
     await closeAsyncIterator(iterator);
   }

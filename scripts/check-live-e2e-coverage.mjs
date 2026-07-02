@@ -16,11 +16,53 @@ const matrixPath = resolve("docs/live-e2e-matrix.md");
 const writeOutputs = process.argv.includes("--write");
 const dryRun = process.argv.includes("--dry-run");
 const inputDir = resolve(process.env.OPENAPI_INPUT_DIR ?? findDefaultInputDir());
+const customMcpOperations = [
+  {
+    bodyKind: "json",
+    customMcpOnly: true,
+    description: "Wait briefly for a mailbox message through the curated MCP server.",
+    headerParams: [],
+    method: "mcp",
+    operationId: "mailboxWaitForMessage",
+    path: "mcp://mailbox_wait_for_message",
+    pathParams: [],
+    queryParams: [],
+    responseKind: "json",
+    requestBodyRequired: false,
+    surface: "mailbox",
+  },
+];
+const customMcpScenarios = {
+  mailboxWaitForMessage: {
+    adapters: {
+      cli: false,
+      mcp: "mailbox_wait_for_message",
+      sdk: [],
+    },
+    assertions: ["ok-envelope", "request-id", "message-with-attachment", "presigned-download-url"],
+    fixture: {
+      body: "json",
+      headers: [],
+      pathParams: [],
+      queryParams: [],
+      resourceOwnership: "fixture",
+    },
+    gates: ["SENDMUX_LIVE_E2E_MUTATIONS=1", "SENDMUX_LIVE_E2E_BINARY=1", "E2E resource ownership registry"],
+    mode: "mutation_fixture",
+    risk: "mutation",
+  },
+};
 
-const operations = loadOperations(inputDir);
+const openApiOperations = loadOperations(inputDir);
+const operations = [...openApiOperations, ...customMcpOperations].sort((left, right) =>
+  left.operationId.localeCompare(right.operationId),
+);
 const cliOperations = loadCliOperations();
 const curatedMcp = loadMcpCuration();
-const expected = buildExpectedScenarios(operations, cliOperations, curatedMcp);
+const expected = {
+  ...buildExpectedScenarios(openApiOperations, cliOperations, curatedMcp),
+  ...customMcpScenarios,
+};
 const fixtures = readFixtureRegistry();
 const scenarioDocument = writeOutputs ? { version: 1, scenarios: expected } : readScenarioDocument();
 const scenarios = scenarioDocument.scenarios ?? {};
@@ -48,7 +90,9 @@ if (failures.length > 0) {
 if (dryRun) {
   printDryRunPlan({ operations, scenarios });
 } else {
-  console.log(`Live E2E coverage checks passed for ${operations.length} OpenAPI operations.`);
+  console.log(
+    `Live E2E coverage checks passed for ${openApiOperations.length} OpenAPI operations and ${customMcpOperations.length} custom MCP operation.`,
+  );
 }
 
 function findDefaultInputDir() {
@@ -408,14 +452,23 @@ function validateScenarios({ curatedMcp, expected, operations, scenarios }) {
       failures.push(`${operation.operationId}: scenario risk drifted; expected ${expectedScenario.risk}, got ${scenario.risk}`);
     }
 
-    for (const adapter of sdkAdapters) {
-      if (!Array.isArray(scenario.adapters?.sdk) || !scenario.adapters.sdk.includes(adapter)) {
-        failures.push(`${operation.operationId}: missing SDK live scenario adapter ${adapter}`);
+    if (operation.customMcpOnly) {
+      if (Array.isArray(scenario.adapters?.sdk) && scenario.adapters.sdk.length !== 0) {
+        failures.push(`${operation.operationId}: custom MCP scenario must not declare SDK adapters`);
       }
-    }
+      if (scenario.adapters?.cli !== false) {
+        failures.push(`${operation.operationId}: custom MCP scenario must not declare a CLI adapter`);
+      }
+    } else {
+      for (const adapter of sdkAdapters) {
+        if (!Array.isArray(scenario.adapters?.sdk) || !scenario.adapters.sdk.includes(adapter)) {
+          failures.push(`${operation.operationId}: missing SDK live scenario adapter ${adapter}`);
+        }
+      }
 
-    if (scenario.adapters?.cli !== true) {
-      failures.push(`${operation.operationId}: missing CLI live scenario adapter`);
+      if (scenario.adapters?.cli !== true) {
+        failures.push(`${operation.operationId}: missing CLI live scenario adapter`);
+      }
     }
 
     const expectedMcpTool = curatedMcp.get(operation.operationId) ?? null;
@@ -451,7 +504,7 @@ function validateScenarios({ curatedMcp, expected, operations, scenarios }) {
 
   for (const operationId of Object.keys(scenarios)) {
     if (!operationIds.has(operationId)) {
-      failures.push(`${operationId}: live E2E scenario is not present in OpenAPI snapshots`);
+      failures.push(`${operationId}: live E2E scenario is not present in OpenAPI snapshots or custom MCP operations`);
     }
   }
 
@@ -544,7 +597,8 @@ function validateFixtureInputReferences(value, sourceNames, path) {
 }
 
 function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
-  const bySurface = countBy(operations, (operation) => operation.surface);
+  const openApiOperations = operations.filter((operation) => !operation.customMcpOnly);
+  const bySurface = countBy(openApiOperations, (operation) => operation.surface);
   const byRisk = countBy(operations, (operation) => scenarios[operation.operationId]?.risk ?? "missing");
   const byMode = countBy(operations, (operation) => scenarios[operation.operationId]?.mode ?? "missing");
   const mcpCount = [...curatedMcp.keys()].filter((operationId) => scenarios[operationId]?.adapters?.mcp).length;
@@ -569,9 +623,10 @@ function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
     "",
     "## Summary",
     "",
-    `- OpenAPI operations: ${operations.length} (management ${bySurface.management ?? 0}, mailbox ${
+    `- Operations: ${operations.length} total; ${openApiOperations.length} OpenAPI operations and ${operations.filter((operation) => operation.customMcpOnly).length} custom MCP operation.`,
+    `- OpenAPI operations by surface: management ${bySurface.management ?? 0}, mailbox ${
       bySurface.mailbox ?? 0
-    }, sending ${bySurface.sending ?? 0}).`,
+    }, sending ${bySurface.sending ?? 0}.`,
     `- SDK adapters required per operation: ${sdkAdapters.join(", ")}.`,
     "- CLI adapters required per operation: generated command for every OpenAPI operation.",
     `- MCP adapters required for curated tools: ${mcpCount}.`,

@@ -13,7 +13,11 @@ const {
   paginate,
   responseEtag,
 } = await import("../packages/ts/core/dist/index.js");
-const { createMailboxClient, mailboxGetIdentity } = await import("../packages/ts/mailbox/dist/index.js");
+const {
+  createMailboxClient,
+  mailboxGetIdentity,
+  streamMailboxEvents,
+} = await import("../packages/ts/mailbox/dist/index.js");
 const { createSendingClient } = await import("../packages/ts/sending/dist/index.js");
 
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
@@ -291,5 +295,46 @@ assert.deepEqual(seenMailboxRequests, [
     url: "https://mailbox-sdk.test/mailbox/identity?mailbox_id=mbx_ts_target",
   },
 ]);
+
+const seenMailboxStreamRequests = [];
+const mailboxStreamClient = createMailboxClient({
+  apiKey: "smx_agent_test_mailbox_stream",
+  baseUrl: "https://mailbox-stream-sdk.test",
+  fetch: async (request) => {
+    seenMailboxStreamRequests.push({
+      authorization: request.headers.get("Authorization"),
+      url: request.url,
+    });
+    return new Response(
+      [
+        "event: message.received",
+        'data: {"event_type":"message.received","mailbox_id":"mbx_stream","message_id":"msg_stream","message_id_kind":"provider","occurred_at":"2026-07-02T00:00:00.000Z","recipients":["agent@example.com"],"sender":"sender@example.com","team_public_id":"team_stream","message":null,"is_spam":false}',
+        "",
+        "",
+      ].join("\n"),
+      {
+        headers: { "Content-Type": "text/event-stream" },
+        status: 200,
+      },
+    );
+  },
+});
+const mailboxEvents = [];
+for await (const event of streamMailboxEvents({
+  client: mailboxStreamClient,
+  query: { close_after: 30, event_types: "message.received" },
+})) {
+  mailboxEvents.push(event);
+}
+assert.equal(mailboxEvents.length, 1);
+assert.equal(mailboxEvents[0].event_type, "message.received");
+assert.equal(mailboxEvents[0].message_id, "msg_stream");
+assert.equal(seenMailboxStreamRequests.length, 1);
+assert.equal(seenMailboxStreamRequests[0].authorization, "Bearer smx_agent_test_mailbox_stream");
+const mailboxStreamUrl = new URL(seenMailboxStreamRequests[0].url);
+assert.equal(mailboxStreamUrl.origin, "https://mailbox-stream-sdk.test");
+assert.equal(mailboxStreamUrl.pathname, "/mailbox/events");
+assert.equal(mailboxStreamUrl.searchParams.get("close_after"), "30");
+assert.equal(mailboxStreamUrl.searchParams.get("event_types"), "message.received");
 
 console.log("TypeScript core helper tests passed.");

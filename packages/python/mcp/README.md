@@ -119,11 +119,26 @@ Packaged OpenAPI snapshots are the default so released tool names, schemas, and 
 
 ## Tool Surfaces
 
-- Mailbox: `21` tools for granted mailboxes, profile/session discovery, messages, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
-- Management: `20` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
+- Mailbox: `24` tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
+- Management: `21` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
 - Sending: `2` tools for single and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
 
 The server rejects keys with the wrong prefix before starting.
+
+## Attachment Workflow For Agents
+
+Use `mailbox_wait_for_message` when a user asks an agent to wait for new mail. The tool is bounded; if it returns `matched=false`, call it again rather than holding an MCP tool call open indefinitely.
+
+When a message has attachments:
+
+1. Call `mailbox_get_attachment` with `message_id` and `attachment_id`.
+2. Read the returned metadata and `download_url`.
+3. Fetch `download_url` promptly with a plain HTTP client and no `Authorization` header.
+4. If the URL has expired, call `mailbox_get_attachment` again to mint a fresh URL.
+
+Use `mailbox_upload_attachment` for outbound attachments over MCP. It accepts base64 content and enforces a decoded payload cap of `5,000,000` bytes; for larger files, use an SDK or CLI upload path that can stream binary bytes directly.
+
+For sending, `mailbox_send_message` accepts either inline base64 attachment objects (`content`, `filename`, `content_type`) or uploaded attachment references (`blob_id`, `filename`, `content_type`). The Sending API tools support the generated Sending API attachment body shape.
 
 ## Console Scripts
 

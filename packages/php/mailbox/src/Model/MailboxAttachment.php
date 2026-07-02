@@ -337,7 +337,7 @@ class MailboxAttachment implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets content_id
      *
-     * @param string|null $content_id content_id
+     * @param string|null $content_id Content ID for inline attachments, when present.
      *
      * @return $this
      */
@@ -432,7 +432,7 @@ class MailboxAttachment implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets download_url
      *
-     * @param string|null $download_url download_url
+     * @param string|null $download_url Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.
      *
      * @return $this
      */
@@ -493,7 +493,7 @@ class MailboxAttachment implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets id
      *
-     * @param string $id Attachment ID
+     * @param string $id Attachment blob ID.
      *
      * @return $this
      */

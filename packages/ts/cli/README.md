@@ -50,12 +50,37 @@ sendmux sending:send --profile sending --body '{"from":{"email":"sender@example.
 
 Commands reject mismatched key types before making a network request.
 
+## Attachments And Events
+
+Upload a file, then use the returned `blob_id` in `mailbox:send-message`.
+
+```sh
+sendmux mailbox:upload-attachment \
+  --profile mailbox \
+  --query filename=report.md \
+  --header Content-Type=text/markdown \
+  --body-file ./report.md \
+  --json
+```
+
+Attachment metadata returned from message, search, and event operations includes `download_url`. Fetch it promptly with any HTTP client; no `Authorization` header is needed. If it expires, re-run the message or attachment metadata command to get a fresh URL.
+
+Follow live mailbox events as newline-delimited JSON:
+
+```sh
+sendmux mailbox:stream-events \
+  --profile mailbox \
+  --query event_types=message.received \
+  --query close_after=300 \
+  --follow
+```
+
 ## Commands
 
-The CLI includes `95` generated API operation commands:
+The CLI includes `96` generated API operation commands:
 
 - `40` Mailbox commands, including `mailbox:messages:list`, `mailbox:messages:get`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
-- `52` Management commands, including `management:domains:list`, `management:create-mailbox`, `management:get-spend-summary`, and `management:create-webhook`.
+- `53` Management commands, including `management:domains:list`, `management:create-mailbox`, `management:get-spend-summary`, and `management:create-webhook`.
 - `3` Sending commands: `sending:get-open-api-spec`, `sending:send`, and `sending:send:batch`.
 - Profile commands: `profiles:list`, `profiles:set`, and `profiles:show`.
 
@@ -84,6 +109,8 @@ Operation commands support:
 - `--json`
 
 `--path`, `--query`, and `--header` use `name=value` syntax and can be repeated when the operation accepts multiple values.
+
+`mailbox:stream-events` also supports `--follow` to keep printing events until the stream closes or the process is interrupted.
 
 ## Support
 

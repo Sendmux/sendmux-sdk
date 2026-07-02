@@ -27,12 +27,12 @@ class MailboxAttachment(BaseModel):
     """
     MailboxAttachment
     """ # noqa: E501
-    content_id: Optional[StrictStr]
+    content_id: Optional[StrictStr] = Field(description="Content ID for inline attachments, when present.")
     content_type: StrictStr
     disposition: Optional[StrictStr]
-    download_url: Optional[StrictStr] = None
+    download_url: Optional[StrictStr] = Field(default=None, description="Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.")
     filename: Optional[StrictStr]
-    id: StrictStr = Field(description="Attachment ID")
+    id: StrictStr = Field(description="Attachment blob ID.")
     size_bytes: Optional[StrictInt]
     __properties: ClassVar[List[str]] = ["content_id", "content_type", "disposition", "download_url", "filename", "id", "size_bytes"]
 

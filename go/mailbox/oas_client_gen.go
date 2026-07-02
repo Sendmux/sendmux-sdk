@@ -120,7 +120,9 @@ type Invoker interface {
 	MailboxGetMessage(ctx context.Context, params MailboxGetMessageParams) (MailboxGetMessageRes, error)
 	// MailboxGetMessageAttachment invokes mailboxGetMessageAttachment operation.
 	//
-	// Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+	// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
+	// also provides short-lived download URLs for clients that cannot add an Authorization header.
+	// Supports standard byte ranges.
 	//
 	// GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 	MailboxGetMessageAttachment(ctx context.Context, params MailboxGetMessageAttachmentParams) (MailboxGetMessageAttachmentRes, error)
@@ -2696,7 +2698,9 @@ func (c *Client) sendMailboxGetMessage(ctx context.Context, params MailboxGetMes
 
 // MailboxGetMessageAttachment invokes mailboxGetMessageAttachment operation.
 //
-// Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
+// also provides short-lived download URLs for clients that cannot add an Authorization header.
+// Supports standard byte ranges.
 //
 // GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 func (c *Client) MailboxGetMessageAttachment(ctx context.Context, params MailboxGetMessageAttachmentParams) (MailboxGetMessageAttachmentRes, error) {
@@ -2783,6 +2787,23 @@ func (c *Client) sendMailboxGetMessageAttachment(ctx context.Context, params Mai
 
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
+	{
+		// Encode "download_token" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "download_token",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.DownloadToken.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	{
 		// Encode "mailbox_id" parameter.
 		cfg := uri.QueryParameterEncodingConfig{

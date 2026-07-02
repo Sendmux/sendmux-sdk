@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* expose short-lived attachment download URLs and typed mailbox event iterator
+
 ## [1.0.4](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.0.3...python-mailbox-v1.0.4) (2026-06-19)
 
 

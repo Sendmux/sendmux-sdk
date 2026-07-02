@@ -99,7 +99,9 @@ type Handler interface {
 	MailboxGetMessage(ctx context.Context, params MailboxGetMessageParams) (MailboxGetMessageRes, error)
 	// MailboxGetMessageAttachment implements mailboxGetMessageAttachment operation.
 	//
-	// Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+	// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
+	// also provides short-lived download URLs for clients that cannot add an Authorization header.
+	// Supports standard byte ranges.
 	//
 	// GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 	MailboxGetMessageAttachment(ctx context.Context, params MailboxGetMessageAttachmentParams) (MailboxGetMessageAttachmentRes, error)

@@ -30,6 +30,7 @@ class MailboxMessage(BaseModel):
     """
     MailboxMessage
     """ # noqa: E501
+    attachments: List[MailboxAttachment]
     bcc: List[MailboxAddress]
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
@@ -45,10 +46,9 @@ class MailboxMessage(BaseModel):
     subject: Optional[StrictStr]
     thread_id: Optional[StrictStr]
     to: List[MailboxAddress]
-    attachments: List[MailboxAttachment]
     html_body: Optional[StrictStr]
     text_body: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "thread_id", "to", "attachments", "html_body", "text_body"]
+    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "thread_id", "to", "html_body", "text_body"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -89,6 +89,13 @@ class MailboxMessage(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
+        _items = []
+        if self.attachments:
+            for _item_attachments in self.attachments:
+                if _item_attachments:
+                    _items.append(_item_attachments.to_dict())
+            _dict['attachments'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in bcc (list)
         _items = []
         if self.bcc:
@@ -116,13 +123,6 @@ class MailboxMessage(BaseModel):
                 if _item_to:
                     _items.append(_item_to.to_dict())
             _dict['to'] = _items
-        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
-        _items = []
-        if self.attachments:
-            for _item_attachments in self.attachments:
-                if _item_attachments:
-                    _items.append(_item_attachments.to_dict())
-            _dict['attachments'] = _items
         # set to None if var_from (nullable) is None
         # and model_fields_set contains the field
         if self.var_from is None and "var_from" in self.model_fields_set:
@@ -180,6 +180,7 @@ class MailboxMessage(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "attachments": [MailboxAttachment.from_dict(_item) for _item in obj["attachments"]] if obj.get("attachments") is not None else None,
             "bcc": [MailboxAddress.from_dict(_item) for _item in obj["bcc"]] if obj.get("bcc") is not None else None,
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "flags": MailboxMessageFlags.from_dict(obj["flags"]) if obj.get("flags") is not None else None,
@@ -195,7 +196,6 @@ class MailboxMessage(BaseModel):
             "subject": obj.get("subject"),
             "thread_id": obj.get("thread_id"),
             "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None,
-            "attachments": [MailboxAttachment.from_dict(_item) for _item in obj["attachments"]] if obj.get("attachments") is not None else None,
             "html_body": obj.get("html_body"),
             "text_body": obj.get("text_body")
         })

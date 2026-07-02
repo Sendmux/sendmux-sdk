@@ -11291,6 +11291,14 @@ func (s *MailboxMessage) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 	{
+		e.FieldStart("attachments")
+		e.ArrStart()
+		for _, elem := range s.Attachments {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+	{
 		e.FieldStart("bcc")
 		e.ArrStart()
 		for _, elem := range s.Bcc {
@@ -11371,14 +11379,6 @@ func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
-		e.FieldStart("attachments")
-		e.ArrStart()
-		for _, elem := range s.Attachments {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
-	}
-	{
 		e.FieldStart("html_body")
 		s.HTMLBody.Encode(e)
 	}
@@ -11389,22 +11389,22 @@ func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 }
 
 var jsonFieldsNameOfMailboxMessage = [18]string{
-	0:  "bcc",
-	1:  "cc",
-	2:  "flags",
-	3:  "folder_ids",
-	4:  "from",
-	5:  "has_attachments",
-	6:  "id",
-	7:  "keywords",
-	8:  "preview",
-	9:  "received_at",
-	10: "sent_at",
-	11: "size_bytes",
-	12: "subject",
-	13: "thread_id",
-	14: "to",
-	15: "attachments",
+	0:  "attachments",
+	1:  "bcc",
+	2:  "cc",
+	3:  "flags",
+	4:  "folder_ids",
+	5:  "from",
+	6:  "has_attachments",
+	7:  "id",
+	8:  "keywords",
+	9:  "preview",
+	10: "received_at",
+	11: "sent_at",
+	12: "size_bytes",
+	13: "subject",
+	14: "thread_id",
+	15: "to",
 	16: "html_body",
 	17: "text_body",
 }
@@ -11418,8 +11418,26 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "bcc":
+		case "attachments":
 			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				s.Attachments = make([]MailboxMessageAttachmentsItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem MailboxMessageAttachmentsItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Attachments = append(s.Attachments, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attachments\"")
+			}
+		case "bcc":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.Bcc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11437,7 +11455,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"bcc\"")
 			}
 		case "cc":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.Cc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11455,7 +11473,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"cc\"")
 			}
 		case "flags":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Flags.Decode(d); err != nil {
 					return err
@@ -11465,7 +11483,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flags\"")
 			}
 		case "folder_ids":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				s.FolderIds = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11485,7 +11503,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"folder_ids\"")
 			}
 		case "from":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.From.Decode(d); err != nil {
 					return err
@@ -11495,7 +11513,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "has_attachments":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Bool()
 				s.HasAttachments = bool(v)
@@ -11507,7 +11525,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"has_attachments\"")
 			}
 		case "id":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.ID = string(v)
@@ -11519,7 +11537,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "keywords":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				s.Keywords = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11539,7 +11557,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"keywords\"")
 			}
 		case "preview":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				if err := s.Preview.Decode(d); err != nil {
 					return err
@@ -11549,7 +11567,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"preview\"")
 			}
 		case "received_at":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				if err := s.ReceivedAt.Decode(d); err != nil {
 					return err
@@ -11559,7 +11577,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"received_at\"")
 			}
 		case "sent_at":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				if err := s.SentAt.Decode(d); err != nil {
 					return err
@@ -11569,7 +11587,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"sent_at\"")
 			}
 		case "size_bytes":
-			requiredBitSet[1] |= 1 << 3
+			requiredBitSet[1] |= 1 << 4
 			if err := func() error {
 				if err := s.SizeBytes.Decode(d); err != nil {
 					return err
@@ -11579,7 +11597,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"size_bytes\"")
 			}
 		case "subject":
-			requiredBitSet[1] |= 1 << 4
+			requiredBitSet[1] |= 1 << 5
 			if err := func() error {
 				if err := s.Subject.Decode(d); err != nil {
 					return err
@@ -11589,7 +11607,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"subject\"")
 			}
 		case "thread_id":
-			requiredBitSet[1] |= 1 << 5
+			requiredBitSet[1] |= 1 << 6
 			if err := func() error {
 				if err := s.ThreadID.Decode(d); err != nil {
 					return err
@@ -11599,7 +11617,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"thread_id\"")
 			}
 		case "to":
-			requiredBitSet[1] |= 1 << 6
+			requiredBitSet[1] |= 1 << 7
 			if err := func() error {
 				s.To = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11615,24 +11633,6 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"to\"")
-			}
-		case "attachments":
-			requiredBitSet[1] |= 1 << 7
-			if err := func() error {
-				s.Attachments = make([]MailboxAttachment, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem MailboxAttachment
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Attachments = append(s.Attachments, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"attachments\"")
 			}
 		case "html_body":
 			requiredBitSet[2] |= 1 << 0
@@ -11708,6 +11708,196 @@ func (s *MailboxMessage) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxMessage) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxMessageAttachmentsItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxMessageAttachmentsItem) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("content_id")
+		s.ContentID.Encode(e)
+	}
+	{
+		e.FieldStart("content_type")
+		e.Str(s.ContentType)
+	}
+	{
+		e.FieldStart("disposition")
+		s.Disposition.Encode(e)
+	}
+	{
+		if s.DownloadURL.Set {
+			e.FieldStart("download_url")
+			s.DownloadURL.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("filename")
+		s.Filename.Encode(e)
+	}
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		e.FieldStart("size_bytes")
+		s.SizeBytes.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfMailboxMessageAttachmentsItem = [7]string{
+	0: "content_id",
+	1: "content_type",
+	2: "disposition",
+	3: "download_url",
+	4: "filename",
+	5: "id",
+	6: "size_bytes",
+}
+
+// Decode decodes MailboxMessageAttachmentsItem from json.
+func (s *MailboxMessageAttachmentsItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxMessageAttachmentsItem to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "content_id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.ContentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"content_id\"")
+			}
+		case "content_type":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ContentType = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"content_type\"")
+			}
+		case "disposition":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.Disposition.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"disposition\"")
+			}
+		case "download_url":
+			if err := func() error {
+				s.DownloadURL.Reset()
+				if err := s.DownloadURL.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"download_url\"")
+			}
+		case "filename":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.Filename.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"filename\"")
+			}
+		case "id":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "size_bytes":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				if err := s.SizeBytes.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"size_bytes\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxMessageAttachmentsItem")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b01110111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxMessageAttachmentsItem) {
+					name = jsonFieldsNameOfMailboxMessageAttachmentsItem[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxMessageAttachmentsItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxMessageAttachmentsItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -15900,6 +16090,14 @@ func (s *MailboxMessageSummary) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxMessageSummary) encodeFields(e *jx.Encoder) {
 	{
+		e.FieldStart("attachments")
+		e.ArrStart()
+		for _, elem := range s.Attachments {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+	{
 		e.FieldStart("bcc")
 		e.ArrStart()
 		for _, elem := range s.Bcc {
@@ -15981,22 +16179,23 @@ func (s *MailboxMessageSummary) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxMessageSummary = [15]string{
-	0:  "bcc",
-	1:  "cc",
-	2:  "flags",
-	3:  "folder_ids",
-	4:  "from",
-	5:  "has_attachments",
-	6:  "id",
-	7:  "keywords",
-	8:  "preview",
-	9:  "received_at",
-	10: "sent_at",
-	11: "size_bytes",
-	12: "subject",
-	13: "thread_id",
-	14: "to",
+var jsonFieldsNameOfMailboxMessageSummary = [16]string{
+	0:  "attachments",
+	1:  "bcc",
+	2:  "cc",
+	3:  "flags",
+	4:  "folder_ids",
+	5:  "from",
+	6:  "has_attachments",
+	7:  "id",
+	8:  "keywords",
+	9:  "preview",
+	10: "received_at",
+	11: "sent_at",
+	12: "size_bytes",
+	13: "subject",
+	14: "thread_id",
+	15: "to",
 }
 
 // Decode decodes MailboxMessageSummary from json.
@@ -16008,8 +16207,26 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "bcc":
+		case "attachments":
 			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				s.Attachments = make([]MailboxAttachment, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem MailboxAttachment
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Attachments = append(s.Attachments, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attachments\"")
+			}
+		case "bcc":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.Bcc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16027,7 +16244,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"bcc\"")
 			}
 		case "cc":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.Cc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16045,7 +16262,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"cc\"")
 			}
 		case "flags":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Flags.Decode(d); err != nil {
 					return err
@@ -16055,7 +16272,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flags\"")
 			}
 		case "folder_ids":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				s.FolderIds = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16075,7 +16292,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"folder_ids\"")
 			}
 		case "from":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.From.Decode(d); err != nil {
 					return err
@@ -16085,7 +16302,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "has_attachments":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Bool()
 				s.HasAttachments = bool(v)
@@ -16097,7 +16314,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"has_attachments\"")
 			}
 		case "id":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.ID = string(v)
@@ -16109,7 +16326,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "keywords":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				s.Keywords = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16129,7 +16346,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"keywords\"")
 			}
 		case "preview":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				if err := s.Preview.Decode(d); err != nil {
 					return err
@@ -16139,7 +16356,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"preview\"")
 			}
 		case "received_at":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				if err := s.ReceivedAt.Decode(d); err != nil {
 					return err
@@ -16149,7 +16366,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"received_at\"")
 			}
 		case "sent_at":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				if err := s.SentAt.Decode(d); err != nil {
 					return err
@@ -16159,7 +16376,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"sent_at\"")
 			}
 		case "size_bytes":
-			requiredBitSet[1] |= 1 << 3
+			requiredBitSet[1] |= 1 << 4
 			if err := func() error {
 				if err := s.SizeBytes.Decode(d); err != nil {
 					return err
@@ -16169,7 +16386,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"size_bytes\"")
 			}
 		case "subject":
-			requiredBitSet[1] |= 1 << 4
+			requiredBitSet[1] |= 1 << 5
 			if err := func() error {
 				if err := s.Subject.Decode(d); err != nil {
 					return err
@@ -16179,7 +16396,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"subject\"")
 			}
 		case "thread_id":
-			requiredBitSet[1] |= 1 << 5
+			requiredBitSet[1] |= 1 << 6
 			if err := func() error {
 				if err := s.ThreadID.Decode(d); err != nil {
 					return err
@@ -16189,7 +16406,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"thread_id\"")
 			}
 		case "to":
-			requiredBitSet[1] |= 1 << 6
+			requiredBitSet[1] |= 1 << 7
 			if err := func() error {
 				s.To = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16217,7 +16434,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111111,
-		0b01111111,
+		0b11111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

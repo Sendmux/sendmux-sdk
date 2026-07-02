@@ -82,6 +82,19 @@ sendmux-mcp-mailbox --help
 
 The hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP commands support stdio and HTTP transports; hosted MCP uses OAuth and does not require manual API keys or custom OAuth endpoints.
 
+## Attachments And Live Mailbox Events
+
+Mailbox attachment metadata now includes a short-lived `download_url`. Fetch that URL promptly with a plain HTTP client; it does not require an `Authorization` header, but it expires after a short TTL. If a download URL expires, re-fetch the message or attachment metadata to receive a fresh URL.
+
+To send larger attachments, first upload bytes with the Mailbox attachment upload operation, then pass the returned `blob_id` in `mailboxSendMessage` / `mailbox_send_message`. Small messages can still use inline base64 attachment bodies where the API schema supports them.
+
+Live mailbox events are available through idiomatic lanes:
+
+- TypeScript: `streamMailboxEvents(...)` returns an async iterator over typed mailbox realtime events.
+- Python: `iter_mailbox_events(...)` yields typed `MailboxRealtimeEvent` models from the generated mailbox client.
+- CLI: `sendmux mailbox:stream-events --follow` prints one JSON event per line until the stream closes or the process is interrupted.
+- MCP: use `mailbox_wait_for_message` for bounded waits inside agent tool calls, then `mailbox_get_attachment` to renew attachment metadata and fetch `download_url`.
+
 ## Repository structure
 
 | Path | Purpose |

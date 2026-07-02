@@ -9,6 +9,7 @@ import {
 } from "./generated/client/index.js";
 
 export * from "./generated/sdk.gen.js";
+export * from "./events.js";
 export type { Client as MailboxClient } from "./generated/client/index.js";
 
 const DEFAULT_BASE_URL = "https://app.sendmux.ai/api/v1";

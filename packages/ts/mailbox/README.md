@@ -29,6 +29,7 @@ npm install @sendmux/mailbox
 import {
   createMailboxClient,
   mailboxListMessages,
+  streamMailboxEvents,
 } from "@sendmux/mailbox";
 
 const client = createMailboxClient({
@@ -48,6 +49,68 @@ The package exports every generated Mailbox operation plus:
 - `createMailboxClient`
 - `configureMailbox`
 - `MailboxClient`
+- `streamMailboxEvents`
+
+## Attachments
+
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client; no `Authorization` header is needed. If the URL has expired, call `mailboxGetMessage` or list/search messages again to receive fresh metadata.
+
+```ts
+import {
+  createMailboxClient,
+  mailboxGetMessage,
+  mailboxSendMessage,
+  mailboxUploadAttachment,
+} from "@sendmux/mailbox";
+
+const client = createMailboxClient({
+  apiKey: process.env.SENDMUX_MAILBOX_API_KEY!,
+});
+
+const message = await mailboxGetMessage({
+  client,
+  path: { message_id: "msg_123" },
+});
+const attachment = message.data.data.attachments[0];
+const downloaded = await fetch(attachment.download_url);
+const bytes = await downloaded.arrayBuffer();
+
+const upload = await mailboxUploadAttachment({
+  client,
+  body: new TextEncoder().encode("hello\n"),
+  query: { filename: "hello.txt" },
+  headers: { "Content-Type": "text/plain" },
+});
+
+await mailboxSendMessage({
+  client,
+  body: {
+    to: [{ email: "recipient@example.com", name: null }],
+    subject: "Attachment",
+    text_body: "See attached.",
+    attachments: [{
+      blob_id: upload.data.data.blob_id,
+      filename: "hello.txt",
+      content_type: "text/plain",
+    }],
+  },
+});
+```
+
+Inline base64 attachments remain available for small sends through the generated `attachments[].content` body shape. Use upload plus `blob_id` when content is large enough that base64 would be awkward for an SDK or agent payload.
+
+## Events
+
+Use `streamMailboxEvents` for server-sent mailbox events.
+
+```ts
+for await (const event of streamMailboxEvents({
+  client,
+  query: { close_after: 300, event_types: "message.received" },
+})) {
+  console.log(event.event_type, event.message_id);
+}
+```
 
 ## Pagination
 

@@ -7,6 +7,7 @@ import pytest
 
 from sendmux_mcp.curation import MAILBOX_TOOLS
 from sendmux_mcp.hosted import (
+    HOSTED_MCP_DISCOVERY_SCOPES,
     HOSTED_SURFACES,
     HostedServerRuntimeConfig,
     create_hosted_server,
@@ -32,7 +33,7 @@ def runtime_config() -> HostedServerRuntimeConfig:
         host="127.0.0.1",
         port=8765,
         stateless_http=True,
-        scopes_supported=("mailbox.read", "email.send"),
+        scopes_supported=HOSTED_MCP_DISCOVERY_SCOPES,
         allowed_origins=("https://app.sendmux.ai",),
     )
 
@@ -169,6 +170,30 @@ def test_hosted_server_exposes_mcp_headers_to_browser_requests() -> None:
     asyncio.run(run())
 
 
+def test_hosted_server_challenges_unauthenticated_requests_with_hosted_discovery_scope() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.post(
+                "/mcp",
+                headers={
+                    "Content-Type": "application/json",
+                    "MCP-Protocol-Version": "2025-11-25",
+                },
+                json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+            )
+
+        assert response.status_code == 401
+        authenticate = response.headers["www-authenticate"]
+        assert 'resource_metadata="https://mcp.sendmux.ai/.well-known/oauth-protected-resource/mcp"' in authenticate
+        assert f'scope="{" ".join(HOSTED_MCP_DISCOVERY_SCOPES)}"' in authenticate
+
+    asyncio.run(run())
+
+
 def test_hosted_server_protected_resource_metadata_preserves_authorization_server_origin() -> None:
     async def run() -> None:
         server = create_hosted_server(runtime_config())
@@ -180,6 +205,7 @@ def test_hosted_server_protected_resource_metadata_preserves_authorization_serve
 
         assert response.status_code == 200
         assert response.json()["authorization_servers"] == ["https://app.sendmux.ai"]
+        assert response.json()["scopes_supported"] == list(HOSTED_MCP_DISCOVERY_SCOPES)
 
     asyncio.run(run())
 
@@ -300,10 +326,12 @@ def test_hosted_runtime_config_uses_public_resource_and_internal_proxy_env(
 def test_hosted_runtime_config_defaults_to_app_origin_only(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SENDMUX_MCP_APP_ORIGIN", "https://app.sendmux.ai")
     monkeypatch.delenv("SENDMUX_MCP_ALLOWED_ORIGINS", raising=False)
+    monkeypatch.delenv("SENDMUX_MCP_SCOPES_SUPPORTED", raising=False)
 
     config = hosted_runtime_config_from_env()
 
     assert config.allowed_origins == ("https://app.sendmux.ai",)
+    assert config.scopes_supported == HOSTED_MCP_DISCOVERY_SCOPES
 
 
 def test_hosted_runtime_config_rejects_wildcard_origin(monkeypatch: pytest.MonkeyPatch) -> None:

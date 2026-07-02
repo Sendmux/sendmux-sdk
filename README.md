@@ -80,7 +80,7 @@ pip install sendmux-mcp
 sendmux-mcp-mailbox --help
 ```
 
-The hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP commands support stdio and HTTP transports; hosted MCP uses OAuth.
+The hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP commands support stdio and HTTP transports; hosted MCP uses OAuth and does not require manual API keys or custom OAuth endpoints.
 
 ## Repository structure
 

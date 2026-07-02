@@ -17,13 +17,30 @@ from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provide
 from sendmux_mcp.hosted_proxy import HostedProxyConfig
 from sendmux_mcp.observability import init_posthog_from_env, posthog_exception_middleware
 from sendmux_mcp.permissions import tool_permission_auth_check
-from sendmux_mcp.security import OriginGuardMiddleware
+from sendmux_mcp.security import BearerScopeChallengeMiddleware, OriginGuardMiddleware
 from sendmux_mcp.server import create_server
 
 HOSTED_SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 DEFAULT_MCP_RESOURCE_BASE_URL = "https://mcp.sendmux.ai"
 DEFAULT_MCP_APP_ORIGIN = "https://app.sendmux.ai"
 DEFAULT_MCP_PATH = "/mcp"
+HOSTED_MCP_DISCOVERY_SCOPES = (
+    "analytics.read",
+    "billing.read",
+    "domain.create",
+    "domain.read",
+    "domain.verify",
+    "email.send",
+    "logs.read",
+    "mailbox.admin.create",
+    "mailbox.admin.manage",
+    "mailbox.admin.read",
+    "mailbox.read",
+    "mailbox.settings.update",
+    "webhook.create",
+    "webhook.manage",
+    "webhook.read",
+)
 HOSTED_CORS_ALLOWED_HEADERS = (
     "Accept",
     "Authorization",
@@ -77,7 +94,7 @@ def hosted_runtime_config_from_env() -> HostedServerRuntimeConfig:
         host=os.environ.get("SENDMUX_MCP_HOST", "0.0.0.0"),
         port=int(os.environ.get("SENDMUX_MCP_PORT", "8765")),
         stateless_http=True,
-        scopes_supported=parse_csv(os.environ.get("SENDMUX_MCP_SCOPES_SUPPORTED")),
+        scopes_supported=parse_csv(os.environ.get("SENDMUX_MCP_SCOPES_SUPPORTED")) or HOSTED_MCP_DISCOVERY_SCOPES,
         allowed_origins=allowed_origins,
     )
 
@@ -130,7 +147,7 @@ def run_hosted() -> None:
             host=runtime.host,
             port=runtime.port,
             path=runtime.mcp_path,
-            middleware=hosted_http_middleware(runtime.allowed_origins),
+            middleware=hosted_http_middleware(runtime.allowed_origins, runtime.scopes_supported),
             stateless_http=runtime.stateless_http,
             show_banner=False,
         )
@@ -139,13 +156,17 @@ def run_hosted() -> None:
             observability.shutdown()
 
 
-def hosted_http_middleware(allowed_origins: Sequence[str] | None = None) -> list[Middleware]:
+def hosted_http_middleware(
+    allowed_origins: Sequence[str] | None = None,
+    challenge_scopes: Sequence[str] = HOSTED_MCP_DISCOVERY_SCOPES,
+) -> list[Middleware]:
     origins = normalise_hosted_allowed_origins(
         allowed_origins or default_hosted_allowed_origins(DEFAULT_MCP_APP_ORIGIN)
     )
     return [
         posthog_exception_middleware(),
         Middleware(OriginGuardMiddleware, allowed_origins=origins),
+        Middleware(BearerScopeChallengeMiddleware, scopes=challenge_scopes),
         Middleware(
             CORSMiddleware,
             allow_origins=list(origins),

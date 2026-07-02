@@ -85,6 +85,8 @@ sendmux-mcp-mailbox --transport http --host 127.0.0.1 --port 8765 --path /mcp
 
 The public hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`.
 
+For hosted clients, use HTTP transport with OAuth. Do not add manual `Authorization` headers, API keys, custom OAuth endpoints, or custom scopes unless your client explicitly requires them.
+
 The packaged `sendmux-mcp-hosted` command runs the hosted server runtime. Local and private deployments should use the local commands above unless you are operating a compatible OAuth-backed hosted environment.
 
 ## Configuration

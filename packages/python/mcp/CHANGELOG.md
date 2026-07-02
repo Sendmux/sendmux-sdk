@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.2.0...python-mcp-v1.2.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **mcp:** release hosted OAuth scope compatibility ([e02b3cd](https://github.com/Sendmux/sendmux-sdk/commit/e02b3cd1a96ad37a2beafd1fa2ca215b5ac2f99b))
+
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.1.5...python-mcp-v1.2.0) (2026-07-01)
 
 

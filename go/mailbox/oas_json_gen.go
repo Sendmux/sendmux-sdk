@@ -11291,12 +11291,14 @@ func (s *MailboxMessage) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("attachments")
-		e.ArrStart()
-		for _, elem := range s.Attachments {
-			elem.Encode(e)
+		if s.Attachments != nil {
+			e.FieldStart("attachments")
+			e.ArrStart()
+			for _, elem := range s.Attachments {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
 		}
-		e.ArrEnd()
 	}
 	{
 		e.FieldStart("bcc")
@@ -11419,7 +11421,6 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "attachments":
-			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.Attachments = make([]MailboxMessageAttachmentsItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11664,7 +11665,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [3]uint8{
-		0b11111111,
+		0b11111110,
 		0b11111111,
 		0b00000011,
 	} {
@@ -16090,12 +16091,14 @@ func (s *MailboxMessageSummary) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxMessageSummary) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("attachments")
-		e.ArrStart()
-		for _, elem := range s.Attachments {
-			elem.Encode(e)
+		if s.Attachments != nil {
+			e.FieldStart("attachments")
+			e.ArrStart()
+			for _, elem := range s.Attachments {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
 		}
-		e.ArrEnd()
 	}
 	{
 		e.FieldStart("bcc")
@@ -16208,7 +16211,6 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "attachments":
-			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
 				s.Attachments = make([]MailboxAttachment, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16433,7 +16435,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b11111111,
+		0b11111110,
 		0b11111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {

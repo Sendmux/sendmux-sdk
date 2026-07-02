@@ -357,9 +357,6 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
     {
         $invalidProperties = [];
 
-        if ($this->container['attachments'] === null) {
-            $invalidProperties[] = "'attachments' can't be null";
-        }
         if ($this->container['bcc'] === null) {
             $invalidProperties[] = "'bcc' can't be null";
         }
@@ -420,9 +417,9 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Gets attachments
      *
-     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]
+     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]|null
      */
-    public function getAttachments(): array
+    public function getAttachments(): ?array
     {
         return $this->container['attachments'];
     }
@@ -430,11 +427,11 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
     /**
      * Sets attachments
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAttachment[] $attachments Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+     * @param \Sendmux\Mailbox\Model\MailboxAttachment[]|null $attachments Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
      *
      * @return $this
      */
-    public function setAttachments(array $attachments): static
+    public function setAttachments(?array $attachments): static
     {
         if (is_null($attachments)) {
             throw new InvalidArgumentException('non-nullable attachments cannot be null');

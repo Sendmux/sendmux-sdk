@@ -371,9 +371,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['attachments'] === null) {
-            $invalidProperties[] = "'attachments' can't be null";
-        }
         if ($this->container['bcc'] === null) {
             $invalidProperties[] = "'bcc' can't be null";
         }
@@ -440,9 +437,9 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets attachments
      *
-     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]
+     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]|null
      */
-    public function getAttachments(): array
+    public function getAttachments(): ?array
     {
         return $this->container['attachments'];
     }
@@ -450,11 +447,11 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets attachments
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAttachment[] $attachments attachments
+     * @param \Sendmux\Mailbox\Model\MailboxAttachment[]|null $attachments attachments
      *
      * @return $this
      */
-    public function setAttachments(array $attachments): static
+    public function setAttachments(?array $attachments): static
     {
         if (is_null($attachments)) {
             throw new InvalidArgumentException('non-nullable attachments cannot be null');

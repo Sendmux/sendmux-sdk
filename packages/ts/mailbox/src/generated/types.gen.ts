@@ -210,7 +210,7 @@ export type MailboxMessageSummary = {
     /**
      * Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
      */
-    attachments: Array<MailboxAttachment>;
+    attachments?: Array<MailboxAttachment>;
     bcc: Array<MailboxAddress>;
     cc: Array<MailboxAddress>;
     flags: MailboxMessageFlags;
@@ -556,7 +556,7 @@ export type MailboxSearchSnippetsResult = {
 };
 
 export type MailboxRealtimeMessage = (MailboxMessageSummary & {
-    attachments?: Array<MailboxAttachment>;
+    attachments: Array<MailboxAttachment>;
     body: {
         html: string | null;
         is_truncated: boolean;

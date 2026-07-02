@@ -2728,7 +2728,6 @@ func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEs
 		nextRequirement:
 			for _, requirement := range []bitset{
 				{0b00000001},
-				{},
 			} {
 				for i, mask := range requirement {
 					if satisfied[i]&mask != mask {

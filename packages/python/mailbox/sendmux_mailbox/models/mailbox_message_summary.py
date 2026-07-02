@@ -30,7 +30,7 @@ class MailboxMessageSummary(BaseModel):
     """
     MailboxMessageSummary
     """ # noqa: E501
-    attachments: List[MailboxAttachment] = Field(description="Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.")
+    attachments: Optional[List[MailboxAttachment]] = Field(default=None, description="Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.")
     bcc: List[MailboxAddress]
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags

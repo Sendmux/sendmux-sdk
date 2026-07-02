@@ -30,7 +30,7 @@ class MailboxMessage(BaseModel):
     """
     MailboxMessage
     """ # noqa: E501
-    attachments: List[MailboxAttachment]
+    attachments: Optional[List[MailboxAttachment]] = None
     bcc: List[MailboxAddress]
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags

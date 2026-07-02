@@ -3158,7 +3158,6 @@
           "sent_at",
           "size_bytes",
           "has_attachments",
-          "attachments",
           "keywords",
           "flags"
         ],
@@ -3520,6 +3519,7 @@
               }
             },
             "required": [
+              "attachments",
               "rfc5322_message_id",
               "body"
             ],
@@ -11090,8 +11090,7 @@
         "security": [
           {
             "bearerAuth": []
-          },
-          {}
+          }
         ],
         "summary": "Download a message attachment",
         "tags": [

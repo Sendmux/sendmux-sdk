@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from typing import Any, cast
 
 import sendmux_mailbox.events as events_module
@@ -77,6 +79,49 @@ def test_iter_mailbox_events_yields_typed_events_and_closes_response(monkeypatch
     }
     assert response.closed is True
     assert response.released is True
+
+
+def test_iter_mailbox_events_preserves_multibyte_characters_across_chunks(monkeypatch: Any) -> None:
+    event_payload = {
+        "event_type": "message.received",
+        "is_spam": False,
+        "mailbox_id": "mbx_py_stream",
+        "message": {
+            "bcc": [],
+            "body": {"html": None, "is_truncated": False, "max_bytes": 65536, "text": "hello"},
+            "cc": [],
+            "flags": {"answered": False, "draft": False, "flagged": False, "seen": False},
+            "folder_ids": ["inbox"],
+            "from": {"email": "sender@example.com", "name": None},
+            "has_attachments": False,
+            "id": "msg_py_stream",
+            "keywords": [],
+            "preview": "hello",
+            "received_at": "2026-07-02T00:00:00.000Z",
+            "rfc5322_message_id": "<msg_py_stream@example.com>",
+            "sent_at": None,
+            "size_bytes": 512,
+            "subject": "Café",
+            "thread_id": "thr_py_stream",
+            "to": [{"email": "agent@example.com", "name": None}],
+        },
+        "message_id": "msg_py_stream",
+        "message_id_kind": "provider",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "recipients": ["agent@example.com"],
+        "sender": "sender@example.com",
+        "team_public_id": "team_py_stream",
+    }
+    payload = f"data: {json.dumps(event_payload, ensure_ascii=False)}\n\n".encode("utf-8")
+    split_at = payload.index("é".encode("utf-8")) + 1
+    response = FakeResponse([payload[:split_at], payload[split_at:]])
+    api = FakeMailboxApi(response)
+    monkeypatch.setattr(events_module, "MailboxAPIApi", lambda _api_client: api)
+
+    mailbox_events = list(iter_mailbox_events(cast(ApiClient, object()), close_after=1))
+
+    assert mailbox_events[0].message is not None
+    assert mailbox_events[0].message.subject == "Café"
 
 
 def test_realtime_event_message_allows_omitted_attachments() -> None:

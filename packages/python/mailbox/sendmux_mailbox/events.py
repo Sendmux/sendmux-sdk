@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import codecs
 
 from collections.abc import Iterator
 from typing import Any
@@ -49,10 +50,11 @@ def iter_mailbox_events(
 
 def _iter_sse_response(response: Any) -> Iterator[MailboxRealtimeEvent]:
     buffer = ""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
     for chunk in response.stream(decode_content=True):
         if chunk is None:
             continue
-        buffer += chunk.decode("utf-8", errors="replace") if isinstance(chunk, bytes) else str(chunk)
+        buffer += decoder.decode(chunk) if isinstance(chunk, bytes) else str(chunk)
         buffer = buffer.replace("\r\n", "\n").replace("\r", "\n")
         blocks = buffer.split("\n\n")
         buffer = blocks.pop() or ""

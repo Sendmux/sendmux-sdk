@@ -118,11 +118,10 @@ export async function uploadMailboxAttachmentViaPresignedFile({
     },
     method: intent.data.method,
   });
-  const payload = await response.json() as MailboxAttachmentUploadResultResponse;
   if (!response.ok) {
     throw new Error(`Presigned attachment upload failed with HTTP ${response.status}`);
   }
-  return payload;
+  return parseUploadResultResponse(await response.text());
 }
 
 export async function sendMailboxMessageWithFiles({
@@ -210,6 +209,18 @@ function arrayBufferFor(bytes: Buffer): ArrayBuffer {
   const copy = new Uint8Array(bytes.byteLength);
   copy.set(bytes);
   return copy.buffer;
+}
+
+function parseUploadResultResponse(body: string): MailboxAttachmentUploadResultResponse {
+  const trimmed = body.trim();
+  if (!trimmed) {
+    throw new Error("Presigned attachment upload succeeded but did not return attachment metadata.");
+  }
+  try {
+    return JSON.parse(trimmed) as MailboxAttachmentUploadResultResponse;
+  } catch (error) {
+    throw new Error("Presigned attachment upload returned invalid JSON metadata.", { cause: error });
+  }
 }
 
 function inferContentType(filePath: string): string {

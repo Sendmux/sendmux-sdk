@@ -509,6 +509,25 @@ try {
     },
   ]);
 
+  await assert.rejects(
+    () => uploadMailboxAttachmentViaPresignedFile({
+      client: mailboxFileClient,
+      filePath: reportPath,
+      mailboxId: "mbx_ts_file",
+      fetch: async () => new Response("", { status: 503 }),
+    }),
+    /HTTP 503/,
+  );
+  await assert.rejects(
+    () => uploadMailboxAttachmentViaPresignedFile({
+      client: mailboxFileClient,
+      filePath: reportPath,
+      mailboxId: "mbx_ts_file",
+      fetch: async () => new Response(null, { status: 200 }),
+    }),
+    /did not return attachment metadata/,
+  );
+
   const sendingAttachment = await attachmentFromFile(reportPath);
   assert.deepEqual(sendingAttachment, {
     content: reportBytes.toString("base64"),

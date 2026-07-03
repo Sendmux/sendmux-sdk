@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import json
+from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, cast
+from urllib.error import HTTPError
+
+import pytest
 
 import sendmux_mailbox.attachments as mailbox_attachments
 import sendmux_sending.attachments as sending_attachments
@@ -75,7 +79,7 @@ class FakeMailboxApi:
 
 
 class FakeUrlopenResponse:
-    def __init__(self, payload: dict[str, Any]) -> None:
+    def __init__(self, payload: dict[str, Any] | bytes) -> None:
         self.payload = payload
 
     def __enter__(self) -> "FakeUrlopenResponse":
@@ -85,6 +89,8 @@ class FakeUrlopenResponse:
         return None
 
     def read(self) -> bytes:
+        if isinstance(self.payload, bytes):
+            return self.payload
         return json.dumps(self.payload).encode("utf-8")
 
 
@@ -207,6 +213,42 @@ def test_mailbox_upload_attachment_via_presigned_file(monkeypatch: Any, tmp_path
             "url": "https://upload-python.test/mailbox/attachment-uploads/upl_py_helper?upload_token=tok",
         }
     ]
+
+
+def test_mailbox_upload_attachment_via_presigned_file_rejects_empty_metadata(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"python helper attachment\n")
+    api = FakeMailboxApi()
+    monkeypatch.setattr(mailbox_attachments, "MailboxAPIApi", lambda _api_client: api)
+    monkeypatch.setattr(mailbox_attachments, "urlopen", lambda *_args, **_kwargs: FakeUrlopenResponse(b""))
+
+    with pytest.raises(ValueError, match="did not return attachment metadata"):
+        mailbox_attachments.upload_mailbox_attachment_via_presigned_file(
+            cast(MailboxApiClient, object()),
+            file_path=report,
+        )
+
+
+def test_mailbox_upload_attachment_via_presigned_file_reports_http_status(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"python helper attachment\n")
+    api = FakeMailboxApi()
+    monkeypatch.setattr(mailbox_attachments, "MailboxAPIApi", lambda _api_client: api)
+
+    def fake_urlopen(*_args: Any, **_kwargs: Any) -> FakeUrlopenResponse:
+        raise HTTPError("https://upload-python.test", 503, "Service Unavailable", hdrs=EmailMessage(), fp=None)
+
+    monkeypatch.setattr(mailbox_attachments, "urlopen", fake_urlopen)
+
+    with pytest.raises(RuntimeError, match="HTTP 503"):
+        mailbox_attachments.upload_mailbox_attachment_via_presigned_file(
+            cast(MailboxApiClient, object()),
+            file_path=report,
+        )
 
 
 def test_sending_attachment_from_file_and_send_email(monkeypatch: Any, tmp_path: Path) -> None:

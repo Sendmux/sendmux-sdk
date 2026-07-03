@@ -6,6 +6,7 @@ import mimetypes
 from os import PathLike
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from sendmux_mailbox.api.mailbox_api_api import MailboxAPIApi
@@ -90,8 +91,11 @@ def upload_mailbox_attachment_via_presigned_file(
         },
         method=intent.data.method,
     )
-    with urlopen(request, timeout=request_timeout) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    try:
+        with urlopen(request, timeout=request_timeout) as response:
+            payload = _parse_upload_result_response(response.read())
+    except HTTPError as exc:
+        raise RuntimeError(f"Presigned attachment upload failed with HTTP {exc.code}.") from exc
 
     result = MailboxAttachmentUploadResultResponse.from_dict(payload)
     if result is None:
@@ -163,6 +167,18 @@ def _send_mailbox_message_body(body: dict[str, Any]) -> SendMailboxMessageBody:
     if request_body is None:
         raise ValueError("Mailbox send message body was empty.")
     return request_body
+
+
+def _parse_upload_result_response(body: bytes) -> dict[str, Any]:
+    if not body.strip():
+        raise ValueError("Presigned attachment upload succeeded but did not return attachment metadata.")
+    try:
+        decoded = json.loads(body.decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError("Presigned attachment upload returned invalid JSON metadata.") from exc
+    if not isinstance(decoded, dict):
+        raise ValueError("Presigned attachment upload metadata must be a JSON object.")
+    return decoded
 
 
 def _read_attachment_file(

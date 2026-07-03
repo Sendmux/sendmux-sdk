@@ -4670,7 +4670,7 @@ class MailboxAPIApi:
     ) -> None:
         """Download a message attachment
 
-        Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
+        Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
 
         :param message_id: (required)
         :type message_id: str
@@ -4756,7 +4756,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[None]:
         """Download a message attachment
 
-        Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
+        Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
 
         :param message_id: (required)
         :type message_id: str
@@ -4842,7 +4842,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Download a message attachment
 
-        Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
+        Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
 
         :param message_id: (required)
         :type message_id: str

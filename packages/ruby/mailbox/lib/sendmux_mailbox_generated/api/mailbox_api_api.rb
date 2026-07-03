@@ -1051,7 +1051,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Download a message attachment
-    # Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
+    # Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
@@ -1065,7 +1065,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Download a message attachment
-    # Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
+    # Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters

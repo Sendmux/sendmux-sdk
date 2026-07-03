@@ -131,9 +131,9 @@ type Invoker interface {
 	MailboxGetMessage(ctx context.Context, params MailboxGetMessageParams) (MailboxGetMessageRes, error)
 	// MailboxGetMessageAttachment invokes mailboxGetMessageAttachment operation.
 	//
-	// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
-	// also provides short-lived download URLs for clients that cannot add an Authorization header.
-	// Supports standard byte ranges.
+	// Streams one attachment from a message through the authenticated endpoint. Attachment metadata also
+	// provides short-lived download URLs for clients that cannot set request headers. Supports standard
+	// byte ranges.
 	//
 	// GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 	MailboxGetMessageAttachment(ctx context.Context, params MailboxGetMessageAttachmentParams) (MailboxGetMessageAttachmentRes, error)
@@ -2843,9 +2843,9 @@ func (c *Client) sendMailboxGetMessage(ctx context.Context, params MailboxGetMes
 
 // MailboxGetMessageAttachment invokes mailboxGetMessageAttachment operation.
 //
-// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
-// also provides short-lived download URLs for clients that cannot add an Authorization header.
-// Supports standard byte ranges.
+// Streams one attachment from a message through the authenticated endpoint. Attachment metadata also
+// provides short-lived download URLs for clients that cannot set request headers. Supports standard
+// byte ranges.
 //
 // GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 func (c *Client) MailboxGetMessageAttachment(ctx context.Context, params MailboxGetMessageAttachmentParams) (MailboxGetMessageAttachmentRes, error) {

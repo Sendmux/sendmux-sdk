@@ -313,7 +313,7 @@ export const mailboxUpdateMessage = <ThrowOnError extends boolean = false>(optio
 /**
  * Download a message attachment
  *
- * Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.
+ * Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
  */
 export const mailboxGetMessageAttachment = <ThrowOnError extends boolean = false>(options: Options<MailboxGetMessageAttachmentData, ThrowOnError>) => (options.client ?? client).get<MailboxGetMessageAttachmentResponses, MailboxGetMessageAttachmentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

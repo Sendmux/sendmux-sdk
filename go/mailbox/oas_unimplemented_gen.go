@@ -157,9 +157,9 @@ func (UnimplementedHandler) MailboxGetMessage(ctx context.Context, params Mailbo
 
 // MailboxGetMessageAttachment implements mailboxGetMessageAttachment operation.
 //
-// Streams one attachment from a message. Bearer authentication works as before; attachment metadata
-// also provides short-lived download URLs for clients that cannot add an Authorization header.
-// Supports standard byte ranges.
+// Streams one attachment from a message through the authenticated endpoint. Attachment metadata also
+// provides short-lived download URLs for clients that cannot set request headers. Supports standard
+// byte ranges.
 //
 // GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 func (UnimplementedHandler) MailboxGetMessageAttachment(ctx context.Context, params MailboxGetMessageAttachmentParams) (r MailboxGetMessageAttachmentRes, _ error) {

@@ -11191,7 +11191,7 @@
     },
     "/mailbox/messages/{message_id}/attachments/{attachment_id}": {
       "get": {
-        "description": "Streams one attachment from a message. Bearer authentication works as before; attachment metadata also provides short-lived download URLs for clients that cannot add an Authorization header. Supports standard byte ranges.",
+        "description": "Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.",
         "operationId": "mailboxGetMessageAttachment",
         "parameters": [
           {

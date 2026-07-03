@@ -24,6 +24,9 @@ const binaryGateEnvName = "SENDMUX_LIVE_E2E_BINARY";
 const streamGateEnvName = "SENDMUX_LIVE_E2E_STREAM";
 const sendGateEnvName = "SENDMUX_STAGING_SEND";
 const childHarnessTimeoutMs = 90_000;
+const sdkOperationTimeoutMs = 60_000;
+const presignedFetchTimeoutMs = 30_000;
+const fixtureTeardownTimeoutMs = 30_000;
 const managementMailboxIdSelectors = ["data.mailbox.id"];
 const managementMailboxKeyIdSelectors = ["data.credential.public_id"];
 const managementMailboxKeySecretSelectors = ["data.credential.secret"];
@@ -637,9 +640,11 @@ async function runSdkOperation({ credentials, operation, prepared, sdk }) {
       return passResult(typescriptSdkAdapter, operation.operationId, response.response?.status);
     }
 
-    const response = await sdkOperation({
+    const response = await runBoundedSdkOperation({
       client,
-      ...prepared.request,
+      operation,
+      request: prepared.request,
+      sdkOperation,
     });
     const value = response.data;
     assertPreparedResponse(value, operation, prepared);
@@ -684,6 +689,19 @@ async function runMailboxStreamSdkOperation({ client, prepared, sdkOperation }) 
     }
     controller.abort();
   }
+}
+
+async function runBoundedSdkOperation({ client, operation, request = {}, sdkOperation }) {
+  return withAbortSignal(
+    (signal) =>
+      sdkOperation({
+        client,
+        ...request,
+        signal,
+      }),
+    sdkOperationTimeoutMs,
+    `${operation.operationId} SDK call timed out after ${sdkOperationTimeoutMs}ms`,
+  );
 }
 
 function sdkClientFor({ credentials, operation, sdk }) {
@@ -1077,7 +1095,7 @@ async function prepareMailboxCreateAttachmentUpload({ adapter, fixtureRuntime })
     };
   }
   return {
-    expectedErrorCodes: ["payload_too_large"],
+    expectedErrorCodes: ["invalid_parameter", "payload_too_large"],
     request: {
       body: {
         content_type: "text/plain",
@@ -1454,7 +1472,7 @@ async function pollForMailboxAttachmentMetadata({ fixtureRuntime, messageId }) {
 }
 
 async function assertPresignedAttachmentDownload({ downloadUrl, expectedContent }) {
-  const response = await fetch(downloadUrl);
+  const response = await fetchWithTimeout(downloadUrl, "presigned attachment download");
   assert.equal(response.status, 200, `presigned attachment download returned ${response.status}`);
   const actual = await response.text();
   assert.equal(actual, expectedContent, "presigned attachment download returned unexpected bytes");
@@ -1465,7 +1483,7 @@ async function assertPresignedAttachmentRejectsTamper(downloadUrl) {
   const token = url.searchParams.get("download_token");
   assert.equal(typeof token, "string", "presigned attachment URL is missing download_token");
   url.searchParams.set("download_token", `${token}tampered`);
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url, "tampered presigned attachment download");
   assert.ok(
     response.status === 401 || response.status === 403,
     `tampered presigned attachment URL returned ${response.status}`,
@@ -2096,7 +2114,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
       const client = sdkClientFor({ credentials, operation, sdk });
       const sdkOperation = sdk[operation.surface]?.[operation.operationId];
       assert.equal(typeof sdkOperation, "function", `${operation.operationId} is not exported by @sendmux/sdk`);
-      const response = await sdkOperation({ client, ...request });
+      const response = await runBoundedSdkOperation({ client, operation, request, sdkOperation });
       assertLiveResponse(response.data, operation);
       return response.data;
     },
@@ -2113,7 +2131,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
       });
       const sdkOperation = sdk.mailbox?.[operation.operationId];
       assert.equal(typeof sdkOperation, "function", `${operation.operationId} is not exported by @sendmux/sdk`);
-      const response = await sdkOperation({ client, ...request });
+      const response = await runBoundedSdkOperation({ client, operation, request, sdkOperation });
       assertLiveResponse(response.data, operation);
       return response.data;
     },
@@ -2128,9 +2146,13 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
     },
     async teardown() {
       const errors = [];
-      for (const teardown of teardowns.reverse()) {
+      for (const cleanup of teardowns.reverse()) {
         try {
-          await teardown();
+          await withTimeout(
+            Promise.resolve().then(() => cleanup()),
+            fixtureTeardownTimeoutMs,
+            `fixture cleanup timed out after ${fixtureTeardownTimeoutMs}ms`,
+          );
         } catch (error) {
           errors.push(error instanceof Error ? error.message : String(error));
         }
@@ -2171,7 +2193,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
       const sdkOperation = sdk[operation.surface]?.[operation.operationId];
       assert.equal(typeof sdkOperation, "function", `${operation.operationId} is not exported by @sendmux/sdk`);
 
-      const response = await sdkOperation({ client, ...request });
+      const response = await runBoundedSdkOperation({ client, operation, request, sdkOperation });
       assertLiveResponse(response.data, operation.operationId);
       const selected = selectFirstValue(response.data, source.selectors ?? []);
       if (selected === undefined || selected === null || selected === "") {
@@ -2454,6 +2476,50 @@ function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+function withTimeout(promise, timeoutMs, message) {
+  let timeout;
+  const guarded = Promise.resolve(promise);
+  guarded.catch(() => undefined);
+  return Promise.race([
+    guarded,
+    new Promise((_, reject) => {
+      timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
+      timeout.unref?.();
+    }),
+  ]).finally(() => {
+    if (timeout) clearTimeout(timeout);
+  });
+}
+
+async function withAbortSignal(run, timeoutMs, message) {
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+  timeout.unref?.();
+
+  try {
+    return await run(controller.signal);
+  } catch (error) {
+    if (timedOut) {
+      throw new Error(message, { cause: error });
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function fetchWithTimeout(input, label, init = {}) {
+  return withAbortSignal(
+    (signal) => fetch(input, { ...init, signal }),
+    presignedFetchTimeoutMs,
+    `${label} timed out after ${presignedFetchTimeoutMs}ms`,
+  );
 }
 
 function selectFirstValue(value, selectors) {

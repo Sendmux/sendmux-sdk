@@ -95,6 +95,7 @@ assert.equal(gatedPlan.summary.blocked, 0);
 const runnerSource = readFileSync("scripts/run-live-e2e.mjs", "utf8");
 const manifestWriterSource = readFileSync("scripts/write-live-e2e-audit-manifest.mjs", "utf8");
 const goLiveE2eSource = readFileSync("go/livee2e/main.go", "utf8");
+const phpLiveE2eSource = readFileSync("scripts/live-e2e-php.php", "utf8");
 const ownedMailboxCreateMatch = runnerSource.match(/async function createOwnedManagementMailbox[\s\S]*?\n}/);
 assert.ok(ownedMailboxCreateMatch, "createOwnedManagementMailbox helper must exist");
 const ownedMailboxCreateSource = ownedMailboxCreateMatch[0];
@@ -152,6 +153,21 @@ assert.match(
 );
 assert.match(
   runnerSource,
+  /const sdkOperationTimeoutMs = 60_000;/,
+  "live E2E in-process SDK calls must use a bounded timeout",
+);
+assert.match(
+  runnerSource,
+  /async function runBoundedSdkOperation[\s\S]*?withAbortSignal\([\s\S]*?sdkOperation\(\{[\s\S]*?signal,[\s\S]*?sdkOperationTimeoutMs/,
+  "live E2E in-process SDK calls must pass an abort signal through the generated SDK",
+);
+assert.match(
+  runnerSource,
+  /const response = await runBoundedSdkOperation\(\{[\s\S]*?client,[\s\S]*?operation,[\s\S]*?request: prepared\.request,[\s\S]*?sdkOperation,[\s\S]*?\}\);/,
+  "TypeScript SDK live E2E operations must use the bounded SDK runner",
+);
+assert.match(
+  runnerSource,
   /runCli\(cliArgs, tempHome, cliTimeoutMsFor\(operation, prepared\.request\), \{\s*SENDMUX_API_KEY:\s*apiKey,\s*SENDMUX_BASE_URL:\s*baseUrl,\s*\}\)/,
   "live E2E CLI invocations must pass credentials through child env, not argv",
 );
@@ -164,6 +180,36 @@ assert.match(
   runnerSource,
   /const teardownOnce = \(\) => \{[\s\S]*?fixtureRuntime\.teardown\(\)[\s\S]*?installTeardownSignalHandlers\(teardownOnce\)/,
   "live E2E runner must share normal and signal-triggered teardown through one teardown promise",
+);
+assert.match(
+  runnerSource,
+  /const fixtureTeardownTimeoutMs = 30_000;/,
+  "live E2E runner must bound fixture teardown cleanup calls",
+);
+assert.match(
+  runnerSource,
+  /async teardown\(\)[\s\S]*?for \(const cleanup of teardowns\.reverse\(\)\)[\s\S]*?withTimeout\([\s\S]*?cleanup\(\)[\s\S]*?fixtureTeardownTimeoutMs/,
+  "live E2E fixture teardown must wrap each cleanup in the bounded timeout helper",
+);
+assert.match(
+  runnerSource,
+  /function withTimeout\(promise, timeoutMs, message\)[\s\S]*?Promise\.race[\s\S]*?timeout\.unref\?\.\(\)[\s\S]*?clearTimeout\(timeout\)/,
+  "live E2E runner must implement a non-blocking timeout helper for cleanup",
+);
+assert.match(
+  runnerSource,
+  /function fetchWithTimeout\(input, label, init = \{\}\)[\s\S]*?withAbortSignal\([\s\S]*?fetch\(input, \{ \.\.\.init, signal \}\)[\s\S]*?presignedFetchTimeoutMs/,
+  "live E2E presigned URL fetch checks must use abortable bounded fetch",
+);
+assert.match(
+  runnerSource,
+  /function withAbortSignal\(run, timeoutMs, message\)[\s\S]*?new AbortController\(\)[\s\S]*?setTimeout\([\s\S]*?controller\.abort\(\)[\s\S]*?timeout\.unref\?\.\(\)[\s\S]*?clearTimeout\(timeout\)/,
+  "live E2E runner must implement abortable timeouts for HTTP requests",
+);
+assert.match(
+  runnerSource,
+  /async function assertPresignedAttachmentDownload[\s\S]*?fetchWithTimeout\(downloadUrl, "presigned attachment download"\)/,
+  "presigned attachment download assertions must use bounded fetch",
 );
 assert.match(
   runnerSource,
@@ -246,6 +292,26 @@ assert.match(
   goLiveE2eSource,
   /func readTextResponse[\s\S]*?if closer, ok := value\.\(io\.Closer\); ok \{\s*defer func\(\) \{\s*_ = closer\.Close\(\)\s*\}\(\)\s*\}[\s\S]*?io\.ReadAll\(reader\)/,
   "Go live E2E text readers must be closed after reading",
+);
+assert.match(
+  goLiveE2eSource,
+  /context\.WithTimeout\(context\.Background\(\), operationTimeout\(op\)\)/,
+  "Go live E2E calls must derive request timeouts from the operation",
+);
+assert.match(
+  goLiveE2eSource,
+  /func operationTimeout\(op operation\) time\.Duration[\s\S]*?op\.OperationID != "mailboxStreamEvents"[\s\S]*?45 \* time\.Second[\s\S]*?intValue\(op\.Request\.Query\["close_after"\], 30\)[\s\S]*?closeAfter\+20/,
+  "Go live E2E stream timeout must include close_after plus a live-network buffer",
+);
+assert.match(
+  phpLiveE2eSource,
+  /\$timeout = operationTimeout\(\$operation\);[\s\S]*?new \\GuzzleHttp\\Client\(\['timeout' => \$timeout\]\)[\s\S]*?\$client->send\(\$request, \['timeout' => \$timeout\]\)/,
+  "PHP live E2E raw requests must use the operation timeout consistently",
+);
+assert.match(
+  phpLiveE2eSource,
+  /function operationTimeout\(array \$operation\): int[\s\S]*?\$operation\['operationId'\][\s\S]*?mailboxStreamEvents[\s\S]*?return 40;[\s\S]*?\$operation\['request'\]\['query'\]\['close_after'\][\s\S]*?return \$closeAfter \+ 20;/,
+  "PHP live E2E stream timeout must include close_after plus a live-network buffer",
 );
 
 console.log("Live E2E runner contract checks passed.");

@@ -6,6 +6,14 @@
 
 * export Node attachment helpers from the umbrella SDK package
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.1.0...ts-sdk-v1.2.0) (2026-07-03)
+
+
+### Features
+
+* **sdk:** add zero-context attachment uploads ([a4352ec](https://github.com/Sendmux/sendmux-sdk/commit/a4352ecfd6f2da37c908387450fea141363d0b81))
+* **sdk:** make mailbox attachments agent-ready ([6a145ab](https://github.com/Sendmux/sendmux-sdk/commit/6a145ab1f2735d77783fb36e84aeeeb9bc747827))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.0.0...ts-sdk-v1.1.0) (2026-07-01)
 
 

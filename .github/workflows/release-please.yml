@@ -321,8 +321,9 @@ jobs:
           print(f"Prepared {server['name']} {version}")
           PY
 
-      - name: Verify released package exists
+      - name: Verify released package marker
         env:
+          MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
           MCP_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.version }}
         run: |
           set -euo pipefail
@@ -333,8 +334,13 @@ jobs:
           from pathlib import Path
 
           data = json.loads(Path("/tmp/sendmux-mcp.json").read_text())
+          description = data["info"].get("description") or ""
+          expected_marker = f"mcp-name: {os.environ['MCP_SERVER_NAME']}"
+
           if data["info"]["version"] != os.environ["MCP_PACKAGE_VERSION"]:
             raise SystemExit("PyPI returned the wrong sendmux-mcp version")
+          if expected_marker not in description:
+            raise SystemExit(f"PyPI description missing marker: {expected_marker}")
           PY
 
       - name: Install MCP Registry publisher

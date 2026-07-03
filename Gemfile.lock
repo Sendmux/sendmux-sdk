@@ -8,7 +8,7 @@ PATH
 PATH
   remote: packages/ruby/mailbox
   specs:
-    sendmux-mailbox (1.0.0)
+    sendmux-mailbox (1.1.0)
       faraday (~> 2.0)
       faraday-multipart (~> 1.0)
       faraday-retry (>= 2.4, < 3.0)

@@ -7,6 +7,7 @@ const venv = join(root, ".tmp", "python-venv");
 const python = join(venv, "bin", "python");
 const distDir = join(root, ".tmp", "mcp-dist");
 const mcpPackageDir = join(root, "packages/python/mcp");
+const mcpRegistryDescriptionMaxLength = 100;
 
 verifyRegistryVersion();
 
@@ -63,6 +64,14 @@ function verifyRegistryVersion() {
 
   if (packageEntry?.version !== packageVersion) {
     throw new Error(`packages/python/mcp/server.json package version ${packageEntry?.version ?? "<missing>"} must match pyproject.toml version ${packageVersion}`);
+  }
+
+  if (typeof registry.description !== "string" || registry.description.trim().length === 0) {
+    throw new Error("packages/python/mcp/server.json description must be a non-empty string");
+  }
+
+  if (registry.description.length > mcpRegistryDescriptionMaxLength) {
+    throw new Error(`packages/python/mcp/server.json description length ${registry.description.length} exceeds MCP Registry limit ${mcpRegistryDescriptionMaxLength}`);
   }
 }
 

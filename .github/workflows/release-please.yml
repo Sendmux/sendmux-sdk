@@ -313,6 +313,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Python distributions
+        env:
+          PYTHON_PATHS_RELEASED: ${{ needs.release-please.outputs.paths_released }}
         run: pnpm build:python:dists
 
       - name: Select unpublished Python distributions

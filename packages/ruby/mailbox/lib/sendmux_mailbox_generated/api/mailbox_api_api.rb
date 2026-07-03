@@ -982,7 +982,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Get a mailbox message
-    # Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+    # Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
@@ -994,7 +994,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Get a mailbox message
-    # Returns one message from the authenticated mailbox. Responses include a weak &#x60;ETag&#x60; header.
+    # Returns one message from the authenticated mailbox. Responses include a weak &#x60;ETag&#x60; header. When attachment metadata includes short-lived download URLs, a conditional request may return &#x60;200&#x60; even when the stable message ETag matches so the response can renew expired URLs.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match

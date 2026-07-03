@@ -102,7 +102,9 @@ type Handler interface {
 	MailboxGetMe(ctx context.Context, params MailboxGetMeParams) (MailboxGetMeRes, error)
 	// MailboxGetMessage implements mailboxGetMessage operation.
 	//
-	// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+	// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When
+	// attachment metadata includes short-lived download URLs, a conditional request may return `200`
+	// even when the stable message ETag matches so the response can renew expired URLs.
 	//
 	// GET /mailbox/messages/{message_id}
 	MailboxGetMessage(ctx context.Context, params MailboxGetMessageParams) (MailboxGetMessageRes, error)

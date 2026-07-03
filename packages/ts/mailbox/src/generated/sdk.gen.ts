@@ -287,7 +287,7 @@ export const mailboxDeleteMessage = <ThrowOnError extends boolean = false>(optio
 /**
  * Get a mailbox message
  *
- * Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+ * Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
  */
 export const mailboxGetMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxGetMessageData, ThrowOnError>) => (options.client ?? client).get<MailboxGetMessageResponses, MailboxGetMessageErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

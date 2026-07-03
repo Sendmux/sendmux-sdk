@@ -4369,7 +4369,7 @@ class MailboxAPIApi:
     ) -> MailboxMessageDetailResponse:
         """Get a mailbox message
 
-        Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+        Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
 
         :param message_id: (required)
         :type message_id: str
@@ -4446,7 +4446,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxMessageDetailResponse]:
         """Get a mailbox message
 
-        Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+        Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
 
         :param message_id: (required)
         :type message_id: str
@@ -4523,7 +4523,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Get a mailbox message
 
-        Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+        Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
 
         :param message_id: (required)
         :type message_id: str

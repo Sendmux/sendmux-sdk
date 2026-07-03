@@ -2639,7 +2639,9 @@ func (s *Server) handleMailboxGetMeRequest(args [0]string, argsEscaped bool, w h
 
 // handleMailboxGetMessageRequest handles mailboxGetMessage operation.
 //
-// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When
+// attachment metadata includes short-lived download URLs, a conditional request may return `200`
+// even when the stable message ETag matches so the response can renew expired URLs.
 //
 // GET /mailbox/messages/{message_id}
 func (s *Server) handleMailboxGetMessageRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {

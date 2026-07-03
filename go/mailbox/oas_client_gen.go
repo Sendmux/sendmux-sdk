@@ -123,7 +123,9 @@ type Invoker interface {
 	MailboxGetMe(ctx context.Context, params MailboxGetMeParams) (MailboxGetMeRes, error)
 	// MailboxGetMessage invokes mailboxGetMessage operation.
 	//
-	// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+	// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When
+	// attachment metadata includes short-lived download URLs, a conditional request may return `200`
+	// even when the stable message ETag matches so the response can renew expired URLs.
 	//
 	// GET /mailbox/messages/{message_id}
 	MailboxGetMessage(ctx context.Context, params MailboxGetMessageParams) (MailboxGetMessageRes, error)
@@ -2678,7 +2680,9 @@ func (c *Client) sendMailboxGetMe(ctx context.Context, params MailboxGetMeParams
 
 // MailboxGetMessage invokes mailboxGetMessage operation.
 //
-// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When
+// attachment metadata includes short-lived download URLs, a conditional request may return `200`
+// even when the stable message ETag matches so the response can renew expired URLs.
 //
 // GET /mailbox/messages/{message_id}
 func (c *Client) MailboxGetMessage(ctx context.Context, params MailboxGetMessageParams) (MailboxGetMessageRes, error) {

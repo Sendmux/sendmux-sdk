@@ -6,6 +6,20 @@
 
 * add mailbox event follow mode, attachment commands, `--attach` send flags, and presigned upload support
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.1.0...ts-cli-v1.2.0) (2026-07-03)
+
+
+### Features
+
+* **sdk:** add zero-context attachment uploads ([a4352ec](https://github.com/Sendmux/sendmux-sdk/commit/a4352ecfd6f2da37c908387450fea141363d0b81))
+* **sdk:** make mailbox attachments agent-ready ([6a145ab](https://github.com/Sendmux/sendmux-sdk/commit/6a145ab1f2735d77783fb36e84aeeeb9bc747827))
+* **sdk:** make mailbox attachments agent-ready ([457ed62](https://github.com/Sendmux/sendmux-sdk/commit/457ed62cf32c91aeac1cfe230d50f4f0b922e7cb))
+
+
+### Bug Fixes
+
+* **sdk:** preserve attachment compatibility checks ([e92a1c2](https://github.com/Sendmux/sendmux-sdk/commit/e92a1c250a062f2f39a4f78c166c9e3a743e97ee))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.0.1...ts-cli-v1.1.0) (2026-07-01)
 
 

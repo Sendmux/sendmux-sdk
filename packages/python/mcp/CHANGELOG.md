@@ -6,6 +6,13 @@
 
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 
+## [1.3.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.3.0...python-mcp-v1.3.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* **mcp:** recover registry publish validation ([#93](https://github.com/Sendmux/sendmux-sdk/issues/93)) ([0f99cd1](https://github.com/Sendmux/sendmux-sdk/commit/0f99cd16ec457187b81dce99a133d553d85dcb7f))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.2.1...python-mcp-v1.3.0) (2026-07-03)
 
 

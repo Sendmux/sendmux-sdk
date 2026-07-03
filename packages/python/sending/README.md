@@ -52,6 +52,31 @@ The package exports every generated Sending model and API class plus:
 - `create_sending_client`
 - `configure_sending`
 - `SendmuxSendingApiClient`
+- file helpers: `attachment_from_file` and `send_email_with_files`
+
+## Attachments
+
+The Sending API accepts attachment content in the request body. It supports up to 10 attachments and rejects request bodies over 25 MB. Avoid manual base64 encoding by using the file helpers:
+
+```python
+import os
+
+from sendmux_sending import create_sending_client, send_email_with_files
+
+client = create_sending_client(api_key=os.environ["SENDMUX_SENDING_API_KEY"])
+
+send_email_with_files(
+    client,
+    files=["./report.pdf"],
+    idempotency_key="report-123",
+    body={
+        "from": {"email": "sender@example.com"},
+        "to": {"email": "recipient@example.com"},
+        "subject": "Report",
+        "html_body": "<p>Attached.</p>",
+    },
+)
+```
 
 ## Request helpers
 

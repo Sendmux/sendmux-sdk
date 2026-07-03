@@ -9,6 +9,7 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
 
+	"github.com/ogen-go/ogen/json"
 	"github.com/ogen-go/ogen/validate"
 )
 
@@ -2029,6 +2030,793 @@ func (s *MailboxAttachment) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxAttachment) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxAttachmentUploadIntentBody) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxAttachmentUploadIntentBody) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("content_type")
+		e.Str(s.ContentType)
+	}
+	{
+		e.FieldStart("filename")
+		e.Str(s.Filename)
+	}
+	{
+		e.FieldStart("size_bytes")
+		e.Int(s.SizeBytes)
+	}
+}
+
+var jsonFieldsNameOfMailboxAttachmentUploadIntentBody = [3]string{
+	0: "content_type",
+	1: "filename",
+	2: "size_bytes",
+}
+
+// Decode decodes MailboxAttachmentUploadIntentBody from json.
+func (s *MailboxAttachmentUploadIntentBody) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentBody to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "content_type":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ContentType = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"content_type\"")
+			}
+		case "filename":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Filename = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"filename\"")
+			}
+		case "size_bytes":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Int()
+				s.SizeBytes = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"size_bytes\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxAttachmentUploadIntentBody")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxAttachmentUploadIntentBody) {
+					name = jsonFieldsNameOfMailboxAttachmentUploadIntentBody[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxAttachmentUploadIntentBody) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentBody) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxAttachmentUploadIntentResult) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxAttachmentUploadIntentResult) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("expires_at")
+		json.EncodeDateTime(e, s.ExpiresAt)
+	}
+	{
+		e.FieldStart("headers")
+		s.Headers.Encode(e)
+	}
+	{
+		e.FieldStart("max_size_bytes")
+		e.Int(s.MaxSizeBytes)
+	}
+	{
+		e.FieldStart("method")
+		s.Method.Encode(e)
+	}
+	{
+		e.FieldStart("upload_id")
+		e.Str(s.UploadID)
+	}
+	{
+		e.FieldStart("upload_url")
+		e.Str(s.UploadURL)
+	}
+}
+
+var jsonFieldsNameOfMailboxAttachmentUploadIntentResult = [6]string{
+	0: "expires_at",
+	1: "headers",
+	2: "max_size_bytes",
+	3: "method",
+	4: "upload_id",
+	5: "upload_url",
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResult from json.
+func (s *MailboxAttachmentUploadIntentResult) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResult to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "expires_at":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := json.DecodeDateTime(d)
+				s.ExpiresAt = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"expires_at\"")
+			}
+		case "headers":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Headers.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"headers\"")
+			}
+		case "max_size_bytes":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Int()
+				s.MaxSizeBytes = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"max_size_bytes\"")
+			}
+		case "method":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				if err := s.Method.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"method\"")
+			}
+		case "upload_id":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := d.Str()
+				s.UploadID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"upload_id\"")
+			}
+		case "upload_url":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.UploadURL = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"upload_url\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxAttachmentUploadIntentResult")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00111111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxAttachmentUploadIntentResult) {
+					name = jsonFieldsNameOfMailboxAttachmentUploadIntentResult[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxAttachmentUploadIntentResult) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResult) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxAttachmentUploadIntentResultHeaders) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxAttachmentUploadIntentResultHeaders) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("Content-Length")
+		e.Str(s.ContentMinusLength)
+	}
+	{
+		e.FieldStart("Content-Type")
+		e.Str(s.ContentMinusType)
+	}
+}
+
+var jsonFieldsNameOfMailboxAttachmentUploadIntentResultHeaders = [2]string{
+	0: "Content-Length",
+	1: "Content-Type",
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResultHeaders from json.
+func (s *MailboxAttachmentUploadIntentResultHeaders) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResultHeaders to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "Content-Length":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ContentMinusLength = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"Content-Length\"")
+			}
+		case "Content-Type":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ContentMinusType = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"Content-Type\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxAttachmentUploadIntentResultHeaders")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxAttachmentUploadIntentResultHeaders) {
+					name = jsonFieldsNameOfMailboxAttachmentUploadIntentResultHeaders[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxAttachmentUploadIntentResultHeaders) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResultHeaders) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxAttachmentUploadIntentResultMethod as json.
+func (s MailboxAttachmentUploadIntentResultMethod) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResultMethod from json.
+func (s *MailboxAttachmentUploadIntentResultMethod) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResultMethod to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch MailboxAttachmentUploadIntentResultMethod(v) {
+	case MailboxAttachmentUploadIntentResultMethodPUT:
+		*s = MailboxAttachmentUploadIntentResultMethodPUT
+	default:
+		*s = MailboxAttachmentUploadIntentResultMethod(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MailboxAttachmentUploadIntentResultMethod) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResultMethod) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxAttachmentUploadIntentResultResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxAttachmentUploadIntentResultResponse) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("meta")
+		s.Meta.Encode(e)
+	}
+	{
+		e.FieldStart("ok")
+		s.Ok.Encode(e)
+	}
+	{
+		e.FieldStart("data")
+		s.Data.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfMailboxAttachmentUploadIntentResultResponse = [3]string{
+	0: "meta",
+	1: "ok",
+	2: "data",
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResultResponse from json.
+func (s *MailboxAttachmentUploadIntentResultResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResultResponse to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "meta":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Meta.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"meta\"")
+			}
+		case "ok":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Ok.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ok\"")
+			}
+		case "data":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.Data.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"data\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxAttachmentUploadIntentResultResponse")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxAttachmentUploadIntentResultResponse) {
+					name = jsonFieldsNameOfMailboxAttachmentUploadIntentResultResponse[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxAttachmentUploadIntentResultResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResultResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("request_id")
+		e.Str(s.RequestID)
+	}
+	for k, elem := range s.AdditionalProps {
+		e.FieldStart(k)
+
+		if len(elem) != 0 {
+			e.Raw(elem)
+		}
+	}
+}
+
+var jsonFieldsNameOfMailboxAttachmentUploadIntentResultResponseMeta = [1]string{
+	0: "request_id",
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResultResponseMeta from json.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResultResponseMeta to nil")
+	}
+	var requiredBitSet [1]uint8
+	s.AdditionalProps = map[string]jx.Raw{}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "request_id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.RequestID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"request_id\"")
+			}
+		default:
+			var elem jx.Raw
+			if err := func() error {
+				v, err := d.RawAppend(nil)
+				elem = jx.Raw(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrapf(err, "decode field %q", k)
+			}
+			s.AdditionalProps[string(k)] = elem
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxAttachmentUploadIntentResultResponseMeta")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxAttachmentUploadIntentResultResponseMeta) {
+					name = jsonFieldsNameOfMailboxAttachmentUploadIntentResultResponseMeta[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s MailboxAttachmentUploadIntentResultResponseMetaAdditional) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields implements json.Marshaler.
+func (s MailboxAttachmentUploadIntentResultResponseMetaAdditional) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
+
+		if len(elem) != 0 {
+			e.Raw(elem)
+		}
+	}
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResultResponseMetaAdditional from json.
+func (s *MailboxAttachmentUploadIntentResultResponseMetaAdditional) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResultResponseMetaAdditional to nil")
+	}
+	m := s.init()
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		var elem jx.Raw
+		if err := func() error {
+			v, err := d.RawAppend(nil)
+			elem = jx.Raw(v)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
+		}
+		m[string(k)] = elem
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxAttachmentUploadIntentResultResponseMetaAdditional")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MailboxAttachmentUploadIntentResultResponseMetaAdditional) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResultResponseMetaAdditional) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxAttachmentUploadIntentResultResponseOk as json.
+func (s MailboxAttachmentUploadIntentResultResponseOk) Encode(e *jx.Encoder) {
+	e.Bool(bool(s))
+}
+
+// Decode decodes MailboxAttachmentUploadIntentResultResponseOk from json.
+func (s *MailboxAttachmentUploadIntentResultResponseOk) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxAttachmentUploadIntentResultResponseOk to nil")
+	}
+	v, err := d.Bool()
+	if err != nil {
+		return err
+	}
+	*s = MailboxAttachmentUploadIntentResultResponseOk(v)
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MailboxAttachmentUploadIntentResultResponseOk) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxAttachmentUploadIntentResultResponseOk) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -6187,6 +6975,120 @@ func (s *MailboxContentHeadersSelected) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxContentHeadersSelected) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxCreateAttachmentUploadBadRequest as json.
+func (s *MailboxCreateAttachmentUploadBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxCreateAttachmentUploadBadRequest from json.
+func (s *MailboxCreateAttachmentUploadBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxCreateAttachmentUploadBadRequest to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxCreateAttachmentUploadBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxCreateAttachmentUploadBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxCreateAttachmentUploadBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxCreateAttachmentUploadRequestEntityTooLarge as json.
+func (s *MailboxCreateAttachmentUploadRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxCreateAttachmentUploadRequestEntityTooLarge from json.
+func (s *MailboxCreateAttachmentUploadRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxCreateAttachmentUploadRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxCreateAttachmentUploadRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxCreateAttachmentUploadRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxCreateAttachmentUploadRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxCreateAttachmentUploadServiceUnavailable as json.
+func (s *MailboxCreateAttachmentUploadServiceUnavailable) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxCreateAttachmentUploadServiceUnavailable from json.
+func (s *MailboxCreateAttachmentUploadServiceUnavailable) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxCreateAttachmentUploadServiceUnavailable to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxCreateAttachmentUploadServiceUnavailable(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxCreateAttachmentUploadServiceUnavailable) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxCreateAttachmentUploadServiceUnavailable) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -11291,6 +12193,16 @@ func (s *MailboxMessage) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 	{
+		if s.Attachments != nil {
+			e.FieldStart("attachments")
+			e.ArrStart()
+			for _, elem := range s.Attachments {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
 		e.FieldStart("bcc")
 		e.ArrStart()
 		for _, elem := range s.Bcc {
@@ -11371,14 +12283,6 @@ func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
-		e.FieldStart("attachments")
-		e.ArrStart()
-		for _, elem := range s.Attachments {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
-	}
-	{
 		e.FieldStart("html_body")
 		s.HTMLBody.Encode(e)
 	}
@@ -11389,22 +12293,22 @@ func (s *MailboxMessage) encodeFields(e *jx.Encoder) {
 }
 
 var jsonFieldsNameOfMailboxMessage = [18]string{
-	0:  "bcc",
-	1:  "cc",
-	2:  "flags",
-	3:  "folder_ids",
-	4:  "from",
-	5:  "has_attachments",
-	6:  "id",
-	7:  "keywords",
-	8:  "preview",
-	9:  "received_at",
-	10: "sent_at",
-	11: "size_bytes",
-	12: "subject",
-	13: "thread_id",
-	14: "to",
-	15: "attachments",
+	0:  "attachments",
+	1:  "bcc",
+	2:  "cc",
+	3:  "flags",
+	4:  "folder_ids",
+	5:  "from",
+	6:  "has_attachments",
+	7:  "id",
+	8:  "keywords",
+	9:  "preview",
+	10: "received_at",
+	11: "sent_at",
+	12: "size_bytes",
+	13: "subject",
+	14: "thread_id",
+	15: "to",
 	16: "html_body",
 	17: "text_body",
 }
@@ -11418,8 +12322,25 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
+		case "attachments":
+			if err := func() error {
+				s.Attachments = make([]MailboxMessageAttachmentsItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem MailboxMessageAttachmentsItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Attachments = append(s.Attachments, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attachments\"")
+			}
 		case "bcc":
-			requiredBitSet[0] |= 1 << 0
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.Bcc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11437,7 +12358,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"bcc\"")
 			}
 		case "cc":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.Cc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11455,7 +12376,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"cc\"")
 			}
 		case "flags":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Flags.Decode(d); err != nil {
 					return err
@@ -11465,7 +12386,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flags\"")
 			}
 		case "folder_ids":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				s.FolderIds = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11485,7 +12406,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"folder_ids\"")
 			}
 		case "from":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.From.Decode(d); err != nil {
 					return err
@@ -11495,7 +12416,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "has_attachments":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Bool()
 				s.HasAttachments = bool(v)
@@ -11507,7 +12428,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"has_attachments\"")
 			}
 		case "id":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.ID = string(v)
@@ -11519,7 +12440,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "keywords":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				s.Keywords = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11539,7 +12460,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"keywords\"")
 			}
 		case "preview":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				if err := s.Preview.Decode(d); err != nil {
 					return err
@@ -11549,7 +12470,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"preview\"")
 			}
 		case "received_at":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				if err := s.ReceivedAt.Decode(d); err != nil {
 					return err
@@ -11559,7 +12480,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"received_at\"")
 			}
 		case "sent_at":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				if err := s.SentAt.Decode(d); err != nil {
 					return err
@@ -11569,7 +12490,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"sent_at\"")
 			}
 		case "size_bytes":
-			requiredBitSet[1] |= 1 << 3
+			requiredBitSet[1] |= 1 << 4
 			if err := func() error {
 				if err := s.SizeBytes.Decode(d); err != nil {
 					return err
@@ -11579,7 +12500,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"size_bytes\"")
 			}
 		case "subject":
-			requiredBitSet[1] |= 1 << 4
+			requiredBitSet[1] |= 1 << 5
 			if err := func() error {
 				if err := s.Subject.Decode(d); err != nil {
 					return err
@@ -11589,7 +12510,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"subject\"")
 			}
 		case "thread_id":
-			requiredBitSet[1] |= 1 << 5
+			requiredBitSet[1] |= 1 << 6
 			if err := func() error {
 				if err := s.ThreadID.Decode(d); err != nil {
 					return err
@@ -11599,7 +12520,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"thread_id\"")
 			}
 		case "to":
-			requiredBitSet[1] |= 1 << 6
+			requiredBitSet[1] |= 1 << 7
 			if err := func() error {
 				s.To = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -11615,24 +12536,6 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"to\"")
-			}
-		case "attachments":
-			requiredBitSet[1] |= 1 << 7
-			if err := func() error {
-				s.Attachments = make([]MailboxAttachment, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem MailboxAttachment
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Attachments = append(s.Attachments, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"attachments\"")
 			}
 		case "html_body":
 			requiredBitSet[2] |= 1 << 0
@@ -11664,7 +12567,7 @@ func (s *MailboxMessage) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [3]uint8{
-		0b11111111,
+		0b11111110,
 		0b11111111,
 		0b00000011,
 	} {
@@ -11708,6 +12611,196 @@ func (s *MailboxMessage) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxMessage) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxMessageAttachmentsItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxMessageAttachmentsItem) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("content_id")
+		s.ContentID.Encode(e)
+	}
+	{
+		e.FieldStart("content_type")
+		e.Str(s.ContentType)
+	}
+	{
+		e.FieldStart("disposition")
+		s.Disposition.Encode(e)
+	}
+	{
+		if s.DownloadURL.Set {
+			e.FieldStart("download_url")
+			s.DownloadURL.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("filename")
+		s.Filename.Encode(e)
+	}
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		e.FieldStart("size_bytes")
+		s.SizeBytes.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfMailboxMessageAttachmentsItem = [7]string{
+	0: "content_id",
+	1: "content_type",
+	2: "disposition",
+	3: "download_url",
+	4: "filename",
+	5: "id",
+	6: "size_bytes",
+}
+
+// Decode decodes MailboxMessageAttachmentsItem from json.
+func (s *MailboxMessageAttachmentsItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxMessageAttachmentsItem to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "content_id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.ContentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"content_id\"")
+			}
+		case "content_type":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ContentType = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"content_type\"")
+			}
+		case "disposition":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.Disposition.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"disposition\"")
+			}
+		case "download_url":
+			if err := func() error {
+				s.DownloadURL.Reset()
+				if err := s.DownloadURL.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"download_url\"")
+			}
+		case "filename":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.Filename.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"filename\"")
+			}
+		case "id":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "size_bytes":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				if err := s.SizeBytes.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"size_bytes\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxMessageAttachmentsItem")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b01110111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxMessageAttachmentsItem) {
+					name = jsonFieldsNameOfMailboxMessageAttachmentsItem[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxMessageAttachmentsItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxMessageAttachmentsItem) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -15900,6 +16993,16 @@ func (s *MailboxMessageSummary) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxMessageSummary) encodeFields(e *jx.Encoder) {
 	{
+		if s.Attachments != nil {
+			e.FieldStart("attachments")
+			e.ArrStart()
+			for _, elem := range s.Attachments {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
 		e.FieldStart("bcc")
 		e.ArrStart()
 		for _, elem := range s.Bcc {
@@ -15981,22 +17084,23 @@ func (s *MailboxMessageSummary) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxMessageSummary = [15]string{
-	0:  "bcc",
-	1:  "cc",
-	2:  "flags",
-	3:  "folder_ids",
-	4:  "from",
-	5:  "has_attachments",
-	6:  "id",
-	7:  "keywords",
-	8:  "preview",
-	9:  "received_at",
-	10: "sent_at",
-	11: "size_bytes",
-	12: "subject",
-	13: "thread_id",
-	14: "to",
+var jsonFieldsNameOfMailboxMessageSummary = [16]string{
+	0:  "attachments",
+	1:  "bcc",
+	2:  "cc",
+	3:  "flags",
+	4:  "folder_ids",
+	5:  "from",
+	6:  "has_attachments",
+	7:  "id",
+	8:  "keywords",
+	9:  "preview",
+	10: "received_at",
+	11: "sent_at",
+	12: "size_bytes",
+	13: "subject",
+	14: "thread_id",
+	15: "to",
 }
 
 // Decode decodes MailboxMessageSummary from json.
@@ -16008,8 +17112,25 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
+		case "attachments":
+			if err := func() error {
+				s.Attachments = make([]MailboxAttachment, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem MailboxAttachment
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Attachments = append(s.Attachments, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attachments\"")
+			}
 		case "bcc":
-			requiredBitSet[0] |= 1 << 0
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				s.Bcc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16027,7 +17148,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"bcc\"")
 			}
 		case "cc":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				s.Cc = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16045,7 +17166,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"cc\"")
 			}
 		case "flags":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Flags.Decode(d); err != nil {
 					return err
@@ -16055,7 +17176,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flags\"")
 			}
 		case "folder_ids":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				s.FolderIds = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16075,7 +17196,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"folder_ids\"")
 			}
 		case "from":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.From.Decode(d); err != nil {
 					return err
@@ -16085,7 +17206,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "has_attachments":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Bool()
 				s.HasAttachments = bool(v)
@@ -16097,7 +17218,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"has_attachments\"")
 			}
 		case "id":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.ID = string(v)
@@ -16109,7 +17230,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "keywords":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				s.Keywords = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16129,7 +17250,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"keywords\"")
 			}
 		case "preview":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				if err := s.Preview.Decode(d); err != nil {
 					return err
@@ -16139,7 +17260,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"preview\"")
 			}
 		case "received_at":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				if err := s.ReceivedAt.Decode(d); err != nil {
 					return err
@@ -16149,7 +17270,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"received_at\"")
 			}
 		case "sent_at":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				if err := s.SentAt.Decode(d); err != nil {
 					return err
@@ -16159,7 +17280,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"sent_at\"")
 			}
 		case "size_bytes":
-			requiredBitSet[1] |= 1 << 3
+			requiredBitSet[1] |= 1 << 4
 			if err := func() error {
 				if err := s.SizeBytes.Decode(d); err != nil {
 					return err
@@ -16169,7 +17290,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"size_bytes\"")
 			}
 		case "subject":
-			requiredBitSet[1] |= 1 << 4
+			requiredBitSet[1] |= 1 << 5
 			if err := func() error {
 				if err := s.Subject.Decode(d); err != nil {
 					return err
@@ -16179,7 +17300,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"subject\"")
 			}
 		case "thread_id":
-			requiredBitSet[1] |= 1 << 5
+			requiredBitSet[1] |= 1 << 6
 			if err := func() error {
 				if err := s.ThreadID.Decode(d); err != nil {
 					return err
@@ -16189,7 +17310,7 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"thread_id\"")
 			}
 		case "to":
-			requiredBitSet[1] |= 1 << 6
+			requiredBitSet[1] |= 1 << 7
 			if err := func() error {
 				s.To = make([]MailboxAddress, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -16216,8 +17337,8 @@ func (s *MailboxMessageSummary) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
+		0b11111110,
 		0b11111111,
-		0b01111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -30239,6 +31360,39 @@ func (s OptInt) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptInt) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxAttachmentUploadIntentBody as json.
+func (o OptMailboxAttachmentUploadIntentBody) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes MailboxAttachmentUploadIntentBody from json.
+func (o *OptMailboxAttachmentUploadIntentBody) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptMailboxAttachmentUploadIntentBody to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptMailboxAttachmentUploadIntentBody) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptMailboxAttachmentUploadIntentBody) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

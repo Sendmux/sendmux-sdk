@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { MailboxBatchDeleteMessagesData, MailboxBatchDeleteMessagesErrors, MailboxBatchDeleteMessagesResponses, MailboxBatchGetMessagesData, MailboxBatchGetMessagesErrors, MailboxBatchGetMessagesResponses, MailboxBatchUpdateMessagesData, MailboxBatchUpdateMessagesErrors, MailboxBatchUpdateMessagesResponses, MailboxCountMessagesData, MailboxCountMessagesErrors, MailboxCountMessagesResponses, MailboxCreateFolderData, MailboxCreateFolderErrors, MailboxCreateFolderResponses, MailboxDeleteFolderData, MailboxDeleteFolderErrors, MailboxDeleteFolderResponses, MailboxDeleteMessageData, MailboxDeleteMessageErrors, MailboxDeleteMessageResponses, MailboxGetChangesData, MailboxGetChangesErrors, MailboxGetChangesResponses, MailboxGetFolderChangesData, MailboxGetFolderChangesErrors, MailboxGetFolderChangesResponses, MailboxGetFolderData, MailboxGetFolderErrors, MailboxGetFolderResponses, MailboxGetIdentityData, MailboxGetIdentityErrors, MailboxGetIdentityResponses, MailboxGetMeData, MailboxGetMeErrors, MailboxGetMeResponses, MailboxGetMessageAttachmentData, MailboxGetMessageAttachmentErrors, MailboxGetMessageAttachmentResponses, MailboxGetMessageData, MailboxGetMessageErrors, MailboxGetMessageResponses, MailboxGetQuotaChangesData, MailboxGetQuotaChangesErrors, MailboxGetQuotaChangesResponses, MailboxGetSessionData, MailboxGetSessionErrors, MailboxGetSessionResponses, MailboxGetSubmissionChangesData, MailboxGetSubmissionChangesErrors, MailboxGetSubmissionChangesResponses, MailboxGetSubmissionData, MailboxGetSubmissionErrors, MailboxGetSubmissionResponses, MailboxGetThreadContentData, MailboxGetThreadContentErrors, MailboxGetThreadContentResponses, MailboxGetThreadData, MailboxGetThreadErrors, MailboxGetThreadResponses, MailboxListBodyData, MailboxListBodyErrors, MailboxListBodyResponses, MailboxListContentData, MailboxListContentErrors, MailboxListContentResponses, MailboxListFoldersData, MailboxListFoldersResponses, MailboxListGrantedMailboxesData, MailboxListGrantedMailboxesErrors, MailboxListGrantedMailboxesResponses, MailboxListIdentitiesData, MailboxListIdentitiesErrors, MailboxListIdentitiesResponses, MailboxListMessagesData, MailboxListMessagesErrors, MailboxListMessagesResponses, MailboxListQuotasData, MailboxListQuotasErrors, MailboxListQuotasResponses, MailboxListSubmissionsData, MailboxListSubmissionsErrors, MailboxListSubmissionsResponses, MailboxListThreadMessagesData, MailboxListThreadMessagesErrors, MailboxListThreadMessagesResponses, MailboxListThreadsData, MailboxListThreadsErrors, MailboxListThreadsResponses, MailboxListUsageData, MailboxListUsageResponses, MailboxQueryFolderChangesData, MailboxQueryFolderChangesErrors, MailboxQueryFolderChangesResponses, MailboxQueryMessageChangesData, MailboxQueryMessageChangesErrors, MailboxQueryMessageChangesResponses, MailboxSearchMessageSnippetsData, MailboxSearchMessageSnippetsErrors, MailboxSearchMessageSnippetsResponses, MailboxSendMessageData, MailboxSendMessageErrors, MailboxSendMessageResponses, MailboxStreamEventsData, MailboxStreamEventsErrors, MailboxStreamEventsResponse, MailboxStreamEventsResponses, MailboxUpdateFolderData, MailboxUpdateFolderErrors, MailboxUpdateFolderResponses, MailboxUpdateIdentityData, MailboxUpdateIdentityErrors, MailboxUpdateIdentityResponses, MailboxUpdateMessageData, MailboxUpdateMessageErrors, MailboxUpdateMessageResponses, MailboxUploadAttachmentData, MailboxUploadAttachmentErrors, MailboxUploadAttachmentResponses } from './types.gen.js';
+import type { MailboxBatchDeleteMessagesData, MailboxBatchDeleteMessagesErrors, MailboxBatchDeleteMessagesResponses, MailboxBatchGetMessagesData, MailboxBatchGetMessagesErrors, MailboxBatchGetMessagesResponses, MailboxBatchUpdateMessagesData, MailboxBatchUpdateMessagesErrors, MailboxBatchUpdateMessagesResponses, MailboxCountMessagesData, MailboxCountMessagesErrors, MailboxCountMessagesResponses, MailboxCreateAttachmentUploadData, MailboxCreateAttachmentUploadErrors, MailboxCreateAttachmentUploadResponses, MailboxCreateFolderData, MailboxCreateFolderErrors, MailboxCreateFolderResponses, MailboxDeleteFolderData, MailboxDeleteFolderErrors, MailboxDeleteFolderResponses, MailboxDeleteMessageData, MailboxDeleteMessageErrors, MailboxDeleteMessageResponses, MailboxGetChangesData, MailboxGetChangesErrors, MailboxGetChangesResponses, MailboxGetFolderChangesData, MailboxGetFolderChangesErrors, MailboxGetFolderChangesResponses, MailboxGetFolderData, MailboxGetFolderErrors, MailboxGetFolderResponses, MailboxGetIdentityData, MailboxGetIdentityErrors, MailboxGetIdentityResponses, MailboxGetMeData, MailboxGetMeErrors, MailboxGetMeResponses, MailboxGetMessageAttachmentData, MailboxGetMessageAttachmentErrors, MailboxGetMessageAttachmentResponses, MailboxGetMessageData, MailboxGetMessageErrors, MailboxGetMessageResponses, MailboxGetQuotaChangesData, MailboxGetQuotaChangesErrors, MailboxGetQuotaChangesResponses, MailboxGetSessionData, MailboxGetSessionErrors, MailboxGetSessionResponses, MailboxGetSubmissionChangesData, MailboxGetSubmissionChangesErrors, MailboxGetSubmissionChangesResponses, MailboxGetSubmissionData, MailboxGetSubmissionErrors, MailboxGetSubmissionResponses, MailboxGetThreadContentData, MailboxGetThreadContentErrors, MailboxGetThreadContentResponses, MailboxGetThreadData, MailboxGetThreadErrors, MailboxGetThreadResponses, MailboxListBodyData, MailboxListBodyErrors, MailboxListBodyResponses, MailboxListContentData, MailboxListContentErrors, MailboxListContentResponses, MailboxListFoldersData, MailboxListFoldersResponses, MailboxListGrantedMailboxesData, MailboxListGrantedMailboxesErrors, MailboxListGrantedMailboxesResponses, MailboxListIdentitiesData, MailboxListIdentitiesErrors, MailboxListIdentitiesResponses, MailboxListMessagesData, MailboxListMessagesErrors, MailboxListMessagesResponses, MailboxListQuotasData, MailboxListQuotasErrors, MailboxListQuotasResponses, MailboxListSubmissionsData, MailboxListSubmissionsErrors, MailboxListSubmissionsResponses, MailboxListThreadMessagesData, MailboxListThreadMessagesErrors, MailboxListThreadMessagesResponses, MailboxListThreadsData, MailboxListThreadsErrors, MailboxListThreadsResponses, MailboxListUsageData, MailboxListUsageResponses, MailboxQueryFolderChangesData, MailboxQueryFolderChangesErrors, MailboxQueryFolderChangesResponses, MailboxQueryMessageChangesData, MailboxQueryMessageChangesErrors, MailboxQueryMessageChangesResponses, MailboxSearchMessageSnippetsData, MailboxSearchMessageSnippetsErrors, MailboxSearchMessageSnippetsResponses, MailboxSendMessageData, MailboxSendMessageErrors, MailboxSendMessageResponses, MailboxStreamEventsData, MailboxStreamEventsErrors, MailboxStreamEventsResponse, MailboxStreamEventsResponses, MailboxUpdateFolderData, MailboxUpdateFolderErrors, MailboxUpdateFolderResponses, MailboxUpdateIdentityData, MailboxUpdateIdentityErrors, MailboxUpdateIdentityResponses, MailboxUpdateMessageData, MailboxUpdateMessageErrors, MailboxUpdateMessageResponses, MailboxUploadAttachmentData, MailboxUploadAttachmentErrors, MailboxUploadAttachmentResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,21 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+/**
+ * Create a presigned mailbox attachment upload
+ *
+ * Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+ */
+export const mailboxCreateAttachmentUpload = <ThrowOnError extends boolean = false>(options?: Options<MailboxCreateAttachmentUploadData, ThrowOnError>) => (options?.client ?? client).post<MailboxCreateAttachmentUploadResponses, MailboxCreateAttachmentUploadErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/attachment-uploads',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
 
 /**
  * Upload a mailbox attachment
@@ -272,7 +287,7 @@ export const mailboxDeleteMessage = <ThrowOnError extends boolean = false>(optio
 /**
  * Get a mailbox message
  *
- * Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+ * Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
  */
 export const mailboxGetMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxGetMessageData, ThrowOnError>) => (options.client ?? client).get<MailboxGetMessageResponses, MailboxGetMessageErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -298,7 +313,7 @@ export const mailboxUpdateMessage = <ThrowOnError extends boolean = false>(optio
 /**
  * Download a message attachment
  *
- * Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+ * Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
  */
 export const mailboxGetMessageAttachment = <ThrowOnError extends boolean = false>(options: Options<MailboxGetMessageAttachmentData, ThrowOnError>) => (options.client ?? client).get<MailboxGetMessageAttachmentResponses, MailboxGetMessageAttachmentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -364,7 +379,7 @@ export const mailboxSearchMessageSnippets = <ThrowOnError extends boolean = fals
 /**
  * Send a mailbox message
  *
- * Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.
+ * Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
  */
 export const mailboxSendMessage = <ThrowOnError extends boolean = false>(options?: Options<MailboxSendMessageData, ThrowOnError>) => (options?.client ?? client).post<MailboxSendMessageResponses, MailboxSendMessageErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

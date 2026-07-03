@@ -15,6 +15,8 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxRealtimeMessage < ApiModelBase
+    attr_accessor :attachments
+
     attr_accessor :bcc
 
     attr_accessor :cc
@@ -47,8 +49,6 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :to
 
-    attr_accessor :attachments
-
     attr_accessor :body
 
     attr_accessor :rfc5322_message_id
@@ -56,6 +56,7 @@ module Sendmux::Mailbox::Generated
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'attachments' => :'attachments',
         :'bcc' => :'bcc',
         :'cc' => :'cc',
         :'flags' => :'flags',
@@ -71,7 +72,6 @@ module Sendmux::Mailbox::Generated
         :'subject' => :'subject',
         :'thread_id' => :'thread_id',
         :'to' => :'to',
-        :'attachments' => :'attachments',
         :'body' => :'body',
         :'rfc5322_message_id' => :'rfc5322_message_id'
       }
@@ -90,6 +90,7 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
+        :'attachments' => :'Array<MailboxAttachment>',
         :'bcc' => :'Array<MailboxAddress>',
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
@@ -105,7 +106,6 @@ module Sendmux::Mailbox::Generated
         :'subject' => :'String',
         :'thread_id' => :'String',
         :'to' => :'Array<MailboxAddress>',
-        :'attachments' => :'Array<MailboxAttachment>',
         :'body' => :'MailboxRealtimeMessageAllOfBody',
         :'rfc5322_message_id' => :'String'
       }
@@ -147,6 +147,12 @@ module Sendmux::Mailbox::Generated
         end
         h[k.to_sym] = v
       }
+
+      if attributes.key?(:'attachments')
+        if (value = attributes[:'attachments']).is_a?(Array)
+          self.attachments = value
+        end
+      end
 
       if attributes.key?(:'bcc')
         if (value = attributes[:'bcc']).is_a?(Array)
@@ -248,14 +254,6 @@ module Sendmux::Mailbox::Generated
         self.to = nil
       end
 
-      if attributes.key?(:'attachments')
-        if (value = attributes[:'attachments']).is_a?(Array)
-          self.attachments = value
-        end
-      else
-        self.attachments = nil
-      end
-
       if attributes.key?(:'body')
         self.body = attributes[:'body']
       else
@@ -306,10 +304,6 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "to", to cannot be nil.')
       end
 
-      if @attachments.nil?
-        invalid_properties.push('invalid value for "attachments", attachments cannot be nil.')
-      end
-
       if @body.nil?
         invalid_properties.push('invalid value for "body", body cannot be nil.')
       end
@@ -329,7 +323,6 @@ module Sendmux::Mailbox::Generated
       return false if @id.nil?
       return false if @keywords.nil?
       return false if @to.nil?
-      return false if @attachments.nil?
       return false if @body.nil?
       true
     end
@@ -415,16 +408,6 @@ module Sendmux::Mailbox::Generated
     end
 
     # Custom attribute writer method with validation
-    # @param [Object] attachments Value to be assigned
-    def attachments=(attachments)
-      if attachments.nil?
-        fail ArgumentError, 'attachments cannot be nil'
-      end
-
-      @attachments = attachments
-    end
-
-    # Custom attribute writer method with validation
     # @param [Object] body Value to be assigned
     def body=(body)
       if body.nil?
@@ -439,6 +422,7 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          attachments == o.attachments &&
           bcc == o.bcc &&
           cc == o.cc &&
           flags == o.flags &&
@@ -454,7 +438,6 @@ module Sendmux::Mailbox::Generated
           subject == o.subject &&
           thread_id == o.thread_id &&
           to == o.to &&
-          attachments == o.attachments &&
           body == o.body &&
           rfc5322_message_id == o.rfc5322_message_id
     end
@@ -468,7 +451,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to, attachments, body, rfc5322_message_id].hash
+      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to, body, rfc5322_message_id].hash
     end
 
     # Builds the object from hash

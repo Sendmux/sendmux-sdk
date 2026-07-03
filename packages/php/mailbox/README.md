@@ -38,6 +38,14 @@ $mailboxApi = ClientFactory::createMailboxAPIApi(
 
 The generated `MailboxAPIApi` exposes mailbox methods such as `mailboxGetMe()`, `mailboxListMessages()`, `mailboxSendMessage()`, and `mailboxUploadAttachment()`.
 
+## Attachments and events
+
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client and no `Authorization` header. If it expires, re-fetch the message or attachment metadata to receive a fresh URL.
+
+Use `mailboxUploadAttachment()` to upload bytes and pass the returned `blob_id` into `mailboxSendMessage()` attachments. Inline base64 attachments remain available in the generated send body shape for small payloads.
+
+`mailboxStreamEvents()` exposes the Mailbox SSE endpoint for clients that want live `message.received` events.
+
 ## Features
 
 - Validates `smx_mbx_` keys or scoped `smx_agent_` tokens before configuring the client.

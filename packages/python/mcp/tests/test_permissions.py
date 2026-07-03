@@ -30,6 +30,9 @@ def test_permission_lookup_returns_required_permissions_for_tool() -> None:
         "mailbox.settings.update",
     )
     assert permissions_for_tool("mailbox_list_granted_mailboxes") == ("mailbox.read",)
+    assert permissions_for_tool("mailbox_get_attachment") == ("mailbox.read",)
+    assert permissions_for_tool("mailbox_upload_attachment") == ("email.send",)
+    assert permissions_for_tool("mailbox_wait_for_message") == ("mailbox.read",)
     assert permissions_for_tool("management_create_domain") == ("domain.create",)
     assert permissions_for_tool("management_check_mailbox_availability") == ("mailbox.admin.create",)
     assert permissions_for_tool("sending_send_email_batch") == ("email.send",)
@@ -57,12 +60,15 @@ def test_authorised_tools_are_filtered_per_surface() -> None:
         "mailbox_batch_get_messages",
         "mailbox_count_messages",
         "mailbox_search_message_snippets",
+        "mailbox_get_attachment",
         "mailbox_send_message",
+        "mailbox_upload_attachment",
         "mailbox_list_threads",
         "mailbox_get_thread",
         "mailbox_list_thread_messages",
         "mailbox_list_folders",
         "mailbox_get_changes",
+        "mailbox_wait_for_message",
     }
 
 

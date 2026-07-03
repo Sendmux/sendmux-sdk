@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* add Node file attachment helper for Sending API email sends
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sending-v1.0.0...ts-sending-v1.1.0) (2026-07-01)
 
 

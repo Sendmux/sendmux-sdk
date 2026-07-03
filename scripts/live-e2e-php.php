@@ -122,11 +122,24 @@ function callRawOperation(array $apis, array $operation): string
         }
         $args = argsFor(new ReflectionMethod($api, $requestMethod), $operation);
         $request = $api->{$requestMethod}(...$args);
-        $client = new \GuzzleHttp\Client(['timeout' => 40]);
-        $response = $client->send($request, ['timeout' => 40]);
+        $timeout = operationTimeout($operation);
+        $client = new \GuzzleHttp\Client(['timeout' => $timeout]);
+        $response = $client->send($request, ['timeout' => $timeout]);
         return (string) $response->getBody();
     }
     throw new RuntimeException("PHP SDK operation {$operation['operationId']} is not exported");
+}
+
+function operationTimeout(array $operation): int
+{
+    if (($operation['operationId'] ?? '') !== 'mailboxStreamEvents') {
+        return 40;
+    }
+    $closeAfter = (int) (($operation['request']['query']['close_after'] ?? 30));
+    if ($closeAfter < 30) {
+        $closeAfter = 30;
+    }
+    return $closeAfter + 20;
 }
 
 function argsFor(ReflectionMethod $method, array $operation): array

@@ -28,7 +28,7 @@ pip install sendmux-mailbox
 ```python
 import os
 
-from sendmux_mailbox import MailboxAPIApi, create_mailbox_client
+from sendmux_mailbox import MailboxAPIApi, create_mailbox_client, iter_mailbox_events
 
 client = create_mailbox_client(api_key=os.environ["SENDMUX_MAILBOX_API_KEY"])
 api = MailboxAPIApi(client)
@@ -44,6 +44,83 @@ The package exports every generated Mailbox model and API class plus:
 - `create_mailbox_client`
 - `configure_mailbox`
 - `SendmuxMailboxApiClient`
+- `iter_mailbox_events`
+- file helpers: `upload_mailbox_attachment_from_file`, `create_mailbox_attachment_upload_from_file`, `upload_mailbox_attachment_via_presigned_file`, and `send_mailbox_message_with_files`
+
+## Attachments
+
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client; no `Authorization` header is needed. If the URL has expired, call `mailbox_get_message()` or list/search messages again to receive fresh metadata.
+
+Mailbox direct uploads, presigned uploads, and file helpers share the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
+
+```python
+import os
+import urllib.request
+
+from sendmux_mailbox import MailboxAPIApi, create_mailbox_client
+
+client = create_mailbox_client(api_key=os.environ["SENDMUX_MAILBOX_API_KEY"])
+api = MailboxAPIApi(client)
+
+message = api.mailbox_get_message("msg_123")
+attachment = message.data.attachments[0]
+content = urllib.request.urlopen(attachment.download_url, timeout=30).read()
+
+upload = api.mailbox_upload_attachment(
+    body=b"hello\n",
+    filename="hello.txt",
+    _headers={"Content-Type": "text/plain"},
+)
+
+api.mailbox_send_message(
+    send_mailbox_message_body={
+        "to": [{"email": "recipient@example.com", "name": None}],
+        "subject": "Attachment",
+        "text_body": "See attached.",
+        "attachments": [{
+            "blob_id": upload.data.blob_id,
+            "filename": "hello.txt",
+            "content_type": "text/plain",
+        }],
+    },
+)
+```
+
+For local files, use helper functions so file bytes stay out of model context:
+
+```python
+import os
+
+from sendmux_mailbox import create_mailbox_client, send_mailbox_message_with_files
+
+client = create_mailbox_client(api_key=os.environ["SENDMUX_MAILBOX_API_KEY"])
+
+send_mailbox_message_with_files(
+    client,
+    files=["./report.pdf"],
+    idempotency_key="report-123",
+    body={
+        "to": [{"email": "recipient@example.com", "name": None}],
+        "subject": "Report",
+        "text_body": "Attached.",
+    },
+)
+```
+
+Use `upload_mailbox_attachment_via_presigned_file(...)` when you want the upload step to use the short-lived signed URL and no API key on the file `PUT`. Inline base64 attachments remain available for tiny generated sends through the generated `attachments[].content` body shape.
+
+## Events
+
+Use `iter_mailbox_events` for typed server-sent mailbox events.
+
+```python
+for event in iter_mailbox_events(
+    client,
+    close_after=300,
+    event_types="message.received",
+):
+    print(event.event_type, event.message_id)
+```
 
 ## Pagination
 

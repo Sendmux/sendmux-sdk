@@ -11,7 +11,7 @@ import httpx
 from fastmcp.server.dependencies import get_access_token
 
 from sendmux_mcp.config import Surface
-from sendmux_mcp.curation import TOOLS_BY_SURFACE
+from sendmux_mcp.curation import HOSTED_BACKING_TOOLS_BY_SURFACE, OPENAPI_TOOLS_BY_SURFACE
 from sendmux_mcp.observability import get_posthog_observability
 from sendmux_mcp.permissions import permissions_for_tool
 from sendmux_mcp.specs import operation_routes
@@ -194,7 +194,7 @@ def build_hosted_operation_manifest(document: Mapping[str, Any], surface: Surfac
     routes: list[HostedOperationRoute] = []
     missing: list[str] = []
 
-    for tool in TOOLS_BY_SURFACE[surface]:
+    for tool in (*OPENAPI_TOOLS_BY_SURFACE[surface], *HOSTED_BACKING_TOOLS_BY_SURFACE[surface]):
         route = operation_route_map.get(tool.operation_id)
         if route is None:
             missing.append(tool.operation_id)

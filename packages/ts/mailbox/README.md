@@ -29,6 +29,7 @@ npm install @sendmux/mailbox
 import {
   createMailboxClient,
   mailboxListMessages,
+  streamMailboxEvents,
 } from "@sendmux/mailbox";
 
 const client = createMailboxClient({
@@ -48,6 +49,91 @@ The package exports every generated Mailbox operation plus:
 - `createMailboxClient`
 - `configureMailbox`
 - `MailboxClient`
+- `streamMailboxEvents`
+- Node-only helpers from `@sendmux/mailbox/node`: `uploadMailboxAttachmentFromFile`, `createMailboxAttachmentUploadFromFile`, `uploadMailboxAttachmentViaPresignedFile`, and `sendMailboxMessageWithFiles`
+
+## Attachments
+
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client; no `Authorization` header is needed. If the URL has expired, call `mailboxGetMessage` or list/search messages again to receive fresh metadata.
+
+Mailbox direct uploads, presigned uploads, and Node file helpers share the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
+
+```ts
+import {
+  createMailboxClient,
+  mailboxGetMessage,
+  mailboxSendMessage,
+  mailboxUploadAttachment,
+} from "@sendmux/mailbox";
+
+const client = createMailboxClient({
+  apiKey: process.env.SENDMUX_MAILBOX_API_KEY!,
+});
+
+const message = await mailboxGetMessage({
+  client,
+  path: { message_id: "msg_123" },
+});
+const attachment = message.data.data.attachments[0];
+const downloaded = await fetch(attachment.download_url);
+const bytes = await downloaded.arrayBuffer();
+
+const upload = await mailboxUploadAttachment({
+  client,
+  body: new TextEncoder().encode("hello\n"),
+  query: { filename: "hello.txt" },
+  headers: { "Content-Type": "text/plain" },
+});
+
+await mailboxSendMessage({
+  client,
+  body: {
+    to: [{ email: "recipient@example.com", name: null }],
+    subject: "Attachment",
+    text_body: "See attached.",
+    attachments: [{
+      blob_id: upload.data.data.blob_id,
+      filename: "hello.txt",
+      content_type: "text/plain",
+    }],
+  },
+});
+```
+
+For local files in Node, use the helper subpath so file bytes stay out of model context and browser bundles:
+
+```ts
+import { createMailboxClient } from "@sendmux/mailbox";
+import { sendMailboxMessageWithFiles } from "@sendmux/mailbox/node";
+
+const client = createMailboxClient({ apiKey: process.env.SENDMUX_MAILBOX_API_KEY! });
+
+await sendMailboxMessageWithFiles({
+  client,
+  files: ["./report.pdf"],
+  headers: { "Idempotency-Key": "report-123" },
+  body: {
+    to: [{ email: "recipient@example.com", name: null }],
+    subject: "Report",
+    text_body: "Attached.",
+  },
+});
+```
+
+Use `uploadMailboxAttachmentViaPresignedFile(...)` when you want the upload step to use the short-lived signed URL and no API key on the file `PUT`. Inline base64 attachments remain available for tiny generated sends through the generated `attachments[].content` body shape.
+
+## Events
+
+Use `streamMailboxEvents` for server-sent mailbox events.
+
+```ts
+for await (const event of streamMailboxEvents({
+  client,
+  query: { close_after: 300, event_types: "message.received" },
+})) {
+  console.log(event.event_type, event.message_id);
+}
+```
 
 ## Pagination
 

@@ -130,7 +130,7 @@ func callOperation(client any, op operation) (any, error) {
 		return nil, fmt.Errorf("go SDK operation %s is not exported", op.OperationID)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), operationTimeout(op))
 	defer cancel()
 
 	args := []reflect.Value{reflect.ValueOf(ctx)}
@@ -160,6 +160,17 @@ func callOperation(client any, op operation) (any, error) {
 		return nil, err
 	}
 	return out[0].Interface(), nil
+}
+
+func operationTimeout(op operation) time.Duration {
+	if op.OperationID != "mailboxStreamEvents" {
+		return 45 * time.Second
+	}
+	closeAfter := intValue(op.Request.Query["close_after"], 30)
+	if closeAfter < 30 {
+		closeAfter = 30
+	}
+	return time.Duration(closeAfter+20) * time.Second
 }
 
 func buildParams(argType reflect.Type, req request) (reflect.Value, error) {
@@ -513,6 +524,14 @@ func int64Value(raw any) (int64, error) {
 	default:
 		return 0, fmt.Errorf("expected number, got %T", raw)
 	}
+}
+
+func intValue(raw any, fallback int) int {
+	value, err := int64Value(raw)
+	if err != nil {
+		return fallback
+	}
+	return int(value)
 }
 
 func apiErrorCode(value any) string {

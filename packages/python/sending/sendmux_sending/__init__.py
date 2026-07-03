@@ -87,3 +87,8 @@ from sendmux_sending.client import (
     configure_sending,
     create_sending_client,
 )
+
+from sendmux_sending.attachments import (
+    attachment_from_file,
+    send_email_with_files,
+)

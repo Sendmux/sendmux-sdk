@@ -882,6 +882,206 @@ func (s *Server) handleMailboxCountMessagesRequest(args [0]string, argsEscaped b
 	}
 }
 
+// handleMailboxCreateAttachmentUploadRequest handles mailboxCreateAttachmentUpload operation.
+//
+// Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
+// the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
+// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+// /mailbox/messages/send`.
+//
+// POST /mailbox/attachment-uploads
+func (s *Server) handleMailboxCreateAttachmentUploadRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxCreateAttachmentUpload"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/mailbox/attachment-uploads"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), MailboxCreateAttachmentUploadOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: MailboxCreateAttachmentUploadOperation,
+			ID:   "mailboxCreateAttachmentUpload",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityBearerAuth(ctx, MailboxCreateAttachmentUploadOperation, r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "BearerAuth",
+					Err:              err,
+				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	params, err := decodeMailboxCreateAttachmentUploadParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	request, close, err := s.decodeMailboxCreateAttachmentUploadRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response MailboxCreateAttachmentUploadRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    MailboxCreateAttachmentUploadOperation,
+			OperationSummary: "Create a presigned mailbox attachment upload",
+			OperationID:      "mailboxCreateAttachmentUpload",
+			Body:             request,
+			Params: middleware.Parameters{
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = OptMailboxAttachmentUploadIntentBody
+			Params   = MailboxCreateAttachmentUploadParams
+			Response = MailboxCreateAttachmentUploadRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackMailboxCreateAttachmentUploadParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.MailboxCreateAttachmentUpload(ctx, request, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.MailboxCreateAttachmentUpload(ctx, request, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeMailboxCreateAttachmentUploadResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleMailboxCreateFolderRequest handles mailboxCreateFolder operation.
 //
 // Creates a folder in the authenticated mailbox.
@@ -2439,7 +2639,9 @@ func (s *Server) handleMailboxGetMeRequest(args [0]string, argsEscaped bool, w h
 
 // handleMailboxGetMessageRequest handles mailboxGetMessage operation.
 //
-// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+// Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When
+// attachment metadata includes short-lived download URLs, a conditional request may return `200`
+// even when the stable message ETag matches so the response can renew expired URLs.
 //
 // GET /mailbox/messages/{message_id}
 func (s *Server) handleMailboxGetMessageRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -2629,7 +2831,9 @@ func (s *Server) handleMailboxGetMessageRequest(args [1]string, argsEscaped bool
 
 // handleMailboxGetMessageAttachmentRequest handles mailboxGetMessageAttachment operation.
 //
-// Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+// Streams one attachment from a message through the authenticated endpoint. Attachment metadata also
+// provides short-lived download URLs for clients that cannot set request headers. Supports standard
+// byte ranges.
 //
 // GET /mailbox/messages/{message_id}/attachments/{attachment_id}
 func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -2781,6 +2985,10 @@ func (s *Server) handleMailboxGetMessageAttachmentRequest(args [2]string, argsEs
 					Name: "mailbox_id",
 					In:   "query",
 				}: params.MailboxID,
+				{
+					Name: "download_token",
+					In:   "query",
+				}: params.DownloadToken,
 			},
 			Raw: r,
 		}
@@ -7055,7 +7263,7 @@ func (s *Server) handleMailboxSearchMessageSnippetsRequest(args [0]string, argsE
 //
 // Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
 // safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST
-// /mailbox/attachments:upload`.
+// /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
 //
 // POST /mailbox/messages/send
 func (s *Server) handleMailboxSendMessageRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {

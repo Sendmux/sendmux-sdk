@@ -20,7 +20,7 @@ class ToolSpec:
     description: str
 
 
-MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
+OPENAPI_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
         operation_id="mailboxListGrantedMailboxes",
         name="mailbox_list_granted_mailboxes",
@@ -61,7 +61,7 @@ MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="mailboxListMessages",
         name="mailbox_list_messages",
         title="List Messages",
-        description="Use this to scan mailbox messages by cursor without fetching full bodies. Pass a small limit and continue with next_cursor only when more context is needed.",
+        description="Use this to scan mailbox messages by cursor without fetching full bodies. Filter by folder_id, keyword/not_keyword, dates, sender/recipient, text query, unread state, or has_attachment; attachment metadata includes a short-lived download_url.",
     ),
     ToolSpec(
         operation_id="mailboxGetMessage",
@@ -91,7 +91,7 @@ MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="mailboxBatchUpdateMessages",
         name="mailbox_batch_update_messages",
         title="Batch Update Messages",
-        description="Use this to mark, flag, move, or otherwise update multiple messages after the user has confirmed the desired change. Do not use it for read-only tasks.",
+        description="Use this to mark, flag, move to a folder, or set keywords/labels on multiple messages after the user has confirmed the desired change. Do not use it for read-only tasks.",
     ),
     ToolSpec(
         operation_id="mailboxBatchDeleteMessages",
@@ -109,13 +109,13 @@ MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="mailboxSearchMessageSnippets",
         name="mailbox_search_message_snippets",
         title="Search Message Snippets",
-        description="Use this to search message snippets by query text. Use returned message IDs with a read tool before making content-specific claims.",
+        description="Use this to search message snippets by query text. Narrow with folder_id, keyword/not_keyword, dates, sender/recipient, unread state, or has_attachment; use returned message IDs with a read tool before making content-specific claims.",
     ),
     ToolSpec(
         operation_id="mailboxSendMessage",
         name="mailbox_send_message",
         title="Send Mailbox Message",
-        description="Use this to send a message from the authenticated mailbox. Include an Idempotency-Key for retries and use mailbox identity tools if the sender details matter.",
+        description="Use this to send a message from the authenticated mailbox. For attachments, call mailbox_upload_attachment first using file_path, presign_upload_url, or tiny content_base64, then pass the returned blob_id. Include an Idempotency-Key for retries.",
     ),
     ToolSpec(
         operation_id="mailboxListThreads",
@@ -148,6 +148,42 @@ MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         description="Use this to resume mailbox sync from a prior state cursor. Do not use it for ad hoc message search.",
     ),
 )
+
+MAILBOX_GET_ATTACHMENT_TOOL = ToolSpec(
+    operation_id="mailboxGetMessageAttachment",
+    name="mailbox_get_attachment",
+    title="Get Attachment Metadata",
+    description="Use this after finding a message attachment. It returns metadata plus a fresh short-lived download_url for that exact attachment; fetch the URL promptly, and call this tool again if it expires.",
+)
+
+MAILBOX_UPLOAD_ATTACHMENT_TOOL = ToolSpec(
+    operation_id="mailboxUploadAttachment",
+    name="mailbox_upload_attachment",
+    title="Upload Attachment",
+    description="Use this before sending a mailbox attachment. Cheapest local mode is file_path on stdio MCP, guarded by client-declared roots and using no model-context bytes. Hosted or shell-capable agents should set presign_upload_url=true, then PUT the file to the short-lived URL and send the returned blob_id. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded.",
+)
+
+MAILBOX_CREATE_ATTACHMENT_UPLOAD_BACKING_TOOL = ToolSpec(
+    operation_id="mailboxCreateAttachmentUpload",
+    name="mailbox_upload_attachment",
+    title="Upload Attachment",
+    description="Backing operation used by mailbox_upload_attachment when presign_upload_url=true.",
+)
+
+MAILBOX_WAIT_FOR_MESSAGE_TOOL = ToolSpec(
+    operation_id="mailboxWaitForMessage",
+    name="mailbox_wait_for_message",
+    title="Wait For Message",
+    description="Use this to wait briefly for new mail instead of manual polling. It polls for up to 25 seconds, returns a matching message with attachment metadata when found, or a clean no_message result so you can call again.",
+)
+
+CUSTOM_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
+    MAILBOX_GET_ATTACHMENT_TOOL,
+    MAILBOX_UPLOAD_ATTACHMENT_TOOL,
+    MAILBOX_WAIT_FOR_MESSAGE_TOOL,
+)
+
+MAILBOX_TOOLS: tuple[ToolSpec, ...] = OPENAPI_MAILBOX_TOOLS + CUSTOM_MAILBOX_TOOLS
 
 MANAGEMENT_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
@@ -283,15 +319,21 @@ SENDING_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="sendingSendEmail",
         name="sending_send_email",
         title="Send Email",
-        description="Use this to send one outbound email through the sending API. Include an Idempotency-Key so retries do not create duplicate sends.",
+        description="Use this to send one outbound email through the sending API. This API accepts attachments as base64 content in the request body; for local files, prefer SDK or CLI attach-from-file helpers so base64 is created outside model context. Include an Idempotency-Key so retries do not create duplicate sends.",
     ),
     ToolSpec(
         operation_id="sendingSendEmailBatch",
         name="sending_send_email_batch",
         title="Send Email Batch",
-        description="Use this to send multiple outbound emails in one request. Use it only when the user supplies or confirms every recipient and message.",
+        description="Use this to send multiple outbound emails in one request. Each message can include up to 10 base64 attachments; for local files, prefer SDK or CLI helpers outside MCP so base64 does not enter model context. Use it only when the user confirms every recipient and message.",
     ),
 )
+
+OPENAPI_TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
+    "mailbox": OPENAPI_MAILBOX_TOOLS,
+    "management": MANAGEMENT_TOOLS,
+    "sending": SENDING_TOOLS,
+}
 
 TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
     "mailbox": MAILBOX_TOOLS,
@@ -299,9 +341,18 @@ TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
     "sending": SENDING_TOOLS,
 }
 
+HOSTED_BACKING_TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
+    "mailbox": (
+        MAILBOX_UPLOAD_ATTACHMENT_TOOL,
+        MAILBOX_CREATE_ATTACHMENT_UPLOAD_BACKING_TOOL,
+    ),
+    "management": (),
+    "sending": (),
+}
+
 TOOL_BY_OPERATION_ID = {
     tool.operation_id: (surface, tool)
-    for surface, tools in TOOLS_BY_SURFACE.items()
+    for surface, tools in OPENAPI_TOOLS_BY_SURFACE.items()
     for tool in tools
 }
 
@@ -363,7 +414,7 @@ def route_maps_for_surface(document: dict[str, Any], surface: Surface) -> list[R
     maps: list[RouteMap] = []
     missing: list[str] = []
 
-    for tool in TOOLS_BY_SURFACE[surface]:
+    for tool in OPENAPI_TOOLS_BY_SURFACE[surface]:
         route = routes.get(tool.operation_id)
         if route is None:
             missing.append(tool.operation_id)
@@ -386,7 +437,7 @@ def route_maps_for_surface(document: dict[str, Any], surface: Surface) -> list[R
 
 
 def mcp_names_for_surface(surface: Surface) -> dict[str, str]:
-    return {tool.operation_id: tool.name for tool in TOOLS_BY_SURFACE[surface]}
+    return {tool.operation_id: tool.name for tool in OPENAPI_TOOLS_BY_SURFACE[surface]}
 
 
 def customise_component(route: Any, component: Any) -> None:

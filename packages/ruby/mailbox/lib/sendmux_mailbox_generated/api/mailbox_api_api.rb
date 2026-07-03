@@ -345,6 +345,73 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # Create a presigned mailbox attachment upload
+    # Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @option opts [MailboxAttachmentUploadIntentBody] :mailbox_attachment_upload_intent_body
+    # @return [MailboxAttachmentUploadIntentResultResponse]
+    def mailbox_create_attachment_upload(opts = {})
+      data, _status_code, _headers = mailbox_create_attachment_upload_with_http_info(opts)
+      data
+    end
+
+    # Create a presigned mailbox attachment upload
+    # Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to &#x60;POST /mailbox/messages/send&#x60;.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @option opts [MailboxAttachmentUploadIntentBody] :mailbox_attachment_upload_intent_body
+    # @return [Array<(MailboxAttachmentUploadIntentResultResponse, Integer, Hash)>] MailboxAttachmentUploadIntentResultResponse data, response status code and response headers
+    def mailbox_create_attachment_upload_with_http_info(opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_create_attachment_upload ...'
+      end
+      # resource path
+      local_var_path = '/mailbox/attachment-uploads'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(opts[:'mailbox_attachment_upload_intent_body'])
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxAttachmentUploadIntentResultResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_create_attachment_upload",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_create_attachment_upload\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Create a mailbox folder
     # Creates a folder in the authenticated mailbox.
     # @param [Hash] opts the optional parameters
@@ -915,7 +982,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Get a mailbox message
-    # Returns one message from the authenticated mailbox. Responses include a weak `ETag` header.
+    # Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
@@ -927,7 +994,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Get a mailbox message
-    # Returns one message from the authenticated mailbox. Responses include a weak &#x60;ETag&#x60; header.
+    # Returns one message from the authenticated mailbox. Responses include a weak &#x60;ETag&#x60; header. When attachment metadata includes short-lived download URLs, a conditional request may return &#x60;200&#x60; even when the stable message ETag matches so the response can renew expired URLs.
     # @param message_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
@@ -984,12 +1051,13 @@ module Sendmux::Mailbox::Generated
     end
 
     # Download a message attachment
-    # Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+    # Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :range
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @option opts [String] :download_token
     # @return [nil]
     def mailbox_get_message_attachment(message_id, attachment_id, opts = {})
       mailbox_get_message_attachment_with_http_info(message_id, attachment_id, opts)
@@ -997,12 +1065,13 @@ module Sendmux::Mailbox::Generated
     end
 
     # Download a message attachment
-    # Streams one attachment from a message in the authenticated mailbox. Supports standard byte ranges.
+    # Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
     # @param message_id [String]
     # @param attachment_id [String]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :range
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @option opts [String] :download_token
     # @return [Array<(nil, Integer, Hash)>] nil, response status code and response headers
     def mailbox_get_message_attachment_with_http_info(message_id, attachment_id, opts = {})
       if @api_client.config.debugging
@@ -1022,6 +1091,7 @@ module Sendmux::Mailbox::Generated
       # query parameters
       query_params = opts[:query_params] || {}
       query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+      query_params[:'download_token'] = opts[:'download_token'] if !opts[:'download_token'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -2957,7 +3027,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Send a mailbox message
-    # Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload`.
+    # Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -2969,7 +3039,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Send a mailbox message
-    # Creates and queues a message from the authenticated mailbox. Supply an &#x60;Idempotency-Key&#x60; header to safely retry. Attachments may use small inline base64 content or blob IDs returned by &#x60;POST /mailbox/attachments:upload&#x60;.
+    # Creates and queues a message from the authenticated mailbox. Supply an &#x60;Idempotency-Key&#x60; header to safely retry. Attachments may use small inline base64 content or blob IDs returned by &#x60;POST /mailbox/attachments:upload&#x60; or &#x60;POST /mailbox/attachment-uploads&#x60;.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.

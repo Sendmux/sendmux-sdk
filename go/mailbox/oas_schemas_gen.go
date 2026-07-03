@@ -4,6 +4,7 @@ package mailbox
 
 import (
 	"io"
+	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
@@ -688,12 +689,15 @@ func (s *MailboxAddress) SetName(val NilString) {
 
 // Ref: #/components/schemas/MailboxAttachment
 type MailboxAttachment struct {
+	// Content ID for inline attachments, when present.
 	ContentID   NilString `json:"content_id"`
 	ContentType string    `json:"content_type"`
 	Disposition NilString `json:"disposition"`
+	// Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or
+	// attachment metadata endpoint again to receive a fresh URL.
 	DownloadURL OptString `json:"download_url"`
 	Filename    NilString `json:"filename"`
-	// Attachment ID.
+	// Attachment blob ID.
 	ID        string `json:"id"`
 	SizeBytes NilInt `json:"size_bytes"`
 }
@@ -766,6 +770,275 @@ func (s *MailboxAttachment) SetID(val string) {
 // SetSizeBytes sets the value of SizeBytes.
 func (s *MailboxAttachment) SetSizeBytes(val NilInt) {
 	s.SizeBytes = val
+}
+
+// Ref: #/components/schemas/MailboxAttachmentUploadIntentBody
+type MailboxAttachmentUploadIntentBody struct {
+	// Content-Type that must be sent on the later PUT request.
+	ContentType string `json:"content_type"`
+	// Filename to use when sending the uploaded attachment.
+	Filename string `json:"filename"`
+	// Exact byte length that must be sent on the later PUT request.
+	SizeBytes int `json:"size_bytes"`
+}
+
+// GetContentType returns the value of ContentType.
+func (s *MailboxAttachmentUploadIntentBody) GetContentType() string {
+	return s.ContentType
+}
+
+// GetFilename returns the value of Filename.
+func (s *MailboxAttachmentUploadIntentBody) GetFilename() string {
+	return s.Filename
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *MailboxAttachmentUploadIntentBody) GetSizeBytes() int {
+	return s.SizeBytes
+}
+
+// SetContentType sets the value of ContentType.
+func (s *MailboxAttachmentUploadIntentBody) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *MailboxAttachmentUploadIntentBody) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *MailboxAttachmentUploadIntentBody) SetSizeBytes(val int) {
+	s.SizeBytes = val
+}
+
+// Ref: #/components/schemas/MailboxAttachmentUploadIntentResult
+type MailboxAttachmentUploadIntentResult struct {
+	// Upload URL expiry time.
+	ExpiresAt time.Time `json:"expires_at"`
+	// Headers that must be sent exactly with the PUT request.
+	Headers MailboxAttachmentUploadIntentResultHeaders `json:"headers"`
+	// Maximum accepted attachment size in bytes.
+	MaxSizeBytes int `json:"max_size_bytes"`
+	// HTTP method to use with `upload_url`.
+	Method MailboxAttachmentUploadIntentResultMethod `json:"method"`
+	// Short-lived upload intent ID.
+	UploadID string `json:"upload_id"`
+	// Short-lived signed PUT URL for this exact attachment. Upload promptly; if it expires, create a new
+	// upload URL.
+	UploadURL string `json:"upload_url"`
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *MailboxAttachmentUploadIntentResult) GetExpiresAt() time.Time {
+	return s.ExpiresAt
+}
+
+// GetHeaders returns the value of Headers.
+func (s *MailboxAttachmentUploadIntentResult) GetHeaders() MailboxAttachmentUploadIntentResultHeaders {
+	return s.Headers
+}
+
+// GetMaxSizeBytes returns the value of MaxSizeBytes.
+func (s *MailboxAttachmentUploadIntentResult) GetMaxSizeBytes() int {
+	return s.MaxSizeBytes
+}
+
+// GetMethod returns the value of Method.
+func (s *MailboxAttachmentUploadIntentResult) GetMethod() MailboxAttachmentUploadIntentResultMethod {
+	return s.Method
+}
+
+// GetUploadID returns the value of UploadID.
+func (s *MailboxAttachmentUploadIntentResult) GetUploadID() string {
+	return s.UploadID
+}
+
+// GetUploadURL returns the value of UploadURL.
+func (s *MailboxAttachmentUploadIntentResult) GetUploadURL() string {
+	return s.UploadURL
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *MailboxAttachmentUploadIntentResult) SetExpiresAt(val time.Time) {
+	s.ExpiresAt = val
+}
+
+// SetHeaders sets the value of Headers.
+func (s *MailboxAttachmentUploadIntentResult) SetHeaders(val MailboxAttachmentUploadIntentResultHeaders) {
+	s.Headers = val
+}
+
+// SetMaxSizeBytes sets the value of MaxSizeBytes.
+func (s *MailboxAttachmentUploadIntentResult) SetMaxSizeBytes(val int) {
+	s.MaxSizeBytes = val
+}
+
+// SetMethod sets the value of Method.
+func (s *MailboxAttachmentUploadIntentResult) SetMethod(val MailboxAttachmentUploadIntentResultMethod) {
+	s.Method = val
+}
+
+// SetUploadID sets the value of UploadID.
+func (s *MailboxAttachmentUploadIntentResult) SetUploadID(val string) {
+	s.UploadID = val
+}
+
+// SetUploadURL sets the value of UploadURL.
+func (s *MailboxAttachmentUploadIntentResult) SetUploadURL(val string) {
+	s.UploadURL = val
+}
+
+// Headers that must be sent exactly with the PUT request.
+type MailboxAttachmentUploadIntentResultHeaders struct {
+	ContentMinusLength string `json:"Content-Length"`
+	ContentMinusType   string `json:"Content-Type"`
+}
+
+// GetContentMinusLength returns the value of ContentMinusLength.
+func (s *MailboxAttachmentUploadIntentResultHeaders) GetContentMinusLength() string {
+	return s.ContentMinusLength
+}
+
+// GetContentMinusType returns the value of ContentMinusType.
+func (s *MailboxAttachmentUploadIntentResultHeaders) GetContentMinusType() string {
+	return s.ContentMinusType
+}
+
+// SetContentMinusLength sets the value of ContentMinusLength.
+func (s *MailboxAttachmentUploadIntentResultHeaders) SetContentMinusLength(val string) {
+	s.ContentMinusLength = val
+}
+
+// SetContentMinusType sets the value of ContentMinusType.
+func (s *MailboxAttachmentUploadIntentResultHeaders) SetContentMinusType(val string) {
+	s.ContentMinusType = val
+}
+
+// HTTP method to use with `upload_url`.
+type MailboxAttachmentUploadIntentResultMethod string
+
+const (
+	MailboxAttachmentUploadIntentResultMethodPUT MailboxAttachmentUploadIntentResultMethod = "PUT"
+)
+
+// AllValues returns all MailboxAttachmentUploadIntentResultMethod values.
+func (MailboxAttachmentUploadIntentResultMethod) AllValues() []MailboxAttachmentUploadIntentResultMethod {
+	return []MailboxAttachmentUploadIntentResultMethod{
+		MailboxAttachmentUploadIntentResultMethodPUT,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxAttachmentUploadIntentResultMethod) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxAttachmentUploadIntentResultMethodPUT:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxAttachmentUploadIntentResultMethod) UnmarshalText(data []byte) error {
+	switch MailboxAttachmentUploadIntentResultMethod(data) {
+	case MailboxAttachmentUploadIntentResultMethodPUT:
+		*s = MailboxAttachmentUploadIntentResultMethodPUT
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxAttachmentUploadIntentResultResponse
+type MailboxAttachmentUploadIntentResultResponse struct {
+	// Merged property.
+	Meta MailboxAttachmentUploadIntentResultResponseMeta `json:"meta"`
+	Ok   MailboxAttachmentUploadIntentResultResponseOk   `json:"ok"`
+	Data MailboxAttachmentUploadIntentResult             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxAttachmentUploadIntentResultResponse) GetMeta() MailboxAttachmentUploadIntentResultResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxAttachmentUploadIntentResultResponse) GetOk() MailboxAttachmentUploadIntentResultResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxAttachmentUploadIntentResultResponse) GetData() MailboxAttachmentUploadIntentResult {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxAttachmentUploadIntentResultResponse) SetMeta(val MailboxAttachmentUploadIntentResultResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxAttachmentUploadIntentResultResponse) SetOk(val MailboxAttachmentUploadIntentResultResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxAttachmentUploadIntentResultResponse) SetData(val MailboxAttachmentUploadIntentResult) {
+	s.Data = val
+}
+
+func (*MailboxAttachmentUploadIntentResultResponse) mailboxCreateAttachmentUploadRes() {}
+
+// Merged schema.
+type MailboxAttachmentUploadIntentResultResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxAttachmentUploadIntentResultResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) GetAdditionalProps() MailboxAttachmentUploadIntentResultResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxAttachmentUploadIntentResultResponseMeta) SetAdditionalProps(val MailboxAttachmentUploadIntentResultResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxAttachmentUploadIntentResultResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxAttachmentUploadIntentResultResponseMetaAdditional) init() MailboxAttachmentUploadIntentResultResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxAttachmentUploadIntentResultResponseOk bool
+
+const (
+	MailboxAttachmentUploadIntentResultResponseOkTrue MailboxAttachmentUploadIntentResultResponseOk = true
+)
+
+// AllValues returns all MailboxAttachmentUploadIntentResultResponseOk values.
+func (MailboxAttachmentUploadIntentResultResponseOk) AllValues() []MailboxAttachmentUploadIntentResultResponseOk {
+	return []MailboxAttachmentUploadIntentResultResponseOk{
+		MailboxAttachmentUploadIntentResultResponseOkTrue,
+	}
 }
 
 // Ref: #/components/schemas/MailboxAttachmentUploadResult
@@ -2114,6 +2387,18 @@ func (s *MailboxContentHeadersSelected) SetReferences(val []string) {
 func (s *MailboxContentHeadersSelected) SetReplyTo(val []MailboxAddress) {
 	s.ReplyTo = val
 }
+
+type MailboxCreateAttachmentUploadBadRequest ApiError
+
+func (*MailboxCreateAttachmentUploadBadRequest) mailboxCreateAttachmentUploadRes() {}
+
+type MailboxCreateAttachmentUploadRequestEntityTooLarge ApiError
+
+func (*MailboxCreateAttachmentUploadRequestEntityTooLarge) mailboxCreateAttachmentUploadRes() {}
+
+type MailboxCreateAttachmentUploadServiceUnavailable ApiError
+
+func (*MailboxCreateAttachmentUploadServiceUnavailable) mailboxCreateAttachmentUploadRes() {}
 
 type MailboxCreateFolderBadRequest ApiError
 
@@ -4398,26 +4683,32 @@ func (MailboxMeItemResponseOk) AllValues() []MailboxMeItemResponseOk {
 // Merged schema.
 // Ref: #/components/schemas/MailboxMessage
 type MailboxMessage struct {
-	Bcc            []MailboxAddress    `json:"bcc"`
-	Cc             []MailboxAddress    `json:"cc"`
-	Flags          MailboxMessageFlags `json:"flags"`
-	FolderIds      []string            `json:"folder_ids"`
-	From           NilMailboxAddress   `json:"from"`
-	HasAttachments bool                `json:"has_attachments"`
+	// Merged property.
+	Attachments    []MailboxMessageAttachmentsItem `json:"attachments"`
+	Bcc            []MailboxAddress                `json:"bcc"`
+	Cc             []MailboxAddress                `json:"cc"`
+	Flags          MailboxMessageFlags             `json:"flags"`
+	FolderIds      []string                        `json:"folder_ids"`
+	From           NilMailboxAddress               `json:"from"`
+	HasAttachments bool                            `json:"has_attachments"`
 	// Message ID.
 	ID string `json:"id"`
 	// Active message keywords, including system flags and custom labels.
-	Keywords    []string            `json:"keywords"`
-	Preview     NilString           `json:"preview"`
-	ReceivedAt  NilString           `json:"received_at"`
-	SentAt      NilString           `json:"sent_at"`
-	SizeBytes   NilInt              `json:"size_bytes"`
-	Subject     NilString           `json:"subject"`
-	ThreadID    NilString           `json:"thread_id"`
-	To          []MailboxAddress    `json:"to"`
-	Attachments []MailboxAttachment `json:"attachments"`
-	HTMLBody    NilString           `json:"html_body"`
-	TextBody    NilString           `json:"text_body"`
+	Keywords   []string         `json:"keywords"`
+	Preview    NilString        `json:"preview"`
+	ReceivedAt NilString        `json:"received_at"`
+	SentAt     NilString        `json:"sent_at"`
+	SizeBytes  NilInt           `json:"size_bytes"`
+	Subject    NilString        `json:"subject"`
+	ThreadID   NilString        `json:"thread_id"`
+	To         []MailboxAddress `json:"to"`
+	HTMLBody   NilString        `json:"html_body"`
+	TextBody   NilString        `json:"text_body"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *MailboxMessage) GetAttachments() []MailboxMessageAttachmentsItem {
+	return s.Attachments
 }
 
 // GetBcc returns the value of Bcc.
@@ -4495,11 +4786,6 @@ func (s *MailboxMessage) GetTo() []MailboxAddress {
 	return s.To
 }
 
-// GetAttachments returns the value of Attachments.
-func (s *MailboxMessage) GetAttachments() []MailboxAttachment {
-	return s.Attachments
-}
-
 // GetHTMLBody returns the value of HTMLBody.
 func (s *MailboxMessage) GetHTMLBody() NilString {
 	return s.HTMLBody
@@ -4508,6 +4794,11 @@ func (s *MailboxMessage) GetHTMLBody() NilString {
 // GetTextBody returns the value of TextBody.
 func (s *MailboxMessage) GetTextBody() NilString {
 	return s.TextBody
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *MailboxMessage) SetAttachments(val []MailboxMessageAttachmentsItem) {
+	s.Attachments = val
 }
 
 // SetBcc sets the value of Bcc.
@@ -4585,11 +4876,6 @@ func (s *MailboxMessage) SetTo(val []MailboxAddress) {
 	s.To = val
 }
 
-// SetAttachments sets the value of Attachments.
-func (s *MailboxMessage) SetAttachments(val []MailboxAttachment) {
-	s.Attachments = val
-}
-
 // SetHTMLBody sets the value of HTMLBody.
 func (s *MailboxMessage) SetHTMLBody(val NilString) {
 	s.HTMLBody = val
@@ -4598,6 +4884,94 @@ func (s *MailboxMessage) SetHTMLBody(val NilString) {
 // SetTextBody sets the value of TextBody.
 func (s *MailboxMessage) SetTextBody(val NilString) {
 	s.TextBody = val
+}
+
+// Merged schema.
+type MailboxMessageAttachmentsItem struct {
+	// Merged property.
+	ContentID NilString `json:"content_id"`
+	// Merged property.
+	ContentType string `json:"content_type"`
+	// Merged property.
+	Disposition NilString `json:"disposition"`
+	// Merged property.
+	DownloadURL OptString `json:"download_url"`
+	// Merged property.
+	Filename NilString `json:"filename"`
+	// Merged property.
+	ID string `json:"id"`
+	// Merged property.
+	SizeBytes NilInt `json:"size_bytes"`
+}
+
+// GetContentID returns the value of ContentID.
+func (s *MailboxMessageAttachmentsItem) GetContentID() NilString {
+	return s.ContentID
+}
+
+// GetContentType returns the value of ContentType.
+func (s *MailboxMessageAttachmentsItem) GetContentType() string {
+	return s.ContentType
+}
+
+// GetDisposition returns the value of Disposition.
+func (s *MailboxMessageAttachmentsItem) GetDisposition() NilString {
+	return s.Disposition
+}
+
+// GetDownloadURL returns the value of DownloadURL.
+func (s *MailboxMessageAttachmentsItem) GetDownloadURL() OptString {
+	return s.DownloadURL
+}
+
+// GetFilename returns the value of Filename.
+func (s *MailboxMessageAttachmentsItem) GetFilename() NilString {
+	return s.Filename
+}
+
+// GetID returns the value of ID.
+func (s *MailboxMessageAttachmentsItem) GetID() string {
+	return s.ID
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *MailboxMessageAttachmentsItem) GetSizeBytes() NilInt {
+	return s.SizeBytes
+}
+
+// SetContentID sets the value of ContentID.
+func (s *MailboxMessageAttachmentsItem) SetContentID(val NilString) {
+	s.ContentID = val
+}
+
+// SetContentType sets the value of ContentType.
+func (s *MailboxMessageAttachmentsItem) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetDisposition sets the value of Disposition.
+func (s *MailboxMessageAttachmentsItem) SetDisposition(val NilString) {
+	s.Disposition = val
+}
+
+// SetDownloadURL sets the value of DownloadURL.
+func (s *MailboxMessageAttachmentsItem) SetDownloadURL(val OptString) {
+	s.DownloadURL = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *MailboxMessageAttachmentsItem) SetFilename(val NilString) {
+	s.Filename = val
+}
+
+// SetID sets the value of ID.
+func (s *MailboxMessageAttachmentsItem) SetID(val string) {
+	s.ID = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *MailboxMessageAttachmentsItem) SetSizeBytes(val NilInt) {
+	s.SizeBytes = val
 }
 
 // Ref: #/components/schemas/MailboxMessageContent
@@ -5957,6 +6331,9 @@ func (MailboxMessageQueryChangesResponseOk) AllValues() []MailboxMessageQueryCha
 
 // Ref: #/components/schemas/MailboxMessageSummary
 type MailboxMessageSummary struct {
+	// Attachment metadata for this message. Each item includes a short-lived `download_url`; if it
+	// expires, fetch message metadata again.
+	Attachments    []MailboxAttachment `json:"attachments"`
 	Bcc            []MailboxAddress    `json:"bcc"`
 	Cc             []MailboxAddress    `json:"cc"`
 	Flags          MailboxMessageFlags `json:"flags"`
@@ -5974,6 +6351,11 @@ type MailboxMessageSummary struct {
 	Subject    NilString        `json:"subject"`
 	ThreadID   NilString        `json:"thread_id"`
 	To         []MailboxAddress `json:"to"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *MailboxMessageSummary) GetAttachments() []MailboxAttachment {
+	return s.Attachments
 }
 
 // GetBcc returns the value of Bcc.
@@ -6049,6 +6431,11 @@ func (s *MailboxMessageSummary) GetThreadID() NilString {
 // GetTo returns the value of To.
 func (s *MailboxMessageSummary) GetTo() []MailboxAddress {
 	return s.To
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *MailboxMessageSummary) SetAttachments(val []MailboxAttachment) {
+	s.Attachments = val
 }
 
 // SetBcc sets the value of Bcc.
@@ -11779,6 +12166,52 @@ func (o OptInt) Get() (v int, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxAttachmentUploadIntentBody returns new OptMailboxAttachmentUploadIntentBody with value set to v.
+func NewOptMailboxAttachmentUploadIntentBody(v MailboxAttachmentUploadIntentBody) OptMailboxAttachmentUploadIntentBody {
+	return OptMailboxAttachmentUploadIntentBody{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxAttachmentUploadIntentBody is optional MailboxAttachmentUploadIntentBody.
+type OptMailboxAttachmentUploadIntentBody struct {
+	Value MailboxAttachmentUploadIntentBody
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxAttachmentUploadIntentBody was set.
+func (o OptMailboxAttachmentUploadIntentBody) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxAttachmentUploadIntentBody) Reset() {
+	var v MailboxAttachmentUploadIntentBody
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxAttachmentUploadIntentBody) SetTo(v MailboxAttachmentUploadIntentBody) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxAttachmentUploadIntentBody) Get() (v MailboxAttachmentUploadIntentBody, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxAttachmentUploadIntentBody) Or(d MailboxAttachmentUploadIntentBody) MailboxAttachmentUploadIntentBody {
 	if v, ok := o.Get(); ok {
 		return v
 	}

@@ -300,6 +300,440 @@ from ${surface.packageName}.client import (
 )
 `,
   );
+
+  if (surface.name === "mailbox") {
+    writeMailboxEventsHelper(surface.packageName, packageDir);
+    writeMailboxAttachmentHelpers(surface.packageName, packageDir);
+    writeFileSync(
+      initPath,
+      `${readFileSync(initPath, "utf8")}
+from ${surface.packageName}.events import iter_mailbox_events
+from ${surface.packageName}.attachments import (
+    create_mailbox_attachment_upload_from_file,
+    send_mailbox_message_with_files,
+    upload_mailbox_attachment_from_file,
+    upload_mailbox_attachment_via_presigned_file,
+)
+`,
+    );
+  }
+
+  if (surface.name === "sending") {
+    writeSendingAttachmentHelpers(surface.packageName, packageDir);
+    writeFileSync(
+      initPath,
+      `${readFileSync(initPath, "utf8")}
+from ${surface.packageName}.attachments import (
+    attachment_from_file,
+    send_email_with_files,
+)
+`,
+    );
+  }
+}
+
+function writeMailboxEventsHelper(packageName, packageDir) {
+  writeFileSync(
+    join(packageDir, "events.py"),
+    `from __future__ import annotations
+
+import json
+import codecs
+
+from collections.abc import Iterator
+from typing import Any
+
+from ${packageName}.api.mailbox_api_api import MailboxAPIApi
+from ${packageName}.api_client import ApiClient
+from ${packageName}.models.mailbox_realtime_event import MailboxRealtimeEvent
+
+
+def iter_mailbox_events(
+    api_client: ApiClient,
+    *,
+    event_types: str | None = None,
+    last_event_id: str | None = None,
+    ping: int | None = None,
+    close_after: int | None = None,
+    last_event_id_header: str | None = None,
+    mailbox_id: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> Iterator[MailboxRealtimeEvent]:
+    """Yield typed mailbox SSE events from the generated mailbox API client.
+
+    Pass close_after for bounded streams, or close the iterator/response from the caller when following continuously.
+    """
+
+    api = MailboxAPIApi(api_client)
+    response = api.mailbox_stream_events_without_preload_content(
+        event_types=event_types,
+        last_event_id=last_event_id,
+        ping=ping,
+        close_after=close_after,
+        last_event_id2=last_event_id_header,
+        mailbox_id=mailbox_id,
+        _request_timeout=request_timeout,
+    )
+    try:
+        yield from _iter_sse_response(response)
+    finally:
+        close = getattr(response, "close", None)
+        if callable(close):
+            close()
+        release_conn = getattr(response, "release_conn", None)
+        if callable(release_conn):
+            release_conn()
+
+
+def _iter_sse_response(response: Any) -> Iterator[MailboxRealtimeEvent]:
+    buffer = ""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    for chunk in response.stream(decode_content=True):
+        if chunk is None:
+            continue
+        buffer += decoder.decode(chunk) if isinstance(chunk, bytes) else str(chunk)
+        buffer = buffer.replace("\\r\\n", "\\n").replace("\\r", "\\n")
+        blocks = buffer.split("\\n\\n")
+        buffer = blocks.pop() or ""
+        for block in blocks:
+            event = _event_from_block(block)
+            if event is not None:
+                yield event
+
+
+def _event_from_block(block: str) -> MailboxRealtimeEvent | None:
+    data_lines: list[str] = []
+    for line in block.split("\\n"):
+        if line.startswith("data:"):
+            data_lines.append(line[5:].lstrip(" "))
+
+    if not data_lines:
+        return None
+
+    decoded = json.loads("\\n".join(data_lines))
+    if not isinstance(decoded, dict):
+        raise ValueError("Mailbox SSE event data must be a JSON object.")
+
+    event = MailboxRealtimeEvent.from_dict(decoded)
+    if event is None:
+        raise ValueError("Mailbox SSE event data was empty.")
+    return event
+`,
+  );
+}
+
+function writeMailboxAttachmentHelpers(packageName, packageDir) {
+  writeFileSync(
+    join(packageDir, "attachments.py"),
+    `from __future__ import annotations
+
+import json
+import mimetypes
+
+from os import PathLike
+from pathlib import Path
+from typing import Any
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
+
+from ${packageName}.api.mailbox_api_api import MailboxAPIApi
+from ${packageName}.api_client import ApiClient
+from ${packageName}.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody
+from ${packageName}.models.mailbox_attachment_upload_intent_result_response import (
+    MailboxAttachmentUploadIntentResultResponse,
+)
+from ${packageName}.models.mailbox_attachment_upload_result_response import MailboxAttachmentUploadResultResponse
+from ${packageName}.models.mailbox_send_result_response import MailboxSendResultResponse
+from ${packageName}.models.send_mailbox_message_body import SendMailboxMessageBody
+
+PathInput = str | PathLike[str]
+FileInput = PathInput | dict[str, Any]
+
+
+def upload_mailbox_attachment_from_file(
+    api_client: ApiClient,
+    *,
+    file_path: PathInput,
+    filename: str | None = None,
+    content_type: str | None = None,
+    mailbox_id: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> MailboxAttachmentUploadResultResponse:
+    """Upload a local file and return a blob ID for mailbox send attachments."""
+
+    file = _read_attachment_file(file_path, filename=filename, content_type=content_type)
+    api = MailboxAPIApi(api_client)
+    return api.mailbox_upload_attachment(
+        filename=file["filename"],
+        body=file["bytes"],
+        mailbox_id=mailbox_id,
+        _headers={"Content-Type": file["content_type"]},
+        _request_timeout=request_timeout,
+    )
+
+
+def create_mailbox_attachment_upload_from_file(
+    api_client: ApiClient,
+    *,
+    file_path: PathInput,
+    filename: str | None = None,
+    content_type: str | None = None,
+    mailbox_id: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> MailboxAttachmentUploadIntentResultResponse:
+    """Create a short-lived signed PUT URL for a local file."""
+
+    file = _read_attachment_file(file_path, filename=filename, content_type=content_type)
+    api = MailboxAPIApi(api_client)
+    return api.mailbox_create_attachment_upload(
+        mailbox_attachment_upload_intent_body=_attachment_upload_intent_body(file),
+        mailbox_id=mailbox_id,
+        _request_timeout=request_timeout,
+    )
+
+
+def upload_mailbox_attachment_via_presigned_file(
+    api_client: ApiClient,
+    *,
+    file_path: PathInput,
+    filename: str | None = None,
+    content_type: str | None = None,
+    mailbox_id: str | None = None,
+    request_timeout: float | None = None,
+) -> MailboxAttachmentUploadResultResponse:
+    """Create a signed upload URL, PUT the file without an API key, and return the blob ID."""
+
+    file = _read_attachment_file(file_path, filename=filename, content_type=content_type)
+    api = MailboxAPIApi(api_client)
+    intent = api.mailbox_create_attachment_upload(
+        mailbox_attachment_upload_intent_body=_attachment_upload_intent_body(file),
+        mailbox_id=mailbox_id,
+    )
+    request = Request(
+        intent.data.upload_url,
+        data=file["bytes"],
+        headers={
+            "Content-Length": intent.data.headers.content_length,
+            "Content-Type": intent.data.headers.content_type,
+        },
+        method=intent.data.method,
+    )
+    try:
+        with urlopen(request, timeout=request_timeout) as response:
+            payload = _parse_upload_result_response(response.read())
+    except HTTPError as exc:
+        raise RuntimeError(f"Presigned attachment upload failed with HTTP {exc.code}.") from exc
+
+    result = MailboxAttachmentUploadResultResponse.from_dict(payload)
+    if result is None:
+        raise ValueError("Presigned upload response was empty.")
+    return result
+
+
+def send_mailbox_message_with_files(
+    api_client: ApiClient,
+    *,
+    body: dict[str, Any],
+    files: list[FileInput],
+    mailbox_id: str | None = None,
+    idempotency_key: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> MailboxSendResultResponse:
+    """Upload local files, attach their blob IDs, and send one mailbox message."""
+
+    attachments = list(body.get("attachments") or [])
+    for file_input in files:
+        file = _file_input(file_input)
+        uploaded = upload_mailbox_attachment_from_file(
+            api_client,
+            file_path=file["path"],
+            filename=file.get("filename"),
+            content_type=file.get("content_type"),
+            mailbox_id=mailbox_id,
+            request_timeout=request_timeout,
+        )
+        attachments.append(
+            {
+                "blob_id": uploaded.data.blob_id,
+                "content_type": uploaded.data.content_type,
+                "filename": uploaded.data.filename,
+            }
+        )
+
+    next_body = {**body, "attachments": attachments}
+    api = MailboxAPIApi(api_client)
+    return api.mailbox_send_message(
+        idempotency_key=idempotency_key,
+        send_mailbox_message_body=_send_mailbox_message_body(next_body),
+        mailbox_id=mailbox_id,
+        _request_timeout=request_timeout,
+    )
+
+
+def _file_input(value: FileInput) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    return {"path": value}
+
+
+def _attachment_upload_intent_body(file: dict[str, Any]) -> MailboxAttachmentUploadIntentBody:
+    body = MailboxAttachmentUploadIntentBody.from_dict(
+        {
+            "content_type": file["content_type"],
+            "filename": file["filename"],
+            "size_bytes": len(file["bytes"]),
+        }
+    )
+    if body is None:
+        raise ValueError("Attachment upload intent body was empty.")
+    return body
+
+
+def _send_mailbox_message_body(body: dict[str, Any]) -> SendMailboxMessageBody:
+    request_body = SendMailboxMessageBody.from_dict(body)
+    if request_body is None:
+        raise ValueError("Mailbox send message body was empty.")
+    return request_body
+
+
+def _parse_upload_result_response(body: bytes) -> dict[str, Any]:
+    if not body.strip():
+        raise ValueError("Presigned attachment upload succeeded but did not return attachment metadata.")
+    try:
+        decoded = json.loads(body.decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError("Presigned attachment upload returned invalid JSON metadata.") from exc
+    if not isinstance(decoded, dict):
+        raise ValueError("Presigned attachment upload metadata must be a JSON object.")
+    return decoded
+
+
+def _read_attachment_file(
+    file_path: PathInput,
+    *,
+    filename: str | None = None,
+    content_type: str | None = None,
+) -> dict[str, Any]:
+    path = Path(file_path)
+    if not path.is_file():
+        raise ValueError(f"Attachment path is not a regular file: {path}")
+    data = path.read_bytes()
+    if not data:
+        raise ValueError(f"Attachment file is empty: {path}")
+
+    guessed_type, _encoding = mimetypes.guess_type(path.name)
+    return {
+        "bytes": data,
+        "content_type": content_type or guessed_type or "application/octet-stream",
+        "filename": filename or path.name,
+        "path": path,
+    }
+`,
+  );
+}
+
+function writeSendingAttachmentHelpers(packageName, packageDir) {
+  writeFileSync(
+    join(packageDir, "attachments.py"),
+    `from __future__ import annotations
+
+import base64
+import mimetypes
+
+from os import PathLike
+from pathlib import Path
+from typing import Any
+
+from ${packageName}.api.emails_api import EmailsApi
+from ${packageName}.api_client import ApiClient
+from ${packageName}.models.email_send_request import EmailSendRequest
+from ${packageName}.models.send_success_response import SendSuccessResponse
+
+PathInput = str | PathLike[str]
+FileInput = PathInput | dict[str, Any]
+
+
+def attachment_from_file(
+    file_path: PathInput,
+    *,
+    filename: str | None = None,
+    content_type: str | None = None,
+) -> dict[str, str]:
+    """Return a Sending API attachment object from a local file path."""
+
+    file = _read_attachment_file(file_path, filename=filename, content_type=content_type)
+    return {
+        "content": base64.b64encode(file["bytes"]).decode("ascii"),
+        "encoding": "base64",
+        "filename": file["filename"],
+        "type": file["content_type"],
+    }
+
+
+def send_email_with_files(
+    api_client: ApiClient,
+    *,
+    body: dict[str, Any],
+    files: list[FileInput],
+    idempotency_key: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> SendSuccessResponse:
+    """Read local files, attach them as base64, and send one email."""
+
+    attachments = list(body.get("attachments") or [])
+    for file_input in files:
+        file = _file_input(file_input)
+        attachments.append(
+            attachment_from_file(
+                file["path"],
+                filename=file.get("filename"),
+                content_type=file.get("content_type"),
+            )
+        )
+
+    api = EmailsApi(api_client)
+    return api.sending_send_email(
+        email_send_request=_email_send_request({**body, "attachments": attachments}),
+        idempotency_key=idempotency_key,
+        _request_timeout=request_timeout,
+    )
+
+
+def _file_input(value: FileInput) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    return {"path": value}
+
+
+def _email_send_request(body: dict[str, Any]) -> EmailSendRequest:
+    request_body = EmailSendRequest.from_dict(body)
+    if request_body is None:
+        raise ValueError("Sending email request body was empty.")
+    return request_body
+
+
+def _read_attachment_file(
+    file_path: PathInput,
+    *,
+    filename: str | None = None,
+    content_type: str | None = None,
+) -> dict[str, Any]:
+    path = Path(file_path)
+    if not path.is_file():
+        raise ValueError(f"Attachment path is not a regular file: {path}")
+    data = path.read_bytes()
+    if not data:
+        raise ValueError(f"Attachment file is empty: {path}")
+
+    guessed_type, _encoding = mimetypes.guess_type(path.name)
+    return {
+        "bytes": data,
+        "content_type": content_type or guessed_type or "application/octet-stream",
+        "filename": filename or path.name,
+        "path": path,
+    }
+`,
+  );
 }
 
 function linkGeneratedRuntimeVersion(surface, packageDir) {

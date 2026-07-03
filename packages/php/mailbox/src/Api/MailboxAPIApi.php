@@ -87,6 +87,9 @@ class MailboxAPIApi
         'mailboxCountMessages' => [
             'application/json',
         ],
+        'mailboxCreateAttachmentUpload' => [
+            'application/json',
+        ],
         'mailboxCreateFolder' => [
             'application/json',
         ],
@@ -2067,6 +2070,371 @@ class MailboxAPIApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxCreateAttachmentUpload
+     *
+     * Create a presigned mailbox attachment upload
+     *
+     * @param  \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody|null $mailbox_attachment_upload_intent_body mailbox_attachment_upload_intent_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateAttachmentUpload'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxCreateAttachmentUpload(
+        ?\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody $mailbox_attachment_upload_intent_body = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateAttachmentUpload'][0]
+    ): \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxCreateAttachmentUploadWithHttpInfo(
+            $mailbox_attachment_upload_intent_body,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxCreateAttachmentUploadWithHttpInfo
+     *
+     * Create a presigned mailbox attachment upload
+     *
+     * @param  \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody|null $mailbox_attachment_upload_intent_body mailbox_attachment_upload_intent_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateAttachmentUpload'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxCreateAttachmentUploadWithHttpInfo(
+        ?\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody $mailbox_attachment_upload_intent_body = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateAttachmentUpload'][0]
+    ): array {
+        $request = $this->mailboxCreateAttachmentUploadRequest(
+            $mailbox_attachment_upload_intent_body,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxCreateAttachmentUploadAsync
+     *
+     * Create a presigned mailbox attachment upload
+     *
+     * @param  \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody|null $mailbox_attachment_upload_intent_body mailbox_attachment_upload_intent_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateAttachmentUpload'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxCreateAttachmentUploadAsync(
+        ?\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody $mailbox_attachment_upload_intent_body = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateAttachmentUpload'][0]
+    ): PromiseInterface {
+        return $this->mailboxCreateAttachmentUploadAsyncWithHttpInfo(
+            $mailbox_attachment_upload_intent_body,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxCreateAttachmentUploadAsyncWithHttpInfo
+     *
+     * Create a presigned mailbox attachment upload
+     *
+     * @param  \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody|null $mailbox_attachment_upload_intent_body mailbox_attachment_upload_intent_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateAttachmentUpload'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxCreateAttachmentUploadAsyncWithHttpInfo(
+        ?\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody $mailbox_attachment_upload_intent_body = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateAttachmentUpload'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentResultResponse';
+        $request = $this->mailboxCreateAttachmentUploadRequest(
+            $mailbox_attachment_upload_intent_body,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType) {
+                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
+                        $content = $response->getBody(); //stream goes to serializer
+                    } else {
+                        $content = (string) $response->getBody();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxCreateAttachmentUpload'
+     *
+     * @param  \Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody|null $mailbox_attachment_upload_intent_body mailbox_attachment_upload_intent_body (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateAttachmentUpload'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxCreateAttachmentUploadRequest(
+        ?\Sendmux\Mailbox\Model\MailboxAttachmentUploadIntentBody $mailbox_attachment_upload_intent_body = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateAttachmentUpload'][0]
+    ): Request {
+
+
+
+
+        $resourcePath = '/mailbox/attachment-uploads';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($mailbox_attachment_upload_intent_body)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($mailbox_attachment_upload_intent_body));
+            } else {
+                $httpBody = $mailbox_attachment_upload_intent_body;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'POST',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody
@@ -5552,6 +5920,7 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5563,6 +5932,7 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
+        ?string $download_token = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): ?\Sendmux\Mailbox\Model\ApiError {
         list($response) = $this->mailboxGetMessageAttachmentWithHttpInfo(
@@ -5570,6 +5940,7 @@ class MailboxAPIApi
             $attachment_id,
             $range,
             $mailbox_id,
+            $download_token,
             $contentType
         );
         return $response;
@@ -5584,6 +5955,7 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -5595,6 +5967,7 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
+        ?string $download_token = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): array {
         $request = $this->mailboxGetMessageAttachmentRequest(
@@ -5602,6 +5975,7 @@ class MailboxAPIApi
             $attachment_id,
             $range,
             $mailbox_id,
+            $download_token,
             $contentType
         );
 
@@ -5662,6 +6036,7 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5672,6 +6047,7 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
+        ?string $download_token = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): PromiseInterface {
         return $this->mailboxGetMessageAttachmentAsyncWithHttpInfo(
@@ -5679,6 +6055,7 @@ class MailboxAPIApi
             $attachment_id,
             $range,
             $mailbox_id,
+            $download_token,
             $contentType
         )
             ->then(
@@ -5697,6 +6074,7 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5707,6 +6085,7 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
+        ?string $download_token = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): PromiseInterface {
         $returnType = '';
@@ -5715,6 +6094,7 @@ class MailboxAPIApi
             $attachment_id,
             $range,
             $mailbox_id,
+            $download_token,
             $contentType
         );
 
@@ -5764,6 +6144,7 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
@@ -5774,6 +6155,7 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
+        ?string $download_token = null,
         string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
     ): Request {
 
@@ -5794,6 +6176,7 @@ class MailboxAPIApi
 
 
 
+
         $resourcePath = '/mailbox/messages/{message_id}/attachments/{attachment_id}';
         $formParams = [];
         $queryParams = [];
@@ -5805,6 +6188,15 @@ class MailboxAPIApi
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
             $mailbox_id,
             'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $download_token,
+            'download_token', // param base name
             'string', // openApiType
             'form', // style
             true, // explode

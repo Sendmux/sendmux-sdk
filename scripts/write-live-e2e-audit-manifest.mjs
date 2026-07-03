@@ -21,6 +21,12 @@ const gateEnvNames = [
   "SENDMUX_LIVE_E2E_WEBHOOK_URL",
   "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST",
 ];
+const customMcpOperations = [
+  {
+    operationId: "mailboxWaitForMessage",
+    surface: "mailbox",
+  },
+];
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -268,7 +274,7 @@ function loadOperations() {
   if (!match) {
     throw new Error("Could not parse CLI operation manifest");
   }
-  return Object.values(Function(`"use strict"; return (${match[1]});`)());
+  return [...Object.values(Function(`"use strict"; return (${match[1]});`)()), ...customMcpOperations];
 }
 
 function gitSha() {

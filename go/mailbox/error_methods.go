@@ -38,6 +38,24 @@ func (r *MailboxBatchUpdateMessagesConflict) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxCreateAttachmentUploadBadRequest into the shared typed API error.
+func (r *MailboxCreateAttachmentUploadBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxCreateAttachmentUploadRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxCreateAttachmentUploadRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxCreateAttachmentUploadServiceUnavailable into the shared typed API error.
+func (r *MailboxCreateAttachmentUploadServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
 // APIError maps MailboxCreateFolderBadRequest into the shared typed API error.
 func (r *MailboxCreateFolderBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)

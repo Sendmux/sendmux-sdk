@@ -46,15 +46,109 @@ const server = createServer(async (request, response) => {
   for await (const chunk of request) {
     chunks.push(chunk);
   }
+  const body = Buffer.concat(chunks);
 
   serverState.requests.push({
-    body: Buffer.concat(chunks),
+    body,
     headers: request.headers,
     method: request.method,
     url: request.url ?? "",
   });
+  if ((request.url ?? "").startsWith("/mailbox/events")) {
+    response.setHeader("Content-Type", "text/event-stream");
+    response.write(
+      `event: message.received\ndata: ${JSON.stringify({
+        event_type: "message.received",
+        mailbox_id: "mbx_cli_stream",
+        message_id: "msg_cli_stream_1",
+        message_id_kind: "provider",
+        occurred_at: "2026-07-02T00:00:00.000Z",
+        recipients: ["agent@example.com"],
+        sender: "sender@example.com",
+        team_public_id: "team_cli_stream",
+      })}\n\n`,
+    );
+    response.write(
+      `event: message.received\ndata: ${JSON.stringify({
+        event_type: "message.received",
+        mailbox_id: "mbx_cli_stream",
+        message_id: "msg_cli_stream_2",
+        message_id_kind: "provider",
+        occurred_at: "2026-07-02T00:00:01.000Z",
+        recipients: ["agent@example.com"],
+        sender: "sender@example.com",
+        team_public_id: "team_cli_stream",
+      })}\n\n`,
+    );
+    response.end();
+    return;
+  }
+
+  const requestUrl = request.url ?? "";
+  if (request.method === "POST" && requestUrl.startsWith("/mailbox/attachments:upload")) {
+    const url = new URL(requestUrl, "http://127.0.0.1");
+    const filename = url.searchParams.get("filename") ?? "attachment.bin";
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({
+      ok: true,
+      data: {
+        blob_id: `blob_cli_${filename}`,
+        content_type: request.headers["content-type"] ?? "application/octet-stream",
+        filename,
+        size_bytes: body.byteLength,
+      },
+      meta: { request_id: "req_cli_upload" },
+    }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl.startsWith("/mailbox/attachment-uploads")) {
+    const parsed = JSON.parse(body.toString("utf8"));
+    const address = server.address();
+    if (!address || typeof address === "string") {
+      throw new Error("Test server did not expose a TCP port");
+    }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({
+      ok: true,
+      data: {
+        expires_at: "2026-07-02T00:10:00.000Z",
+        headers: {
+          "Content-Length": String(parsed.size_bytes),
+          "Content-Type": parsed.content_type,
+        },
+        max_size_bytes: 7_500_000,
+        method: "PUT",
+        upload_id: "upl_cli_test",
+        upload_url: `http://127.0.0.1:${address.port}/mailbox/attachment-uploads/upl_cli_test?upload_token=tok_cli`,
+      },
+      meta: { request_id: "req_cli_upload_intent" },
+    }));
+    return;
+  }
+
+  if (request.method === "PUT" && requestUrl.startsWith("/mailbox/attachment-uploads/upl_cli_test")) {
+    if (request.headers.authorization) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ ok: false, error: { code: "unexpected_auth", message: "Unexpected auth" } }));
+      return;
+    }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({
+      ok: true,
+      data: {
+        blob_id: "blob_cli_presigned",
+        content_type: request.headers["content-type"] ?? "application/octet-stream",
+        filename: "report.txt",
+        size_bytes: body.byteLength,
+      },
+      meta: { request_id: "req_cli_presigned_put" },
+    }));
+    return;
+  }
+
   response.setHeader("Content-Type", "application/json");
-  response.end(JSON.stringify((request.url ?? "").startsWith("/openapi.json") ? openApiDocument : envelope));
+  response.end(JSON.stringify(requestUrl.startsWith("/openapi.json") ? openApiDocument : envelope));
 });
 
 server.listen(0, "127.0.0.1");
@@ -274,6 +368,199 @@ try {
   if (!uploadRequest.body.equals(attachmentBytes)) {
     throw new Error("Binary upload body was not passed through unchanged");
   }
+
+  const fileUploadResult = await runCli([
+    "mailbox:upload-attachment",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--file",
+    attachmentPath,
+    "--json",
+  ]);
+
+  assertCliSuccess(fileUploadResult, "mailbox:upload-attachment --file");
+
+  const fileUploadRequest = latestRequest();
+  assertSearchParam(fileUploadRequest.url, "filename", "attachment.bin");
+  if (!fileUploadRequest.body.equals(attachmentBytes)) {
+    throw new Error("File upload body was not read from disk unchanged");
+  }
+
+  const textAttachmentPath = join(tempHome, "report.txt");
+  const textAttachmentBytes = Buffer.from("sendmux attachment body\n", "utf8");
+  writeFileSync(textAttachmentPath, textAttachmentBytes);
+
+  const presignedUploadResult = await runCli([
+    "mailbox:upload-attachment",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--file",
+    textAttachmentPath,
+    "--via-presigned",
+    "--json",
+  ]);
+
+  assertCliSuccess(presignedUploadResult, "mailbox:upload-attachment --file --via-presigned");
+
+  const presignedIntentRequest = serverState.requests.at(-2);
+  const presignedPutRequest = latestRequest();
+  if (!presignedIntentRequest) {
+    throw new Error("Presigned upload did not create an upload intent");
+  }
+  if (presignedIntentRequest.url !== "/mailbox/attachment-uploads") {
+    throw new Error(`Presigned upload used the wrong intent URL: ${presignedIntentRequest.url}`);
+  }
+  assertDeepEqual(JSON.parse(presignedIntentRequest.body.toString("utf8")), {
+    content_type: "text/plain",
+    filename: "report.txt",
+    size_bytes: textAttachmentBytes.byteLength,
+  }, "Presigned upload intent must include file metadata");
+  if (presignedPutRequest.headers.authorization) {
+    throw new Error("Presigned PUT leaked Authorization header");
+  }
+  if (presignedPutRequest.headers["content-type"] !== "text/plain") {
+    throw new Error("Presigned PUT did not send the promised Content-Type");
+  }
+  if (presignedPutRequest.headers["content-length"] !== String(textAttachmentBytes.byteLength)) {
+    throw new Error("Presigned PUT did not send the promised Content-Length");
+  }
+  if (!presignedPutRequest.body.equals(textAttachmentBytes)) {
+    throw new Error("Presigned PUT body was not read from disk unchanged");
+  }
+
+  const createUploadIntentResult = await runCli([
+    "mailbox:create-attachment-upload",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--file",
+    textAttachmentPath,
+    "--json",
+  ]);
+
+  assertCliSuccess(createUploadIntentResult, "mailbox:create-attachment-upload --file");
+
+  const createUploadIntentRequest = latestRequest();
+  if (createUploadIntentRequest.url !== "/mailbox/attachment-uploads") {
+    throw new Error(`mailbox:create-attachment-upload --file used wrong path: ${createUploadIntentRequest.url}`);
+  }
+  assertDeepEqual(JSON.parse(createUploadIntentRequest.body.toString("utf8")), {
+    content_type: "text/plain",
+    filename: "report.txt",
+    size_bytes: textAttachmentBytes.byteLength,
+  }, "mailbox:create-attachment-upload --file must send local file metadata");
+
+  const mailboxSendResult = await runCli([
+    "mailbox:send-message",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--query",
+    "mailbox_id=mbx_cli_target",
+    "--body",
+    JSON.stringify({
+      subject: "CLI attachment",
+      text_body: "Attached",
+      to: [{ email: "agent@example.com", name: null }],
+    }),
+    "--attach",
+    textAttachmentPath,
+    "--json",
+  ]);
+
+  assertCliSuccess(mailboxSendResult, "mailbox:send-message --attach");
+
+  const mailboxAttachUploadRequest = serverState.requests.at(-2);
+  const mailboxSendRequest = latestRequest();
+  if (!mailboxAttachUploadRequest) {
+    throw new Error("mailbox:send-message --attach did not upload before send");
+  }
+  if (!mailboxAttachUploadRequest.url.startsWith("/mailbox/attachments:upload")) {
+    throw new Error(`mailbox:send-message --attach used wrong upload path: ${mailboxAttachUploadRequest.url}`);
+  }
+  assertSearchParam(mailboxAttachUploadRequest.url, "mailbox_id", "mbx_cli_target");
+  assertSearchParam(mailboxAttachUploadRequest.url, "filename", "report.txt");
+  const mailboxSendBody = JSON.parse(mailboxSendRequest.body.toString("utf8"));
+  assertDeepEqual(mailboxSendBody.attachments, [
+    {
+      blob_id: "blob_cli_report.txt",
+      content_type: "text/plain",
+      filename: "report.txt",
+    },
+  ], "mailbox:send-message --attach must inject uploaded blob references");
+
+  const sendingAttachResult = await runCli([
+    "sending:send",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--body",
+    JSON.stringify({
+      from: { email: "from@example.com" },
+      html_body: "<p>Attached</p>",
+      subject: "CLI attachment",
+      to: { email: "agent@example.com" },
+    }),
+    "--attach",
+    textAttachmentPath,
+    "--json",
+  ]);
+
+  assertCliSuccess(sendingAttachResult, "sending:send --attach");
+
+  const sendingAttachBody = JSON.parse(latestRequest().body.toString("utf8"));
+  assertDeepEqual(sendingAttachBody.attachments, [
+    {
+      content: textAttachmentBytes.toString("base64"),
+      encoding: "base64",
+      filename: "report.txt",
+      type: "text/plain",
+    },
+  ], "sending:send --attach must encode local files into Sending API attachments");
+
+  const streamResult = await runCli([
+    "mailbox:stream-events",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--query",
+    "close_after=30",
+    "--json",
+  ]);
+
+  assertCliSuccess(streamResult, "mailbox:stream-events first event");
+  assertDeepEqual(JSON.parse(streamResult.stdout).message_id, "msg_cli_stream_1", "stream command must return the first event by default");
+
+  const followResult = await runCli([
+    "mailbox:stream-events",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--query",
+    "close_after=30",
+    "--follow",
+  ]);
+
+  assertCliSuccess(followResult, "mailbox:stream-events --follow");
+  const followedEvents = followResult.stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  assertDeepEqual(
+    followedEvents.map((event) => event.message_id),
+    ["msg_cli_stream_1", "msg_cli_stream_2"],
+    "stream follow mode must print each event as one JSON line",
+  );
 
   const missingRequiredQueryResult = await runCli([
     "mailbox:upload-attachment",

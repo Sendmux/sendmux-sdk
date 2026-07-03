@@ -17,6 +17,10 @@ type MailboxCountMessagesRes interface {
 	mailboxCountMessagesRes()
 }
 
+type MailboxCreateAttachmentUploadRes interface {
+	mailboxCreateAttachmentUploadRes()
+}
+
 type MailboxCreateFolderRes interface {
 	mailboxCreateFolderRes()
 }

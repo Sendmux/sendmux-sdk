@@ -3,9 +3,9 @@
   "kind": "sendmux-live-e2e-audit-manifest",
   "note": "Sanitized audit record only: no API keys, bearer tokens, base URLs, request bodies, or response bodies.",
   "run": {
-    "commit_sha": "acc73e70fcaacc76e2ac02d7e9b92e8bbb603702",
-    "generated_at": "2026-07-01T04:50:46.405Z",
-    "source": "local-protected-live-e2e:20260701-full-gated-rebased"
+    "commit_sha": "af4b4a00e1f69b58c7eed1c6335c17b45de6d4ce",
+    "generated_at": "2026-07-03T05:40:38.710Z",
+    "source": "protected-live-e2e:20260703-full-post-stream-timeouts"
   },
   "ci_refresh": {
     "workflow": ".github/workflows/live-e2e.yml",
@@ -19,13 +19,13 @@
     "SENDMUX_LIVE_E2E_BINARY": true,
     "SENDMUX_LIVE_E2E_STREAM": true,
     "SENDMUX_STAGING_SEND": true,
-    "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO": true,
-    "SENDMUX_LIVE_E2E_WEBHOOK_URL": true,
-    "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST": true
+    "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO": false,
+    "SENDMUX_LIVE_E2E_WEBHOOK_URL": false,
+    "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST": false
   },
   "operation_counts": {
-    "total": 96,
-    "executable": 96,
+    "total": 98,
+    "executable": 98,
     "gated": 0,
     "blocked": 0,
     "gated_by_risk": {}
@@ -33,68 +33,68 @@
   "result_summary": {
     "total": {
       "failed": 0,
-      "passed": 620,
-      "skipped": 52
+      "passed": 629,
+      "skipped": 50
     },
     "surfaces": {
       "sdk": {
         "failed": 0,
-        "passed": 480,
+        "passed": 485,
         "skipped": 0
       },
       "cli": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       },
       "mcp": {
         "failed": 0,
-        "passed": 44,
-        "skipped": 52
+        "passed": 47,
+        "skipped": 50
       }
     },
     "adapters": {
       "cli": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       },
       "go": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       },
       "mcp": {
         "failed": 0,
-        "passed": 44,
-        "skipped": 52
+        "passed": 47,
+        "skipped": 50
       },
       "php": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       },
       "python": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       },
       "ruby": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       },
       "typescript": {
         "failed": 0,
-        "passed": 96,
+        "passed": 97,
         "skipped": 0
       }
     },
     "product_lines": {
       "mailbox": {
         "failed": 0,
-        "passed": 261,
-        "skipped": 19
+        "passed": 270,
+        "skipped": 17
       },
       "management": {
         "failed": 0,

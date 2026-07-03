@@ -82,6 +82,28 @@ sendmux-mcp-mailbox --help
 
 The hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP commands support stdio and HTTP transports; hosted MCP uses OAuth and does not require manual API keys or custom OAuth endpoints.
 
+## Attachments And Live Mailbox Events
+
+Mailbox attachment metadata now includes a short-lived `download_url`. Fetch that URL promptly with a plain HTTP client; it does not require an `Authorization` header, but it expires after a short TTL. If a download URL expires, re-fetch the message or attachment metadata to receive a fresh URL.
+
+For outbound files, avoid manually placing base64 in prompts or source strings. Use the zero-context path for your lane:
+
+- CLI: `sendmux mailbox:send-message --attach ./report.pdf` or `sendmux sending:send --attach ./report.pdf`.
+- TypeScript: use `@sendmux/mailbox/node` `sendMailboxMessageWithFiles(...)` or `@sendmux/sending/node` `sendEmailWithFiles(...)`.
+- Python: use `sendmux_mailbox.send_mailbox_message_with_files(...)` or `sendmux_sending.send_email_with_files(...)`.
+- MCP: local stdio can use `mailbox_upload_attachment` with `file_path`; hosted and shell-capable agents can mint a presigned upload URL, `PUT` bytes to it without an API key, then send with the returned `blob_id`.
+
+Mailbox direct uploads, presigned uploads, CLI `--attach`, and mailbox SDK file helpers share the mailbox attachment cap: currently `7,500,000` bytes per attachment. Sending API attachment helpers encode files into the send request body; the generated Sending API limit is max 10 attachments and a 25 MB request body.
+
+Small generated attachments can still use inline base64 where the API schema supports them. MCP inline base64 is capped at `32 KiB` decoded; the cheaper alternatives are `file_path`, presigned upload, CLI `--attach`, and SDK file helpers.
+
+Live mailbox events are available through idiomatic lanes:
+
+- TypeScript: `streamMailboxEvents(...)` returns an async iterator over typed mailbox realtime events.
+- Python: `iter_mailbox_events(...)` yields typed `MailboxRealtimeEvent` models from the generated mailbox client.
+- CLI: `sendmux mailbox:stream-events --follow` prints one JSON event per line until the stream closes or the process is interrupted.
+- MCP: use `mailbox_wait_for_message` for bounded waits inside agent tool calls, then `mailbox_get_attachment` to renew attachment metadata and fetch `download_url`.
+
 ## Repository structure
 
 | Path | Purpose |

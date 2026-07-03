@@ -15,6 +15,9 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxMessageSummary < ApiModelBase
+    # Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+    attr_accessor :attachments
+
     attr_accessor :bcc
 
     attr_accessor :cc
@@ -50,6 +53,7 @@ module Sendmux::Mailbox::Generated
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'attachments' => :'attachments',
         :'bcc' => :'bcc',
         :'cc' => :'cc',
         :'flags' => :'flags',
@@ -81,6 +85,7 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
+        :'attachments' => :'Array<MailboxAttachment>',
         :'bcc' => :'Array<MailboxAddress>',
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
@@ -127,6 +132,12 @@ module Sendmux::Mailbox::Generated
         end
         h[k.to_sym] = v
       }
+
+      if attributes.key?(:'attachments')
+        if (value = attributes[:'attachments']).is_a?(Array)
+          self.attachments = value
+        end
+      end
 
       if attributes.key?(:'bcc')
         if (value = attributes[:'bcc']).is_a?(Array)
@@ -369,6 +380,7 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          attachments == o.attachments &&
           bcc == o.bcc &&
           cc == o.cc &&
           flags == o.flags &&
@@ -395,7 +407,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to].hash
+      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to].hash
     end
 
     # Builds the object from hash

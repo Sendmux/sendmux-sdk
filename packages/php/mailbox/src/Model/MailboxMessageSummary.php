@@ -59,6 +59,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
+        'attachments' => '\Sendmux\Mailbox\Model\MailboxAttachment[]',
         'bcc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'cc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'flags' => '\Sendmux\Mailbox\Model\MailboxMessageFlags',
@@ -82,6 +83,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
+        'attachments' => null,
         'bcc' => null,
         'cc' => null,
         'flags' => null,
@@ -105,6 +107,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
+        'attachments' => false,
         'bcc' => false,
         'cc' => false,
         'flags' => false,
@@ -198,6 +201,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      * @var array<string, string>
      */
     protected static array $attributeMap = [
+        'attachments' => 'attachments',
         'bcc' => 'bcc',
         'cc' => 'cc',
         'flags' => 'flags',
@@ -221,6 +225,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      * @var array<string, string>
      */
     protected static array $setters = [
+        'attachments' => 'setAttachments',
         'bcc' => 'setBcc',
         'cc' => 'setCc',
         'flags' => 'setFlags',
@@ -244,6 +249,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      * @var array<string, string>
      */
     protected static array $getters = [
+        'attachments' => 'getAttachments',
         'bcc' => 'getBcc',
         'cc' => 'getCc',
         'flags' => 'getFlags',
@@ -308,6 +314,7 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
      */
     public function __construct(?array $data = null)
     {
+        $this->setIfExists('attachments', $data ?? [], null);
         $this->setIfExists('bcc', $data ?? [], null);
         $this->setIfExists('cc', $data ?? [], null);
         $this->setIfExists('flags', $data ?? [], null);
@@ -406,6 +413,33 @@ class MailboxMessageSummary implements ModelInterface, ArrayAccess, JsonSerializ
         return count($this->listInvalidProperties()) === 0;
     }
 
+
+    /**
+     * Gets attachments
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]|null
+     */
+    public function getAttachments(): ?array
+    {
+        return $this->container['attachments'];
+    }
+
+    /**
+     * Sets attachments
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxAttachment[]|null $attachments Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+     *
+     * @return $this
+     */
+    public function setAttachments(?array $attachments): static
+    {
+        if (is_null($attachments)) {
+            throw new InvalidArgumentException('non-nullable attachments cannot be null');
+        }
+        $this->container['attachments'] = $attachments;
+
+        return $this;
+    }
 
     /**
      * Gets bcc

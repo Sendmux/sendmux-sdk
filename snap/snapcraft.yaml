@@ -1,7 +1,7 @@
 name: sendmux
 title: Sendmux CLI
 base: core26
-version: "1.1.0"
+version: "1.2.0"
 summary: Official command-line interface for Sendmux email APIs
 description: |
   Manage Sendmux from Linux terminals and automation with the official Sendmux CLI.
@@ -40,9 +40,9 @@ apps:
 parts:
   sendmux:
     plugin: npm
-    source: https://registry.npmjs.org/@sendmux/cli/-/cli-1.1.0.tgz
+    source: https://registry.npmjs.org/@sendmux/cli/-/cli-1.2.0.tgz
     source-type: tar
-    source-checksum: sha512/982d311542861b916c390c7f53ac7ed19ed0c8c000cd91163d9f38be3500dc400a3a82280290a6cdbb1100e43d12fc1bedc304dc77a02859e036b94e9697278e
+    source-checksum: sha512/1dd6b0f4f93c88bd9f691d8cdff403939945fc108f5e430d63e066f640a7a0b0b99048365950a04f8382982a9709c54574d0a4e3b1d30719ce587d943d92114f
     npm-include-node: true
     npm-node-version: "22.22.3"
 

@@ -4206,7 +4206,7 @@ export const operations = {
     "queryParams": [],
     "responseKind": "json",
     "requestBodyRequired": true,
-    "requiredKeyKind": "sending",
+    "requiredKeyKind": "none",
     "surface": "sending"
   },
   sendingCreateAttachmentUpload: {
@@ -4277,7 +4277,7 @@ export const operations = {
     "queryParams": [],
     "responseKind": "json",
     "requestBodyRequired": false,
-    "requiredKeyKind": "sending",
+    "requiredKeyKind": "none",
     "surface": "sending"
   },
   sendingSendEmail: {

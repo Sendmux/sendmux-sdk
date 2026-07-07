@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import re
 from binascii import Error as Base64DecodeError
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,6 +47,7 @@ MCP_ATTACHMENT_TEXT_CONTENT_TYPES = {
     "text/csv",
     "text/markdown",
 }
+CONTENT_RANGE_RE = re.compile(r"^bytes (\d+)-(\d+)/(\d+|\*)$")
 
 ANY_OBJECT_OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -95,6 +97,17 @@ def create_server(
         hosted_proxy_config=hosted_proxy_config,
         include_health=True,
     )
+
+
+def content_range_truncated(value: str | None) -> bool | None:
+    if not value:
+        return None
+    match = CONTENT_RANGE_RE.match(value.strip())
+    if not match or match.group(3) == "*":
+        return None
+    end = int(match.group(2))
+    total = int(match.group(3))
+    return end + 1 < total
 
 
 def create_surface_server(
@@ -294,13 +307,14 @@ def add_mailbox_custom_tools(
         response = await client.get(
             f"mailbox/messages/{quote(message_id, safe='')}/attachments/{quote(attachment_id, safe='')}",
             params=optional_params(mailbox_id=mailbox_id),
-            headers={"Range": f"bytes=0-{effective_max}"},
+            headers={"Range": f"bytes=0-{effective_max - 1}"},
         )
         if response.status_code >= 400:
             return json_payload(response)
 
         content = response.content
-        truncated = response.status_code == 206
+        content_range_result = content_range_truncated(response.headers.get("Content-Range"))
+        truncated = content_range_result if content_range_result is not None else response.status_code == 206
         if len(content) > effective_max:
             content = content[:effective_max]
             truncated = True

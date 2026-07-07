@@ -107,7 +107,7 @@ function loadOperations(dir) {
         const surface = surfaceForOperationId(operation.operationId);
         out.push({
           bodyKind: bodyKindForOperation(operation),
-          commandKeyKind: surface === "management" ? "root" : surface === "sending" ? "sending" : "mailbox",
+          commandKeyKind: commandKeyKindForOperation(operation, surface),
           description: oneLine(operation.summary ?? operation.description ?? operation.operationId),
           headerParams: parameters.filter((parameter) => parameter.in === "header").map(toPublicParameter),
           method,
@@ -346,6 +346,19 @@ function compareCliOperation(operation, cli) {
   }
 
   return issues;
+}
+
+function commandKeyKindForOperation(operation, surface) {
+  if (Array.isArray(operation.security) && operation.security.length === 0) {
+    return "none";
+  }
+  if (surface === "management") {
+    return "root";
+  }
+  if (surface === "sending") {
+    return "sending";
+  }
+  return "mailbox";
 }
 
 function mcpDecision(operation, curatedMcp) {

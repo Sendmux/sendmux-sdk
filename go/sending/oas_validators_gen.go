@@ -73,31 +73,45 @@ func (s *Attachment) Validate() error {
 	}
 
 	var failures []validate.FieldError
-	if err := func() error {
-		if value, ok := s.Content.Get(); ok {
-			if err := func() error {
-				if err := (validate.String{
-					MinLength:    1,
-					MinLengthSet: true,
-					MaxLength:    0,
-					MaxLengthSet: false,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
-				}).Validate(string(value)); err != nil {
-					return errors.Wrap(err, "string")
-				}
-				return nil
-			}(); err != nil {
-				return err
+	if !s.AttachmentID.Set {
+		if err := func() error {
+			if err := (validate.String{
+				MinLength:    1,
+				MinLengthSet: true,
+				MaxLength:    0,
+				MaxLengthSet: false,
+				Email:        false,
+				Hostname:     false,
+				Regex:        nil,
+			}).Validate(string(s.Content)); err != nil {
+				return errors.Wrap(err, "string")
 			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  "content",
+				Error: err,
+			})
 		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "content",
-			Error: err,
-		})
+		if err := func() error {
+			if err := (validate.String{
+				MinLength:    1,
+				MinLengthSet: true,
+				MaxLength:    255,
+				MaxLengthSet: true,
+				Email:        false,
+				Hostname:     false,
+				Regex:        nil,
+			}).Validate(string(s.Filename)); err != nil {
+				return errors.Wrap(err, "string")
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  "filename",
+				Error: err,
+			})
+		}
 	}
 	if err := func() error {
 		if value, ok := s.Encoding.Get(); ok {
@@ -114,32 +128,6 @@ func (s *Attachment) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "encoding",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if value, ok := s.Filename.Get(); ok {
-			if err := func() error {
-				if err := (validate.String{
-					MinLength:    1,
-					MinLengthSet: true,
-					MaxLength:    255,
-					MaxLengthSet: true,
-					Email:        false,
-					Hostname:     false,
-					Regex:        nil,
-				}).Validate(string(value)); err != nil {
-					return errors.Wrap(err, "string")
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "filename",
 			Error: err,
 		})
 	}

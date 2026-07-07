@@ -868,6 +868,14 @@ function assertCliCommandCoverage() {
 function assertBinaryOperationRunnerGuard() {
   const source = readFileSync(operationRunnerPath, "utf8");
   const operationsSource = readFileSync(operationsPath, "utf8");
+  const delegatedUploadBlock = operationsSource.match(/sendingCompleteAttachmentUpload: \{[\s\S]*?\n  \}/)?.[0];
+  if (!delegatedUploadBlock?.includes('"requiredKeyKind": "none"')) {
+    throw new Error("CLI operation manifest must not require a Sendmux API key for sendingCompleteAttachmentUpload");
+  }
+  if (!source.includes('operation.requiredKeyKind === "none"')) {
+    throw new Error("CLI operation runner must skip Sendmux auth resolution for no-auth operations");
+  }
+
   const operationBlock = operationsSource.match(/mailboxGetMessageAttachment: \{[\s\S]*?\n  \}/)?.[0];
   if (!operationBlock?.includes('"responseKind": "binary"')) {
     throw new Error("CLI operation manifest must classify mailboxGetMessageAttachment as a binary response");

@@ -57,7 +57,7 @@ for (const { file } of specs) {
         queryParams: parameters.filter((parameter) => parameter.in === "query").map(toPublicParameter),
         responseKind: responseKindForOperation(operation),
         requestBodyRequired: Boolean(operation.requestBody?.required),
-        requiredKeyKind: requiredKeyKindForSurface(surface),
+        requiredKeyKind: requiredKeyKindForOperation(operation, surface),
         surface,
       });
     }
@@ -289,7 +289,11 @@ function surfaceForOperationId(operationId) {
   throw new Error(`Operation ${operationId} does not use a known Sendmux surface prefix`);
 }
 
-function requiredKeyKindForSurface(surface) {
+function requiredKeyKindForOperation(operation, surface) {
+  if (Array.isArray(operation.security) && operation.security.length === 0) {
+    return "none";
+  }
+
   if (surface === "management") {
     return "root";
   }

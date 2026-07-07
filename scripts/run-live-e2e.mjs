@@ -620,11 +620,14 @@ function credentialsForRun(sdk, selectedOperations) {
 function requiredKeyKindsFor(selectedOperations) {
   const kinds = new Set();
   for (const operation of selectedOperations) {
-    if (operation.surface === "management" || operation.requiredKeyKind === "root") {
+    if (operation.requiredKeyKind === "none") {
+      continue;
+    }
+    if (operation.requiredKeyKind === "root") {
       kinds.add("root");
       continue;
     }
-    if (operation.surface === "mailbox" || operation.surface === "sending") {
+    if (operation.requiredKeyKind === "mailbox" || operation.requiredKeyKind === "sending") {
       kinds.add("mailbox");
     }
   }
@@ -768,7 +771,12 @@ function sdkClientFor({ credentials, operation, sdk }) {
 async function runCliOperation({ credentials, operation, prepared }) {
   const tempHome = mkdtempSync(join(tmpdir(), "sendmux-live-e2e-"));
   try {
-    const apiKey = operation.requiredKeyKind === "root" ? credentials.rootApiKey : credentials.mailboxApiKey;
+    const apiKey =
+      operation.requiredKeyKind === "none"
+        ? ""
+        : operation.requiredKeyKind === "root"
+          ? credentials.rootApiKey
+          : credentials.mailboxApiKey;
     const baseUrl = operation.surface === "sending" ? credentials.sendingBaseUrl : credentials.appBaseUrl;
     const cliArgs = [
       operation.command,

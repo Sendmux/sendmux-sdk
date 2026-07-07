@@ -43,10 +43,10 @@ func (s *Address) SetName(val OptString) {
 // Ref: #/components/schemas/Attachment
 type Attachment struct {
 	// Base64-encoded file content.
-	Content  OptString             `json:"content"`
+	Content  string                `json:"content"`
 	Encoding OptAttachmentEncoding `json:"encoding"`
 	// Filename with allowed extension.
-	Filename OptString `json:"filename"`
+	Filename string `json:"filename"`
 	// MIME type override.
 	Type OptString `json:"type"`
 	// Temporary uploaded attachment ID returned by POST /emails/attachments.
@@ -54,7 +54,7 @@ type Attachment struct {
 }
 
 // GetContent returns the value of Content.
-func (s *Attachment) GetContent() OptString {
+func (s *Attachment) GetContent() string {
 	return s.Content
 }
 
@@ -64,7 +64,7 @@ func (s *Attachment) GetEncoding() OptAttachmentEncoding {
 }
 
 // GetFilename returns the value of Filename.
-func (s *Attachment) GetFilename() OptString {
+func (s *Attachment) GetFilename() string {
 	return s.Filename
 }
 
@@ -79,7 +79,7 @@ func (s *Attachment) GetAttachmentID() OptString {
 }
 
 // SetContent sets the value of Content.
-func (s *Attachment) SetContent(val OptString) {
+func (s *Attachment) SetContent(val string) {
 	s.Content = val
 }
 
@@ -89,7 +89,7 @@ func (s *Attachment) SetEncoding(val OptAttachmentEncoding) {
 }
 
 // SetFilename sets the value of Filename.
-func (s *Attachment) SetFilename(val OptString) {
+func (s *Attachment) SetFilename(val string) {
 	s.Filename = val
 }
 

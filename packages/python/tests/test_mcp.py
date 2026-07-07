@@ -486,7 +486,76 @@ def test_mailbox_read_attachment_downloads_text_server_side() -> None:
         "/api/v1/mailbox/messages/msg_test/attachments/att_test",
     ]
     assert requests[1].headers["Authorization"] == "Bearer smx_mbx_test"
-    assert requests[1].headers["Range"] == "bytes=0-262144"
+    assert requests[1].headers["Range"] == "bytes=0-262143"
+
+
+def test_mailbox_read_attachment_uses_content_range_to_report_truncation() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/api/v1/mailbox/messages/msg_test":
+            return httpx.Response(
+                200,
+                json={
+                    "ok": True,
+                    "data": {
+                        "id": "msg_test",
+                        "attachments": [
+                            {
+                                "id": "att_test",
+                                "filename": "note.txt",
+                                "content_type": "text/plain",
+                                "size_bytes": 11,
+                                "disposition": "attachment",
+                                "content_id": None,
+                                "download_url": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_test/attachment-downloads/attref_test?download_token=token",
+                            }
+                        ],
+                    },
+                    "meta": {"request_id": "req_meta"},
+                },
+                request=request,
+            )
+        if request.url.path == "/api/v1/mailbox/messages/msg_test/attachments/att_test":
+            return httpx.Response(
+                206,
+                content=b"hello world",
+                headers={
+                    "Content-Range": "bytes 0-10/11",
+                    "Content-Type": "text/plain",
+                    "Content-Length": "11",
+                },
+                request=request,
+            )
+        return httpx.Response(404, json={"ok": False, "error": {"code": "not_found"}}, request=request)
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_read_attachment",
+                    {
+                        "attachment_id": "att_test",
+                        "mailbox_id": "mbx_test",
+                        "message_id": "msg_test",
+                        "max_text_bytes": 11,
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["text"] == "hello world"
+        assert result["data"]["truncated"] is False
+        assert result["data"]["bytes_read"] == 11
+
+    asyncio.run(check())
+
+    assert requests[1].headers["Range"] == "bytes=0-10"
 
 
 def test_mailbox_read_attachment_returns_resource_link_for_binary_without_downloading_bytes() -> None:

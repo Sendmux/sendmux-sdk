@@ -117,8 +117,8 @@ assert.match(
 );
 assert.match(
   runnerSource,
-  /function requiredKeyKindsFor\(selectedOperations\)[\s\S]*?operation\.surface === "management"[\s\S]*?kinds\.add\("root"\)[\s\S]*?operation\.surface === "sending"[\s\S]*?kinds\.add\("mailbox"\)/,
-  "Sending-only live E2E slices must not require a root key",
+  /function requiredKeyKindsFor\(selectedOperations\)[\s\S]*?operation\.requiredKeyKind === "none"[\s\S]*?continue[\s\S]*?operation\.requiredKeyKind === "root"[\s\S]*?kinds\.add\("root"\)[\s\S]*?operation\.requiredKeyKind === "mailbox" \|\| operation\.requiredKeyKind === "sending"[\s\S]*?kinds\.add\("mailbox"\)/,
+  "Live E2E credential selection must honour per-operation auth requirements",
 );
 assert.match(
   goLiveE2eSource,

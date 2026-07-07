@@ -136,9 +136,9 @@ func (s *Attachment) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *Attachment) encodeFields(e *jx.Encoder) {
 	{
-		if s.Content.Set {
+		if s.Content != "" {
 			e.FieldStart("content")
-			s.Content.Encode(e)
+			e.Str(s.Content)
 		}
 	}
 	{
@@ -148,9 +148,9 @@ func (s *Attachment) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.Filename.Set {
+		if s.Filename != "" {
 			e.FieldStart("filename")
-			s.Filename.Encode(e)
+			e.Str(s.Filename)
 		}
 	}
 	{
@@ -186,8 +186,9 @@ func (s *Attachment) Decode(d *jx.Decoder) error {
 		switch string(k) {
 		case "content":
 			if err := func() error {
-				s.Content.Reset()
-				if err := s.Content.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Content = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -206,8 +207,9 @@ func (s *Attachment) Decode(d *jx.Decoder) error {
 			}
 		case "filename":
 			if err := func() error {
-				s.Filename.Reset()
-				if err := s.Filename.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Filename = string(v)
+				if err != nil {
 					return err
 				}
 				return nil

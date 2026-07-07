@@ -66,6 +66,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'mailbox_count' => 'int',
         'mode' => 'string',
         'ses_dkim_status' => 'string',
+        'ses_mail_from_status' => 'string',
         'verification_status' => 'string',
         'verified_at' => 'string'
     ];
@@ -83,6 +84,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'mailbox_count' => null,
         'mode' => null,
         'ses_dkim_status' => null,
+        'ses_mail_from_status' => null,
         'verification_status' => null,
         'verified_at' => null
     ];
@@ -100,6 +102,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'mailbox_count' => false,
         'mode' => false,
         'ses_dkim_status' => true,
+        'ses_mail_from_status' => true,
         'verification_status' => false,
         'verified_at' => true
     ];
@@ -187,6 +190,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'mailbox_count' => 'mailbox_count',
         'mode' => 'mode',
         'ses_dkim_status' => 'ses_dkim_status',
+        'ses_mail_from_status' => 'ses_mail_from_status',
         'verification_status' => 'verification_status',
         'verified_at' => 'verified_at'
     ];
@@ -204,6 +208,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'mailbox_count' => 'setMailboxCount',
         'mode' => 'setMode',
         'ses_dkim_status' => 'setSesDkimStatus',
+        'ses_mail_from_status' => 'setSesMailFromStatus',
         'verification_status' => 'setVerificationStatus',
         'verified_at' => 'setVerifiedAt'
     ];
@@ -221,6 +226,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'mailbox_count' => 'getMailboxCount',
         'mode' => 'getMode',
         'ses_dkim_status' => 'getSesDkimStatus',
+        'ses_mail_from_status' => 'getSesMailFromStatus',
         'verification_status' => 'getVerificationStatus',
         'verified_at' => 'getVerifiedAt'
     ];
@@ -315,6 +321,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('mailbox_count', $data ?? [], null);
         $this->setIfExists('mode', $data ?? [], null);
         $this->setIfExists('ses_dkim_status', $data ?? [], null);
+        $this->setIfExists('ses_mail_from_status', $data ?? [], null);
         $this->setIfExists('verification_status', $data ?? [], null);
         $this->setIfExists('verified_at', $data ?? [], null);
     }
@@ -377,6 +384,9 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
 
         if ($this->container['ses_dkim_status'] === null && !$this->isNullableSetToNull('ses_dkim_status')) {
             $invalidProperties[] = "'ses_dkim_status' is required";
+        }
+        if ($this->container['ses_mail_from_status'] === null && !$this->isNullableSetToNull('ses_mail_from_status')) {
+            $invalidProperties[] = "'ses_mail_from_status' is required";
         }
         if ($this->container['verification_status'] === null) {
             $invalidProperties[] = "'verification_status' can't be null";
@@ -606,6 +616,40 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
             }
         }
         $this->container['ses_dkim_status'] = $ses_dkim_status;
+
+        return $this;
+    }
+
+    /**
+     * Gets ses_mail_from_status
+     *
+     * @return string|null
+     */
+    public function getSesMailFromStatus(): ?string
+    {
+        return $this->container['ses_mail_from_status'];
+    }
+
+    /**
+     * Sets ses_mail_from_status
+     *
+     * @param string|null $ses_mail_from_status Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)
+     *
+     * @return $this
+     */
+    public function setSesMailFromStatus(?string $ses_mail_from_status): static
+    {
+        if (is_null($ses_mail_from_status)) {
+            array_push($this->openAPINullablesSetToNull, 'ses_mail_from_status');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('ses_mail_from_status', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['ses_mail_from_status'] = $ses_mail_from_status;
 
         return $this;
     }

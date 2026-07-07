@@ -52,11 +52,11 @@ The package exports every generated Sending model and API class plus:
 - `create_sending_client`
 - `configure_sending`
 - `SendmuxSendingApiClient`
-- file helpers: `attachment_from_file` and `send_email_with_files`
+- file helpers: `upload_attachment_from_file`, `send_email_with_files`, and explicit legacy `attachment_from_file`
 
 ## Attachments
 
-The Sending API accepts attachment content in the request body. It supports up to 10 attachments and rejects request bodies over 25 MB. Avoid manual base64 encoding by using the file helpers:
+For real files, upload bytes first and send with returned `attachment_id` refs. `send_email_with_files` does that automatically, so file bytes never enter model context or the JSON send body. Inline base64 remains available only when you intentionally call `attachment_from_file` for tiny generated content.
 
 ```python
 import os
@@ -75,6 +75,27 @@ send_email_with_files(
         "subject": "Report",
         "html_body": "<p>Attached.</p>",
     },
+)
+```
+
+To upload first and compose the send yourself:
+
+```python
+import os
+
+from sendmux_sending import EmailSendRequest, EmailsApi, create_sending_client, upload_attachment_from_file
+
+client = create_sending_client(api_key=os.environ["SENDMUX_SENDING_API_KEY"])
+attachment = upload_attachment_from_file(client, file_path="./report.pdf")
+
+EmailsApi(client).sending_send_email(
+    EmailSendRequest.from_dict({
+        "from": {"email": "sender@example.com"},
+        "to": {"email": "recipient@example.com"},
+        "subject": "Report",
+        "html_body": "<p>Attached.</p>",
+        "attachments": [{"attachment_id": attachment.data.attachment_id}],
+    })
 )
 ```
 

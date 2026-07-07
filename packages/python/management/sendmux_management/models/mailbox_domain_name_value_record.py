@@ -25,7 +25,7 @@ from pydantic_core import to_jsonable_python
 
 class MailboxDomainNameValueRecord(BaseModel):
     """
-    SPF TXT record covering Amazon SES sending
+    SPF TXT record for the custom MAIL FROM subdomain
     """ # noqa: E501
     name: StrictStr
     value: StrictStr

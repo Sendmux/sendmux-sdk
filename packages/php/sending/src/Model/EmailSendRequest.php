@@ -399,7 +399,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets attachments
      *
-     * @param \Sendmux\Sending\Model\Attachment[]|null $attachments File attachments (max 10)
+     * @param \Sendmux\Sending\Model\Attachment[]|null $attachments File attachments (max 10). Use attachment_id refs for uploaded files.
      *
      * @return $this
      */

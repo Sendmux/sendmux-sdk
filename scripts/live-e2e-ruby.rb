@@ -78,7 +78,7 @@ def create_apis(surface)
     ]
   when 'sending'
     client = Sendmux::SDK.sending(api_key: mailbox_api_key, base_url: sending_base_url)
-    [client.emails, client.meta]
+    [client.attachments, client.emails, client.meta]
   else
     raise "Unknown surface: #{surface}"
   end

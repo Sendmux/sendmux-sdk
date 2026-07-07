@@ -20,6 +20,7 @@ const curatedCommands = {
   sendingSendEmailBatch: "sending:send:batch",
 };
 const httpMethods = new Set(["get", "put", "post", "delete", "patch"]);
+const binaryResponseOperationIds = new Set(["mailboxGetMessageAttachment"]);
 
 const options = parseArgs(process.argv.slice(2));
 const inputDir = resolve(options.inputDir ?? process.env.OPENAPI_INPUT_DIR ?? findDefaultInputDir());
@@ -255,6 +256,10 @@ function bodyKindForOperation(operation) {
 }
 
 function responseKindForOperation(operation) {
+  if (binaryResponseOperationIds.has(operation.operationId)) {
+    return "binary";
+  }
+
   const contentTypes = Object.keys(operation.responses?.["200"]?.content ?? {});
   if (contentTypes.includes("application/json")) {
     return "json";

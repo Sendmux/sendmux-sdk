@@ -899,6 +899,10 @@ export type MailboxDomainVerifyResult = {
      */
     ses_dkim_status: string;
     /**
+     * Latest Amazon SES MAIL FROM status
+     */
+    ses_mail_from_status: string;
+    /**
      * Post-check verification status
      */
     status: 'verified' | 'pending';
@@ -909,6 +913,14 @@ export type MailboxDomainVerifyChecks = {
      * DMARC TXT record matches expected value
      */
     dmarc: boolean;
+    /**
+     * Custom MAIL FROM MX record matches expected value
+     */
+    mail_from_mx: boolean;
+    /**
+     * Custom MAIL FROM SPF TXT record matches expected value
+     */
+    mail_from_spf: boolean;
     /**
      * MX record present when the domain is configured for receiving. Always true for send-only domains.
      */
@@ -924,16 +936,33 @@ export type MailboxDomainVerifyChecks = {
 };
 
 /**
- * SPF TXT record covering Amazon SES sending
+ * SPF TXT record for the custom MAIL FROM subdomain
  */
 export type MailboxDomainNameValueRecord = {
     name: string;
     value: string;
 };
 
+/**
+ * MX record for Amazon SES bounce handling
+ */
+export type MailboxDomainNamedMxRecord = {
+    name: string;
+    priority: number;
+    target: string;
+};
+
 export type MailboxDomainMxRecord = {
     priority: number;
     target: string;
+};
+
+/**
+ * Custom MAIL FROM records for Amazon SES bounce handling
+ */
+export type MailboxDomainMailFromRecords = {
+    mx: MailboxDomainNamedMxRecord;
+    spf: MailboxDomainNameValueRecord;
 };
 
 export type MailboxDomainDnsRecords = {
@@ -942,11 +971,12 @@ export type MailboxDomainDnsRecords = {
      */
     dkim: Array<MailboxDomainNameValueRecord>;
     dmarc: MailboxDomainNameValueRecord & unknown;
+    mail_from: MailboxDomainMailFromRecords;
     /**
      * MX records the customer must place. All point at Sendmux's inbound mail servers.
      */
     mx: Array<MailboxDomainMxRecord>;
-    spf: MailboxDomainNameValueRecord;
+    spf: MailboxDomainNameValueRecord & unknown;
     verification: MailboxDomainNameValueRecord & unknown;
 };
 
@@ -976,6 +1006,10 @@ export type MailboxDomain = {
      * Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)
      */
     ses_dkim_status: string | null;
+    /**
+     * Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)
+     */
+    ses_mail_from_status: string | null;
     /**
      * Current verification state
      */

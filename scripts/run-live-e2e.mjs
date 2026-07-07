@@ -36,6 +36,21 @@ const customMcpOperations = [
     bodyKind: "json",
     commandKeyKind: "mailbox",
     customMcpOnly: true,
+    description: "Read a mailbox attachment through the curated MCP server.",
+    headerParams: [],
+    method: "mcp",
+    operationId: "mailboxReadAttachment",
+    path: "mcp://mailbox_read_attachment",
+    pathParams: [],
+    queryParams: [],
+    requestBodyRequired: false,
+    responseKind: "json",
+    surface: "mailbox",
+  },
+  {
+    bodyKind: "json",
+    commandKeyKind: "mailbox",
+    customMcpOnly: true,
     description: "Wait briefly for a mailbox message through the curated MCP server.",
     headerParams: [],
     method: "mcp",
@@ -57,6 +72,7 @@ const operationRequestFactories = {
   mailboxDeleteFolder: prepareOwnedMailboxDeleteFolder,
   mailboxDeleteMessage: prepareOwnedMailboxDeleteMessage,
   mailboxGetMessageAttachment: prepareMailboxGetMessageAttachment,
+  mailboxReadAttachment: prepareMailboxReadAttachment,
   mailboxWaitForMessage: prepareMailboxWaitForMessage,
   mailboxSendMessage: prepareMailboxSendMessage,
   mailboxStreamEvents: prepareMailboxStreamEvents,
@@ -91,8 +107,12 @@ const operationRequestFactories = {
   managementUpdateProvider: prepareOwnedProviderUpdate,
   managementUpdateWebhook: prepareOwnedWebhookUpdate,
   managementVerifyDomain: prepareOwnedDomainVerify,
+  sendingCompleteAttachmentUpload: prepareSendingCompleteAttachmentUpload,
+  sendingCreateAttachmentUpload: prepareSendingCreateAttachmentUpload,
+  sendingGetAttachment: prepareSendingGetAttachment,
   sendingSendEmail: prepareSendingSendEmail,
   sendingSendEmailBatch: prepareSendingSendEmailBatch,
+  sendingUploadAttachment: prepareSendingUploadAttachment,
 };
 
 const args = parseArgs(process.argv.slice(2));
@@ -124,7 +144,7 @@ assertAllScenariosExist(selectedOperations, scenarios);
 assertBuiltArtifacts(adapters);
 
 const sdk = await import("@sendmux/sdk");
-const credentials = credentialsForRun(sdk);
+const credentials = credentialsForRun(sdk, selectedOperations);
 const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId: randomUUID(), sdk });
 const results = [];
 let teardownPromise;
@@ -564,7 +584,8 @@ function assertBuiltArtifacts(adapters) {
   }
 }
 
-function credentialsForRun(sdk) {
+function credentialsForRun(sdk, selectedOperations) {
+  const requiredKeyKinds = requiredKeyKindsFor(selectedOperations);
   const rootApiKey = envValue("SENDMUX_LIVE_E2E_ROOT_API_KEY", "SENDMUX_STAGING_ROOT_API_KEY");
   const mailboxApiKey = envValue("SENDMUX_LIVE_E2E_MAILBOX_API_KEY", "SENDMUX_STAGING_MAILBOX_API_KEY");
   const appBaseUrl = envValue("SENDMUX_LIVE_E2E_APP_BASE_URL", "SENDMUX_STAGING_APP_BASE_URL") ?? "https://app.sendmux.ai/api/v1";
@@ -572,15 +593,19 @@ function credentialsForRun(sdk) {
     envValue("SENDMUX_LIVE_E2E_SENDING_BASE_URL", "SENDMUX_STAGING_SMTP_BASE_URL") ??
     "https://smtp.sendmux.ai/api/v1";
 
-  if (!rootApiKey) {
+  if (requiredKeyKinds.has("root") && !rootApiKey) {
     throw new Error("Missing SENDMUX_LIVE_E2E_ROOT_API_KEY or SENDMUX_STAGING_ROOT_API_KEY.");
   }
-  if (!mailboxApiKey) {
+  if (requiredKeyKinds.has("mailbox") && !mailboxApiKey) {
     throw new Error("Missing SENDMUX_LIVE_E2E_MAILBOX_API_KEY or SENDMUX_STAGING_MAILBOX_API_KEY.");
   }
 
-  sdk.core.assertApiKeyKind(rootApiKey, "root");
-  sdk.core.assertApiKeyKind(mailboxApiKey, "mailbox");
+  if (rootApiKey) {
+    sdk.core.assertApiKeyKind(rootApiKey, "root");
+  }
+  if (mailboxApiKey) {
+    sdk.core.assertApiKeyKind(mailboxApiKey, "mailbox");
+  }
   assertAllowedBaseUrl("app", appBaseUrl, defaultAllowedAppBaseUrls());
   assertAllowedBaseUrl("sending", sendingBaseUrl, defaultAllowedSendingBaseUrls());
 
@@ -590,6 +615,20 @@ function credentialsForRun(sdk) {
     rootApiKey,
     sendingBaseUrl,
   };
+}
+
+function requiredKeyKindsFor(selectedOperations) {
+  const kinds = new Set();
+  for (const operation of selectedOperations) {
+    if (operation.surface === "management" || operation.requiredKeyKind === "root") {
+      kinds.add("root");
+      continue;
+    }
+    if (operation.surface === "mailbox" || operation.surface === "sending") {
+      kinds.add("mailbox");
+    }
+  }
+  return kinds;
 }
 
 function envValue(...names) {
@@ -1131,6 +1170,29 @@ async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
       await assertPresignedAttachmentRejectsTamper(downloadUrl);
     },
     returnResult: adapter === "mcp",
+  };
+}
+
+async function prepareMailboxReadAttachment({ fixtureRuntime }) {
+  const owned = await fixtureRuntime.cachedFixture("mailbox-message-attachment", () =>
+    createOwnedMailboxMessage(fixtureRuntime, {
+      attachment: true,
+      label: "read-attachment",
+    }),
+  );
+  return {
+    request: {
+      body: {
+        attachment_id: owned.attachmentId,
+        message_id: owned.messageId,
+      },
+    },
+    afterResult: async (value) => {
+      assert.equal(valueAtPath(value, "data.read_mode"), "text");
+      assert.equal(valueAtPath(value, "data.text"), owned.attachmentContent);
+      assert.equal(valueAtPath(value, "data.truncated"), false);
+    },
+    returnResult: true,
   };
 }
 
@@ -1811,6 +1873,119 @@ async function prepareSendingSendEmail({ adapter, fixtureRuntime }) {
   };
 }
 
+async function prepareSendingUploadAttachment({ adapter, fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-upload-attachment");
+  const afterResult = async (value) => {
+    await assertSendingAttachmentMetadata({
+      contentType: attachment.contentType,
+      fixtureRuntime,
+      label: "sendingUploadAttachment",
+      metadata: value,
+      sizeBytes: attachment.sizeBytes,
+    });
+  };
+
+  if (adapter === "mcp") {
+    return {
+      afterResult,
+      request: {
+        body: {
+          content_base64: Buffer.from(attachment.content, "utf8").toString("base64"),
+          content_type: attachment.contentType,
+          filename: attachment.filename,
+        },
+      },
+    };
+  }
+
+  return {
+    afterResult,
+    request: {
+      body: attachment.content,
+      headers: {
+        "Idempotency-Key": fixtureRuntime.idempotencyKey("sending-upload-attachment"),
+      },
+      query: {
+        content_type: attachment.contentType,
+        filename: attachment.filename,
+      },
+    },
+  };
+}
+
+async function prepareSendingGetAttachment({ fixtureRuntime }) {
+  const attachment = await uploadOwnedSendingAttachment(fixtureRuntime, "sending-get-attachment");
+  return {
+    request: {
+      path: {
+        attachment_id: attachment.attachmentId,
+      },
+    },
+    afterResult: async (value) => {
+      assertSendingAttachmentMetadataValue({
+        attachmentId: attachment.attachmentId,
+        contentType: attachment.contentType,
+        label: "sendingGetAttachment",
+        metadata: value,
+        sizeBytes: attachment.sizeBytes,
+      });
+    },
+  };
+}
+
+async function prepareSendingCreateAttachmentUpload({ fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-create-attachment-upload");
+  return {
+    request: {
+      body: {
+        content_type: attachment.contentType,
+        filename: attachment.filename,
+        size_bytes: attachment.sizeBytes,
+      },
+      headers: {
+        "Idempotency-Key": fixtureRuntime.idempotencyKey("sending-create-attachment-upload"),
+      },
+    },
+    afterResult: async (value) => {
+      await completeSendingAttachmentUploadUrl({
+        attachment,
+        fixtureRuntime,
+        intent: value,
+        label: "sendingCreateAttachmentUpload",
+      });
+    },
+  };
+}
+
+async function prepareSendingCompleteAttachmentUpload({ fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-complete-attachment-upload");
+  const intent = await createSendingAttachmentUploadIntent({
+    attachment,
+    fixtureRuntime,
+    label: "sending-complete-attachment-upload",
+  });
+  return {
+    request: {
+      body: attachment.content,
+      headers: {
+        "X-Sendmux-Upload-Token": intent.uploadToken,
+      },
+      path: {
+        upload_id: intent.uploadId,
+      },
+    },
+    afterResult: async (value) => {
+      assertSendingAttachmentMetadataValue({
+        attachmentId: selectFirstValue(value, ["data.attachment_id"]),
+        contentType: attachment.contentType,
+        label: "sendingCompleteAttachmentUpload",
+        metadata: value,
+        sizeBytes: attachment.sizeBytes,
+      });
+    },
+  };
+}
+
 async function prepareSendingSendEmailBatch({ fixtureRuntime }) {
   const email = await fixtureRuntime.resolveSource("mailboxSelfEmail");
   assertFixtureRecipientAllowed({ recipient: email, sourceName: "sendingSendEmailBatch" });
@@ -1994,6 +2169,117 @@ function sendingEmailBody({ email, fixtureRuntime, subjectLabel }) {
     text_body: `Automated Sendmux live E2E ${fixtureRuntime.runId}.`,
     to: { email, name: "Sendmux Live E2E" },
   };
+}
+
+function sendingAttachmentFixture(fixtureRuntime, label) {
+  const content = `Sendmux live E2E Sending attachment ${fixtureRuntime.runId} ${label}\n`;
+  return {
+    content,
+    contentType: "text/plain",
+    filename: `${fixtureRuntime.resourceLabel(label)}.txt`,
+    sizeBytes: Buffer.byteLength(content, "utf8"),
+  };
+}
+
+async function uploadOwnedSendingAttachment(fixtureRuntime, label) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, label);
+  const response = await fixtureRuntime.runOperation("sendingUploadAttachment", {
+    body: attachment.content,
+    headers: {
+      "Idempotency-Key": fixtureRuntime.idempotencyKey(label),
+    },
+    query: {
+      content_type: attachment.contentType,
+      filename: attachment.filename,
+    },
+  });
+  return {
+    ...attachment,
+    attachmentId: requireSelectedValue(response, ["data.attachment_id"], `${label} attachment id`),
+  };
+}
+
+async function createSendingAttachmentUploadIntent({ attachment, fixtureRuntime, label }) {
+  const response = await fixtureRuntime.runOperation("sendingCreateAttachmentUpload", {
+    body: {
+      content_type: attachment.contentType,
+      filename: attachment.filename,
+      size_bytes: attachment.sizeBytes,
+    },
+    headers: {
+      "Idempotency-Key": fixtureRuntime.idempotencyKey(label),
+    },
+  });
+  return {
+    method: requireSelectedValue(response, ["data.method"], `${label} upload method`),
+    uploadId: requireSelectedValue(response, ["data.upload_id"], `${label} upload id`),
+    uploadToken: requireSelectedValue(
+      response,
+      ["data.headers.X-Sendmux-Upload-Token", "data.headers.x-sendmux-upload-token"],
+      `${label} upload token`,
+    ),
+    uploadUrl: requireSelectedValue(response, ["data.upload_url"], `${label} upload URL`),
+  };
+}
+
+async function completeSendingAttachmentUploadUrl({ attachment, fixtureRuntime, intent, label }) {
+  const method = requireSelectedValue(intent, ["data.method"], `${label} upload method`);
+  const uploadUrl = requireSelectedValue(intent, ["data.upload_url"], `${label} upload URL`);
+  const headers = valueAtPath(intent, "data.headers") ?? {};
+  assert.equal(method, "PUT", `${label} returned unsupported upload method`);
+
+  const response = await fetchWithTimeout(uploadUrl, `${label} delegated upload`, {
+    body: attachment.content,
+    headers: Object.fromEntries(Object.entries(headers).map(([key, value]) => [key, String(value)])),
+    method,
+  });
+  const payload = await response.json().catch(() => null);
+  assert.equal(response.status, 201, `${label} delegated upload returned HTTP ${response.status}`);
+  assertSendingAttachmentMetadataValue({
+    attachmentId: selectFirstValue(payload, ["data.attachment_id"]),
+    contentType: attachment.contentType,
+    label,
+    metadata: payload,
+    sizeBytes: attachment.sizeBytes,
+  });
+
+  const attachmentId = requireSelectedValue(payload, ["data.attachment_id"], `${label} attachment id`);
+  const metadata = await fixtureRuntime.runOperation("sendingGetAttachment", {
+    path: { attachment_id: attachmentId },
+  });
+  assertSendingAttachmentMetadataValue({
+    attachmentId,
+    contentType: attachment.contentType,
+    label: `${label} metadata`,
+    metadata,
+    sizeBytes: attachment.sizeBytes,
+  });
+}
+
+async function assertSendingAttachmentMetadata({ contentType, fixtureRuntime, label, metadata, sizeBytes }) {
+  const attachmentId = requireSelectedValue(metadata, ["data.attachment_id"], `${label} attachment id`);
+  assertSendingAttachmentMetadataValue({ attachmentId, contentType, label, metadata, sizeBytes });
+  const fetched = await fixtureRuntime.runOperation("sendingGetAttachment", {
+    path: { attachment_id: attachmentId },
+  });
+  assertSendingAttachmentMetadataValue({
+    attachmentId,
+    contentType,
+    label: `${label} fetched metadata`,
+    metadata: fetched,
+    sizeBytes,
+  });
+}
+
+function assertSendingAttachmentMetadataValue({ attachmentId, contentType, label, metadata, sizeBytes }) {
+  assert.equal(valueAtPath(metadata, "ok"), true, `${label} did not return ok=true`);
+  assert.equal(typeof valueAtPath(metadata, "meta.request_id"), "string", `${label} did not return meta.request_id`);
+  if (attachmentId) {
+    assert.equal(valueAtPath(metadata, "data.attachment_id"), attachmentId, `${label} returned a different attachment_id`);
+  }
+  assert.equal(valueAtPath(metadata, "data.content_type"), contentType, `${label} returned a different content_type`);
+  assert.equal(valueAtPath(metadata, "data.size_bytes"), sizeBytes, `${label} returned a different size_bytes`);
+  assert.equal(typeof valueAtPath(metadata, "data.expires_at"), "string", `${label} did not return expires_at`);
 }
 
 async function assertLimitRequestUnavailable({ fixtureRuntime, label, operationId, selectors }) {

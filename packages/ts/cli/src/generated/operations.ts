@@ -668,7 +668,7 @@ export const operations = {
         }
       }
     ],
-    "responseKind": "json",
+    "responseKind": "binary",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
@@ -4177,6 +4177,86 @@ export const operations = {
     "requiredKeyKind": "root",
     "surface": "management"
   },
+  sendingCompleteAttachmentUpload: {
+    "bodyKind": "binary",
+    "command": "sending:complete-attachment-upload",
+    "description": "Upload bytes to an attachment upload URL",
+    "headerParams": [
+      {
+        "name": "X-Sendmux-Upload-Token",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "put",
+    "operationId": "sendingCompleteAttachmentUpload",
+    "path": "/emails/attachment-uploads/{upload_id}",
+    "pathParams": [
+      {
+        "name": "upload_id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^upl_[a-z0-9]{24}$"
+        }
+      }
+    ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": true,
+    "requiredKeyKind": "sending",
+    "surface": "sending"
+  },
+  sendingCreateAttachmentUpload: {
+    "bodyKind": "json",
+    "command": "sending:create-attachment-upload",
+    "description": "Create an attachment upload URL",
+    "headerParams": [
+      {
+        "name": "Idempotency-Key",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    ],
+    "method": "post",
+    "operationId": "sendingCreateAttachmentUpload",
+    "path": "/emails/attachment-uploads",
+    "pathParams": [],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": true,
+    "requiredKeyKind": "sending",
+    "surface": "sending"
+  },
+  sendingGetAttachment: {
+    "bodyKind": "none",
+    "command": "sending:get-attachment",
+    "description": "Get attachment metadata",
+    "headerParams": [],
+    "method": "get",
+    "operationId": "sendingGetAttachment",
+    "path": "/emails/attachments/{attachment_id}",
+    "pathParams": [
+      {
+        "name": "attachment_id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^att_[a-z0-9]{24}$"
+        }
+      }
+    ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "sending",
+    "surface": "sending"
+  },
   sendingGetOpenApiSpec: {
     "bodyKind": "none",
     "command": "sending:get-open-api-spec",
@@ -4243,6 +4323,48 @@ export const operations = {
     "path": "/emails/send/batch",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": true,
+    "requiredKeyKind": "sending",
+    "surface": "sending"
+  },
+  sendingUploadAttachment: {
+    "bodyKind": "binary",
+    "command": "sending:upload-attachment",
+    "description": "Upload an attachment",
+    "headerParams": [
+      {
+        "name": "Idempotency-Key",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    ],
+    "method": "post",
+    "operationId": "sendingUploadAttachment",
+    "path": "/emails/attachments",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "filename",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      {
+        "name": "content_type",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    ],
     "responseKind": "json",
     "requestBodyRequired": true,
     "requiredKeyKind": "sending",

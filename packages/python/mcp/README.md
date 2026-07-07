@@ -119,9 +119,9 @@ Packaged OpenAPI snapshots are the default so released tool names, schemas, and 
 
 ## Tool Surfaces
 
-- Mailbox: `24` tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
+- Mailbox: `25` tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
 - Management: `21` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
-- Sending: `2` tools for single and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
+- Sending: `5` tools for attachment upload refs, single sends, and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
 
 The server rejects keys with the wrong prefix before starting.
 
@@ -131,10 +131,10 @@ Use `mailbox_wait_for_message` when a user asks an agent to wait for new mail. T
 
 When a message has attachments:
 
-1. Call `mailbox_get_attachment` with `message_id` and `attachment_id`.
-2. Read the returned metadata and `download_url`.
-3. Fetch `download_url` promptly with a plain HTTP client and no `Authorization` header.
-4. If the URL has expired, call `mailbox_get_attachment` again to mint a fresh URL.
+1. Call `mailbox_read_attachment` with `message_id` and `attachment_id` when you need the attachment contents.
+2. For small text-like attachments, read the returned `text`.
+3. For binary or oversized attachments, use the returned `resource_link` / `download_url` promptly outside model context.
+4. Use `mailbox_get_attachment` only when metadata is enough or you need to refresh the link.
 
 Use `mailbox_upload_attachment` for outbound attachments over MCP. It accepts exactly one input mode:
 
@@ -144,7 +144,9 @@ Use `mailbox_upload_attachment` for outbound attachments over MCP. It accepts ex
 
 `file_path` and presigned upload modes use the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
 
-For sending, `mailbox_send_message` accepts either inline base64 attachment objects (`content`, `filename`, `content_type`) or uploaded attachment references (`blob_id`, `filename`, `content_type`). The Sending API tools support the generated Sending API attachment body shape.
+For mailbox sends, `mailbox_send_message` accepts either tiny inline base64 attachment objects (`content`, `filename`, `content_type`) or uploaded attachment references (`blob_id`, `filename`, `content_type`).
+
+For Sending API sends, call `sending_upload_attachment` with `file_path` on local stdio MCP, or call `sending_create_attachment_upload` and PUT bytes outside model context for hosted/shell-capable agents. Then pass `{"attachment_id": "att_..."}` in `sending_send_email.attachments[]`. Avoid Sending inline base64 except for tiny generated content.
 
 ## Console Scripts
 

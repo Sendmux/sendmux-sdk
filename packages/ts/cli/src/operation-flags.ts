@@ -38,7 +38,7 @@ export interface ParsedOperationOptions {
 export const operationFlags = {
   ...authFlags,
   attach: Flags.string({
-    description: "Local file path to attach to mailbox:send-message or sending:send. Repeat for multiple files.",
+    description: "Local file path to upload and attach to mailbox:send-message or sending:send. Repeat for multiple files.",
     multiple: true,
   }),
   body: Flags.string({

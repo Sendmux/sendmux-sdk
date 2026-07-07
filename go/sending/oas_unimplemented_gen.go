@@ -13,6 +13,37 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// SendingCompleteAttachmentUpload implements sendingCompleteAttachmentUpload operation.
+//
+// Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses
+// the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API
+// key.
+//
+// PUT /emails/attachment-uploads/{upload_id}
+func (UnimplementedHandler) SendingCompleteAttachmentUpload(ctx context.Context, req SendingCompleteAttachmentUploadReq, params SendingCompleteAttachmentUploadParams) (r SendingCompleteAttachmentUploadRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SendingCreateAttachmentUpload implements sendingCreateAttachmentUpload operation.
+//
+// Create a short-lived upload URL and token that lets a remote client PUT one binary attachment
+// without exposing the API key on the upload request. Requires `email.send` permission.
+//
+// POST /emails/attachment-uploads
+func (UnimplementedHandler) SendingCreateAttachmentUpload(ctx context.Context, req *AttachmentUploadIntentRequest, params SendingCreateAttachmentUploadParams) (r SendingCreateAttachmentUploadRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SendingGetAttachment implements sendingGetAttachment operation.
+//
+// Return metadata for a temporary uploaded attachment owned by the authenticated team. File bytes
+// are not returned.
+//
+// GET /emails/attachments/{attachment_id}
+func (UnimplementedHandler) SendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (r SendingGetAttachmentRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // SendingGetOpenApiSpec implements sendingGetOpenApiSpec operation.
 //
 // Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).
@@ -39,5 +70,15 @@ func (UnimplementedHandler) SendingSendEmail(ctx context.Context, req *EmailSend
 //
 // POST /emails/send/batch
 func (UnimplementedHandler) SendingSendEmailBatch(ctx context.Context, req *BatchSendRequest, params SendingSendEmailBatchParams) (r SendingSendEmailBatchRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SendingUploadAttachment implements sendingUploadAttachment operation.
+//
+// Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[].
+// Requires `email.send` permission.
+//
+// POST /emails/attachments
+func (UnimplementedHandler) SendingUploadAttachment(ctx context.Context, req SendingUploadAttachmentReq, params SendingUploadAttachmentParams) (r SendingUploadAttachmentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

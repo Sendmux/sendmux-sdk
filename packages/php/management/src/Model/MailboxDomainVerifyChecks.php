@@ -60,6 +60,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $openAPITypes = [
         'dmarc' => 'bool',
+        'mail_from_mx' => 'bool',
+        'mail_from_spf' => 'bool',
         'mx' => 'bool',
         'spf' => 'bool',
         'verification_txt' => 'bool'
@@ -72,6 +74,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $openAPIFormats = [
         'dmarc' => null,
+        'mail_from_mx' => null,
+        'mail_from_spf' => null,
         'mx' => null,
         'spf' => null,
         'verification_txt' => null
@@ -84,6 +88,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $openAPINullables = [
         'dmarc' => false,
+        'mail_from_mx' => false,
+        'mail_from_spf' => false,
         'mx' => false,
         'spf' => false,
         'verification_txt' => false
@@ -166,6 +172,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $attributeMap = [
         'dmarc' => 'dmarc',
+        'mail_from_mx' => 'mail_from_mx',
+        'mail_from_spf' => 'mail_from_spf',
         'mx' => 'mx',
         'spf' => 'spf',
         'verification_txt' => 'verification_txt'
@@ -178,6 +186,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $setters = [
         'dmarc' => 'setDmarc',
+        'mail_from_mx' => 'setMailFromMx',
+        'mail_from_spf' => 'setMailFromSpf',
         'mx' => 'setMx',
         'spf' => 'setSpf',
         'verification_txt' => 'setVerificationTxt'
@@ -190,6 +200,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $getters = [
         'dmarc' => 'getDmarc',
+        'mail_from_mx' => 'getMailFromMx',
+        'mail_from_spf' => 'getMailFromSpf',
         'mx' => 'getMx',
         'spf' => 'getSpf',
         'verification_txt' => 'getVerificationTxt'
@@ -243,6 +255,8 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
     public function __construct(?array $data = null)
     {
         $this->setIfExists('dmarc', $data ?? [], null);
+        $this->setIfExists('mail_from_mx', $data ?? [], null);
+        $this->setIfExists('mail_from_spf', $data ?? [], null);
         $this->setIfExists('mx', $data ?? [], null);
         $this->setIfExists('spf', $data ?? [], null);
         $this->setIfExists('verification_txt', $data ?? [], null);
@@ -275,6 +289,12 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
 
         if ($this->container['dmarc'] === null) {
             $invalidProperties[] = "'dmarc' can't be null";
+        }
+        if ($this->container['mail_from_mx'] === null) {
+            $invalidProperties[] = "'mail_from_mx' can't be null";
+        }
+        if ($this->container['mail_from_spf'] === null) {
+            $invalidProperties[] = "'mail_from_spf' can't be null";
         }
         if ($this->container['mx'] === null) {
             $invalidProperties[] = "'mx' can't be null";
@@ -320,6 +340,60 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
             throw new InvalidArgumentException('non-nullable dmarc cannot be null');
         }
         $this->container['dmarc'] = $dmarc;
+
+        return $this;
+    }
+
+    /**
+     * Gets mail_from_mx
+     *
+     * @return bool
+     */
+    public function getMailFromMx(): bool
+    {
+        return $this->container['mail_from_mx'];
+    }
+
+    /**
+     * Sets mail_from_mx
+     *
+     * @param bool $mail_from_mx Custom MAIL FROM MX record matches expected value
+     *
+     * @return $this
+     */
+    public function setMailFromMx(bool $mail_from_mx): static
+    {
+        if (is_null($mail_from_mx)) {
+            throw new InvalidArgumentException('non-nullable mail_from_mx cannot be null');
+        }
+        $this->container['mail_from_mx'] = $mail_from_mx;
+
+        return $this;
+    }
+
+    /**
+     * Gets mail_from_spf
+     *
+     * @return bool
+     */
+    public function getMailFromSpf(): bool
+    {
+        return $this->container['mail_from_spf'];
+    }
+
+    /**
+     * Sets mail_from_spf
+     *
+     * @param bool $mail_from_spf Custom MAIL FROM SPF TXT record matches expected value
+     *
+     * @return $this
+     */
+    public function setMailFromSpf(bool $mail_from_spf): static
+    {
+        if (is_null($mail_from_spf)) {
+            throw new InvalidArgumentException('non-nullable mail_from_spf cannot be null');
+        }
+        $this->container['mail_from_spf'] = $mail_from_spf;
 
         return $this;
     }

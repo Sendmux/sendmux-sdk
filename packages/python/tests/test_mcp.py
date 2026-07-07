@@ -18,11 +18,13 @@ from sendmux_mcp.hosted_proxy import (
     HostedOperationRoute,
     HostedProxyConfig,
     HostedProxyTransport,
+    build_hosted_operation_manifest,
     path_template_pattern,
 )
 from sendmux_mcp.live_e2e import expected_api_error_exception
 from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.server import create_server
+from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 from sendmux_mcp.verification import structured_result
 
 EXPECTED_TOOL_NAMES_BY_SURFACE = {
@@ -46,6 +48,7 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "mailbox_list_messages",
         "mailbox_list_thread_messages",
         "mailbox_list_threads",
+        "mailbox_read_attachment",
         "mailbox_search_message_snippets",
         "mailbox_send_message",
         "mailbox_upload_attachment",
@@ -76,8 +79,11 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "management_verify_domain",
     },
     "sending": {
+        "sending_create_attachment_upload",
+        "sending_get_attachment",
         "sending_send_email",
         "sending_send_email_batch",
+        "sending_upload_attachment",
     },
 }
 
@@ -99,6 +105,7 @@ READ_ONLY_TOOL_NAMES = {
     "mailbox_list_messages",
     "mailbox_list_thread_messages",
     "mailbox_list_threads",
+    "mailbox_read_attachment",
     "mailbox_wait_for_message",
     "mailbox_search_message_snippets",
     "management_get_domain",
@@ -112,6 +119,7 @@ READ_ONLY_TOOL_NAMES = {
     "management_list_email_logs",
     "management_list_mailboxes",
     "management_list_webhooks",
+    "sending_get_attachment",
 }
 
 DESTRUCTIVE_TOOL_NAMES = {
@@ -189,7 +197,7 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
             async with Client(server) as client:
                 tools.extend(await client.list_tools())
 
-        assert len(tools) == 47
+        assert len(tools) == 51
         assert {tool.name for tool in tools if tool.outputSchema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
 
         for tool in tools:
@@ -408,6 +416,138 @@ def test_mailbox_get_attachment_returns_fresh_metadata_from_message() -> None:
     assert requests[0].url.path == "/api/v1/mailbox/messages/msg_test"
     assert requests[0].url.params["mailbox_id"] == "mbx_test"
     assert requests[0].headers["Authorization"] == "Bearer smx_mbx_test"
+
+
+def test_mailbox_read_attachment_downloads_text_server_side() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path == "/api/v1/mailbox/messages/msg_test":
+            return httpx.Response(
+                200,
+                json={
+                    "ok": True,
+                    "data": {
+                        "id": "msg_test",
+                        "attachments": [
+                            {
+                                "id": "att_test",
+                                "filename": "recipe.md",
+                                "content_type": "text/markdown",
+                                "size_bytes": 21,
+                                "disposition": "attachment",
+                                "content_id": None,
+                                "download_url": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_test/attachment-downloads/attref_test?download_token=token",
+                            }
+                        ],
+                    },
+                    "meta": {"request_id": "req_meta"},
+                },
+                request=request,
+            )
+        if request.url.path == "/api/v1/mailbox/messages/msg_test/attachments/att_test":
+            return httpx.Response(
+                200,
+                content=b"# Recipe\n\nUse flour.\n",
+                headers={"Content-Type": "text/markdown", "Content-Length": "21"},
+                request=request,
+            )
+        return httpx.Response(404, json={"ok": False, "error": {"code": "not_found"}}, request=request)
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_read_attachment",
+                    {
+                        "attachment_id": "att_test",
+                        "mailbox_id": "mbx_test",
+                        "message_id": "msg_test",
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["id"] == "att_test"
+        assert result["data"]["read_mode"] == "text"
+        assert result["data"]["text"] == "# Recipe\n\nUse flour.\n"
+        assert result["data"]["truncated"] is False
+        assert result["meta"]["request_id"] == "req_meta"
+
+    asyncio.run(check())
+
+    assert [request.url.path for request in requests] == [
+        "/api/v1/mailbox/messages/msg_test",
+        "/api/v1/mailbox/messages/msg_test/attachments/att_test",
+    ]
+    assert requests[1].headers["Authorization"] == "Bearer smx_mbx_test"
+    assert requests[1].headers["Range"] == "bytes=0-262144"
+
+
+def test_mailbox_read_attachment_returns_resource_link_for_binary_without_downloading_bytes() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "ok": True,
+                "data": {
+                    "id": "msg_test",
+                    "attachments": [
+                        {
+                            "id": "att_pdf",
+                            "filename": "invoice.pdf",
+                            "content_type": "application/pdf",
+                            "size_bytes": 2048,
+                            "disposition": "attachment",
+                            "content_id": None,
+                            "download_url": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_test/attachment-downloads/attref_pdf?download_token=token",
+                        }
+                    ],
+                },
+                "meta": {"request_id": "req_meta"},
+            },
+            request=request,
+        )
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_read_attachment",
+                    {
+                        "attachment_id": "att_pdf",
+                        "mailbox_id": "mbx_test",
+                        "message_id": "msg_test",
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["read_mode"] == "resource_link"
+        assert result["data"]["text"] is None
+        assert result["data"]["resource_link"] == {
+            "uri": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_test/attachment-downloads/attref_pdf?download_token=token",
+            "name": "invoice.pdf",
+            "mime_type": "application/pdf",
+            "size_bytes": 2048,
+        }
+
+    asyncio.run(check())
+
+    assert len(requests) == 1
+    assert requests[0].url.path == "/api/v1/mailbox/messages/msg_test"
 
 
 def test_mailbox_upload_attachment_decodes_base64_and_posts_binary() -> None:
@@ -663,6 +803,144 @@ def test_mailbox_upload_attachment_requires_exactly_one_input_mode(tmp_path: Pat
     asyncio.run(check())
 
 
+def test_sending_upload_attachment_accepts_tiny_inline_content() -> None:
+    requests: list[httpx.Request] = []
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        body = await request.aread()
+        return httpx.Response(
+            201,
+            json={
+                "ok": True,
+                "data": {
+                    "attachment_id": "att_1234567890abcdefghijklmn",
+                    "filename": request.url.params["filename"],
+                    "content_type": request.headers["content-type"],
+                    "size_bytes": len(body),
+                    "expires_at": "2026-07-07T10:00:00.000Z",
+                },
+                "meta": {"request_id": "req_test"},
+            },
+            request=request,
+        )
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("sending",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "sending_upload_attachment",
+                    {
+                        "content_base64": base64.b64encode(b"attachment bytes").decode("ascii"),
+                        "content_type": "text/plain",
+                        "filename": "research.md",
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["attachment_id"] == "att_1234567890abcdefghijklmn"
+        assert result["data"]["size_bytes"] == len(b"attachment bytes")
+
+    asyncio.run(check())
+
+    assert len(requests) == 1
+    assert requests[0].method == "POST"
+    assert requests[0].url.path == "/api/v1/emails/attachments"
+    assert requests[0].url.params["filename"] == "research.md"
+    assert requests[0].url.params["content_type"] == "text/plain"
+    assert requests[0].headers["content-type"] == "text/plain"
+    assert requests[0].content == b"attachment bytes"
+
+
+def test_sending_upload_attachment_reads_file_path_from_client_roots(tmp_path: Path) -> None:
+    requests: list[httpx.Request] = []
+    attachment = tmp_path / "report.pdf"
+    attachment.write_bytes(b"pdf bytes")
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        body = await request.aread()
+        return httpx.Response(
+            201,
+            json={
+                "ok": True,
+                "data": {
+                    "attachment_id": "att_1234567890abcdefghijklmn",
+                    "filename": request.url.params["filename"],
+                    "content_type": request.headers["content-type"],
+                    "size_bytes": len(body),
+                    "expires_at": "2026-07-07T10:00:00.000Z",
+                },
+                "meta": {"request_id": "req_test"},
+            },
+            request=request,
+        )
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("sending",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server, roots=[tmp_path.as_uri()]) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "sending_upload_attachment",
+                    {
+                        "content_type": "application/pdf",
+                        "file_path": str(attachment),
+                        "filename": "report.pdf",
+                    },
+                )
+            )
+
+        assert result["ok"] is True
+        assert result["data"]["attachment_id"] == "att_1234567890abcdefghijklmn"
+
+    asyncio.run(check())
+
+    assert len(requests) == 1
+    assert requests[0].url.path == "/api/v1/emails/attachments"
+    assert requests[0].content == b"pdf bytes"
+
+
+def test_sending_upload_attachment_rejects_hosted_file_path(tmp_path: Path) -> None:
+    attachment = tmp_path / "report.pdf"
+    attachment.write_bytes(b"pdf bytes")
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("sending",)),
+            transport=ok_transport(),
+            hosted_proxy_config=HostedProxyConfig(
+                proxy_url="https://mcp.sendmux.ai/internal/proxy",
+                upstream_base_url="https://smtp.sendmux.ai/api/v1",
+            ),
+        )
+        async with Client(server, roots=[tmp_path.as_uri()]) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "sending_upload_attachment",
+                    {
+                        "content_type": "application/pdf",
+                        "file_path": str(attachment),
+                        "filename": "report.pdf",
+                    },
+                )
+            )
+
+        assert result["ok"] is False
+        assert result["error"]["code"] == "invalid_parameter"
+        assert result["error"]["param"] == "file_path"
+        assert "sending_create_attachment_upload" in result["error"]["message"]
+
+    asyncio.run(check())
+
+
 def test_mailbox_wait_for_message_returns_matching_message() -> None:
     requests: list[httpx.Request] = []
 
@@ -839,6 +1117,19 @@ def test_hosted_proxy_only_targets_mailbox_for_mailbox_surface() -> None:
     assert "mailbox_id" not in sending
     assert mailbox["surface"] == "mailbox"
     assert mailbox["mailbox_id"] == "mbx_one"
+
+
+def test_hosted_mailbox_manifest_allows_attachment_download_backing_operation() -> None:
+    config = ServerConfig(surfaces=("mailbox",))
+    document = prepare_for_fastmcp(load_spec(config, "mailbox"), base_url=config.api_base_url_for("mailbox"))
+    manifest = build_hosted_operation_manifest(document, "mailbox")
+
+    route = manifest.resolve("GET", "/mailbox/messages/msg_test/attachments/att_test")
+
+    assert route is not None
+    assert route.operation_id == "mailboxGetMessageAttachment"
+    assert route.tool_name == "mailbox_get_attachment"
+    assert route.permissions == ("mailbox.read",)
 
 
 def ok_transport() -> httpx.MockTransport:

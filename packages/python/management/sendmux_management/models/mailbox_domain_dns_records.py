@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List
+from sendmux_management.models.mailbox_domain_mail_from_records import MailboxDomainMailFromRecords
 from sendmux_management.models.mailbox_domain_mx_record import MailboxDomainMxRecord
 from sendmux_management.models.mailbox_domain_name_value_record import MailboxDomainNameValueRecord
 from typing import Optional, Set
@@ -31,10 +32,11 @@ class MailboxDomainDnsRecords(BaseModel):
     """ # noqa: E501
     dkim: List[MailboxDomainNameValueRecord] = Field(description="Three Amazon SES DKIM CNAME records")
     dmarc: MailboxDomainNameValueRecord = Field(description="DMARC enforcement record (quarantine, no reporting)")
+    mail_from: MailboxDomainMailFromRecords
     mx: List[MailboxDomainMxRecord] = Field(description="MX records the customer must place. All point at Sendmux's inbound mail servers.")
-    spf: MailboxDomainNameValueRecord
+    spf: MailboxDomainNameValueRecord = Field(description="SPF TXT record covering Amazon SES sending")
     verification: MailboxDomainNameValueRecord = Field(description="Ownership-proof TXT record (Sendmux-specific)")
-    __properties: ClassVar[List[str]] = ["dkim", "dmarc", "mx", "spf", "verification"]
+    __properties: ClassVar[List[str]] = ["dkim", "dmarc", "mail_from", "mx", "spf", "verification"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -85,6 +87,9 @@ class MailboxDomainDnsRecords(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of dmarc
         if self.dmarc:
             _dict['dmarc'] = self.dmarc.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of mail_from
+        if self.mail_from:
+            _dict['mail_from'] = self.mail_from.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in mx (list)
         _items = []
         if self.mx:
@@ -112,6 +117,7 @@ class MailboxDomainDnsRecords(BaseModel):
         _obj = cls.model_validate({
             "dkim": [MailboxDomainNameValueRecord.from_dict(_item) for _item in obj["dkim"]] if obj.get("dkim") is not None else None,
             "dmarc": MailboxDomainNameValueRecord.from_dict(obj["dmarc"]) if obj.get("dmarc") is not None else None,
+            "mail_from": MailboxDomainMailFromRecords.from_dict(obj["mail_from"]) if obj.get("mail_from") is not None else None,
             "mx": [MailboxDomainMxRecord.from_dict(_item) for _item in obj["mx"]] if obj.get("mx") is not None else None,
             "spf": MailboxDomainNameValueRecord.from_dict(obj["spf"]) if obj.get("spf") is not None else None,
             "verification": MailboxDomainNameValueRecord.from_dict(obj["verification"]) if obj.get("verification") is not None else None

@@ -315,6 +315,8 @@ from sendmux_mailbox.client import (
 from sendmux_mailbox.events import iter_mailbox_events
 from sendmux_mailbox.attachments import (
     create_mailbox_attachment_upload_from_file,
+    download_mailbox_attachment,
+    read_mailbox_text_attachment,
     send_mailbox_message_with_files,
     upload_mailbox_attachment_from_file,
     upload_mailbox_attachment_via_presigned_file,

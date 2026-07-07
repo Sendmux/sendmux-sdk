@@ -12,7 +12,7 @@ const surfaces = [
     projectName: "sendmux-sending",
     packageName: "sendmux_sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
-    tags: ["Emails", "Meta"],
+    tags: ["Attachments", "Emails", "Meta"],
   },
   {
     name: "mailbox",
@@ -310,6 +310,8 @@ from ${surface.packageName}.client import (
 from ${surface.packageName}.events import iter_mailbox_events
 from ${surface.packageName}.attachments import (
     create_mailbox_attachment_upload_from_file,
+    download_mailbox_attachment,
+    read_mailbox_text_attachment,
     send_mailbox_message_with_files,
     upload_mailbox_attachment_from_file,
     upload_mailbox_attachment_via_presigned_file,
@@ -326,6 +328,7 @@ from ${surface.packageName}.attachments import (
 from ${surface.packageName}.attachments import (
     attachment_from_file,
     send_email_with_files,
+    upload_attachment_from_file,
 )
 `,
     );
@@ -530,6 +533,64 @@ def upload_mailbox_attachment_via_presigned_file(
     return result
 
 
+def download_mailbox_attachment(
+    api_client: ApiClient,
+    *,
+    message_id: str,
+    attachment_id: str,
+    mailbox_id: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> bytes:
+    """Download one mailbox attachment as bytes."""
+
+    api = MailboxAPIApi(api_client)
+    raw_download = getattr(api, "mailbox_get_message_attachment_without_preload_content", None)
+    if callable(raw_download):
+        response = raw_download(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            mailbox_id=mailbox_id,
+            _request_timeout=request_timeout,
+        )
+        try:
+            return _read_binary_response(response)
+        finally:
+            close = getattr(response, "close", None)
+            if callable(close):
+                close()
+            release_conn = getattr(response, "release_conn", None)
+            if callable(release_conn):
+                release_conn()
+
+    result = api.mailbox_get_message_attachment(
+        message_id=message_id,
+        attachment_id=attachment_id,
+        mailbox_id=mailbox_id,
+        _request_timeout=request_timeout,
+    )
+    return _coerce_bytes(result)
+
+
+def read_mailbox_text_attachment(
+    api_client: ApiClient,
+    *,
+    message_id: str,
+    attachment_id: str,
+    mailbox_id: str | None = None,
+    encoding: str = "utf-8",
+    request_timeout: float | tuple[float, float] | None = None,
+) -> str:
+    """Download one mailbox attachment and decode it as text."""
+
+    return download_mailbox_attachment(
+        api_client,
+        message_id=message_id,
+        attachment_id=attachment_id,
+        mailbox_id=mailbox_id,
+        request_timeout=request_timeout,
+    ).decode(encoding)
+
+
 def send_mailbox_message_with_files(
     api_client: ApiClient,
     *,
@@ -608,6 +669,27 @@ def _parse_upload_result_response(body: bytes) -> dict[str, Any]:
     return decoded
 
 
+def _read_binary_response(response: Any) -> bytes:
+    read = getattr(response, "read", None)
+    if not callable(read):
+        return _coerce_bytes(response)
+
+    try:
+        return _coerce_bytes(read(decode_content=True))
+    except TypeError:
+        return _coerce_bytes(read())
+
+
+def _coerce_bytes(value: Any) -> bytes:
+    if isinstance(value, bytes):
+        return value
+    if isinstance(value, bytearray):
+        return bytes(value)
+    if isinstance(value, str):
+        return value.encode("utf-8")
+    raise TypeError(f"Expected attachment bytes, got {type(value).__name__}.")
+
+
 def _read_attachment_file(
     file_path: PathInput,
     *,
@@ -644,8 +726,10 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
+from ${packageName}.api.attachments_api import AttachmentsApi
 from ${packageName}.api.emails_api import EmailsApi
 from ${packageName}.api_client import ApiClient
+from ${packageName}.models.attachment_upload_response import AttachmentUploadResponse
 from ${packageName}.models.email_send_request import EmailSendRequest
 from ${packageName}.models.send_success_response import SendSuccessResponse
 
@@ -670,6 +754,29 @@ def attachment_from_file(
     }
 
 
+def upload_attachment_from_file(
+    api_client: ApiClient,
+    *,
+    file_path: PathInput,
+    filename: str | None = None,
+    content_type: str | None = None,
+    idempotency_key: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> AttachmentUploadResponse:
+    """Upload a local file and return an attachment ID for Sending attachments."""
+
+    file = _read_attachment_file(file_path, filename=filename, content_type=content_type)
+    api = AttachmentsApi(api_client)
+    return api.sending_upload_attachment(
+        filename=file["filename"],
+        body=file["bytes"],
+        idempotency_key=idempotency_key,
+        content_type=file["content_type"],
+        _headers={"Content-Type": file["content_type"]},
+        _request_timeout=request_timeout,
+    )
+
+
 def send_email_with_files(
     api_client: ApiClient,
     *,
@@ -678,18 +785,20 @@ def send_email_with_files(
     idempotency_key: str | None = None,
     request_timeout: float | tuple[float, float] | None = None,
 ) -> SendSuccessResponse:
-    """Read local files, attach them as base64, and send one email."""
+    """Upload local files, attach their attachment IDs, and send one email."""
 
     attachments = list(body.get("attachments") or [])
     for file_input in files:
         file = _file_input(file_input)
-        attachments.append(
-            attachment_from_file(
-                file["path"],
-                filename=file.get("filename"),
-                content_type=file.get("content_type"),
-            )
+        uploaded = upload_attachment_from_file(
+            api_client,
+            file_path=file["path"],
+            filename=file.get("filename"),
+            content_type=file.get("content_type"),
+            idempotency_key=file.get("idempotency_key"),
+            request_timeout=request_timeout,
         )
+        attachments.append({"attachment_id": uploaded.data.attachment_id})
 
     api = EmailsApi(api_client)
     return api.sending_send_email(

@@ -28,10 +28,12 @@ class MailboxDomainVerifyChecks(BaseModel):
     MailboxDomainVerifyChecks
     """ # noqa: E501
     dmarc: StrictBool = Field(description="DMARC TXT record matches expected value")
+    mail_from_mx: StrictBool = Field(description="Custom MAIL FROM MX record matches expected value")
+    mail_from_spf: StrictBool = Field(description="Custom MAIL FROM SPF TXT record matches expected value")
     mx: StrictBool = Field(description="MX record present when the domain is configured for receiving. Always true for send-only domains.")
     spf: StrictBool = Field(description="SPF TXT record matches expected value")
     verification_txt: StrictBool = Field(description="Ownership TXT record present with correct value")
-    __properties: ClassVar[List[str]] = ["dmarc", "mx", "spf", "verification_txt"]
+    __properties: ClassVar[List[str]] = ["dmarc", "mail_from_mx", "mail_from_spf", "mx", "spf", "verification_txt"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -85,6 +87,8 @@ class MailboxDomainVerifyChecks(BaseModel):
 
         _obj = cls.model_validate({
             "dmarc": obj.get("dmarc"),
+            "mail_from_mx": obj.get("mail_from_mx"),
+            "mail_from_spf": obj.get("mail_from_spf"),
             "mx": obj.get("mx"),
             "spf": obj.get("spf"),
             "verification_txt": obj.get("verification_txt")

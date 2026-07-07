@@ -26,6 +26,9 @@
     "@sendmux/management": "workspace:*",
     "@sendmux/sending": "workspace:*"
   },
+  "devDependencies": {
+    "@types/node": "22.19.19"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Sendmux/sendmux-sdk.git",

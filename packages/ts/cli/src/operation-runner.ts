@@ -16,6 +16,7 @@ type ClientFactory = (config: {
   baseUrl?: string;
 }) => unknown;
 type MailboxClient = ReturnType<typeof sdk.mailbox.createMailboxClient>;
+type SendingClient = ReturnType<typeof sdk.sending.createSendingClient>;
 
 const surfaceModules = {
   mailbox: sdk.mailbox,
@@ -240,6 +241,35 @@ async function withAttachedFiles(
         blob_id: stringField(result, "blob_id", "mailboxUploadAttachment"),
         content_type: stringField(result, "content_type", "mailboxUploadAttachment"),
         filename: stringField(result, "filename", "mailboxUploadAttachment"),
+      });
+    }
+
+    return {
+      ...operationOptions,
+      body: {
+        ...body,
+        attachments: [...existingAttachments, ...uploaded],
+      },
+    };
+  }
+
+  if (operation.operationId === "sendingSendEmail") {
+    const uploaded = [];
+    for (const file of files) {
+      const uploadResponse = await sdk.sending.sendingUploadAttachment({
+        client: client as SendingClient,
+        body: blobFor(file),
+        headers: {
+          "Content-Type": file.contentType,
+        },
+        query: {
+          content_type: file.contentType,
+          filename: file.filename,
+        },
+      });
+      const result = envelopeData<Record<string, unknown>>(uploadResponse, "sendingUploadAttachment");
+      uploaded.push({
+        attachment_id: stringField(result, "attachment_id", "sendingUploadAttachment"),
       });
     }
 

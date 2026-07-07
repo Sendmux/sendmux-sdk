@@ -102,6 +102,27 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (request.method === "POST" && requestUrl.startsWith("/emails/attachments")) {
+    const url = new URL(requestUrl, "http://127.0.0.1");
+    const filename = url.searchParams.get("filename") ?? "attachment.bin";
+    response.writeHead(201, {
+      "Content-Type": "application/json",
+      Location: `/emails/attachments/att_cli_${filename}`,
+    });
+    response.end(JSON.stringify({
+      ok: true,
+      data: {
+        attachment_id: "att_1234567890abcdefghijklmn",
+        content_type: request.headers["content-type"] ?? "application/octet-stream",
+        expires_at: "2026-07-07T10:00:00.000Z",
+        filename,
+        size_bytes: body.byteLength,
+      },
+      meta: { request_id: "req_cli_sending_upload" },
+    }));
+    return;
+  }
+
   if (request.method === "POST" && requestUrl.startsWith("/mailbox/attachment-uploads")) {
     const parsed = JSON.parse(body.toString("utf8"));
     const address = server.address();
@@ -515,15 +536,24 @@ try {
 
   assertCliSuccess(sendingAttachResult, "sending:send --attach");
 
-  const sendingAttachBody = JSON.parse(latestRequest().body.toString("utf8"));
+  const sendingAttachUploadRequest = serverState.requests.at(-2);
+  const sendingAttachSendRequest = latestRequest();
+  if (!sendingAttachUploadRequest) {
+    throw new Error("sending:send --attach did not upload before send");
+  }
+  if (!sendingAttachUploadRequest.url.startsWith("/emails/attachments")) {
+    throw new Error(`sending:send --attach used wrong upload path: ${sendingAttachUploadRequest.url}`);
+  }
+  if (!sendingAttachUploadRequest.body.equals(textAttachmentBytes)) {
+    throw new Error("sending:send --attach did not upload raw file bytes");
+  }
+
+  const sendingAttachBody = JSON.parse(sendingAttachSendRequest.body.toString("utf8"));
   assertDeepEqual(sendingAttachBody.attachments, [
     {
-      content: textAttachmentBytes.toString("base64"),
-      encoding: "base64",
-      filename: "report.txt",
-      type: "text/plain",
+      attachment_id: "att_1234567890abcdefghijklmn",
     },
-  ], "sending:send --attach must encode local files into Sending API attachments");
+  ], "sending:send --attach must inject uploaded attachment references");
 
   const streamResult = await runCli([
     "mailbox:stream-events",
@@ -837,6 +867,12 @@ function assertCliCommandCoverage() {
 
 function assertBinaryOperationRunnerGuard() {
   const source = readFileSync(operationRunnerPath, "utf8");
+  const operationsSource = readFileSync(operationsPath, "utf8");
+  const operationBlock = operationsSource.match(/mailboxGetMessageAttachment: \{[\s\S]*?\n  \}/)?.[0];
+  if (!operationBlock?.includes('"responseKind": "binary"')) {
+    throw new Error("CLI operation manifest must classify mailboxGetMessageAttachment as a binary response");
+  }
+
   const branch = source.match(/if \(operation\.operationId === "mailboxGetMessageAttachment"\) \{[\s\S]*?\n  \}/)?.[0];
   if (!branch) {
     throw new Error("CLI operation runner must special-case mailboxGetMessageAttachment");

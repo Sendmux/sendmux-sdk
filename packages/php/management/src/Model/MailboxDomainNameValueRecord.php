@@ -37,7 +37,7 @@ use Sendmux\Management\ObjectSerializer;
 /**
  * MailboxDomainNameValueRecord Class Doc Comment
  *
- * @description SPF TXT record covering Amazon SES sending
+ * @description SPF TXT record for the custom MAIL FROM subdomain
  * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

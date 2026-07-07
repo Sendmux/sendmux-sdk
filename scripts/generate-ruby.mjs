@@ -12,7 +12,7 @@ const surfaces = [
     gemName: "sendmux-sending",
     generatedGemName: "sendmux_sending_generated",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
-    tags: ["Emails", "Meta"],
+    tags: ["Attachments", "Emails", "Meta"],
     keySurface: "SENDING",
     defaultBaseUrl: "https://smtp.sendmux.ai/api/v1",
     modelNameMappings: [],

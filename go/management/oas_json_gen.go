@@ -9338,6 +9338,10 @@ func (s *MailboxDomain) encodeFields(e *jx.Encoder) {
 		s.SesDkimStatus.Encode(e)
 	}
 	{
+		e.FieldStart("ses_mail_from_status")
+		s.SesMailFromStatus.Encode(e)
+	}
+	{
 		e.FieldStart("verification_status")
 		s.VerificationStatus.Encode(e)
 	}
@@ -9347,7 +9351,7 @@ func (s *MailboxDomain) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxDomain = [9]string{
+var jsonFieldsNameOfMailboxDomain = [10]string{
 	0: "created_at",
 	1: "dns_records",
 	2: "domain",
@@ -9355,8 +9359,9 @@ var jsonFieldsNameOfMailboxDomain = [9]string{
 	4: "mailbox_count",
 	5: "mode",
 	6: "ses_dkim_status",
-	7: "verification_status",
-	8: "verified_at",
+	7: "ses_mail_from_status",
+	8: "verification_status",
+	9: "verified_at",
 }
 
 // Decode decodes MailboxDomain from json.
@@ -9446,8 +9451,18 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"ses_dkim_status\"")
 			}
-		case "verification_status":
+		case "ses_mail_from_status":
 			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				if err := s.SesMailFromStatus.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_mail_from_status\"")
+			}
+		case "verification_status":
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				if err := s.VerificationStatus.Decode(d); err != nil {
 					return err
@@ -9457,7 +9472,7 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"verification_status\"")
 			}
 		case "verified_at":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				if err := s.VerifiedAt.Decode(d); err != nil {
 					return err
@@ -9477,7 +9492,7 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111111,
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -9545,6 +9560,10 @@ func (s *MailboxDomainDnsRecords) encodeFields(e *jx.Encoder) {
 		s.Dmarc.Encode(e)
 	}
 	{
+		e.FieldStart("mail_from")
+		s.MailFrom.Encode(e)
+	}
+	{
 		e.FieldStart("mx")
 		e.ArrStart()
 		for _, elem := range s.Mx {
@@ -9562,12 +9581,13 @@ func (s *MailboxDomainDnsRecords) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxDomainDnsRecords = [5]string{
+var jsonFieldsNameOfMailboxDomainDnsRecords = [6]string{
 	0: "dkim",
 	1: "dmarc",
-	2: "mx",
-	3: "spf",
-	4: "verification",
+	2: "mail_from",
+	3: "mx",
+	4: "spf",
+	5: "verification",
 }
 
 // Decode decodes MailboxDomainDnsRecords from json.
@@ -9607,8 +9627,18 @@ func (s *MailboxDomainDnsRecords) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"dmarc\"")
 			}
-		case "mx":
+		case "mail_from":
 			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.MailFrom.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"mail_from\"")
+			}
+		case "mx":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				s.Mx = make([]MailboxDomainMxRecord, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -9626,7 +9656,7 @@ func (s *MailboxDomainDnsRecords) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"mx\"")
 			}
 		case "spf":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				if err := s.Spf.Decode(d); err != nil {
 					return err
@@ -9636,7 +9666,7 @@ func (s *MailboxDomainDnsRecords) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"spf\"")
 			}
 		case "verification":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.Verification.Decode(d); err != nil {
 					return err
@@ -9655,7 +9685,7 @@ func (s *MailboxDomainDnsRecords) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -9815,6 +9845,119 @@ func (s *MailboxDomainDnsRecordsDmarc) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *MailboxDomainDnsRecordsSpf) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxDomainDnsRecordsSpf) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+	{
+		e.FieldStart("value")
+		e.Str(s.Value)
+	}
+}
+
+var jsonFieldsNameOfMailboxDomainDnsRecordsSpf = [2]string{
+	0: "name",
+	1: "value",
+}
+
+// Decode decodes MailboxDomainDnsRecordsSpf from json.
+func (s *MailboxDomainDnsRecordsSpf) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxDomainDnsRecordsSpf to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "name":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "value":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Value = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"value\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxDomainDnsRecordsSpf")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxDomainDnsRecordsSpf) {
+					name = jsonFieldsNameOfMailboxDomainDnsRecordsSpf[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxDomainDnsRecordsSpf) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxDomainDnsRecordsSpf) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *MailboxDomainDnsRecordsVerification) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -9923,6 +10066,115 @@ func (s *MailboxDomainDnsRecordsVerification) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxDomainDnsRecordsVerification) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxDomainMailFromRecords) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxDomainMailFromRecords) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("mx")
+		s.Mx.Encode(e)
+	}
+	{
+		e.FieldStart("spf")
+		s.Spf.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfMailboxDomainMailFromRecords = [2]string{
+	0: "mx",
+	1: "spf",
+}
+
+// Decode decodes MailboxDomainMailFromRecords from json.
+func (s *MailboxDomainMailFromRecords) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxDomainMailFromRecords to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "mx":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Mx.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"mx\"")
+			}
+		case "spf":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Spf.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"spf\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxDomainMailFromRecords")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxDomainMailFromRecords) {
+					name = jsonFieldsNameOfMailboxDomainMailFromRecords[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxDomainMailFromRecords) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxDomainMailFromRecords) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -10193,6 +10445,136 @@ func (s *MailboxDomainNameValueRecord) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *MailboxDomainNamedMxRecord) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxDomainNamedMxRecord) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+	{
+		e.FieldStart("priority")
+		e.Int(s.Priority)
+	}
+	{
+		e.FieldStart("target")
+		e.Str(s.Target)
+	}
+}
+
+var jsonFieldsNameOfMailboxDomainNamedMxRecord = [3]string{
+	0: "name",
+	1: "priority",
+	2: "target",
+}
+
+// Decode decodes MailboxDomainNamedMxRecord from json.
+func (s *MailboxDomainNamedMxRecord) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxDomainNamedMxRecord to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "name":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "priority":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Int()
+				s.Priority = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"priority\"")
+			}
+		case "target":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.Target = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"target\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxDomainNamedMxRecord")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxDomainNamedMxRecord) {
+					name = jsonFieldsNameOfMailboxDomainNamedMxRecord[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxDomainNamedMxRecord) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxDomainNamedMxRecord) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes MailboxDomainVerificationStatus as json.
 func (s MailboxDomainVerificationStatus) Encode(e *jx.Encoder) {
 	e.Str(string(s))
@@ -10249,6 +10631,14 @@ func (s *MailboxDomainVerifyChecks) encodeFields(e *jx.Encoder) {
 		e.Bool(s.Dmarc)
 	}
 	{
+		e.FieldStart("mail_from_mx")
+		e.Bool(s.MailFromMx)
+	}
+	{
+		e.FieldStart("mail_from_spf")
+		e.Bool(s.MailFromSpf)
+	}
+	{
 		e.FieldStart("mx")
 		e.Bool(s.Mx)
 	}
@@ -10262,11 +10652,13 @@ func (s *MailboxDomainVerifyChecks) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxDomainVerifyChecks = [4]string{
+var jsonFieldsNameOfMailboxDomainVerifyChecks = [6]string{
 	0: "dmarc",
-	1: "mx",
-	2: "spf",
-	3: "verification_txt",
+	1: "mail_from_mx",
+	2: "mail_from_spf",
+	3: "mx",
+	4: "spf",
+	5: "verification_txt",
 }
 
 // Decode decodes MailboxDomainVerifyChecks from json.
@@ -10290,8 +10682,32 @@ func (s *MailboxDomainVerifyChecks) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"dmarc\"")
 			}
-		case "mx":
+		case "mail_from_mx":
 			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Bool()
+				s.MailFromMx = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"mail_from_mx\"")
+			}
+		case "mail_from_spf":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Bool()
+				s.MailFromSpf = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"mail_from_spf\"")
+			}
+		case "mx":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Bool()
 				s.Mx = bool(v)
@@ -10303,7 +10719,7 @@ func (s *MailboxDomainVerifyChecks) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"mx\"")
 			}
 		case "spf":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Bool()
 				s.Spf = bool(v)
@@ -10315,7 +10731,7 @@ func (s *MailboxDomainVerifyChecks) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"spf\"")
 			}
 		case "verification_txt":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Bool()
 				s.VerificationTxt = bool(v)
@@ -10336,7 +10752,7 @@ func (s *MailboxDomainVerifyChecks) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -10400,15 +10816,20 @@ func (s *MailboxDomainVerifyResult) encodeFields(e *jx.Encoder) {
 		e.Str(s.SesDkimStatus)
 	}
 	{
+		e.FieldStart("ses_mail_from_status")
+		e.Str(s.SesMailFromStatus)
+	}
+	{
 		e.FieldStart("status")
 		s.Status.Encode(e)
 	}
 }
 
-var jsonFieldsNameOfMailboxDomainVerifyResult = [3]string{
+var jsonFieldsNameOfMailboxDomainVerifyResult = [4]string{
 	0: "checks",
 	1: "ses_dkim_status",
-	2: "status",
+	2: "ses_mail_from_status",
+	3: "status",
 }
 
 // Decode decodes MailboxDomainVerifyResult from json.
@@ -10442,8 +10863,20 @@ func (s *MailboxDomainVerifyResult) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"ses_dkim_status\"")
 			}
-		case "status":
+		case "ses_mail_from_status":
 			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.SesMailFromStatus = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_mail_from_status\"")
+			}
+		case "status":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Status.Decode(d); err != nil {
 					return err
@@ -10462,7 +10895,7 @@ func (s *MailboxDomainVerifyResult) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

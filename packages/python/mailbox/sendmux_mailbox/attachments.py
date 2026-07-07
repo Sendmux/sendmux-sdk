@@ -103,6 +103,64 @@ def upload_mailbox_attachment_via_presigned_file(
     return result
 
 
+def download_mailbox_attachment(
+    api_client: ApiClient,
+    *,
+    message_id: str,
+    attachment_id: str,
+    mailbox_id: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> bytes:
+    """Download one mailbox attachment as bytes."""
+
+    api = MailboxAPIApi(api_client)
+    raw_download = getattr(api, "mailbox_get_message_attachment_without_preload_content", None)
+    if callable(raw_download):
+        response = raw_download(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            mailbox_id=mailbox_id,
+            _request_timeout=request_timeout,
+        )
+        try:
+            return _read_binary_response(response)
+        finally:
+            close = getattr(response, "close", None)
+            if callable(close):
+                close()
+            release_conn = getattr(response, "release_conn", None)
+            if callable(release_conn):
+                release_conn()
+
+    result = api.mailbox_get_message_attachment(
+        message_id=message_id,
+        attachment_id=attachment_id,
+        mailbox_id=mailbox_id,
+        _request_timeout=request_timeout,
+    )
+    return _coerce_bytes(result)
+
+
+def read_mailbox_text_attachment(
+    api_client: ApiClient,
+    *,
+    message_id: str,
+    attachment_id: str,
+    mailbox_id: str | None = None,
+    encoding: str = "utf-8",
+    request_timeout: float | tuple[float, float] | None = None,
+) -> str:
+    """Download one mailbox attachment and decode it as text."""
+
+    return download_mailbox_attachment(
+        api_client,
+        message_id=message_id,
+        attachment_id=attachment_id,
+        mailbox_id=mailbox_id,
+        request_timeout=request_timeout,
+    ).decode(encoding)
+
+
 def send_mailbox_message_with_files(
     api_client: ApiClient,
     *,
@@ -179,6 +237,27 @@ def _parse_upload_result_response(body: bytes) -> dict[str, Any]:
     if not isinstance(decoded, dict):
         raise ValueError("Presigned attachment upload metadata must be a JSON object.")
     return decoded
+
+
+def _read_binary_response(response: Any) -> bytes:
+    read = getattr(response, "read", None)
+    if not callable(read):
+        return _coerce_bytes(response)
+
+    try:
+        return _coerce_bytes(read(decode_content=True))
+    except TypeError:
+        return _coerce_bytes(read())
+
+
+def _coerce_bytes(value: Any) -> bytes:
+    if isinstance(value, bytes):
+        return value
+    if isinstance(value, bytearray):
+        return bytes(value)
+    if isinstance(value, str):
+        return value.encode("utf-8")
+    raise TypeError(f"Expected attachment bytes, got {type(value).__name__}.")
 
 
 def _read_attachment_file(

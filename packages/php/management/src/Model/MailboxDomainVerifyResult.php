@@ -61,6 +61,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     protected static array $openAPITypes = [
         'checks' => '\Sendmux\Management\Model\MailboxDomainVerifyChecks',
         'ses_dkim_status' => 'string',
+        'ses_mail_from_status' => 'string',
         'status' => 'string'
     ];
 
@@ -72,6 +73,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     protected static array $openAPIFormats = [
         'checks' => null,
         'ses_dkim_status' => null,
+        'ses_mail_from_status' => null,
         'status' => null
     ];
 
@@ -83,6 +85,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     protected static array $openAPINullables = [
         'checks' => false,
         'ses_dkim_status' => false,
+        'ses_mail_from_status' => false,
         'status' => false
     ];
 
@@ -164,6 +167,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     protected static array $attributeMap = [
         'checks' => 'checks',
         'ses_dkim_status' => 'ses_dkim_status',
+        'ses_mail_from_status' => 'ses_mail_from_status',
         'status' => 'status'
     ];
 
@@ -175,6 +179,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     protected static array $setters = [
         'checks' => 'setChecks',
         'ses_dkim_status' => 'setSesDkimStatus',
+        'ses_mail_from_status' => 'setSesMailFromStatus',
         'status' => 'setStatus'
     ];
 
@@ -186,6 +191,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     protected static array $getters = [
         'checks' => 'getChecks',
         'ses_dkim_status' => 'getSesDkimStatus',
+        'ses_mail_from_status' => 'getSesMailFromStatus',
         'status' => 'getStatus'
     ];
 
@@ -255,6 +261,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
     {
         $this->setIfExists('checks', $data ?? [], null);
         $this->setIfExists('ses_dkim_status', $data ?? [], null);
+        $this->setIfExists('ses_mail_from_status', $data ?? [], null);
         $this->setIfExists('status', $data ?? [], null);
     }
 
@@ -288,6 +295,9 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
         }
         if ($this->container['ses_dkim_status'] === null) {
             $invalidProperties[] = "'ses_dkim_status' can't be null";
+        }
+        if ($this->container['ses_mail_from_status'] === null) {
+            $invalidProperties[] = "'ses_mail_from_status' can't be null";
         }
         if ($this->container['status'] === null) {
             $invalidProperties[] = "'status' can't be null";
@@ -363,6 +373,33 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
             throw new InvalidArgumentException('non-nullable ses_dkim_status cannot be null');
         }
         $this->container['ses_dkim_status'] = $ses_dkim_status;
+
+        return $this;
+    }
+
+    /**
+     * Gets ses_mail_from_status
+     *
+     * @return string
+     */
+    public function getSesMailFromStatus(): string
+    {
+        return $this->container['ses_mail_from_status'];
+    }
+
+    /**
+     * Sets ses_mail_from_status
+     *
+     * @param string $ses_mail_from_status Latest Amazon SES MAIL FROM status
+     *
+     * @return $this
+     */
+    public function setSesMailFromStatus(string $ses_mail_from_status): static
+    {
+        if (is_null($ses_mail_from_status)) {
+            throw new InvalidArgumentException('non-nullable ses_mail_from_status cannot be null');
+        }
+        $this->container['ses_mail_from_status'] = $ses_mail_from_status;
 
         return $this;
     }

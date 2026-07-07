@@ -18,6 +18,12 @@ module Sendmux::Management::Generated
     # DMARC TXT record matches expected value
     attr_accessor :dmarc
 
+    # Custom MAIL FROM MX record matches expected value
+    attr_accessor :mail_from_mx
+
+    # Custom MAIL FROM SPF TXT record matches expected value
+    attr_accessor :mail_from_spf
+
     # MX record present when the domain is configured for receiving. Always true for send-only domains.
     attr_accessor :mx
 
@@ -31,6 +37,8 @@ module Sendmux::Management::Generated
     def self.attribute_map
       {
         :'dmarc' => :'dmarc',
+        :'mail_from_mx' => :'mail_from_mx',
+        :'mail_from_spf' => :'mail_from_spf',
         :'mx' => :'mx',
         :'spf' => :'spf',
         :'verification_txt' => :'verification_txt'
@@ -51,6 +59,8 @@ module Sendmux::Management::Generated
     def self.openapi_types
       {
         :'dmarc' => :'Boolean',
+        :'mail_from_mx' => :'Boolean',
+        :'mail_from_spf' => :'Boolean',
         :'mx' => :'Boolean',
         :'spf' => :'Boolean',
         :'verification_txt' => :'Boolean'
@@ -85,6 +95,18 @@ module Sendmux::Management::Generated
         self.dmarc = nil
       end
 
+      if attributes.key?(:'mail_from_mx')
+        self.mail_from_mx = attributes[:'mail_from_mx']
+      else
+        self.mail_from_mx = nil
+      end
+
+      if attributes.key?(:'mail_from_spf')
+        self.mail_from_spf = attributes[:'mail_from_spf']
+      else
+        self.mail_from_spf = nil
+      end
+
       if attributes.key?(:'mx')
         self.mx = attributes[:'mx']
       else
@@ -113,6 +135,14 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "dmarc", dmarc cannot be nil.')
       end
 
+      if @mail_from_mx.nil?
+        invalid_properties.push('invalid value for "mail_from_mx", mail_from_mx cannot be nil.')
+      end
+
+      if @mail_from_spf.nil?
+        invalid_properties.push('invalid value for "mail_from_spf", mail_from_spf cannot be nil.')
+      end
+
       if @mx.nil?
         invalid_properties.push('invalid value for "mx", mx cannot be nil.')
       end
@@ -133,6 +163,8 @@ module Sendmux::Management::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @dmarc.nil?
+      return false if @mail_from_mx.nil?
+      return false if @mail_from_spf.nil?
       return false if @mx.nil?
       return false if @spf.nil?
       return false if @verification_txt.nil?
@@ -147,6 +179,26 @@ module Sendmux::Management::Generated
       end
 
       @dmarc = dmarc
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] mail_from_mx Value to be assigned
+    def mail_from_mx=(mail_from_mx)
+      if mail_from_mx.nil?
+        fail ArgumentError, 'mail_from_mx cannot be nil'
+      end
+
+      @mail_from_mx = mail_from_mx
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] mail_from_spf Value to be assigned
+    def mail_from_spf=(mail_from_spf)
+      if mail_from_spf.nil?
+        fail ArgumentError, 'mail_from_spf cannot be nil'
+      end
+
+      @mail_from_spf = mail_from_spf
     end
 
     # Custom attribute writer method with validation
@@ -185,6 +237,8 @@ module Sendmux::Management::Generated
       return true if self.equal?(o)
       self.class == o.class &&
           dmarc == o.dmarc &&
+          mail_from_mx == o.mail_from_mx &&
+          mail_from_spf == o.mail_from_spf &&
           mx == o.mx &&
           spf == o.spf &&
           verification_txt == o.verification_txt
@@ -199,7 +253,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [dmarc, mx, spf, verification_txt].hash
+      [dmarc, mail_from_mx, mail_from_spf, mx, spf, verification_txt].hash
     end
 
     # Builds the object from hash

@@ -15,7 +15,7 @@ require 'time'
 
 module Sendmux::Sending::Generated
   class EmailSendRequest < ApiModelBase
-    # File attachments (max 10)
+    # File attachments (max 10). Use attachment_id refs for uploaded files.
     attr_accessor :attachments
 
     # BCC recipients (max 100)

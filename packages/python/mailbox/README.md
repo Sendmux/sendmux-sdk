@@ -49,7 +49,7 @@ The package exports every generated Mailbox model and API class plus:
 
 ## Attachments
 
-Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client; no `Authorization` header is needed. If the URL has expired, call `mailbox_get_message()` or list/search messages again to receive fresh metadata.
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Prefer `download_mailbox_attachment()` or `read_mailbox_text_attachment()` when you already have an authenticated client. Plain HTTP clients can fetch `download_url` promptly with no `Authorization` header; if it expires, call `mailbox_get_message()` or list/search messages again to receive fresh metadata.
 
 Mailbox direct uploads, presigned uploads, and file helpers share the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
 
@@ -57,7 +57,7 @@ Mailbox direct uploads, presigned uploads, and file helpers share the mailbox at
 import os
 import urllib.request
 
-from sendmux_mailbox import MailboxAPIApi, create_mailbox_client
+from sendmux_mailbox import MailboxAPIApi, create_mailbox_client, read_mailbox_text_attachment
 
 client = create_mailbox_client(api_key=os.environ["SENDMUX_MAILBOX_API_KEY"])
 api = MailboxAPIApi(client)
@@ -65,6 +65,11 @@ api = MailboxAPIApi(client)
 message = api.mailbox_get_message("msg_123")
 attachment = message.data.attachments[0]
 content = urllib.request.urlopen(attachment.download_url, timeout=30).read()
+text = read_mailbox_text_attachment(
+    client,
+    message_id="msg_123",
+    attachment_id=attachment.id,
+)
 
 upload = api.mailbox_upload_attachment(
     body=b"hello\n",

@@ -8,6 +8,28 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// SendingCompleteAttachmentUpload implements sendingCompleteAttachmentUpload operation.
+	//
+	// Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses
+	// the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API
+	// key.
+	//
+	// PUT /emails/attachment-uploads/{upload_id}
+	SendingCompleteAttachmentUpload(ctx context.Context, req SendingCompleteAttachmentUploadReq, params SendingCompleteAttachmentUploadParams) (SendingCompleteAttachmentUploadRes, error)
+	// SendingCreateAttachmentUpload implements sendingCreateAttachmentUpload operation.
+	//
+	// Create a short-lived upload URL and token that lets a remote client PUT one binary attachment
+	// without exposing the API key on the upload request. Requires `email.send` permission.
+	//
+	// POST /emails/attachment-uploads
+	SendingCreateAttachmentUpload(ctx context.Context, req *AttachmentUploadIntentRequest, params SendingCreateAttachmentUploadParams) (SendingCreateAttachmentUploadRes, error)
+	// SendingGetAttachment implements sendingGetAttachment operation.
+	//
+	// Return metadata for a temporary uploaded attachment owned by the authenticated team. File bytes
+	// are not returned.
+	//
+	// GET /emails/attachments/{attachment_id}
+	SendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (SendingGetAttachmentRes, error)
 	// SendingGetOpenApiSpec implements sendingGetOpenApiSpec operation.
 	//
 	// Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).
@@ -28,6 +50,13 @@ type Handler interface {
 	//
 	// POST /emails/send/batch
 	SendingSendEmailBatch(ctx context.Context, req *BatchSendRequest, params SendingSendEmailBatchParams) (SendingSendEmailBatchRes, error)
+	// SendingUploadAttachment implements sendingUploadAttachment operation.
+	//
+	// Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[].
+	// Requires `email.send` permission.
+	//
+	// POST /emails/attachments
+	SendingUploadAttachment(ctx context.Context, req SendingUploadAttachmentReq, params SendingUploadAttachmentParams) (SendingUploadAttachmentRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

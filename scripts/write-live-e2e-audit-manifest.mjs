@@ -23,6 +23,10 @@ const gateEnvNames = [
 ];
 const customMcpOperations = [
   {
+    operationId: "mailboxReadAttachment",
+    surface: "mailbox",
+  },
+  {
     operationId: "mailboxWaitForMessage",
     surface: "mailbox",
   },

@@ -4,6 +4,13 @@ export type ClientOptions = {
     baseUrl: 'https://smtp.sendmux.ai/api/v1' | (string & {});
 };
 
+export type UploadedAttachmentRef = {
+    /**
+     * Temporary uploaded attachment ID returned by POST /emails/attachments.
+     */
+    attachment_id: string;
+};
+
 export type SuccessEnvelope = {
     meta: Meta;
     ok: true;
@@ -40,6 +47,22 @@ export type Recipient = {
      * Recipient display name
      */
     name?: string;
+};
+
+export type InlineAttachment = {
+    /**
+     * Base64-encoded file content
+     */
+    content: string;
+    encoding?: 'base64';
+    /**
+     * Filename with allowed extension
+     */
+    filename: string;
+    /**
+     * MIME type override
+     */
+    type?: string;
 };
 
 export type ErrorResponse = {
@@ -92,7 +115,7 @@ export type ErrorDetail = {
 
 export type EmailSendRequest = {
     /**
-     * File attachments (max 10)
+     * File attachments (max 10). Use attachment_id refs for uploaded files.
      */
     attachments?: Array<Attachment>;
     /**
@@ -144,21 +167,7 @@ export type Address = {
     name?: string;
 };
 
-export type Attachment = {
-    /**
-     * Base64-encoded file content
-     */
-    content: string;
-    encoding?: 'base64';
-    /**
-     * Filename with allowed extension
-     */
-    filename: string;
-    /**
-     * MIME type override
-     */
-    type?: string;
-};
+export type Attachment = InlineAttachment | UploadedAttachmentRef;
 
 export type BatchSummary = {
     /**
@@ -206,6 +215,318 @@ export type BatchSendRequest = {
      */
     messages: Array<EmailSendRequest>;
 };
+
+export type AttachmentUploadResponse = SuccessEnvelope & {
+    data: AttachmentUploadData;
+};
+
+export type AttachmentUploadData = {
+    /**
+     * Temporary attachment ID to use in email attachments[].
+     */
+    attachment_id: string;
+    /**
+     * Stored attachment MIME type
+     */
+    content_type: string;
+    /**
+     * ISO timestamp when this temporary attachment reference expires.
+     */
+    expires_at: string;
+    /**
+     * Stored attachment filename
+     */
+    filename: string;
+    /**
+     * Stored attachment byte size
+     */
+    size_bytes: number;
+};
+
+export type AttachmentUploadIntentResponse = SuccessEnvelope & {
+    data: AttachmentUploadIntentData;
+};
+
+export type AttachmentUploadIntentData = {
+    /**
+     * ISO timestamp when the upload URL expires.
+     */
+    expires_at: string;
+    /**
+     * Headers that must be sent with the PUT upload request.
+     */
+    headers: {
+        [key: string]: string;
+    };
+    /**
+     * Maximum upload size in bytes
+     */
+    max_size_bytes: number;
+    /**
+     * HTTP method for upload_url
+     */
+    method: 'PUT';
+    /**
+     * Temporary upload intent ID.
+     */
+    upload_id: string;
+    /**
+     * Short-lived URL that accepts a binary PUT with the returned headers.
+     */
+    upload_url: string;
+};
+
+export type AttachmentUploadIntentRequest = {
+    /**
+     * MIME type expected for the upload.
+     */
+    content_type?: string;
+    /**
+     * Filename to associate with the uploaded attachment.
+     */
+    filename: string;
+    /**
+     * Optional SHA-256 hex digest for the upload bytes.
+     */
+    sha256?: string;
+    /**
+     * Exact byte size that will be uploaded.
+     */
+    size_bytes: number;
+};
+
+export type SendingCreateAttachmentUploadData = {
+    body: AttachmentUploadIntentRequest;
+    headers?: {
+        /**
+         * Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.
+         */
+        'Idempotency-Key'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/emails/attachment-uploads';
+};
+
+export type SendingCreateAttachmentUploadErrors = {
+    /**
+     * Malformed request
+     */
+    400: ErrorResponse;
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse;
+    /**
+     * Insufficient permissions
+     */
+    403: ErrorResponse;
+    /**
+     * Idempotency conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Attachment exceeds the upload size cap
+     */
+    413: ErrorResponse;
+    /**
+     * Attachment upload validation failed
+     */
+    422: ErrorResponse;
+    /**
+     * Rate limit exceeded
+     */
+    429: ErrorResponse;
+    /**
+     * Attachment upload service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type SendingCreateAttachmentUploadError = SendingCreateAttachmentUploadErrors[keyof SendingCreateAttachmentUploadErrors];
+
+export type SendingCreateAttachmentUploadResponses = {
+    /**
+     * Attachment upload URL created
+     */
+    201: AttachmentUploadIntentResponse;
+};
+
+export type SendingCreateAttachmentUploadResponse = SendingCreateAttachmentUploadResponses[keyof SendingCreateAttachmentUploadResponses];
+
+export type SendingCompleteAttachmentUploadData = {
+    body: Blob | File;
+    headers: {
+        /**
+         * Short-lived upload token returned by POST /emails/attachment-uploads.
+         */
+        'X-Sendmux-Upload-Token': string;
+    };
+    path: {
+        /**
+         * Upload intent ID returned by POST /emails/attachment-uploads.
+         */
+        upload_id: string;
+    };
+    query?: never;
+    url: '/emails/attachment-uploads/{upload_id}';
+};
+
+export type SendingCompleteAttachmentUploadErrors = {
+    /**
+     * Missing or invalid upload headers
+     */
+    400: ErrorResponse;
+    /**
+     * Upload token missing, invalid, or expired
+     */
+    401: ErrorResponse;
+    /**
+     * Upload intent not found or expired
+     */
+    404: ErrorResponse;
+    /**
+     * Upload already completed with different content
+     */
+    409: ErrorResponse;
+    /**
+     * Uploaded bytes do not match the expected size
+     */
+    413: ErrorResponse;
+    /**
+     * Attachment validation failed
+     */
+    422: ErrorResponse;
+    /**
+     * Attachment storage temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type SendingCompleteAttachmentUploadError = SendingCompleteAttachmentUploadErrors[keyof SendingCompleteAttachmentUploadErrors];
+
+export type SendingCompleteAttachmentUploadResponses = {
+    /**
+     * Attachment uploaded successfully
+     */
+    201: AttachmentUploadResponse;
+};
+
+export type SendingCompleteAttachmentUploadResponse = SendingCompleteAttachmentUploadResponses[keyof SendingCompleteAttachmentUploadResponses];
+
+export type SendingUploadAttachmentData = {
+    body: Blob | File;
+    headers?: {
+        /**
+         * Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.
+         */
+        'Idempotency-Key'?: string;
+    };
+    path?: never;
+    query: {
+        /**
+         * Filename to associate with the uploaded attachment.
+         */
+        filename: string;
+        /**
+         * MIME type override for the uploaded attachment.
+         */
+        content_type?: string;
+    };
+    url: '/emails/attachments';
+};
+
+export type SendingUploadAttachmentErrors = {
+    /**
+     * Missing or invalid upload metadata
+     */
+    400: ErrorResponse;
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse;
+    /**
+     * Insufficient permissions
+     */
+    403: ErrorResponse;
+    /**
+     * Idempotency conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Attachment exceeds the upload size cap
+     */
+    413: ErrorResponse;
+    /**
+     * Attachment validation failed
+     */
+    422: ErrorResponse;
+    /**
+     * Rate limit exceeded
+     */
+    429: ErrorResponse;
+    /**
+     * Attachment storage temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type SendingUploadAttachmentError = SendingUploadAttachmentErrors[keyof SendingUploadAttachmentErrors];
+
+export type SendingUploadAttachmentResponses = {
+    /**
+     * Attachment uploaded successfully
+     */
+    201: AttachmentUploadResponse;
+};
+
+export type SendingUploadAttachmentResponse = SendingUploadAttachmentResponses[keyof SendingUploadAttachmentResponses];
+
+export type SendingGetAttachmentData = {
+    body?: never;
+    path: {
+        /**
+         * Temporary attachment ID returned by an upload endpoint.
+         */
+        attachment_id: string;
+    };
+    query?: never;
+    url: '/emails/attachments/{attachment_id}';
+};
+
+export type SendingGetAttachmentErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse;
+    /**
+     * Insufficient permissions
+     */
+    403: ErrorResponse;
+    /**
+     * Attachment not found or expired
+     */
+    404: ErrorResponse;
+    /**
+     * Rate limit exceeded
+     */
+    429: ErrorResponse;
+    /**
+     * Attachment storage temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type SendingGetAttachmentError = SendingGetAttachmentErrors[keyof SendingGetAttachmentErrors];
+
+export type SendingGetAttachmentResponses = {
+    /**
+     * Attachment metadata
+     */
+    200: AttachmentUploadResponse;
+};
+
+export type SendingGetAttachmentResponse = SendingGetAttachmentResponses[keyof SendingGetAttachmentResponses];
 
 export type SendingSendEmailData = {
     body: EmailSendRequest;

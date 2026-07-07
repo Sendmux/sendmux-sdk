@@ -60,7 +60,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build generated surfaces
-        run: pnpm build
+        run: pnpm build:live-e2e-surfaces
 
       - name: Run protected read-only live E2E
         env:

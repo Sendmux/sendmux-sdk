@@ -3,7 +3,9 @@
 package sending
 
 import (
+	"io"
 	"net/url"
+	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
@@ -41,16 +43,18 @@ func (s *Address) SetName(val OptString) {
 // Ref: #/components/schemas/Attachment
 type Attachment struct {
 	// Base64-encoded file content.
-	Content  string                `json:"content"`
+	Content  OptString             `json:"content"`
 	Encoding OptAttachmentEncoding `json:"encoding"`
 	// Filename with allowed extension.
-	Filename string `json:"filename"`
+	Filename OptString `json:"filename"`
 	// MIME type override.
 	Type OptString `json:"type"`
+	// Temporary uploaded attachment ID returned by POST /emails/attachments.
+	AttachmentID OptString `json:"attachment_id"`
 }
 
 // GetContent returns the value of Content.
-func (s *Attachment) GetContent() string {
+func (s *Attachment) GetContent() OptString {
 	return s.Content
 }
 
@@ -60,7 +64,7 @@ func (s *Attachment) GetEncoding() OptAttachmentEncoding {
 }
 
 // GetFilename returns the value of Filename.
-func (s *Attachment) GetFilename() string {
+func (s *Attachment) GetFilename() OptString {
 	return s.Filename
 }
 
@@ -69,8 +73,13 @@ func (s *Attachment) GetType() OptString {
 	return s.Type
 }
 
+// GetAttachmentID returns the value of AttachmentID.
+func (s *Attachment) GetAttachmentID() OptString {
+	return s.AttachmentID
+}
+
 // SetContent sets the value of Content.
-func (s *Attachment) SetContent(val string) {
+func (s *Attachment) SetContent(val OptString) {
 	s.Content = val
 }
 
@@ -80,13 +89,18 @@ func (s *Attachment) SetEncoding(val OptAttachmentEncoding) {
 }
 
 // SetFilename sets the value of Filename.
-func (s *Attachment) SetFilename(val string) {
+func (s *Attachment) SetFilename(val OptString) {
 	s.Filename = val
 }
 
 // SetType sets the value of Type.
 func (s *Attachment) SetType(val OptString) {
 	s.Type = val
+}
+
+// SetAttachmentID sets the value of AttachmentID.
+func (s *Attachment) SetAttachmentID(val OptString) {
+	s.AttachmentID = val
 }
 
 type AttachmentEncoding string
@@ -120,6 +134,405 @@ func (s *AttachmentEncoding) UnmarshalText(data []byte) error {
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/AttachmentUploadData
+type AttachmentUploadData struct {
+	// Temporary attachment ID to use in email attachments[].
+	AttachmentID string `json:"attachment_id"`
+	// Stored attachment MIME type.
+	ContentType string `json:"content_type"`
+	// ISO timestamp when this temporary attachment reference expires.
+	ExpiresAt time.Time `json:"expires_at"`
+	// Stored attachment filename.
+	Filename string `json:"filename"`
+	// Stored attachment byte size.
+	SizeBytes int `json:"size_bytes"`
+}
+
+// GetAttachmentID returns the value of AttachmentID.
+func (s *AttachmentUploadData) GetAttachmentID() string {
+	return s.AttachmentID
+}
+
+// GetContentType returns the value of ContentType.
+func (s *AttachmentUploadData) GetContentType() string {
+	return s.ContentType
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *AttachmentUploadData) GetExpiresAt() time.Time {
+	return s.ExpiresAt
+}
+
+// GetFilename returns the value of Filename.
+func (s *AttachmentUploadData) GetFilename() string {
+	return s.Filename
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *AttachmentUploadData) GetSizeBytes() int {
+	return s.SizeBytes
+}
+
+// SetAttachmentID sets the value of AttachmentID.
+func (s *AttachmentUploadData) SetAttachmentID(val string) {
+	s.AttachmentID = val
+}
+
+// SetContentType sets the value of ContentType.
+func (s *AttachmentUploadData) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *AttachmentUploadData) SetExpiresAt(val time.Time) {
+	s.ExpiresAt = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *AttachmentUploadData) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *AttachmentUploadData) SetSizeBytes(val int) {
+	s.SizeBytes = val
+}
+
+// Ref: #/components/schemas/AttachmentUploadIntentData
+type AttachmentUploadIntentData struct {
+	// ISO timestamp when the upload URL expires.
+	ExpiresAt time.Time `json:"expires_at"`
+	// Headers that must be sent with the PUT upload request.
+	Headers AttachmentUploadIntentDataHeaders `json:"headers"`
+	// Maximum upload size in bytes.
+	MaxSizeBytes int `json:"max_size_bytes"`
+	// HTTP method for upload_url.
+	Method AttachmentUploadIntentDataMethod `json:"method"`
+	// Temporary upload intent ID.
+	UploadID string `json:"upload_id"`
+	// Short-lived URL that accepts a binary PUT with the returned headers.
+	UploadURL url.URL `json:"upload_url"`
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *AttachmentUploadIntentData) GetExpiresAt() time.Time {
+	return s.ExpiresAt
+}
+
+// GetHeaders returns the value of Headers.
+func (s *AttachmentUploadIntentData) GetHeaders() AttachmentUploadIntentDataHeaders {
+	return s.Headers
+}
+
+// GetMaxSizeBytes returns the value of MaxSizeBytes.
+func (s *AttachmentUploadIntentData) GetMaxSizeBytes() int {
+	return s.MaxSizeBytes
+}
+
+// GetMethod returns the value of Method.
+func (s *AttachmentUploadIntentData) GetMethod() AttachmentUploadIntentDataMethod {
+	return s.Method
+}
+
+// GetUploadID returns the value of UploadID.
+func (s *AttachmentUploadIntentData) GetUploadID() string {
+	return s.UploadID
+}
+
+// GetUploadURL returns the value of UploadURL.
+func (s *AttachmentUploadIntentData) GetUploadURL() url.URL {
+	return s.UploadURL
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *AttachmentUploadIntentData) SetExpiresAt(val time.Time) {
+	s.ExpiresAt = val
+}
+
+// SetHeaders sets the value of Headers.
+func (s *AttachmentUploadIntentData) SetHeaders(val AttachmentUploadIntentDataHeaders) {
+	s.Headers = val
+}
+
+// SetMaxSizeBytes sets the value of MaxSizeBytes.
+func (s *AttachmentUploadIntentData) SetMaxSizeBytes(val int) {
+	s.MaxSizeBytes = val
+}
+
+// SetMethod sets the value of Method.
+func (s *AttachmentUploadIntentData) SetMethod(val AttachmentUploadIntentDataMethod) {
+	s.Method = val
+}
+
+// SetUploadID sets the value of UploadID.
+func (s *AttachmentUploadIntentData) SetUploadID(val string) {
+	s.UploadID = val
+}
+
+// SetUploadURL sets the value of UploadURL.
+func (s *AttachmentUploadIntentData) SetUploadURL(val url.URL) {
+	s.UploadURL = val
+}
+
+// Headers that must be sent with the PUT upload request.
+type AttachmentUploadIntentDataHeaders map[string]string
+
+func (s *AttachmentUploadIntentDataHeaders) init() AttachmentUploadIntentDataHeaders {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
+
+// HTTP method for upload_url.
+type AttachmentUploadIntentDataMethod string
+
+const (
+	AttachmentUploadIntentDataMethodPUT AttachmentUploadIntentDataMethod = "PUT"
+)
+
+// AllValues returns all AttachmentUploadIntentDataMethod values.
+func (AttachmentUploadIntentDataMethod) AllValues() []AttachmentUploadIntentDataMethod {
+	return []AttachmentUploadIntentDataMethod{
+		AttachmentUploadIntentDataMethodPUT,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s AttachmentUploadIntentDataMethod) MarshalText() ([]byte, error) {
+	switch s {
+	case AttachmentUploadIntentDataMethodPUT:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *AttachmentUploadIntentDataMethod) UnmarshalText(data []byte) error {
+	switch AttachmentUploadIntentDataMethod(data) {
+	case AttachmentUploadIntentDataMethodPUT:
+		*s = AttachmentUploadIntentDataMethodPUT
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/AttachmentUploadIntentRequest
+type AttachmentUploadIntentRequest struct {
+	// MIME type expected for the upload.
+	ContentType OptString `json:"content_type"`
+	// Filename to associate with the uploaded attachment.
+	Filename string `json:"filename"`
+	// Optional SHA-256 hex digest for the upload bytes.
+	SHA256 OptString `json:"sha256"`
+	// Exact byte size that will be uploaded.
+	SizeBytes int `json:"size_bytes"`
+}
+
+// GetContentType returns the value of ContentType.
+func (s *AttachmentUploadIntentRequest) GetContentType() OptString {
+	return s.ContentType
+}
+
+// GetFilename returns the value of Filename.
+func (s *AttachmentUploadIntentRequest) GetFilename() string {
+	return s.Filename
+}
+
+// GetSHA256 returns the value of SHA256.
+func (s *AttachmentUploadIntentRequest) GetSHA256() OptString {
+	return s.SHA256
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *AttachmentUploadIntentRequest) GetSizeBytes() int {
+	return s.SizeBytes
+}
+
+// SetContentType sets the value of ContentType.
+func (s *AttachmentUploadIntentRequest) SetContentType(val OptString) {
+	s.ContentType = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *AttachmentUploadIntentRequest) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetSHA256 sets the value of SHA256.
+func (s *AttachmentUploadIntentRequest) SetSHA256(val OptString) {
+	s.SHA256 = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *AttachmentUploadIntentRequest) SetSizeBytes(val int) {
+	s.SizeBytes = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/AttachmentUploadIntentResponse
+type AttachmentUploadIntentResponse struct {
+	Meta Meta                             `json:"meta"`
+	Ok   AttachmentUploadIntentResponseOk `json:"ok"`
+	Data AttachmentUploadIntentData       `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *AttachmentUploadIntentResponse) GetMeta() Meta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *AttachmentUploadIntentResponse) GetOk() AttachmentUploadIntentResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *AttachmentUploadIntentResponse) GetData() AttachmentUploadIntentData {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *AttachmentUploadIntentResponse) SetMeta(val Meta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *AttachmentUploadIntentResponse) SetOk(val AttachmentUploadIntentResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *AttachmentUploadIntentResponse) SetData(val AttachmentUploadIntentData) {
+	s.Data = val
+}
+
+// AttachmentUploadIntentResponseHeaders wraps AttachmentUploadIntentResponse with response headers.
+type AttachmentUploadIntentResponseHeaders struct {
+	Location OptString
+	Response AttachmentUploadIntentResponse
+}
+
+// GetLocation returns the value of Location.
+func (s *AttachmentUploadIntentResponseHeaders) GetLocation() OptString {
+	return s.Location
+}
+
+// GetResponse returns the value of Response.
+func (s *AttachmentUploadIntentResponseHeaders) GetResponse() AttachmentUploadIntentResponse {
+	return s.Response
+}
+
+// SetLocation sets the value of Location.
+func (s *AttachmentUploadIntentResponseHeaders) SetLocation(val OptString) {
+	s.Location = val
+}
+
+// SetResponse sets the value of Response.
+func (s *AttachmentUploadIntentResponseHeaders) SetResponse(val AttachmentUploadIntentResponse) {
+	s.Response = val
+}
+
+func (*AttachmentUploadIntentResponseHeaders) sendingCreateAttachmentUploadRes() {}
+
+type AttachmentUploadIntentResponseOk bool
+
+const (
+	AttachmentUploadIntentResponseOkTrue AttachmentUploadIntentResponseOk = true
+)
+
+// AllValues returns all AttachmentUploadIntentResponseOk values.
+func (AttachmentUploadIntentResponseOk) AllValues() []AttachmentUploadIntentResponseOk {
+	return []AttachmentUploadIntentResponseOk{
+		AttachmentUploadIntentResponseOkTrue,
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/AttachmentUploadResponse
+type AttachmentUploadResponse struct {
+	Meta Meta                       `json:"meta"`
+	Ok   AttachmentUploadResponseOk `json:"ok"`
+	Data AttachmentUploadData       `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *AttachmentUploadResponse) GetMeta() Meta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *AttachmentUploadResponse) GetOk() AttachmentUploadResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *AttachmentUploadResponse) GetData() AttachmentUploadData {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *AttachmentUploadResponse) SetMeta(val Meta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *AttachmentUploadResponse) SetOk(val AttachmentUploadResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *AttachmentUploadResponse) SetData(val AttachmentUploadData) {
+	s.Data = val
+}
+
+// AttachmentUploadResponseHeaders wraps AttachmentUploadResponse with response headers.
+type AttachmentUploadResponseHeaders struct {
+	Location OptString
+	Response AttachmentUploadResponse
+}
+
+// GetLocation returns the value of Location.
+func (s *AttachmentUploadResponseHeaders) GetLocation() OptString {
+	return s.Location
+}
+
+// GetResponse returns the value of Response.
+func (s *AttachmentUploadResponseHeaders) GetResponse() AttachmentUploadResponse {
+	return s.Response
+}
+
+// SetLocation sets the value of Location.
+func (s *AttachmentUploadResponseHeaders) SetLocation(val OptString) {
+	s.Location = val
+}
+
+// SetResponse sets the value of Response.
+func (s *AttachmentUploadResponseHeaders) SetResponse(val AttachmentUploadResponse) {
+	s.Response = val
+}
+
+func (*AttachmentUploadResponseHeaders) sendingCompleteAttachmentUploadRes() {}
+func (*AttachmentUploadResponseHeaders) sendingGetAttachmentRes()            {}
+func (*AttachmentUploadResponseHeaders) sendingUploadAttachmentRes()         {}
+
+type AttachmentUploadResponseOk bool
+
+const (
+	AttachmentUploadResponseOkTrue AttachmentUploadResponseOk = true
+)
+
+// AllValues returns all AttachmentUploadResponseOk values.
+func (AttachmentUploadResponseOk) AllValues() []AttachmentUploadResponseOk {
+	return []AttachmentUploadResponseOk{
+		AttachmentUploadResponseOkTrue,
 	}
 }
 
@@ -454,7 +867,7 @@ func (s *BearerAuth) SetRoles(val []string) {
 
 // Ref: #/components/schemas/EmailSendRequest
 type EmailSendRequest struct {
-	// File attachments (max 10).
+	// File attachments (max 10). Use attachment_id refs for uploaded files.
 	Attachments []Attachment `json:"attachments"`
 	// BCC recipients (max 100).
 	Bcc []Recipient `json:"bcc"`
@@ -1301,6 +1714,100 @@ func (SendSuccessResponseOk) AllValues() []SendSuccessResponseOk {
 	}
 }
 
+type SendingCompleteAttachmentUploadBadRequest ErrorResponse
+
+func (*SendingCompleteAttachmentUploadBadRequest) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCompleteAttachmentUploadConflict ErrorResponse
+
+func (*SendingCompleteAttachmentUploadConflict) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCompleteAttachmentUploadNotFound ErrorResponse
+
+func (*SendingCompleteAttachmentUploadNotFound) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCompleteAttachmentUploadReq struct {
+	Data io.Reader
+}
+
+// Read reads data from the Data reader.
+//
+// Kept to satisfy the io.Reader interface.
+func (s SendingCompleteAttachmentUploadReq) Read(p []byte) (n int, err error) {
+	if s.Data == nil {
+		return 0, io.EOF
+	}
+	return s.Data.Read(p)
+}
+
+type SendingCompleteAttachmentUploadRequestEntityTooLarge ErrorResponse
+
+func (*SendingCompleteAttachmentUploadRequestEntityTooLarge) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCompleteAttachmentUploadServiceUnavailable ErrorResponse
+
+func (*SendingCompleteAttachmentUploadServiceUnavailable) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCompleteAttachmentUploadUnauthorized ErrorResponse
+
+func (*SendingCompleteAttachmentUploadUnauthorized) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCompleteAttachmentUploadUnprocessableEntity ErrorResponse
+
+func (*SendingCompleteAttachmentUploadUnprocessableEntity) sendingCompleteAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadBadRequest ErrorResponse
+
+func (*SendingCreateAttachmentUploadBadRequest) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadConflict ErrorResponse
+
+func (*SendingCreateAttachmentUploadConflict) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadForbidden ErrorResponse
+
+func (*SendingCreateAttachmentUploadForbidden) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadRequestEntityTooLarge ErrorResponse
+
+func (*SendingCreateAttachmentUploadRequestEntityTooLarge) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadServiceUnavailable ErrorResponse
+
+func (*SendingCreateAttachmentUploadServiceUnavailable) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadTooManyRequests ErrorResponse
+
+func (*SendingCreateAttachmentUploadTooManyRequests) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadUnauthorized ErrorResponse
+
+func (*SendingCreateAttachmentUploadUnauthorized) sendingCreateAttachmentUploadRes() {}
+
+type SendingCreateAttachmentUploadUnprocessableEntity ErrorResponse
+
+func (*SendingCreateAttachmentUploadUnprocessableEntity) sendingCreateAttachmentUploadRes() {}
+
+type SendingGetAttachmentForbidden ErrorResponse
+
+func (*SendingGetAttachmentForbidden) sendingGetAttachmentRes() {}
+
+type SendingGetAttachmentNotFound ErrorResponse
+
+func (*SendingGetAttachmentNotFound) sendingGetAttachmentRes() {}
+
+type SendingGetAttachmentServiceUnavailable ErrorResponse
+
+func (*SendingGetAttachmentServiceUnavailable) sendingGetAttachmentRes() {}
+
+type SendingGetAttachmentTooManyRequests ErrorResponse
+
+func (*SendingGetAttachmentTooManyRequests) sendingGetAttachmentRes() {}
+
+type SendingGetAttachmentUnauthorized ErrorResponse
+
+func (*SendingGetAttachmentUnauthorized) sendingGetAttachmentRes() {}
+
 // SendingGetOpenApiSpecNotModified is response for SendingGetOpenApiSpec operation.
 type SendingGetOpenApiSpecNotModified struct {
 	ETag OptString
@@ -1439,3 +1946,49 @@ func (*SendingSendEmailUnauthorized) sendingSendEmailRes() {}
 type SendingSendEmailUnprocessableEntity ErrorResponse
 
 func (*SendingSendEmailUnprocessableEntity) sendingSendEmailRes() {}
+
+type SendingUploadAttachmentBadRequest ErrorResponse
+
+func (*SendingUploadAttachmentBadRequest) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentConflict ErrorResponse
+
+func (*SendingUploadAttachmentConflict) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentForbidden ErrorResponse
+
+func (*SendingUploadAttachmentForbidden) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentReq struct {
+	Data io.Reader
+}
+
+// Read reads data from the Data reader.
+//
+// Kept to satisfy the io.Reader interface.
+func (s SendingUploadAttachmentReq) Read(p []byte) (n int, err error) {
+	if s.Data == nil {
+		return 0, io.EOF
+	}
+	return s.Data.Read(p)
+}
+
+type SendingUploadAttachmentRequestEntityTooLarge ErrorResponse
+
+func (*SendingUploadAttachmentRequestEntityTooLarge) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentServiceUnavailable ErrorResponse
+
+func (*SendingUploadAttachmentServiceUnavailable) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentTooManyRequests ErrorResponse
+
+func (*SendingUploadAttachmentTooManyRequests) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentUnauthorized ErrorResponse
+
+func (*SendingUploadAttachmentUnauthorized) sendingUploadAttachmentRes() {}
+
+type SendingUploadAttachmentUnprocessableEntity ErrorResponse
+
+func (*SendingUploadAttachmentUnprocessableEntity) sendingUploadAttachmentRes() {}

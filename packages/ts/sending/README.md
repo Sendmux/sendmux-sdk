@@ -54,11 +54,11 @@ The package exports every generated Sending operation plus:
 - `createSendingClient`
 - `configureSending`
 - `SendingClient`
-- Node-only helpers from `@sendmux/sending/node`: `attachmentFromFile` and `sendEmailWithFiles`
+- Node-only helpers from `@sendmux/sending/node`: `uploadAttachmentFromFile`, `sendEmailWithFiles`, and explicit legacy `attachmentFromFile`
 
 ## Attachments
 
-The Sending API accepts attachment content in the request body. It supports up to 10 attachments and rejects request bodies over 25 MB. In Node, avoid manual base64 encoding by using the helper subpath:
+For real files, upload bytes first and send with returned `attachment_id` refs. `sendEmailWithFiles` does that automatically, so file bytes never enter model context or the JSON send body. Inline base64 remains available only when you intentionally call `attachmentFromFile` for tiny generated content.
 
 ```ts
 import { createSendingClient } from "@sendmux/sending";
@@ -75,6 +75,27 @@ await sendEmailWithFiles({
     to: { email: "recipient@example.com" },
     subject: "Report",
     html_body: "<p>Attached.</p>",
+  },
+});
+```
+
+To upload first and compose the send yourself:
+
+```ts
+import { createSendingClient, sendingSendEmail } from "@sendmux/sending";
+import { uploadAttachmentFromFile } from "@sendmux/sending/node";
+
+const client = createSendingClient({ apiKey: process.env.SENDMUX_SENDING_API_KEY! });
+const attachment = await uploadAttachmentFromFile({ client, filePath: "./report.pdf" });
+
+await sendingSendEmail({
+  client,
+  body: {
+    from: { email: "sender@example.com" },
+    to: { email: "recipient@example.com" },
+    subject: "Report",
+    html_body: "<p>Attached.</p>",
+    attachments: [{ attachment_id: attachment.data.attachment_id }],
   },
 });
 ```

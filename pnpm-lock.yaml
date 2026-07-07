@@ -87,6 +87,10 @@ importers:
       '@sendmux/sending':
         specifier: workspace:*
         version: link:../sending
+    devDependencies:
+      '@types/node':
+        specifier: 22.19.19
+        version: 22.19.19
 
   packages/ts/sending:
     dependencies:

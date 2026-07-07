@@ -15,6 +15,11 @@
 # import models into model package
 from sendmux_sending.models.address import Address
 from sendmux_sending.models.attachment import Attachment
+from sendmux_sending.models.attachment_upload_data import AttachmentUploadData
+from sendmux_sending.models.attachment_upload_intent_data import AttachmentUploadIntentData
+from sendmux_sending.models.attachment_upload_intent_request import AttachmentUploadIntentRequest
+from sendmux_sending.models.attachment_upload_intent_response import AttachmentUploadIntentResponse
+from sendmux_sending.models.attachment_upload_response import AttachmentUploadResponse
 from sendmux_sending.models.batch_result_item import BatchResultItem
 from sendmux_sending.models.batch_send_request import BatchSendRequest
 from sendmux_sending.models.batch_send_success_data import BatchSendSuccessData
@@ -24,8 +29,10 @@ from sendmux_sending.models.email_send_request import EmailSendRequest
 from sendmux_sending.models.error_detail import ErrorDetail
 from sendmux_sending.models.error_issue import ErrorIssue
 from sendmux_sending.models.error_response import ErrorResponse
+from sendmux_sending.models.inline_attachment import InlineAttachment
 from sendmux_sending.models.meta import Meta
 from sendmux_sending.models.recipient import Recipient
 from sendmux_sending.models.send_success_data import SendSuccessData
 from sendmux_sending.models.send_success_response import SendSuccessResponse
 from sendmux_sending.models.success_envelope import SuccessEnvelope
+from sendmux_sending.models.uploaded_attachment_ref import UploadedAttachmentRef

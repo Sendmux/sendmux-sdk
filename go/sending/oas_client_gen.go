@@ -29,6 +29,28 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
+	// SendingCompleteAttachmentUpload invokes sendingCompleteAttachmentUpload operation.
+	//
+	// Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses
+	// the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API
+	// key.
+	//
+	// PUT /emails/attachment-uploads/{upload_id}
+	SendingCompleteAttachmentUpload(ctx context.Context, request SendingCompleteAttachmentUploadReq, params SendingCompleteAttachmentUploadParams) (SendingCompleteAttachmentUploadRes, error)
+	// SendingCreateAttachmentUpload invokes sendingCreateAttachmentUpload operation.
+	//
+	// Create a short-lived upload URL and token that lets a remote client PUT one binary attachment
+	// without exposing the API key on the upload request. Requires `email.send` permission.
+	//
+	// POST /emails/attachment-uploads
+	SendingCreateAttachmentUpload(ctx context.Context, request *AttachmentUploadIntentRequest, params SendingCreateAttachmentUploadParams) (SendingCreateAttachmentUploadRes, error)
+	// SendingGetAttachment invokes sendingGetAttachment operation.
+	//
+	// Return metadata for a temporary uploaded attachment owned by the authenticated team. File bytes
+	// are not returned.
+	//
+	// GET /emails/attachments/{attachment_id}
+	SendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (SendingGetAttachmentRes, error)
 	// SendingGetOpenApiSpec invokes sendingGetOpenApiSpec operation.
 	//
 	// Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).
@@ -49,6 +71,13 @@ type Invoker interface {
 	//
 	// POST /emails/send/batch
 	SendingSendEmailBatch(ctx context.Context, request *BatchSendRequest, params SendingSendEmailBatchParams) (SendingSendEmailBatchRes, error)
+	// SendingUploadAttachment invokes sendingUploadAttachment operation.
+	//
+	// Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[].
+	// Requires `email.send` permission.
+	//
+	// POST /emails/attachments
+	SendingUploadAttachment(ctx context.Context, request SendingUploadAttachmentReq, params SendingUploadAttachmentParams) (SendingUploadAttachmentRes, error)
 }
 
 // Client implements OAS client.
@@ -94,6 +123,365 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 		return c.serverURL
 	}
 	return u
+}
+
+// SendingCompleteAttachmentUpload invokes sendingCompleteAttachmentUpload operation.
+//
+// Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses
+// the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API
+// key.
+//
+// PUT /emails/attachment-uploads/{upload_id}
+func (c *Client) SendingCompleteAttachmentUpload(ctx context.Context, request SendingCompleteAttachmentUploadReq, params SendingCompleteAttachmentUploadParams) (SendingCompleteAttachmentUploadRes, error) {
+	res, err := c.sendSendingCompleteAttachmentUpload(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendSendingCompleteAttachmentUpload(ctx context.Context, request SendingCompleteAttachmentUploadReq, params SendingCompleteAttachmentUploadParams) (res SendingCompleteAttachmentUploadRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("sendingCompleteAttachmentUpload"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/emails/attachment-uploads/{upload_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SendingCompleteAttachmentUploadOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/emails/attachment-uploads/"
+	{
+		// Encode "upload_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "upload_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.UploadID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeSendingCompleteAttachmentUploadRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "X-Sendmux-Upload-Token",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.XSendmuxUploadToken))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSendingCompleteAttachmentUploadResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// SendingCreateAttachmentUpload invokes sendingCreateAttachmentUpload operation.
+//
+// Create a short-lived upload URL and token that lets a remote client PUT one binary attachment
+// without exposing the API key on the upload request. Requires `email.send` permission.
+//
+// POST /emails/attachment-uploads
+func (c *Client) SendingCreateAttachmentUpload(ctx context.Context, request *AttachmentUploadIntentRequest, params SendingCreateAttachmentUploadParams) (SendingCreateAttachmentUploadRes, error) {
+	res, err := c.sendSendingCreateAttachmentUpload(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendSendingCreateAttachmentUpload(ctx context.Context, request *AttachmentUploadIntentRequest, params SendingCreateAttachmentUploadParams) (res SendingCreateAttachmentUploadRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("sendingCreateAttachmentUpload"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/emails/attachment-uploads"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SendingCreateAttachmentUploadOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/emails/attachment-uploads"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeSendingCreateAttachmentUploadRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "Idempotency-Key",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IdempotencyKey.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, SendingCreateAttachmentUploadOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSendingCreateAttachmentUploadResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// SendingGetAttachment invokes sendingGetAttachment operation.
+//
+// Return metadata for a temporary uploaded attachment owned by the authenticated team. File bytes
+// are not returned.
+//
+// GET /emails/attachments/{attachment_id}
+func (c *Client) SendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (SendingGetAttachmentRes, error) {
+	res, err := c.sendSendingGetAttachment(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendSendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (res SendingGetAttachmentRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("sendingGetAttachment"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/emails/attachments/{attachment_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SendingGetAttachmentOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/emails/attachments/"
+	{
+		// Encode "attachment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "attachment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.AttachmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, SendingGetAttachmentOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSendingGetAttachmentResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
 }
 
 // SendingGetOpenApiSpec invokes sendingGetOpenApiSpec operation.
@@ -430,6 +818,167 @@ func (c *Client) sendSendingSendEmailBatch(ctx context.Context, request *BatchSe
 
 	stage = "DecodeResponse"
 	result, err := decodeSendingSendEmailBatchResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// SendingUploadAttachment invokes sendingUploadAttachment operation.
+//
+// Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[].
+// Requires `email.send` permission.
+//
+// POST /emails/attachments
+func (c *Client) SendingUploadAttachment(ctx context.Context, request SendingUploadAttachmentReq, params SendingUploadAttachmentParams) (SendingUploadAttachmentRes, error) {
+	res, err := c.sendSendingUploadAttachment(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendSendingUploadAttachment(ctx context.Context, request SendingUploadAttachmentReq, params SendingUploadAttachmentParams) (res SendingUploadAttachmentRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("sendingUploadAttachment"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/emails/attachments"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SendingUploadAttachmentOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/emails/attachments"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "filename" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "filename",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.Filename))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "content_type" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "content_type",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.ContentType.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeSendingUploadAttachmentRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "Idempotency-Key",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IdempotencyKey.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, SendingUploadAttachmentOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSendingUploadAttachmentResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

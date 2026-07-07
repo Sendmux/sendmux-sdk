@@ -10,7 +10,7 @@ const surfaces = [
   {
     name: "sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
-    tags: ["Emails", "Meta"],
+    tags: ["Attachments", "Emails", "Meta"],
     defaultBaseUrl: "https://smtp.sendmux.ai/api/v1",
     keySurface: "sending",
     description: "Sending API",

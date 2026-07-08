@@ -770,6 +770,7 @@ def upload_attachment_from_file(
     return api.sending_upload_attachment(
         filename=file["filename"],
         body=file["bytes"],
+        content_length=file["size_bytes"],
         idempotency_key=idempotency_key,
         content_type=file["content_type"],
         _headers={"Content-Type": file["content_type"]},
@@ -840,6 +841,7 @@ def _read_attachment_file(
         "content_type": content_type or guessed_type or "application/octet-stream",
         "filename": filename or path.name,
         "path": path,
+        "size_bytes": len(data),
     }
 `,
   );

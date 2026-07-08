@@ -266,6 +266,7 @@ async function withAttachedFiles(
         client: client as SendingClient,
         body: blobFor(file),
         headers: {
+          "Content-Length": file.sizeBytes,
           "Content-Type": file.contentType,
         },
         query: {

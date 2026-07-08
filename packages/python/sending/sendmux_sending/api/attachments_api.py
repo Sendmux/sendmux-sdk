@@ -44,6 +44,7 @@ class AttachmentsApi:
     def sending_complete_attachment_upload(
         self,
         x_sendmux_upload_token: Annotated[StrictStr, Field(description="Short-lived upload token returned by POST /emails/attachment-uploads.")],
+        content_length: Annotated[int, Field(strict=True, ge=1, description="Exact number of bytes in the binary request body.")],
         upload_id: Annotated[str, Field(strict=True, description="Upload intent ID returned by POST /emails/attachment-uploads.")],
         body: Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]],
         _request_timeout: Union[
@@ -65,6 +66,8 @@ class AttachmentsApi:
 
         :param x_sendmux_upload_token: Short-lived upload token returned by POST /emails/attachment-uploads. (required)
         :type x_sendmux_upload_token: str
+        :param content_length: Exact number of bytes in the binary request body. (required)
+        :type content_length: int
         :param upload_id: Upload intent ID returned by POST /emails/attachment-uploads. (required)
         :type upload_id: str
         :param body: (required)
@@ -93,6 +96,7 @@ class AttachmentsApi:
 
         _param = self._sending_complete_attachment_upload_serialize(
             x_sendmux_upload_token=x_sendmux_upload_token,
+            content_length=content_length,
             upload_id=upload_id,
             body=body,
             _request_auth=_request_auth,
@@ -126,6 +130,7 @@ class AttachmentsApi:
     def sending_complete_attachment_upload_with_http_info(
         self,
         x_sendmux_upload_token: Annotated[StrictStr, Field(description="Short-lived upload token returned by POST /emails/attachment-uploads.")],
+        content_length: Annotated[int, Field(strict=True, ge=1, description="Exact number of bytes in the binary request body.")],
         upload_id: Annotated[str, Field(strict=True, description="Upload intent ID returned by POST /emails/attachment-uploads.")],
         body: Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]],
         _request_timeout: Union[
@@ -147,6 +152,8 @@ class AttachmentsApi:
 
         :param x_sendmux_upload_token: Short-lived upload token returned by POST /emails/attachment-uploads. (required)
         :type x_sendmux_upload_token: str
+        :param content_length: Exact number of bytes in the binary request body. (required)
+        :type content_length: int
         :param upload_id: Upload intent ID returned by POST /emails/attachment-uploads. (required)
         :type upload_id: str
         :param body: (required)
@@ -175,6 +182,7 @@ class AttachmentsApi:
 
         _param = self._sending_complete_attachment_upload_serialize(
             x_sendmux_upload_token=x_sendmux_upload_token,
+            content_length=content_length,
             upload_id=upload_id,
             body=body,
             _request_auth=_request_auth,
@@ -208,6 +216,7 @@ class AttachmentsApi:
     def sending_complete_attachment_upload_without_preload_content(
         self,
         x_sendmux_upload_token: Annotated[StrictStr, Field(description="Short-lived upload token returned by POST /emails/attachment-uploads.")],
+        content_length: Annotated[int, Field(strict=True, ge=1, description="Exact number of bytes in the binary request body.")],
         upload_id: Annotated[str, Field(strict=True, description="Upload intent ID returned by POST /emails/attachment-uploads.")],
         body: Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]],
         _request_timeout: Union[
@@ -229,6 +238,8 @@ class AttachmentsApi:
 
         :param x_sendmux_upload_token: Short-lived upload token returned by POST /emails/attachment-uploads. (required)
         :type x_sendmux_upload_token: str
+        :param content_length: Exact number of bytes in the binary request body. (required)
+        :type content_length: int
         :param upload_id: Upload intent ID returned by POST /emails/attachment-uploads. (required)
         :type upload_id: str
         :param body: (required)
@@ -257,6 +268,7 @@ class AttachmentsApi:
 
         _param = self._sending_complete_attachment_upload_serialize(
             x_sendmux_upload_token=x_sendmux_upload_token,
+            content_length=content_length,
             upload_id=upload_id,
             body=body,
             _request_auth=_request_auth,
@@ -285,6 +297,7 @@ class AttachmentsApi:
     def _sending_complete_attachment_upload_serialize(
         self,
         x_sendmux_upload_token,
+        content_length,
         upload_id,
         body,
         _request_auth,
@@ -314,6 +327,8 @@ class AttachmentsApi:
         # process the header parameters
         if x_sendmux_upload_token is not None:
             _header_params['X-Sendmux-Upload-Token'] = x_sendmux_upload_token
+        if content_length is not None:
+            _header_params['Content-Length'] = content_length
         # process the form parameters
         # process the body parameter
         if body is not None:
@@ -964,6 +979,7 @@ class AttachmentsApi:
     @validate_call
     def sending_upload_attachment(
         self,
+        content_length: Annotated[int, Field(strict=True, ge=1, description="Exact number of bytes in the binary request body.")],
         filename: Annotated[str, Field(min_length=1, strict=True, max_length=255, description="Filename to associate with the uploaded attachment.")],
         body: Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]],
         idempotency_key: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.")] = None,
@@ -985,6 +1001,8 @@ class AttachmentsApi:
 
         Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[]. Requires `email.send` permission.
 
+        :param content_length: Exact number of bytes in the binary request body. (required)
+        :type content_length: int
         :param filename: Filename to associate with the uploaded attachment. (required)
         :type filename: str
         :param body: (required)
@@ -1016,6 +1034,7 @@ class AttachmentsApi:
         """ # noqa: E501
 
         _param = self._sending_upload_attachment_serialize(
+            content_length=content_length,
             filename=filename,
             body=body,
             idempotency_key=idempotency_key,
@@ -1051,6 +1070,7 @@ class AttachmentsApi:
     @validate_call
     def sending_upload_attachment_with_http_info(
         self,
+        content_length: Annotated[int, Field(strict=True, ge=1, description="Exact number of bytes in the binary request body.")],
         filename: Annotated[str, Field(min_length=1, strict=True, max_length=255, description="Filename to associate with the uploaded attachment.")],
         body: Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]],
         idempotency_key: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.")] = None,
@@ -1072,6 +1092,8 @@ class AttachmentsApi:
 
         Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[]. Requires `email.send` permission.
 
+        :param content_length: Exact number of bytes in the binary request body. (required)
+        :type content_length: int
         :param filename: Filename to associate with the uploaded attachment. (required)
         :type filename: str
         :param body: (required)
@@ -1103,6 +1125,7 @@ class AttachmentsApi:
         """ # noqa: E501
 
         _param = self._sending_upload_attachment_serialize(
+            content_length=content_length,
             filename=filename,
             body=body,
             idempotency_key=idempotency_key,
@@ -1138,6 +1161,7 @@ class AttachmentsApi:
     @validate_call
     def sending_upload_attachment_without_preload_content(
         self,
+        content_length: Annotated[int, Field(strict=True, ge=1, description="Exact number of bytes in the binary request body.")],
         filename: Annotated[str, Field(min_length=1, strict=True, max_length=255, description="Filename to associate with the uploaded attachment.")],
         body: Union[StrictBytes, StrictStr, Tuple[StrictStr, StrictBytes]],
         idempotency_key: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.")] = None,
@@ -1159,6 +1183,8 @@ class AttachmentsApi:
 
         Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[]. Requires `email.send` permission.
 
+        :param content_length: Exact number of bytes in the binary request body. (required)
+        :type content_length: int
         :param filename: Filename to associate with the uploaded attachment. (required)
         :type filename: str
         :param body: (required)
@@ -1190,6 +1216,7 @@ class AttachmentsApi:
         """ # noqa: E501
 
         _param = self._sending_upload_attachment_serialize(
+            content_length=content_length,
             filename=filename,
             body=body,
             idempotency_key=idempotency_key,
@@ -1220,6 +1247,7 @@ class AttachmentsApi:
 
     def _sending_upload_attachment_serialize(
         self,
+        content_length,
         filename,
         body,
         idempotency_key,
@@ -1257,6 +1285,8 @@ class AttachmentsApi:
         # process the header parameters
         if idempotency_key is not None:
             _header_params['Idempotency-Key'] = idempotency_key
+        if content_length is not None:
+            _header_params['Content-Length'] = content_length
         # process the form parameters
         # process the body parameter
         if body is not None:

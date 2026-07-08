@@ -344,6 +344,7 @@ def test_sending_attachment_from_file_and_send_email(monkeypatch: Any, tmp_path:
     assert api.requests[0]["operation"] == "upload"
     assert api.requests[0]["filename"] == "report.txt"
     assert api.requests[0]["body"] == b"python helper attachment\n"
+    assert api.requests[0]["content_length"] == len(b"python helper attachment\n")
     assert api.requests[0]["_headers"] == {"Content-Type": "text/plain"}
 
     result = sending_attachments.send_email_with_files(

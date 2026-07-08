@@ -31,6 +31,21 @@ class SendmuxRubyCoreTest < Minitest::Test
     end
   end
 
+  RequestOptions = Struct.new(:params_encoder, :timeout, :on_data)
+
+  class CaptureRequest
+    attr_accessor :headers, :body, :params
+    attr_reader :options, :url_value
+
+    def initialize
+      @options = RequestOptions.new
+    end
+
+    def url(value)
+      @url_value = value
+    end
+  end
+
   def test_key_surface_validation
     assert_equal Sendmux::Core::ApiKeySurface::ROOT,
                  Sendmux::Core::Auth.assert_api_key_surface('smx_root_test', Sendmux::Core::ApiKeySurface::ROOT)
@@ -107,6 +122,37 @@ class SendmuxRubyCoreTest < Minitest::Test
     assert_instance_of Sendmux::Sending::Generated::EmailsApi, sending.emails
     assert_equal 'smx_root_test', management.configuration.access_token
     assert_equal 'smx_agent_test', mailbox.configuration.access_token
+  end
+
+  def test_sending_generated_client_stringifies_content_length_header_before_transport
+    request = CaptureRequest.new
+    client = Sendmux::Sending::Generated::ApiClient.new(Sendmux::Sending::Generated::Configuration.new)
+
+    client.build_request(:POST, '/emails/attachments', request,
+                         header_params: { 'Content-Length': 99 },
+                         auth_names: [],
+                         body: 'abc')
+
+    assert_equal '99', request.headers[:'Content-Length']
+  end
+
+  def test_all_generated_clients_stringify_non_string_headers_before_transport
+    clients = [
+      Sendmux::Sending::Generated::ApiClient.new(Sendmux::Sending::Generated::Configuration.new),
+      Sendmux::Mailbox::Generated::ApiClient.new(Sendmux::Mailbox::Generated::Configuration.new),
+      Sendmux::Management::Generated::ApiClient.new(Sendmux::Management::Generated::Configuration.new)
+    ]
+
+    clients.each do |client|
+      request = CaptureRequest.new
+      client.build_request(:POST, '/test', request,
+                           header_params: { 'X-Numeric-Header': 3, 'X-Boolean-Header': true },
+                           auth_names: [],
+                           body: 'abc')
+
+      assert_equal '3', request.headers[:'X-Numeric-Header']
+      assert_equal 'true', request.headers[:'X-Boolean-Header']
+    end
   end
 
   def test_umbrella_factories_validate_profile_surfaces

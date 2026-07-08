@@ -141,6 +141,7 @@ class AttachmentsApi
      * Upload bytes to an attachment upload URL
      *
      * @param  string $x_sendmux_upload_token Short-lived upload token returned by POST /emails/attachment-uploads. (required)
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $upload_id Upload intent ID returned by POST /emails/attachment-uploads. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingCompleteAttachmentUpload'] to see the possible values for this operation
@@ -151,12 +152,14 @@ class AttachmentsApi
      */
     public function sendingCompleteAttachmentUpload(
         string $x_sendmux_upload_token,
+        int $content_length,
         string $upload_id,
         \SplFileObject $body,
         string $contentType = self::contentTypes['sendingCompleteAttachmentUpload'][0]
     ): \Sendmux\Sending\Model\AttachmentUploadResponse|\Sendmux\Sending\Model\ErrorResponse {
         list($response) = $this->sendingCompleteAttachmentUploadWithHttpInfo(
             $x_sendmux_upload_token,
+            $content_length,
             $upload_id,
             $body,
             $contentType
@@ -170,6 +173,7 @@ class AttachmentsApi
      * Upload bytes to an attachment upload URL
      *
      * @param  string $x_sendmux_upload_token Short-lived upload token returned by POST /emails/attachment-uploads. (required)
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $upload_id Upload intent ID returned by POST /emails/attachment-uploads. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingCompleteAttachmentUpload'] to see the possible values for this operation
@@ -180,12 +184,14 @@ class AttachmentsApi
      */
     public function sendingCompleteAttachmentUploadWithHttpInfo(
         string $x_sendmux_upload_token,
+        int $content_length,
         string $upload_id,
         \SplFileObject $body,
         string $contentType = self::contentTypes['sendingCompleteAttachmentUpload'][0]
     ): array {
         $request = $this->sendingCompleteAttachmentUploadRequest(
             $x_sendmux_upload_token,
+            $content_length,
             $upload_id,
             $body,
             $contentType
@@ -361,6 +367,7 @@ class AttachmentsApi
      * Upload bytes to an attachment upload URL
      *
      * @param  string $x_sendmux_upload_token Short-lived upload token returned by POST /emails/attachment-uploads. (required)
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $upload_id Upload intent ID returned by POST /emails/attachment-uploads. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingCompleteAttachmentUpload'] to see the possible values for this operation
@@ -370,12 +377,14 @@ class AttachmentsApi
      */
     public function sendingCompleteAttachmentUploadAsync(
         string $x_sendmux_upload_token,
+        int $content_length,
         string $upload_id,
         \SplFileObject $body,
         string $contentType = self::contentTypes['sendingCompleteAttachmentUpload'][0]
     ): PromiseInterface {
         return $this->sendingCompleteAttachmentUploadAsyncWithHttpInfo(
             $x_sendmux_upload_token,
+            $content_length,
             $upload_id,
             $body,
             $contentType
@@ -393,6 +402,7 @@ class AttachmentsApi
      * Upload bytes to an attachment upload URL
      *
      * @param  string $x_sendmux_upload_token Short-lived upload token returned by POST /emails/attachment-uploads. (required)
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $upload_id Upload intent ID returned by POST /emails/attachment-uploads. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingCompleteAttachmentUpload'] to see the possible values for this operation
@@ -402,6 +412,7 @@ class AttachmentsApi
      */
     public function sendingCompleteAttachmentUploadAsyncWithHttpInfo(
         string $x_sendmux_upload_token,
+        int $content_length,
         string $upload_id,
         \SplFileObject $body,
         string $contentType = self::contentTypes['sendingCompleteAttachmentUpload'][0]
@@ -409,6 +420,7 @@ class AttachmentsApi
         $returnType = '\Sendmux\Sending\Model\AttachmentUploadResponse';
         $request = $this->sendingCompleteAttachmentUploadRequest(
             $x_sendmux_upload_token,
+            $content_length,
             $upload_id,
             $body,
             $contentType
@@ -470,6 +482,7 @@ class AttachmentsApi
      * Create request for operation 'sendingCompleteAttachmentUpload'
      *
      * @param  string $x_sendmux_upload_token Short-lived upload token returned by POST /emails/attachment-uploads. (required)
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $upload_id Upload intent ID returned by POST /emails/attachment-uploads. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['sendingCompleteAttachmentUpload'] to see the possible values for this operation
@@ -479,6 +492,7 @@ class AttachmentsApi
      */
     public function sendingCompleteAttachmentUploadRequest(
         string $x_sendmux_upload_token,
+        int $content_length,
         string $upload_id,
         \SplFileObject $body,
         string $contentType = self::contentTypes['sendingCompleteAttachmentUpload'][0]
@@ -489,6 +503,16 @@ class AttachmentsApi
             throw new InvalidArgumentException(
                 'Missing the required parameter $x_sendmux_upload_token when calling sendingCompleteAttachmentUpload'
             );
+        }
+
+        // verify the required parameter 'content_length' is set
+        if ($content_length === null || (is_array($content_length) && count($content_length) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $content_length when calling sendingCompleteAttachmentUpload'
+            );
+        }
+        if ($content_length < 1) {
+            throw new InvalidArgumentException('invalid value for "$content_length" when calling AttachmentsApi.sendingCompleteAttachmentUpload, must be bigger than or equal to 1.');
         }
 
         // verify the required parameter 'upload_id' is set
@@ -520,6 +544,10 @@ class AttachmentsApi
         // header params
         if ($x_sendmux_upload_token !== null) {
             $headerParams['X-Sendmux-Upload-Token'] = ObjectSerializer::toHeaderValue($x_sendmux_upload_token);
+        }
+        // header params
+        if ($content_length !== null) {
+            $headerParams['Content-Length'] = ObjectSerializer::toHeaderValue($content_length);
         }
 
         // path params
@@ -1413,6 +1441,7 @@ class AttachmentsApi
      *
      * Upload an attachment
      *
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $filename Filename to associate with the uploaded attachment. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
@@ -1424,6 +1453,7 @@ class AttachmentsApi
      * @return \Sendmux\Sending\Model\AttachmentUploadResponse|\Sendmux\Sending\Model\ErrorResponse
      */
     public function sendingUploadAttachment(
+        int $content_length,
         string $filename,
         \SplFileObject $body,
         ?string $idempotency_key = null,
@@ -1431,6 +1461,7 @@ class AttachmentsApi
         string $contentType = self::contentTypes['sendingUploadAttachment'][0]
     ): \Sendmux\Sending\Model\AttachmentUploadResponse|\Sendmux\Sending\Model\ErrorResponse {
         list($response) = $this->sendingUploadAttachmentWithHttpInfo(
+            $content_length,
             $filename,
             $body,
             $idempotency_key,
@@ -1445,6 +1476,7 @@ class AttachmentsApi
      *
      * Upload an attachment
      *
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $filename Filename to associate with the uploaded attachment. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
@@ -1456,6 +1488,7 @@ class AttachmentsApi
      * @return array of \Sendmux\Sending\Model\AttachmentUploadResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse|\Sendmux\Sending\Model\ErrorResponse, HTTP status code, HTTP response headers (array of strings)
      */
     public function sendingUploadAttachmentWithHttpInfo(
+        int $content_length,
         string $filename,
         \SplFileObject $body,
         ?string $idempotency_key = null,
@@ -1463,6 +1496,7 @@ class AttachmentsApi
         string $contentType = self::contentTypes['sendingUploadAttachment'][0]
     ): array {
         $request = $this->sendingUploadAttachmentRequest(
+            $content_length,
             $filename,
             $body,
             $idempotency_key,
@@ -1653,6 +1687,7 @@ class AttachmentsApi
      *
      * Upload an attachment
      *
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $filename Filename to associate with the uploaded attachment. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
@@ -1663,6 +1698,7 @@ class AttachmentsApi
      * @return PromiseInterface
      */
     public function sendingUploadAttachmentAsync(
+        int $content_length,
         string $filename,
         \SplFileObject $body,
         ?string $idempotency_key = null,
@@ -1670,6 +1706,7 @@ class AttachmentsApi
         string $contentType = self::contentTypes['sendingUploadAttachment'][0]
     ): PromiseInterface {
         return $this->sendingUploadAttachmentAsyncWithHttpInfo(
+            $content_length,
             $filename,
             $body,
             $idempotency_key,
@@ -1688,6 +1725,7 @@ class AttachmentsApi
      *
      * Upload an attachment
      *
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $filename Filename to associate with the uploaded attachment. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
@@ -1698,6 +1736,7 @@ class AttachmentsApi
      * @return PromiseInterface
      */
     public function sendingUploadAttachmentAsyncWithHttpInfo(
+        int $content_length,
         string $filename,
         \SplFileObject $body,
         ?string $idempotency_key = null,
@@ -1706,6 +1745,7 @@ class AttachmentsApi
     ): PromiseInterface {
         $returnType = '\Sendmux\Sending\Model\AttachmentUploadResponse';
         $request = $this->sendingUploadAttachmentRequest(
+            $content_length,
             $filename,
             $body,
             $idempotency_key,
@@ -1768,6 +1808,7 @@ class AttachmentsApi
     /**
      * Create request for operation 'sendingUploadAttachment'
      *
+     * @param  int $content_length Exact number of bytes in the binary request body. (required)
      * @param  string $filename Filename to associate with the uploaded attachment. (required)
      * @param  \SplFileObject $body body (required)
      * @param  string|null $idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict. (optional)
@@ -1778,12 +1819,23 @@ class AttachmentsApi
      * @return \GuzzleHttp\Psr7\Request
      */
     public function sendingUploadAttachmentRequest(
+        int $content_length,
         string $filename,
         \SplFileObject $body,
         ?string $idempotency_key = null,
         ?string $content_type = null,
         string $contentType = self::contentTypes['sendingUploadAttachment'][0]
     ): Request {
+
+        // verify the required parameter 'content_length' is set
+        if ($content_length === null || (is_array($content_length) && count($content_length) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $content_length when calling sendingUploadAttachment'
+            );
+        }
+        if ($content_length < 1) {
+            throw new InvalidArgumentException('invalid value for "$content_length" when calling AttachmentsApi.sendingUploadAttachment, must be bigger than or equal to 1.');
+        }
 
         // verify the required parameter 'filename' is set
         if ($filename === null || (is_array($filename) && count($filename) === 0)) {
@@ -1843,6 +1895,10 @@ class AttachmentsApi
         // header params
         if ($idempotency_key !== null) {
             $headerParams['Idempotency-Key'] = ObjectSerializer::toHeaderValue($idempotency_key);
+        }
+        // header params
+        if ($content_length !== null) {
+            $headerParams['Content-Length'] = ObjectSerializer::toHeaderValue($content_length);
         }
 
 

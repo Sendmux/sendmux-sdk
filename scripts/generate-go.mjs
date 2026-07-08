@@ -487,6 +487,8 @@ func APIErrorFromResponse(response any, status int) (*core.APIError, bool) {
 }
 
 function patchSendingAttachmentCompatibility(packageDir) {
+  patchSendingBinaryUploadContentLength(packageDir);
+
   const schemasPath = join(packageDir, "oas_schemas_gen.go");
   const jsonPath = join(packageDir, "oas_json_gen.go");
   const validatorsPath = join(packageDir, "oas_validators_gen.go");
@@ -804,6 +806,20 @@ func (s *Attachment) UnmarshalJSON(data []byte) error {
 func (s AttachmentEncoding) Validate() error {`,
     "sending Attachment validator compatibility block",
   );
+}
+
+function patchSendingBinaryUploadContentLength(packageDir) {
+  const clientPath = join(packageDir, "oas_client_gen.go");
+  for (const operation of ["SendingCompleteAttachmentUpload", "SendingUploadAttachment"]) {
+    replaceInFile(
+      clientPath,
+      new RegExp(
+        `(if err := encode${operation}Request\\(request, r\\); err != nil \\{\\n\\t\\treturn res, errors\\.Wrap\\(err, "encode request"\\)\\n\\t\\}\\n)`,
+      ),
+      `$1\tr.ContentLength = params.ContentLength\n`,
+      `${operation} request ContentLength patch`,
+    );
+  }
 }
 
 function replaceInFile(filePath, pattern, replacement, label) {

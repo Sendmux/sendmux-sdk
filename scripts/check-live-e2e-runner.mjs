@@ -193,6 +193,11 @@ assert.match(
   "sendingUploadAttachment live E2E must verify returned attachment metadata",
 );
 assert.match(
+  sendingUploadAttachmentMatch[0],
+  /"Content-Length":\s*attachment\.sizeBytes/,
+  "sendingUploadAttachment live E2E must pass numeric Content-Length for generated SDK inputs",
+);
+assert.match(
   sendingCreateAttachmentUploadMatch[0],
   /completeSendingAttachmentUploadUrl/,
   "sendingCreateAttachmentUpload live E2E must verify the delegated upload URL is usable",
@@ -201,6 +206,11 @@ assert.match(
   sendingCompleteAttachmentUploadMatch[0],
   /X-Sendmux-Upload-Token/,
   "sendingCompleteAttachmentUpload live E2E must pass the short-lived upload token header",
+);
+assert.match(
+  sendingCompleteAttachmentUploadMatch[0],
+  /"Content-Length":\s*attachment\.sizeBytes/,
+  "sendingCompleteAttachmentUpload live E2E must pass numeric Content-Length for generated SDK inputs",
 );
 assert.match(
   sendingGetAttachmentMatch[0],
@@ -254,6 +264,41 @@ assert.match(
 );
 assert.match(
   runnerSource,
+  /const adapterOperationTimeoutMs = 120_000;/,
+  "live E2E runner must bound each adapter operation step",
+);
+assert.match(
+  runnerSource,
+  /const progressEnvName = "SENDMUX_LIVE_E2E_PROGRESS";/,
+  "live E2E runner must expose opt-in progress logging for long protected runs",
+);
+assert.match(
+  runnerSource,
+  /results\.push\([\s\S]*?\.\.\.\(await runAdapterStep\(\{[\s\S]*?adapter,[\s\S]*?fixtureRuntime,[\s\S]*?operation,/,
+  "live E2E main loop must route every adapter operation through the bounded step runner",
+);
+assert.match(
+  runnerSource,
+  /async function runAdapterStep\(\{[\s\S]*?withHardTimeout\([\s\S]*?adapterOperationTimeoutMs[\s\S]*?\$\{adapter\}:\$\{operation\.operationId\} timed out[\s\S]*?catch \(error\)[\s\S]*?failResult\(adapter, operation\.operationId, error\)/,
+  "live E2E bounded step runner must convert adapter-step timeouts into operation failures",
+);
+assert.match(
+  runnerSource,
+  /async function runAdapterStep\(\{[\s\S]*?reportProgress\("adapter_step_start"[\s\S]*?reportProgress\("adapter_step_end"[\s\S]*?duration_ms/,
+  "live E2E bounded step runner must emit opt-in per-adapter progress events",
+);
+assert.match(
+  runnerSource,
+  /function reportProgress\(event, details = \{\}\)[\s\S]*?process\.env\[progressEnvName\] !== "1"[\s\S]*?console\.error\(JSON\.stringify\(\{ event,[\s\S]*?\.\.\.details/,
+  "live E2E progress logging must be env-gated and write JSON lines to stderr",
+);
+assert.match(
+  runnerSource,
+  /function withHardTimeout\(promise, timeoutMs, message\)[\s\S]*?Promise\.race[\s\S]*?setTimeout\(\(\) => reject\(new Error\(message\)\), timeoutMs\)[\s\S]*?clearTimeout\(timeout\)/,
+  "live E2E hard timeout helper must reject even when the wrapped promise never settles",
+);
+assert.match(
+  runnerSource,
   /async function runBoundedSdkOperation[\s\S]*?withAbortSignal\([\s\S]*?sdkOperation\(\{[\s\S]*?signal,[\s\S]*?sdkOperationTimeoutMs/,
   "live E2E in-process SDK calls must pass an abort signal through the generated SDK",
 );
@@ -301,6 +346,23 @@ assert.match(
   runnerSource,
   /function withAbortSignal\(run, timeoutMs, message\)[\s\S]*?new AbortController\(\)[\s\S]*?setTimeout\([\s\S]*?controller\.abort\(\)[\s\S]*?timeout\.unref\?\.\(\)[\s\S]*?clearTimeout\(timeout\)/,
   "live E2E runner must implement abortable timeouts for HTTP requests",
+);
+assert.match(
+  runnerSource,
+  /function withAbortSignal\(run, timeoutMs, message\)[\s\S]*?const operation = Promise\.resolve\(\)\.then\(\(\) => run\(controller\.signal\)\)[\s\S]*?operation\.catch\(\(\) => undefined\)[\s\S]*?Promise\.race\(\[[\s\S]*?operation[\s\S]*?setTimeout\(\(\) => \{[\s\S]*?controller\.abort\(\);[\s\S]*?reject\(new Error\(message\)\)/,
+  "live E2E abort-signal helper must reject on timeout even if the operation ignores abort",
+);
+const withAbortSignalMatch = runnerSource.match(/async function withAbortSignal[\s\S]*?\n}\n\nfunction fetchWithTimeout/);
+assert.ok(withAbortSignalMatch, "withAbortSignal helper must exist before fetchWithTimeout");
+assert.match(
+  withAbortSignalMatch[0],
+  /setTimeout\(\(\) => \{[\s\S]*?controller\.abort\(\);[\s\S]*?reject\(new Error\(message\)\)/,
+  "withAbortSignal must abort the underlying operation when the timeout fires",
+);
+assert.doesNotMatch(
+  withAbortSignalMatch[0],
+  /finally \{[\s\S]*?controller\.abort\(\);[\s\S]*?\}/,
+  "withAbortSignal must not abort after a successful fetch response before the body is consumed",
 );
 assert.match(
   runnerSource,
@@ -417,6 +479,16 @@ assert.match(
   goLiveE2eSource,
   /func operationTimeout\(op operation\) time\.Duration[\s\S]*?op\.OperationID != "mailboxStreamEvents"[\s\S]*?45 \* time\.Second[\s\S]*?intValue\(op\.Request\.Query\["close_after"\], 30\)[\s\S]*?closeAfter\+20/,
   "Go live E2E stream timeout must include close_after plus a live-network buffer",
+);
+assert.match(
+  rubyLiveE2eSource,
+  /operation\['bodyKind'\] == 'binary'[\s\S]*?value = request\['body'\]\.to_s/,
+  "Ruby live E2E must satisfy required positional binary body parameters from request.body",
+);
+assert.match(
+  rubyLiveE2eSource,
+  /key\.tr\('-', '_'\)\.downcase/,
+  "Ruby live E2E must normalise generated header option names to lowercase snake_case",
 );
 assert.match(
   phpLiveE2eSource,

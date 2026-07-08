@@ -547,6 +547,9 @@ try {
   if (!sendingAttachUploadRequest.body.equals(textAttachmentBytes)) {
     throw new Error("sending:send --attach did not upload raw file bytes");
   }
+  if (sendingAttachUploadRequest.headers["content-length"] !== String(textAttachmentBytes.byteLength)) {
+    throw new Error("sending:send --attach did not send the file Content-Length");
+  }
 
   const sendingAttachBody = JSON.parse(sendingAttachSendRequest.body.toString("utf8"));
   assertDeepEqual(sendingAttachBody.attachments, [

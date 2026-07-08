@@ -361,6 +361,10 @@ export type SendingCompleteAttachmentUploadData = {
          * Short-lived upload token returned by POST /emails/attachment-uploads.
          */
         'X-Sendmux-Upload-Token': string;
+        /**
+         * Exact number of bytes in the binary request body.
+         */
+        'Content-Length': number;
     };
     path: {
         /**
@@ -416,11 +420,15 @@ export type SendingCompleteAttachmentUploadResponse = SendingCompleteAttachmentU
 
 export type SendingUploadAttachmentData = {
     body: Blob | File;
-    headers?: {
+    headers: {
         /**
          * Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.
          */
         'Idempotency-Key'?: string;
+        /**
+         * Exact number of bytes in the binary request body.
+         */
+        'Content-Length': number;
     };
     path?: never;
     query: {

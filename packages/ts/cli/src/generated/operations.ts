@@ -4188,6 +4188,14 @@ export const operations = {
         "schema": {
           "type": "string"
         }
+      },
+      {
+        "name": "Content-Length",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     ],
     "method": "put",
@@ -4339,6 +4347,14 @@ export const operations = {
         "schema": {
           "type": "string",
           "maxLength": 255
+        }
+      },
+      {
+        "name": "Content-Length",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     ],

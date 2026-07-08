@@ -577,6 +577,7 @@ try {
       seenSendingFileRequests.push({
         authorization: request.headers.get("Authorization"),
         body,
+        contentLength: request.headers.get("Content-Length"),
         contentType: request.headers.get("Content-Type"),
         method: request.method,
         url: request.url,
@@ -627,9 +628,11 @@ try {
   assert.equal(seenSendingFileRequests[0].authorization, "Bearer smx_mbx_test_sending_file");
   assert.equal(new URL(seenSendingFileRequests[0].url).pathname, "/emails/attachments");
   assert.equal(new URL(seenSendingFileRequests[0].url).searchParams.get("filename"), "report.txt");
+  assert.equal(seenSendingFileRequests[0].contentLength, String(reportBytes.byteLength));
   assert.equal(seenSendingFileRequests[0].contentType, "text/plain");
   assert.deepEqual(seenSendingFileRequests[0].body, reportBytes);
   assert.equal(new URL(seenSendingFileRequests[1].url).pathname, "/emails/attachments");
+  assert.equal(seenSendingFileRequests[1].contentLength, String(reportBytes.byteLength));
   assert.equal(new URL(seenSendingFileRequests[2].url).pathname, "/emails/send");
   assert.deepEqual(JSON.parse(seenSendingFileRequests[2].body.toString("utf8")).attachments, [
     { attachment_id: "att_1234567890abcdefghijklmn" },

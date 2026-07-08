@@ -67,6 +67,7 @@ export async function uploadAttachmentFromFile({
     body: blobFor(file),
     headers: {
       ...(headers ?? {}),
+      "Content-Length": file.bytes.byteLength,
       "Content-Type": file.contentType,
     },
     query: {

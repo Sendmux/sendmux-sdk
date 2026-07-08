@@ -22,23 +22,25 @@ module Sendmux::Sending::Generated
     # Upload bytes to an attachment upload URL
     # Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API key.
     # @param x_sendmux_upload_token [String] Short-lived upload token returned by POST /emails/attachment-uploads.
+    # @param content_length [Integer] Exact number of bytes in the binary request body.
     # @param upload_id [String] Upload intent ID returned by POST /emails/attachment-uploads.
     # @param body [File]
     # @param [Hash] opts the optional parameters
     # @return [AttachmentUploadResponse]
-    def sending_complete_attachment_upload(x_sendmux_upload_token, upload_id, body, opts = {})
-      data, _status_code, _headers = sending_complete_attachment_upload_with_http_info(x_sendmux_upload_token, upload_id, body, opts)
+    def sending_complete_attachment_upload(x_sendmux_upload_token, content_length, upload_id, body, opts = {})
+      data, _status_code, _headers = sending_complete_attachment_upload_with_http_info(x_sendmux_upload_token, content_length, upload_id, body, opts)
       data
     end
 
     # Upload bytes to an attachment upload URL
     # Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API key.
     # @param x_sendmux_upload_token [String] Short-lived upload token returned by POST /emails/attachment-uploads.
+    # @param content_length [Integer] Exact number of bytes in the binary request body.
     # @param upload_id [String] Upload intent ID returned by POST /emails/attachment-uploads.
     # @param body [File]
     # @param [Hash] opts the optional parameters
     # @return [Array<(AttachmentUploadResponse, Integer, Hash)>] AttachmentUploadResponse data, response status code and response headers
-    def sending_complete_attachment_upload_with_http_info(x_sendmux_upload_token, upload_id, body, opts = {})
+    def sending_complete_attachment_upload_with_http_info(x_sendmux_upload_token, content_length, upload_id, body, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: AttachmentsApi.sending_complete_attachment_upload ...'
       end
@@ -46,6 +48,14 @@ module Sendmux::Sending::Generated
       if @api_client.config.client_side_validation && x_sendmux_upload_token.nil?
         fail ArgumentError, "Missing the required parameter 'x_sendmux_upload_token' when calling AttachmentsApi.sending_complete_attachment_upload"
       end
+      # verify the required parameter 'content_length' is set
+      if @api_client.config.client_side_validation && content_length.nil?
+        fail ArgumentError, "Missing the required parameter 'content_length' when calling AttachmentsApi.sending_complete_attachment_upload"
+      end
+      if @api_client.config.client_side_validation && content_length < 1
+        fail ArgumentError, 'invalid value for "content_length" when calling AttachmentsApi.sending_complete_attachment_upload, must be greater than or equal to 1.'
+      end
+
       # verify the required parameter 'upload_id' is set
       if @api_client.config.client_side_validation && upload_id.nil?
         fail ArgumentError, "Missing the required parameter 'upload_id' when calling AttachmentsApi.sending_complete_attachment_upload"
@@ -75,6 +85,7 @@ module Sendmux::Sending::Generated
           header_params['Content-Type'] = content_type
       end
       header_params[:'X-Sendmux-Upload-Token'] = x_sendmux_upload_token
+      header_params[:'Content-Length'] = content_length
 
       # form parameters
       form_params = opts[:form_params] || {}
@@ -250,29 +261,39 @@ module Sendmux::Sending::Generated
 
     # Upload an attachment
     # Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[]. Requires `email.send` permission.
+    # @param content_length [Integer] Exact number of bytes in the binary request body.
     # @param filename [String] Filename to associate with the uploaded attachment.
     # @param body [File]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.
     # @option opts [String] :content_type MIME type override for the uploaded attachment.
     # @return [AttachmentUploadResponse]
-    def sending_upload_attachment(filename, body, opts = {})
-      data, _status_code, _headers = sending_upload_attachment_with_http_info(filename, body, opts)
+    def sending_upload_attachment(content_length, filename, body, opts = {})
+      data, _status_code, _headers = sending_upload_attachment_with_http_info(content_length, filename, body, opts)
       data
     end
 
     # Upload an attachment
     # Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[]. Requires &#x60;email.send&#x60; permission.
+    # @param content_length [Integer] Exact number of bytes in the binary request body.
     # @param filename [String] Filename to associate with the uploaded attachment.
     # @param body [File]
     # @param [Hash] opts the optional parameters
     # @option opts [String] :idempotency_key Optional client-generated key to make the request idempotent for 24 hours. Replays under the same key return the cached response; a reused key with a different body returns 409 idempotency_conflict.
     # @option opts [String] :content_type MIME type override for the uploaded attachment.
     # @return [Array<(AttachmentUploadResponse, Integer, Hash)>] AttachmentUploadResponse data, response status code and response headers
-    def sending_upload_attachment_with_http_info(filename, body, opts = {})
+    def sending_upload_attachment_with_http_info(content_length, filename, body, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: AttachmentsApi.sending_upload_attachment ...'
       end
+      # verify the required parameter 'content_length' is set
+      if @api_client.config.client_side_validation && content_length.nil?
+        fail ArgumentError, "Missing the required parameter 'content_length' when calling AttachmentsApi.sending_upload_attachment"
+      end
+      if @api_client.config.client_side_validation && content_length < 1
+        fail ArgumentError, 'invalid value for "content_length" when calling AttachmentsApi.sending_upload_attachment, must be greater than or equal to 1.'
+      end
+
       # verify the required parameter 'filename' is set
       if @api_client.config.client_side_validation && filename.nil?
         fail ArgumentError, "Missing the required parameter 'filename' when calling AttachmentsApi.sending_upload_attachment"
@@ -314,6 +335,7 @@ module Sendmux::Sending::Generated
       if !content_type.nil?
           header_params['Content-Type'] = content_type
       end
+      header_params[:'Content-Length'] = content_length
       header_params[:'Idempotency-Key'] = opts[:'idempotency_key'] if !opts[:'idempotency_key'].nil?
 
       # form parameters

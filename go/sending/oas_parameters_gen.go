@@ -19,6 +19,8 @@ import (
 type SendingCompleteAttachmentUploadParams struct {
 	// Short-lived upload token returned by POST /emails/attachment-uploads.
 	XSendmuxUploadToken string
+	// Exact number of bytes in the binary request body.
+	ContentLength int64
 	// Upload intent ID returned by POST /emails/attachment-uploads.
 	UploadID string
 }
@@ -30,6 +32,13 @@ func unpackSendingCompleteAttachmentUploadParams(packed middleware.Parameters) (
 			In:   "header",
 		}
 		params.XSendmuxUploadToken = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "Content-Length",
+			In:   "header",
+		}
+		params.ContentLength = packed[key].(int64)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -73,6 +82,57 @@ func decodeSendingCompleteAttachmentUploadParams(args [1]string, argsEscaped boo
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "X-Sendmux-Upload-Token",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode header: Content-Length.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "Content-Length",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.ContentLength = c
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           1,
+					MaxSet:        false,
+					Max:           0,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(params.ContentLength)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "Content-Length",
 			In:   "header",
 			Err:  err,
 		}
@@ -557,6 +617,8 @@ type SendingUploadAttachmentParams struct {
 	// key return the cached response; a reused key with a different body returns 409
 	// idempotency_conflict.
 	IdempotencyKey OptString
+	// Exact number of bytes in the binary request body.
+	ContentLength int64
 	// Filename to associate with the uploaded attachment.
 	Filename string
 	// MIME type override for the uploaded attachment.
@@ -572,6 +634,13 @@ func unpackSendingUploadAttachmentParams(packed middleware.Parameters) (params S
 		if v, ok := packed[key]; ok {
 			params.IdempotencyKey = v.(OptString)
 		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "Content-Length",
+			In:   "header",
+		}
+		params.ContentLength = packed[key].(int64)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -653,6 +722,57 @@ func decodeSendingUploadAttachmentParams(args [0]string, argsEscaped bool, r *ht
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "Idempotency-Key",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode header: Content-Length.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "Content-Length",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.ContentLength = c
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           1,
+					MaxSet:        false,
+					Max:           0,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(params.ContentLength)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "Content-Length",
 			In:   "header",
 			Err:  err,
 		}

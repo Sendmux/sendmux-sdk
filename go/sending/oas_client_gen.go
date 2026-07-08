@@ -203,6 +203,7 @@ func (c *Client) sendSendingCompleteAttachmentUpload(ctx context.Context, reques
 	if err := encodeSendingCompleteAttachmentUploadRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
+	r.ContentLength = params.ContentLength
 
 	stage = "EncodeHeaderParams"
 	h := uri.NewHeaderEncoder(r.Header)
@@ -213,6 +214,17 @@ func (c *Client) sendSendingCompleteAttachmentUpload(ctx context.Context, reques
 		}
 		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
 			return e.EncodeValue(conv.StringToString(params.XSendmuxUploadToken))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "Content-Length",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.Int64ToString(params.ContentLength))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode header")
 		}
@@ -919,6 +931,7 @@ func (c *Client) sendSendingUploadAttachment(ctx context.Context, request Sendin
 	if err := encodeSendingUploadAttachmentRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
+	r.ContentLength = params.ContentLength
 
 	stage = "EncodeHeaderParams"
 	h := uri.NewHeaderEncoder(r.Header)
@@ -932,6 +945,17 @@ func (c *Client) sendSendingUploadAttachment(ctx context.Context, request Sendin
 				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "Content-Length",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.Int64ToString(params.ContentLength))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode header")
 		}

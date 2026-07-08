@@ -146,6 +146,10 @@ func (s *Server) handleSendingCompleteAttachmentUploadRequest(args [1]string, ar
 					In:   "header",
 				}: params.XSendmuxUploadToken,
 				{
+					Name: "Content-Length",
+					In:   "header",
+				}: params.ContentLength,
+				{
 					Name: "upload_id",
 					In:   "path",
 				}: params.UploadID,
@@ -1262,6 +1266,10 @@ func (s *Server) handleSendingUploadAttachmentRequest(args [0]string, argsEscape
 					Name: "Idempotency-Key",
 					In:   "header",
 				}: params.IdempotencyKey,
+				{
+					Name: "Content-Length",
+					In:   "header",
+				}: params.ContentLength,
 				{
 					Name: "filename",
 					In:   "query",

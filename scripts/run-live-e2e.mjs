@@ -23,8 +23,10 @@ const mutationGateEnvName = "SENDMUX_LIVE_E2E_MUTATIONS";
 const binaryGateEnvName = "SENDMUX_LIVE_E2E_BINARY";
 const streamGateEnvName = "SENDMUX_LIVE_E2E_STREAM";
 const sendGateEnvName = "SENDMUX_STAGING_SEND";
+const progressEnvName = "SENDMUX_LIVE_E2E_PROGRESS";
 const childHarnessTimeoutMs = 90_000;
 const sdkOperationTimeoutMs = 60_000;
+const adapterOperationTimeoutMs = 120_000;
 const presignedFetchTimeoutMs = 30_000;
 const fixtureTeardownTimeoutMs = 30_000;
 const managementMailboxIdSelectors = ["data.mailbox.id"];
@@ -157,54 +159,14 @@ const removeSignalHandlers = installTeardownSignalHandlers(teardownOnce);
 try {
   for (const operation of selectedOperations) {
     for (const adapter of adapters) {
-      if (operation.customMcpOnly && adapter !== "mcp") {
-        results.push({
-          adapter,
-          operationId: operation.operationId,
-          reason: "custom MCP-only operation",
-          status: "skipped",
-        });
-        continue;
-      }
-
-      if (adapter === "mcp" && !isMcpCurated(operation)) {
-        results.push(skippedMcpResult(operation));
-        continue;
-      }
-
-      const prepared = await safeRequestOptionsFor({ adapter, fixtureRuntime, fixtures, operation });
-      if (!prepared.ok) {
-        results.push(failResult(adapter, operation.operationId, prepared.error));
-        continue;
-      }
-
-      if (adapter === typescriptSdkAdapter) {
-        results.push(await runSdkOperation({ credentials, operation, prepared: prepared.value, sdk }));
-        continue;
-      }
-
-      if (adapter === "cli") {
-        results.push(await runCliOperation({ credentials, operation, prepared: prepared.value }));
-        continue;
-      }
-
-      if (adapter === "mcp") {
-        results.push(
-          ...(await runMcpOperations({
-            credentials,
-            operations: [operation],
-            requests: new Map([[operation.operationId, prepared.value]]),
-          })),
-        );
-        continue;
-      }
-
       results.push(
-        ...(await runLanguageSdkOperations({
+        ...(await runAdapterStep({
           adapter,
           credentials,
-          operations: [operation],
-          requests: new Map([[operation.operationId, prepared.value]]),
+          fixtureRuntime,
+          fixtures,
+          operation,
+          sdk,
         })),
       );
     }
@@ -225,6 +187,79 @@ console.log(JSON.stringify({ ok: failed.length === 0, results }, null, 2));
 
 if (failed.length > 0) {
   throw new Error(`Live E2E failed for ${failed.length} adapter operation(s).`);
+}
+
+async function runAdapterStep({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }) {
+  const startedAt = Date.now();
+  reportProgress("adapter_step_start", { adapter, operationId: operation.operationId });
+  try {
+    const stepResults = await withHardTimeout(
+      runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }),
+      adapterOperationTimeoutMs,
+      `${adapter}:${operation.operationId} timed out after ${adapterOperationTimeoutMs}ms`,
+    );
+    reportProgress("adapter_step_end", {
+      adapter,
+      duration_ms: Date.now() - startedAt,
+      operationId: operation.operationId,
+      status: "completed",
+    });
+    return stepResults;
+  } catch (error) {
+    reportProgress("adapter_step_end", {
+      adapter,
+      duration_ms: Date.now() - startedAt,
+      error: errorMessage(error),
+      operationId: operation.operationId,
+      status: "failed",
+    });
+    return [failResult(adapter, operation.operationId, error)];
+  }
+}
+
+async function runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }) {
+  if (operation.customMcpOnly && adapter !== "mcp") {
+    return [
+      {
+        adapter,
+        operationId: operation.operationId,
+        reason: "custom MCP-only operation",
+        status: "skipped",
+      },
+    ];
+  }
+
+  if (adapter === "mcp" && !isMcpCurated(operation)) {
+    return [skippedMcpResult(operation)];
+  }
+
+  const prepared = await safeRequestOptionsFor({ adapter, fixtureRuntime, fixtures, operation });
+  if (!prepared.ok) {
+    return [failResult(adapter, operation.operationId, prepared.error)];
+  }
+
+  if (adapter === typescriptSdkAdapter) {
+    return [await runSdkOperation({ credentials, operation, prepared: prepared.value, sdk })];
+  }
+
+  if (adapter === "cli") {
+    return [await runCliOperation({ credentials, operation, prepared: prepared.value })];
+  }
+
+  if (adapter === "mcp") {
+    return runMcpOperations({
+      credentials,
+      operations: [operation],
+      requests: new Map([[operation.operationId, prepared.value]]),
+    });
+  }
+
+  return runLanguageSdkOperations({
+    adapter,
+    credentials,
+    operations: [operation],
+    requests: new Map([[operation.operationId, prepared.value]]),
+  });
 }
 
 function parseArgs(argv) {
@@ -1911,6 +1946,7 @@ async function prepareSendingUploadAttachment({ adapter, fixtureRuntime }) {
     request: {
       body: attachment.content,
       headers: {
+        "Content-Length": attachment.sizeBytes,
         "Idempotency-Key": fixtureRuntime.idempotencyKey("sending-upload-attachment"),
       },
       query: {
@@ -1976,6 +2012,7 @@ async function prepareSendingCompleteAttachmentUpload({ fixtureRuntime }) {
     request: {
       body: attachment.content,
       headers: {
+        "Content-Length": attachment.sizeBytes,
         "X-Sendmux-Upload-Token": intent.uploadToken,
       },
       path: {
@@ -2787,24 +2824,48 @@ function withTimeout(promise, timeoutMs, message) {
   });
 }
 
+function withHardTimeout(promise, timeoutMs, message) {
+  let timeout;
+  const guarded = Promise.resolve(promise);
+  guarded.catch(() => undefined);
+  return Promise.race([
+    guarded,
+    new Promise((_, reject) => {
+      timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
+    }),
+  ]).finally(() => {
+    if (timeout) clearTimeout(timeout);
+  });
+}
+
+function reportProgress(event, details = {}) {
+  if (process.env[progressEnvName] !== "1") {
+    return;
+  }
+  console.error(JSON.stringify({ event, ...details }));
+}
+
 async function withAbortSignal(run, timeoutMs, message) {
   const controller = new AbortController();
-  let timedOut = false;
-  const timeout = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, timeoutMs);
-  timeout.unref?.();
+  let timeout;
+  const operation = Promise.resolve().then(() => run(controller.signal));
+  operation.catch(() => undefined);
 
   try {
-    return await run(controller.signal);
-  } catch (error) {
-    if (timedOut) {
-      throw new Error(message, { cause: error });
-    }
-    throw error;
+    return await Promise.race([
+      operation,
+      new Promise((_, reject) => {
+        timeout = setTimeout(() => {
+          controller.abort();
+          reject(new Error(message));
+        }, timeoutMs);
+        timeout.unref?.();
+      }),
+    ]);
   } finally {
-    clearTimeout(timeout);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
   }
 }
 

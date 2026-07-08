@@ -819,6 +819,18 @@
             }
           },
           {
+            "description": "Exact number of bytes in the binary request body.",
+            "example": 20480,
+            "in": "header",
+            "name": "Content-Length",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
             "description": "Upload intent ID returned by POST /emails/attachment-uploads.",
             "in": "path",
             "name": "upload_id",
@@ -951,6 +963,18 @@
             "schema": {
               "maxLength": 255,
               "type": "string"
+            }
+          },
+          {
+            "description": "Exact number of bytes in the binary request body.",
+            "example": 20480,
+            "in": "header",
+            "name": "Content-Length",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "minimum": 1,
+              "type": "integer"
             }
           },
           {

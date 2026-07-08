@@ -94,6 +94,7 @@ for (const surface of surfaces) {
   cpSync(join(generatedRoot, "lib", surface.generatedGemName), join(packageDir, "lib", surface.generatedGemName), {
     recursive: true,
   });
+  patchGeneratedApiClientHeaders(join(packageDir, "lib", surface.generatedGemName, "api_client.rb"));
   stripTrailingWhitespace(join(packageDir, "lib", `${surface.generatedGemName}.rb`));
   stripTrailingWhitespace(join(packageDir, "lib", surface.generatedGemName));
   writeSurfaceClient(surface, packageDir);
@@ -298,6 +299,32 @@ function stripTrailingWhitespace(path) {
   if (stripped !== source) {
     writeFileSync(path, stripped);
   }
+}
+
+function patchGeneratedApiClientHeaders(apiClientPath) {
+  const source = readFileSync(apiClientPath, "utf8");
+  const headerAssignment = "      request.headers = header_params\n      request.body = req_body\n";
+  const patchedHeaderAssignment = "      request.headers = stringify_header_params(header_params)\n      request.body = req_body\n";
+  if (!source.includes(headerAssignment)) {
+    throw new Error(`Could not find generated Ruby header assignment in ${apiClientPath}`);
+  }
+
+  const methodInsertionPoint = "    # Builds the HTTP request body\n";
+  const stringifyMethod = `    def stringify_header_params(header_params)
+      header_params.each_with_object({}) do |(key, value), result|
+        result[key] = value.nil? ? value : value.to_s
+      end
+    end
+
+`;
+  if (!source.includes(methodInsertionPoint)) {
+    throw new Error(`Could not find generated Ruby request body method in ${apiClientPath}`);
+  }
+
+  writeFileSync(
+    apiClientPath,
+    source.replace(headerAssignment, patchedHeaderAssignment).replace(methodInsertionPoint, stringifyMethod + methodInsertionPoint),
+  );
 }
 
 function run(command, args) {

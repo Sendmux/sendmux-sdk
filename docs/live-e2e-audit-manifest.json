@@ -3,9 +3,9 @@
   "kind": "sendmux-live-e2e-audit-manifest",
   "note": "Sanitized audit record only: no API keys, bearer tokens, base URLs, request bodies, or response bodies.",
   "run": {
-    "commit_sha": "af4b4a00e1f69b58c7eed1c6335c17b45de6d4ce",
-    "generated_at": "2026-07-03T05:40:38.710Z",
-    "source": "protected-live-e2e:20260703-full-post-stream-timeouts"
+    "commit_sha": "a875ad9c0ab91a65db3d4efa492fac82f59314e7",
+    "generated_at": "2026-07-08T03:23:27.488Z",
+    "source": "protected-live-e2e:20260708-content-length"
   },
   "ci_refresh": {
     "workflow": ".github/workflows/live-e2e.yml",
@@ -13,80 +13,86 @@
     "artifact_name": "live-e2e-audit-manifest"
   },
   "gates": {
-    "SENDMUX_LIVE_E2E": true,
-    "SENDMUX_LIVE_E2E_FIXTURE_SETUP": true,
-    "SENDMUX_LIVE_E2E_MUTATIONS": true,
-    "SENDMUX_LIVE_E2E_BINARY": true,
-    "SENDMUX_LIVE_E2E_STREAM": true,
-    "SENDMUX_STAGING_SEND": true,
+    "SENDMUX_LIVE_E2E": false,
+    "SENDMUX_LIVE_E2E_FIXTURE_SETUP": false,
+    "SENDMUX_LIVE_E2E_MUTATIONS": false,
+    "SENDMUX_LIVE_E2E_BINARY": false,
+    "SENDMUX_LIVE_E2E_STREAM": false,
+    "SENDMUX_STAGING_SEND": false,
     "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO": false,
     "SENDMUX_LIVE_E2E_WEBHOOK_URL": false,
     "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST": false
   },
   "operation_counts": {
-    "total": 98,
-    "executable": 98,
-    "gated": 0,
+    "total": 103,
+    "executable": 54,
+    "gated": 49,
     "blocked": 0,
-    "gated_by_risk": {}
+    "gated_by_risk": {
+      "binary": 8,
+      "destructive": 8,
+      "mutation": 30,
+      "send": 2,
+      "stream": 1
+    }
   },
   "result_summary": {
     "total": {
       "failed": 0,
-      "passed": 629,
-      "skipped": 50
+      "passed": 656,
+      "skipped": 51
     },
     "surfaces": {
       "sdk": {
         "failed": 0,
-        "passed": 485,
+        "passed": 505,
         "skipped": 0
       },
       "cli": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       },
       "mcp": {
         "failed": 0,
-        "passed": 47,
-        "skipped": 50
+        "passed": 50,
+        "skipped": 51
       }
     },
     "adapters": {
       "cli": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       },
       "go": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       },
       "mcp": {
         "failed": 0,
-        "passed": 47,
-        "skipped": 50
+        "passed": 50,
+        "skipped": 51
       },
       "php": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       },
       "python": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       },
       "ruby": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       },
       "typescript": {
         "failed": 0,
-        "passed": 97,
+        "passed": 101,
         "skipped": 0
       }
     },
@@ -103,8 +109,8 @@
       },
       "sending": {
         "failed": 0,
-        "passed": 20,
-        "skipped": 1
+        "passed": 47,
+        "skipped": 2
       }
     }
   }

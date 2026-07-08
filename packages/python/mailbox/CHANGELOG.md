@@ -6,6 +6,13 @@
 
 * expose short-lived attachment download URLs, upload intents, event iterator, and file attachment helpers
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.1.0...python-mailbox-v1.2.0) (2026-07-08)
+
+
+### Features
+
+* **sdk:** add sending attachment upload surfaces ([#96](https://github.com/Sendmux/sendmux-sdk/issues/96)) ([b8f9d5f](https://github.com/Sendmux/sendmux-sdk/commit/b8f9d5fe3c1ae510db82ce05c55cbcad92b43b44))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.0.4...python-mailbox-v1.1.0) (2026-07-03)
 
 

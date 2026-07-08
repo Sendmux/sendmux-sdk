@@ -55,6 +55,7 @@ function createApis(string $surface): array
     }
     if ($surface === 'sending') {
         return [
+            Sendmux\Sending\ClientFactory::createAttachmentsApi(mailboxApiKey(), sendingBaseUrl()),
             Sendmux\Sending\ClientFactory::createEmailsApi(mailboxApiKey(), sendingBaseUrl()),
             Sendmux\Sending\ClientFactory::createMetaApi(mailboxApiKey(), sendingBaseUrl()),
         ];

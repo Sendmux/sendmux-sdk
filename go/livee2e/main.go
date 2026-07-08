@@ -58,7 +58,7 @@ func main() {
 		failPlan(err)
 	}
 
-	clients, err := createClients()
+	clients, err := createClients(input.Operations)
 	if err != nil {
 		failPlan(err)
 	}
@@ -100,25 +100,36 @@ func main() {
 	encode(map[string]any{"results": results})
 }
 
-func createClients() (map[string]any, error) {
+func createClients(operations []operation) (map[string]any, error) {
 	retry := core.RetryOptions{MaxAttempts: 2, BaseDelay: 250 * time.Millisecond, MaxDelay: time.Second}
-	mbox, err := mailbox.New(mailboxAPIKey(), mailbox.WithBaseURL(appBaseURL()), mailbox.WithRetryOptions(retry))
-	if err != nil {
-		return nil, err
+	needed := map[string]bool{}
+	for _, op := range operations {
+		needed[op.Surface] = true
 	}
-	mgmt, err := management.New(rootAPIKey(), management.WithBaseURL(appBaseURL()), management.WithRetryOptions(retry))
-	if err != nil {
-		return nil, err
+
+	clients := map[string]any{}
+	if needed["mailbox"] {
+		mbox, err := mailbox.New(mailboxAPIKey(), mailbox.WithBaseURL(appBaseURL()), mailbox.WithRetryOptions(retry))
+		if err != nil {
+			return nil, err
+		}
+		clients["mailbox"] = mbox
 	}
-	send, err := sending.New(mailboxAPIKey(), sending.WithBaseURL(sendingBaseURL()), sending.WithRetryOptions(retry))
-	if err != nil {
-		return nil, err
+	if needed["management"] {
+		mgmt, err := management.New(rootAPIKey(), management.WithBaseURL(appBaseURL()), management.WithRetryOptions(retry))
+		if err != nil {
+			return nil, err
+		}
+		clients["management"] = mgmt
 	}
-	return map[string]any{
-		"mailbox":    mbox,
-		"management": mgmt,
-		"sending":    send,
-	}, nil
+	if needed["sending"] {
+		send, err := sending.New(mailboxAPIKey(), sending.WithBaseURL(sendingBaseURL()), sending.WithRetryOptions(retry))
+		if err != nil {
+			return nil, err
+		}
+		clients["sending"] = send
+	}
+	return clients, nil
 }
 
 func callOperation(client any, op operation) (any, error) {

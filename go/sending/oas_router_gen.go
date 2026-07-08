@@ -40,6 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.notFound(w, r)
 		return
 	}
+	args := [1]string{}
 
 	// Static code generated router with unwrapped path search.
 	switch {
@@ -60,43 +61,175 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'e': // Prefix: "emails/send"
+			case 'e': // Prefix: "emails/"
 
-				if l := len("emails/send"); len(elem) >= l && elem[0:l] == "emails/send" {
+				if l := len("emails/"); len(elem) >= l && elem[0:l] == "emails/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch r.Method {
-					case "POST":
-						s.handleSendingSendEmailRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "POST")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/batch"
+				case 'a': // Prefix: "attachment"
 
-					if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+					if l := len("attachment"); len(elem) >= l && elem[0:l] == "attachment" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
+						break
+					}
+					switch elem[0] {
+					case '-': // Prefix: "-uploads"
+
+						if l := len("-uploads"); len(elem) >= l && elem[0:l] == "-uploads" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch r.Method {
+							case "POST":
+								s.handleSendingCreateAttachmentUploadRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "upload_id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[0] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PUT":
+									s.handleSendingCompleteAttachmentUploadRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+
+						}
+
+					case 's': // Prefix: "s"
+
+						if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch r.Method {
+							case "POST":
+								s.handleSendingUploadAttachmentRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "attachment_id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[0] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleSendingGetAttachmentRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+						}
+
+					}
+
+				case 's': // Prefix: "send"
+
+					if l := len("send"); len(elem) >= l && elem[0:l] == "send" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
 						switch r.Method {
 						case "POST":
-							s.handleSendingSendEmailBatchRequest([0]string{}, elemIsEscaped, w, r)
+							s.handleSendingSendEmailRequest([0]string{}, elemIsEscaped, w, r)
 						default:
 							s.notAllowed(w, r, "POST")
 						}
 
 						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/batch"
+
+						if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleSendingSendEmailBatchRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -135,7 +268,7 @@ type Route struct {
 	operationID string
 	pathPattern string
 	count       int
-	args        [0]string
+	args        [1]string
 }
 
 // Name returns ogen operation name.
@@ -215,51 +348,195 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'e': // Prefix: "emails/send"
+			case 'e': // Prefix: "emails/"
 
-				if l := len("emails/send"); len(elem) >= l && elem[0:l] == "emails/send" {
+				if l := len("emails/"); len(elem) >= l && elem[0:l] == "emails/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch method {
-					case "POST":
-						r.name = SendingSendEmailOperation
-						r.summary = "Send a single email"
-						r.operationID = "sendingSendEmail"
-						r.pathPattern = "/emails/send"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/batch"
+				case 'a': // Prefix: "attachment"
 
-					if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+					if l := len("attachment"); len(elem) >= l && elem[0:l] == "attachment" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
+						break
+					}
+					switch elem[0] {
+					case '-': // Prefix: "-uploads"
+
+						if l := len("-uploads"); len(elem) >= l && elem[0:l] == "-uploads" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch method {
+							case "POST":
+								r.name = SendingCreateAttachmentUploadOperation
+								r.summary = "Create an attachment upload URL"
+								r.operationID = "sendingCreateAttachmentUpload"
+								r.pathPattern = "/emails/attachment-uploads"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "upload_id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[0] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "PUT":
+									r.name = SendingCompleteAttachmentUploadOperation
+									r.summary = "Upload bytes to an attachment upload URL"
+									r.operationID = "sendingCompleteAttachmentUpload"
+									r.pathPattern = "/emails/attachment-uploads/{upload_id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					case 's': // Prefix: "s"
+
+						if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch method {
+							case "POST":
+								r.name = SendingUploadAttachmentOperation
+								r.summary = "Upload an attachment"
+								r.operationID = "sendingUploadAttachment"
+								r.pathPattern = "/emails/attachments"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							// Param: "attachment_id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[0] = elem
+							elem = ""
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = SendingGetAttachmentOperation
+									r.summary = "Get attachment metadata"
+									r.operationID = "sendingGetAttachment"
+									r.pathPattern = "/emails/attachments/{attachment_id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					}
+
+				case 's': // Prefix: "send"
+
+					if l := len("send"); len(elem) >= l && elem[0:l] == "send" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
 						switch method {
 						case "POST":
-							r.name = SendingSendEmailBatchOperation
-							r.summary = "Send a batch of emails"
-							r.operationID = "sendingSendEmailBatch"
-							r.pathPattern = "/emails/send/batch"
+							r.name = SendingSendEmailOperation
+							r.summary = "Send a single email"
+							r.operationID = "sendingSendEmail"
+							r.pathPattern = "/emails/send"
 							r.args = args
 							r.count = 0
 							return r, true
 						default:
 							return
 						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/batch"
+
+						if l := len("/batch"); len(elem) >= l && elem[0:l] == "/batch" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = SendingSendEmailBatchOperation
+								r.summary = "Send a batch of emails"
+								r.operationID = "sendingSendEmailBatch"
+								r.pathPattern = "/emails/send/batch"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

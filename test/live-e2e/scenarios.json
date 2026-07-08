@@ -1025,6 +1025,31 @@
       "mode": "read",
       "risk": "read"
     },
+    "mailboxReadAttachment": {
+      "adapters": {
+        "cli": false,
+        "mcp": "mailbox_read_attachment",
+        "sdk": []
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
     "mailboxSearchMessageSnippets": {
       "adapters": {
         "cli": true,
@@ -2968,6 +2993,107 @@
       "mode": "mutation_fixture",
       "risk": "mutation"
     },
+    "sendingCompleteAttachmentUpload": {
+      "adapters": {
+        "cli": true,
+        "mcp": null,
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "binary",
+        "headers": [
+          "X-Sendmux-Upload-Token"
+        ],
+        "pathParams": [
+          "upload_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "restore-original"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
+    "sendingCreateAttachmentUpload": {
+      "adapters": {
+        "cli": true,
+        "mcp": "sending_create_attachment_upload",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "json",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
+    "sendingGetAttachment": {
+      "adapters": {
+        "cli": true,
+        "mcp": "sending_get_attachment",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [],
+        "pathParams": [
+          "attachment_id"
+        ],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
+    },
     "sendingGetOpenApiSpec": {
       "adapters": {
         "cli": true,
@@ -3063,6 +3189,41 @@
       ],
       "mode": "send",
       "risk": "send"
+    },
+    "sendingUploadAttachment": {
+      "adapters": {
+        "cli": true,
+        "mcp": "sending_upload_attachment",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "mutation-result"
+      ],
+      "fixture": {
+        "body": "binary",
+        "headers": [
+          "Idempotency-Key"
+        ],
+        "pathParams": [],
+        "queryParams": [
+          "filename"
+        ],
+        "resourceOwnership": "e2e-created"
+      },
+      "gates": [
+        "SENDMUX_LIVE_E2E_BINARY=1",
+        "E2E resource ownership registry"
+      ],
+      "mode": "binary_fixture",
+      "risk": "binary"
     }
   },
   "version": 1

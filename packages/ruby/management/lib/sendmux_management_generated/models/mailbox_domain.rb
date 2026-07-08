@@ -35,6 +35,9 @@ module Sendmux::Management::Generated
     # Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)
     attr_accessor :ses_dkim_status
 
+    # Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)
+    attr_accessor :ses_mail_from_status
+
     # Current verification state
     attr_accessor :verification_status
 
@@ -73,6 +76,7 @@ module Sendmux::Management::Generated
         :'mailbox_count' => :'mailbox_count',
         :'mode' => :'mode',
         :'ses_dkim_status' => :'ses_dkim_status',
+        :'ses_mail_from_status' => :'ses_mail_from_status',
         :'verification_status' => :'verification_status',
         :'verified_at' => :'verified_at'
       }
@@ -98,6 +102,7 @@ module Sendmux::Management::Generated
         :'mailbox_count' => :'Integer',
         :'mode' => :'String',
         :'ses_dkim_status' => :'String',
+        :'ses_mail_from_status' => :'String',
         :'verification_status' => :'String',
         :'verified_at' => :'String'
       }
@@ -107,6 +112,7 @@ module Sendmux::Management::Generated
     def self.openapi_nullable
       Set.new([
         :'ses_dkim_status',
+        :'ses_mail_from_status',
         :'verified_at'
       ])
     end
@@ -167,6 +173,12 @@ module Sendmux::Management::Generated
         self.ses_dkim_status = attributes[:'ses_dkim_status']
       else
         self.ses_dkim_status = nil
+      end
+
+      if attributes.key?(:'ses_mail_from_status')
+        self.ses_mail_from_status = attributes[:'ses_mail_from_status']
+      else
+        self.ses_mail_from_status = nil
       end
 
       if attributes.key?(:'verification_status')
@@ -327,6 +339,7 @@ module Sendmux::Management::Generated
           mailbox_count == o.mailbox_count &&
           mode == o.mode &&
           ses_dkim_status == o.ses_dkim_status &&
+          ses_mail_from_status == o.ses_mail_from_status &&
           verification_status == o.verification_status &&
           verified_at == o.verified_at
     end
@@ -340,7 +353,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [created_at, dns_records, domain, id, mailbox_count, mode, ses_dkim_status, verification_status, verified_at].hash
+      [created_at, dns_records, domain, id, mailbox_count, mode, ses_dkim_status, ses_mail_from_status, verification_status, verified_at].hash
     end
 
     # Builds the object from hash

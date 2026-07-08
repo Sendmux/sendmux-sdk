@@ -8,6 +8,7 @@ const specs = [
   { file: "openapi-sending.json" },
 ];
 const httpMethods = new Set(["delete", "get", "patch", "post", "put"]);
+const binaryResponseOperationIds = new Set(["mailboxGetMessageAttachment"]);
 const writeMatrix = process.argv.includes("--write");
 const inputDir = resolve(process.env.OPENAPI_INPUT_DIR ?? findDefaultInputDir());
 const matrixPath = resolve("docs/surface-coverage.md");
@@ -106,7 +107,7 @@ function loadOperations(dir) {
         const surface = surfaceForOperationId(operation.operationId);
         out.push({
           bodyKind: bodyKindForOperation(operation),
-          commandKeyKind: surface === "management" ? "root" : surface === "sending" ? "sending" : "mailbox",
+          commandKeyKind: commandKeyKindForOperation(operation, surface),
           description: oneLine(operation.summary ?? operation.description ?? operation.operationId),
           headerParams: parameters.filter((parameter) => parameter.in === "header").map(toPublicParameter),
           method,
@@ -281,6 +282,10 @@ function bodyKindForOperation(operation) {
 }
 
 function responseKindForOperation(operation) {
+  if (binaryResponseOperationIds.has(operation.operationId)) {
+    return "binary";
+  }
+
   const contentTypes = Object.keys(operation.responses?.["200"]?.content ?? {});
   if (contentTypes.includes("application/json")) {
     return "json";
@@ -343,14 +348,32 @@ function compareCliOperation(operation, cli) {
   return issues;
 }
 
+function commandKeyKindForOperation(operation, surface) {
+  if (Array.isArray(operation.security) && operation.security.length === 0) {
+    return "none";
+  }
+  if (surface === "management") {
+    return "root";
+  }
+  if (surface === "sending") {
+    return "sending";
+  }
+  return "mailbox";
+}
+
 function mcpDecision(operation, curatedMcp) {
   const tool = curatedMcp.get(operation.operationId);
   if (tool) {
+    let reason = tool.customOnly
+      ? "Included as a custom MCP wrapper because the OpenAPI operation is binary or MCP-specific."
+      : "Included in the curated agentic toolset.";
+    if (tool.customOnly && operation.operationId === "mailboxGetMessageAttachment") {
+      reason =
+        "Included as a custom metadata wrapper; mailbox_read_attachment is the MCP-only content-read tool for agent attachment reads.";
+    }
     return {
       included: true,
-      reason: tool.customOnly
-        ? "Included as a custom MCP wrapper because the OpenAPI operation is binary or MCP-specific."
-        : "Included in the curated agentic toolset.",
+      reason,
       toolName: tool.name,
     };
   }
@@ -368,7 +391,15 @@ function mcpExclusionReason(operation) {
     return "Meta endpoint; SDK and CLI need it, but MCP tools are generated from the spec snapshot and should not expose spec download as an agent action.";
   }
 
-  if (id === "mailboxUploadAttachment" || id === "mailboxGetMessageAttachment") {
+  if (id === "sendingCompleteAttachmentUpload") {
+    return "Capability upload PUT endpoint; MCP exposes the mint step and custom local upload helper, while the actual file PUT stays outside model context.";
+  }
+
+  if (id === "mailboxGetMessageAttachment") {
+    return "Binary payload endpoint; MCP exposes mailbox_get_attachment for metadata/link refresh and mailbox_read_attachment for agent content reads.";
+  }
+
+  if (id === "mailboxUploadAttachment") {
     return "Binary payload endpoint; MCP curation keeps large/binary transfer outside the toolset and uses message/content tools for agentic reading and sending.";
   }
 

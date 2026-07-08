@@ -11,6 +11,30 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
+func encodeSendingCompleteAttachmentUploadRequest(
+	req SendingCompleteAttachmentUploadReq,
+	r *http.Request,
+) error {
+	const contentType = "application/octet-stream"
+	body := req
+	ht.SetBody(r, body, contentType)
+	return nil
+}
+
+func encodeSendingCreateAttachmentUploadRequest(
+	req *AttachmentUploadIntentRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeSendingSendEmailRequest(
 	req *EmailSendRequest,
 	r *http.Request,
@@ -36,5 +60,15 @@ func encodeSendingSendEmailBatchRequest(
 	}
 	encoded := e.Bytes()
 	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeSendingUploadAttachmentRequest(
+	req SendingUploadAttachmentReq,
+	r *http.Request,
+) error {
+	const contentType = "application/octet-stream"
+	body := req
+	ht.SetBody(r, body, contentType)
 	return nil
 }

@@ -26,6 +26,10 @@ module Sendmux
         @api_client = ApiClient.new(@configuration)
       end
 
+      def attachments
+        @attachments ||= Generated::AttachmentsApi.new(@api_client)
+      end
+
       def emails
         @emails ||= Generated::EmailsApi.new(@api_client)
       end

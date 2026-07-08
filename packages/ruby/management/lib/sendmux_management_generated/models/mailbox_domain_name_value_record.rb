@@ -14,7 +14,7 @@ require 'date'
 require 'time'
 
 module Sendmux::Management::Generated
-  # SPF TXT record covering Amazon SES sending
+  # SPF TXT record for the custom MAIL FROM subdomain
   class MailboxDomainNameValueRecord < ApiModelBase
     attr_accessor :name
 

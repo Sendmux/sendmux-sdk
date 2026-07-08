@@ -3502,6 +3502,8 @@ type MailboxDomain struct {
 	Mode MailboxDomainMode `json:"mode"`
 	// Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started).
 	SesDkimStatus NilString `json:"ses_dkim_status"`
+	// Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started).
+	SesMailFromStatus NilString `json:"ses_mail_from_status"`
 	// Current verification state.
 	VerificationStatus MailboxDomainVerificationStatus `json:"verification_status"`
 	// ISO 8601 timestamp of last successful verification.
@@ -3541,6 +3543,11 @@ func (s *MailboxDomain) GetMode() MailboxDomainMode {
 // GetSesDkimStatus returns the value of SesDkimStatus.
 func (s *MailboxDomain) GetSesDkimStatus() NilString {
 	return s.SesDkimStatus
+}
+
+// GetSesMailFromStatus returns the value of SesMailFromStatus.
+func (s *MailboxDomain) GetSesMailFromStatus() NilString {
+	return s.SesMailFromStatus
 }
 
 // GetVerificationStatus returns the value of VerificationStatus.
@@ -3588,6 +3595,11 @@ func (s *MailboxDomain) SetSesDkimStatus(val NilString) {
 	s.SesDkimStatus = val
 }
 
+// SetSesMailFromStatus sets the value of SesMailFromStatus.
+func (s *MailboxDomain) SetSesMailFromStatus(val NilString) {
+	s.SesMailFromStatus = val
+}
+
 // SetVerificationStatus sets the value of VerificationStatus.
 func (s *MailboxDomain) SetVerificationStatus(val MailboxDomainVerificationStatus) {
 	s.VerificationStatus = val
@@ -3601,11 +3613,12 @@ func (s *MailboxDomain) SetVerifiedAt(val NilString) {
 // Ref: #/components/schemas/MailboxDomainDnsRecords
 type MailboxDomainDnsRecords struct {
 	// Three Amazon SES DKIM CNAME records.
-	Dkim  []MailboxDomainNameValueRecord `json:"dkim"`
-	Dmarc MailboxDomainDnsRecordsDmarc   `json:"dmarc"`
+	Dkim     []MailboxDomainNameValueRecord `json:"dkim"`
+	Dmarc    MailboxDomainDnsRecordsDmarc   `json:"dmarc"`
+	MailFrom MailboxDomainMailFromRecords   `json:"mail_from"`
 	// MX records the customer must place. All point at Sendmux's inbound mail servers.
 	Mx           []MailboxDomainMxRecord             `json:"mx"`
-	Spf          MailboxDomainNameValueRecord        `json:"spf"`
+	Spf          MailboxDomainDnsRecordsSpf          `json:"spf"`
 	Verification MailboxDomainDnsRecordsVerification `json:"verification"`
 }
 
@@ -3619,13 +3632,18 @@ func (s *MailboxDomainDnsRecords) GetDmarc() MailboxDomainDnsRecordsDmarc {
 	return s.Dmarc
 }
 
+// GetMailFrom returns the value of MailFrom.
+func (s *MailboxDomainDnsRecords) GetMailFrom() MailboxDomainMailFromRecords {
+	return s.MailFrom
+}
+
 // GetMx returns the value of Mx.
 func (s *MailboxDomainDnsRecords) GetMx() []MailboxDomainMxRecord {
 	return s.Mx
 }
 
 // GetSpf returns the value of Spf.
-func (s *MailboxDomainDnsRecords) GetSpf() MailboxDomainNameValueRecord {
+func (s *MailboxDomainDnsRecords) GetSpf() MailboxDomainDnsRecordsSpf {
 	return s.Spf
 }
 
@@ -3644,13 +3662,18 @@ func (s *MailboxDomainDnsRecords) SetDmarc(val MailboxDomainDnsRecordsDmarc) {
 	s.Dmarc = val
 }
 
+// SetMailFrom sets the value of MailFrom.
+func (s *MailboxDomainDnsRecords) SetMailFrom(val MailboxDomainMailFromRecords) {
+	s.MailFrom = val
+}
+
 // SetMx sets the value of Mx.
 func (s *MailboxDomainDnsRecords) SetMx(val []MailboxDomainMxRecord) {
 	s.Mx = val
 }
 
 // SetSpf sets the value of Spf.
-func (s *MailboxDomainDnsRecords) SetSpf(val MailboxDomainNameValueRecord) {
+func (s *MailboxDomainDnsRecords) SetSpf(val MailboxDomainDnsRecordsSpf) {
 	s.Spf = val
 }
 
@@ -3659,7 +3682,7 @@ func (s *MailboxDomainDnsRecords) SetVerification(val MailboxDomainDnsRecordsVer
 	s.Verification = val
 }
 
-// SPF TXT record covering Amazon SES sending.
+// SPF TXT record for the custom MAIL FROM subdomain.
 type MailboxDomainDnsRecordsDmarc struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -3685,7 +3708,33 @@ func (s *MailboxDomainDnsRecordsDmarc) SetValue(val string) {
 	s.Value = val
 }
 
-// SPF TXT record covering Amazon SES sending.
+// SPF TXT record for the custom MAIL FROM subdomain.
+type MailboxDomainDnsRecordsSpf struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDomainDnsRecordsSpf) GetName() string {
+	return s.Name
+}
+
+// GetValue returns the value of Value.
+func (s *MailboxDomainDnsRecordsSpf) GetValue() string {
+	return s.Value
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDomainDnsRecordsSpf) SetName(val string) {
+	s.Name = val
+}
+
+// SetValue sets the value of Value.
+func (s *MailboxDomainDnsRecordsSpf) SetValue(val string) {
+	s.Value = val
+}
+
+// SPF TXT record for the custom MAIL FROM subdomain.
 type MailboxDomainDnsRecordsVerification struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -3709,6 +3758,33 @@ func (s *MailboxDomainDnsRecordsVerification) SetName(val string) {
 // SetValue sets the value of Value.
 func (s *MailboxDomainDnsRecordsVerification) SetValue(val string) {
 	s.Value = val
+}
+
+// Custom MAIL FROM records for Amazon SES bounce handling.
+// Ref: #/components/schemas/MailboxDomainMailFromRecords
+type MailboxDomainMailFromRecords struct {
+	Mx  MailboxDomainNamedMxRecord   `json:"mx"`
+	Spf MailboxDomainNameValueRecord `json:"spf"`
+}
+
+// GetMx returns the value of Mx.
+func (s *MailboxDomainMailFromRecords) GetMx() MailboxDomainNamedMxRecord {
+	return s.Mx
+}
+
+// GetSpf returns the value of Spf.
+func (s *MailboxDomainMailFromRecords) GetSpf() MailboxDomainNameValueRecord {
+	return s.Spf
+}
+
+// SetMx sets the value of Mx.
+func (s *MailboxDomainMailFromRecords) SetMx(val MailboxDomainNamedMxRecord) {
+	s.Mx = val
+}
+
+// SetSpf sets the value of Spf.
+func (s *MailboxDomainMailFromRecords) SetSpf(val MailboxDomainNameValueRecord) {
+	s.Spf = val
 }
 
 // `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host
@@ -3780,7 +3856,7 @@ func (s *MailboxDomainMxRecord) SetTarget(val string) {
 	s.Target = val
 }
 
-// SPF TXT record covering Amazon SES sending.
+// SPF TXT record for the custom MAIL FROM subdomain.
 // Ref: #/components/schemas/MailboxDomainNameValueRecord
 type MailboxDomainNameValueRecord struct {
 	Name  string `json:"name"`
@@ -3805,6 +3881,44 @@ func (s *MailboxDomainNameValueRecord) SetName(val string) {
 // SetValue sets the value of Value.
 func (s *MailboxDomainNameValueRecord) SetValue(val string) {
 	s.Value = val
+}
+
+// MX record for Amazon SES bounce handling.
+// Ref: #/components/schemas/MailboxDomainNamedMxRecord
+type MailboxDomainNamedMxRecord struct {
+	Name     string `json:"name"`
+	Priority int    `json:"priority"`
+	Target   string `json:"target"`
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDomainNamedMxRecord) GetName() string {
+	return s.Name
+}
+
+// GetPriority returns the value of Priority.
+func (s *MailboxDomainNamedMxRecord) GetPriority() int {
+	return s.Priority
+}
+
+// GetTarget returns the value of Target.
+func (s *MailboxDomainNamedMxRecord) GetTarget() string {
+	return s.Target
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDomainNamedMxRecord) SetName(val string) {
+	s.Name = val
+}
+
+// SetPriority sets the value of Priority.
+func (s *MailboxDomainNamedMxRecord) SetPriority(val int) {
+	s.Priority = val
+}
+
+// SetTarget sets the value of Target.
+func (s *MailboxDomainNamedMxRecord) SetTarget(val string) {
+	s.Target = val
 }
 
 // Current verification state.
@@ -3860,6 +3974,10 @@ func (s *MailboxDomainVerificationStatus) UnmarshalText(data []byte) error {
 type MailboxDomainVerifyChecks struct {
 	// DMARC TXT record matches expected value.
 	Dmarc bool `json:"dmarc"`
+	// Custom MAIL FROM MX record matches expected value.
+	MailFromMx bool `json:"mail_from_mx"`
+	// Custom MAIL FROM SPF TXT record matches expected value.
+	MailFromSpf bool `json:"mail_from_spf"`
 	// MX record present when the domain is configured for receiving. Always true for send-only domains.
 	Mx bool `json:"mx"`
 	// SPF TXT record matches expected value.
@@ -3871,6 +3989,16 @@ type MailboxDomainVerifyChecks struct {
 // GetDmarc returns the value of Dmarc.
 func (s *MailboxDomainVerifyChecks) GetDmarc() bool {
 	return s.Dmarc
+}
+
+// GetMailFromMx returns the value of MailFromMx.
+func (s *MailboxDomainVerifyChecks) GetMailFromMx() bool {
+	return s.MailFromMx
+}
+
+// GetMailFromSpf returns the value of MailFromSpf.
+func (s *MailboxDomainVerifyChecks) GetMailFromSpf() bool {
+	return s.MailFromSpf
 }
 
 // GetMx returns the value of Mx.
@@ -3893,6 +4021,16 @@ func (s *MailboxDomainVerifyChecks) SetDmarc(val bool) {
 	s.Dmarc = val
 }
 
+// SetMailFromMx sets the value of MailFromMx.
+func (s *MailboxDomainVerifyChecks) SetMailFromMx(val bool) {
+	s.MailFromMx = val
+}
+
+// SetMailFromSpf sets the value of MailFromSpf.
+func (s *MailboxDomainVerifyChecks) SetMailFromSpf(val bool) {
+	s.MailFromSpf = val
+}
+
 // SetMx sets the value of Mx.
 func (s *MailboxDomainVerifyChecks) SetMx(val bool) {
 	s.Mx = val
@@ -3913,6 +4051,8 @@ type MailboxDomainVerifyResult struct {
 	Checks MailboxDomainVerifyChecks `json:"checks"`
 	// Latest Amazon SES DKIM status.
 	SesDkimStatus string `json:"ses_dkim_status"`
+	// Latest Amazon SES MAIL FROM status.
+	SesMailFromStatus string `json:"ses_mail_from_status"`
 	// Post-check verification status.
 	Status MailboxDomainVerifyResultStatus `json:"status"`
 }
@@ -3925,6 +4065,11 @@ func (s *MailboxDomainVerifyResult) GetChecks() MailboxDomainVerifyChecks {
 // GetSesDkimStatus returns the value of SesDkimStatus.
 func (s *MailboxDomainVerifyResult) GetSesDkimStatus() string {
 	return s.SesDkimStatus
+}
+
+// GetSesMailFromStatus returns the value of SesMailFromStatus.
+func (s *MailboxDomainVerifyResult) GetSesMailFromStatus() string {
+	return s.SesMailFromStatus
 }
 
 // GetStatus returns the value of Status.
@@ -3940,6 +4085,11 @@ func (s *MailboxDomainVerifyResult) SetChecks(val MailboxDomainVerifyChecks) {
 // SetSesDkimStatus sets the value of SesDkimStatus.
 func (s *MailboxDomainVerifyResult) SetSesDkimStatus(val string) {
 	s.SesDkimStatus = val
+}
+
+// SetSesMailFromStatus sets the value of SesMailFromStatus.
+func (s *MailboxDomainVerifyResult) SetSesMailFromStatus(val string) {
+	s.SesMailFromStatus = val
 }
 
 // SetStatus sets the value of Status.

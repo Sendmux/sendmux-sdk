@@ -6,7 +6,11 @@ package sending
 type OperationName = string
 
 const (
-	SendingGetOpenApiSpecOperation OperationName = "SendingGetOpenApiSpec"
-	SendingSendEmailOperation      OperationName = "SendingSendEmail"
-	SendingSendEmailBatchOperation OperationName = "SendingSendEmailBatch"
+	SendingCompleteAttachmentUploadOperation OperationName = "SendingCompleteAttachmentUpload"
+	SendingCreateAttachmentUploadOperation   OperationName = "SendingCreateAttachmentUpload"
+	SendingGetAttachmentOperation            OperationName = "SendingGetAttachment"
+	SendingGetOpenApiSpecOperation           OperationName = "SendingGetOpenApiSpec"
+	SendingSendEmailOperation                OperationName = "SendingSendEmail"
+	SendingSendEmailBatchOperation           OperationName = "SendingSendEmailBatch"
+	SendingUploadAttachmentOperation         OperationName = "SendingUploadAttachment"
 )

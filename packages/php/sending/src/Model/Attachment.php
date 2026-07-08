@@ -62,7 +62,8 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         'content' => 'string',
         'encoding' => 'string',
         'filename' => 'string',
-        'type' => 'string'
+        'type' => 'string',
+        'attachment_id' => 'string'
     ];
 
     /**
@@ -74,7 +75,8 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         'content' => null,
         'encoding' => null,
         'filename' => null,
-        'type' => null
+        'type' => null,
+        'attachment_id' => null
     ];
 
     /**
@@ -86,7 +88,8 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         'content' => false,
         'encoding' => false,
         'filename' => false,
-        'type' => false
+        'type' => false,
+        'attachment_id' => false
     ];
 
     /**
@@ -168,7 +171,8 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         'content' => 'content',
         'encoding' => 'encoding',
         'filename' => 'filename',
-        'type' => 'type'
+        'type' => 'type',
+        'attachment_id' => 'attachment_id'
     ];
 
     /**
@@ -180,7 +184,8 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         'content' => 'setContent',
         'encoding' => 'setEncoding',
         'filename' => 'setFilename',
-        'type' => 'setType'
+        'type' => 'setType',
+        'attachment_id' => 'setAttachmentId'
     ];
 
     /**
@@ -192,7 +197,8 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         'content' => 'getContent',
         'encoding' => 'getEncoding',
         'filename' => 'getFilename',
-        'type' => 'getType'
+        'type' => 'getType',
+        'attachment_id' => 'getAttachmentId'
     ];
 
     /**
@@ -261,6 +267,7 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('encoding', $data ?? [], 'base64');
         $this->setIfExists('filename', $data ?? [], null);
         $this->setIfExists('type', $data ?? [], null);
+        $this->setIfExists('attachment_id', $data ?? [], null);
     }
 
     /**
@@ -313,6 +320,13 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
 
         if ((mb_strlen($this->container['filename']) < 1)) {
             $invalidProperties[] = "invalid value for 'filename', the character length must be bigger than or equal to 1.";
+        }
+
+        if ($this->container['attachment_id'] === null) {
+            $invalidProperties[] = "'attachment_id' can't be null";
+        }
+        if (!preg_match("/^att_[a-z0-9]{24}$/", $this->container['attachment_id'])) {
+            $invalidProperties[] = "invalid value for 'attachment_id', must be conform to the pattern /^att_[a-z0-9]{24}$/.";
         }
 
         return $invalidProperties;
@@ -447,6 +461,38 @@ class Attachment implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable type cannot be null');
         }
         $this->container['type'] = $type;
+
+        return $this;
+    }
+
+    /**
+     * Gets attachment_id
+     *
+     * @return string
+     */
+    public function getAttachmentId(): string
+    {
+        return $this->container['attachment_id'];
+    }
+
+    /**
+     * Sets attachment_id
+     *
+     * @param string $attachment_id Temporary uploaded attachment ID returned by POST /emails/attachments.
+     *
+     * @return $this
+     */
+    public function setAttachmentId(string $attachment_id): static
+    {
+        if (is_null($attachment_id)) {
+            throw new InvalidArgumentException('non-nullable attachment_id cannot be null');
+        }
+
+        if ((!preg_match("/^att_[a-z0-9]{24}$/", ObjectSerializer::toString($attachment_id)))) {
+            throw new InvalidArgumentException("invalid value for \$attachment_id when calling Attachment., must conform to the pattern /^att_[a-z0-9]{24}$/.");
+        }
+
+        $this->container['attachment_id'] = $attachment_id;
 
         return $this;
     }

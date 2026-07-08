@@ -1,5 +1,5 @@
 export type ApiKeyKind = "mailbox" | "root";
-export type RequiredApiKeyKind = ApiKeyKind | "sending";
+export type RequiredApiKeyKind = ApiKeyKind | "none" | "sending";
 
 export function inferApiKeyKind(apiKey: string): ApiKeyKind {
   if (apiKey.startsWith("smx_root_")) {
@@ -18,6 +18,10 @@ export function inferApiKeyKind(apiKey: string): ApiKeyKind {
 }
 
 export function isApiKeyCompatibleWithKind(apiKey: string, expectedKind: RequiredApiKeyKind): boolean {
+  if (expectedKind === "none") {
+    return true;
+  }
+
   if (expectedKind === "sending") {
     return apiKey.startsWith("smx_mbx_") || apiKey.startsWith("smx_agent_");
   }
@@ -26,6 +30,9 @@ export function isApiKeyCompatibleWithKind(apiKey: string, expectedKind: Require
 }
 
 export function apiKeyKindLabel(kind: RequiredApiKeyKind): string {
+  if (kind === "none") {
+    return "no";
+  }
   return kind === "sending" ? "sending" : kind;
 }
 

@@ -23,6 +23,8 @@ const {
 } = await import("../packages/ts/mailbox/dist/index.js");
 const {
   createMailboxAttachmentUploadFromFile,
+  downloadMailboxAttachmentToBuffer,
+  readMailboxTextAttachment,
   sendMailboxMessageWithFiles,
   uploadMailboxAttachmentFromFile,
   uploadMailboxAttachmentViaPresignedFile,
@@ -31,11 +33,14 @@ const { createSendingClient } = await import("../packages/ts/sending/dist/index.
 const {
   attachmentFromFile,
   sendEmailWithFiles,
+  uploadAttachmentFromFile,
 } = await import("../packages/ts/sending/dist/node.js");
 const sdkNode = await import("../packages/ts/sdk/dist/node.js");
 
 assert.equal(sdkNode.mailbox.uploadMailboxAttachmentFromFile, uploadMailboxAttachmentFromFile);
+assert.equal(sdkNode.mailbox.downloadMailboxAttachmentToBuffer, downloadMailboxAttachmentToBuffer);
 assert.equal(sdkNode.sending.attachmentFromFile, attachmentFromFile);
+assert.equal(sdkNode.sending.uploadAttachmentFromFile, uploadAttachmentFromFile);
 
 assert.equal(assertApiKeyKind("smx_root_test", "root"), "root");
 assert.equal(assertApiKeyKind("smx_mbx_test", "mailbox"), "mailbox");
@@ -420,6 +425,12 @@ try {
           status: 200,
         });
       }
+      if (url.pathname === "/mailbox/messages/msg_ts_attachment/attachments/att_ts_markdown") {
+        return new Response("typed helper recipe\n", {
+          headers: { "Content-Type": "text/markdown" },
+          status: 200,
+        });
+      }
       throw new Error(`Unexpected mailbox helper request: ${request.method} ${request.url}`);
     },
   });
@@ -454,6 +465,26 @@ try {
       filename: "report.txt",
     },
   ]);
+
+  const downloaded = await downloadMailboxAttachmentToBuffer({
+    client: mailboxFileClient,
+    attachmentId: "att_ts_markdown",
+    mailboxId: "mbx_ts_file",
+    messageId: "msg_ts_attachment",
+  });
+  assert.deepEqual(downloaded, Buffer.from("typed helper recipe\n", "utf8"));
+  const downloadRequest = seenMailboxFileRequests.at(-1);
+  assert.equal(
+    downloadRequest.url,
+    "https://mailbox-file-sdk.test/mailbox/messages/msg_ts_attachment/attachments/att_ts_markdown?mailbox_id=mbx_ts_file",
+  );
+
+  const textAttachment = await readMailboxTextAttachment({
+    client: mailboxFileClient,
+    attachmentId: "att_ts_markdown",
+    messageId: "msg_ts_attachment",
+  });
+  assert.equal(textAttachment, "typed helper recipe\n");
 
   const intent = await createMailboxAttachmentUploadFromFile({
     client: mailboxFileClient,
@@ -541,14 +572,32 @@ try {
     apiKey: "smx_mbx_test_sending_file",
     baseUrl: "https://sending-file-sdk.test",
     fetch: async (request) => {
+      const url = new URL(request.url);
       const body = Buffer.from(await request.arrayBuffer());
       seenSendingFileRequests.push({
         authorization: request.headers.get("Authorization"),
         body,
+        contentLength: request.headers.get("Content-Length"),
         contentType: request.headers.get("Content-Type"),
         method: request.method,
         url: request.url,
       });
+      if (url.pathname === "/emails/attachments") {
+        return new Response(JSON.stringify({
+          ok: true,
+          data: {
+            attachment_id: "att_1234567890abcdefghijklmn",
+            content_type: request.headers.get("Content-Type") ?? "application/octet-stream",
+            expires_at: "2026-07-07T10:00:00.000Z",
+            filename: url.searchParams.get("filename") ?? "attachment.bin",
+            size_bytes: body.byteLength,
+          },
+          meta: { request_id: "req_ts_sending_upload" },
+        }), {
+          headers: { "Content-Type": "application/json" },
+          status: 201,
+        });
+      }
       return new Response(JSON.stringify({
         ok: true,
         data: { message_id: "msg_ts_sending_file", status: "queued" },
@@ -559,6 +608,12 @@ try {
       });
     },
   });
+  const sendingUpload = await uploadAttachmentFromFile({
+    client: sendingFileClient,
+    filePath: reportPath,
+  });
+  assert.equal(sendingUpload.data.attachment_id, "att_1234567890abcdefghijklmn");
+
   const sendingWithFiles = await sendEmailWithFiles({
     client: sendingFileClient,
     files: [reportPath],
@@ -571,7 +626,17 @@ try {
   });
   assert.equal(sendingWithFiles.data.message_id, "msg_ts_sending_file");
   assert.equal(seenSendingFileRequests[0].authorization, "Bearer smx_mbx_test_sending_file");
-  assert.deepEqual(JSON.parse(seenSendingFileRequests[0].body.toString("utf8")).attachments, [sendingAttachment]);
+  assert.equal(new URL(seenSendingFileRequests[0].url).pathname, "/emails/attachments");
+  assert.equal(new URL(seenSendingFileRequests[0].url).searchParams.get("filename"), "report.txt");
+  assert.equal(seenSendingFileRequests[0].contentLength, String(reportBytes.byteLength));
+  assert.equal(seenSendingFileRequests[0].contentType, "text/plain");
+  assert.deepEqual(seenSendingFileRequests[0].body, reportBytes);
+  assert.equal(new URL(seenSendingFileRequests[1].url).pathname, "/emails/attachments");
+  assert.equal(seenSendingFileRequests[1].contentLength, String(reportBytes.byteLength));
+  assert.equal(new URL(seenSendingFileRequests[2].url).pathname, "/emails/send");
+  assert.deepEqual(JSON.parse(seenSendingFileRequests[2].body.toString("utf8")).attachments, [
+    { attachment_id: "att_1234567890abcdefghijklmn" },
+  ]);
 } finally {
   await rm(tempDir, { force: true, recursive: true });
 }

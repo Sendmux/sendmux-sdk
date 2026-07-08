@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { SendingGetOpenApiSpecData, SendingGetOpenApiSpecResponses, SendingSendEmailBatchData, SendingSendEmailBatchErrors, SendingSendEmailBatchResponses, SendingSendEmailData, SendingSendEmailErrors, SendingSendEmailResponses } from './types.gen.js';
+import type { SendingCompleteAttachmentUploadData, SendingCompleteAttachmentUploadErrors, SendingCompleteAttachmentUploadResponses, SendingCreateAttachmentUploadData, SendingCreateAttachmentUploadErrors, SendingCreateAttachmentUploadResponses, SendingGetAttachmentData, SendingGetAttachmentErrors, SendingGetAttachmentResponses, SendingGetOpenApiSpecData, SendingGetOpenApiSpecResponses, SendingSendEmailBatchData, SendingSendEmailBatchErrors, SendingSendEmailBatchResponses, SendingSendEmailData, SendingSendEmailErrors, SendingSendEmailResponses, SendingUploadAttachmentData, SendingUploadAttachmentErrors, SendingUploadAttachmentResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,63 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+/**
+ * Create an attachment upload URL
+ *
+ * Create a short-lived upload URL and token that lets a remote client PUT one binary attachment without exposing the API key on the upload request. Requires `email.send` permission.
+ */
+export const sendingCreateAttachmentUpload = <ThrowOnError extends boolean = false>(options: Options<SendingCreateAttachmentUploadData, ThrowOnError>) => (options.client ?? client).post<SendingCreateAttachmentUploadResponses, SendingCreateAttachmentUploadErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/emails/attachment-uploads',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Upload bytes to an attachment upload URL
+ *
+ * Upload the exact binary bytes for a previously-created attachment upload URL. This operation uses the short-lived upload token header returned by POST /emails/attachment-uploads, not a Sendmux API key.
+ */
+export const sendingCompleteAttachmentUpload = <ThrowOnError extends boolean = false>(options: Options<SendingCompleteAttachmentUploadData, ThrowOnError>) => (options.client ?? client).put<SendingCompleteAttachmentUploadResponses, SendingCompleteAttachmentUploadErrors, ThrowOnError>({
+    bodySerializer: null,
+    url: '/emails/attachment-uploads/{upload_id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/octet-stream',
+        ...options.headers
+    }
+});
+
+/**
+ * Upload an attachment
+ *
+ * Upload binary attachment bytes and receive a temporary attachment_id for use in attachments[]. Requires `email.send` permission.
+ */
+export const sendingUploadAttachment = <ThrowOnError extends boolean = false>(options: Options<SendingUploadAttachmentData, ThrowOnError>) => (options.client ?? client).post<SendingUploadAttachmentResponses, SendingUploadAttachmentErrors, ThrowOnError>({
+    bodySerializer: null,
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/emails/attachments',
+    ...options,
+    headers: {
+        'Content-Type': 'application/octet-stream',
+        ...options.headers
+    }
+});
+
+/**
+ * Get attachment metadata
+ *
+ * Return metadata for a temporary uploaded attachment owned by the authenticated team. File bytes are not returned.
+ */
+export const sendingGetAttachment = <ThrowOnError extends boolean = false>(options: Options<SendingGetAttachmentData, ThrowOnError>) => (options.client ?? client).get<SendingGetAttachmentResponses, SendingGetAttachmentErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/emails/attachments/{attachment_id}',
+    ...options
+});
 
 /**
  * Send a single email

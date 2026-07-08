@@ -23,8 +23,10 @@ const mutationGateEnvName = "SENDMUX_LIVE_E2E_MUTATIONS";
 const binaryGateEnvName = "SENDMUX_LIVE_E2E_BINARY";
 const streamGateEnvName = "SENDMUX_LIVE_E2E_STREAM";
 const sendGateEnvName = "SENDMUX_STAGING_SEND";
+const progressEnvName = "SENDMUX_LIVE_E2E_PROGRESS";
 const childHarnessTimeoutMs = 90_000;
 const sdkOperationTimeoutMs = 60_000;
+const adapterOperationTimeoutMs = 120_000;
 const presignedFetchTimeoutMs = 30_000;
 const fixtureTeardownTimeoutMs = 30_000;
 const managementMailboxIdSelectors = ["data.mailbox.id"];
@@ -32,6 +34,21 @@ const managementMailboxKeyIdSelectors = ["data.credential.public_id"];
 const managementMailboxKeySecretSelectors = ["data.credential.secret"];
 const mailboxCredentialVisibilityRetryDelaysMs = [0, 250, 500, 1_000, 2_000, 4_000, 8_000, 15_000];
 const customMcpOperations = [
+  {
+    bodyKind: "json",
+    commandKeyKind: "mailbox",
+    customMcpOnly: true,
+    description: "Read a mailbox attachment through the curated MCP server.",
+    headerParams: [],
+    method: "mcp",
+    operationId: "mailboxReadAttachment",
+    path: "mcp://mailbox_read_attachment",
+    pathParams: [],
+    queryParams: [],
+    requestBodyRequired: false,
+    responseKind: "json",
+    surface: "mailbox",
+  },
   {
     bodyKind: "json",
     commandKeyKind: "mailbox",
@@ -57,6 +74,7 @@ const operationRequestFactories = {
   mailboxDeleteFolder: prepareOwnedMailboxDeleteFolder,
   mailboxDeleteMessage: prepareOwnedMailboxDeleteMessage,
   mailboxGetMessageAttachment: prepareMailboxGetMessageAttachment,
+  mailboxReadAttachment: prepareMailboxReadAttachment,
   mailboxWaitForMessage: prepareMailboxWaitForMessage,
   mailboxSendMessage: prepareMailboxSendMessage,
   mailboxStreamEvents: prepareMailboxStreamEvents,
@@ -91,8 +109,12 @@ const operationRequestFactories = {
   managementUpdateProvider: prepareOwnedProviderUpdate,
   managementUpdateWebhook: prepareOwnedWebhookUpdate,
   managementVerifyDomain: prepareOwnedDomainVerify,
+  sendingCompleteAttachmentUpload: prepareSendingCompleteAttachmentUpload,
+  sendingCreateAttachmentUpload: prepareSendingCreateAttachmentUpload,
+  sendingGetAttachment: prepareSendingGetAttachment,
   sendingSendEmail: prepareSendingSendEmail,
   sendingSendEmailBatch: prepareSendingSendEmailBatch,
+  sendingUploadAttachment: prepareSendingUploadAttachment,
 };
 
 const args = parseArgs(process.argv.slice(2));
@@ -124,7 +146,7 @@ assertAllScenariosExist(selectedOperations, scenarios);
 assertBuiltArtifacts(adapters);
 
 const sdk = await import("@sendmux/sdk");
-const credentials = credentialsForRun(sdk);
+const credentials = credentialsForRun(sdk, selectedOperations);
 const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId: randomUUID(), sdk });
 const results = [];
 let teardownPromise;
@@ -137,54 +159,14 @@ const removeSignalHandlers = installTeardownSignalHandlers(teardownOnce);
 try {
   for (const operation of selectedOperations) {
     for (const adapter of adapters) {
-      if (operation.customMcpOnly && adapter !== "mcp") {
-        results.push({
-          adapter,
-          operationId: operation.operationId,
-          reason: "custom MCP-only operation",
-          status: "skipped",
-        });
-        continue;
-      }
-
-      if (adapter === "mcp" && !isMcpCurated(operation)) {
-        results.push(skippedMcpResult(operation));
-        continue;
-      }
-
-      const prepared = await safeRequestOptionsFor({ adapter, fixtureRuntime, fixtures, operation });
-      if (!prepared.ok) {
-        results.push(failResult(adapter, operation.operationId, prepared.error));
-        continue;
-      }
-
-      if (adapter === typescriptSdkAdapter) {
-        results.push(await runSdkOperation({ credentials, operation, prepared: prepared.value, sdk }));
-        continue;
-      }
-
-      if (adapter === "cli") {
-        results.push(await runCliOperation({ credentials, operation, prepared: prepared.value }));
-        continue;
-      }
-
-      if (adapter === "mcp") {
-        results.push(
-          ...(await runMcpOperations({
-            credentials,
-            operations: [operation],
-            requests: new Map([[operation.operationId, prepared.value]]),
-          })),
-        );
-        continue;
-      }
-
       results.push(
-        ...(await runLanguageSdkOperations({
+        ...(await runAdapterStep({
           adapter,
           credentials,
-          operations: [operation],
-          requests: new Map([[operation.operationId, prepared.value]]),
+          fixtureRuntime,
+          fixtures,
+          operation,
+          sdk,
         })),
       );
     }
@@ -205,6 +187,79 @@ console.log(JSON.stringify({ ok: failed.length === 0, results }, null, 2));
 
 if (failed.length > 0) {
   throw new Error(`Live E2E failed for ${failed.length} adapter operation(s).`);
+}
+
+async function runAdapterStep({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }) {
+  const startedAt = Date.now();
+  reportProgress("adapter_step_start", { adapter, operationId: operation.operationId });
+  try {
+    const stepResults = await withHardTimeout(
+      runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }),
+      adapterOperationTimeoutMs,
+      `${adapter}:${operation.operationId} timed out after ${adapterOperationTimeoutMs}ms`,
+    );
+    reportProgress("adapter_step_end", {
+      adapter,
+      duration_ms: Date.now() - startedAt,
+      operationId: operation.operationId,
+      status: "completed",
+    });
+    return stepResults;
+  } catch (error) {
+    reportProgress("adapter_step_end", {
+      adapter,
+      duration_ms: Date.now() - startedAt,
+      error: errorMessage(error),
+      operationId: operation.operationId,
+      status: "failed",
+    });
+    return [failResult(adapter, operation.operationId, error)];
+  }
+}
+
+async function runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }) {
+  if (operation.customMcpOnly && adapter !== "mcp") {
+    return [
+      {
+        adapter,
+        operationId: operation.operationId,
+        reason: "custom MCP-only operation",
+        status: "skipped",
+      },
+    ];
+  }
+
+  if (adapter === "mcp" && !isMcpCurated(operation)) {
+    return [skippedMcpResult(operation)];
+  }
+
+  const prepared = await safeRequestOptionsFor({ adapter, fixtureRuntime, fixtures, operation });
+  if (!prepared.ok) {
+    return [failResult(adapter, operation.operationId, prepared.error)];
+  }
+
+  if (adapter === typescriptSdkAdapter) {
+    return [await runSdkOperation({ credentials, operation, prepared: prepared.value, sdk })];
+  }
+
+  if (adapter === "cli") {
+    return [await runCliOperation({ credentials, operation, prepared: prepared.value })];
+  }
+
+  if (adapter === "mcp") {
+    return runMcpOperations({
+      credentials,
+      operations: [operation],
+      requests: new Map([[operation.operationId, prepared.value]]),
+    });
+  }
+
+  return runLanguageSdkOperations({
+    adapter,
+    credentials,
+    operations: [operation],
+    requests: new Map([[operation.operationId, prepared.value]]),
+  });
 }
 
 function parseArgs(argv) {
@@ -564,7 +619,8 @@ function assertBuiltArtifacts(adapters) {
   }
 }
 
-function credentialsForRun(sdk) {
+function credentialsForRun(sdk, selectedOperations) {
+  const requiredKeyKinds = requiredKeyKindsFor(selectedOperations);
   const rootApiKey = envValue("SENDMUX_LIVE_E2E_ROOT_API_KEY", "SENDMUX_STAGING_ROOT_API_KEY");
   const mailboxApiKey = envValue("SENDMUX_LIVE_E2E_MAILBOX_API_KEY", "SENDMUX_STAGING_MAILBOX_API_KEY");
   const appBaseUrl = envValue("SENDMUX_LIVE_E2E_APP_BASE_URL", "SENDMUX_STAGING_APP_BASE_URL") ?? "https://app.sendmux.ai/api/v1";
@@ -572,15 +628,19 @@ function credentialsForRun(sdk) {
     envValue("SENDMUX_LIVE_E2E_SENDING_BASE_URL", "SENDMUX_STAGING_SMTP_BASE_URL") ??
     "https://smtp.sendmux.ai/api/v1";
 
-  if (!rootApiKey) {
+  if (requiredKeyKinds.has("root") && !rootApiKey) {
     throw new Error("Missing SENDMUX_LIVE_E2E_ROOT_API_KEY or SENDMUX_STAGING_ROOT_API_KEY.");
   }
-  if (!mailboxApiKey) {
+  if (requiredKeyKinds.has("mailbox") && !mailboxApiKey) {
     throw new Error("Missing SENDMUX_LIVE_E2E_MAILBOX_API_KEY or SENDMUX_STAGING_MAILBOX_API_KEY.");
   }
 
-  sdk.core.assertApiKeyKind(rootApiKey, "root");
-  sdk.core.assertApiKeyKind(mailboxApiKey, "mailbox");
+  if (rootApiKey) {
+    sdk.core.assertApiKeyKind(rootApiKey, "root");
+  }
+  if (mailboxApiKey) {
+    sdk.core.assertApiKeyKind(mailboxApiKey, "mailbox");
+  }
   assertAllowedBaseUrl("app", appBaseUrl, defaultAllowedAppBaseUrls());
   assertAllowedBaseUrl("sending", sendingBaseUrl, defaultAllowedSendingBaseUrls());
 
@@ -590,6 +650,23 @@ function credentialsForRun(sdk) {
     rootApiKey,
     sendingBaseUrl,
   };
+}
+
+function requiredKeyKindsFor(selectedOperations) {
+  const kinds = new Set();
+  for (const operation of selectedOperations) {
+    if (operation.requiredKeyKind === "none") {
+      continue;
+    }
+    if (operation.requiredKeyKind === "root") {
+      kinds.add("root");
+      continue;
+    }
+    if (operation.requiredKeyKind === "mailbox" || operation.requiredKeyKind === "sending") {
+      kinds.add("mailbox");
+    }
+  }
+  return kinds;
 }
 
 function envValue(...names) {
@@ -729,7 +806,12 @@ function sdkClientFor({ credentials, operation, sdk }) {
 async function runCliOperation({ credentials, operation, prepared }) {
   const tempHome = mkdtempSync(join(tmpdir(), "sendmux-live-e2e-"));
   try {
-    const apiKey = operation.requiredKeyKind === "root" ? credentials.rootApiKey : credentials.mailboxApiKey;
+    const apiKey =
+      operation.requiredKeyKind === "none"
+        ? ""
+        : operation.requiredKeyKind === "root"
+          ? credentials.rootApiKey
+          : credentials.mailboxApiKey;
     const baseUrl = operation.surface === "sending" ? credentials.sendingBaseUrl : credentials.appBaseUrl;
     const cliArgs = [
       operation.command,
@@ -1131,6 +1213,29 @@ async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
       await assertPresignedAttachmentRejectsTamper(downloadUrl);
     },
     returnResult: adapter === "mcp",
+  };
+}
+
+async function prepareMailboxReadAttachment({ fixtureRuntime }) {
+  const owned = await fixtureRuntime.cachedFixture("mailbox-message-attachment", () =>
+    createOwnedMailboxMessage(fixtureRuntime, {
+      attachment: true,
+      label: "read-attachment",
+    }),
+  );
+  return {
+    request: {
+      body: {
+        attachment_id: owned.attachmentId,
+        message_id: owned.messageId,
+      },
+    },
+    afterResult: async (value) => {
+      assert.equal(valueAtPath(value, "data.read_mode"), "text");
+      assert.equal(valueAtPath(value, "data.text"), owned.attachmentContent);
+      assert.equal(valueAtPath(value, "data.truncated"), false);
+    },
+    returnResult: true,
   };
 }
 
@@ -1811,6 +1916,121 @@ async function prepareSendingSendEmail({ adapter, fixtureRuntime }) {
   };
 }
 
+async function prepareSendingUploadAttachment({ adapter, fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-upload-attachment");
+  const afterResult = async (value) => {
+    await assertSendingAttachmentMetadata({
+      contentType: attachment.contentType,
+      fixtureRuntime,
+      label: "sendingUploadAttachment",
+      metadata: value,
+      sizeBytes: attachment.sizeBytes,
+    });
+  };
+
+  if (adapter === "mcp") {
+    return {
+      afterResult,
+      request: {
+        body: {
+          content_base64: Buffer.from(attachment.content, "utf8").toString("base64"),
+          content_type: attachment.contentType,
+          filename: attachment.filename,
+        },
+      },
+    };
+  }
+
+  return {
+    afterResult,
+    request: {
+      body: attachment.content,
+      headers: {
+        "Content-Length": attachment.sizeBytes,
+        "Idempotency-Key": fixtureRuntime.idempotencyKey("sending-upload-attachment"),
+      },
+      query: {
+        content_type: attachment.contentType,
+        filename: attachment.filename,
+      },
+    },
+  };
+}
+
+async function prepareSendingGetAttachment({ fixtureRuntime }) {
+  const attachment = await uploadOwnedSendingAttachment(fixtureRuntime, "sending-get-attachment");
+  return {
+    request: {
+      path: {
+        attachment_id: attachment.attachmentId,
+      },
+    },
+    afterResult: async (value) => {
+      assertSendingAttachmentMetadataValue({
+        attachmentId: attachment.attachmentId,
+        contentType: attachment.contentType,
+        label: "sendingGetAttachment",
+        metadata: value,
+        sizeBytes: attachment.sizeBytes,
+      });
+    },
+  };
+}
+
+async function prepareSendingCreateAttachmentUpload({ fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-create-attachment-upload");
+  return {
+    request: {
+      body: {
+        content_type: attachment.contentType,
+        filename: attachment.filename,
+        size_bytes: attachment.sizeBytes,
+      },
+      headers: {
+        "Idempotency-Key": fixtureRuntime.idempotencyKey("sending-create-attachment-upload"),
+      },
+    },
+    afterResult: async (value) => {
+      await completeSendingAttachmentUploadUrl({
+        attachment,
+        fixtureRuntime,
+        intent: value,
+        label: "sendingCreateAttachmentUpload",
+      });
+    },
+  };
+}
+
+async function prepareSendingCompleteAttachmentUpload({ fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-complete-attachment-upload");
+  const intent = await createSendingAttachmentUploadIntent({
+    attachment,
+    fixtureRuntime,
+    label: "sending-complete-attachment-upload",
+  });
+  return {
+    request: {
+      body: attachment.content,
+      headers: {
+        "Content-Length": attachment.sizeBytes,
+        "X-Sendmux-Upload-Token": intent.uploadToken,
+      },
+      path: {
+        upload_id: intent.uploadId,
+      },
+    },
+    afterResult: async (value) => {
+      assertSendingAttachmentMetadataValue({
+        attachmentId: selectFirstValue(value, ["data.attachment_id"]),
+        contentType: attachment.contentType,
+        label: "sendingCompleteAttachmentUpload",
+        metadata: value,
+        sizeBytes: attachment.sizeBytes,
+      });
+    },
+  };
+}
+
 async function prepareSendingSendEmailBatch({ fixtureRuntime }) {
   const email = await fixtureRuntime.resolveSource("mailboxSelfEmail");
   assertFixtureRecipientAllowed({ recipient: email, sourceName: "sendingSendEmailBatch" });
@@ -1994,6 +2214,117 @@ function sendingEmailBody({ email, fixtureRuntime, subjectLabel }) {
     text_body: `Automated Sendmux live E2E ${fixtureRuntime.runId}.`,
     to: { email, name: "Sendmux Live E2E" },
   };
+}
+
+function sendingAttachmentFixture(fixtureRuntime, label) {
+  const content = `Sendmux live E2E Sending attachment ${fixtureRuntime.runId} ${label}\n`;
+  return {
+    content,
+    contentType: "text/plain",
+    filename: `${fixtureRuntime.resourceLabel(label)}.txt`,
+    sizeBytes: Buffer.byteLength(content, "utf8"),
+  };
+}
+
+async function uploadOwnedSendingAttachment(fixtureRuntime, label) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, label);
+  const response = await fixtureRuntime.runOperation("sendingUploadAttachment", {
+    body: attachment.content,
+    headers: {
+      "Idempotency-Key": fixtureRuntime.idempotencyKey(label),
+    },
+    query: {
+      content_type: attachment.contentType,
+      filename: attachment.filename,
+    },
+  });
+  return {
+    ...attachment,
+    attachmentId: requireSelectedValue(response, ["data.attachment_id"], `${label} attachment id`),
+  };
+}
+
+async function createSendingAttachmentUploadIntent({ attachment, fixtureRuntime, label }) {
+  const response = await fixtureRuntime.runOperation("sendingCreateAttachmentUpload", {
+    body: {
+      content_type: attachment.contentType,
+      filename: attachment.filename,
+      size_bytes: attachment.sizeBytes,
+    },
+    headers: {
+      "Idempotency-Key": fixtureRuntime.idempotencyKey(label),
+    },
+  });
+  return {
+    method: requireSelectedValue(response, ["data.method"], `${label} upload method`),
+    uploadId: requireSelectedValue(response, ["data.upload_id"], `${label} upload id`),
+    uploadToken: requireSelectedValue(
+      response,
+      ["data.headers.X-Sendmux-Upload-Token", "data.headers.x-sendmux-upload-token"],
+      `${label} upload token`,
+    ),
+    uploadUrl: requireSelectedValue(response, ["data.upload_url"], `${label} upload URL`),
+  };
+}
+
+async function completeSendingAttachmentUploadUrl({ attachment, fixtureRuntime, intent, label }) {
+  const method = requireSelectedValue(intent, ["data.method"], `${label} upload method`);
+  const uploadUrl = requireSelectedValue(intent, ["data.upload_url"], `${label} upload URL`);
+  const headers = valueAtPath(intent, "data.headers") ?? {};
+  assert.equal(method, "PUT", `${label} returned unsupported upload method`);
+
+  const response = await fetchWithTimeout(uploadUrl, `${label} delegated upload`, {
+    body: attachment.content,
+    headers: Object.fromEntries(Object.entries(headers).map(([key, value]) => [key, String(value)])),
+    method,
+  });
+  const payload = await response.json().catch(() => null);
+  assert.equal(response.status, 201, `${label} delegated upload returned HTTP ${response.status}`);
+  assertSendingAttachmentMetadataValue({
+    attachmentId: selectFirstValue(payload, ["data.attachment_id"]),
+    contentType: attachment.contentType,
+    label,
+    metadata: payload,
+    sizeBytes: attachment.sizeBytes,
+  });
+
+  const attachmentId = requireSelectedValue(payload, ["data.attachment_id"], `${label} attachment id`);
+  const metadata = await fixtureRuntime.runOperation("sendingGetAttachment", {
+    path: { attachment_id: attachmentId },
+  });
+  assertSendingAttachmentMetadataValue({
+    attachmentId,
+    contentType: attachment.contentType,
+    label: `${label} metadata`,
+    metadata,
+    sizeBytes: attachment.sizeBytes,
+  });
+}
+
+async function assertSendingAttachmentMetadata({ contentType, fixtureRuntime, label, metadata, sizeBytes }) {
+  const attachmentId = requireSelectedValue(metadata, ["data.attachment_id"], `${label} attachment id`);
+  assertSendingAttachmentMetadataValue({ attachmentId, contentType, label, metadata, sizeBytes });
+  const fetched = await fixtureRuntime.runOperation("sendingGetAttachment", {
+    path: { attachment_id: attachmentId },
+  });
+  assertSendingAttachmentMetadataValue({
+    attachmentId,
+    contentType,
+    label: `${label} fetched metadata`,
+    metadata: fetched,
+    sizeBytes,
+  });
+}
+
+function assertSendingAttachmentMetadataValue({ attachmentId, contentType, label, metadata, sizeBytes }) {
+  assert.equal(valueAtPath(metadata, "ok"), true, `${label} did not return ok=true`);
+  assert.equal(typeof valueAtPath(metadata, "meta.request_id"), "string", `${label} did not return meta.request_id`);
+  if (attachmentId) {
+    assert.equal(valueAtPath(metadata, "data.attachment_id"), attachmentId, `${label} returned a different attachment_id`);
+  }
+  assert.equal(valueAtPath(metadata, "data.content_type"), contentType, `${label} returned a different content_type`);
+  assert.equal(valueAtPath(metadata, "data.size_bytes"), sizeBytes, `${label} returned a different size_bytes`);
+  assert.equal(typeof valueAtPath(metadata, "data.expires_at"), "string", `${label} did not return expires_at`);
 }
 
 async function assertLimitRequestUnavailable({ fixtureRuntime, label, operationId, selectors }) {
@@ -2493,24 +2824,48 @@ function withTimeout(promise, timeoutMs, message) {
   });
 }
 
+function withHardTimeout(promise, timeoutMs, message) {
+  let timeout;
+  const guarded = Promise.resolve(promise);
+  guarded.catch(() => undefined);
+  return Promise.race([
+    guarded,
+    new Promise((_, reject) => {
+      timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
+    }),
+  ]).finally(() => {
+    if (timeout) clearTimeout(timeout);
+  });
+}
+
+function reportProgress(event, details = {}) {
+  if (process.env[progressEnvName] !== "1") {
+    return;
+  }
+  console.error(JSON.stringify({ event, ...details }));
+}
+
 async function withAbortSignal(run, timeoutMs, message) {
   const controller = new AbortController();
-  let timedOut = false;
-  const timeout = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, timeoutMs);
-  timeout.unref?.();
+  let timeout;
+  const operation = Promise.resolve().then(() => run(controller.signal));
+  operation.catch(() => undefined);
 
   try {
-    return await run(controller.signal);
-  } catch (error) {
-    if (timedOut) {
-      throw new Error(message, { cause: error });
-    }
-    throw error;
+    return await Promise.race([
+      operation,
+      new Promise((_, reject) => {
+        timeout = setTimeout(() => {
+          controller.abort();
+          reject(new Error(message));
+        }, timeoutMs);
+        timeout.unref?.();
+      }),
+    ]);
   } finally {
-    clearTimeout(timeout);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
   }
 }
 

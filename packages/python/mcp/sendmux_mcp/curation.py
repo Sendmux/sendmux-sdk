@@ -156,6 +156,13 @@ MAILBOX_GET_ATTACHMENT_TOOL = ToolSpec(
     description="Use this after finding a message attachment. It returns metadata plus a fresh short-lived download_url for that exact attachment; fetch the URL promptly, and call this tool again if it expires.",
 )
 
+MAILBOX_READ_ATTACHMENT_TOOL = ToolSpec(
+    operation_id="mailboxReadAttachment",
+    name="mailbox_read_attachment",
+    title="Read Attachment",
+    description="Use this after finding a message attachment when you need the attachment contents. Text-like attachments are downloaded server-side and returned as text; binary or oversized attachments return metadata plus a fresh download link.",
+)
+
 MAILBOX_UPLOAD_ATTACHMENT_TOOL = ToolSpec(
     operation_id="mailboxUploadAttachment",
     name="mailbox_upload_attachment",
@@ -179,6 +186,7 @@ MAILBOX_WAIT_FOR_MESSAGE_TOOL = ToolSpec(
 
 CUSTOM_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
     MAILBOX_GET_ATTACHMENT_TOOL,
+    MAILBOX_READ_ATTACHMENT_TOOL,
     MAILBOX_UPLOAD_ATTACHMENT_TOOL,
     MAILBOX_WAIT_FOR_MESSAGE_TOOL,
 )
@@ -314,25 +322,53 @@ MANAGEMENT_TOOLS: tuple[ToolSpec, ...] = (
     ),
 )
 
-SENDING_TOOLS: tuple[ToolSpec, ...] = (
+OPENAPI_SENDING_TOOLS: tuple[ToolSpec, ...] = (
+    ToolSpec(
+        operation_id="sendingCreateAttachmentUpload",
+        name="sending_create_attachment_upload",
+        title="Create Attachment Upload",
+        description="Use this when a remote or shell-capable agent needs a short-lived upload URL for an outbound Sending API attachment. Provide filename, content_type, and exact size_bytes, PUT the file bytes outside model context with the returned headers, then pass the returned attachment_id to sending_send_email.",
+    ),
+    ToolSpec(
+        operation_id="sendingGetAttachment",
+        name="sending_get_attachment",
+        title="Get Attachment Metadata",
+        description="Use this to inspect a temporary Sending attachment_id before sending. It returns metadata only, not file bytes.",
+    ),
     ToolSpec(
         operation_id="sendingSendEmail",
         name="sending_send_email",
         title="Send Email",
-        description="Use this to send one outbound email through the sending API. This API accepts attachments as base64 content in the request body; for local files, prefer SDK or CLI attach-from-file helpers so base64 is created outside model context. Include an Idempotency-Key so retries do not create duplicate sends.",
+        description="Use this to send one outbound email through the sending API. For attachments, call sending_upload_attachment first for local/tiny content or sending_create_attachment_upload for delegated file PUTs, then pass attachments as attachment_id refs. Inline base64 is only for tiny generated content. Include an Idempotency-Key so retries do not create duplicate sends.",
     ),
     ToolSpec(
         operation_id="sendingSendEmailBatch",
         name="sending_send_email_batch",
         title="Send Email Batch",
-        description="Use this to send multiple outbound emails in one request. Each message can include up to 10 base64 attachments; for local files, prefer SDK or CLI helpers outside MCP so base64 does not enter model context. Use it only when the user confirms every recipient and message.",
+        description="Use this to send multiple outbound emails in one request. For attachments, prefer uploaded attachment_id refs; avoid inline base64 except for tiny generated content. Use it only when the user confirms every recipient and message.",
     ),
 )
+
+SENDING_UPLOAD_ATTACHMENT_TOOL = ToolSpec(
+    operation_id="sendingUploadAttachment",
+    name="sending_upload_attachment",
+    title="Upload Attachment",
+    description="Use this before sending a Sending API attachment. Cheapest local mode is file_path on stdio MCP, guarded by client-declared roots and using no model-context bytes. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded. The returned attachment_id goes in sending_send_email attachments[].",
+)
+
+SENDING_UPLOAD_ATTACHMENT_BACKING_TOOL = ToolSpec(
+    operation_id="sendingUploadAttachment",
+    name="sending_upload_attachment",
+    title="Upload Attachment",
+    description="Backing operation used by the custom sending_upload_attachment MCP tool.",
+)
+
+SENDING_TOOLS: tuple[ToolSpec, ...] = OPENAPI_SENDING_TOOLS + (SENDING_UPLOAD_ATTACHMENT_TOOL,)
 
 OPENAPI_TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
     "mailbox": OPENAPI_MAILBOX_TOOLS,
     "management": MANAGEMENT_TOOLS,
-    "sending": SENDING_TOOLS,
+    "sending": OPENAPI_SENDING_TOOLS,
 }
 
 TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
@@ -343,11 +379,12 @@ TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
 
 HOSTED_BACKING_TOOLS_BY_SURFACE: dict[Surface, tuple[ToolSpec, ...]] = {
     "mailbox": (
+        MAILBOX_GET_ATTACHMENT_TOOL,
         MAILBOX_UPLOAD_ATTACHMENT_TOOL,
         MAILBOX_CREATE_ATTACHMENT_UPLOAD_BACKING_TOOL,
     ),
     "management": (),
-    "sending": (),
+    "sending": (SENDING_UPLOAD_ATTACHMENT_BACKING_TOOL,),
 }
 
 TOOL_BY_OPERATION_ID = {
@@ -386,6 +423,7 @@ READ_ONLY_OPERATION_IDS = frozenset(
         "managementGetEmailMetrics",
         "managementGetSpendSummary",
         "managementListWebhooks",
+        "sendingGetAttachment",
     }
 )
 

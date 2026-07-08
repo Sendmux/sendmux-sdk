@@ -18,6 +18,7 @@ __version__ = "1.2.0"
 
 # Define package exports
 __all__ = [
+    "AttachmentsApi",
     "EmailsApi",
     "MetaApi",
     "ApiResponse",
@@ -31,6 +32,11 @@ __all__ = [
     "ApiException",
     "Address",
     "Attachment",
+    "AttachmentUploadData",
+    "AttachmentUploadIntentData",
+    "AttachmentUploadIntentRequest",
+    "AttachmentUploadIntentResponse",
+    "AttachmentUploadResponse",
     "BatchResultItem",
     "BatchSendRequest",
     "BatchSendSuccessData",
@@ -40,14 +46,17 @@ __all__ = [
     "ErrorDetail",
     "ErrorIssue",
     "ErrorResponse",
+    "InlineAttachment",
     "Meta",
     "Recipient",
     "SendSuccessData",
     "SendSuccessResponse",
     "SuccessEnvelope",
+    "UploadedAttachmentRef",
 ]
 
 # import apis into sdk package
+from sendmux_sending.api.attachments_api import AttachmentsApi as AttachmentsApi
 from sendmux_sending.api.emails_api import EmailsApi as EmailsApi
 from sendmux_sending.api.meta_api import MetaApi as MetaApi
 
@@ -65,6 +74,11 @@ from sendmux_sending.exceptions import ApiException as ApiException
 # import models into sdk package
 from sendmux_sending.models.address import Address as Address
 from sendmux_sending.models.attachment import Attachment as Attachment
+from sendmux_sending.models.attachment_upload_data import AttachmentUploadData as AttachmentUploadData
+from sendmux_sending.models.attachment_upload_intent_data import AttachmentUploadIntentData as AttachmentUploadIntentData
+from sendmux_sending.models.attachment_upload_intent_request import AttachmentUploadIntentRequest as AttachmentUploadIntentRequest
+from sendmux_sending.models.attachment_upload_intent_response import AttachmentUploadIntentResponse as AttachmentUploadIntentResponse
+from sendmux_sending.models.attachment_upload_response import AttachmentUploadResponse as AttachmentUploadResponse
 from sendmux_sending.models.batch_result_item import BatchResultItem as BatchResultItem
 from sendmux_sending.models.batch_send_request import BatchSendRequest as BatchSendRequest
 from sendmux_sending.models.batch_send_success_data import BatchSendSuccessData as BatchSendSuccessData
@@ -74,11 +88,13 @@ from sendmux_sending.models.email_send_request import EmailSendRequest as EmailS
 from sendmux_sending.models.error_detail import ErrorDetail as ErrorDetail
 from sendmux_sending.models.error_issue import ErrorIssue as ErrorIssue
 from sendmux_sending.models.error_response import ErrorResponse as ErrorResponse
+from sendmux_sending.models.inline_attachment import InlineAttachment as InlineAttachment
 from sendmux_sending.models.meta import Meta as Meta
 from sendmux_sending.models.recipient import Recipient as Recipient
 from sendmux_sending.models.send_success_data import SendSuccessData as SendSuccessData
 from sendmux_sending.models.send_success_response import SendSuccessResponse as SendSuccessResponse
 from sendmux_sending.models.success_envelope import SuccessEnvelope as SuccessEnvelope
+from sendmux_sending.models.uploaded_attachment_ref import UploadedAttachmentRef as UploadedAttachmentRef
 
 
 from sendmux_sending.client import (
@@ -91,4 +107,5 @@ from sendmux_sending.client import (
 from sendmux_sending.attachments import (
     attachment_from_file,
     send_email_with_files,
+    upload_attachment_from_file,
 )

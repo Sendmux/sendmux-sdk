@@ -78,7 +78,7 @@ def create_apis(surface)
     ]
   when 'sending'
     client = Sendmux::SDK.sending(api_key: mailbox_api_key, base_url: sending_base_url)
-    [client.emails, client.meta]
+    [client.attachments, client.emails, client.meta]
   else
     raise "Unknown surface: #{surface}"
   end
@@ -113,9 +113,14 @@ def args_for(api, method_name, operation)
 
     key = name.to_s
     value = values[key]
-    if value.nil? && request.key?('body') && operation['bodyKind'] != 'binary' && kind == :req
-      value = request['body']
-      body_consumed = true
+    if value.nil? && request.key?('body') && kind == :req
+      if operation['bodyKind'] == 'binary'
+        value = request['body'].to_s
+        body_consumed = true
+      else
+        value = request['body']
+        body_consumed = true
+      end
     end
     raise "Missing Ruby SDK argument #{key} for #{operation.fetch('operationId')}" if value.nil? && kind == :req
 
@@ -165,7 +170,7 @@ end
 def option_name(source, key)
   return 'last_event_id2' if source == 'headers' && key == 'Last-Event-ID'
 
-  key.tr('-', '_')
+  key.tr('-', '_').downcase
 end
 
 def body_key_for(api, method_name)

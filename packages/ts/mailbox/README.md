@@ -50,11 +50,11 @@ The package exports every generated Mailbox operation plus:
 - `configureMailbox`
 - `MailboxClient`
 - `streamMailboxEvents`
-- Node-only helpers from `@sendmux/mailbox/node`: `uploadMailboxAttachmentFromFile`, `createMailboxAttachmentUploadFromFile`, `uploadMailboxAttachmentViaPresignedFile`, and `sendMailboxMessageWithFiles`
+- Node-only helpers from `@sendmux/mailbox/node`: `downloadMailboxAttachmentToBuffer`, `readMailboxTextAttachment`, `uploadMailboxAttachmentFromFile`, `createMailboxAttachmentUploadFromFile`, `uploadMailboxAttachmentViaPresignedFile`, and `sendMailboxMessageWithFiles`
 
 ## Attachments
 
-Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client; no `Authorization` header is needed. If the URL has expired, call `mailboxGetMessage` or list/search messages again to receive fresh metadata.
+Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. In Node, prefer `downloadMailboxAttachmentToBuffer` or `readMailboxTextAttachment` from `@sendmux/mailbox/node` when you already have an authenticated client. Plain HTTP clients can fetch `download_url` promptly with no `Authorization` header; if it expires, call `mailboxGetMessage` or list/search messages again to receive fresh metadata.
 
 Mailbox direct uploads, presigned uploads, and Node file helpers share the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
 
@@ -104,7 +104,7 @@ For local files in Node, use the helper subpath so file bytes stay out of model 
 
 ```ts
 import { createMailboxClient } from "@sendmux/mailbox";
-import { sendMailboxMessageWithFiles } from "@sendmux/mailbox/node";
+import { readMailboxTextAttachment, sendMailboxMessageWithFiles } from "@sendmux/mailbox/node";
 
 const client = createMailboxClient({ apiKey: process.env.SENDMUX_MAILBOX_API_KEY! });
 
@@ -117,6 +117,12 @@ await sendMailboxMessageWithFiles({
     subject: "Report",
     text_body: "Attached.",
   },
+});
+
+const text = await readMailboxTextAttachment({
+  client,
+  messageId: "msg_123",
+  attachmentId: "att_123",
 });
 ```
 

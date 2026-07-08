@@ -18,6 +18,10 @@ for (const surface of surfaces) {
 
   const client = readFileSync(clientPath, "utf8");
   const schemas = readFileSync(schemasPath, "utf8");
+  const parametersPath = join(surfaceDir, "oas_parameters_gen.go");
+  const requestEncodersPath = join(surfaceDir, "oas_request_encoders_gen.go");
+  const parameters = existsSync(parametersPath) ? readFileSync(parametersPath, "utf8") : "";
+  const requestEncoders = existsSync(requestEncodersPath) ? readFileSync(requestEncodersPath, "utf8") : "";
   const spec = JSON.parse(readFileSync(specPath, "utf8"));
 
   if (surface === "sending" && !client.includes("GetOpenApiSpec")) {
@@ -43,6 +47,10 @@ for (const surface of surfaces) {
       continue;
     }
     failures.push(`${surface}.${name} is not a clean {Meta, Ok, Data} success envelope`);
+  }
+
+  if (surface === "sending") {
+    assertGoSendingBinaryUploadContentLength({ client, parameters, requestEncoders });
   }
 }
 
@@ -84,4 +92,34 @@ function componentName(ref) {
   }
 
   return decodeURIComponent(ref.split("/").at(-1));
+}
+
+function assertGoSendingBinaryUploadContentLength({ client, parameters, requestEncoders }) {
+  for (const operation of [
+    {
+      name: "SendingCompleteAttachmentUpload",
+      paramsType: "SendingCompleteAttachmentUploadParams",
+    },
+    {
+      name: "SendingUploadAttachment",
+      paramsType: "SendingUploadAttachmentParams",
+    },
+  ]) {
+    const paramsBlock = parameters.match(new RegExp(`type ${operation.paramsType} struct \\{\\n([\\s\\S]*?)\\n\\}`))?.[1];
+    if (!paramsBlock?.includes("ContentLength int64")) {
+      failures.push(`sending.${operation.paramsType} must expose required Content-Length as ContentLength int64`);
+    }
+
+    const sendBlock = client.match(new RegExp(`func \\(c \\*Client\\) send${operation.name}\\([\\s\\S]*?stage = "SendRequest"`))?.[0];
+    if (!sendBlock?.includes("r.ContentLength = params.ContentLength")) {
+      failures.push(`sending.${operation.name} must set http.Request.ContentLength from params.ContentLength`);
+    }
+  }
+
+  for (const encoder of ["encodeSendingCompleteAttachmentUploadRequest", "encodeSendingUploadAttachmentRequest"]) {
+    const encoderBlock = requestEncoders.match(new RegExp(`func ${encoder}\\([\\s\\S]*?\\n\\}`))?.[0];
+    if (!encoderBlock?.includes("ht.SetBody")) {
+      failures.push(`sending.${encoder} must keep the generated binary body encoder`);
+    }
+  }
 }

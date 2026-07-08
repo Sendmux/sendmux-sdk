@@ -23,7 +23,7 @@ export default defineConfig([
       filters: {
         orphans: false,
         tags: {
-          include: ["Emails", "Meta"],
+          include: ["Attachments", "Emails", "Meta"],
         },
       },
     },

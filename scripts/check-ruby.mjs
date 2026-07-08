@@ -7,6 +7,7 @@ const bundle = commandWithRbenv("bundle");
 const gem = commandWithRbenv("gem");
 const packages = ["core", "sending", "mailbox", "management", "sdk"];
 
+checkGeneratedRubyHeaderStringification();
 run(bundle, ["install"]);
 
 for (const name of packages) {
@@ -78,6 +79,45 @@ function checkRubyDependencyFloors() {
       if (enforceManifestFloor && compareSemver(actualVersion, minimumVersion) < 0) {
         throw new Error(`${gemspecPath} must require ${dependency} >= ${minimumVersion}; found >= ${actualVersion}`);
       }
+    }
+  }
+}
+
+function checkGeneratedRubyHeaderStringification() {
+  const generatedClients = [
+    "packages/ruby/sending/lib/sendmux_sending_generated/api_client.rb",
+    "packages/ruby/mailbox/lib/sendmux_mailbox_generated/api_client.rb",
+    "packages/ruby/management/lib/sendmux_management_generated/api_client.rb",
+  ];
+
+  for (const clientPath of generatedClients) {
+    const source = readFileSync(`${root}/${clientPath}`, "utf8");
+    if (!source.includes("request.headers = stringify_header_params(header_params)")) {
+      throw new Error(`${clientPath} must stringify header values before assigning request.headers`);
+    }
+    if (!source.includes("def stringify_header_params(header_params)")) {
+      throw new Error(`${clientPath} must define stringify_header_params`);
+    }
+    if (!source.includes("result[key] = value.nil? ? value : value.to_s")) {
+      throw new Error(`${clientPath} must preserve nil headers and stringify non-nil header values`);
+    }
+    if (source.includes("request.headers = header_params")) {
+      throw new Error(`${clientPath} must not assign raw header_params to Faraday requests`);
+    }
+  }
+
+  const attachmentsSource = readFileSync(
+    `${root}/packages/ruby/sending/lib/sendmux_sending_generated/api/attachments_api.rb`,
+    "utf8",
+  );
+  for (const expected of [
+    "def sending_upload_attachment(content_length, filename, body, opts = {})",
+    "def sending_complete_attachment_upload(x_sendmux_upload_token, content_length, upload_id, body, opts = {})",
+    "header_params[:'Content-Length'] = content_length",
+    "content_length < 1",
+  ]) {
+    if (!attachmentsSource.includes(expected)) {
+      throw new Error(`Ruby generated attachments API missing expected Content-Length contract: ${expected}`);
     }
   }
 }

@@ -30,8 +30,9 @@ class MailboxDomainVerifyResult(BaseModel):
     """ # noqa: E501
     checks: MailboxDomainVerifyChecks
     ses_dkim_status: StrictStr = Field(description="Latest Amazon SES DKIM status")
+    ses_mail_from_status: StrictStr = Field(description="Latest Amazon SES MAIL FROM status")
     status: StrictStr = Field(description="Post-check verification status")
-    __properties: ClassVar[List[str]] = ["checks", "ses_dkim_status", "status"]
+    __properties: ClassVar[List[str]] = ["checks", "ses_dkim_status", "ses_mail_from_status", "status"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -96,6 +97,7 @@ class MailboxDomainVerifyResult(BaseModel):
         _obj = cls.model_validate({
             "checks": MailboxDomainVerifyChecks.from_dict(obj["checks"]) if obj.get("checks") is not None else None,
             "ses_dkim_status": obj.get("ses_dkim_status"),
+            "ses_mail_from_status": obj.get("ses_mail_from_status"),
             "status": obj.get("status")
         })
         return _obj

@@ -31,11 +31,15 @@ def test_permission_lookup_returns_required_permissions_for_tool() -> None:
     )
     assert permissions_for_tool("mailbox_list_granted_mailboxes") == ("mailbox.read",)
     assert permissions_for_tool("mailbox_get_attachment") == ("mailbox.read",)
+    assert permissions_for_tool("mailbox_read_attachment") == ("mailbox.read",)
     assert permissions_for_tool("mailbox_upload_attachment") == ("email.send",)
     assert permissions_for_tool("mailbox_wait_for_message") == ("mailbox.read",)
     assert permissions_for_tool("management_create_domain") == ("domain.create",)
     assert permissions_for_tool("management_check_mailbox_availability") == ("mailbox.admin.create",)
+    assert permissions_for_tool("sending_create_attachment_upload") == ("email.send",)
+    assert permissions_for_tool("sending_get_attachment") == ("email.send",)
     assert permissions_for_tool("sending_send_email_batch") == ("email.send",)
+    assert permissions_for_tool("sending_upload_attachment") == ("email.send",)
 
 
 def test_api_key_permission_check_matches_sendmux_wildcard_semantics() -> None:
@@ -61,6 +65,7 @@ def test_authorised_tools_are_filtered_per_surface() -> None:
         "mailbox_count_messages",
         "mailbox_search_message_snippets",
         "mailbox_get_attachment",
+        "mailbox_read_attachment",
         "mailbox_send_message",
         "mailbox_upload_attachment",
         "mailbox_list_threads",

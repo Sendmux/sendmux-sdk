@@ -114,7 +114,7 @@ module Sendmux::Management::Generated
           config.logger.debug "HTTP request body param ~BEGIN~\n#{req_body}\n~END~\n"
         end
       end
-      request.headers = header_params
+      request.headers = stringify_header_params(header_params)
       request.body = req_body
 
       # Overload default options only if provided
@@ -124,6 +124,12 @@ module Sendmux::Management::Generated
       request.url url
       request.params = query_params
       request
+    end
+
+    def stringify_header_params(header_params)
+      header_params.each_with_object({}) do |(key, value), result|
+        result[key] = value.nil? ? value : value.to_s
+      end
     end
 
     # Builds the HTTP request body

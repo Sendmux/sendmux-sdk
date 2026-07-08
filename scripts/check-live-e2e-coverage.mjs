@@ -20,6 +20,20 @@ const customMcpOperations = [
   {
     bodyKind: "json",
     customMcpOnly: true,
+    description: "Read a mailbox attachment through the curated MCP server.",
+    headerParams: [],
+    method: "mcp",
+    operationId: "mailboxReadAttachment",
+    path: "mcp://mailbox_read_attachment",
+    pathParams: [],
+    queryParams: [],
+    responseKind: "json",
+    requestBodyRequired: false,
+    surface: "mailbox",
+  },
+  {
+    bodyKind: "json",
+    customMcpOnly: true,
     description: "Wait briefly for a mailbox message through the curated MCP server.",
     headerParams: [],
     method: "mcp",
@@ -33,6 +47,24 @@ const customMcpOperations = [
   },
 ];
 const customMcpScenarios = {
+  mailboxReadAttachment: {
+    adapters: {
+      cli: false,
+      mcp: "mailbox_read_attachment",
+      sdk: [],
+    },
+    assertions: ["ok-envelope", "request-id", "read-response-shape"],
+    fixture: {
+      body: "json",
+      headers: [],
+      pathParams: [],
+      queryParams: [],
+      resourceOwnership: "fixture",
+    },
+    gates: ["SENDMUX_LIVE_E2E_BINARY=1", "E2E resource ownership registry"],
+    mode: "binary_fixture",
+    risk: "binary",
+  },
   mailboxWaitForMessage: {
     adapters: {
       cli: false,
@@ -648,11 +680,17 @@ function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
     "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ...operations.map((operation) => {
       const scenario = scenarios[operation.operationId] ?? {};
+      const sdkCell = operation.customMcpOnly
+        ? "n/a"
+        : Array.isArray(scenario.adapters?.sdk)
+          ? scenario.adapters.sdk.join(", ")
+          : "missing";
+      const cliCell = operation.customMcpOnly ? "n/a" : scenario.adapters?.cli === true ? "yes" : "missing";
       return `| ${operation.surface} | \`${operation.operationId}\` | ${operation.method.toUpperCase()} | \`${
         operation.path
-      }\` | ${scenario.mode ?? "missing"} | ${scenario.risk ?? "missing"} | ${
-        Array.isArray(scenario.adapters?.sdk) ? scenario.adapters.sdk.join(", ") : "missing"
-      } | ${scenario.adapters?.cli === true ? "yes" : "missing"} | ${scenario.adapters?.mcp ?? "not curated"} | ${escapeCell(
+      }\` | ${scenario.mode ?? "missing"} | ${scenario.risk ?? "missing"} | ${sdkCell} | ${cliCell} | ${
+        scenario.adapters?.mcp ?? "not curated"
+      } | ${escapeCell(
         Array.isArray(scenario.gates) && scenario.gates.length > 0 ? scenario.gates.join("; ") : "none",
       )} | ${scenario.fixture?.resourceOwnership ?? "missing"} |`;
     }),

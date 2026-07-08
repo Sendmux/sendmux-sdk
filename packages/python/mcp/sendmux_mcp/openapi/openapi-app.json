@@ -1173,7 +1173,7 @@
           },
           "download_url": {
             "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
-            "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachments/blob_123?download_token=...",
+            "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachment-downloads/attref_abc123?download_token=...",
             "type": "string"
           },
           "filename": {
@@ -2057,6 +2057,13 @@
               "null"
             ]
           },
+          "ses_mail_from_status": {
+            "description": "Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "verification_status": {
             "description": "Current verification state",
             "enum": [
@@ -2080,6 +2087,7 @@
           "mode",
           "verification_status",
           "ses_dkim_status",
+          "ses_mail_from_status",
           "verified_at",
           "created_at",
           "mailbox_count",
@@ -2107,6 +2115,9 @@
               }
             ]
           },
+          "mail_from": {
+            "$ref": "#/components/schemas/MailboxDomainMailFromRecords"
+          },
           "mx": {
             "description": "MX records the customer must place. All point at Sendmux's inbound mail servers.",
             "items": {
@@ -2115,7 +2126,14 @@
             "type": "array"
           },
           "spf": {
-            "$ref": "#/components/schemas/MailboxDomainNameValueRecord"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MailboxDomainNameValueRecord"
+              },
+              {
+                "description": "SPF TXT record covering Amazon SES sending"
+              }
+            ]
           },
           "verification": {
             "allOf": [
@@ -2130,10 +2148,28 @@
         },
         "required": [
           "mx",
+          "mail_from",
           "spf",
           "dmarc",
           "dkim",
           "verification"
+        ],
+        "type": "object"
+      },
+      "MailboxDomainMailFromRecords": {
+        "additionalProperties": false,
+        "description": "Custom MAIL FROM records for Amazon SES bounce handling",
+        "properties": {
+          "mx": {
+            "$ref": "#/components/schemas/MailboxDomainNamedMxRecord"
+          },
+          "spf": {
+            "$ref": "#/components/schemas/MailboxDomainNameValueRecord"
+          }
+        },
+        "required": [
+          "mx",
+          "spf"
         ],
         "type": "object"
       },
@@ -2155,9 +2191,33 @@
         ],
         "type": "object"
       },
+      "MailboxDomainNamedMxRecord": {
+        "additionalProperties": false,
+        "description": "MX record for Amazon SES bounce handling",
+        "properties": {
+          "name": {
+            "example": "bounce.acme.com",
+            "type": "string"
+          },
+          "priority": {
+            "example": 10,
+            "type": "integer"
+          },
+          "target": {
+            "example": "feedback-smtp.eu-central-1.amazonses.com",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "priority",
+          "target"
+        ],
+        "type": "object"
+      },
       "MailboxDomainNameValueRecord": {
         "additionalProperties": false,
-        "description": "SPF TXT record covering Amazon SES sending",
+        "description": "SPF TXT record for the custom MAIL FROM subdomain",
         "properties": {
           "name": {
             "example": "_sendmux.acme.com",
@@ -2181,6 +2241,14 @@
             "description": "DMARC TXT record matches expected value",
             "type": "boolean"
           },
+          "mail_from_mx": {
+            "description": "Custom MAIL FROM MX record matches expected value",
+            "type": "boolean"
+          },
+          "mail_from_spf": {
+            "description": "Custom MAIL FROM SPF TXT record matches expected value",
+            "type": "boolean"
+          },
           "mx": {
             "description": "MX record present when the domain is configured for receiving. Always true for send-only domains.",
             "type": "boolean"
@@ -2198,7 +2266,9 @@
           "mx",
           "verification_txt",
           "spf",
-          "dmarc"
+          "dmarc",
+          "mail_from_mx",
+          "mail_from_spf"
         ],
         "type": "object"
       },
@@ -2210,6 +2280,10 @@
           },
           "ses_dkim_status": {
             "description": "Latest Amazon SES DKIM status",
+            "type": "string"
+          },
+          "ses_mail_from_status": {
+            "description": "Latest Amazon SES MAIL FROM status",
             "type": "string"
           },
           "status": {
@@ -2224,6 +2298,7 @@
         "required": [
           "status",
           "ses_dkim_status",
+          "ses_mail_from_status",
           "checks"
         ],
         "type": "object"
@@ -8512,7 +8587,7 @@
     },
     "/domains/{public_id}/verify": {
       "post": {
-        "description": "Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.",
+        "description": "Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.",
         "operationId": "managementVerifyDomain",
         "parameters": [
           {

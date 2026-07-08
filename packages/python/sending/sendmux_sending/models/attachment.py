@@ -13,91 +13,120 @@
 
 
 from __future__ import annotations
+from inspect import getfullargspec
+import json
 import pprint
 import re  # noqa: F401
-import json
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
+from typing import Optional
+from sendmux_sending.models.inline_attachment import InlineAttachment
+from sendmux_sending.models.uploaded_attachment_ref import UploadedAttachmentRef
+from typing import Union, Any, List, Set, TYPE_CHECKING, Optional, Dict
+from typing_extensions import Literal, Self
+from pydantic import Field
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from typing import Optional, Set
-from typing_extensions import Self
-from pydantic_core import to_jsonable_python
+ATTACHMENT_ANY_OF_SCHEMAS = ["InlineAttachment", "UploadedAttachmentRef"]
 
 class Attachment(BaseModel):
     """
     Attachment
-    """ # noqa: E501
-    content: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Base64-encoded file content")
-    encoding: Optional[StrictStr] = 'base64'
-    filename: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(description="Filename with allowed extension")
-    type: Optional[StrictStr] = Field(default=None, description="MIME type override")
-    __properties: ClassVar[List[str]] = ["content", "encoding", "filename", "type"]
+    """
 
-    @field_validator('encoding')
-    def encoding_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
+    # data type: InlineAttachment
+    anyof_schema_1_validator: Optional[InlineAttachment] = None
+    # data type: UploadedAttachmentRef
+    anyof_schema_2_validator: Optional[UploadedAttachmentRef] = None
+    if TYPE_CHECKING:
+        actual_instance: Optional[Union[InlineAttachment, UploadedAttachmentRef]] = None
+    else:
+        actual_instance: Any = None
+    any_of_schemas: Set[str] = { "InlineAttachment", "UploadedAttachmentRef" }
 
-        if value not in set(['base64']):
-            raise ValueError("must be one of enum values ('base64')")
-        return value
+    model_config = {
+        "validate_assignment": True,
+        "protected_namespaces": (),
+    }
 
-    model_config = ConfigDict(
-        validate_by_name=True,
-        validate_by_alias=True,
-        validate_assignment=True,
-        protected_namespaces=(),
-    )
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
 
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_anyof(cls, v):
+        instance = Attachment.model_construct()
+        error_messages = []
+        # validate data type: InlineAttachment
+        if not isinstance(v, InlineAttachment):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `InlineAttachment`")
+        else:
+            return v
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.model_dump(by_alias=True))
+        # validate data type: UploadedAttachmentRef
+        if not isinstance(v, UploadedAttachmentRef):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `UploadedAttachmentRef`")
+        else:
+            return v
+
+        if error_messages:
+            # no match
+            raise ValueError("No match found when setting the actual_instance in Attachment with anyOf schemas: InlineAttachment, UploadedAttachmentRef. Details: " + ", ".join(error_messages))
+        else:
+            return v
+
+    @classmethod
+    def from_dict(cls, obj: Dict[str, Any]) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        error_messages = []
+        # anyof_schema_1_validator: Optional[InlineAttachment] = None
+        try:
+            instance.actual_instance = InlineAttachment.from_json(json_str)
+            return instance
+        except (ValidationError, ValueError) as e:
+             error_messages.append(str(e))
+        # anyof_schema_2_validator: Optional[UploadedAttachmentRef] = None
+        try:
+            instance.actual_instance = UploadedAttachmentRef.from_json(json_str)
+            return instance
+        except (ValidationError, ValueError) as e:
+             error_messages.append(str(e))
+
+        if error_messages:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into Attachment with anyOf schemas: InlineAttachment, UploadedAttachmentRef. Details: " + ", ".join(error_messages))
+        else:
+            return instance
 
     def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        return json.dumps(to_jsonable_python(self.to_dict()))
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
 
-    @classmethod
-    def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of Attachment from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
+        if hasattr(self.actual_instance, "to_json") and callable(self.actual_instance.to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the dictionary representation of the model using alias.
-
-        This has the following differences from calling pydantic's
-        `self.model_dump(by_alias=True)`:
-
-        * `None` is only added to the output dict for nullable fields that
-          were set at model initialization. Other fields with value `None`
-          are ignored.
-        """
-        excluded_fields: Set[str] = set([
-        ])
-
-        _dict = self.model_dump(
-            by_alias=True,
-            exclude=excluded_fields,
-            exclude_none=True,
-        )
-        return _dict
-
-    @classmethod
-    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of Attachment from a dict"""
-        if obj is None:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], InlineAttachment, UploadedAttachmentRef]]:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return cls.model_validate(obj)
+        if hasattr(self.actual_instance, "to_dict") and callable(self.actual_instance.to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            return self.actual_instance
 
-        _obj = cls.model_validate({
-            "content": obj.get("content"),
-            "encoding": obj.get("encoding") if obj.get("encoding") is not None else 'base64',
-            "filename": obj.get("filename"),
-            "type": obj.get("type")
-        })
-        return _obj
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())

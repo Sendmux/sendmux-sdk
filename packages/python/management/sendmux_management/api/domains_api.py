@@ -1776,7 +1776,7 @@ class DomainsApi:
     ) -> DomainVerifyResponse:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1844,7 +1844,7 @@ class DomainsApi:
     ) -> ApiResponse[DomainVerifyResponse]:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1912,7 +1912,7 @@ class DomainsApi:
     ) -> RESTResponseType:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, then asks Amazon SES for the latest DKIM status. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str

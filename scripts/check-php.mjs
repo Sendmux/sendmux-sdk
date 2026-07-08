@@ -8,6 +8,7 @@ const packages = ["core", "sending", "mailbox", "management", "sdk"];
 
 checkGeneratedClientCorrections();
 checkGeneratedMailboxBodyParamOrder();
+checkGeneratedSendingBinaryUploadContentLength();
 
 runShell(`${composer} install --no-interaction --no-progress`);
 
@@ -108,6 +109,26 @@ function checkGeneratedMailboxBodyParamOrder() {
       first: operation.bodyParam,
       second: "$mailbox_id",
     });
+  }
+}
+
+function checkGeneratedSendingBinaryUploadContentLength() {
+  const filePath = join(root, "packages", "php", "sending", "src", "Api", "AttachmentsApi.php");
+  const source = readFileSync(filePath, "utf8");
+  for (const operation of [
+    "sendingCompleteAttachmentUpload",
+    "sendingUploadAttachment",
+  ]) {
+    const requestMethod = source.match(new RegExp(`function ${operation}Request\\([\\s\\S]*?\\n    \\}`))?.[0];
+    if (!requestMethod) {
+      throw new Error(`Generated PHP method ${operation}Request is missing in ${filePath}`);
+    }
+    if (!requestMethod.includes("$content_length")) {
+      throw new Error(`Generated PHP method ${operation}Request must accept required $content_length in ${filePath}`);
+    }
+    if (!requestMethod.includes("$headerParams['Content-Length']")) {
+      throw new Error(`Generated PHP method ${operation}Request must send Content-Length in ${filePath}`);
+    }
   }
 }
 

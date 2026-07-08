@@ -10,6 +10,7 @@ import pytest
 
 import sendmux_mailbox.attachments as mailbox_attachments
 import sendmux_sending.attachments as sending_attachments
+from sendmux_mailbox import download_mailbox_attachment, read_mailbox_text_attachment
 from sendmux_mailbox.api_client import ApiClient as MailboxApiClient
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_response import (
     MailboxAttachmentUploadIntentResultResponse,
@@ -18,6 +19,27 @@ from sendmux_mailbox.models.mailbox_attachment_upload_result_response import Mai
 from sendmux_mailbox.models.mailbox_send_result_response import MailboxSendResultResponse
 from sendmux_sending.api_client import ApiClient as SendingApiClient
 from sendmux_sending.models.send_success_response import SendSuccessResponse
+
+
+class FakeSendingAttachmentUploadData:
+    attachment_id = "att_1234567890abcdefghijklmn"
+    content_type = "text/plain"
+    expires_at = "2026-07-07T10:00:00.000Z"
+    filename = "report.txt"
+    size_bytes = len(b"python helper attachment\n")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "attachment_id": self.attachment_id,
+            "content_type": self.content_type,
+            "expires_at": self.expires_at,
+            "filename": self.filename,
+            "size_bytes": self.size_bytes,
+        }
+
+
+class FakeSendingAttachmentUploadResponse:
+    data = FakeSendingAttachmentUploadData()
 
 
 class FakeMailboxApi:
@@ -77,6 +99,10 @@ class FakeMailboxApi:
         assert result is not None
         return result
 
+    def mailbox_get_message_attachment(self, **kwargs: Any) -> bytes:
+        self.requests.append({"operation": "download", **kwargs})
+        return b"python helper recipe\n"
+
 
 class FakeUrlopenResponse:
     def __init__(self, payload: dict[str, Any] | bytes) -> None:
@@ -98,8 +124,12 @@ class FakeSendingApi:
     def __init__(self) -> None:
         self.requests: list[dict[str, Any]] = []
 
+    def sending_upload_attachment(self, **kwargs: Any) -> FakeSendingAttachmentUploadResponse:
+        self.requests.append({"operation": "upload", **kwargs})
+        return FakeSendingAttachmentUploadResponse()
+
     def sending_send_email(self, **kwargs: Any) -> SendSuccessResponse:
-        self.requests.append(kwargs)
+        self.requests.append({"operation": "send", **kwargs})
         result = SendSuccessResponse.from_dict(
             {
                 "ok": True,
@@ -251,11 +281,52 @@ def test_mailbox_upload_attachment_via_presigned_file_reports_http_status(
         )
 
 
+def test_mailbox_download_and_read_text_attachment(monkeypatch: Any) -> None:
+    api = FakeMailboxApi()
+    monkeypatch.setattr(mailbox_attachments, "MailboxAPIApi", lambda _api_client: api)
+
+    assert download_mailbox_attachment is mailbox_attachments.download_mailbox_attachment
+    assert read_mailbox_text_attachment is mailbox_attachments.read_mailbox_text_attachment
+
+    downloaded = download_mailbox_attachment(
+        cast(MailboxApiClient, object()),
+        message_id="msg_py_attachment",
+        attachment_id="att_py_markdown",
+        mailbox_id="mbx_py_file",
+        request_timeout=15,
+    )
+    text = read_mailbox_text_attachment(
+        cast(MailboxApiClient, object()),
+        message_id="msg_py_attachment",
+        attachment_id="att_py_markdown",
+    )
+
+    assert downloaded == b"python helper recipe\n"
+    assert text == "python helper recipe\n"
+    assert api.requests == [
+        {
+            "operation": "download",
+            "message_id": "msg_py_attachment",
+            "attachment_id": "att_py_markdown",
+            "mailbox_id": "mbx_py_file",
+            "_request_timeout": 15,
+        },
+        {
+            "operation": "download",
+            "message_id": "msg_py_attachment",
+            "attachment_id": "att_py_markdown",
+            "mailbox_id": None,
+            "_request_timeout": None,
+        },
+    ]
+
+
 def test_sending_attachment_from_file_and_send_email(monkeypatch: Any, tmp_path: Path) -> None:
     report = tmp_path / "report.txt"
     report.write_bytes(b"python helper attachment\n")
     api = FakeSendingApi()
     monkeypatch.setattr(sending_attachments, "EmailsApi", lambda _api_client: api)
+    monkeypatch.setattr(sending_attachments, "AttachmentsApi", lambda _api_client: api)
 
     attachment = sending_attachments.attachment_from_file(report)
     assert attachment == {
@@ -264,6 +335,17 @@ def test_sending_attachment_from_file_and_send_email(monkeypatch: Any, tmp_path:
         "filename": "report.txt",
         "type": "text/plain",
     }
+
+    upload = sending_attachments.upload_attachment_from_file(
+        cast(SendingApiClient, object()),
+        file_path=report,
+    )
+    assert upload.data.attachment_id == "att_1234567890abcdefghijklmn"
+    assert api.requests[0]["operation"] == "upload"
+    assert api.requests[0]["filename"] == "report.txt"
+    assert api.requests[0]["body"] == b"python helper attachment\n"
+    assert api.requests[0]["content_length"] == len(b"python helper attachment\n")
+    assert api.requests[0]["_headers"] == {"Content-Type": "text/plain"}
 
     result = sending_attachments.send_email_with_files(
         cast(SendingApiClient, object()),
@@ -277,4 +359,7 @@ def test_sending_attachment_from_file_and_send_email(monkeypatch: Any, tmp_path:
     )
 
     assert result.data.message_id == "eml_123456789012345678901234"
-    assert api.requests[0]["email_send_request"].to_dict()["attachments"] == [attachment]
+    assert [request["operation"] for request in api.requests] == ["upload", "upload", "send"]
+    assert api.requests[2]["email_send_request"].to_dict()["attachments"] == [
+        {"attachment_id": "att_1234567890abcdefghijklmn"}
+    ]

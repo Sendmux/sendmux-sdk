@@ -77,8 +77,10 @@ __all__ = [
     "MailboxDeletedResponse",
     "MailboxDomain",
     "MailboxDomainDnsRecords",
+    "MailboxDomainMailFromRecords",
     "MailboxDomainMxRecord",
     "MailboxDomainNameValueRecord",
+    "MailboxDomainNamedMxRecord",
     "MailboxDomainVerifyChecks",
     "MailboxDomainVerifyResult",
     "MailboxItemCursorListResponse",
@@ -217,8 +219,10 @@ from sendmux_management.models.mailbox_credential import MailboxCredential as Ma
 from sendmux_management.models.mailbox_deleted_response import MailboxDeletedResponse as MailboxDeletedResponse
 from sendmux_management.models.mailbox_domain import MailboxDomain as MailboxDomain
 from sendmux_management.models.mailbox_domain_dns_records import MailboxDomainDnsRecords as MailboxDomainDnsRecords
+from sendmux_management.models.mailbox_domain_mail_from_records import MailboxDomainMailFromRecords as MailboxDomainMailFromRecords
 from sendmux_management.models.mailbox_domain_mx_record import MailboxDomainMxRecord as MailboxDomainMxRecord
 from sendmux_management.models.mailbox_domain_name_value_record import MailboxDomainNameValueRecord as MailboxDomainNameValueRecord
+from sendmux_management.models.mailbox_domain_named_mx_record import MailboxDomainNamedMxRecord as MailboxDomainNamedMxRecord
 from sendmux_management.models.mailbox_domain_verify_checks import MailboxDomainVerifyChecks as MailboxDomainVerifyChecks
 from sendmux_management.models.mailbox_domain_verify_result import MailboxDomainVerifyResult as MailboxDomainVerifyResult
 from sendmux_management.models.mailbox_item_cursor_list_response import MailboxItemCursorListResponse as MailboxItemCursorListResponse

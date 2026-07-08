@@ -61,6 +61,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $openAPITypes = [
         'dkim' => '\Sendmux\Management\Model\MailboxDomainNameValueRecord[]',
         'dmarc' => '\Sendmux\Management\Model\MailboxDomainNameValueRecord',
+        'mail_from' => '\Sendmux\Management\Model\MailboxDomainMailFromRecords',
         'mx' => '\Sendmux\Management\Model\MailboxDomainMxRecord[]',
         'spf' => '\Sendmux\Management\Model\MailboxDomainNameValueRecord',
         'verification' => '\Sendmux\Management\Model\MailboxDomainNameValueRecord'
@@ -74,6 +75,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $openAPIFormats = [
         'dkim' => null,
         'dmarc' => null,
+        'mail_from' => null,
         'mx' => null,
         'spf' => null,
         'verification' => null
@@ -87,6 +89,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $openAPINullables = [
         'dkim' => false,
         'dmarc' => false,
+        'mail_from' => false,
         'mx' => false,
         'spf' => false,
         'verification' => false
@@ -170,6 +173,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $attributeMap = [
         'dkim' => 'dkim',
         'dmarc' => 'dmarc',
+        'mail_from' => 'mail_from',
         'mx' => 'mx',
         'spf' => 'spf',
         'verification' => 'verification'
@@ -183,6 +187,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $setters = [
         'dkim' => 'setDkim',
         'dmarc' => 'setDmarc',
+        'mail_from' => 'setMailFrom',
         'mx' => 'setMx',
         'spf' => 'setSpf',
         'verification' => 'setVerification'
@@ -196,6 +201,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $getters = [
         'dkim' => 'getDkim',
         'dmarc' => 'getDmarc',
+        'mail_from' => 'getMailFrom',
         'mx' => 'getMx',
         'spf' => 'getSpf',
         'verification' => 'getVerification'
@@ -250,6 +256,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     {
         $this->setIfExists('dkim', $data ?? [], null);
         $this->setIfExists('dmarc', $data ?? [], null);
+        $this->setIfExists('mail_from', $data ?? [], null);
         $this->setIfExists('mx', $data ?? [], null);
         $this->setIfExists('spf', $data ?? [], null);
         $this->setIfExists('verification', $data ?? [], null);
@@ -285,6 +292,9 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
         }
         if ($this->container['dmarc'] === null) {
             $invalidProperties[] = "'dmarc' can't be null";
+        }
+        if ($this->container['mail_from'] === null) {
+            $invalidProperties[] = "'mail_from' can't be null";
         }
         if ($this->container['mx'] === null) {
             $invalidProperties[] = "'mx' can't be null";
@@ -362,6 +372,33 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     }
 
     /**
+     * Gets mail_from
+     *
+     * @return \Sendmux\Management\Model\MailboxDomainMailFromRecords
+     */
+    public function getMailFrom(): \Sendmux\Management\Model\MailboxDomainMailFromRecords
+    {
+        return $this->container['mail_from'];
+    }
+
+    /**
+     * Sets mail_from
+     *
+     * @param \Sendmux\Management\Model\MailboxDomainMailFromRecords $mail_from mail_from
+     *
+     * @return $this
+     */
+    public function setMailFrom(\Sendmux\Management\Model\MailboxDomainMailFromRecords $mail_from): static
+    {
+        if (is_null($mail_from)) {
+            throw new InvalidArgumentException('non-nullable mail_from cannot be null');
+        }
+        $this->container['mail_from'] = $mail_from;
+
+        return $this;
+    }
+
+    /**
      * Gets mx
      *
      * @return \Sendmux\Management\Model\MailboxDomainMxRecord[]
@@ -401,7 +438,7 @@ class MailboxDomainDnsRecords implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets spf
      *
-     * @param \Sendmux\Management\Model\MailboxDomainNameValueRecord $spf spf
+     * @param \Sendmux\Management\Model\MailboxDomainNameValueRecord $spf SPF TXT record covering Amazon SES sending
      *
      * @return $this
      */

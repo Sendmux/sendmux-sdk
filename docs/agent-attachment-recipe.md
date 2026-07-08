@@ -16,22 +16,29 @@
    - Use the returned message summary and `attachments` array.
    - If full content is needed, call `mailbox_get_message`. [file:packages/python/mcp/sendmux_mcp/curation.py]
 
-3. Renew attachment metadata:
-   - Tool: `mailbox_get_attachment`
+3. Read the attachment:
+   - Tool: `mailbox_read_attachment`
    - Arguments: `message_id` and the attachment `id`.
-   - The result includes a fresh short-lived `download_url`. [file:packages/python/mcp/sendmux_mcp/server.py]
+   - For markdown or text, use the returned `data.text`. [file:packages/python/mcp/README.md]
 
-4. Fetch the attachment:
-   - Use a plain HTTP GET to `download_url`.
+4. Fall back to a link only when needed:
+   - Tool: `mailbox_get_attachment`
+   - Use this when metadata is enough, the read result is `resource_link`, or you need to refresh an expired link.
+   - Fetch the returned `download_url` promptly with a plain HTTP GET.
    - Do not add an `Authorization` header.
    - If the URL returns an expiry error, call `mailbox_get_attachment` again and retry the new URL. [file:packages/python/mcp/README.md]
 
 5. Act on the content:
-   - For markdown or text, read the HTTP response body directly.
-   - Attachment text extraction and conversion are out of scope for Sendmux MCP. [file:DECISION-LOG.md]
+   - Use inline text directly.
+   - For binary files, use the returned resource link or authenticated SDK/CLI helpers outside model context.
 
 ## Upload And Send
 
-1. For small agent-provided files, call `mailbox_upload_attachment` with base64 content.
-2. Use the returned `blob_id` in `mailbox_send_message.attachments[]`.
-3. For larger files, use the CLI or SDK binary upload path instead of MCP base64. [file:packages/python/mcp/README.md]
+1. Mailbox sends:
+   - Local stdio MCP: call `mailbox_upload_attachment` with `file_path`.
+   - Hosted or shell-capable agents: call `mailbox_upload_attachment` with `presign_upload_url=true`, PUT the file outside model context, then use the returned `blob_id`.
+   - Use `content_base64` only for tiny generated files. [file:packages/python/mcp/README.md]
+2. Sending API sends:
+   - Local stdio MCP: call `sending_upload_attachment` with `file_path`, then pass `{"attachment_id": "att_..."}` to `sending_send_email.attachments[]`.
+   - Hosted or shell-capable agents: call `sending_create_attachment_upload`, PUT bytes with the returned headers outside model context, then pass the returned `attachment_id`.
+   - CLI `sending:send --attach ./report.pdf` and SDK `sendEmailWithFiles(...)` already upload first and send by ref. [file:packages/python/mcp/README.md]

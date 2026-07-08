@@ -20,6 +20,9 @@ module Sendmux::Management::Generated
     # Latest Amazon SES DKIM status
     attr_accessor :ses_dkim_status
 
+    # Latest Amazon SES MAIL FROM status
+    attr_accessor :ses_mail_from_status
+
     # Post-check verification status
     attr_accessor :status
 
@@ -50,6 +53,7 @@ module Sendmux::Management::Generated
       {
         :'checks' => :'checks',
         :'ses_dkim_status' => :'ses_dkim_status',
+        :'ses_mail_from_status' => :'ses_mail_from_status',
         :'status' => :'status'
       }
     end
@@ -69,6 +73,7 @@ module Sendmux::Management::Generated
       {
         :'checks' => :'MailboxDomainVerifyChecks',
         :'ses_dkim_status' => :'String',
+        :'ses_mail_from_status' => :'String',
         :'status' => :'String'
       }
     end
@@ -107,6 +112,12 @@ module Sendmux::Management::Generated
         self.ses_dkim_status = nil
       end
 
+      if attributes.key?(:'ses_mail_from_status')
+        self.ses_mail_from_status = attributes[:'ses_mail_from_status']
+      else
+        self.ses_mail_from_status = nil
+      end
+
       if attributes.key?(:'status')
         self.status = attributes[:'status']
       else
@@ -127,6 +138,10 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "ses_dkim_status", ses_dkim_status cannot be nil.')
       end
 
+      if @ses_mail_from_status.nil?
+        invalid_properties.push('invalid value for "ses_mail_from_status", ses_mail_from_status cannot be nil.')
+      end
+
       if @status.nil?
         invalid_properties.push('invalid value for "status", status cannot be nil.')
       end
@@ -140,6 +155,7 @@ module Sendmux::Management::Generated
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @checks.nil?
       return false if @ses_dkim_status.nil?
+      return false if @ses_mail_from_status.nil?
       return false if @status.nil?
       status_validator = EnumAttributeValidator.new('String', ["verified", "pending", "unknown_default_open_api"])
       return false unless status_validator.valid?(@status)
@@ -166,6 +182,16 @@ module Sendmux::Management::Generated
       @ses_dkim_status = ses_dkim_status
     end
 
+    # Custom attribute writer method with validation
+    # @param [Object] ses_mail_from_status Value to be assigned
+    def ses_mail_from_status=(ses_mail_from_status)
+      if ses_mail_from_status.nil?
+        fail ArgumentError, 'ses_mail_from_status cannot be nil'
+      end
+
+      @ses_mail_from_status = ses_mail_from_status
+    end
+
     # Custom attribute writer method checking allowed values (enum).
     # @param [Object] status Object to be assigned
     def status=(status)
@@ -183,6 +209,7 @@ module Sendmux::Management::Generated
       self.class == o.class &&
           checks == o.checks &&
           ses_dkim_status == o.ses_dkim_status &&
+          ses_mail_from_status == o.ses_mail_from_status &&
           status == o.status
     end
 
@@ -195,7 +222,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [checks, ses_dkim_status, status].hash
+      [checks, ses_dkim_status, ses_mail_from_status, status].hash
     end
 
     # Builds the object from hash

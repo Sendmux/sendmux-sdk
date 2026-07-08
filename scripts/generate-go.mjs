@@ -10,7 +10,7 @@ const surfaces = [
   {
     name: "sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
-    tags: ["Emails", "Meta"],
+    tags: ["Attachments", "Emails", "Meta"],
     defaultBaseUrl: "https://smtp.sendmux.ai/api/v1",
     keySurface: "sending",
     description: "Sending API",
@@ -365,6 +365,10 @@ function collectRefs(value, refs) {
 
 function writeSurfaceFiles(surface, specPath) {
   const packageDir = join(root, "go", surface.name);
+  if (surface.name === "sending") {
+    patchSendingAttachmentCompatibility(packageDir);
+  }
+
   const packageDoc = surface.packageDoc.map((line) => (line ? `// ${line}` : "//")).join("\n");
 
   writeFileSync(
@@ -480,6 +484,350 @@ func APIErrorFromResponse(response any, status int) (*core.APIError, bool) {
   );
 
   writeFileSync(join(packageDir, "error_methods.go"), buildErrorMethods(surface.name, packageDir));
+}
+
+function patchSendingAttachmentCompatibility(packageDir) {
+  patchSendingBinaryUploadContentLength(packageDir);
+
+  const schemasPath = join(packageDir, "oas_schemas_gen.go");
+  const jsonPath = join(packageDir, "oas_json_gen.go");
+  const validatorsPath = join(packageDir, "oas_validators_gen.go");
+
+  replaceInFile(
+    schemasPath,
+    /\/\/ Ref: #\/components\/schemas\/Attachment\ntype Attachment struct \{[\s\S]*?\nfunc \(s \*Attachment\) SetAttachmentID\(val OptString\) \{\n\ts\.AttachmentID = val\n\}\n\n/,
+    String.raw`// Ref: #/components/schemas/Attachment
+type Attachment struct {
+	// Base64-encoded file content.
+	Content  string                ` + "`json:\"content\"`" + String.raw`
+	Encoding OptAttachmentEncoding ` + "`json:\"encoding\"`" + String.raw`
+	// Filename with allowed extension.
+	Filename string ` + "`json:\"filename\"`" + String.raw`
+	// MIME type override.
+	Type OptString ` + "`json:\"type\"`" + String.raw`
+	// Temporary uploaded attachment ID returned by POST /emails/attachments.
+	AttachmentID OptString ` + "`json:\"attachment_id\"`" + String.raw`
+}
+
+// GetContent returns the value of Content.
+func (s *Attachment) GetContent() string {
+	return s.Content
+}
+
+// GetEncoding returns the value of Encoding.
+func (s *Attachment) GetEncoding() OptAttachmentEncoding {
+	return s.Encoding
+}
+
+// GetFilename returns the value of Filename.
+func (s *Attachment) GetFilename() string {
+	return s.Filename
+}
+
+// GetType returns the value of Type.
+func (s *Attachment) GetType() OptString {
+	return s.Type
+}
+
+// GetAttachmentID returns the value of AttachmentID.
+func (s *Attachment) GetAttachmentID() OptString {
+	return s.AttachmentID
+}
+
+// SetContent sets the value of Content.
+func (s *Attachment) SetContent(val string) {
+	s.Content = val
+}
+
+// SetEncoding sets the value of Encoding.
+func (s *Attachment) SetEncoding(val OptAttachmentEncoding) {
+	s.Encoding = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *Attachment) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetType sets the value of Type.
+func (s *Attachment) SetType(val OptString) {
+	s.Type = val
+}
+
+// SetAttachmentID sets the value of AttachmentID.
+func (s *Attachment) SetAttachmentID(val OptString) {
+	s.AttachmentID = val
+}
+
+`,
+    "sending Attachment schema compatibility block",
+  );
+
+  replaceInFile(
+    jsonPath,
+    /\/\/ Encode implements json\.Marshaler\.\nfunc \(s \*Attachment\) Encode\(e \*jx\.Encoder\) \{[\s\S]*?\/\/ UnmarshalJSON implements stdjson\.Unmarshaler\.\nfunc \(s \*Attachment\) UnmarshalJSON\(data \[\]byte\) error \{\n\td := jx\.DecodeBytes\(data\)\n\treturn s\.Decode\(d\)\n\}\n\n/,
+    String.raw`// Encode implements json.Marshaler.
+func (s *Attachment) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *Attachment) encodeFields(e *jx.Encoder) {
+	{
+		if s.Content != "" {
+			e.FieldStart("content")
+			e.Str(s.Content)
+		}
+	}
+	{
+		if s.Encoding.Set {
+			e.FieldStart("encoding")
+			s.Encoding.Encode(e)
+		}
+	}
+	{
+		if s.Filename != "" {
+			e.FieldStart("filename")
+			e.Str(s.Filename)
+		}
+	}
+	{
+		if s.Type.Set {
+			e.FieldStart("type")
+			s.Type.Encode(e)
+		}
+	}
+	{
+		if s.AttachmentID.Set {
+			e.FieldStart("attachment_id")
+			s.AttachmentID.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfAttachment = [5]string{
+	0: "content",
+	1: "encoding",
+	2: "filename",
+	3: "type",
+	4: "attachment_id",
+}
+
+// Decode decodes Attachment from json.
+func (s *Attachment) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode Attachment to nil")
+	}
+	s.setDefaults()
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "content":
+			if err := func() error {
+				v, err := d.Str()
+				s.Content = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"content\"")
+			}
+		case "encoding":
+			if err := func() error {
+				s.Encoding.Reset()
+				if err := s.Encoding.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"encoding\"")
+			}
+		case "filename":
+			if err := func() error {
+				v, err := d.Str()
+				s.Filename = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"filename\"")
+			}
+		case "type":
+			if err := func() error {
+				s.Type.Reset()
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "attachment_id":
+			if err := func() error {
+				s.AttachmentID.Reset()
+				if err := s.AttachmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attachment_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode Attachment")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *Attachment) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *Attachment) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+`,
+    "sending Attachment JSON compatibility block",
+  );
+
+  replaceInFile(
+    validatorsPath,
+    /func \(s \*Attachment\) Validate\(\) error \{[\s\S]*?\n\}\n\nfunc \(s AttachmentEncoding\) Validate\(\) error \{/,
+    String.raw`func (s *Attachment) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if !s.AttachmentID.Set {
+		if err := func() error {
+			if err := (validate.String{
+				MinLength:    1,
+				MinLengthSet: true,
+				MaxLength:    0,
+				MaxLengthSet: false,
+				Email:        false,
+				Hostname:     false,
+				Regex:        nil,
+			}).Validate(string(s.Content)); err != nil {
+				return errors.Wrap(err, "string")
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  "content",
+				Error: err,
+			})
+		}
+		if err := func() error {
+			if err := (validate.String{
+				MinLength:    1,
+				MinLengthSet: true,
+				MaxLength:    255,
+				MaxLengthSet: true,
+				Email:        false,
+				Hostname:     false,
+				Regex:        nil,
+			}).Validate(string(s.Filename)); err != nil {
+				return errors.Wrap(err, "string")
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  "filename",
+				Error: err,
+			})
+		}
+	}
+	if err := func() error {
+		if value, ok := s.Encoding.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "encoding",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.AttachmentID.Get(); ok {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    0,
+					MinLengthSet: false,
+					MaxLength:    0,
+					MaxLengthSet: false,
+					Email:        false,
+					Hostname:     false,
+					Regex:        regexMap["^att_[a-z0-9]{24}$"],
+				}).Validate(string(value)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "attachment_id",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s AttachmentEncoding) Validate() error {`,
+    "sending Attachment validator compatibility block",
+  );
+}
+
+function patchSendingBinaryUploadContentLength(packageDir) {
+  const clientPath = join(packageDir, "oas_client_gen.go");
+  for (const operation of ["SendingCompleteAttachmentUpload", "SendingUploadAttachment"]) {
+    replaceInFile(
+      clientPath,
+      new RegExp(
+        `(if err := encode${operation}Request\\(request, r\\); err != nil \\{\\n\\t\\treturn res, errors\\.Wrap\\(err, "encode request"\\)\\n\\t\\}\\n)`,
+      ),
+      `$1\tr.ContentLength = params.ContentLength\n`,
+      `${operation} request ContentLength patch`,
+    );
+  }
+}
+
+function replaceInFile(filePath, pattern, replacement, label) {
+  const source = readFileSync(filePath, "utf8");
+  if (!pattern.test(source)) {
+    throw new Error(`Could not find ${label} in ${filePath}`);
+  }
+  writeFileSync(filePath, source.replace(pattern, replacement));
 }
 
 function buildErrorMethods(packageName, packageDir) {

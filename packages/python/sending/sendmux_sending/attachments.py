@@ -7,8 +7,10 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
+from sendmux_sending.api.attachments_api import AttachmentsApi
 from sendmux_sending.api.emails_api import EmailsApi
 from sendmux_sending.api_client import ApiClient
+from sendmux_sending.models.attachment_upload_response import AttachmentUploadResponse
 from sendmux_sending.models.email_send_request import EmailSendRequest
 from sendmux_sending.models.send_success_response import SendSuccessResponse
 
@@ -33,6 +35,30 @@ def attachment_from_file(
     }
 
 
+def upload_attachment_from_file(
+    api_client: ApiClient,
+    *,
+    file_path: PathInput,
+    filename: str | None = None,
+    content_type: str | None = None,
+    idempotency_key: str | None = None,
+    request_timeout: float | tuple[float, float] | None = None,
+) -> AttachmentUploadResponse:
+    """Upload a local file and return an attachment ID for Sending attachments."""
+
+    file = _read_attachment_file(file_path, filename=filename, content_type=content_type)
+    api = AttachmentsApi(api_client)
+    return api.sending_upload_attachment(
+        filename=file["filename"],
+        body=file["bytes"],
+        content_length=file["size_bytes"],
+        idempotency_key=idempotency_key,
+        content_type=file["content_type"],
+        _headers={"Content-Type": file["content_type"]},
+        _request_timeout=request_timeout,
+    )
+
+
 def send_email_with_files(
     api_client: ApiClient,
     *,
@@ -41,18 +67,20 @@ def send_email_with_files(
     idempotency_key: str | None = None,
     request_timeout: float | tuple[float, float] | None = None,
 ) -> SendSuccessResponse:
-    """Read local files, attach them as base64, and send one email."""
+    """Upload local files, attach their attachment IDs, and send one email."""
 
     attachments = list(body.get("attachments") or [])
     for file_input in files:
         file = _file_input(file_input)
-        attachments.append(
-            attachment_from_file(
-                file["path"],
-                filename=file.get("filename"),
-                content_type=file.get("content_type"),
-            )
+        uploaded = upload_attachment_from_file(
+            api_client,
+            file_path=file["path"],
+            filename=file.get("filename"),
+            content_type=file.get("content_type"),
+            idempotency_key=file.get("idempotency_key"),
+            request_timeout=request_timeout,
         )
+        attachments.append({"attachment_id": uploaded.data.attachment_id})
 
     api = EmailsApi(api_client)
     return api.sending_send_email(
@@ -94,4 +122,5 @@ def _read_attachment_file(
         "content_type": content_type or guessed_type or "application/octet-stream",
         "filename": filename or path.name,
         "path": path,
+        "size_bytes": len(data),
     }

@@ -36,9 +36,10 @@ class MailboxDomain(BaseModel):
     mailbox_count: Annotated[int, Field(strict=True, ge=0)] = Field(description="Active mailboxes currently using this domain")
     mode: StrictStr = Field(description="`send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.")
     ses_dkim_status: Optional[StrictStr] = Field(description="Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)")
+    ses_mail_from_status: Optional[StrictStr] = Field(description="Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)")
     verification_status: StrictStr = Field(description="Current verification state")
     verified_at: Optional[StrictStr] = Field(description="ISO 8601 timestamp of last successful verification")
-    __properties: ClassVar[List[str]] = ["created_at", "dns_records", "domain", "id", "mailbox_count", "mode", "ses_dkim_status", "verification_status", "verified_at"]
+    __properties: ClassVar[List[str]] = ["created_at", "dns_records", "domain", "id", "mailbox_count", "mode", "ses_dkim_status", "ses_mail_from_status", "verification_status", "verified_at"]
 
     @field_validator('mode')
     def mode_validate_enum(cls, value):
@@ -101,6 +102,11 @@ class MailboxDomain(BaseModel):
         if self.ses_dkim_status is None and "ses_dkim_status" in self.model_fields_set:
             _dict['ses_dkim_status'] = None
 
+        # set to None if ses_mail_from_status (nullable) is None
+        # and model_fields_set contains the field
+        if self.ses_mail_from_status is None and "ses_mail_from_status" in self.model_fields_set:
+            _dict['ses_mail_from_status'] = None
+
         # set to None if verified_at (nullable) is None
         # and model_fields_set contains the field
         if self.verified_at is None and "verified_at" in self.model_fields_set:
@@ -125,6 +131,7 @@ class MailboxDomain(BaseModel):
             "mailbox_count": obj.get("mailbox_count"),
             "mode": obj.get("mode"),
             "ses_dkim_status": obj.get("ses_dkim_status"),
+            "ses_mail_from_status": obj.get("ses_mail_from_status"),
             "verification_status": obj.get("verification_status"),
             "verified_at": obj.get("verified_at")
         })

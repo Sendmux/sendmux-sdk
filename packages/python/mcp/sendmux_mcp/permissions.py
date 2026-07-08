@@ -34,6 +34,7 @@ TOOL_PERMISSION_REQUIREMENTS: Mapping[str, PermissionRequirement] = MappingProxy
         "mailbox_list_folders": ("mailbox.read",),
         "mailbox_get_changes": ("mailbox.read",),
         "mailbox_get_attachment": ("mailbox.read",),
+        "mailbox_read_attachment": ("mailbox.read",),
         "mailbox_upload_attachment": ("email.send",),
         "mailbox_wait_for_message": ("mailbox.read",),
         "management_list_domains": ("domain.read",),
@@ -57,8 +58,11 @@ TOOL_PERMISSION_REQUIREMENTS: Mapping[str, PermissionRequirement] = MappingProxy
         "management_list_webhooks": ("webhook.read",),
         "management_create_webhook": ("webhook.create",),
         "management_test_webhook": ("webhook.manage",),
+        "sending_create_attachment_upload": ("email.send",),
+        "sending_get_attachment": ("email.send",),
         "sending_send_email": ("email.send",),
         "sending_send_email_batch": ("email.send",),
+        "sending_upload_attachment": ("email.send",),
     }
 )
 

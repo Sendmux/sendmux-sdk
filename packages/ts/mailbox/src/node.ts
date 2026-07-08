@@ -1,8 +1,10 @@
 import { readFile, stat } from "node:fs/promises";
+import { Buffer } from "node:buffer";
 import { basename, extname } from "node:path";
 
 import {
   mailboxCreateAttachmentUpload,
+  mailboxGetMessageAttachment,
   mailboxSendMessage,
   mailboxUploadAttachment,
 } from "./generated/sdk.gen.js";
@@ -36,6 +38,20 @@ export interface UploadMailboxAttachmentViaPresignedFileOptions extends UploadMa
   fetch?: typeof fetch;
 }
 
+export interface DownloadMailboxAttachmentToBufferOptions {
+  attachmentId: string;
+  client: Client;
+  mailboxId?: string;
+  messageId: string;
+  range?: string;
+}
+
+export type TextAttachmentEncoding = Parameters<Buffer["toString"]>[0];
+
+export interface ReadMailboxTextAttachmentOptions extends DownloadMailboxAttachmentToBufferOptions {
+  encoding?: TextAttachmentEncoding;
+}
+
 export interface SendMailboxMessageWithFilesOptions {
   body: SendMailboxMessageBody;
   client: Client;
@@ -46,6 +62,34 @@ export interface SendMailboxMessageWithFilesOptions {
   query?: {
     mailbox_id?: string;
   };
+}
+
+export async function downloadMailboxAttachmentToBuffer({
+  attachmentId,
+  client,
+  mailboxId,
+  messageId,
+  range,
+}: DownloadMailboxAttachmentToBufferOptions): Promise<Buffer> {
+  const response = await mailboxGetMessageAttachment({
+    client,
+    headers: range ? { Range: range } : undefined,
+    path: {
+      attachment_id: attachmentId,
+      message_id: messageId,
+    },
+    ...(mailboxId ? { query: { mailbox_id: mailboxId } } : {}),
+    parseAs: "arrayBuffer",
+    throwOnError: true,
+  });
+  return bufferForBinaryResponse(response.data);
+}
+
+export async function readMailboxTextAttachment({
+  encoding = "utf8",
+  ...options
+}: ReadMailboxTextAttachmentOptions): Promise<string> {
+  return (await downloadMailboxAttachmentToBuffer(options)).toString(encoding);
 }
 
 export async function uploadMailboxAttachmentFromFile({
@@ -209,6 +253,19 @@ function arrayBufferFor(bytes: Buffer): ArrayBuffer {
   const copy = new Uint8Array(bytes.byteLength);
   copy.set(bytes);
   return copy.buffer;
+}
+
+function bufferForBinaryResponse(value: unknown): Buffer {
+  if (value instanceof ArrayBuffer) {
+    return Buffer.from(value);
+  }
+  if (ArrayBuffer.isView(value)) {
+    return Buffer.from(value.buffer, value.byteOffset, value.byteLength);
+  }
+  if (typeof value === "string") {
+    return Buffer.from(value);
+  }
+  throw new Error("Attachment download did not return binary content.");
 }
 
 function parseUploadResultResponse(body: string): MailboxAttachmentUploadResultResponse {

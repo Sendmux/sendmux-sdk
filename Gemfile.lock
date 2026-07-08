@@ -18,7 +18,7 @@ PATH
 PATH
   remote: packages/ruby/management
   specs:
-    sendmux-management (1.0.0)
+    sendmux-management (1.1.0)
       faraday (~> 2.0)
       faraday-multipart (~> 1.0)
       faraday-retry (>= 2.4, < 3.0)

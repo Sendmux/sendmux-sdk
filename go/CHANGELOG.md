@@ -6,6 +6,13 @@
 
 * regenerate mailbox models for short-lived attachment download URLs and upload intents
 
+## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.2.0...go/v1.3.0) (2026-07-08)
+
+
+### Features
+
+* **sdk:** add sending attachment upload surfaces ([#96](https://github.com/Sendmux/sendmux-sdk/issues/96)) ([b8f9d5f](https://github.com/Sendmux/sendmux-sdk/commit/b8f9d5fe3c1ae510db82ce05c55cbcad92b43b44))
+
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.1.0...go/v1.2.0) (2026-07-03)
 
 

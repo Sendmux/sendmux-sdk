@@ -37,7 +37,7 @@ PATH
 PATH
   remote: packages/ruby/sending
   specs:
-    sendmux-sending (1.1.0)
+    sendmux-sending (1.2.0)
       faraday (~> 2.0)
       faraday-multipart (~> 1.0)
       faraday-retry (>= 2.4, < 3.0)

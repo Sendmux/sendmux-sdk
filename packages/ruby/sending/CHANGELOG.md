@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.1.0...ruby-sending/v1.2.0) (2026-07-08)
+
+
+### Features
+
+* **sdk:** add sending attachment upload surfaces ([#96](https://github.com/Sendmux/sendmux-sdk/issues/96)) ([b8f9d5f](https://github.com/Sendmux/sendmux-sdk/commit/b8f9d5fe3c1ae510db82ce05c55cbcad92b43b44))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.0.0...ruby-sending/v1.1.0) (2026-07-01)
 
 

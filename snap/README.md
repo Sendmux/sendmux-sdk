@@ -30,6 +30,14 @@ public `sendmux` snap.
   prospective snaps are publicly uploaded to Launchpad; use a private Launchpad
   project if the source should not be public during the build.
   - https://documentation.ubuntu.com/snapcraft/stable/explanation/remote-build/
+- GitHub Actions can build Snapcraft projects with `snapcore/action-build` and
+  publish them with `snapcore/action-publish` using exported Snapcraft store
+  credentials in `SNAPCRAFT_STORE_CREDENTIALS`.
+  - https://github.com/canonical/action-build
+  - https://github.com/canonical/action-publish
+- GitHub-hosted Linux runners include native `ubuntu-24.04` amd64 and
+  `ubuntu-24.04-arm` arm64 runners.
+  - https://docs.github.com/en/actions/reference/runners/github-hosted-runners
 - Snap Store listing guidance supports up to 5 screenshots or animated GIFs and
   recommends Linux screenshots for cross-platform apps.
   - https://forum.snapcraft.io/t/store-listing-and-branding/16397
@@ -139,7 +147,44 @@ The `home` plug is included for user-selected files passed to `--body-file`,
 including binary attachment uploads. It does not grant removable-media access;
 add `removable-media` later only if there is a verified user need.
 
-## Publishing Checklist
+## GitHub Actions Edge Publishing
+
+The source of truth for Sendmux Snap CI is the repository workflow at
+`.github/workflows/snap.yml`. It builds both supported architectures:
+
+- Pull requests touching `.github/workflows/snap.yml` or `snap/**`: build only.
+- Pushes to `main` touching `.github/workflows/snap.yml` or `snap/**`: build and
+  publish successful snaps to `edge`.
+- Manual `workflow_dispatch`: build only by default; set `publish_edge=true` on
+  the `main` branch to publish to `edge`.
+
+Do not also enable Snapcraft dashboard Builds for this same repository and
+branch. Snapcraft dashboard Builds are a separate Launchpad-backed integration
+that also auto-releases successful builds to `edge`; running both mechanisms for
+the same branch can create duplicate edge revisions. If this repository ever
+switches to dashboard Builds instead, remove `.github/workflows/snap.yml` in the
+same change and document the dashboard configuration.
+
+The workflow expects a repository secret named `SNAPCRAFT_STORE_CREDENTIALS`.
+Generate it with a scoped Snapcraft login file, then store the entire file
+contents as that GitHub Actions secret:
+
+```sh
+secret_file="$(mktemp)"
+expires_at="$(date -u -v+1y +"%Y-%m-%dT%H:%M:%SZ")"
+snapcraft export-login --snaps=sendmux --channels=edge --acls=package_access,package_push,package_update,package_release --expires="$expires_at" "$secret_file"
+test -s "$secret_file"
+gh secret set SNAPCRAFT_STORE_CREDENTIALS --repo Sendmux/sendmux-sdk < "$secret_file"
+rm -f "$secret_file"
+```
+
+The `test -s` line is intentional: GitHub accepts empty secret input, so the
+credential file must be proven non-empty before `gh secret set` runs. After
+setting the secret, verify `gh secret list --repo Sendmux/sendmux-sdk` shows a
+fresh `SNAPCRAFT_STORE_CREDENTIALS` update time. Keep `stable` promotion manual
+after the `edge` revision is verified.
+
+## Manual Publishing Checklist
 
 1. Confirm account ownership:
    - Create or use the Sendmux Snapcraft publisher account.
@@ -147,7 +192,8 @@ add `removable-media` later only if there is a verified user need.
 2. Register the public snap name:
    - `snapcraft login`
    - `snapcraft register sendmux`
-3. Build the snap from a clean checkout:
+3. Build the snap from a clean checkout when the GitHub Actions workflow is not
+   available or a local/manual fallback is explicitly needed:
    - `snapcraft pack`
    - Or, after confirming Launchpad public/private upload policy:
      `snapcraft remote-build --build-for amd64,arm64`
@@ -177,8 +223,10 @@ For each future CLI release:
    - npm tarball URL in `parts.sendmux.source`
    - `parts.sendmux.source-checksum`
    - `parts.sendmux.npm-node-version` only when the CLI runtime target changes
-3. Rebuild with `snapcraft pack`.
-4. Repeat the edge smoke test before promoting to stable.
+3. Open and merge a PR with the `snap/snapcraft.yaml` update.
+4. Wait for the Snap workflow on `main` to publish both architectures to `edge`.
+5. Verify the edge channel map with `snapcraft status sendmux`.
+6. Repeat the edge smoke test before promoting to stable.
 
 Checksum helper:
 
@@ -189,8 +237,7 @@ shasum -a 512 /tmp/sendmux-cli-<version>.tgz
 
 Then format the value as `sha512/<hex>` for `source-checksum`.
 
-## CI Option
+## CI Boundaries
 
-CI can be added later once Snapcraft credentials and a Linux build provider are
-explicitly scoped. A safe first CI job would build the snap and upload only to
-`edge`; stable promotion should remain manual until edge installs are verified.
+The Snap workflow publishes only to `edge`. Do not add automatic `stable`
+promotion; promote stable manually after edge readback and smoke testing.

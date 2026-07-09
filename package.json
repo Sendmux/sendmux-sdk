@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.22.0",
   "scripts": {
-    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:ts-helpers && pnpm test:python-release-guardrails && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage && pnpm check:live-e2e && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
+    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:ts-helpers && pnpm test:python-release-guardrails && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:snap-workflow && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage && pnpm check:live-e2e && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
     "build:go": "pnpm generate:go && node scripts/check-go.mjs && cd go && go test ./... && go vet ./... && go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.3.0 run",
     "build:live-e2e-surfaces": "pnpm drift:check && pnpm -r --if-present build && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
     "build:mcp": "pnpm generate:mcp && node scripts/check-mcp.mjs",
@@ -36,6 +36,7 @@
     "live:e2e:plan": "node scripts/run-live-e2e.mjs --plan",
     "test:chocolatey-asset-tools": "node scripts/test-chocolatey-asset-tools.mjs",
     "test:chocolatey-workflow-order": "node scripts/test-chocolatey-workflow-order.mjs",
+    "test:snap-workflow": "node scripts/test-snap-workflow.mjs",
     "test:cli-tarball-tools": "node scripts/test-cli-tarball-tools.mjs",
     "test:ts-helpers": "node scripts/test-ts-helpers.mjs",
     "test:python-release-guardrails": "node scripts/test-python-release-guardrails.mjs",

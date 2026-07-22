@@ -26,6 +26,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | npm | `@sendmux/management` | Management API | `smx_root_*` | `npm install @sendmux/management` | [`packages/ts/management`](packages/ts/management) |
 | npm | `@sendmux/sdk` | TypeScript umbrella package | surface-specific | `npm install @sendmux/sdk` | [`packages/ts/sdk`](packages/ts/sdk) |
 | npm | `@sendmux/cli` | `sendmux` CLI | command/profile-specific | `npm install -g @sendmux/cli` | [`packages/ts/cli`](packages/ts/cli) |
+| npm | `@sendmux/ai-sdk` | Vercel AI SDK tools (agent inbox + sending) | send + receive `smx_mbx_*` or `smx_agent_*` | `npm install @sendmux/ai-sdk` | [`packages/ts/ai-sdk`](packages/ts/ai-sdk) |
 | Homebrew | `sendmux` | `sendmux` CLI | command/profile-specific | `brew install sendmux/tap/sendmux` | [`Sendmux/homebrew-tap`](https://github.com/Sendmux/homebrew-tap) |
 | PyPI | `sendmux-core` | Shared Python helpers | n/a | `pip install sendmux-core` | [`packages/python/core`](packages/python/core) |
 | PyPI | `sendmux-sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `pip install sendmux-sending` | [`packages/python/sending`](packages/python/sending) |
@@ -33,6 +34,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | PyPI | `sendmux-management` | Management API | `smx_root_*` | `pip install sendmux-management` | [`packages/python/management`](packages/python/management) |
 | PyPI | `sendmux-sdk` | Python umbrella package | surface-specific | `pip install sendmux-sdk` | [`packages/python/sdk`](packages/python/sdk) |
 | PyPI | `sendmux-mcp` | Local, self-hosted, and hosted MCP servers | OAuth for hosted; surface-specific keys for local | `pip install sendmux-mcp` | [`packages/python/mcp`](packages/python/mcp) |
+| PyPI | `langchain-sendmux` | LangChain toolkit (agent inbox + sending) | send + receive `smx_mbx_*` or `smx_agent_*` | `pip install langchain-sendmux` | [`packages/python/langchain`](packages/python/langchain) |
 | Go | `sendmux.ai/go/core` | Shared Go helpers | n/a | `go get sendmux.ai/go@v1.0.0` | [`go/core`](go/core) |
 | Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/sending`](go/sending) |
 | Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/mailbox`](go/mailbox) |
@@ -81,6 +83,15 @@ sendmux-mcp-mailbox --help
 ```
 
 The hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP commands support stdio and HTTP transports; hosted MCP uses OAuth and does not require manual API keys or custom OAuth endpoints.
+
+For AI-agent frameworks, first-party tool wrappers are available:
+
+```sh
+npm install @sendmux/ai-sdk ai zod   # Vercel AI SDK: sendmux({ apiKey }) returns a ToolSet
+pip install langchain-sendmux        # LangChain: SendmuxToolkit(api_key=...).get_tools()
+```
+
+Both wrap the generated Sending and Mailbox clients, so the OpenAPI spec stays the single source of truth.
 
 ## Attachments And Live Mailbox Events
 

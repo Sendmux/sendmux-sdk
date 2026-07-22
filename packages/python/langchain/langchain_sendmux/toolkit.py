@@ -19,7 +19,12 @@ from sendmux_sending import (
 
 
 def _html_from_text(text: str) -> str:
-    escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    escaped = (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\n", "<br>")
+    )
     return f"<p>{escaped}</p>"
 
 
@@ -64,6 +69,7 @@ class SendmuxToolkit(BaseToolkit):
             text: str,
             html: Optional[str] = None,
             var_from: Optional[str] = None,
+            idempotency_key: Optional[str] = None,
         ) -> Any:
             """Send an email through Sendmux to any recipient.
 
@@ -73,6 +79,8 @@ class SendmuxToolkit(BaseToolkit):
                 text: Plain-text body of the email.
                 html: Optional HTML body.
                 var_from: Sender email address; defaults to the configured sender.
+                idempotency_key: Optional key that makes a retried send idempotent
+                    for 24 hours.
             """
             sender = var_from if var_from is not None else default_from
             if sender is None:
@@ -87,7 +95,8 @@ class SendmuxToolkit(BaseToolkit):
                     subject=subject,
                     text_body=text,
                     html_body=html if html is not None else _html_from_text(text),
-                )
+                ),
+                idempotency_key=idempotency_key,
             )
             return response.data
 
@@ -107,6 +116,7 @@ class SendmuxToolkit(BaseToolkit):
             subject: str,
             text: str,
             html: Optional[str] = None,
+            idempotency_key: Optional[str] = None,
         ) -> Any:
             """Send a message from the agent's own mailbox, e.g. to reply to a sender.
 
@@ -115,14 +125,17 @@ class SendmuxToolkit(BaseToolkit):
                 subject: Subject line.
                 text: Plain-text body.
                 html: Optional HTML body.
+                idempotency_key: Optional key that makes a retried send idempotent
+                    for 24 hours.
             """
             response = mailbox.mailbox_send_message(
+                idempotency_key=idempotency_key,
                 send_mailbox_message_body=SendMailboxMessageBody(
                     to=[MailboxAddress(email=to, name=None)],
                     subject=subject,
                     text_body=text,
                     html_body=html if html is not None else _html_from_text(text),
-                )
+                ),
             )
             return response.data
 

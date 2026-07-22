@@ -25,7 +25,11 @@ export interface SendmuxToolsConfig {
 }
 
 const htmlFromText = (text: string): string =>
-  `<p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+  `<p>${text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\r?\n/g, "<br>")}</p>`;
 
 /**
  * Build a Vercel AI SDK {@link ToolSet} backed by Sendmux, giving an agent
@@ -63,8 +67,14 @@ export function sendmux(config: SendmuxToolsConfig): ToolSet {
           .describe(
             "Sender email address; defaults to the configured sender if omitted",
           ),
+        idempotencyKey: z
+          .string()
+          .optional()
+          .describe(
+            "Optional key that makes a retried send idempotent for 24 hours",
+          ),
       }),
-      execute: async ({ to, subject, text, html, from }) => {
+      execute: async ({ to, subject, text, html, from, idempotencyKey }) => {
         const sender = from ?? config.defaultFrom;
         if (sender === undefined) {
           throw new Error(
@@ -80,6 +90,9 @@ export function sendmux(config: SendmuxToolsConfig): ToolSet {
             text_body: text,
             html_body: html ?? htmlFromText(text),
           },
+          ...(idempotencyKey === undefined
+            ? {}
+            : { headers: { "Idempotency-Key": idempotencyKey } }),
         });
         return res.data;
       },
@@ -114,8 +127,14 @@ export function sendmux(config: SendmuxToolsConfig): ToolSet {
         subject: z.string().describe("Subject line"),
         text: z.string().describe("Plain-text body"),
         html: z.string().optional().describe("Optional HTML body"),
+        idempotencyKey: z
+          .string()
+          .optional()
+          .describe(
+            "Optional key that makes a retried send idempotent for 24 hours",
+          ),
       }),
-      execute: async ({ to, subject, text, html }) => {
+      execute: async ({ to, subject, text, html, idempotencyKey }) => {
         const res = await mailboxSendMessage({
           client: mailboxClient,
           body: {
@@ -124,6 +143,9 @@ export function sendmux(config: SendmuxToolsConfig): ToolSet {
             text_body: text,
             html_body: html ?? htmlFromText(text),
           },
+          ...(idempotencyKey === undefined
+            ? {}
+            : { headers: { "Idempotency-Key": idempotencyKey } }),
         });
         return res.data;
       },

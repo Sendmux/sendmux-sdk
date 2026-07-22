@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "langchain-sendmux"
+version = "0.1.0"
+description = "LangChain toolkit for the Sendmux email API for AI agents."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "langchain-core>=1.0.0,<2",
+  "sendmux-sending>=1.3.0,<2.0.0",
+  "sendmux-mailbox>=1.2.0,<2.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/Sendmux/sendmux-sdk"
+
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+include = [
+  "LICENSE",
+  "README.md",
+  "langchain_sendmux",
+]
+
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+packages = ["langchain_sendmux"]
+artifacts = ["langchain_sendmux/py.typed"]

@@ -1528,6 +1528,10 @@ export type ManagementCreateDomainErrors = {
      */
     409: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * SES tenant not yet provisioned for this team
      */
     503: ApiError;
@@ -1651,6 +1655,10 @@ export type ManagementUpdateDomainErrors = {
      */
     409: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * Unsupported update. Only `{ mode: "send_receive" }` is accepted.
      */
     422: ApiError;
@@ -1742,6 +1750,10 @@ export type ManagementSetDomainFiltersErrors = {
      * `If-Match` ETag does not match the server's current version, or the domain is send-only.
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
     /**
      * Rule cap exceeded or invalid rule pattern
      */
@@ -2163,6 +2175,10 @@ export type ManagementCreateMailboxErrors = {
      */
     409: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * Domain not yet verified or semantic validation failure
      */
     422: ApiError;
@@ -2281,6 +2297,10 @@ export type ManagementUpdateMailboxErrors = {
      */
     409: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * Validation error — unsupported quota tier, quota below current usage, or cross-tenant send_scope reference
      */
     422: ApiError;
@@ -2369,6 +2389,10 @@ export type ManagementSetMailboxFiltersErrors = {
      */
     409: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * Rule cap exceeded or invalid rule pattern
      */
     422: ApiError;
@@ -2425,6 +2449,10 @@ export type ManagementCreateMailboxKeyErrors = {
      * Credential limit reached (`limit_exceeded`) or idempotency key conflict (`idempotency_conflict`).
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
     /**
      * Mailbox is not active
      */
@@ -2672,6 +2700,10 @@ export type ManagementCreateProviderErrors = {
      * Limit reached or idempotency conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
 };
 
 export type ManagementCreateProviderError = ManagementCreateProviderErrors[keyof ManagementCreateProviderErrors];
@@ -2786,6 +2818,10 @@ export type ManagementUpdateProviderErrors = {
      * ETag conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
     /**
      * Shared-account lock or unsupported field
      */
@@ -3181,6 +3217,10 @@ export type ManagementCreateWebhookErrors = {
      */
     409: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * Validation failed (e.g. non-https URL, unknown event type)
      */
     422: ApiError;
@@ -3294,6 +3334,10 @@ export type ManagementUpdateWebhookErrors = {
      * `If-Match` ETag does not match the server's current version.
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
     /**
      * Validation failed (e.g. non-https URL, unknown event type, empty event list)
      */

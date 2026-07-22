@@ -40,6 +40,8 @@ run(python, [
   "packages/python/sdk",
   "-e",
   "packages/python/mcp",
+  "-e",
+  "packages/python/langchain",
 ]);
 run(python, ["-m", "compileall", "-q", "packages/python"]);
 run(python, ["-m", "mypy", "packages/python"]);

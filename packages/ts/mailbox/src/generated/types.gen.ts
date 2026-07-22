@@ -1105,7 +1105,7 @@ export type MailboxCreateAttachmentUploadErrors = {
      */
     400: ApiError;
     /**
-     * Attachment too large
+     * Request body or attachment too large
      */
     413: ApiError;
     /**
@@ -1339,6 +1339,10 @@ export type MailboxCreateFolderErrors = {
      */
     400: ApiError;
     /**
+     * Request body too large
+     */
+    413: ApiError;
+    /**
      * Folder validation failed
      */
     422: ApiError;
@@ -1455,6 +1459,10 @@ export type MailboxUpdateFolderErrors = {
      * ETag conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
 };
 
 export type MailboxUpdateFolderError = MailboxUpdateFolderErrors[keyof MailboxUpdateFolderErrors];
@@ -1641,6 +1649,10 @@ export type MailboxUpdateIdentityErrors = {
      * Mailbox API key required
      */
     403: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
     /**
      * Identity could not be updated
      */
@@ -1899,6 +1911,10 @@ export type MailboxBatchDeleteMessagesErrors = {
      * State conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
 };
 
 export type MailboxBatchDeleteMessagesError = MailboxBatchDeleteMessagesErrors[keyof MailboxBatchDeleteMessagesErrors];
@@ -1933,6 +1949,10 @@ export type MailboxBatchGetMessagesErrors = {
      * Message not found
      */
     404: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
 };
 
 export type MailboxBatchGetMessagesError = MailboxBatchGetMessagesErrors[keyof MailboxBatchGetMessagesErrors];
@@ -1967,6 +1987,10 @@ export type MailboxBatchUpdateMessagesErrors = {
      * State conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
 };
 
 export type MailboxBatchUpdateMessagesError = MailboxBatchUpdateMessagesErrors[keyof MailboxBatchUpdateMessagesErrors];
@@ -2091,6 +2115,10 @@ export type MailboxUpdateMessageErrors = {
      * ETag conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
 };
 
 export type MailboxUpdateMessageError = MailboxUpdateMessageErrors[keyof MailboxUpdateMessageErrors];
@@ -2634,6 +2662,10 @@ export type MailboxSendMessageErrors = {
      * Idempotency conflict
      */
     409: ApiError;
+    /**
+     * Request body too large
+     */
+    413: ApiError;
     /**
      * Message validation failed
      */

@@ -50,6 +50,12 @@ func (r *ManagementCreateDomainConflict) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementCreateDomainRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementCreateDomainRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps ManagementCreateDomainServiceUnavailable into the shared typed API error.
 func (r *ManagementCreateDomainServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 503)
@@ -86,6 +92,12 @@ func (r *ManagementCreateMailboxKeyNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementCreateMailboxKeyRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementCreateMailboxKeyRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps ManagementCreateMailboxKeyServiceUnavailable into the shared typed API error.
 func (r *ManagementCreateMailboxKeyServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 503)
@@ -95,6 +107,12 @@ func (r *ManagementCreateMailboxKeyServiceUnavailable) APIError() *core.APIError
 // APIError maps ManagementCreateMailboxKeyUnprocessableEntity into the shared typed API error.
 func (r *ManagementCreateMailboxKeyUnprocessableEntity) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 422)
+	return err
+}
+
+// APIError maps ManagementCreateMailboxRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementCreateMailboxRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -119,6 +137,12 @@ func (r *ManagementCreateProviderBadRequest) APIError() *core.APIError {
 // APIError maps ManagementCreateProviderConflict into the shared typed API error.
 func (r *ManagementCreateProviderConflict) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps ManagementCreateProviderRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementCreateProviderRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -155,6 +179,12 @@ func (r *ManagementCreateWebhookConflict) APIError() *core.APIError {
 // APIError maps ManagementCreateWebhookForbidden into the shared typed API error.
 func (r *ManagementCreateWebhookForbidden) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps ManagementCreateWebhookRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementCreateWebhookRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -512,6 +542,12 @@ func (r *ManagementSetDomainFiltersNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementSetDomainFiltersRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementSetDomainFiltersRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps ManagementSetDomainFiltersServiceUnavailable into the shared typed API error.
 func (r *ManagementSetDomainFiltersServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 503)
@@ -539,6 +575,12 @@ func (r *ManagementSetMailboxFiltersConflict) APIError() *core.APIError {
 // APIError maps ManagementSetMailboxFiltersNotFound into the shared typed API error.
 func (r *ManagementSetMailboxFiltersNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps ManagementSetMailboxFiltersRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementSetMailboxFiltersRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -632,6 +674,12 @@ func (r *ManagementUpdateDomainNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementUpdateDomainRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementUpdateDomainRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps ManagementUpdateDomainUnprocessableEntity into the shared typed API error.
 func (r *ManagementUpdateDomainUnprocessableEntity) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 422)
@@ -653,6 +701,12 @@ func (r *ManagementUpdateMailboxConflict) APIError() *core.APIError {
 // APIError maps ManagementUpdateMailboxNotFound into the shared typed API error.
 func (r *ManagementUpdateMailboxNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps ManagementUpdateMailboxRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementUpdateMailboxRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -680,6 +734,12 @@ func (r *ManagementUpdateProviderNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementUpdateProviderRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementUpdateProviderRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps ManagementUpdateProviderUnprocessableEntity into the shared typed API error.
 func (r *ManagementUpdateProviderUnprocessableEntity) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 422)
@@ -701,6 +761,12 @@ func (r *ManagementUpdateWebhookConflict) APIError() *core.APIError {
 // APIError maps ManagementUpdateWebhookNotFound into the shared typed API error.
 func (r *ManagementUpdateWebhookNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps ManagementUpdateWebhookRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementUpdateWebhookRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 

@@ -3373,6 +3373,44 @@ func (s *MailboxBatchDeleteMessagesConflict) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes MailboxBatchDeleteMessagesRequestEntityTooLarge as json.
+func (s *MailboxBatchDeleteMessagesRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxBatchDeleteMessagesRequestEntityTooLarge from json.
+func (s *MailboxBatchDeleteMessagesRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxBatchDeleteMessagesRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxBatchDeleteMessagesRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxBatchDeleteMessagesRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxBatchDeleteMessagesRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *MailboxBatchDeleteMessagesResult) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -4511,6 +4549,44 @@ func (s *MailboxBatchGetMessagesNotFound) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes MailboxBatchGetMessagesRequestEntityTooLarge as json.
+func (s *MailboxBatchGetMessagesRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxBatchGetMessagesRequestEntityTooLarge from json.
+func (s *MailboxBatchGetMessagesRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxBatchGetMessagesRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxBatchGetMessagesRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxBatchGetMessagesRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxBatchGetMessagesRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *MailboxBatchGetResult) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -5395,6 +5471,44 @@ func (s *MailboxBatchUpdateMessagesConflict) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxBatchUpdateMessagesConflict) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxBatchUpdateMessagesRequestEntityTooLarge as json.
+func (s *MailboxBatchUpdateMessagesRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxBatchUpdateMessagesRequestEntityTooLarge from json.
+func (s *MailboxBatchUpdateMessagesRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxBatchUpdateMessagesRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxBatchUpdateMessagesRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxBatchUpdateMessagesRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxBatchUpdateMessagesRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -7127,6 +7241,44 @@ func (s *MailboxCreateFolderBadRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxCreateFolderBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxCreateFolderRequestEntityTooLarge as json.
+func (s *MailboxCreateFolderRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxCreateFolderRequestEntityTooLarge from json.
+func (s *MailboxCreateFolderRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxCreateFolderRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxCreateFolderRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxCreateFolderRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxCreateFolderRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -20228,6 +20380,44 @@ func (s *MailboxSendMessageConflict) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes MailboxSendMessageRequestEntityTooLarge as json.
+func (s *MailboxSendMessageRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxSendMessageRequestEntityTooLarge from json.
+func (s *MailboxSendMessageRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxSendMessageRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxSendMessageRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxSendMessageRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxSendMessageRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes MailboxSendMessageServiceUnavailable as json.
 func (s *MailboxSendMessageServiceUnavailable) Encode(e *jx.Encoder) {
 	unwrapped := (*ApiError)(s)
@@ -28994,6 +29184,44 @@ func (s *MailboxUpdateFolderNotFound) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes MailboxUpdateFolderRequestEntityTooLarge as json.
+func (s *MailboxUpdateFolderRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxUpdateFolderRequestEntityTooLarge from json.
+func (s *MailboxUpdateFolderRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxUpdateFolderRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxUpdateFolderRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxUpdateFolderRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxUpdateFolderRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes MailboxUpdateIdentityBadRequest as json.
 func (s *MailboxUpdateIdentityBadRequest) Encode(e *jx.Encoder) {
 	unwrapped := (*ApiError)(s)
@@ -29066,6 +29294,44 @@ func (s *MailboxUpdateIdentityForbidden) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxUpdateIdentityForbidden) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxUpdateIdentityRequestEntityTooLarge as json.
+func (s *MailboxUpdateIdentityRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxUpdateIdentityRequestEntityTooLarge from json.
+func (s *MailboxUpdateIdentityRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxUpdateIdentityRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxUpdateIdentityRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxUpdateIdentityRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxUpdateIdentityRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -29294,6 +29560,44 @@ func (s *MailboxUpdateMessageNotFound) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxUpdateMessageNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxUpdateMessageRequestEntityTooLarge as json.
+func (s *MailboxUpdateMessageRequestEntityTooLarge) Encode(e *jx.Encoder) {
+	unwrapped := (*ApiError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes MailboxUpdateMessageRequestEntityTooLarge from json.
+func (s *MailboxUpdateMessageRequestEntityTooLarge) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxUpdateMessageRequestEntityTooLarge to nil")
+	}
+	var unwrapped ApiError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = MailboxUpdateMessageRequestEntityTooLarge(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxUpdateMessageRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxUpdateMessageRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

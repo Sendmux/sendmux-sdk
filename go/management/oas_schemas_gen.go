@@ -4684,6 +4684,10 @@ func (s *ManagementCreateDomainReqMode) UnmarshalText(data []byte) error {
 	}
 }
 
+type ManagementCreateDomainRequestEntityTooLarge ApiError
+
+func (*ManagementCreateDomainRequestEntityTooLarge) managementCreateDomainRes() {}
+
 type ManagementCreateDomainServiceUnavailable ApiError
 
 func (*ManagementCreateDomainServiceUnavailable) managementCreateDomainRes() {}
@@ -4722,6 +4726,10 @@ func (s *ManagementCreateMailboxKeyReq) GetAppName() string {
 func (s *ManagementCreateMailboxKeyReq) SetAppName(val string) {
 	s.AppName = val
 }
+
+type ManagementCreateMailboxKeyRequestEntityTooLarge ApiError
+
+func (*ManagementCreateMailboxKeyRequestEntityTooLarge) managementCreateMailboxKeyRes() {}
 
 type ManagementCreateMailboxKeyServiceUnavailable ApiError
 
@@ -4873,6 +4881,10 @@ func (s *ManagementCreateMailboxReqSendScopeType) UnmarshalText(data []byte) err
 	}
 }
 
+type ManagementCreateMailboxRequestEntityTooLarge ApiError
+
+func (*ManagementCreateMailboxRequestEntityTooLarge) managementCreateMailboxRes() {}
+
 type ManagementCreateMailboxServiceUnavailable ApiError
 
 func (*ManagementCreateMailboxServiceUnavailable) managementCreateMailboxRes() {}
@@ -4888,6 +4900,10 @@ func (*ManagementCreateProviderBadRequest) managementCreateProviderRes() {}
 type ManagementCreateProviderConflict ApiError
 
 func (*ManagementCreateProviderConflict) managementCreateProviderRes() {}
+
+type ManagementCreateProviderRequestEntityTooLarge ApiError
+
+func (*ManagementCreateProviderRequestEntityTooLarge) managementCreateProviderRes() {}
 
 type ManagementCreateSharedAmazonSesLimitRequestConflict ApiError
 
@@ -4915,6 +4931,10 @@ func (*ManagementCreateWebhookConflict) managementCreateWebhookRes() {}
 type ManagementCreateWebhookForbidden ApiError
 
 func (*ManagementCreateWebhookForbidden) managementCreateWebhookRes() {}
+
+type ManagementCreateWebhookRequestEntityTooLarge ApiError
+
+func (*ManagementCreateWebhookRequestEntityTooLarge) managementCreateWebhookRes() {}
 
 type ManagementCreateWebhookUnauthorized ApiError
 
@@ -5888,6 +5908,10 @@ type ManagementSetDomainFiltersNotFound ApiError
 
 func (*ManagementSetDomainFiltersNotFound) managementSetDomainFiltersRes() {}
 
+type ManagementSetDomainFiltersRequestEntityTooLarge ApiError
+
+func (*ManagementSetDomainFiltersRequestEntityTooLarge) managementSetDomainFiltersRes() {}
+
 type ManagementSetDomainFiltersServiceUnavailable ApiError
 
 func (*ManagementSetDomainFiltersServiceUnavailable) managementSetDomainFiltersRes() {}
@@ -5907,6 +5931,10 @@ func (*ManagementSetMailboxFiltersConflict) managementSetMailboxFiltersRes() {}
 type ManagementSetMailboxFiltersNotFound ApiError
 
 func (*ManagementSetMailboxFiltersNotFound) managementSetMailboxFiltersRes() {}
+
+type ManagementSetMailboxFiltersRequestEntityTooLarge ApiError
+
+func (*ManagementSetMailboxFiltersRequestEntityTooLarge) managementSetMailboxFiltersRes() {}
 
 type ManagementSetMailboxFiltersServiceUnavailable ApiError
 
@@ -6108,6 +6136,10 @@ func (s *ManagementUpdateDomainReqMode) UnmarshalText(data []byte) error {
 	}
 }
 
+type ManagementUpdateDomainRequestEntityTooLarge ApiError
+
+func (*ManagementUpdateDomainRequestEntityTooLarge) managementUpdateDomainRes() {}
+
 type ManagementUpdateDomainUnprocessableEntity ApiError
 
 func (*ManagementUpdateDomainUnprocessableEntity) managementUpdateDomainRes() {}
@@ -6123,6 +6155,10 @@ func (*ManagementUpdateMailboxConflict) managementUpdateMailboxRes() {}
 type ManagementUpdateMailboxNotFound ApiError
 
 func (*ManagementUpdateMailboxNotFound) managementUpdateMailboxRes() {}
+
+type ManagementUpdateMailboxRequestEntityTooLarge ApiError
+
+func (*ManagementUpdateMailboxRequestEntityTooLarge) managementUpdateMailboxRes() {}
 
 type ManagementUpdateMailboxUnprocessableEntity ApiError
 
@@ -6140,6 +6176,10 @@ type ManagementUpdateProviderNotFound ApiError
 
 func (*ManagementUpdateProviderNotFound) managementUpdateProviderRes() {}
 
+type ManagementUpdateProviderRequestEntityTooLarge ApiError
+
+func (*ManagementUpdateProviderRequestEntityTooLarge) managementUpdateProviderRes() {}
+
 type ManagementUpdateProviderUnprocessableEntity ApiError
 
 func (*ManagementUpdateProviderUnprocessableEntity) managementUpdateProviderRes() {}
@@ -6155,6 +6195,10 @@ func (*ManagementUpdateWebhookConflict) managementUpdateWebhookRes() {}
 type ManagementUpdateWebhookNotFound ApiError
 
 func (*ManagementUpdateWebhookNotFound) managementUpdateWebhookRes() {}
+
+type ManagementUpdateWebhookRequestEntityTooLarge ApiError
+
+func (*ManagementUpdateWebhookRequestEntityTooLarge) managementUpdateWebhookRes() {}
 
 type ManagementUpdateWebhookUnprocessableEntity ApiError
 

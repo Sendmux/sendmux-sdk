@@ -24,3 +24,17 @@ module = [
   "starlette.*",
 ]
 ignore_missing_imports = true
+
+# langchain-sendmux installs langchain-core (and its transitive langsmith) into
+# the check-python venv so the toolkit tests can import it. Do not follow mypy
+# into those third-party trees: mypy crashes on langsmith's generated openapi
+# client, and the toolkit is fully checked against the generated sendmux models
+# regardless. Treat them as Any.
+[[tool.mypy.overrides]]
+module = [
+  "langchain_core.*",
+  "langchain.*",
+  "langsmith.*",
+]
+follow_imports = "skip"
+ignore_missing_imports = true

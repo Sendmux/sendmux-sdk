@@ -1,6 +1,6 @@
 {
   "name": "@sendmux/ai-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "description": "Vercel AI SDK tools for the Sendmux email API for AI agents - send email and read the agent inbox.",
   "type": "module",

@@ -6,6 +6,13 @@
 
 * expose short-lived attachment download URLs, upload intents, typed event streaming, and file attachment helpers
 
+## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.3.0...ts-mailbox-v1.4.0) (2026-07-22)
+
+
+### Features
+
+* add @sendmux/ai-sdk and langchain-sendmux framework wrapper packages ([1884e8d](https://github.com/Sendmux/sendmux-sdk/commit/1884e8dba80778fe71b90a49d4e4e4b9a77f5da1))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.2.0...ts-mailbox-v1.3.0) (2026-07-08)
 
 

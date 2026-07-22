@@ -8,14 +8,8 @@ from langchain_core.tools import BaseTool, BaseToolkit, tool
 from pydantic import Field
 
 from sendmux_mailbox import MailboxAPIApi, create_mailbox_client
-from sendmux_mailbox.models.mailbox_address import MailboxAddress
 from sendmux_mailbox.models.send_mailbox_message_body import SendMailboxMessageBody
-from sendmux_sending import (
-    Address,
-    EmailSendRequest,
-    EmailsApi,
-    create_sending_client,
-)
+from sendmux_sending import EmailSendRequest, EmailsApi, create_sending_client
 
 
 def _html_from_text(text: str) -> str:
@@ -88,13 +82,19 @@ class SendmuxToolkit(BaseToolkit):
                     "No sender address: pass `var_from` in the tool call, or set "
                     "default_from on SendmuxToolkit."
                 )
+            # EmailSendRequest.var_from carries alias "from" (a Python keyword),
+            # so build from a dict via model_validate rather than keyword args.
             response = emails.sending_send_email(
-                EmailSendRequest(
-                    var_from=Address(email=sender),
-                    to=Address(email=to),
-                    subject=subject,
-                    text_body=text,
-                    html_body=html if html is not None else _html_from_text(text),
+                EmailSendRequest.model_validate(
+                    {
+                        "from": {"email": sender},
+                        "to": {"email": to},
+                        "subject": subject,
+                        "text_body": text,
+                        "html_body": (
+                            html if html is not None else _html_from_text(text)
+                        ),
+                    }
                 ),
                 idempotency_key=idempotency_key,
             )
@@ -130,11 +130,15 @@ class SendmuxToolkit(BaseToolkit):
             """
             response = mailbox.mailbox_send_message(
                 idempotency_key=idempotency_key,
-                send_mailbox_message_body=SendMailboxMessageBody(
-                    to=[MailboxAddress(email=to, name=None)],
-                    subject=subject,
-                    text_body=text,
-                    html_body=html if html is not None else _html_from_text(text),
+                send_mailbox_message_body=SendMailboxMessageBody.model_validate(
+                    {
+                        "to": [{"email": to, "name": None}],
+                        "subject": subject,
+                        "text_body": text,
+                        "html_body": (
+                            html if html is not None else _html_from_text(text)
+                        ),
+                    }
                 ),
             )
             return response.data

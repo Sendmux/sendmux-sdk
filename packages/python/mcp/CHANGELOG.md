@@ -6,6 +6,13 @@
 
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 
+## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.4.0...python-mcp-v1.5.0) (2026-07-22)
+
+
+### Features
+
+* add @sendmux/ai-sdk and langchain-sendmux framework wrapper packages ([1884e8d](https://github.com/Sendmux/sendmux-sdk/commit/1884e8dba80778fe71b90a49d4e4e4b9a77f5da1))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.3.1...python-mcp-v1.4.0) (2026-07-08)
 
 

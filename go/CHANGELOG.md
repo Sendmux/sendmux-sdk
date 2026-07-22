@@ -6,6 +6,13 @@
 
 * regenerate mailbox models for short-lived attachment download URLs and upload intents
 
+## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.3.0...go/v1.4.0) (2026-07-22)
+
+
+### Features
+
+* add @sendmux/ai-sdk and langchain-sendmux framework wrapper packages ([1884e8d](https://github.com/Sendmux/sendmux-sdk/commit/1884e8dba80778fe71b90a49d4e4e4b9a77f5da1))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.2.0...go/v1.3.0) (2026-07-08)
 
 

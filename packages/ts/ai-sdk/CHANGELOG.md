@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.2.0...ts-ai-sdk-v0.2.1) (2026-07-22)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 1.4.0
+
 ## [0.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.1.0...ts-ai-sdk-v0.2.0) (2026-07-22)
 
 

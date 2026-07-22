@@ -1,0 +1,22 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    // The Vercel AI SDK's ToolSet/Tool union types (like the hey-api generated
+    // surface packages) are not compatible with exactOptionalPropertyTypes.
+    // Scope this relaxation to this wrapper package only.
+    "exactOptionalPropertyTypes": false,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../sending"
+    },
+    {
+      "path": "../mailbox"
+    }
+  ]
+}

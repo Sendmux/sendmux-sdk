@@ -8,6 +8,7 @@ const defaultPackages = [
   "packages/ts/mailbox",
   "packages/ts/management",
   "packages/ts/sdk",
+  "packages/ts/ai-sdk",
   "packages/ts/cli",
 ];
 

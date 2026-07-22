@@ -19,6 +19,8 @@ module = [
   "sendmux_sending.*",
   "sendmux_mailbox.*",
   "sendmux_management.*",
+  "langchain_core.*",
+  "langchain.*",
   "fastmcp.*",
   "posthog.*",
   "starlette.*",

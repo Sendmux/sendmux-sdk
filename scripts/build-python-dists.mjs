@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 const root = process.cwd();
 const python = join(root, ".tmp", "python-venv", "bin", "python");
 const distDir = join(root, ".tmp", "python-dist");
-const packages = ["core", "sending", "mailbox", "management", "sdk", "mcp"];
+const packages = ["core", "sending", "mailbox", "management", "sdk", "mcp", "langchain"];
 
 rmSync(distDir, { force: true, recursive: true });
 mkdirSync(distDir, { recursive: true });

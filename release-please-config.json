@@ -45,6 +45,17 @@
       "package-name": "@sendmux/cli",
       "initial-version": "1.0.0"
     },
+    "packages/ts/ai-sdk": {
+      "component": "ts-ai-sdk",
+      "package-name": "@sendmux/ai-sdk",
+      "initial-version": "0.1.0"
+    },
+    "packages/python/langchain": {
+      "component": "python-langchain",
+      "package-name": "langchain-sendmux",
+      "release-type": "python",
+      "initial-version": "0.1.0"
+    },
     "packages/python/core": {
       "component": "python-core",
       "package-name": "sendmux-core",

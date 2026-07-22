@@ -8103,6 +8103,16 @@
             },
             "description": "Domain already in use, or `Idempotency-Key` was replayed with a different body."
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "503": {
             "content": {
               "application/json": {
@@ -8354,6 +8364,16 @@
             },
             "description": "`If-Match` mismatch, or the domain cannot be upgraded in its current state."
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -8552,6 +8572,16 @@
               }
             },
             "description": "`If-Match` ETag does not match the server's current version, or the domain is send-only."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           },
           "422": {
             "content": {
@@ -9248,7 +9278,7 @@
                 }
               }
             },
-            "description": "Attachment too large"
+            "description": "Request body or attachment too large"
           },
           "503": {
             "content": {
@@ -9732,6 +9762,16 @@
             },
             "description": "Invalid request body"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -9961,6 +10001,16 @@
               }
             },
             "description": "ETag conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           }
         },
         "security": [
@@ -10324,6 +10374,16 @@
               }
             },
             "description": "Mailbox API key required"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           },
           "422": {
             "content": {
@@ -10877,6 +10937,16 @@
               }
             },
             "description": "State conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           }
         },
         "security": [
@@ -10944,6 +11014,16 @@
               }
             },
             "description": "Message not found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           }
         },
         "security": [
@@ -11011,6 +11091,16 @@
               }
             },
             "description": "State conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           }
         },
         "security": [
@@ -11251,6 +11341,16 @@
               }
             },
             "description": "ETag conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           }
         },
         "security": [
@@ -12414,6 +12514,16 @@
               }
             },
             "description": "Idempotency conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           },
           "422": {
             "content": {
@@ -13787,6 +13897,16 @@
             },
             "description": "Email already in use (error code `conflict`), or `Idempotency-Key` was replayed with a different body (`idempotency_conflict`)."
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -14022,6 +14142,16 @@
             },
             "description": "`If-Match` ETag does not match the server's current version."
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -14211,6 +14341,16 @@
             },
             "description": "`If-Match` ETag does not match the server's current version."
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -14339,6 +14479,16 @@
               }
             },
             "description": "Credential limit reached (`limit_exceeded`) or idempotency key conflict (`idempotency_conflict`)."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           },
           "422": {
             "content": {
@@ -14826,6 +14976,16 @@
               }
             },
             "description": "Limit reached or idempotency conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           }
         },
         "security": [
@@ -15038,6 +15198,16 @@
               }
             },
             "description": "ETag conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           },
           "422": {
             "content": {
@@ -15749,6 +15919,16 @@
             },
             "description": "`Idempotency-Key` was replayed with a different body (`idempotency_conflict`)."
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -15974,6 +16154,16 @@
               }
             },
             "description": "`If-Match` ETag does not match the server's current version."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body too large"
           },
           "422": {
             "content": {

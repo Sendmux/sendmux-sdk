@@ -104,6 +104,7 @@ class DomainsApi:
             '201': "DomainItemResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '503': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -178,6 +179,7 @@ class DomainsApi:
             '201': "DomainItemResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '503': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -252,6 +254,7 @@ class DomainsApi:
             '201': "DomainItemResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '503': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -1507,6 +1510,7 @@ class DomainsApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -1586,6 +1590,7 @@ class DomainsApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -1665,6 +1670,7 @@ class DomainsApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(

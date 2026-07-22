@@ -1189,6 +1189,10 @@ type MailboxBatchDeleteMessagesConflict ApiError
 
 func (*MailboxBatchDeleteMessagesConflict) mailboxBatchDeleteMessagesRes() {}
 
+type MailboxBatchDeleteMessagesRequestEntityTooLarge ApiError
+
+func (*MailboxBatchDeleteMessagesRequestEntityTooLarge) mailboxBatchDeleteMessagesRes() {}
+
 // Ref: #/components/schemas/MailboxBatchDeleteMessagesResult
 type MailboxBatchDeleteMessagesResult struct {
 	Deleted  []string                     `json:"deleted"`
@@ -1693,6 +1697,10 @@ type MailboxBatchGetMessagesNotFound ApiError
 
 func (*MailboxBatchGetMessagesNotFound) mailboxBatchGetMessagesRes() {}
 
+type MailboxBatchGetMessagesRequestEntityTooLarge ApiError
+
+func (*MailboxBatchGetMessagesRequestEntityTooLarge) mailboxBatchGetMessagesRes() {}
+
 // Ref: #/components/schemas/MailboxBatchGetResult
 type MailboxBatchGetResult struct {
 	Messages []MailboxBatchGetItem       `json:"messages"`
@@ -1905,6 +1913,10 @@ func (*MailboxBatchUpdateMessagesBadRequest) mailboxBatchUpdateMessagesRes() {}
 type MailboxBatchUpdateMessagesConflict ApiError
 
 func (*MailboxBatchUpdateMessagesConflict) mailboxBatchUpdateMessagesRes() {}
+
+type MailboxBatchUpdateMessagesRequestEntityTooLarge ApiError
+
+func (*MailboxBatchUpdateMessagesRequestEntityTooLarge) mailboxBatchUpdateMessagesRes() {}
 
 // Ref: #/components/schemas/MailboxBatchUpdateMessagesResult
 type MailboxBatchUpdateMessagesResult struct {
@@ -2403,6 +2415,10 @@ func (*MailboxCreateAttachmentUploadServiceUnavailable) mailboxCreateAttachmentU
 type MailboxCreateFolderBadRequest ApiError
 
 func (*MailboxCreateFolderBadRequest) mailboxCreateFolderRes() {}
+
+type MailboxCreateFolderRequestEntityTooLarge ApiError
+
+func (*MailboxCreateFolderRequestEntityTooLarge) mailboxCreateFolderRes() {}
 
 type MailboxCreateFolderUnprocessableEntity ApiError
 
@@ -7547,6 +7563,10 @@ type MailboxSendMessageConflict ApiError
 
 func (*MailboxSendMessageConflict) mailboxSendMessageRes() {}
 
+type MailboxSendMessageRequestEntityTooLarge ApiError
+
+func (*MailboxSendMessageRequestEntityTooLarge) mailboxSendMessageRes() {}
+
 type MailboxSendMessageServiceUnavailable ApiError
 
 func (*MailboxSendMessageServiceUnavailable) mailboxSendMessageRes() {}
@@ -10619,6 +10639,10 @@ type MailboxUpdateFolderNotFound ApiError
 
 func (*MailboxUpdateFolderNotFound) mailboxUpdateFolderRes() {}
 
+type MailboxUpdateFolderRequestEntityTooLarge ApiError
+
+func (*MailboxUpdateFolderRequestEntityTooLarge) mailboxUpdateFolderRes() {}
+
 type MailboxUpdateIdentityBadRequest ApiError
 
 func (*MailboxUpdateIdentityBadRequest) mailboxUpdateIdentityRes() {}
@@ -10626,6 +10650,10 @@ func (*MailboxUpdateIdentityBadRequest) mailboxUpdateIdentityRes() {}
 type MailboxUpdateIdentityForbidden ApiError
 
 func (*MailboxUpdateIdentityForbidden) mailboxUpdateIdentityRes() {}
+
+type MailboxUpdateIdentityRequestEntityTooLarge ApiError
+
+func (*MailboxUpdateIdentityRequestEntityTooLarge) mailboxUpdateIdentityRes() {}
 
 type MailboxUpdateIdentityServiceUnavailable ApiError
 
@@ -10650,6 +10678,10 @@ func (*MailboxUpdateMessageConflict) mailboxUpdateMessageRes() {}
 type MailboxUpdateMessageNotFound ApiError
 
 func (*MailboxUpdateMessageNotFound) mailboxUpdateMessageRes() {}
+
+type MailboxUpdateMessageRequestEntityTooLarge ApiError
+
+func (*MailboxUpdateMessageRequestEntityTooLarge) mailboxUpdateMessageRes() {}
 
 type MailboxUploadAttachmentBadRequest ApiError
 

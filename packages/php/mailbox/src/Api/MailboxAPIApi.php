@@ -283,7 +283,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxBatchDeleteMessagesResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxBatchDeleteMessagesResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxBatchDeleteMessagesWithHttpInfo(
         ?\Sendmux\Mailbox\Model\BatchDeleteMailboxMessagesBody $batch_delete_mailbox_messages_body = null,
@@ -337,6 +337,12 @@ class MailboxAPIApi
                         $request,
                         $response,
                     );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
             }
 
 
@@ -377,6 +383,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -634,7 +648,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxBatchGetResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxBatchGetResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxBatchGetMessagesWithHttpInfo(
         ?\Sendmux\Mailbox\Model\MailboxBatchGetBody $mailbox_batch_get_body = null,
@@ -688,6 +702,12 @@ class MailboxAPIApi
                         $request,
                         $response,
                     );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
             }
 
 
@@ -728,6 +748,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -985,7 +1013,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxBatchUpdateMessagesResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxBatchUpdateMessagesResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxBatchUpdateMessagesWithHttpInfo(
         ?\Sendmux\Mailbox\Model\BatchUpdateMailboxMessagesBody $batch_update_mailbox_messages_body = null,
@@ -1039,6 +1067,12 @@ class MailboxAPIApi
                         $request,
                         $response,
                     );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
             }
 
 
@@ -1079,6 +1113,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -2478,7 +2520,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxCreateFolderWithHttpInfo(
         ?\Sendmux\Mailbox\Model\CreateMailboxFolderBody $create_mailbox_folder_body = null,
@@ -2526,6 +2568,12 @@ class MailboxAPIApi
                         $request,
                         $response,
                     );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
                 case 422:
                     return $this->handleResponseWithDataType(
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -2564,6 +2612,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -16396,7 +16452,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxSendResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxSendResultResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxSendMessageWithHttpInfo(
         ?string $idempotency_key = null,
@@ -16447,6 +16503,12 @@ class MailboxAPIApi
                         $response,
                     );
                 case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
                     return $this->handleResponseWithDataType(
                         '\Sendmux\Mailbox\Model\ApiError',
                         $request,
@@ -16504,6 +16566,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -17299,7 +17369,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxFolderResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxUpdateFolderWithHttpInfo(
         string $folder_id,
@@ -17363,6 +17433,12 @@ class MailboxAPIApi
                         $request,
                         $response,
                     );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
             }
 
 
@@ -17411,6 +17487,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -17704,7 +17788,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxIdentityResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxIdentityResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxUpdateIdentityWithHttpInfo(
         ?\Sendmux\Mailbox\Model\UpdateMailboxIdentityBody $update_mailbox_identity_body = null,
@@ -17759,6 +17843,12 @@ class MailboxAPIApi
                         $response,
                     );
                 case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
                     return $this->handleResponseWithDataType(
                         '\Sendmux\Mailbox\Model\ApiError',
                         $request,
@@ -17824,6 +17914,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',
@@ -18105,7 +18203,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxMessageDetailResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxMessageDetailResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxUpdateMessageWithHttpInfo(
         string $message_id,
@@ -18169,6 +18267,12 @@ class MailboxAPIApi
                         $request,
                         $response,
                     );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
             }
 
 
@@ -18217,6 +18321,14 @@ class MailboxAPIApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Mailbox\Model\ApiError',

@@ -14,6 +14,12 @@ func (r *MailboxBatchDeleteMessagesConflict) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxBatchDeleteMessagesRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxBatchDeleteMessagesRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps MailboxBatchGetMessagesBadRequest into the shared typed API error.
 func (r *MailboxBatchGetMessagesBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
@@ -26,6 +32,12 @@ func (r *MailboxBatchGetMessagesNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxBatchGetMessagesRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxBatchGetMessagesRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps MailboxBatchUpdateMessagesBadRequest into the shared typed API error.
 func (r *MailboxBatchUpdateMessagesBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
@@ -35,6 +47,12 @@ func (r *MailboxBatchUpdateMessagesBadRequest) APIError() *core.APIError {
 // APIError maps MailboxBatchUpdateMessagesConflict into the shared typed API error.
 func (r *MailboxBatchUpdateMessagesConflict) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxBatchUpdateMessagesRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxBatchUpdateMessagesRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -59,6 +77,12 @@ func (r *MailboxCreateAttachmentUploadServiceUnavailable) APIError() *core.APIEr
 // APIError maps MailboxCreateFolderBadRequest into the shared typed API error.
 func (r *MailboxCreateFolderBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxCreateFolderRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxCreateFolderRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -272,6 +296,12 @@ func (r *MailboxSendMessageConflict) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxSendMessageRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxSendMessageRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps MailboxSendMessageServiceUnavailable into the shared typed API error.
 func (r *MailboxSendMessageServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 503)
@@ -332,6 +362,12 @@ func (r *MailboxUpdateFolderNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxUpdateFolderRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxUpdateFolderRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
 // APIError maps MailboxUpdateIdentityBadRequest into the shared typed API error.
 func (r *MailboxUpdateIdentityBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
@@ -341,6 +377,12 @@ func (r *MailboxUpdateIdentityBadRequest) APIError() *core.APIError {
 // APIError maps MailboxUpdateIdentityForbidden into the shared typed API error.
 func (r *MailboxUpdateIdentityForbidden) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxUpdateIdentityRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxUpdateIdentityRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 
@@ -377,6 +419,12 @@ func (r *MailboxUpdateMessageConflict) APIError() *core.APIError {
 // APIError maps MailboxUpdateMessageNotFound into the shared typed API error.
 func (r *MailboxUpdateMessageNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxUpdateMessageRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxUpdateMessageRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
 	return err
 }
 

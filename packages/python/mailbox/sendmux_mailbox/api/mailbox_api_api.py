@@ -140,6 +140,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchDeleteMessagesResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -213,6 +214,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchDeleteMessagesResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -286,6 +288,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchDeleteMessagesResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -437,6 +440,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchGetResultResponse",
             '400': "ApiError",
             '404': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -510,6 +514,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchGetResultResponse",
             '400': "ApiError",
             '404': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -583,6 +588,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchGetResultResponse",
             '400': "ApiError",
             '404': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -734,6 +740,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchUpdateMessagesResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -807,6 +814,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchUpdateMessagesResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -880,6 +888,7 @@ class MailboxAPIApi:
             '200': "MailboxBatchUpdateMessagesResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1919,6 +1928,7 @@ class MailboxAPIApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "MailboxFolderResponse",
             '400': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -1992,6 +2002,7 @@ class MailboxAPIApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "MailboxFolderResponse",
             '400': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -2065,6 +2076,7 @@ class MailboxAPIApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "MailboxFolderResponse",
             '400': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -12842,6 +12854,7 @@ class MailboxAPIApi:
             '200': "MailboxSendResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -12921,6 +12934,7 @@ class MailboxAPIApi:
             '200': "MailboxSendResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -13000,6 +13014,7 @@ class MailboxAPIApi:
             '200': "MailboxSendResultResponse",
             '400': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -13527,6 +13542,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -13609,6 +13625,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -13691,6 +13708,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -13849,6 +13867,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '401': "ApiError",
             '403': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -13925,6 +13944,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '401': "ApiError",
             '403': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -14001,6 +14021,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '401': "ApiError",
             '403': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -14163,6 +14184,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -14245,6 +14267,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -14327,6 +14350,7 @@ class MailboxAPIApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,

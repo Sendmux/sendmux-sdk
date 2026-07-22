@@ -400,6 +400,14 @@ func (s *MailboxBatchDeleteMessagesConflict) Validate() error {
 	return nil
 }
 
+func (s *MailboxBatchDeleteMessagesRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *MailboxBatchDeleteMessagesResult) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -745,6 +753,14 @@ func (s *MailboxBatchGetMessagesNotFound) Validate() error {
 	return nil
 }
 
+func (s *MailboxBatchGetMessagesRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *MailboxBatchGetResult) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -848,6 +864,14 @@ func (s *MailboxBatchUpdateMessagesBadRequest) Validate() error {
 }
 
 func (s *MailboxBatchUpdateMessagesConflict) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *MailboxBatchUpdateMessagesRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -1172,6 +1196,14 @@ func (s *MailboxCreateAttachmentUploadServiceUnavailable) Validate() error {
 }
 
 func (s *MailboxCreateFolderBadRequest) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *MailboxCreateFolderRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -3658,6 +3690,14 @@ func (s *MailboxSendMessageConflict) Validate() error {
 	return nil
 }
 
+func (s *MailboxSendMessageRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *MailboxSendMessageServiceUnavailable) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -5171,6 +5211,14 @@ func (s *MailboxUpdateFolderNotFound) Validate() error {
 	return nil
 }
 
+func (s *MailboxUpdateFolderRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *MailboxUpdateIdentityBadRequest) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -5180,6 +5228,14 @@ func (s *MailboxUpdateIdentityBadRequest) Validate() error {
 }
 
 func (s *MailboxUpdateIdentityForbidden) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *MailboxUpdateIdentityRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -5228,6 +5284,14 @@ func (s *MailboxUpdateMessageConflict) Validate() error {
 }
 
 func (s *MailboxUpdateMessageNotFound) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *MailboxUpdateMessageRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err

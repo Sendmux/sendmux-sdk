@@ -389,6 +389,7 @@ class MailboxFiltersApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -469,6 +470,7 @@ class MailboxFiltersApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }
@@ -549,6 +551,7 @@ class MailboxFiltersApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
             '503': "ApiError",
         }

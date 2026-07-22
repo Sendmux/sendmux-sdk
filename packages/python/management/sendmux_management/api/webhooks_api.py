@@ -109,6 +109,7 @@ class WebhooksApi:
             '401': "ApiError",
             '403': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -185,6 +186,7 @@ class WebhooksApi:
             '401': "ApiError",
             '403': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -261,6 +263,7 @@ class WebhooksApi:
             '401': "ApiError",
             '403': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -2441,6 +2444,7 @@ class WebhooksApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -2520,6 +2524,7 @@ class WebhooksApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(
@@ -2599,6 +2604,7 @@ class WebhooksApi:
             '400': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
+            '413': "ApiError",
             '422': "ApiError",
         }
         response_data = self.api_client.call_api(

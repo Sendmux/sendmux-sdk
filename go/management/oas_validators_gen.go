@@ -2194,6 +2194,14 @@ func (s ManagementCreateDomainReqMode) Validate() error {
 	}
 }
 
+func (s *ManagementCreateDomainRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementCreateDomainServiceUnavailable) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -2269,6 +2277,14 @@ func (s *ManagementCreateMailboxKeyReq) Validate() error {
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -2493,6 +2509,14 @@ func (s ManagementCreateMailboxReqSendScopeType) Validate() error {
 	}
 }
 
+func (s *ManagementCreateMailboxRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementCreateMailboxServiceUnavailable) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -2518,6 +2542,14 @@ func (s *ManagementCreateProviderBadRequest) Validate() error {
 }
 
 func (s *ManagementCreateProviderConflict) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementCreateProviderRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -2566,6 +2598,14 @@ func (s *ManagementCreateWebhookConflict) Validate() error {
 }
 
 func (s *ManagementCreateWebhookForbidden) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementCreateWebhookRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -3202,6 +3242,14 @@ func (s *ManagementSetDomainFiltersNotFound) Validate() error {
 	return nil
 }
 
+func (s *ManagementSetDomainFiltersRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementSetDomainFiltersServiceUnavailable) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -3235,6 +3283,14 @@ func (s *ManagementSetMailboxFiltersConflict) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersNotFound) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -3426,6 +3482,14 @@ func (s ManagementUpdateDomainReqMode) Validate() error {
 	}
 }
 
+func (s *ManagementUpdateDomainRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementUpdateDomainUnprocessableEntity) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -3451,6 +3515,14 @@ func (s *ManagementUpdateMailboxConflict) Validate() error {
 }
 
 func (s *ManagementUpdateMailboxNotFound) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementUpdateMailboxRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err
@@ -3490,6 +3562,14 @@ func (s *ManagementUpdateProviderNotFound) Validate() error {
 	return nil
 }
 
+func (s *ManagementUpdateProviderRequestEntityTooLarge) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementUpdateProviderUnprocessableEntity) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
@@ -3515,6 +3595,14 @@ func (s *ManagementUpdateWebhookConflict) Validate() error {
 }
 
 func (s *ManagementUpdateWebhookNotFound) Validate() error {
+	alias := (*ApiError)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementUpdateWebhookRequestEntityTooLarge) Validate() error {
 	alias := (*ApiError)(s)
 	if err := alias.Validate(); err != nil {
 		return err

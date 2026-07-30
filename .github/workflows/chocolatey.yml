@@ -15,6 +15,7 @@ on:
       - "scripts/prepare-chocolatey-packages.mjs"
       - "scripts/serve-static.mjs"
       - "scripts/test-chocolatey-asset-tools.mjs"
+      - "scripts/test-chocolatey-package-files.mjs"
       - "scripts/test-chocolatey-workflow-order.mjs"
       - "scripts/test-cli-tarball-tools.mjs"
       - "scripts/test-windows-command-shims.mjs"
@@ -47,7 +48,7 @@ jobs:
     runs-on: windows-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+      HAS_CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY != '' }}
       SENDMUX_CHOCOLATEY_VERSION: ${{ inputs.version }}
     steps:
       - name: Check out SDK
@@ -80,6 +81,7 @@ jobs:
           node --check scripts/serve-static.mjs
           pnpm test:windows-command-shims
           pnpm test:chocolatey-asset-tools
+          pnpm test:chocolatey-package-files
           pnpm test:chocolatey-workflow-order
           pnpm test:cli-tarball-tools
 
@@ -136,11 +138,13 @@ jobs:
 
       - name: Attach CLI ZIP assets to release
         if: ${{ github.event_name == 'release' || inputs.push == true }}
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         shell: bash
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "release" ]; then
-            tag="${{ github.event.release.tag_name }}"
+            tag="$RELEASE_TAG"
           else
             version="${SENDMUX_CHOCOLATEY_VERSION:-$(node -p "require('./packages/ts/cli/package.json').version")}"
             tag="ts-cli-v${version}"
@@ -192,11 +196,13 @@ jobs:
 
       - name: Attach Chocolatey package artefacts to release
         if: ${{ github.event_name == 'release' || inputs.push == true }}
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         shell: bash
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "release" ]; then
-            tag="${{ github.event.release.tag_name }}"
+            tag="$RELEASE_TAG"
           else
             version="${SENDMUX_CHOCOLATEY_VERSION:-$(node -p "require('./packages/ts/cli/package.json').version")}"
             tag="ts-cli-v${version}"
@@ -210,7 +216,9 @@ jobs:
           gh release upload "$tag" "${assets[@]}" --clobber
 
       - name: Push to Chocolatey
-        if: ${{ (github.event_name == 'release' || inputs.push == true) && env.CHOCOLATEY_API_KEY != '' }}
+        if: ${{ (github.event_name == 'release' || inputs.push == true) && env.HAS_CHOCOLATEY_API_KEY == 'true' }}
+        env:
+          CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -231,6 +239,6 @@ jobs:
           }
 
       - name: Skip Chocolatey push notice
-        if: ${{ (github.event_name == 'release' || inputs.push == true) && env.CHOCOLATEY_API_KEY == '' }}
+        if: ${{ (github.event_name == 'release' || inputs.push == true) && env.HAS_CHOCOLATEY_API_KEY != 'true' }}
         shell: powershell
         run: Write-Host 'Skipping Chocolatey push because CHOCOLATEY_API_KEY is not configured.'

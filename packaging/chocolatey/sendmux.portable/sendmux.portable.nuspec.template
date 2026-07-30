@@ -4,7 +4,7 @@
     <id>sendmux.portable</id>
     <version>{{VERSION}}</version>
     <packageSourceUrl>{{PACKAGE_SOURCE_URL}}</packageSourceUrl>
-    <owners>Sendmux</owners>
+    <owners>roshanroyj</owners>
     <title>Sendmux CLI (Portable)</title>
     <authors>Sendmux</authors>
     <projectUrl>https://sendmux.ai</projectUrl>

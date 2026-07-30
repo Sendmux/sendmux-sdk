@@ -35,6 +35,7 @@
     "live:e2e:matrix": "node scripts/check-live-e2e-coverage.mjs --dry-run",
     "live:e2e:plan": "node scripts/run-live-e2e.mjs --plan",
     "test:chocolatey-asset-tools": "node scripts/test-chocolatey-asset-tools.mjs",
+    "test:chocolatey-package-files": "node scripts/test-chocolatey-package-files.mjs",
     "test:chocolatey-workflow-order": "node scripts/test-chocolatey-workflow-order.mjs",
     "test:snap-workflow": "node scripts/test-snap-workflow.mjs",
     "test:cli-tarball-tools": "node scripts/test-cli-tarball-tools.mjs",

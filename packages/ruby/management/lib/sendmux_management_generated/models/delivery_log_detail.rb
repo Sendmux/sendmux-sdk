@@ -14,7 +14,7 @@ require 'date'
 require 'time'
 
 module Sendmux::Management::Generated
-  class DeliveryLogItem < ApiModelBase
+  class DeliveryLogDetail < ApiModelBase
     # Recipient occurrences accepted by the provider, or null when no recipient snapshot exists
     attr_accessor :accepted_recipient_count
 
@@ -39,6 +39,9 @@ module Sendmux::Management::Generated
 
     # Total recipient occurrences, or null when no recipient snapshot exists
     attr_accessor :recipient_count
+
+    # Ordered recipient outcome snapshot for this send, or null when no snapshot exists
+    attr_accessor :recipients
 
     # Recipient occurrences rejected by the provider, or null when no recipient snapshot exists
     attr_accessor :rejected_recipient_count
@@ -93,6 +96,7 @@ module Sendmux::Management::Generated
         :'provider_id' => :'provider_id',
         :'provider_name' => :'provider_name',
         :'recipient_count' => :'recipient_count',
+        :'recipients' => :'recipients',
         :'rejected_recipient_count' => :'rejected_recipient_count',
         :'sent_at' => :'sent_at',
         :'sent_from_email' => :'sent_from_email',
@@ -126,6 +130,7 @@ module Sendmux::Management::Generated
         :'provider_id' => :'String',
         :'provider_name' => :'String',
         :'recipient_count' => :'Integer',
+        :'recipients' => :'Array<DeliveryLogRecipient>',
         :'rejected_recipient_count' => :'Integer',
         :'sent_at' => :'String',
         :'sent_from_email' => :'String',
@@ -146,6 +151,7 @@ module Sendmux::Management::Generated
         :'provider_id',
         :'provider_name',
         :'recipient_count',
+        :'recipients',
         :'rejected_recipient_count',
         :'sent_at',
         :'sent_from_email',
@@ -160,14 +166,14 @@ module Sendmux::Management::Generated
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Management::Generated::DeliveryLogItem` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Management::Generated::DeliveryLogDetail` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Management::Generated::DeliveryLogItem`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Management::Generated::DeliveryLogDetail`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
@@ -224,6 +230,14 @@ module Sendmux::Management::Generated
         self.recipient_count = attributes[:'recipient_count']
       else
         self.recipient_count = nil
+      end
+
+      if attributes.key?(:'recipients')
+        if (value = attributes[:'recipients']).is_a?(Array)
+          self.recipients = value
+        end
+      else
+        self.recipients = nil
       end
 
       if attributes.key?(:'rejected_recipient_count')
@@ -308,6 +322,10 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "recipient_count", must be greater than or equal to 0.')
       end
 
+      if @recipients.length > 50
+        invalid_properties.push('invalid value for "recipients", number of items must be less than or equal to 50.')
+      end
+
       if @rejected_recipient_count > 50
         invalid_properties.push('invalid value for "rejected_recipient_count", must be smaller than or equal to 50.')
       end
@@ -334,6 +352,7 @@ module Sendmux::Management::Generated
       return false if @id.nil?
       return false if @recipient_count > 50
       return false if @recipient_count < 0
+      return false if @recipients.length > 50
       return false if @rejected_recipient_count > 50
       return false if @rejected_recipient_count < 0
       return false if @status.nil?
@@ -401,6 +420,16 @@ module Sendmux::Management::Generated
     end
 
     # Custom attribute writer method with validation
+    # @param [Object] recipients Value to be assigned
+    def recipients=(recipients)
+      if !recipients.nil? && recipients.length > 50
+        fail ArgumentError, 'invalid value for "recipients", number of items must be less than or equal to 50.'
+      end
+
+      @recipients = recipients
+    end
+
+    # Custom attribute writer method with validation
     # @param [Object] rejected_recipient_count Value to be assigned
     def rejected_recipient_count=(rejected_recipient_count)
       if !rejected_recipient_count.nil? && rejected_recipient_count > 50
@@ -438,6 +467,7 @@ module Sendmux::Management::Generated
           provider_id == o.provider_id &&
           provider_name == o.provider_name &&
           recipient_count == o.recipient_count &&
+          recipients == o.recipients &&
           rejected_recipient_count == o.rejected_recipient_count &&
           sent_at == o.sent_at &&
           sent_from_email == o.sent_from_email &&
@@ -457,7 +487,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [accepted_recipient_count, attempts, created_at, from_email, id, message_id, provider_id, provider_name, recipient_count, rejected_recipient_count, sent_at, sent_from_email, size_bytes, status, status_reason, subject, to_email].hash
+      [accepted_recipient_count, attempts, created_at, from_email, id, message_id, provider_id, provider_name, recipient_count, recipients, rejected_recipient_count, sent_at, sent_from_email, size_bytes, status, status_reason, subject, to_email].hash
     end
 
     # Builds the object from hash

@@ -15,19 +15,19 @@ require 'time'
 
 module Sendmux::Management::Generated
   class MailboxDomainVerifyChecks < ApiModelBase
-    # DMARC TXT record matches expected value
+    # Published DMARC policy provides at least the required enforcement level.
     attr_accessor :dmarc
 
     # Custom MAIL FROM MX record matches expected value
     attr_accessor :mail_from_mx
 
-    # Custom MAIL FROM SPF TXT record matches expected value
+    # Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.
     attr_accessor :mail_from_spf
 
     # MX record present when the domain is configured for receiving. Always true for send-only domains.
     attr_accessor :mx
 
-    # SPF TXT record matches expected value
+    # Published SPF policy is compatible with the required Amazon SES sender authorisation.
     attr_accessor :spf
 
     # Ownership TXT record present with correct value

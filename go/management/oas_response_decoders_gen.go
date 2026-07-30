@@ -154,7 +154,7 @@ func decodeManagementActivateProviderResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementActivateProviderNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -180,7 +180,47 @@ func decodeManagementActivateProviderResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementActivateProviderNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -198,7 +238,7 @@ func decodeManagementActivateProviderResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementActivateProviderConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -224,7 +264,47 @@ func decodeManagementActivateProviderResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementActivateProviderConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -292,7 +372,7 @@ func decodeManagementCancelSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCancelSharedAmazonSesLimitRequestNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -318,7 +398,47 @@ func decodeManagementCancelSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCancelSharedAmazonSesLimitRequestNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -336,7 +456,7 @@ func decodeManagementCancelSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCancelSharedAmazonSesLimitRequestConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -362,7 +482,47 @@ func decodeManagementCancelSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCancelSharedAmazonSesLimitRequestConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -430,7 +590,7 @@ func decodeManagementCheckMailboxAvailabilityResponse(resp *http.Response) (res 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCheckMailboxAvailabilityUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -456,7 +616,47 @@ func decodeManagementCheckMailboxAvailabilityResponse(resp *http.Response) (res 
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCheckMailboxAvailabilityUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -474,7 +674,7 @@ func decodeManagementCheckMailboxAvailabilityResponse(resp *http.Response) (res 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCheckMailboxAvailabilityForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -500,7 +700,47 @@ func decodeManagementCheckMailboxAvailabilityResponse(resp *http.Response) (res 
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCheckMailboxAvailabilityForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -645,7 +885,7 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateDomainBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -671,7 +911,47 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateDomainBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -689,7 +969,7 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateDomainConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -715,7 +995,47 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateDomainConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -733,7 +1053,7 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateDomainRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -759,7 +1079,47 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateDomainRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -777,7 +1137,7 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateDomainServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -803,7 +1163,47 @@ func decodeManagementCreateDomainResponse(resp *http.Response) (res ManagementCr
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateDomainServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -911,7 +1311,7 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -937,7 +1337,47 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -955,7 +1395,7 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -981,7 +1421,47 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -999,7 +1479,7 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1025,7 +1505,47 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1043,7 +1563,7 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1069,7 +1589,47 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1087,7 +1647,7 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1113,7 +1673,47 @@ func decodeManagementCreateMailboxResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1221,7 +1821,7 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxKeyBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1247,7 +1847,47 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxKeyBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1265,7 +1905,7 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxKeyNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1291,7 +1931,47 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxKeyNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1309,7 +1989,7 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxKeyConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1335,7 +2015,47 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxKeyConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1353,7 +2073,7 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxKeyRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1379,7 +2099,47 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxKeyRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1397,7 +2157,7 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxKeyUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1423,7 +2183,47 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxKeyUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1441,7 +2241,7 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateMailboxKeyServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1467,7 +2267,47 @@ func decodeManagementCreateMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateMailboxKeyServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1612,7 +2452,7 @@ func decodeManagementCreateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateProviderBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1638,7 +2478,47 @@ func decodeManagementCreateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateProviderBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1656,7 +2536,7 @@ func decodeManagementCreateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateProviderConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1682,7 +2562,47 @@ func decodeManagementCreateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateProviderConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1700,7 +2620,7 @@ func decodeManagementCreateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateProviderRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1726,7 +2646,47 @@ func decodeManagementCreateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateProviderRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1794,7 +2754,7 @@ func decodeManagementCreateSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateSharedAmazonSesLimitRequestNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1820,7 +2780,47 @@ func decodeManagementCreateSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateSharedAmazonSesLimitRequestNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1838,7 +2838,7 @@ func decodeManagementCreateSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateSharedAmazonSesLimitRequestConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1864,7 +2864,47 @@ func decodeManagementCreateSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateSharedAmazonSesLimitRequestConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -1882,7 +2922,7 @@ func decodeManagementCreateSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -1908,7 +2948,47 @@ func decodeManagementCreateSharedAmazonSesLimitRequestResponse(resp *http.Respon
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2016,7 +3096,7 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateWebhookBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2042,7 +3122,47 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateWebhookBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2060,7 +3180,7 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateWebhookUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2086,7 +3206,47 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateWebhookUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2104,7 +3264,7 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateWebhookForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2130,7 +3290,47 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateWebhookForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2148,7 +3348,7 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateWebhookConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2174,7 +3374,47 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateWebhookConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2192,7 +3432,7 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateWebhookRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2218,7 +3458,47 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateWebhookRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2236,7 +3516,7 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementCreateWebhookUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2262,7 +3542,47 @@ func decodeManagementCreateWebhookResponse(resp *http.Response) (res ManagementC
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementCreateWebhookUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2407,7 +3727,7 @@ func decodeManagementDeactivateProviderResponse(resp *http.Response) (res Manage
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementDeactivateProviderNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2433,7 +3753,47 @@ func decodeManagementDeactivateProviderResponse(resp *http.Response) (res Manage
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementDeactivateProviderNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2451,7 +3811,7 @@ func decodeManagementDeactivateProviderResponse(resp *http.Response) (res Manage
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementDeactivateProviderConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2477,7 +3837,47 @@ func decodeManagementDeactivateProviderResponse(resp *http.Response) (res Manage
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementDeactivateProviderConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2545,7 +3945,7 @@ func decodeManagementDeleteDomainResponse(resp *http.Response) (res ManagementDe
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementDeleteDomainNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2571,7 +3971,47 @@ func decodeManagementDeleteDomainResponse(resp *http.Response) (res ManagementDe
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementDeleteDomainNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2589,7 +4029,7 @@ func decodeManagementDeleteDomainResponse(resp *http.Response) (res ManagementDe
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementDeleteDomainConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2615,7 +4055,47 @@ func decodeManagementDeleteDomainResponse(resp *http.Response) (res ManagementDe
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementDeleteDomainConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2709,7 +4189,47 @@ func decodeManagementDeleteMailboxResponse(resp *http.Response) (res ManagementD
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2803,7 +4323,47 @@ func decodeManagementDeleteMailboxKeyResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2871,7 +4431,7 @@ func decodeManagementDeleteProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementDeleteProviderNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2897,7 +4457,47 @@ func decodeManagementDeleteProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementDeleteProviderNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -2915,7 +4515,7 @@ func decodeManagementDeleteProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementDeleteProviderUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -2941,7 +4541,47 @@ func decodeManagementDeleteProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementDeleteProviderUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3035,7 +4675,47 @@ func decodeManagementDeleteWebhookResponse(resp *http.Response) (res ManagementD
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3103,7 +4783,7 @@ func decodeManagementGetDeliveryPayloadResponse(resp *http.Response) (res Manage
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetDeliveryPayloadUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3129,7 +4809,47 @@ func decodeManagementGetDeliveryPayloadResponse(resp *http.Response) (res Manage
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetDeliveryPayloadUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3147,7 +4867,7 @@ func decodeManagementGetDeliveryPayloadResponse(resp *http.Response) (res Manage
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetDeliveryPayloadForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3173,7 +4893,47 @@ func decodeManagementGetDeliveryPayloadResponse(resp *http.Response) (res Manage
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetDeliveryPayloadForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3191,7 +4951,7 @@ func decodeManagementGetDeliveryPayloadResponse(resp *http.Response) (res Manage
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetDeliveryPayloadNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3217,7 +4977,47 @@ func decodeManagementGetDeliveryPayloadResponse(resp *http.Response) (res Manage
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetDeliveryPayloadNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3430,7 +5230,47 @@ func decodeManagementGetDomainResponse(resp *http.Response) (res ManagementGetDo
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3580,7 +5420,7 @@ func decodeManagementGetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetDomainFiltersNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3606,7 +5446,47 @@ func decodeManagementGetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetDomainFiltersNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3624,7 +5504,7 @@ func decodeManagementGetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetDomainFiltersConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3650,7 +5530,47 @@ func decodeManagementGetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetDomainFiltersConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3668,7 +5588,7 @@ func decodeManagementGetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetDomainFiltersServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3694,7 +5614,47 @@ func decodeManagementGetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetDomainFiltersServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3803,7 +5763,47 @@ func decodeManagementGetDomainZoneFileResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3953,7 +5953,7 @@ func decodeManagementGetEmailLogResponse(resp *http.Response) (res ManagementGet
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetEmailLogUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -3979,7 +5979,47 @@ func decodeManagementGetEmailLogResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetEmailLogUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -3997,7 +6037,7 @@ func decodeManagementGetEmailLogResponse(resp *http.Response) (res ManagementGet
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetEmailLogForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4023,7 +6063,47 @@ func decodeManagementGetEmailLogResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetEmailLogForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4041,7 +6121,7 @@ func decodeManagementGetEmailLogResponse(resp *http.Response) (res ManagementGet
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetEmailLogNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4067,7 +6147,47 @@ func decodeManagementGetEmailLogResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetEmailLogNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4135,7 +6255,7 @@ func decodeManagementGetEmailMetricsResponse(resp *http.Response) (res Managemen
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetEmailMetricsUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4161,7 +6281,47 @@ func decodeManagementGetEmailMetricsResponse(resp *http.Response) (res Managemen
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetEmailMetricsUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4179,7 +6339,7 @@ func decodeManagementGetEmailMetricsResponse(resp *http.Response) (res Managemen
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetEmailMetricsForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4205,7 +6365,47 @@ func decodeManagementGetEmailMetricsResponse(resp *http.Response) (res Managemen
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetEmailMetricsForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4273,7 +6473,7 @@ func decodeManagementGetInboxLogResponse(resp *http.Response) (res ManagementGet
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetInboxLogUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4299,7 +6499,47 @@ func decodeManagementGetInboxLogResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetInboxLogUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4317,7 +6557,7 @@ func decodeManagementGetInboxLogResponse(resp *http.Response) (res ManagementGet
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetInboxLogForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4343,7 +6583,47 @@ func decodeManagementGetInboxLogResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetInboxLogForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4361,7 +6641,7 @@ func decodeManagementGetInboxLogResponse(resp *http.Response) (res ManagementGet
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetInboxLogNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4387,7 +6667,47 @@ func decodeManagementGetInboxLogResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetInboxLogNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4563,7 +6883,47 @@ func decodeManagementGetMailboxResponse(resp *http.Response) (res ManagementGetM
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4713,7 +7073,7 @@ func decodeManagementGetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetMailboxFiltersNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4739,7 +7099,47 @@ func decodeManagementGetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetMailboxFiltersNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4757,7 +7157,7 @@ func decodeManagementGetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetMailboxFiltersServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -4783,7 +7183,47 @@ func decodeManagementGetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetMailboxFiltersServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -4957,7 +7397,47 @@ func decodeManagementGetProviderResponse(resp *http.Response) (res ManagementGet
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5075,7 +7555,7 @@ func decodeManagementGetProviderStatsResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetProviderStatsUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5101,7 +7581,47 @@ func decodeManagementGetProviderStatsResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetProviderStatsUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5119,7 +7639,7 @@ func decodeManagementGetProviderStatsResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetProviderStatsForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5145,7 +7665,47 @@ func decodeManagementGetProviderStatsResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetProviderStatsForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5313,7 +7873,7 @@ func decodeManagementGetSpendSummaryResponse(resp *http.Response) (res Managemen
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetSpendSummaryUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5339,7 +7899,47 @@ func decodeManagementGetSpendSummaryResponse(resp *http.Response) (res Managemen
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetSpendSummaryUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5357,7 +7957,7 @@ func decodeManagementGetSpendSummaryResponse(resp *http.Response) (res Managemen
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementGetSpendSummaryForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5383,7 +7983,47 @@ func decodeManagementGetSpendSummaryResponse(resp *http.Response) (res Managemen
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementGetSpendSummaryForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5559,7 +8199,47 @@ func decodeManagementGetWebhookResponse(resp *http.Response) (res ManagementGetW
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ApiErrorHeaders
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5627,7 +8307,7 @@ func decodeManagementListBalanceResponse(resp *http.Response) (res ManagementLis
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListBalanceUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5653,7 +8333,47 @@ func decodeManagementListBalanceResponse(resp *http.Response) (res ManagementLis
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListBalanceUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5671,7 +8391,7 @@ func decodeManagementListBalanceResponse(resp *http.Response) (res ManagementLis
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListBalanceForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5697,7 +8417,47 @@ func decodeManagementListBalanceResponse(resp *http.Response) (res ManagementLis
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListBalanceForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5765,7 +8525,7 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListDeliveryBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5791,7 +8551,47 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListDeliveryBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5809,7 +8609,7 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListDeliveryUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5835,7 +8635,47 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListDeliveryUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5853,7 +8693,7 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListDeliveryForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5879,7 +8719,47 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListDeliveryForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5897,7 +8777,7 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListDeliveryNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -5923,7 +8803,47 @@ func decodeManagementListDeliveryResponse(resp *http.Response) (res ManagementLi
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListDeliveryNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -5991,7 +8911,7 @@ func decodeManagementListDomainsResponse(resp *http.Response) (res ManagementLis
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListDomainsUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6017,7 +8937,47 @@ func decodeManagementListDomainsResponse(resp *http.Response) (res ManagementLis
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListDomainsUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6035,7 +8995,7 @@ func decodeManagementListDomainsResponse(resp *http.Response) (res ManagementLis
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListDomainsForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6061,7 +9021,47 @@ func decodeManagementListDomainsResponse(resp *http.Response) (res ManagementLis
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListDomainsForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6129,7 +9129,7 @@ func decodeManagementListEmailLogsResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListEmailLogsUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6155,7 +9155,47 @@ func decodeManagementListEmailLogsResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListEmailLogsUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6173,7 +9213,7 @@ func decodeManagementListEmailLogsResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListEmailLogsForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6199,7 +9239,47 @@ func decodeManagementListEmailLogsResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListEmailLogsForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6267,7 +9347,7 @@ func decodeManagementListInboxLogsResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListInboxLogsUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6293,7 +9373,47 @@ func decodeManagementListInboxLogsResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListInboxLogsUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6311,7 +9431,7 @@ func decodeManagementListInboxLogsResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListInboxLogsForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6337,7 +9457,47 @@ func decodeManagementListInboxLogsResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListInboxLogsForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6405,7 +9565,7 @@ func decodeManagementListMailboxesResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListMailboxesUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6431,7 +9591,47 @@ func decodeManagementListMailboxesResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListMailboxesUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6449,7 +9649,7 @@ func decodeManagementListMailboxesResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListMailboxesForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6475,7 +9675,47 @@ func decodeManagementListMailboxesResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListMailboxesForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6543,7 +9783,7 @@ func decodeManagementListProvidersResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListProvidersUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6569,7 +9809,47 @@ func decodeManagementListProvidersResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListProvidersUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6587,7 +9867,7 @@ func decodeManagementListProvidersResponse(resp *http.Response) (res ManagementL
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListProvidersForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6613,7 +9893,47 @@ func decodeManagementListProvidersResponse(resp *http.Response) (res ManagementL
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListProvidersForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6681,7 +10001,7 @@ func decodeManagementListTransactionsResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListTransactionsUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6707,7 +10027,47 @@ func decodeManagementListTransactionsResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListTransactionsUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6725,7 +10085,7 @@ func decodeManagementListTransactionsResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListTransactionsForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6751,7 +10111,47 @@ func decodeManagementListTransactionsResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListTransactionsForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6819,7 +10219,7 @@ func decodeManagementListWebhooksResponse(resp *http.Response) (res ManagementLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListWebhooksUnauthorized
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6845,7 +10245,47 @@ func decodeManagementListWebhooksResponse(resp *http.Response) (res ManagementLi
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListWebhooksUnauthorized
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6863,7 +10303,7 @@ func decodeManagementListWebhooksResponse(resp *http.Response) (res ManagementLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementListWebhooksForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6889,7 +10329,47 @@ func decodeManagementListWebhooksResponse(resp *http.Response) (res ManagementLi
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementListWebhooksForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -6957,7 +10437,7 @@ func decodeManagementRequestSendingAccountLimitIncreaseResponse(resp *http.Respo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementRequestSendingAccountLimitIncreaseConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -6983,7 +10463,47 @@ func decodeManagementRequestSendingAccountLimitIncreaseResponse(resp *http.Respo
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementRequestSendingAccountLimitIncreaseConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7001,7 +10521,7 @@ func decodeManagementRequestSendingAccountLimitIncreaseResponse(resp *http.Respo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7027,7 +10547,47 @@ func decodeManagementRequestSendingAccountLimitIncreaseResponse(resp *http.Respo
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7135,7 +10695,7 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementResumeMailboxForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7161,7 +10721,47 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementResumeMailboxForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7179,7 +10779,7 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementResumeMailboxNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7205,7 +10805,47 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementResumeMailboxNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7223,7 +10863,7 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementResumeMailboxConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7249,7 +10889,47 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementResumeMailboxConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7267,7 +10947,7 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementResumeMailboxServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7293,7 +10973,47 @@ func decodeManagementResumeMailboxResponse(resp *http.Response) (res ManagementR
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementResumeMailboxServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7401,7 +11121,7 @@ func decodeManagementRotateWebhookSecretResponse(resp *http.Response) (res Manag
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementRotateWebhookSecretNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7427,7 +11147,47 @@ func decodeManagementRotateWebhookSecretResponse(resp *http.Response) (res Manag
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementRotateWebhookSecretNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7445,7 +11205,7 @@ func decodeManagementRotateWebhookSecretResponse(resp *http.Response) (res Manag
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementRotateWebhookSecretConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7471,7 +11231,47 @@ func decodeManagementRotateWebhookSecretResponse(resp *http.Response) (res Manag
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementRotateWebhookSecretConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7579,7 +11379,7 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetDomainFiltersBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7605,7 +11405,47 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetDomainFiltersBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7623,7 +11463,7 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetDomainFiltersNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7649,7 +11489,47 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetDomainFiltersNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7667,7 +11547,7 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetDomainFiltersConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7693,7 +11573,47 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetDomainFiltersConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7711,7 +11631,7 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetDomainFiltersRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7737,7 +11657,47 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetDomainFiltersRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7755,7 +11715,7 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetDomainFiltersUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7781,7 +11741,47 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetDomainFiltersUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7799,7 +11799,7 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetDomainFiltersServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7825,7 +11825,47 @@ func decodeManagementSetDomainFiltersResponse(resp *http.Response) (res Manageme
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetDomainFiltersServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7933,7 +11973,7 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetMailboxFiltersBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -7959,7 +11999,47 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetMailboxFiltersBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -7977,7 +12057,7 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetMailboxFiltersNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8003,7 +12083,47 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetMailboxFiltersNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8021,7 +12141,7 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetMailboxFiltersConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8047,7 +12167,47 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetMailboxFiltersConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8065,7 +12225,7 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetMailboxFiltersRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8091,7 +12251,47 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetMailboxFiltersRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8109,7 +12309,7 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetMailboxFiltersUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8135,7 +12335,47 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetMailboxFiltersUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8153,7 +12393,7 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSetMailboxFiltersServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8179,7 +12419,47 @@ func decodeManagementSetMailboxFiltersResponse(resp *http.Response) (res Managem
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSetMailboxFiltersServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8287,7 +12567,7 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSuspendMailboxForbidden
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8313,7 +12593,47 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSuspendMailboxForbidden
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8331,7 +12651,7 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSuspendMailboxNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8357,7 +12677,47 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSuspendMailboxNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8375,7 +12735,7 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSuspendMailboxConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8401,7 +12761,47 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSuspendMailboxConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8419,7 +12819,7 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementSuspendMailboxServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8445,7 +12845,47 @@ func decodeManagementSuspendMailboxResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementSuspendMailboxServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8513,7 +12953,7 @@ func decodeManagementTestProviderResponse(resp *http.Response) (res ManagementTe
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementTestProviderNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8539,7 +12979,47 @@ func decodeManagementTestProviderResponse(resp *http.Response) (res ManagementTe
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementTestProviderNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8557,7 +13037,7 @@ func decodeManagementTestProviderResponse(resp *http.Response) (res ManagementTe
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementTestProviderUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8583,7 +13063,47 @@ func decodeManagementTestProviderResponse(resp *http.Response) (res ManagementTe
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementTestProviderUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8601,7 +13121,7 @@ func decodeManagementTestProviderResponse(resp *http.Response) (res ManagementTe
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementTestProviderServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8627,7 +13147,47 @@ func decodeManagementTestProviderResponse(resp *http.Response) (res ManagementTe
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementTestProviderServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8695,7 +13255,7 @@ func decodeManagementTestWebhookResponse(resp *http.Response) (res ManagementTes
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementTestWebhookNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8721,7 +13281,47 @@ func decodeManagementTestWebhookResponse(resp *http.Response) (res ManagementTes
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementTestWebhookNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8739,7 +13339,7 @@ func decodeManagementTestWebhookResponse(resp *http.Response) (res ManagementTes
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementTestWebhookConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8765,7 +13365,47 @@ func decodeManagementTestWebhookResponse(resp *http.Response) (res ManagementTes
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementTestWebhookConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8783,7 +13423,7 @@ func decodeManagementTestWebhookResponse(resp *http.Response) (res ManagementTes
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementTestWebhookServiceUnavailable
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8809,7 +13449,47 @@ func decodeManagementTestWebhookResponse(resp *http.Response) (res ManagementTes
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementTestWebhookServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8954,7 +13634,7 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateDomainBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -8980,7 +13660,47 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateDomainBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -8998,7 +13718,7 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateDomainNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9024,7 +13744,47 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateDomainNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9042,7 +13802,7 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateDomainConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9068,7 +13828,47 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateDomainConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9086,7 +13886,7 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateDomainRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9112,7 +13912,47 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateDomainRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9130,7 +13970,7 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateDomainUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9156,7 +13996,47 @@ func decodeManagementUpdateDomainResponse(resp *http.Response) (res ManagementUp
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateDomainUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9264,7 +14144,7 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateMailboxBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9290,7 +14170,47 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateMailboxBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9308,7 +14228,7 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateMailboxNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9334,7 +14254,47 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateMailboxNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9352,7 +14312,7 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateMailboxConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9378,7 +14338,47 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateMailboxConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9396,7 +14396,7 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateMailboxRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9422,7 +14422,47 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateMailboxRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9440,7 +14480,7 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateMailboxUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9466,7 +14506,47 @@ func decodeManagementUpdateMailboxResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateMailboxUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9611,7 +14691,7 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateProviderBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9637,7 +14717,47 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateProviderBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9655,7 +14775,7 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateProviderNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9681,7 +14801,47 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateProviderNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9699,7 +14859,7 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateProviderConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9725,7 +14885,47 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateProviderConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9743,7 +14943,7 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateProviderRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9769,7 +14969,47 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateProviderRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9787,7 +15027,7 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateProviderUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9813,7 +15053,47 @@ func decodeManagementUpdateProviderResponse(resp *http.Response) (res Management
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateProviderUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9921,7 +15201,7 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateWebhookBadRequest
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9947,7 +15227,47 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateWebhookBadRequest
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -9965,7 +15285,7 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateWebhookNotFound
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -9991,7 +15311,47 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateWebhookNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -10009,7 +15369,7 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateWebhookConflict
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -10035,7 +15395,47 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateWebhookConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -10053,7 +15453,7 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateWebhookRequestEntityTooLarge
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -10079,7 +15479,47 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateWebhookRequestEntityTooLarge
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -10097,7 +15537,7 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response ManagementUpdateWebhookUnprocessableEntity
+			var response ApiError
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -10123,7 +15563,47 @@ func decodeManagementUpdateWebhookResponse(resp *http.Response) (res ManagementU
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementUpdateWebhookUnprocessableEntity
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -10217,7 +15697,299 @@ func decodeManagementVerifyDomainResponse(resp *http.Response) (res ManagementVe
 			}(); err != nil {
 				return res, errors.Wrap(err, "validate")
 			}
-			return &response, nil
+			var wrapper ManagementVerifyDomainNotFound
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
+		default:
+			return res, validate.InvalidContentType(ct)
+		}
+	case 409:
+		// Code 409.
+		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+		if err != nil {
+			return res, errors.Wrap(err, "parse media type")
+		}
+		switch {
+		case ct == "application/json":
+			buf, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return res, err
+			}
+			d := jx.DecodeBytes(buf)
+
+			var response ApiError
+			if err := func() error {
+				if err := response.Decode(d); err != nil {
+					return err
+				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
+				return nil
+			}(); err != nil {
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
+			}
+			var wrapper ManagementVerifyDomainConflict
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
+		default:
+			return res, validate.InvalidContentType(ct)
+		}
+	case 500:
+		// Code 500.
+		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+		if err != nil {
+			return res, errors.Wrap(err, "parse media type")
+		}
+		switch {
+		case ct == "application/json":
+			buf, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return res, err
+			}
+			d := jx.DecodeBytes(buf)
+
+			var response ApiError
+			if err := func() error {
+				if err := response.Decode(d); err != nil {
+					return err
+				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
+				return nil
+			}(); err != nil {
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
+			}
+			var wrapper ManagementVerifyDomainInternalServerError
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
+		default:
+			return res, validate.InvalidContentType(ct)
+		}
+	case 503:
+		// Code 503.
+		ct, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+		if err != nil {
+			return res, errors.Wrap(err, "parse media type")
+		}
+		switch {
+		case ct == "application/json":
+			buf, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return res, err
+			}
+			d := jx.DecodeBytes(buf)
+
+			var response ApiError
+			if err := func() error {
+				if err := response.Decode(d); err != nil {
+					return err
+				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
+				return nil
+			}(); err != nil {
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
+			}
+			// Validate response.
+			if err := func() error {
+				if err := response.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return res, errors.Wrap(err, "validate")
+			}
+			var wrapper ManagementVerifyDomainServiceUnavailable
+			wrapper.Response = response
+			h := uri.NewHeaderDecoder(resp.Header)
+			// Parse "Retry-After" header.
+			{
+				cfg := uri.HeaderParameterDecodingConfig{
+					Name:    "Retry-After",
+					Explode: false,
+				}
+				if err := func() error {
+					if err := h.HasParam(cfg); err == nil {
+						if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+							var wrapperDotRetryAfterVal int
+							if err := func() error {
+								val, err := d.DecodeValue()
+								if err != nil {
+									return err
+								}
+
+								c, err := conv.ToInt(val)
+								if err != nil {
+									return err
+								}
+
+								wrapperDotRetryAfterVal = c
+								return nil
+							}(); err != nil {
+								return err
+							}
+							wrapper.RetryAfter.SetTo(wrapperDotRetryAfterVal)
+							return nil
+						}); err != nil {
+							return err
+						}
+					}
+					return nil
+				}(); err != nil {
+					return res, errors.Wrap(err, "parse Retry-After header")
+				}
+			}
+			return &wrapper, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}

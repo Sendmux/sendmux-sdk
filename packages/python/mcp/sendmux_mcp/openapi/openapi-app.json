@@ -311,9 +311,18 @@
         ],
         "type": "object"
       },
-      "DeliveryLogItem": {
+      "DeliveryLogDetail": {
         "additionalProperties": false,
         "properties": {
+          "accepted_recipient_count": {
+            "description": "Recipient occurrences accepted by the provider, or null when no recipient snapshot exists",
+            "maximum": 50,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
           "attempts": {
             "type": "number"
           },
@@ -350,6 +359,35 @@
             "description": "Provider display name",
             "type": [
               "string",
+              "null"
+            ]
+          },
+          "recipient_count": {
+            "description": "Total recipient occurrences, or null when no recipient snapshot exists",
+            "maximum": 50,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "recipients": {
+            "description": "Ordered recipient outcome snapshot for this send, or null when no snapshot exists",
+            "items": {
+              "$ref": "#/components/schemas/DeliveryLogRecipient"
+            },
+            "maxItems": 50,
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "rejected_recipient_count": {
+            "description": "Recipient occurrences rejected by the provider, or null when no recipient snapshot exists",
+            "maximum": 50,
+            "minimum": 0,
+            "type": [
+              "integer",
               "null"
             ]
           },
@@ -415,7 +453,149 @@
           "attempts",
           "sent_at",
           "size_bytes",
-          "created_at"
+          "created_at",
+          "recipient_count",
+          "accepted_recipient_count",
+          "rejected_recipient_count",
+          "recipients"
+        ],
+        "type": "object"
+      },
+      "DeliveryLogItem": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_recipient_count": {
+            "description": "Recipient occurrences accepted by the provider, or null when no recipient snapshot exists",
+            "maximum": 50,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "created_at": {
+            "description": "ISO 8601 creation timestamp",
+            "type": "string"
+          },
+          "from_email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "description": "Log public ID",
+            "example": "dlog_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "type": "string"
+          },
+          "message_id": {
+            "description": "Email Message-ID header",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provider_id": {
+            "description": "Provider public ID",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provider_name": {
+            "description": "Provider display name",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recipient_count": {
+            "description": "Total recipient occurrences, or null when no recipient snapshot exists",
+            "maximum": 50,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "rejected_recipient_count": {
+            "description": "Recipient occurrences rejected by the provider, or null when no recipient snapshot exists",
+            "maximum": 50,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sent_at": {
+            "description": "ISO 8601 timestamp when email was sent",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sent_from_email": {
+            "description": "The actual from address used for delivery after transformation. NULL if no transformation occurred or for older log entries.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size_bytes": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "sent",
+              "failed",
+              "rejected"
+            ],
+            "type": "string"
+          },
+          "status_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to_email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "provider_id",
+          "provider_name",
+          "message_id",
+          "from_email",
+          "sent_from_email",
+          "to_email",
+          "subject",
+          "status",
+          "status_reason",
+          "attempts",
+          "sent_at",
+          "size_bytes",
+          "created_at",
+          "recipient_count",
+          "accepted_recipient_count",
+          "rejected_recipient_count"
         ],
         "type": "object"
       },
@@ -456,7 +636,7 @@
           {
             "properties": {
               "data": {
-                "$ref": "#/components/schemas/DeliveryLogItem"
+                "$ref": "#/components/schemas/DeliveryLogDetail"
               },
               "meta": {
                 "$ref": "#/components/schemas/ResponseMeta"
@@ -469,6 +649,50 @@
           }
         ],
         "unevaluatedProperties": false
+      },
+      "DeliveryLogRecipient": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "description": "Recipient email address",
+            "format": "email",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Recipient-specific rejection reason when available",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "description": "Provider acceptance outcome",
+            "enum": [
+              "accepted",
+              "rejected"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "description": "Recipient header type when known",
+            "enum": [
+              "to",
+              "cc",
+              "bcc"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "type",
+          "status",
+          "reason"
+        ],
+        "type": "object"
       },
       "DomainDeletedResponse": {
         "allOf": [
@@ -2238,7 +2462,7 @@
         "additionalProperties": false,
         "properties": {
           "dmarc": {
-            "description": "DMARC TXT record matches expected value",
+            "description": "Published DMARC policy provides at least the required enforcement level.",
             "type": "boolean"
           },
           "mail_from_mx": {
@@ -2246,7 +2470,7 @@
             "type": "boolean"
           },
           "mail_from_spf": {
-            "description": "Custom MAIL FROM SPF TXT record matches expected value",
+            "description": "Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.",
             "type": "boolean"
           },
           "mx": {
@@ -2254,7 +2478,7 @@
             "type": "boolean"
           },
           "spf": {
-            "description": "SPF TXT record matches expected value",
+            "description": "Published SPF policy is compatible with the required Amazon SES sender authorisation.",
             "type": "boolean"
           },
           "verification_txt": {
@@ -2290,7 +2514,8 @@
             "description": "Post-check verification status",
             "enum": [
               "verified",
-              "pending"
+              "pending",
+              "failed"
             ],
             "type": "string"
           }
@@ -8617,7 +8842,7 @@
     },
     "/domains/{public_id}/verify": {
       "post": {
-        "description": "Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.",
+        "description": "Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If every required check passes, the domain is marked verified. A previously failed domain remains failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.",
         "operationId": "managementVerifyDomain",
         "parameters": [
           {
@@ -8650,6 +8875,45 @@
               }
             },
             "description": "Domain not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "The domain changed while verification was running."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unexpected server error."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Verification is temporarily unavailable; retry after the indicated delay.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying.",
+                "schema": {
+                  "example": 30,
+                  "type": "integer"
+                }
+              }
+            }
           }
         },
         "security": [

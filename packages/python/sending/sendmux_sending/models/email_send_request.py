@@ -32,8 +32,8 @@ class EmailSendRequest(BaseModel):
     EmailSendRequest
     """ # noqa: E501
     attachments: Optional[Annotated[List[Attachment], Field(max_length=10)]] = Field(default=None, description="File attachments (max 10). Use attachment_id refs for uploaded files.")
-    bcc: Optional[Annotated[List[Recipient], Field(max_length=100)]] = Field(default=None, description="BCC recipients (max 100)")
-    cc: Optional[Annotated[List[Recipient], Field(max_length=100)]] = Field(default=None, description="CC recipients (max 100)")
+    bcc: Optional[Annotated[List[Recipient], Field(max_length=49)]] = Field(default=None, description="BCC recipients (subject to 50 total To, CC, and BCC recipients)")
+    cc: Optional[Annotated[List[Recipient], Field(max_length=49)]] = Field(default=None, description="CC recipients (subject to 50 total To, CC, and BCC recipients)")
     custom_headers: Optional[Dict[str, Annotated[str, Field(strict=True, max_length=500)]]] = Field(default=None, description="Custom X-* headers to include in the email")
     var_from: Address = Field(alias="from")
     html_body: Annotated[str, Field(min_length=1, strict=True, max_length=26214400)] = Field(description="HTML email content (max 25MB)")

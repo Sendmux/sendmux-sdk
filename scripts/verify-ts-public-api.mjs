@@ -8,6 +8,7 @@ const core = [
   "packages/ts/core/dist/errors.d.ts",
 ].map((path) => readFileSync(path, "utf8")).join("\n");
 const surfaces = ["mailbox", "management", "sending"];
+const mailboxGeneratedTypes = readFileSync("packages/ts/mailbox/src/generated/types.gen.ts", "utf8");
 const managementGeneratedTypes = readFileSync("packages/ts/management/src/generated/types.gen.ts", "utf8");
 
 const requiredCoreExports = [
@@ -39,4 +40,42 @@ if (!/pending_request:\s*SharedAmazonSesLimitRequest\s*\|\s*null;/.test(manageme
   throw new Error("management generated type SharedAmazonSesLimitRequestPage.pending_request must preserve null");
 }
 
+assertNullableProperty({
+  propertyName: "type",
+  source: managementGeneratedTypes,
+  typeName: "DeliveryLogRecipient",
+});
+assertNullableProperty({
+  propertyName: "message_id_kind",
+  source: mailboxGeneratedTypes,
+  typeName: "MailboxRealtimeEvent",
+});
+assertNullableProperty({
+  propertyName: "format",
+  source: mailboxGeneratedTypes,
+  typeName: "MailboxMessageContent",
+});
+assertNullableProperty({
+  propertyName: "bounce_type",
+  source: managementGeneratedTypes,
+  typeName: "WebhookEventData",
+});
+assertNullableProperty({
+  propertyName: "message_id_kind",
+  source: managementGeneratedTypes,
+  typeName: "WebhookEventData",
+});
+
 console.log("TypeScript public API exposes core-owned ApiError/SuccessEnvelope only.");
+
+function assertNullableProperty({ propertyName, source, typeName }) {
+  const typeBlock = source.match(new RegExp(`export type ${typeName} = \\{([\\s\\S]*?)\\n\\};`))?.[1];
+  if (!typeBlock) {
+    throw new Error(`Missing generated TypeScript type ${typeName}`);
+  }
+
+  const property = typeBlock.match(new RegExp(`^\\s*${propertyName}:\\s*([^;]+);`, "m"))?.[1];
+  if (!property?.split("|").some((member) => member.trim() === "null")) {
+    throw new Error(`generated type ${typeName}.${propertyName} must preserve null`);
+  }
+}

@@ -44,9 +44,11 @@ __all__ = [
     "BalanceAutoTopup",
     "BalanceResponse",
     "CursorPagination",
+    "DeliveryLogDetail",
     "DeliveryLogItem",
     "DeliveryLogItemCursorListResponse",
     "DeliveryLogItemResponse",
+    "DeliveryLogRecipient",
     "DomainDeletedResponse",
     "DomainDeletedResponseAllOfData",
     "DomainItemCursorListResponse",
@@ -186,9 +188,11 @@ from sendmux_management.models.balance import Balance as Balance
 from sendmux_management.models.balance_auto_topup import BalanceAutoTopup as BalanceAutoTopup
 from sendmux_management.models.balance_response import BalanceResponse as BalanceResponse
 from sendmux_management.models.cursor_pagination import CursorPagination as CursorPagination
+from sendmux_management.models.delivery_log_detail import DeliveryLogDetail as DeliveryLogDetail
 from sendmux_management.models.delivery_log_item import DeliveryLogItem as DeliveryLogItem
 from sendmux_management.models.delivery_log_item_cursor_list_response import DeliveryLogItemCursorListResponse as DeliveryLogItemCursorListResponse
 from sendmux_management.models.delivery_log_item_response import DeliveryLogItemResponse as DeliveryLogItemResponse
+from sendmux_management.models.delivery_log_recipient import DeliveryLogRecipient as DeliveryLogRecipient
 from sendmux_management.models.domain_deleted_response import DomainDeletedResponse as DomainDeletedResponse
 from sendmux_management.models.domain_deleted_response_all_of_data import DomainDeletedResponseAllOfData as DomainDeletedResponseAllOfData
 from sendmux_management.models.domain_item_cursor_list_response import DomainItemCursorListResponse as DomainItemCursorListResponse

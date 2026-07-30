@@ -47,16 +47,6 @@ func (s *ApiError) SetOk(val ApiErrorOk) {
 	s.Ok = val
 }
 
-func (*ApiError) managementDeleteMailboxKeyRes()  {}
-func (*ApiError) managementDeleteMailboxRes()     {}
-func (*ApiError) managementDeleteWebhookRes()     {}
-func (*ApiError) managementGetDomainRes()         {}
-func (*ApiError) managementGetDomainZoneFileRes() {}
-func (*ApiError) managementGetMailboxRes()        {}
-func (*ApiError) managementGetProviderRes()       {}
-func (*ApiError) managementGetWebhookRes()        {}
-func (*ApiError) managementVerifyDomainRes()      {}
-
 // Ref: #/components/schemas/ApiErrorDetail
 type ApiErrorDetail struct {
 	// Machine-readable issue code from the validator (e.g. zod issue code).
@@ -291,6 +281,41 @@ func (s *ApiErrorErrorCode) UnmarshalText(data []byte) error {
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+// ApiErrorHeaders wraps ApiError with response headers.
+type ApiErrorHeaders struct {
+	RetryAfter OptInt
+	Response   ApiError
+}
+
+// GetRetryAfter returns the value of RetryAfter.
+func (s *ApiErrorHeaders) GetRetryAfter() OptInt {
+	return s.RetryAfter
+}
+
+// GetResponse returns the value of Response.
+func (s *ApiErrorHeaders) GetResponse() ApiError {
+	return s.Response
+}
+
+// SetRetryAfter sets the value of RetryAfter.
+func (s *ApiErrorHeaders) SetRetryAfter(val OptInt) {
+	s.RetryAfter = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ApiErrorHeaders) SetResponse(val ApiError) {
+	s.Response = val
+}
+
+func (*ApiErrorHeaders) managementDeleteMailboxKeyRes()  {}
+func (*ApiErrorHeaders) managementDeleteMailboxRes()     {}
+func (*ApiErrorHeaders) managementDeleteWebhookRes()     {}
+func (*ApiErrorHeaders) managementGetDomainRes()         {}
+func (*ApiErrorHeaders) managementGetDomainZoneFileRes() {}
+func (*ApiErrorHeaders) managementGetMailboxRes()        {}
+func (*ApiErrorHeaders) managementGetProviderRes()       {}
+func (*ApiErrorHeaders) managementGetWebhookRes()        {}
 
 type ApiErrorMeta struct {
 	RequestID string `json:"request_id"`
@@ -613,9 +638,11 @@ func (s *CursorPagination) SetNextCursor(val OptString) {
 	s.NextCursor = val
 }
 
-// Ref: #/components/schemas/DeliveryLogItem
-type DeliveryLogItem struct {
-	Attempts float64 `json:"attempts"`
+// Ref: #/components/schemas/DeliveryLogDetail
+type DeliveryLogDetail struct {
+	// Recipient occurrences accepted by the provider, or null when no recipient snapshot exists.
+	AcceptedRecipientCount NilInt  `json:"accepted_recipient_count"`
+	Attempts               float64 `json:"attempts"`
 	// ISO 8601 creation timestamp.
 	CreatedAt string    `json:"created_at"`
 	FromEmail NilString `json:"from_email"`
@@ -627,6 +654,279 @@ type DeliveryLogItem struct {
 	ProviderID NilString `json:"provider_id"`
 	// Provider display name.
 	ProviderName NilString `json:"provider_name"`
+	// Total recipient occurrences, or null when no recipient snapshot exists.
+	RecipientCount NilInt `json:"recipient_count"`
+	// Ordered recipient outcome snapshot for this send, or null when no snapshot exists.
+	Recipients []DeliveryLogRecipient `json:"recipients"`
+	// Recipient occurrences rejected by the provider, or null when no recipient snapshot exists.
+	RejectedRecipientCount NilInt `json:"rejected_recipient_count"`
+	// ISO 8601 timestamp when email was sent.
+	SentAt NilString `json:"sent_at"`
+	// The actual from address used for delivery after transformation. NULL if no transformation occurred
+	// or for older log entries.
+	SentFromEmail NilString               `json:"sent_from_email"`
+	SizeBytes     NilFloat64              `json:"size_bytes"`
+	Status        DeliveryLogDetailStatus `json:"status"`
+	StatusReason  NilString               `json:"status_reason"`
+	Subject       NilString               `json:"subject"`
+	ToEmail       NilString               `json:"to_email"`
+}
+
+// GetAcceptedRecipientCount returns the value of AcceptedRecipientCount.
+func (s *DeliveryLogDetail) GetAcceptedRecipientCount() NilInt {
+	return s.AcceptedRecipientCount
+}
+
+// GetAttempts returns the value of Attempts.
+func (s *DeliveryLogDetail) GetAttempts() float64 {
+	return s.Attempts
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *DeliveryLogDetail) GetCreatedAt() string {
+	return s.CreatedAt
+}
+
+// GetFromEmail returns the value of FromEmail.
+func (s *DeliveryLogDetail) GetFromEmail() NilString {
+	return s.FromEmail
+}
+
+// GetID returns the value of ID.
+func (s *DeliveryLogDetail) GetID() string {
+	return s.ID
+}
+
+// GetMessageID returns the value of MessageID.
+func (s *DeliveryLogDetail) GetMessageID() NilString {
+	return s.MessageID
+}
+
+// GetProviderID returns the value of ProviderID.
+func (s *DeliveryLogDetail) GetProviderID() NilString {
+	return s.ProviderID
+}
+
+// GetProviderName returns the value of ProviderName.
+func (s *DeliveryLogDetail) GetProviderName() NilString {
+	return s.ProviderName
+}
+
+// GetRecipientCount returns the value of RecipientCount.
+func (s *DeliveryLogDetail) GetRecipientCount() NilInt {
+	return s.RecipientCount
+}
+
+// GetRecipients returns the value of Recipients.
+func (s *DeliveryLogDetail) GetRecipients() []DeliveryLogRecipient {
+	return s.Recipients
+}
+
+// GetRejectedRecipientCount returns the value of RejectedRecipientCount.
+func (s *DeliveryLogDetail) GetRejectedRecipientCount() NilInt {
+	return s.RejectedRecipientCount
+}
+
+// GetSentAt returns the value of SentAt.
+func (s *DeliveryLogDetail) GetSentAt() NilString {
+	return s.SentAt
+}
+
+// GetSentFromEmail returns the value of SentFromEmail.
+func (s *DeliveryLogDetail) GetSentFromEmail() NilString {
+	return s.SentFromEmail
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *DeliveryLogDetail) GetSizeBytes() NilFloat64 {
+	return s.SizeBytes
+}
+
+// GetStatus returns the value of Status.
+func (s *DeliveryLogDetail) GetStatus() DeliveryLogDetailStatus {
+	return s.Status
+}
+
+// GetStatusReason returns the value of StatusReason.
+func (s *DeliveryLogDetail) GetStatusReason() NilString {
+	return s.StatusReason
+}
+
+// GetSubject returns the value of Subject.
+func (s *DeliveryLogDetail) GetSubject() NilString {
+	return s.Subject
+}
+
+// GetToEmail returns the value of ToEmail.
+func (s *DeliveryLogDetail) GetToEmail() NilString {
+	return s.ToEmail
+}
+
+// SetAcceptedRecipientCount sets the value of AcceptedRecipientCount.
+func (s *DeliveryLogDetail) SetAcceptedRecipientCount(val NilInt) {
+	s.AcceptedRecipientCount = val
+}
+
+// SetAttempts sets the value of Attempts.
+func (s *DeliveryLogDetail) SetAttempts(val float64) {
+	s.Attempts = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *DeliveryLogDetail) SetCreatedAt(val string) {
+	s.CreatedAt = val
+}
+
+// SetFromEmail sets the value of FromEmail.
+func (s *DeliveryLogDetail) SetFromEmail(val NilString) {
+	s.FromEmail = val
+}
+
+// SetID sets the value of ID.
+func (s *DeliveryLogDetail) SetID(val string) {
+	s.ID = val
+}
+
+// SetMessageID sets the value of MessageID.
+func (s *DeliveryLogDetail) SetMessageID(val NilString) {
+	s.MessageID = val
+}
+
+// SetProviderID sets the value of ProviderID.
+func (s *DeliveryLogDetail) SetProviderID(val NilString) {
+	s.ProviderID = val
+}
+
+// SetProviderName sets the value of ProviderName.
+func (s *DeliveryLogDetail) SetProviderName(val NilString) {
+	s.ProviderName = val
+}
+
+// SetRecipientCount sets the value of RecipientCount.
+func (s *DeliveryLogDetail) SetRecipientCount(val NilInt) {
+	s.RecipientCount = val
+}
+
+// SetRecipients sets the value of Recipients.
+func (s *DeliveryLogDetail) SetRecipients(val []DeliveryLogRecipient) {
+	s.Recipients = val
+}
+
+// SetRejectedRecipientCount sets the value of RejectedRecipientCount.
+func (s *DeliveryLogDetail) SetRejectedRecipientCount(val NilInt) {
+	s.RejectedRecipientCount = val
+}
+
+// SetSentAt sets the value of SentAt.
+func (s *DeliveryLogDetail) SetSentAt(val NilString) {
+	s.SentAt = val
+}
+
+// SetSentFromEmail sets the value of SentFromEmail.
+func (s *DeliveryLogDetail) SetSentFromEmail(val NilString) {
+	s.SentFromEmail = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *DeliveryLogDetail) SetSizeBytes(val NilFloat64) {
+	s.SizeBytes = val
+}
+
+// SetStatus sets the value of Status.
+func (s *DeliveryLogDetail) SetStatus(val DeliveryLogDetailStatus) {
+	s.Status = val
+}
+
+// SetStatusReason sets the value of StatusReason.
+func (s *DeliveryLogDetail) SetStatusReason(val NilString) {
+	s.StatusReason = val
+}
+
+// SetSubject sets the value of Subject.
+func (s *DeliveryLogDetail) SetSubject(val NilString) {
+	s.Subject = val
+}
+
+// SetToEmail sets the value of ToEmail.
+func (s *DeliveryLogDetail) SetToEmail(val NilString) {
+	s.ToEmail = val
+}
+
+type DeliveryLogDetailStatus string
+
+const (
+	DeliveryLogDetailStatusPending  DeliveryLogDetailStatus = "pending"
+	DeliveryLogDetailStatusSent     DeliveryLogDetailStatus = "sent"
+	DeliveryLogDetailStatusFailed   DeliveryLogDetailStatus = "failed"
+	DeliveryLogDetailStatusRejected DeliveryLogDetailStatus = "rejected"
+)
+
+// AllValues returns all DeliveryLogDetailStatus values.
+func (DeliveryLogDetailStatus) AllValues() []DeliveryLogDetailStatus {
+	return []DeliveryLogDetailStatus{
+		DeliveryLogDetailStatusPending,
+		DeliveryLogDetailStatusSent,
+		DeliveryLogDetailStatusFailed,
+		DeliveryLogDetailStatusRejected,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s DeliveryLogDetailStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case DeliveryLogDetailStatusPending:
+		return []byte(s), nil
+	case DeliveryLogDetailStatusSent:
+		return []byte(s), nil
+	case DeliveryLogDetailStatusFailed:
+		return []byte(s), nil
+	case DeliveryLogDetailStatusRejected:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *DeliveryLogDetailStatus) UnmarshalText(data []byte) error {
+	switch DeliveryLogDetailStatus(data) {
+	case DeliveryLogDetailStatusPending:
+		*s = DeliveryLogDetailStatusPending
+		return nil
+	case DeliveryLogDetailStatusSent:
+		*s = DeliveryLogDetailStatusSent
+		return nil
+	case DeliveryLogDetailStatusFailed:
+		*s = DeliveryLogDetailStatusFailed
+		return nil
+	case DeliveryLogDetailStatusRejected:
+		*s = DeliveryLogDetailStatusRejected
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/DeliveryLogItem
+type DeliveryLogItem struct {
+	// Recipient occurrences accepted by the provider, or null when no recipient snapshot exists.
+	AcceptedRecipientCount NilInt  `json:"accepted_recipient_count"`
+	Attempts               float64 `json:"attempts"`
+	// ISO 8601 creation timestamp.
+	CreatedAt string    `json:"created_at"`
+	FromEmail NilString `json:"from_email"`
+	// Log public ID.
+	ID string `json:"id"`
+	// Email Message-ID header.
+	MessageID NilString `json:"message_id"`
+	// Provider public ID.
+	ProviderID NilString `json:"provider_id"`
+	// Provider display name.
+	ProviderName NilString `json:"provider_name"`
+	// Total recipient occurrences, or null when no recipient snapshot exists.
+	RecipientCount NilInt `json:"recipient_count"`
+	// Recipient occurrences rejected by the provider, or null when no recipient snapshot exists.
+	RejectedRecipientCount NilInt `json:"rejected_recipient_count"`
 	// ISO 8601 timestamp when email was sent.
 	SentAt NilString `json:"sent_at"`
 	// The actual from address used for delivery after transformation. NULL if no transformation occurred
@@ -637,6 +937,11 @@ type DeliveryLogItem struct {
 	StatusReason  NilString             `json:"status_reason"`
 	Subject       NilString             `json:"subject"`
 	ToEmail       NilString             `json:"to_email"`
+}
+
+// GetAcceptedRecipientCount returns the value of AcceptedRecipientCount.
+func (s *DeliveryLogItem) GetAcceptedRecipientCount() NilInt {
+	return s.AcceptedRecipientCount
 }
 
 // GetAttempts returns the value of Attempts.
@@ -674,6 +979,16 @@ func (s *DeliveryLogItem) GetProviderName() NilString {
 	return s.ProviderName
 }
 
+// GetRecipientCount returns the value of RecipientCount.
+func (s *DeliveryLogItem) GetRecipientCount() NilInt {
+	return s.RecipientCount
+}
+
+// GetRejectedRecipientCount returns the value of RejectedRecipientCount.
+func (s *DeliveryLogItem) GetRejectedRecipientCount() NilInt {
+	return s.RejectedRecipientCount
+}
+
 // GetSentAt returns the value of SentAt.
 func (s *DeliveryLogItem) GetSentAt() NilString {
 	return s.SentAt
@@ -709,6 +1024,11 @@ func (s *DeliveryLogItem) GetToEmail() NilString {
 	return s.ToEmail
 }
 
+// SetAcceptedRecipientCount sets the value of AcceptedRecipientCount.
+func (s *DeliveryLogItem) SetAcceptedRecipientCount(val NilInt) {
+	s.AcceptedRecipientCount = val
+}
+
 // SetAttempts sets the value of Attempts.
 func (s *DeliveryLogItem) SetAttempts(val float64) {
 	s.Attempts = val
@@ -742,6 +1062,16 @@ func (s *DeliveryLogItem) SetProviderID(val NilString) {
 // SetProviderName sets the value of ProviderName.
 func (s *DeliveryLogItem) SetProviderName(val NilString) {
 	s.ProviderName = val
+}
+
+// SetRecipientCount sets the value of RecipientCount.
+func (s *DeliveryLogItem) SetRecipientCount(val NilInt) {
+	s.RecipientCount = val
+}
+
+// SetRejectedRecipientCount sets the value of RejectedRecipientCount.
+func (s *DeliveryLogItem) SetRejectedRecipientCount(val NilInt) {
+	s.RejectedRecipientCount = val
 }
 
 // SetSentAt sets the value of SentAt.
@@ -887,7 +1217,7 @@ type DeliveryLogItemResponse struct {
 	// Merged property.
 	Meta DeliveryLogItemResponseMeta `json:"meta"`
 	Ok   DeliveryLogItemResponseOk   `json:"ok"`
-	Data DeliveryLogItem             `json:"data"`
+	Data DeliveryLogDetail           `json:"data"`
 }
 
 // GetMeta returns the value of Meta.
@@ -901,7 +1231,7 @@ func (s *DeliveryLogItemResponse) GetOk() DeliveryLogItemResponseOk {
 }
 
 // GetData returns the value of Data.
-func (s *DeliveryLogItemResponse) GetData() DeliveryLogItem {
+func (s *DeliveryLogItemResponse) GetData() DeliveryLogDetail {
 	return s.Data
 }
 
@@ -916,7 +1246,7 @@ func (s *DeliveryLogItemResponse) SetOk(val DeliveryLogItemResponseOk) {
 }
 
 // SetData sets the value of Data.
-func (s *DeliveryLogItemResponse) SetData(val DeliveryLogItem) {
+func (s *DeliveryLogItemResponse) SetData(val DeliveryLogDetail) {
 	s.Data = val
 }
 
@@ -1047,6 +1377,149 @@ func (s *DeliveryLogItemStatus) UnmarshalText(data []byte) error {
 		return nil
 	case DeliveryLogItemStatusRejected:
 		*s = DeliveryLogItemStatusRejected
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/DeliveryLogRecipient
+type DeliveryLogRecipient struct {
+	// Recipient email address.
+	Email string `json:"email"`
+	// Recipient-specific rejection reason when available.
+	Reason NilString `json:"reason"`
+	// Provider acceptance outcome.
+	Status DeliveryLogRecipientStatus `json:"status"`
+	// Recipient header type when known.
+	Type NilDeliveryLogRecipientType `json:"type"`
+}
+
+// GetEmail returns the value of Email.
+func (s *DeliveryLogRecipient) GetEmail() string {
+	return s.Email
+}
+
+// GetReason returns the value of Reason.
+func (s *DeliveryLogRecipient) GetReason() NilString {
+	return s.Reason
+}
+
+// GetStatus returns the value of Status.
+func (s *DeliveryLogRecipient) GetStatus() DeliveryLogRecipientStatus {
+	return s.Status
+}
+
+// GetType returns the value of Type.
+func (s *DeliveryLogRecipient) GetType() NilDeliveryLogRecipientType {
+	return s.Type
+}
+
+// SetEmail sets the value of Email.
+func (s *DeliveryLogRecipient) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetReason sets the value of Reason.
+func (s *DeliveryLogRecipient) SetReason(val NilString) {
+	s.Reason = val
+}
+
+// SetStatus sets the value of Status.
+func (s *DeliveryLogRecipient) SetStatus(val DeliveryLogRecipientStatus) {
+	s.Status = val
+}
+
+// SetType sets the value of Type.
+func (s *DeliveryLogRecipient) SetType(val NilDeliveryLogRecipientType) {
+	s.Type = val
+}
+
+// Provider acceptance outcome.
+type DeliveryLogRecipientStatus string
+
+const (
+	DeliveryLogRecipientStatusAccepted DeliveryLogRecipientStatus = "accepted"
+	DeliveryLogRecipientStatusRejected DeliveryLogRecipientStatus = "rejected"
+)
+
+// AllValues returns all DeliveryLogRecipientStatus values.
+func (DeliveryLogRecipientStatus) AllValues() []DeliveryLogRecipientStatus {
+	return []DeliveryLogRecipientStatus{
+		DeliveryLogRecipientStatusAccepted,
+		DeliveryLogRecipientStatusRejected,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s DeliveryLogRecipientStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case DeliveryLogRecipientStatusAccepted:
+		return []byte(s), nil
+	case DeliveryLogRecipientStatusRejected:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *DeliveryLogRecipientStatus) UnmarshalText(data []byte) error {
+	switch DeliveryLogRecipientStatus(data) {
+	case DeliveryLogRecipientStatusAccepted:
+		*s = DeliveryLogRecipientStatusAccepted
+		return nil
+	case DeliveryLogRecipientStatusRejected:
+		*s = DeliveryLogRecipientStatusRejected
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Recipient header type when known.
+type DeliveryLogRecipientType string
+
+const (
+	DeliveryLogRecipientTypeTo  DeliveryLogRecipientType = "to"
+	DeliveryLogRecipientTypeCc  DeliveryLogRecipientType = "cc"
+	DeliveryLogRecipientTypeBcc DeliveryLogRecipientType = "bcc"
+)
+
+// AllValues returns all DeliveryLogRecipientType values.
+func (DeliveryLogRecipientType) AllValues() []DeliveryLogRecipientType {
+	return []DeliveryLogRecipientType{
+		DeliveryLogRecipientTypeTo,
+		DeliveryLogRecipientTypeCc,
+		DeliveryLogRecipientTypeBcc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s DeliveryLogRecipientType) MarshalText() ([]byte, error) {
+	switch s {
+	case DeliveryLogRecipientTypeTo:
+		return []byte(s), nil
+	case DeliveryLogRecipientTypeCc:
+		return []byte(s), nil
+	case DeliveryLogRecipientTypeBcc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *DeliveryLogRecipientType) UnmarshalText(data []byte) error {
+	switch DeliveryLogRecipientType(data) {
+	case DeliveryLogRecipientTypeTo:
+		*s = DeliveryLogRecipientTypeTo
+		return nil
+	case DeliveryLogRecipientTypeCc:
+		*s = DeliveryLogRecipientTypeCc
+		return nil
+	case DeliveryLogRecipientTypeBcc:
+		*s = DeliveryLogRecipientTypeBcc
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -3972,15 +4445,15 @@ func (s *MailboxDomainVerificationStatus) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/MailboxDomainVerifyChecks
 type MailboxDomainVerifyChecks struct {
-	// DMARC TXT record matches expected value.
+	// Published DMARC policy provides at least the required enforcement level.
 	Dmarc bool `json:"dmarc"`
 	// Custom MAIL FROM MX record matches expected value.
 	MailFromMx bool `json:"mail_from_mx"`
-	// Custom MAIL FROM SPF TXT record matches expected value.
+	// Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.
 	MailFromSpf bool `json:"mail_from_spf"`
 	// MX record present when the domain is configured for receiving. Always true for send-only domains.
 	Mx bool `json:"mx"`
-	// SPF TXT record matches expected value.
+	// Published SPF policy is compatible with the required Amazon SES sender authorisation.
 	Spf bool `json:"spf"`
 	// Ownership TXT record present with correct value.
 	VerificationTxt bool `json:"verification_txt"`
@@ -4103,6 +4576,7 @@ type MailboxDomainVerifyResultStatus string
 const (
 	MailboxDomainVerifyResultStatusVerified MailboxDomainVerifyResultStatus = "verified"
 	MailboxDomainVerifyResultStatusPending  MailboxDomainVerifyResultStatus = "pending"
+	MailboxDomainVerifyResultStatusFailed   MailboxDomainVerifyResultStatus = "failed"
 )
 
 // AllValues returns all MailboxDomainVerifyResultStatus values.
@@ -4110,6 +4584,7 @@ func (MailboxDomainVerifyResultStatus) AllValues() []MailboxDomainVerifyResultSt
 	return []MailboxDomainVerifyResultStatus{
 		MailboxDomainVerifyResultStatusVerified,
 		MailboxDomainVerifyResultStatusPending,
+		MailboxDomainVerifyResultStatusFailed,
 	}
 }
 
@@ -4119,6 +4594,8 @@ func (s MailboxDomainVerifyResultStatus) MarshalText() ([]byte, error) {
 	case MailboxDomainVerifyResultStatusVerified:
 		return []byte(s), nil
 	case MailboxDomainVerifyResultStatusPending:
+		return []byte(s), nil
+	case MailboxDomainVerifyResultStatusFailed:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -4133,6 +4610,9 @@ func (s *MailboxDomainVerifyResultStatus) UnmarshalText(data []byte) error {
 		return nil
 	case MailboxDomainVerifyResultStatusPending:
 		*s = MailboxDomainVerifyResultStatusPending
+		return nil
+	case MailboxDomainVerifyResultStatusFailed:
+		*s = MailboxDomainVerifyResultStatusFailed
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -4581,37 +5061,37 @@ func (s *MailboxSendScopeType) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementActivateProviderConflict ApiError
+type ManagementActivateProviderConflict ApiErrorHeaders
 
 func (*ManagementActivateProviderConflict) managementActivateProviderRes() {}
 
-type ManagementActivateProviderNotFound ApiError
+type ManagementActivateProviderNotFound ApiErrorHeaders
 
 func (*ManagementActivateProviderNotFound) managementActivateProviderRes() {}
 
-type ManagementCancelSharedAmazonSesLimitRequestConflict ApiError
+type ManagementCancelSharedAmazonSesLimitRequestConflict ApiErrorHeaders
 
 func (*ManagementCancelSharedAmazonSesLimitRequestConflict) managementCancelSharedAmazonSesLimitRequestRes() {
 }
 
-type ManagementCancelSharedAmazonSesLimitRequestNotFound ApiError
+type ManagementCancelSharedAmazonSesLimitRequestNotFound ApiErrorHeaders
 
 func (*ManagementCancelSharedAmazonSesLimitRequestNotFound) managementCancelSharedAmazonSesLimitRequestRes() {
 }
 
-type ManagementCheckMailboxAvailabilityForbidden ApiError
+type ManagementCheckMailboxAvailabilityForbidden ApiErrorHeaders
 
 func (*ManagementCheckMailboxAvailabilityForbidden) managementCheckMailboxAvailabilityRes() {}
 
-type ManagementCheckMailboxAvailabilityUnauthorized ApiError
+type ManagementCheckMailboxAvailabilityUnauthorized ApiErrorHeaders
 
 func (*ManagementCheckMailboxAvailabilityUnauthorized) managementCheckMailboxAvailabilityRes() {}
 
-type ManagementCreateDomainBadRequest ApiError
+type ManagementCreateDomainBadRequest ApiErrorHeaders
 
 func (*ManagementCreateDomainBadRequest) managementCreateDomainRes() {}
 
-type ManagementCreateDomainConflict ApiError
+type ManagementCreateDomainConflict ApiErrorHeaders
 
 func (*ManagementCreateDomainConflict) managementCreateDomainRes() {}
 
@@ -4684,31 +5164,31 @@ func (s *ManagementCreateDomainReqMode) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementCreateDomainRequestEntityTooLarge ApiError
+type ManagementCreateDomainRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementCreateDomainRequestEntityTooLarge) managementCreateDomainRes() {}
 
-type ManagementCreateDomainServiceUnavailable ApiError
+type ManagementCreateDomainServiceUnavailable ApiErrorHeaders
 
 func (*ManagementCreateDomainServiceUnavailable) managementCreateDomainRes() {}
 
-type ManagementCreateMailboxBadRequest ApiError
+type ManagementCreateMailboxBadRequest ApiErrorHeaders
 
 func (*ManagementCreateMailboxBadRequest) managementCreateMailboxRes() {}
 
-type ManagementCreateMailboxConflict ApiError
+type ManagementCreateMailboxConflict ApiErrorHeaders
 
 func (*ManagementCreateMailboxConflict) managementCreateMailboxRes() {}
 
-type ManagementCreateMailboxKeyBadRequest ApiError
+type ManagementCreateMailboxKeyBadRequest ApiErrorHeaders
 
 func (*ManagementCreateMailboxKeyBadRequest) managementCreateMailboxKeyRes() {}
 
-type ManagementCreateMailboxKeyConflict ApiError
+type ManagementCreateMailboxKeyConflict ApiErrorHeaders
 
 func (*ManagementCreateMailboxKeyConflict) managementCreateMailboxKeyRes() {}
 
-type ManagementCreateMailboxKeyNotFound ApiError
+type ManagementCreateMailboxKeyNotFound ApiErrorHeaders
 
 func (*ManagementCreateMailboxKeyNotFound) managementCreateMailboxKeyRes() {}
 
@@ -4727,15 +5207,15 @@ func (s *ManagementCreateMailboxKeyReq) SetAppName(val string) {
 	s.AppName = val
 }
 
-type ManagementCreateMailboxKeyRequestEntityTooLarge ApiError
+type ManagementCreateMailboxKeyRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementCreateMailboxKeyRequestEntityTooLarge) managementCreateMailboxKeyRes() {}
 
-type ManagementCreateMailboxKeyServiceUnavailable ApiError
+type ManagementCreateMailboxKeyServiceUnavailable ApiErrorHeaders
 
 func (*ManagementCreateMailboxKeyServiceUnavailable) managementCreateMailboxKeyRes() {}
 
-type ManagementCreateMailboxKeyUnprocessableEntity ApiError
+type ManagementCreateMailboxKeyUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementCreateMailboxKeyUnprocessableEntity) managementCreateMailboxKeyRes() {}
 
@@ -4881,110 +5361,110 @@ func (s *ManagementCreateMailboxReqSendScopeType) UnmarshalText(data []byte) err
 	}
 }
 
-type ManagementCreateMailboxRequestEntityTooLarge ApiError
+type ManagementCreateMailboxRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementCreateMailboxRequestEntityTooLarge) managementCreateMailboxRes() {}
 
-type ManagementCreateMailboxServiceUnavailable ApiError
+type ManagementCreateMailboxServiceUnavailable ApiErrorHeaders
 
 func (*ManagementCreateMailboxServiceUnavailable) managementCreateMailboxRes() {}
 
-type ManagementCreateMailboxUnprocessableEntity ApiError
+type ManagementCreateMailboxUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementCreateMailboxUnprocessableEntity) managementCreateMailboxRes() {}
 
-type ManagementCreateProviderBadRequest ApiError
+type ManagementCreateProviderBadRequest ApiErrorHeaders
 
 func (*ManagementCreateProviderBadRequest) managementCreateProviderRes() {}
 
-type ManagementCreateProviderConflict ApiError
+type ManagementCreateProviderConflict ApiErrorHeaders
 
 func (*ManagementCreateProviderConflict) managementCreateProviderRes() {}
 
-type ManagementCreateProviderRequestEntityTooLarge ApiError
+type ManagementCreateProviderRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementCreateProviderRequestEntityTooLarge) managementCreateProviderRes() {}
 
-type ManagementCreateSharedAmazonSesLimitRequestConflict ApiError
+type ManagementCreateSharedAmazonSesLimitRequestConflict ApiErrorHeaders
 
 func (*ManagementCreateSharedAmazonSesLimitRequestConflict) managementCreateSharedAmazonSesLimitRequestRes() {
 }
 
-type ManagementCreateSharedAmazonSesLimitRequestNotFound ApiError
+type ManagementCreateSharedAmazonSesLimitRequestNotFound ApiErrorHeaders
 
 func (*ManagementCreateSharedAmazonSesLimitRequestNotFound) managementCreateSharedAmazonSesLimitRequestRes() {
 }
 
-type ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity ApiError
+type ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) managementCreateSharedAmazonSesLimitRequestRes() {
 }
 
-type ManagementCreateWebhookBadRequest ApiError
+type ManagementCreateWebhookBadRequest ApiErrorHeaders
 
 func (*ManagementCreateWebhookBadRequest) managementCreateWebhookRes() {}
 
-type ManagementCreateWebhookConflict ApiError
+type ManagementCreateWebhookConflict ApiErrorHeaders
 
 func (*ManagementCreateWebhookConflict) managementCreateWebhookRes() {}
 
-type ManagementCreateWebhookForbidden ApiError
+type ManagementCreateWebhookForbidden ApiErrorHeaders
 
 func (*ManagementCreateWebhookForbidden) managementCreateWebhookRes() {}
 
-type ManagementCreateWebhookRequestEntityTooLarge ApiError
+type ManagementCreateWebhookRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementCreateWebhookRequestEntityTooLarge) managementCreateWebhookRes() {}
 
-type ManagementCreateWebhookUnauthorized ApiError
+type ManagementCreateWebhookUnauthorized ApiErrorHeaders
 
 func (*ManagementCreateWebhookUnauthorized) managementCreateWebhookRes() {}
 
-type ManagementCreateWebhookUnprocessableEntity ApiError
+type ManagementCreateWebhookUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementCreateWebhookUnprocessableEntity) managementCreateWebhookRes() {}
 
-type ManagementDeactivateProviderConflict ApiError
+type ManagementDeactivateProviderConflict ApiErrorHeaders
 
 func (*ManagementDeactivateProviderConflict) managementDeactivateProviderRes() {}
 
-type ManagementDeactivateProviderNotFound ApiError
+type ManagementDeactivateProviderNotFound ApiErrorHeaders
 
 func (*ManagementDeactivateProviderNotFound) managementDeactivateProviderRes() {}
 
-type ManagementDeleteDomainConflict ApiError
+type ManagementDeleteDomainConflict ApiErrorHeaders
 
 func (*ManagementDeleteDomainConflict) managementDeleteDomainRes() {}
 
-type ManagementDeleteDomainNotFound ApiError
+type ManagementDeleteDomainNotFound ApiErrorHeaders
 
 func (*ManagementDeleteDomainNotFound) managementDeleteDomainRes() {}
 
-type ManagementDeleteProviderNotFound ApiError
+type ManagementDeleteProviderNotFound ApiErrorHeaders
 
 func (*ManagementDeleteProviderNotFound) managementDeleteProviderRes() {}
 
-type ManagementDeleteProviderUnprocessableEntity ApiError
+type ManagementDeleteProviderUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementDeleteProviderUnprocessableEntity) managementDeleteProviderRes() {}
 
-type ManagementGetDeliveryPayloadForbidden ApiError
+type ManagementGetDeliveryPayloadForbidden ApiErrorHeaders
 
 func (*ManagementGetDeliveryPayloadForbidden) managementGetDeliveryPayloadRes() {}
 
-type ManagementGetDeliveryPayloadNotFound ApiError
+type ManagementGetDeliveryPayloadNotFound ApiErrorHeaders
 
 func (*ManagementGetDeliveryPayloadNotFound) managementGetDeliveryPayloadRes() {}
 
-type ManagementGetDeliveryPayloadUnauthorized ApiError
+type ManagementGetDeliveryPayloadUnauthorized ApiErrorHeaders
 
 func (*ManagementGetDeliveryPayloadUnauthorized) managementGetDeliveryPayloadRes() {}
 
-type ManagementGetDomainFiltersConflict ApiError
+type ManagementGetDomainFiltersConflict ApiErrorHeaders
 
 func (*ManagementGetDomainFiltersConflict) managementGetDomainFiltersRes() {}
 
-type ManagementGetDomainFiltersNotFound ApiError
+type ManagementGetDomainFiltersNotFound ApiErrorHeaders
 
 func (*ManagementGetDomainFiltersNotFound) managementGetDomainFiltersRes() {}
 
@@ -5005,7 +5485,7 @@ func (s *ManagementGetDomainFiltersNotModified) SetETag(val OptString) {
 
 func (*ManagementGetDomainFiltersNotModified) managementGetDomainFiltersRes() {}
 
-type ManagementGetDomainFiltersServiceUnavailable ApiError
+type ManagementGetDomainFiltersServiceUnavailable ApiErrorHeaders
 
 func (*ManagementGetDomainFiltersServiceUnavailable) managementGetDomainFiltersRes() {}
 
@@ -5068,11 +5548,11 @@ func (s *ManagementGetDomainZoneFileOKHeaders) SetResponse(val ManagementGetDoma
 
 func (*ManagementGetDomainZoneFileOKHeaders) managementGetDomainZoneFileRes() {}
 
-type ManagementGetEmailLogForbidden ApiError
+type ManagementGetEmailLogForbidden ApiErrorHeaders
 
 func (*ManagementGetEmailLogForbidden) managementGetEmailLogRes() {}
 
-type ManagementGetEmailLogNotFound ApiError
+type ManagementGetEmailLogNotFound ApiErrorHeaders
 
 func (*ManagementGetEmailLogNotFound) managementGetEmailLogRes() {}
 
@@ -5093,11 +5573,11 @@ func (s *ManagementGetEmailLogNotModified) SetETag(val OptString) {
 
 func (*ManagementGetEmailLogNotModified) managementGetEmailLogRes() {}
 
-type ManagementGetEmailLogUnauthorized ApiError
+type ManagementGetEmailLogUnauthorized ApiErrorHeaders
 
 func (*ManagementGetEmailLogUnauthorized) managementGetEmailLogRes() {}
 
-type ManagementGetEmailMetricsForbidden ApiError
+type ManagementGetEmailMetricsForbidden ApiErrorHeaders
 
 func (*ManagementGetEmailMetricsForbidden) managementGetEmailMetricsRes() {}
 
@@ -5143,7 +5623,7 @@ func (s *ManagementGetEmailMetricsGranularity) UnmarshalText(data []byte) error 
 	}
 }
 
-type ManagementGetEmailMetricsUnauthorized ApiError
+type ManagementGetEmailMetricsUnauthorized ApiErrorHeaders
 
 func (*ManagementGetEmailMetricsUnauthorized) managementGetEmailMetricsRes() {}
 
@@ -5196,19 +5676,19 @@ func (s *ManagementGetEmailMetricsWindow) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementGetInboxLogForbidden ApiError
+type ManagementGetInboxLogForbidden ApiErrorHeaders
 
 func (*ManagementGetInboxLogForbidden) managementGetInboxLogRes() {}
 
-type ManagementGetInboxLogNotFound ApiError
+type ManagementGetInboxLogNotFound ApiErrorHeaders
 
 func (*ManagementGetInboxLogNotFound) managementGetInboxLogRes() {}
 
-type ManagementGetInboxLogUnauthorized ApiError
+type ManagementGetInboxLogUnauthorized ApiErrorHeaders
 
 func (*ManagementGetInboxLogUnauthorized) managementGetInboxLogRes() {}
 
-type ManagementGetMailboxFiltersNotFound ApiError
+type ManagementGetMailboxFiltersNotFound ApiErrorHeaders
 
 func (*ManagementGetMailboxFiltersNotFound) managementGetMailboxFiltersRes() {}
 
@@ -5229,7 +5709,7 @@ func (s *ManagementGetMailboxFiltersNotModified) SetETag(val OptString) {
 
 func (*ManagementGetMailboxFiltersNotModified) managementGetMailboxFiltersRes() {}
 
-type ManagementGetMailboxFiltersServiceUnavailable ApiError
+type ManagementGetMailboxFiltersServiceUnavailable ApiErrorHeaders
 
 func (*ManagementGetMailboxFiltersServiceUnavailable) managementGetMailboxFiltersRes() {}
 
@@ -5255,11 +5735,11 @@ type ManagementGetProviderNotModified struct{}
 
 func (*ManagementGetProviderNotModified) managementGetProviderRes() {}
 
-type ManagementGetProviderStatsForbidden ApiError
+type ManagementGetProviderStatsForbidden ApiErrorHeaders
 
 func (*ManagementGetProviderStatsForbidden) managementGetProviderStatsRes() {}
 
-type ManagementGetProviderStatsUnauthorized ApiError
+type ManagementGetProviderStatsUnauthorized ApiErrorHeaders
 
 func (*ManagementGetProviderStatsUnauthorized) managementGetProviderStatsRes() {}
 
@@ -5312,11 +5792,11 @@ func (s *ManagementGetSpendSummaryDays) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementGetSpendSummaryForbidden ApiError
+type ManagementGetSpendSummaryForbidden ApiErrorHeaders
 
 func (*ManagementGetSpendSummaryForbidden) managementGetSpendSummaryRes() {}
 
-type ManagementGetSpendSummaryUnauthorized ApiError
+type ManagementGetSpendSummaryUnauthorized ApiErrorHeaders
 
 func (*ManagementGetSpendSummaryUnauthorized) managementGetSpendSummaryRes() {}
 
@@ -5337,15 +5817,15 @@ func (s *ManagementGetWebhookNotModified) SetETag(val OptString) {
 
 func (*ManagementGetWebhookNotModified) managementGetWebhookRes() {}
 
-type ManagementListBalanceForbidden ApiError
+type ManagementListBalanceForbidden ApiErrorHeaders
 
 func (*ManagementListBalanceForbidden) managementListBalanceRes() {}
 
-type ManagementListBalanceUnauthorized ApiError
+type ManagementListBalanceUnauthorized ApiErrorHeaders
 
 func (*ManagementListBalanceUnauthorized) managementListBalanceRes() {}
 
-type ManagementListDeliveryBadRequest ApiError
+type ManagementListDeliveryBadRequest ApiErrorHeaders
 
 func (*ManagementListDeliveryBadRequest) managementListDeliveryRes() {}
 
@@ -5433,11 +5913,11 @@ func (s *ManagementListDeliveryEventType) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementListDeliveryForbidden ApiError
+type ManagementListDeliveryForbidden ApiErrorHeaders
 
 func (*ManagementListDeliveryForbidden) managementListDeliveryRes() {}
 
-type ManagementListDeliveryNotFound ApiError
+type ManagementListDeliveryNotFound ApiErrorHeaders
 
 func (*ManagementListDeliveryNotFound) managementListDeliveryRes() {}
 
@@ -5497,19 +5977,19 @@ func (s *ManagementListDeliveryResult) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementListDeliveryUnauthorized ApiError
+type ManagementListDeliveryUnauthorized ApiErrorHeaders
 
 func (*ManagementListDeliveryUnauthorized) managementListDeliveryRes() {}
 
-type ManagementListDomainsForbidden ApiError
+type ManagementListDomainsForbidden ApiErrorHeaders
 
 func (*ManagementListDomainsForbidden) managementListDomainsRes() {}
 
-type ManagementListDomainsUnauthorized ApiError
+type ManagementListDomainsUnauthorized ApiErrorHeaders
 
 func (*ManagementListDomainsUnauthorized) managementListDomainsRes() {}
 
-type ManagementListEmailLogsForbidden ApiError
+type ManagementListEmailLogsForbidden ApiErrorHeaders
 
 func (*ManagementListEmailLogsForbidden) managementListEmailLogsRes() {}
 
@@ -5569,7 +6049,7 @@ func (s *ManagementListEmailLogsStatus) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementListEmailLogsUnauthorized ApiError
+type ManagementListEmailLogsUnauthorized ApiErrorHeaders
 
 func (*ManagementListEmailLogsUnauthorized) managementListEmailLogsRes() {}
 
@@ -5614,15 +6094,15 @@ func (s *ManagementListInboxLogsEventType) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementListInboxLogsForbidden ApiError
+type ManagementListInboxLogsForbidden ApiErrorHeaders
 
 func (*ManagementListInboxLogsForbidden) managementListInboxLogsRes() {}
 
-type ManagementListInboxLogsUnauthorized ApiError
+type ManagementListInboxLogsUnauthorized ApiErrorHeaders
 
 func (*ManagementListInboxLogsUnauthorized) managementListInboxLogsRes() {}
 
-type ManagementListMailboxesForbidden ApiError
+type ManagementListMailboxesForbidden ApiErrorHeaders
 
 func (*ManagementListMailboxesForbidden) managementListMailboxesRes() {}
 
@@ -5662,11 +6142,11 @@ func (s *ManagementListMailboxesIncludeDeleted) UnmarshalText(data []byte) error
 	}
 }
 
-type ManagementListMailboxesUnauthorized ApiError
+type ManagementListMailboxesUnauthorized ApiErrorHeaders
 
 func (*ManagementListMailboxesUnauthorized) managementListMailboxesRes() {}
 
-type ManagementListProvidersForbidden ApiError
+type ManagementListProvidersForbidden ApiErrorHeaders
 
 func (*ManagementListProvidersForbidden) managementListProvidersRes() {}
 
@@ -5780,11 +6260,11 @@ func (s *ManagementListProvidersType) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementListProvidersUnauthorized ApiError
+type ManagementListProvidersUnauthorized ApiErrorHeaders
 
 func (*ManagementListProvidersUnauthorized) managementListProvidersRes() {}
 
-type ManagementListTransactionsForbidden ApiError
+type ManagementListTransactionsForbidden ApiErrorHeaders
 
 func (*ManagementListTransactionsForbidden) managementListTransactionsRes() {}
 
@@ -5850,133 +6330,133 @@ func (s *ManagementListTransactionsType) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementListTransactionsUnauthorized ApiError
+type ManagementListTransactionsUnauthorized ApiErrorHeaders
 
 func (*ManagementListTransactionsUnauthorized) managementListTransactionsRes() {}
 
-type ManagementListWebhooksForbidden ApiError
+type ManagementListWebhooksForbidden ApiErrorHeaders
 
 func (*ManagementListWebhooksForbidden) managementListWebhooksRes() {}
 
-type ManagementListWebhooksUnauthorized ApiError
+type ManagementListWebhooksUnauthorized ApiErrorHeaders
 
 func (*ManagementListWebhooksUnauthorized) managementListWebhooksRes() {}
 
-type ManagementRequestSendingAccountLimitIncreaseConflict ApiError
+type ManagementRequestSendingAccountLimitIncreaseConflict ApiErrorHeaders
 
 func (*ManagementRequestSendingAccountLimitIncreaseConflict) managementRequestSendingAccountLimitIncreaseRes() {
 }
 
-type ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity ApiError
+type ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) managementRequestSendingAccountLimitIncreaseRes() {
 }
 
-type ManagementResumeMailboxConflict ApiError
+type ManagementResumeMailboxConflict ApiErrorHeaders
 
 func (*ManagementResumeMailboxConflict) managementResumeMailboxRes() {}
 
-type ManagementResumeMailboxForbidden ApiError
+type ManagementResumeMailboxForbidden ApiErrorHeaders
 
 func (*ManagementResumeMailboxForbidden) managementResumeMailboxRes() {}
 
-type ManagementResumeMailboxNotFound ApiError
+type ManagementResumeMailboxNotFound ApiErrorHeaders
 
 func (*ManagementResumeMailboxNotFound) managementResumeMailboxRes() {}
 
-type ManagementResumeMailboxServiceUnavailable ApiError
+type ManagementResumeMailboxServiceUnavailable ApiErrorHeaders
 
 func (*ManagementResumeMailboxServiceUnavailable) managementResumeMailboxRes() {}
 
-type ManagementRotateWebhookSecretConflict ApiError
+type ManagementRotateWebhookSecretConflict ApiErrorHeaders
 
 func (*ManagementRotateWebhookSecretConflict) managementRotateWebhookSecretRes() {}
 
-type ManagementRotateWebhookSecretNotFound ApiError
+type ManagementRotateWebhookSecretNotFound ApiErrorHeaders
 
 func (*ManagementRotateWebhookSecretNotFound) managementRotateWebhookSecretRes() {}
 
-type ManagementSetDomainFiltersBadRequest ApiError
+type ManagementSetDomainFiltersBadRequest ApiErrorHeaders
 
 func (*ManagementSetDomainFiltersBadRequest) managementSetDomainFiltersRes() {}
 
-type ManagementSetDomainFiltersConflict ApiError
+type ManagementSetDomainFiltersConflict ApiErrorHeaders
 
 func (*ManagementSetDomainFiltersConflict) managementSetDomainFiltersRes() {}
 
-type ManagementSetDomainFiltersNotFound ApiError
+type ManagementSetDomainFiltersNotFound ApiErrorHeaders
 
 func (*ManagementSetDomainFiltersNotFound) managementSetDomainFiltersRes() {}
 
-type ManagementSetDomainFiltersRequestEntityTooLarge ApiError
+type ManagementSetDomainFiltersRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementSetDomainFiltersRequestEntityTooLarge) managementSetDomainFiltersRes() {}
 
-type ManagementSetDomainFiltersServiceUnavailable ApiError
+type ManagementSetDomainFiltersServiceUnavailable ApiErrorHeaders
 
 func (*ManagementSetDomainFiltersServiceUnavailable) managementSetDomainFiltersRes() {}
 
-type ManagementSetDomainFiltersUnprocessableEntity ApiError
+type ManagementSetDomainFiltersUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementSetDomainFiltersUnprocessableEntity) managementSetDomainFiltersRes() {}
 
-type ManagementSetMailboxFiltersBadRequest ApiError
+type ManagementSetMailboxFiltersBadRequest ApiErrorHeaders
 
 func (*ManagementSetMailboxFiltersBadRequest) managementSetMailboxFiltersRes() {}
 
-type ManagementSetMailboxFiltersConflict ApiError
+type ManagementSetMailboxFiltersConflict ApiErrorHeaders
 
 func (*ManagementSetMailboxFiltersConflict) managementSetMailboxFiltersRes() {}
 
-type ManagementSetMailboxFiltersNotFound ApiError
+type ManagementSetMailboxFiltersNotFound ApiErrorHeaders
 
 func (*ManagementSetMailboxFiltersNotFound) managementSetMailboxFiltersRes() {}
 
-type ManagementSetMailboxFiltersRequestEntityTooLarge ApiError
+type ManagementSetMailboxFiltersRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementSetMailboxFiltersRequestEntityTooLarge) managementSetMailboxFiltersRes() {}
 
-type ManagementSetMailboxFiltersServiceUnavailable ApiError
+type ManagementSetMailboxFiltersServiceUnavailable ApiErrorHeaders
 
 func (*ManagementSetMailboxFiltersServiceUnavailable) managementSetMailboxFiltersRes() {}
 
-type ManagementSetMailboxFiltersUnprocessableEntity ApiError
+type ManagementSetMailboxFiltersUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementSetMailboxFiltersUnprocessableEntity) managementSetMailboxFiltersRes() {}
 
-type ManagementSuspendMailboxConflict ApiError
+type ManagementSuspendMailboxConflict ApiErrorHeaders
 
 func (*ManagementSuspendMailboxConflict) managementSuspendMailboxRes() {}
 
-type ManagementSuspendMailboxForbidden ApiError
+type ManagementSuspendMailboxForbidden ApiErrorHeaders
 
 func (*ManagementSuspendMailboxForbidden) managementSuspendMailboxRes() {}
 
-type ManagementSuspendMailboxNotFound ApiError
+type ManagementSuspendMailboxNotFound ApiErrorHeaders
 
 func (*ManagementSuspendMailboxNotFound) managementSuspendMailboxRes() {}
 
-type ManagementSuspendMailboxServiceUnavailable ApiError
+type ManagementSuspendMailboxServiceUnavailable ApiErrorHeaders
 
 func (*ManagementSuspendMailboxServiceUnavailable) managementSuspendMailboxRes() {}
 
-type ManagementTestProviderNotFound ApiError
+type ManagementTestProviderNotFound ApiErrorHeaders
 
 func (*ManagementTestProviderNotFound) managementTestProviderRes() {}
 
-type ManagementTestProviderServiceUnavailable ApiError
+type ManagementTestProviderServiceUnavailable ApiErrorHeaders
 
 func (*ManagementTestProviderServiceUnavailable) managementTestProviderRes() {}
 
-type ManagementTestProviderUnprocessableEntity ApiError
+type ManagementTestProviderUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementTestProviderUnprocessableEntity) managementTestProviderRes() {}
 
-type ManagementTestWebhookConflict ApiError
+type ManagementTestWebhookConflict ApiErrorHeaders
 
 func (*ManagementTestWebhookConflict) managementTestWebhookRes() {}
 
-type ManagementTestWebhookNotFound ApiError
+type ManagementTestWebhookNotFound ApiErrorHeaders
 
 func (*ManagementTestWebhookNotFound) managementTestWebhookRes() {}
 
@@ -6070,19 +6550,19 @@ func (ManagementTestWebhookOKOk) AllValues() []ManagementTestWebhookOKOk {
 	}
 }
 
-type ManagementTestWebhookServiceUnavailable ApiError
+type ManagementTestWebhookServiceUnavailable ApiErrorHeaders
 
 func (*ManagementTestWebhookServiceUnavailable) managementTestWebhookRes() {}
 
-type ManagementUpdateDomainBadRequest ApiError
+type ManagementUpdateDomainBadRequest ApiErrorHeaders
 
 func (*ManagementUpdateDomainBadRequest) managementUpdateDomainRes() {}
 
-type ManagementUpdateDomainConflict ApiError
+type ManagementUpdateDomainConflict ApiErrorHeaders
 
 func (*ManagementUpdateDomainConflict) managementUpdateDomainRes() {}
 
-type ManagementUpdateDomainNotFound ApiError
+type ManagementUpdateDomainNotFound ApiErrorHeaders
 
 func (*ManagementUpdateDomainNotFound) managementUpdateDomainRes() {}
 
@@ -6136,73 +6616,89 @@ func (s *ManagementUpdateDomainReqMode) UnmarshalText(data []byte) error {
 	}
 }
 
-type ManagementUpdateDomainRequestEntityTooLarge ApiError
+type ManagementUpdateDomainRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementUpdateDomainRequestEntityTooLarge) managementUpdateDomainRes() {}
 
-type ManagementUpdateDomainUnprocessableEntity ApiError
+type ManagementUpdateDomainUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementUpdateDomainUnprocessableEntity) managementUpdateDomainRes() {}
 
-type ManagementUpdateMailboxBadRequest ApiError
+type ManagementUpdateMailboxBadRequest ApiErrorHeaders
 
 func (*ManagementUpdateMailboxBadRequest) managementUpdateMailboxRes() {}
 
-type ManagementUpdateMailboxConflict ApiError
+type ManagementUpdateMailboxConflict ApiErrorHeaders
 
 func (*ManagementUpdateMailboxConflict) managementUpdateMailboxRes() {}
 
-type ManagementUpdateMailboxNotFound ApiError
+type ManagementUpdateMailboxNotFound ApiErrorHeaders
 
 func (*ManagementUpdateMailboxNotFound) managementUpdateMailboxRes() {}
 
-type ManagementUpdateMailboxRequestEntityTooLarge ApiError
+type ManagementUpdateMailboxRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementUpdateMailboxRequestEntityTooLarge) managementUpdateMailboxRes() {}
 
-type ManagementUpdateMailboxUnprocessableEntity ApiError
+type ManagementUpdateMailboxUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementUpdateMailboxUnprocessableEntity) managementUpdateMailboxRes() {}
 
-type ManagementUpdateProviderBadRequest ApiError
+type ManagementUpdateProviderBadRequest ApiErrorHeaders
 
 func (*ManagementUpdateProviderBadRequest) managementUpdateProviderRes() {}
 
-type ManagementUpdateProviderConflict ApiError
+type ManagementUpdateProviderConflict ApiErrorHeaders
 
 func (*ManagementUpdateProviderConflict) managementUpdateProviderRes() {}
 
-type ManagementUpdateProviderNotFound ApiError
+type ManagementUpdateProviderNotFound ApiErrorHeaders
 
 func (*ManagementUpdateProviderNotFound) managementUpdateProviderRes() {}
 
-type ManagementUpdateProviderRequestEntityTooLarge ApiError
+type ManagementUpdateProviderRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementUpdateProviderRequestEntityTooLarge) managementUpdateProviderRes() {}
 
-type ManagementUpdateProviderUnprocessableEntity ApiError
+type ManagementUpdateProviderUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementUpdateProviderUnprocessableEntity) managementUpdateProviderRes() {}
 
-type ManagementUpdateWebhookBadRequest ApiError
+type ManagementUpdateWebhookBadRequest ApiErrorHeaders
 
 func (*ManagementUpdateWebhookBadRequest) managementUpdateWebhookRes() {}
 
-type ManagementUpdateWebhookConflict ApiError
+type ManagementUpdateWebhookConflict ApiErrorHeaders
 
 func (*ManagementUpdateWebhookConflict) managementUpdateWebhookRes() {}
 
-type ManagementUpdateWebhookNotFound ApiError
+type ManagementUpdateWebhookNotFound ApiErrorHeaders
 
 func (*ManagementUpdateWebhookNotFound) managementUpdateWebhookRes() {}
 
-type ManagementUpdateWebhookRequestEntityTooLarge ApiError
+type ManagementUpdateWebhookRequestEntityTooLarge ApiErrorHeaders
 
 func (*ManagementUpdateWebhookRequestEntityTooLarge) managementUpdateWebhookRes() {}
 
-type ManagementUpdateWebhookUnprocessableEntity ApiError
+type ManagementUpdateWebhookUnprocessableEntity ApiErrorHeaders
 
 func (*ManagementUpdateWebhookUnprocessableEntity) managementUpdateWebhookRes() {}
+
+type ManagementVerifyDomainConflict ApiErrorHeaders
+
+func (*ManagementVerifyDomainConflict) managementVerifyDomainRes() {}
+
+type ManagementVerifyDomainInternalServerError ApiErrorHeaders
+
+func (*ManagementVerifyDomainInternalServerError) managementVerifyDomainRes() {}
+
+type ManagementVerifyDomainNotFound ApiErrorHeaders
+
+func (*ManagementVerifyDomainNotFound) managementVerifyDomainRes() {}
+
+type ManagementVerifyDomainServiceUnavailable ApiErrorHeaders
+
+func (*ManagementVerifyDomainServiceUnavailable) managementVerifyDomainRes() {}
 
 // NewNilBool returns new NilBool with value set to v.
 func NewNilBool(v bool) NilBool {
@@ -6243,6 +6739,51 @@ func (o NilBool) Get() (v bool, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o NilBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilDeliveryLogRecipientType returns new NilDeliveryLogRecipientType with value set to v.
+func NewNilDeliveryLogRecipientType(v DeliveryLogRecipientType) NilDeliveryLogRecipientType {
+	return NilDeliveryLogRecipientType{
+		Value: v,
+	}
+}
+
+// NilDeliveryLogRecipientType is nullable DeliveryLogRecipientType.
+type NilDeliveryLogRecipientType struct {
+	Value DeliveryLogRecipientType
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilDeliveryLogRecipientType) SetTo(v DeliveryLogRecipientType) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilDeliveryLogRecipientType) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilDeliveryLogRecipientType) SetToNull() {
+	o.Null = true
+	var v DeliveryLogRecipientType
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilDeliveryLogRecipientType) Get() (v DeliveryLogRecipientType, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilDeliveryLogRecipientType) Or(d DeliveryLogRecipientType) DeliveryLogRecipientType {
 	if v, ok := o.Get(); ok {
 		return v
 	}

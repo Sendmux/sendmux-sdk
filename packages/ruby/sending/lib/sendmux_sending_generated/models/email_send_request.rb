@@ -18,10 +18,10 @@ module Sendmux::Sending::Generated
     # File attachments (max 10). Use attachment_id refs for uploaded files.
     attr_accessor :attachments
 
-    # BCC recipients (max 100)
+    # BCC recipients (subject to 50 total To, CC, and BCC recipients)
     attr_accessor :bcc
 
-    # CC recipients (max 100)
+    # CC recipients (subject to 50 total To, CC, and BCC recipients)
     attr_accessor :cc
 
     # Custom X-* headers to include in the email
@@ -183,12 +183,12 @@ module Sendmux::Sending::Generated
         invalid_properties.push('invalid value for "attachments", number of items must be less than or equal to 10.')
       end
 
-      if !@bcc.nil? && @bcc.length > 100
-        invalid_properties.push('invalid value for "bcc", number of items must be less than or equal to 100.')
+      if !@bcc.nil? && @bcc.length > 49
+        invalid_properties.push('invalid value for "bcc", number of items must be less than or equal to 49.')
       end
 
-      if !@cc.nil? && @cc.length > 100
-        invalid_properties.push('invalid value for "cc", number of items must be less than or equal to 100.')
+      if !@cc.nil? && @cc.length > 49
+        invalid_properties.push('invalid value for "cc", number of items must be less than or equal to 49.')
       end
 
       if @from.nil?
@@ -244,8 +244,8 @@ module Sendmux::Sending::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if !@attachments.nil? && @attachments.length > 10
-      return false if !@bcc.nil? && @bcc.length > 100
-      return false if !@cc.nil? && @cc.length > 100
+      return false if !@bcc.nil? && @bcc.length > 49
+      return false if !@cc.nil? && @cc.length > 49
       return false if @from.nil?
       return false if @html_body.nil?
       return false if @html_body.to_s.length > 26214400
@@ -281,8 +281,8 @@ module Sendmux::Sending::Generated
         fail ArgumentError, 'bcc cannot be nil'
       end
 
-      if bcc.length > 100
-        fail ArgumentError, 'invalid value for "bcc", number of items must be less than or equal to 100.'
+      if bcc.length > 49
+        fail ArgumentError, 'invalid value for "bcc", number of items must be less than or equal to 49.'
       end
 
       @bcc = bcc
@@ -295,8 +295,8 @@ module Sendmux::Sending::Generated
         fail ArgumentError, 'cc cannot be nil'
       end
 
-      if cc.length > 100
-        fail ArgumentError, 'invalid value for "cc", number of items must be less than or equal to 100.'
+      if cc.length > 49
+        fail ArgumentError, 'invalid value for "cc", number of items must be less than or equal to 49.'
       end
 
       @cc = cc

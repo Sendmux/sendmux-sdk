@@ -229,6 +229,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
 
     public const STATUS_VERIFIED = 'verified';
     public const STATUS_PENDING = 'pending';
+    public const STATUS_FAILED = 'failed';
     public const STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
@@ -241,6 +242,7 @@ class MailboxDomainVerifyResult implements ModelInterface, ArrayAccess, JsonSeri
         return [
             self::STATUS_VERIFIED,
             self::STATUS_PENDING,
+            self::STATUS_FAILED,
             self::STATUS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }

@@ -17,23 +17,38 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxDomainVerifyChecks(BaseModel):
+class DeliveryLogRecipient(BaseModel):
     """
-    MailboxDomainVerifyChecks
+    DeliveryLogRecipient
     """ # noqa: E501
-    dmarc: StrictBool = Field(description="Published DMARC policy provides at least the required enforcement level.")
-    mail_from_mx: StrictBool = Field(description="Custom MAIL FROM MX record matches expected value")
-    mail_from_spf: StrictBool = Field(description="Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.")
-    mx: StrictBool = Field(description="MX record present when the domain is configured for receiving. Always true for send-only domains.")
-    spf: StrictBool = Field(description="Published SPF policy is compatible with the required Amazon SES sender authorisation.")
-    verification_txt: StrictBool = Field(description="Ownership TXT record present with correct value")
-    __properties: ClassVar[List[str]] = ["dmarc", "mail_from_mx", "mail_from_spf", "mx", "spf", "verification_txt"]
+    email: StrictStr = Field(description="Recipient email address")
+    reason: Optional[StrictStr] = Field(description="Recipient-specific rejection reason when available")
+    status: StrictStr = Field(description="Provider acceptance outcome")
+    type: Optional[StrictStr] = Field(description="Recipient header type when known")
+    __properties: ClassVar[List[str]] = ["email", "reason", "status", "type"]
+
+    @field_validator('status')
+    def status_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['accepted', 'rejected']):
+            raise ValueError("must be one of enum values ('accepted', 'rejected')")
+        return value
+
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['to', 'cc', 'bcc']):
+            raise ValueError("must be one of enum values ('to', 'cc', 'bcc')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -53,7 +68,7 @@ class MailboxDomainVerifyChecks(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxDomainVerifyChecks from a JSON string"""
+        """Create an instance of DeliveryLogRecipient from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,11 +89,21 @@ class MailboxDomainVerifyChecks(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if reason (nullable) is None
+        # and model_fields_set contains the field
+        if self.reason is None and "reason" in self.model_fields_set:
+            _dict['reason'] = None
+
+        # set to None if type (nullable) is None
+        # and model_fields_set contains the field
+        if self.type is None and "type" in self.model_fields_set:
+            _dict['type'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxDomainVerifyChecks from a dict"""
+        """Create an instance of DeliveryLogRecipient from a dict"""
         if obj is None:
             return None
 
@@ -86,11 +111,9 @@ class MailboxDomainVerifyChecks(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "dmarc": obj.get("dmarc"),
-            "mail_from_mx": obj.get("mail_from_mx"),
-            "mail_from_spf": obj.get("mail_from_spf"),
-            "mx": obj.get("mx"),
-            "spf": obj.get("spf"),
-            "verification_txt": obj.get("verification_txt")
+            "email": obj.get("email"),
+            "reason": obj.get("reason"),
+            "status": obj.get("status"),
+            "type": obj.get("type")
         })
         return _obj

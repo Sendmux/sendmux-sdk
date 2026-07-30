@@ -61,7 +61,7 @@ class DeliveryLogItemResponse implements ModelInterface, ArrayAccess, JsonSerial
     protected static array $openAPITypes = [
         'meta' => '\Sendmux\Management\Model\ResponseMeta',
         'ok' => 'bool',
-        'data' => '\Sendmux\Management\Model\DeliveryLogItem'
+        'data' => '\Sendmux\Management\Model\DeliveryLogDetail'
     ];
 
     /**
@@ -344,9 +344,9 @@ class DeliveryLogItemResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Gets data
      *
-     * @return \Sendmux\Management\Model\DeliveryLogItem
+     * @return \Sendmux\Management\Model\DeliveryLogDetail
      */
-    public function getData(): \Sendmux\Management\Model\DeliveryLogItem
+    public function getData(): \Sendmux\Management\Model\DeliveryLogDetail
     {
         return $this->container['data'];
     }
@@ -354,11 +354,11 @@ class DeliveryLogItemResponse implements ModelInterface, ArrayAccess, JsonSerial
     /**
      * Sets data
      *
-     * @param \Sendmux\Management\Model\DeliveryLogItem $data data
+     * @param \Sendmux\Management\Model\DeliveryLogDetail $data data
      *
      * @return $this
      */
-    public function setData(\Sendmux\Management\Model\DeliveryLogItem $data): static
+    public function setData(\Sendmux\Management\Model\DeliveryLogDetail $data): static
     {
         if (is_null($data)) {
             throw new InvalidArgumentException('non-nullable data cannot be null');

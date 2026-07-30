@@ -19,6 +19,7 @@ for (const spec of specs) {
   assertNoUnevaluatedProperties({ document: openApi31, file: openApi31Path });
   assertNoUnevaluatedProperties({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoNullableAllOfBranches({ document: openApi31, file: openApi31Path });
+  assertNullableEnumsIncludeNull({ document: openApi31, file: openApi31Path });
   assertNoNullableTypeArrays({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoNullSchemaBranches({ document: openApiGenerator, file: openApiGeneratorPath });
   assertNoNumericExclusiveBounds({ document: openApiGenerator, file: openApiGeneratorPath });
@@ -160,6 +161,24 @@ function assertNoNullableAllOfBranches({ document, file }) {
 
   if (count > 0) {
     throw new Error(`${file} still contains ${count} nullable allOf branch schemas`);
+  }
+}
+
+function assertNullableEnumsIncludeNull({ document, file }) {
+  const count = countMatches(document, (value) => {
+    return Boolean(
+      value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        Array.isArray(value.type) &&
+        value.type.includes("null") &&
+        Array.isArray(value.enum) &&
+        !value.enum.includes(null),
+    );
+  });
+
+  if (count > 0) {
+    throw new Error(`${file} still contains ${count} nullable enums without a null member`);
   }
 }
 

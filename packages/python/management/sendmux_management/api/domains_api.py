@@ -1782,7 +1782,7 @@ class DomainsApi:
     ) -> DomainVerifyResponse:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If every required check passes, the domain is marked verified. A previously failed domain remains failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1819,6 +1819,9 @@ class DomainsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "DomainVerifyResponse",
             '404': "ApiError",
+            '409': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1850,7 +1853,7 @@ class DomainsApi:
     ) -> ApiResponse[DomainVerifyResponse]:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If every required check passes, the domain is marked verified. A previously failed domain remains failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1887,6 +1890,9 @@ class DomainsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "DomainVerifyResponse",
             '404': "ApiError",
+            '409': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1918,7 +1924,7 @@ class DomainsApi:
     ) -> RESTResponseType:
         """Verify a mailbox domain
 
-        Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+        Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If every required check passes, the domain is marked verified. A previously failed domain remains failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
 
         :param public_id: (required)
         :type public_id: str
@@ -1955,6 +1961,9 @@ class DomainsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "DomainVerifyResponse",
             '404': "ApiError",
+            '409': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,

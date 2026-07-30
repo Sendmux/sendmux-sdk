@@ -326,12 +326,12 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
             $invalidProperties[] = "invalid value for 'attachments', number of items must be less than or equal to 10.";
         }
 
-        if (!is_null($this->container['bcc']) && (count($this->container['bcc']) > 100)) {
-            $invalidProperties[] = "invalid value for 'bcc', number of items must be less than or equal to 100.";
+        if (!is_null($this->container['bcc']) && (count($this->container['bcc']) > 49)) {
+            $invalidProperties[] = "invalid value for 'bcc', number of items must be less than or equal to 49.";
         }
 
-        if (!is_null($this->container['cc']) && (count($this->container['cc']) > 100)) {
-            $invalidProperties[] = "invalid value for 'cc', number of items must be less than or equal to 100.";
+        if (!is_null($this->container['cc']) && (count($this->container['cc']) > 49)) {
+            $invalidProperties[] = "invalid value for 'cc', number of items must be less than or equal to 49.";
         }
 
         if ($this->container['from'] === null) {
@@ -430,7 +430,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets bcc
      *
-     * @param \Sendmux\Sending\Model\Recipient[]|null $bcc BCC recipients (max 100)
+     * @param \Sendmux\Sending\Model\Recipient[]|null $bcc BCC recipients (subject to 50 total To, CC, and BCC recipients)
      *
      * @return $this
      */
@@ -440,8 +440,8 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable bcc cannot be null');
         }
 
-        if ((count($bcc) > 100)) {
-            throw new InvalidArgumentException('invalid value for $bcc when calling EmailSendRequest., number of items must be less than or equal to 100.');
+        if ((count($bcc) > 49)) {
+            throw new InvalidArgumentException('invalid value for $bcc when calling EmailSendRequest., number of items must be less than or equal to 49.');
         }
         $this->container['bcc'] = $bcc;
 
@@ -461,7 +461,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets cc
      *
-     * @param \Sendmux\Sending\Model\Recipient[]|null $cc CC recipients (max 100)
+     * @param \Sendmux\Sending\Model\Recipient[]|null $cc CC recipients (subject to 50 total To, CC, and BCC recipients)
      *
      * @return $this
      */
@@ -471,8 +471,8 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable cc cannot be null');
         }
 
-        if ((count($cc) > 100)) {
-            throw new InvalidArgumentException('invalid value for $cc when calling EmailSendRequest., number of items must be less than or equal to 100.');
+        if ((count($cc) > 49)) {
+            throw new InvalidArgumentException('invalid value for $cc when calling EmailSendRequest., number of items must be less than or equal to 49.');
         }
         $this->container['cc'] = $cc;
 

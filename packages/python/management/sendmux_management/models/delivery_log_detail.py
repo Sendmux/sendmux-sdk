@@ -20,13 +20,14 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
+from sendmux_management.models.delivery_log_recipient import DeliveryLogRecipient
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class DeliveryLogItem(BaseModel):
+class DeliveryLogDetail(BaseModel):
     """
-    DeliveryLogItem
+    DeliveryLogDetail
     """ # noqa: E501
     accepted_recipient_count: Optional[Annotated[int, Field(le=50, strict=True, ge=0)]] = Field(description="Recipient occurrences accepted by the provider, or null when no recipient snapshot exists")
     attempts: Union[StrictFloat, StrictInt]
@@ -37,6 +38,7 @@ class DeliveryLogItem(BaseModel):
     provider_id: Optional[StrictStr] = Field(description="Provider public ID")
     provider_name: Optional[StrictStr] = Field(description="Provider display name")
     recipient_count: Optional[Annotated[int, Field(le=50, strict=True, ge=0)]] = Field(description="Total recipient occurrences, or null when no recipient snapshot exists")
+    recipients: Optional[Annotated[List[DeliveryLogRecipient], Field(max_length=50)]] = Field(description="Ordered recipient outcome snapshot for this send, or null when no snapshot exists")
     rejected_recipient_count: Optional[Annotated[int, Field(le=50, strict=True, ge=0)]] = Field(description="Recipient occurrences rejected by the provider, or null when no recipient snapshot exists")
     sent_at: Optional[StrictStr] = Field(description="ISO 8601 timestamp when email was sent")
     sent_from_email: Optional[StrictStr] = Field(description="The actual from address used for delivery after transformation. NULL if no transformation occurred or for older log entries.")
@@ -45,7 +47,7 @@ class DeliveryLogItem(BaseModel):
     status_reason: Optional[StrictStr]
     subject: Optional[StrictStr]
     to_email: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["accepted_recipient_count", "attempts", "created_at", "from_email", "id", "message_id", "provider_id", "provider_name", "recipient_count", "rejected_recipient_count", "sent_at", "sent_from_email", "size_bytes", "status", "status_reason", "subject", "to_email"]
+    __properties: ClassVar[List[str]] = ["accepted_recipient_count", "attempts", "created_at", "from_email", "id", "message_id", "provider_id", "provider_name", "recipient_count", "recipients", "rejected_recipient_count", "sent_at", "sent_from_email", "size_bytes", "status", "status_reason", "subject", "to_email"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -72,7 +74,7 @@ class DeliveryLogItem(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of DeliveryLogItem from a JSON string"""
+        """Create an instance of DeliveryLogDetail from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,6 +95,13 @@ class DeliveryLogItem(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in recipients (list)
+        _items = []
+        if self.recipients:
+            for _item_recipients in self.recipients:
+                if _item_recipients:
+                    _items.append(_item_recipients.to_dict())
+            _dict['recipients'] = _items
         # set to None if accepted_recipient_count (nullable) is None
         # and model_fields_set contains the field
         if self.accepted_recipient_count is None and "accepted_recipient_count" in self.model_fields_set:
@@ -122,6 +131,11 @@ class DeliveryLogItem(BaseModel):
         # and model_fields_set contains the field
         if self.recipient_count is None and "recipient_count" in self.model_fields_set:
             _dict['recipient_count'] = None
+
+        # set to None if recipients (nullable) is None
+        # and model_fields_set contains the field
+        if self.recipients is None and "recipients" in self.model_fields_set:
+            _dict['recipients'] = None
 
         # set to None if rejected_recipient_count (nullable) is None
         # and model_fields_set contains the field
@@ -162,7 +176,7 @@ class DeliveryLogItem(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of DeliveryLogItem from a dict"""
+        """Create an instance of DeliveryLogDetail from a dict"""
         if obj is None:
             return None
 
@@ -179,6 +193,7 @@ class DeliveryLogItem(BaseModel):
             "provider_id": obj.get("provider_id"),
             "provider_name": obj.get("provider_name"),
             "recipient_count": obj.get("recipient_count"),
+            "recipients": [DeliveryLogRecipient.from_dict(_item) for _item in obj["recipients"]] if obj.get("recipients") is not None else None,
             "rejected_recipient_count": obj.get("rejected_recipient_count"),
             "sent_at": obj.get("sent_at"),
             "sent_from_email": obj.get("sent_from_email"),

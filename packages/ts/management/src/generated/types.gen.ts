@@ -147,7 +147,7 @@ export type WebhookEventData = {
     /**
      * Bounce category for `message.bounced` events.
      */
-    bounce_type: 'Permanent' | 'Transient' | 'Undetermined';
+    bounce_type: 'Permanent' | 'Transient' | 'Undetermined' | null;
     /**
      * More specific complaint category when available.
      */
@@ -179,7 +179,7 @@ export type WebhookEventData = {
     /**
      * `provider` for sending feedback IDs; `rfc5322` for inbound email Message-ID header values.
      */
-    message_id_kind: 'provider' | 'rfc5322';
+    message_id_kind: 'provider' | 'rfc5322' | null;
     /**
      * All affected recipients. Empty for synthetic test events.
      */
@@ -905,12 +905,12 @@ export type MailboxDomainVerifyResult = {
     /**
      * Post-check verification status
      */
-    status: 'verified' | 'pending';
+    status: 'verified' | 'pending' | 'failed';
 };
 
 export type MailboxDomainVerifyChecks = {
     /**
-     * DMARC TXT record matches expected value
+     * Published DMARC policy provides at least the required enforcement level.
      */
     dmarc: boolean;
     /**
@@ -918,7 +918,7 @@ export type MailboxDomainVerifyChecks = {
      */
     mail_from_mx: boolean;
     /**
-     * Custom MAIL FROM SPF TXT record matches expected value
+     * Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.
      */
     mail_from_spf: boolean;
     /**
@@ -926,7 +926,7 @@ export type MailboxDomainVerifyChecks = {
      */
     mx: boolean;
     /**
-     * SPF TXT record matches expected value
+     * Published SPF policy is compatible with the required Amazon SES sender authorisation.
      */
     spf: boolean;
     /**
@@ -1237,12 +1237,35 @@ export type DomainDeletedResponse = SuccessEnvelope & {
     meta?: ResponseMeta;
 };
 
+export type DeliveryLogRecipient = {
+    /**
+     * Recipient email address
+     */
+    email: string;
+    /**
+     * Recipient-specific rejection reason when available
+     */
+    reason: string | null;
+    /**
+     * Provider acceptance outcome
+     */
+    status: 'accepted' | 'rejected';
+    /**
+     * Recipient header type when known
+     */
+    type: 'to' | 'cc' | 'bcc' | null;
+};
+
 export type DeliveryLogItemResponse = SuccessEnvelope & {
-    data: DeliveryLogItem;
+    data: DeliveryLogDetail;
     meta?: ResponseMeta;
 };
 
-export type DeliveryLogItem = {
+export type DeliveryLogDetail = {
+    /**
+     * Recipient occurrences accepted by the provider, or null when no recipient snapshot exists
+     */
+    accepted_recipient_count: number | null;
     attempts: number;
     /**
      * ISO 8601 creation timestamp
@@ -1266,6 +1289,18 @@ export type DeliveryLogItem = {
      */
     provider_name: string | null;
     /**
+     * Total recipient occurrences, or null when no recipient snapshot exists
+     */
+    recipient_count: number | null;
+    /**
+     * Ordered recipient outcome snapshot for this send, or null when no snapshot exists
+     */
+    recipients: Array<DeliveryLogRecipient> | null;
+    /**
+     * Recipient occurrences rejected by the provider, or null when no recipient snapshot exists
+     */
+    rejected_recipient_count: number | null;
+    /**
      * ISO 8601 timestamp when email was sent
      */
     sent_at: string | null;
@@ -1284,6 +1319,56 @@ export type DeliveryLogItemCursorListResponse = SuccessEnvelope & {
     data: Array<DeliveryLogItem>;
     meta?: ResponseMeta;
     pagination: CursorPagination;
+};
+
+export type DeliveryLogItem = {
+    /**
+     * Recipient occurrences accepted by the provider, or null when no recipient snapshot exists
+     */
+    accepted_recipient_count: number | null;
+    attempts: number;
+    /**
+     * ISO 8601 creation timestamp
+     */
+    created_at: string;
+    from_email: string | null;
+    /**
+     * Log public ID
+     */
+    id: string;
+    /**
+     * Email Message-ID header
+     */
+    message_id: string | null;
+    /**
+     * Provider public ID
+     */
+    provider_id: string | null;
+    /**
+     * Provider display name
+     */
+    provider_name: string | null;
+    /**
+     * Total recipient occurrences, or null when no recipient snapshot exists
+     */
+    recipient_count: number | null;
+    /**
+     * Recipient occurrences rejected by the provider, or null when no recipient snapshot exists
+     */
+    rejected_recipient_count: number | null;
+    /**
+     * ISO 8601 timestamp when email was sent
+     */
+    sent_at: string | null;
+    /**
+     * The actual from address used for delivery after transformation. NULL if no transformation occurred or for older log entries.
+     */
+    sent_from_email: string | null;
+    size_bytes: number | null;
+    status: 'pending' | 'sent' | 'failed' | 'rejected';
+    status_reason: string | null;
+    subject: string | null;
+    to_email: string | null;
 };
 
 export type BalanceResponse = SuccessEnvelope & {
@@ -1792,6 +1877,18 @@ export type ManagementVerifyDomainErrors = {
      * Domain not found
      */
     404: ApiError;
+    /**
+     * The domain changed while verification was running.
+     */
+    409: ApiError;
+    /**
+     * Unexpected server error.
+     */
+    500: ApiError;
+    /**
+     * Verification is temporarily unavailable; retry after the indicated delay.
+     */
+    503: ApiError;
 };
 
 export type ManagementVerifyDomainError = ManagementVerifyDomainErrors[keyof ManagementVerifyDomainErrors];

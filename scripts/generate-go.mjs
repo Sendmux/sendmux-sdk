@@ -832,8 +832,11 @@ function replaceInFile(filePath, pattern, replacement, label) {
 
 function buildErrorMethods(packageName, packageDir) {
   const generatedSchemas = readFileSync(join(packageDir, "oas_schemas_gen.go"), "utf8");
-  const entries = [...generatedSchemas.matchAll(/^type ([A-Z]\w+) (ApiError|ErrorResponse)$/gm)].map((match) => {
+  const entries = [
+    ...generatedSchemas.matchAll(/^type ([A-Z]\w+) (ApiError|ErrorResponse|ApiErrorHeaders)$/gm),
+  ].map((match) => {
     return {
+      response: match[2] === "ApiErrorHeaders" ? "&r.Response" : "r",
       status: inferStatus(match[1]),
       typeName: match[1],
     };
@@ -844,10 +847,10 @@ function buildErrorMethods(packageName, packageDir) {
   }
 
   const methods = entries
-    .map(({ status, typeName }) => {
+    .map(({ response, status, typeName }) => {
       return `// APIError maps ${typeName} into the shared typed API error.
 func (r *${typeName}) APIError() *core.APIError {
-\terr, _ := core.APIErrorFromResponse(r, ${status})
+\terr, _ := core.APIErrorFromResponse(${response}, ${status})
 \treturn err
 }
 `;

@@ -869,9 +869,9 @@ func (s *BearerAuth) SetRoles(val []string) {
 type EmailSendRequest struct {
 	// File attachments (max 10). Use attachment_id refs for uploaded files.
 	Attachments []Attachment `json:"attachments"`
-	// BCC recipients (max 100).
+	// BCC recipients (subject to 50 total To, CC, and BCC recipients).
 	Bcc []Recipient `json:"bcc"`
-	// CC recipients (max 100).
+	// CC recipients (subject to 50 total To, CC, and BCC recipients).
 	Cc []Recipient `json:"cc"`
 	// Custom X-* headers to include in the email.
 	CustomHeaders OptEmailSendRequestCustomHeaders `json:"custom_headers"`

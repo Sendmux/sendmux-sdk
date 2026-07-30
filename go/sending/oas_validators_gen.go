@@ -729,7 +729,7 @@ func (s *EmailSendRequest) Validate() error {
 		if err := (validate.Array{
 			MinLength:    0,
 			MinLengthSet: false,
-			MaxLength:    100,
+			MaxLength:    49,
 			MaxLengthSet: true,
 		}).ValidateLength(len(s.Bcc)); err != nil {
 			return errors.Wrap(err, "array")
@@ -765,7 +765,7 @@ func (s *EmailSendRequest) Validate() error {
 		if err := (validate.Array{
 			MinLength:    0,
 			MinLengthSet: false,
-			MaxLength:    100,
+			MaxLength:    49,
 			MaxLengthSet: true,
 		}).ValidateLength(len(s.Cc)); err != nil {
 			return errors.Wrap(err, "array")

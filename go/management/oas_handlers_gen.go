@@ -9901,10 +9901,10 @@ func (s *Server) handleManagementUpdateWebhookRequest(args [1]string, argsEscape
 
 // handleManagementVerifyDomainRequest handles managementVerifyDomain operation.
 //
-// Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES
-// MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL
-// FROM statuses. If every required check passes the domain is marked verified. Domains automatically
-// re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+// Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If
+// every required check passes, the domain is marked verified. A previously failed domain remains
+// failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this
+// endpoint is only needed to trigger a check on demand.
 //
 // POST /domains/{public_id}/verify
 func (s *Server) handleManagementVerifyDomainRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {

@@ -149,7 +149,7 @@ export const managementSetDomainFilters = <ThrowOnError extends boolean = false>
 /**
  * Verify a mailbox domain
  *
- * Runs an immediate DNS-over-HTTPS check of the domain's required DNS records, enables Amazon SES MAIL FROM after its DNS records are present, then asks Amazon SES for the latest DKIM and MAIL FROM statuses. If every required check passes the domain is marked verified. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
+ * Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If every required check passes, the domain is marked verified. A previously failed domain remains failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
  */
 export const managementVerifyDomain = <ThrowOnError extends boolean = false>(options: Options<ManagementVerifyDomainData, ThrowOnError>) => (options.client ?? client).post<ManagementVerifyDomainResponses, ManagementVerifyDomainErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

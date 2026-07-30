@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxDomainVerifyChecks
+ * DeliveryLogRecipient
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Management\ObjectSerializer;
 
 /**
- * MailboxDomainVerifyChecks Class Doc Comment
+ * DeliveryLogRecipient Class Doc Comment
  *
  * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSerializable
+class DeliveryLogRecipient implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxDomainVerifyChecks';
+    protected static string $openAPIModelName = 'DeliveryLogRecipient';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,12 +59,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'dmarc' => 'bool',
-        'mail_from_mx' => 'bool',
-        'mail_from_spf' => 'bool',
-        'mx' => 'bool',
-        'spf' => 'bool',
-        'verification_txt' => 'bool'
+        'email' => 'string',
+        'reason' => 'string',
+        'status' => 'string',
+        'type' => 'string'
     ];
 
     /**
@@ -73,12 +71,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'dmarc' => null,
-        'mail_from_mx' => null,
-        'mail_from_spf' => null,
-        'mx' => null,
-        'spf' => null,
-        'verification_txt' => null
+        'email' => 'email',
+        'reason' => null,
+        'status' => null,
+        'type' => null
     ];
 
     /**
@@ -87,12 +83,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'dmarc' => false,
-        'mail_from_mx' => false,
-        'mail_from_spf' => false,
-        'mx' => false,
-        'spf' => false,
-        'verification_txt' => false
+        'email' => false,
+        'reason' => true,
+        'status' => false,
+        'type' => true
     ];
 
     /**
@@ -171,12 +165,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'dmarc' => 'dmarc',
-        'mail_from_mx' => 'mail_from_mx',
-        'mail_from_spf' => 'mail_from_spf',
-        'mx' => 'mx',
-        'spf' => 'spf',
-        'verification_txt' => 'verification_txt'
+        'email' => 'email',
+        'reason' => 'reason',
+        'status' => 'status',
+        'type' => 'type'
     ];
 
     /**
@@ -185,12 +177,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $setters = [
-        'dmarc' => 'setDmarc',
-        'mail_from_mx' => 'setMailFromMx',
-        'mail_from_spf' => 'setMailFromSpf',
-        'mx' => 'setMx',
-        'spf' => 'setSpf',
-        'verification_txt' => 'setVerificationTxt'
+        'email' => 'setEmail',
+        'reason' => 'setReason',
+        'status' => 'setStatus',
+        'type' => 'setType'
     ];
 
     /**
@@ -199,12 +189,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $getters = [
-        'dmarc' => 'getDmarc',
-        'mail_from_mx' => 'getMailFromMx',
-        'mail_from_spf' => 'getMailFromSpf',
-        'mx' => 'getMx',
-        'spf' => 'getSpf',
-        'verification_txt' => 'getVerificationTxt'
+        'email' => 'getEmail',
+        'reason' => 'getReason',
+        'status' => 'getStatus',
+        'type' => 'getType'
     ];
 
     /**
@@ -239,6 +227,42 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
         return self::$openAPIModelName;
     }
 
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
+    public const TYPE_TO = 'to';
+    public const TYPE_CC = 'cc';
+    public const TYPE_BCC = 'bcc';
+    public const TYPE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getStatusAllowableValues()
+    {
+        return [
+            self::STATUS_ACCEPTED,
+            self::STATUS_REJECTED,
+            self::STATUS_UNKNOWN_DEFAULT_OPEN_API,
+        ];
+    }
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getTypeAllowableValues()
+    {
+        return [
+            self::TYPE_TO,
+            self::TYPE_CC,
+            self::TYPE_BCC,
+            self::TYPE_UNKNOWN_DEFAULT_OPEN_API,
+        ];
+    }
 
     /**
      * Associative array for storing property values
@@ -254,12 +278,10 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('dmarc', $data ?? [], null);
-        $this->setIfExists('mail_from_mx', $data ?? [], null);
-        $this->setIfExists('mail_from_spf', $data ?? [], null);
-        $this->setIfExists('mx', $data ?? [], null);
-        $this->setIfExists('spf', $data ?? [], null);
-        $this->setIfExists('verification_txt', $data ?? [], null);
+        $this->setIfExists('email', $data ?? [], null);
+        $this->setIfExists('reason', $data ?? [], null);
+        $this->setIfExists('status', $data ?? [], null);
+        $this->setIfExists('type', $data ?? [], null);
     }
 
     /**
@@ -287,24 +309,36 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['dmarc'] === null) {
-            $invalidProperties[] = "'dmarc' can't be null";
+        if ($this->container['email'] === null) {
+            $invalidProperties[] = "'email' can't be null";
         }
-        if ($this->container['mail_from_mx'] === null) {
-            $invalidProperties[] = "'mail_from_mx' can't be null";
+        if ($this->container['reason'] === null && !$this->isNullableSetToNull('reason')) {
+            $invalidProperties[] = "'reason' is required";
         }
-        if ($this->container['mail_from_spf'] === null) {
-            $invalidProperties[] = "'mail_from_spf' can't be null";
+        if ($this->container['status'] === null) {
+            $invalidProperties[] = "'status' can't be null";
         }
-        if ($this->container['mx'] === null) {
-            $invalidProperties[] = "'mx' can't be null";
+        $allowedValues = self::getStatusAllowableValues();
+        if (!is_null($this->container['status']) && !in_array($this->container['status'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'status', must be one of '%s'",
+                $this->container['status'],
+                implode("', '", $allowedValues)
+            );
         }
-        if ($this->container['spf'] === null) {
-            $invalidProperties[] = "'spf' can't be null";
+
+        if ($this->container['type'] === null && !$this->isNullableSetToNull('type')) {
+            $invalidProperties[] = "'type' is required";
         }
-        if ($this->container['verification_txt'] === null) {
-            $invalidProperties[] = "'verification_txt' can't be null";
+        $allowedValues = self::getTypeAllowableValues();
+        if (!is_null($this->container['type']) && !in_array($this->container['type'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'type', must be one of '%s'",
+                $this->container['type'],
+                implode("', '", $allowedValues)
+            );
         }
+
         return $invalidProperties;
     }
 
@@ -318,163 +352,131 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
 
 
     /**
-     * Gets dmarc
+     * Gets email
      *
-     * @return bool
+     * @return string
      */
-    public function getDmarc(): bool
+    public function getEmail(): string
     {
-        return $this->container['dmarc'];
+        return $this->container['email'];
     }
 
     /**
-     * Sets dmarc
+     * Sets email
      *
-     * @param bool $dmarc Published DMARC policy provides at least the required enforcement level.
+     * @param string $email Recipient email address
      *
      * @return $this
      */
-    public function setDmarc(bool $dmarc): static
+    public function setEmail(string $email): static
     {
-        if (is_null($dmarc)) {
-            throw new InvalidArgumentException('non-nullable dmarc cannot be null');
+        if (is_null($email)) {
+            throw new InvalidArgumentException('non-nullable email cannot be null');
         }
-        $this->container['dmarc'] = $dmarc;
+        $this->container['email'] = $email;
 
         return $this;
     }
 
     /**
-     * Gets mail_from_mx
+     * Gets reason
      *
-     * @return bool
+     * @return string|null
      */
-    public function getMailFromMx(): bool
+    public function getReason(): ?string
     {
-        return $this->container['mail_from_mx'];
+        return $this->container['reason'];
     }
 
     /**
-     * Sets mail_from_mx
+     * Sets reason
      *
-     * @param bool $mail_from_mx Custom MAIL FROM MX record matches expected value
+     * @param string|null $reason Recipient-specific rejection reason when available
      *
      * @return $this
      */
-    public function setMailFromMx(bool $mail_from_mx): static
+    public function setReason(?string $reason): static
     {
-        if (is_null($mail_from_mx)) {
-            throw new InvalidArgumentException('non-nullable mail_from_mx cannot be null');
+        if (is_null($reason)) {
+            array_push($this->openAPINullablesSetToNull, 'reason');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('reason', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
         }
-        $this->container['mail_from_mx'] = $mail_from_mx;
+        $this->container['reason'] = $reason;
 
         return $this;
     }
 
     /**
-     * Gets mail_from_spf
+     * Gets status
      *
-     * @return bool
+     * @return string
      */
-    public function getMailFromSpf(): bool
+    public function getStatus(): string
     {
-        return $this->container['mail_from_spf'];
+        return $this->container['status'];
     }
 
     /**
-     * Sets mail_from_spf
+     * Sets status
      *
-     * @param bool $mail_from_spf Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.
+     * @param string $status Provider acceptance outcome
      *
      * @return $this
      */
-    public function setMailFromSpf(bool $mail_from_spf): static
+    public function setStatus(string $status): static
     {
-        if (is_null($mail_from_spf)) {
-            throw new InvalidArgumentException('non-nullable mail_from_spf cannot be null');
+        if (is_null($status)) {
+            throw new InvalidArgumentException('non-nullable status cannot be null');
         }
-        $this->container['mail_from_spf'] = $mail_from_spf;
+        $allowedValues = self::getStatusAllowableValues();
+        if (!in_array($status, $allowedValues, true)) {
+            $status = self::STATUS_UNKNOWN_DEFAULT_OPEN_API;
+        }
+        $this->container['status'] = $status;
 
         return $this;
     }
 
     /**
-     * Gets mx
+     * Gets type
      *
-     * @return bool
+     * @return string|null
      */
-    public function getMx(): bool
+    public function getType(): ?string
     {
-        return $this->container['mx'];
+        return $this->container['type'];
     }
 
     /**
-     * Sets mx
+     * Sets type
      *
-     * @param bool $mx MX record present when the domain is configured for receiving. Always true for send-only domains.
+     * @param string|null $type Recipient header type when known
      *
      * @return $this
      */
-    public function setMx(bool $mx): static
+    public function setType(?string $type): static
     {
-        if (is_null($mx)) {
-            throw new InvalidArgumentException('non-nullable mx cannot be null');
+        if (is_null($type)) {
+            array_push($this->openAPINullablesSetToNull, 'type');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('type', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
         }
-        $this->container['mx'] = $mx;
-
-        return $this;
-    }
-
-    /**
-     * Gets spf
-     *
-     * @return bool
-     */
-    public function getSpf(): bool
-    {
-        return $this->container['spf'];
-    }
-
-    /**
-     * Sets spf
-     *
-     * @param bool $spf Published SPF policy is compatible with the required Amazon SES sender authorisation.
-     *
-     * @return $this
-     */
-    public function setSpf(bool $spf): static
-    {
-        if (is_null($spf)) {
-            throw new InvalidArgumentException('non-nullable spf cannot be null');
+        $allowedValues = self::getTypeAllowableValues();
+        if (!is_null($type) && !in_array($type, $allowedValues, true)) {
+            $type = self::TYPE_UNKNOWN_DEFAULT_OPEN_API;
         }
-        $this->container['spf'] = $spf;
-
-        return $this;
-    }
-
-    /**
-     * Gets verification_txt
-     *
-     * @return bool
-     */
-    public function getVerificationTxt(): bool
-    {
-        return $this->container['verification_txt'];
-    }
-
-    /**
-     * Sets verification_txt
-     *
-     * @param bool $verification_txt Ownership TXT record present with correct value
-     *
-     * @return $this
-     */
-    public function setVerificationTxt(bool $verification_txt): static
-    {
-        if (is_null($verification_txt)) {
-            throw new InvalidArgumentException('non-nullable verification_txt cannot be null');
-        }
-        $this->container['verification_txt'] = $verification_txt;
+        $this->container['type'] = $type;
 
         return $this;
     }

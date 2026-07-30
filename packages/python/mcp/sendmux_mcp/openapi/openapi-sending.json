@@ -337,19 +337,19 @@
             "type": "array"
           },
           "bcc": {
-            "description": "BCC recipients (max 100)",
+            "description": "BCC recipients (subject to 50 total To, CC, and BCC recipients)",
             "items": {
               "$ref": "#/components/schemas/Recipient"
             },
-            "maxItems": 100,
+            "maxItems": 49,
             "type": "array"
           },
           "cc": {
-            "description": "CC recipients (max 100)",
+            "description": "CC recipients (subject to 50 total To, CC, and BCC recipients)",
             "items": {
               "$ref": "#/components/schemas/Recipient"
             },
-            "maxItems": 100,
+            "maxItems": 49,
             "type": "array"
           },
           "custom_headers": {

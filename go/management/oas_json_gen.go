@@ -1446,14 +1446,18 @@ func (s *CursorPagination) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *DeliveryLogItem) Encode(e *jx.Encoder) {
+func (s *DeliveryLogDetail) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *DeliveryLogItem) encodeFields(e *jx.Encoder) {
+func (s *DeliveryLogDetail) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("accepted_recipient_count")
+		s.AcceptedRecipientCount.Encode(e)
+	}
 	{
 		e.FieldStart("attempts")
 		e.Float64(s.Attempts)
@@ -1481,6 +1485,26 @@ func (s *DeliveryLogItem) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("provider_name")
 		s.ProviderName.Encode(e)
+	}
+	{
+		e.FieldStart("recipient_count")
+		s.RecipientCount.Encode(e)
+	}
+	{
+		e.FieldStart("recipients")
+		if s.Recipients == nil {
+			e.Null()
+		} else {
+			e.ArrStart()
+			for _, elem := range s.Recipients {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		e.FieldStart("rejected_recipient_count")
+		s.RejectedRecipientCount.Encode(e)
 	}
 	{
 		e.FieldStart("sent_at")
@@ -1512,34 +1536,48 @@ func (s *DeliveryLogItem) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfDeliveryLogItem = [14]string{
-	0:  "attempts",
-	1:  "created_at",
-	2:  "from_email",
-	3:  "id",
-	4:  "message_id",
-	5:  "provider_id",
-	6:  "provider_name",
-	7:  "sent_at",
-	8:  "sent_from_email",
-	9:  "size_bytes",
-	10: "status",
-	11: "status_reason",
-	12: "subject",
-	13: "to_email",
+var jsonFieldsNameOfDeliveryLogDetail = [18]string{
+	0:  "accepted_recipient_count",
+	1:  "attempts",
+	2:  "created_at",
+	3:  "from_email",
+	4:  "id",
+	5:  "message_id",
+	6:  "provider_id",
+	7:  "provider_name",
+	8:  "recipient_count",
+	9:  "recipients",
+	10: "rejected_recipient_count",
+	11: "sent_at",
+	12: "sent_from_email",
+	13: "size_bytes",
+	14: "status",
+	15: "status_reason",
+	16: "subject",
+	17: "to_email",
 }
 
-// Decode decodes DeliveryLogItem from json.
-func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
+// Decode decodes DeliveryLogDetail from json.
+func (s *DeliveryLogDetail) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode DeliveryLogItem to nil")
+		return errors.New("invalid: unable to decode DeliveryLogDetail to nil")
 	}
-	var requiredBitSet [2]uint8
+	var requiredBitSet [3]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "attempts":
+		case "accepted_recipient_count":
 			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.AcceptedRecipientCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"accepted_recipient_count\"")
+			}
+		case "attempts":
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Float64()
 				s.Attempts = float64(v)
@@ -1551,7 +1589,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"attempts\"")
 			}
 		case "created_at":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.CreatedAt = string(v)
@@ -1563,7 +1601,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"created_at\"")
 			}
 		case "from_email":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.FromEmail.Decode(d); err != nil {
 					return err
@@ -1573,7 +1611,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from_email\"")
 			}
 		case "id":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.ID = string(v)
@@ -1585,7 +1623,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "message_id":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.MessageID.Decode(d); err != nil {
 					return err
@@ -1595,7 +1633,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"message_id\"")
 			}
 		case "provider_id":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				if err := s.ProviderID.Decode(d); err != nil {
 					return err
@@ -1605,7 +1643,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"provider_id\"")
 			}
 		case "provider_name":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				if err := s.ProviderName.Decode(d); err != nil {
 					return err
@@ -1614,8 +1652,53 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"provider_name\"")
 			}
+		case "recipient_count":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				if err := s.RecipientCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"recipient_count\"")
+			}
+		case "recipients":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				switch tt := d.Next(); tt {
+				case jx.Null:
+					if err := d.Skip(); err != nil {
+						return err
+					}
+				default:
+					s.Recipients = make([]DeliveryLogRecipient, 0)
+					if err := d.Arr(func(d *jx.Decoder) error {
+						var elem DeliveryLogRecipient
+						if err := elem.Decode(d); err != nil {
+							return err
+						}
+						s.Recipients = append(s.Recipients, elem)
+						return nil
+					}); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"recipients\"")
+			}
+		case "rejected_recipient_count":
+			requiredBitSet[1] |= 1 << 2
+			if err := func() error {
+				if err := s.RejectedRecipientCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"rejected_recipient_count\"")
+			}
 		case "sent_at":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				if err := s.SentAt.Decode(d); err != nil {
 					return err
@@ -1625,7 +1708,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"sent_at\"")
 			}
 		case "sent_from_email":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 4
 			if err := func() error {
 				if err := s.SentFromEmail.Decode(d); err != nil {
 					return err
@@ -1635,7 +1718,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"sent_from_email\"")
 			}
 		case "size_bytes":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 5
 			if err := func() error {
 				if err := s.SizeBytes.Decode(d); err != nil {
 					return err
@@ -1645,7 +1728,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"size_bytes\"")
 			}
 		case "status":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 6
 			if err := func() error {
 				if err := s.Status.Decode(d); err != nil {
 					return err
@@ -1655,7 +1738,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"status\"")
 			}
 		case "status_reason":
-			requiredBitSet[1] |= 1 << 3
+			requiredBitSet[1] |= 1 << 7
 			if err := func() error {
 				if err := s.StatusReason.Decode(d); err != nil {
 					return err
@@ -1665,7 +1748,7 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"status_reason\"")
 			}
 		case "subject":
-			requiredBitSet[1] |= 1 << 4
+			requiredBitSet[2] |= 1 << 0
 			if err := func() error {
 				if err := s.Subject.Decode(d); err != nil {
 					return err
@@ -1675,7 +1758,393 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"subject\"")
 			}
 		case "to_email":
+			requiredBitSet[2] |= 1 << 1
+			if err := func() error {
+				if err := s.ToEmail.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"to_email\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode DeliveryLogDetail")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [3]uint8{
+		0b11111111,
+		0b11111111,
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfDeliveryLogDetail) {
+					name = jsonFieldsNameOfDeliveryLogDetail[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeliveryLogDetail) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeliveryLogDetail) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeliveryLogDetailStatus as json.
+func (s DeliveryLogDetailStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes DeliveryLogDetailStatus from json.
+func (s *DeliveryLogDetailStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeliveryLogDetailStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch DeliveryLogDetailStatus(v) {
+	case DeliveryLogDetailStatusPending:
+		*s = DeliveryLogDetailStatusPending
+	case DeliveryLogDetailStatusSent:
+		*s = DeliveryLogDetailStatusSent
+	case DeliveryLogDetailStatusFailed:
+		*s = DeliveryLogDetailStatusFailed
+	case DeliveryLogDetailStatusRejected:
+		*s = DeliveryLogDetailStatusRejected
+	default:
+		*s = DeliveryLogDetailStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s DeliveryLogDetailStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeliveryLogDetailStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *DeliveryLogItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *DeliveryLogItem) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("accepted_recipient_count")
+		s.AcceptedRecipientCount.Encode(e)
+	}
+	{
+		e.FieldStart("attempts")
+		e.Float64(s.Attempts)
+	}
+	{
+		e.FieldStart("created_at")
+		e.Str(s.CreatedAt)
+	}
+	{
+		e.FieldStart("from_email")
+		s.FromEmail.Encode(e)
+	}
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		e.FieldStart("message_id")
+		s.MessageID.Encode(e)
+	}
+	{
+		e.FieldStart("provider_id")
+		s.ProviderID.Encode(e)
+	}
+	{
+		e.FieldStart("provider_name")
+		s.ProviderName.Encode(e)
+	}
+	{
+		e.FieldStart("recipient_count")
+		s.RecipientCount.Encode(e)
+	}
+	{
+		e.FieldStart("rejected_recipient_count")
+		s.RejectedRecipientCount.Encode(e)
+	}
+	{
+		e.FieldStart("sent_at")
+		s.SentAt.Encode(e)
+	}
+	{
+		e.FieldStart("sent_from_email")
+		s.SentFromEmail.Encode(e)
+	}
+	{
+		e.FieldStart("size_bytes")
+		s.SizeBytes.Encode(e)
+	}
+	{
+		e.FieldStart("status")
+		s.Status.Encode(e)
+	}
+	{
+		e.FieldStart("status_reason")
+		s.StatusReason.Encode(e)
+	}
+	{
+		e.FieldStart("subject")
+		s.Subject.Encode(e)
+	}
+	{
+		e.FieldStart("to_email")
+		s.ToEmail.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfDeliveryLogItem = [17]string{
+	0:  "accepted_recipient_count",
+	1:  "attempts",
+	2:  "created_at",
+	3:  "from_email",
+	4:  "id",
+	5:  "message_id",
+	6:  "provider_id",
+	7:  "provider_name",
+	8:  "recipient_count",
+	9:  "rejected_recipient_count",
+	10: "sent_at",
+	11: "sent_from_email",
+	12: "size_bytes",
+	13: "status",
+	14: "status_reason",
+	15: "subject",
+	16: "to_email",
+}
+
+// Decode decodes DeliveryLogItem from json.
+func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeliveryLogItem to nil")
+	}
+	var requiredBitSet [3]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "accepted_recipient_count":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.AcceptedRecipientCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"accepted_recipient_count\"")
+			}
+		case "attempts":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Float64()
+				s.Attempts = float64(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attempts\"")
+			}
+		case "created_at":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.CreatedAt = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_at\"")
+			}
+		case "from_email":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				if err := s.FromEmail.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"from_email\"")
+			}
+		case "id":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "message_id":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.MessageID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message_id\"")
+			}
+		case "provider_id":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				if err := s.ProviderID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"provider_id\"")
+			}
+		case "provider_name":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				if err := s.ProviderName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"provider_name\"")
+			}
+		case "recipient_count":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				if err := s.RecipientCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"recipient_count\"")
+			}
+		case "rejected_recipient_count":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				if err := s.RejectedRecipientCount.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"rejected_recipient_count\"")
+			}
+		case "sent_at":
+			requiredBitSet[1] |= 1 << 2
+			if err := func() error {
+				if err := s.SentAt.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sent_at\"")
+			}
+		case "sent_from_email":
+			requiredBitSet[1] |= 1 << 3
+			if err := func() error {
+				if err := s.SentFromEmail.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sent_from_email\"")
+			}
+		case "size_bytes":
+			requiredBitSet[1] |= 1 << 4
+			if err := func() error {
+				if err := s.SizeBytes.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"size_bytes\"")
+			}
+		case "status":
 			requiredBitSet[1] |= 1 << 5
+			if err := func() error {
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		case "status_reason":
+			requiredBitSet[1] |= 1 << 6
+			if err := func() error {
+				if err := s.StatusReason.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status_reason\"")
+			}
+		case "subject":
+			requiredBitSet[1] |= 1 << 7
+			if err := func() error {
+				if err := s.Subject.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"subject\"")
+			}
+		case "to_email":
+			requiredBitSet[2] |= 1 << 0
 			if err := func() error {
 				if err := s.ToEmail.Decode(d); err != nil {
 					return err
@@ -1693,9 +2162,10 @@ func (s *DeliveryLogItem) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [2]uint8{
+	for i, mask := range [3]uint8{
 		0b11111111,
-		0b00111111,
+		0b11111111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2466,6 +2936,229 @@ func (s DeliveryLogItemStatus) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *DeliveryLogItemStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *DeliveryLogRecipient) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *DeliveryLogRecipient) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("email")
+		e.Str(s.Email)
+	}
+	{
+		e.FieldStart("reason")
+		s.Reason.Encode(e)
+	}
+	{
+		e.FieldStart("status")
+		s.Status.Encode(e)
+	}
+	{
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfDeliveryLogRecipient = [4]string{
+	0: "email",
+	1: "reason",
+	2: "status",
+	3: "type",
+}
+
+// Decode decodes DeliveryLogRecipient from json.
+func (s *DeliveryLogRecipient) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeliveryLogRecipient to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "email":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Email = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"email\"")
+			}
+		case "reason":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Reason.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"reason\"")
+			}
+		case "status":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		case "type":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode DeliveryLogRecipient")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00001111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfDeliveryLogRecipient) {
+					name = jsonFieldsNameOfDeliveryLogRecipient[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeliveryLogRecipient) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeliveryLogRecipient) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeliveryLogRecipientStatus as json.
+func (s DeliveryLogRecipientStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes DeliveryLogRecipientStatus from json.
+func (s *DeliveryLogRecipientStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeliveryLogRecipientStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch DeliveryLogRecipientStatus(v) {
+	case DeliveryLogRecipientStatusAccepted:
+		*s = DeliveryLogRecipientStatusAccepted
+	case DeliveryLogRecipientStatusRejected:
+		*s = DeliveryLogRecipientStatusRejected
+	default:
+		*s = DeliveryLogRecipientStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s DeliveryLogRecipientStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeliveryLogRecipientStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeliveryLogRecipientType as json.
+func (s DeliveryLogRecipientType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes DeliveryLogRecipientType from json.
+func (s *DeliveryLogRecipientType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeliveryLogRecipientType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch DeliveryLogRecipientType(v) {
+	case DeliveryLogRecipientTypeTo:
+		*s = DeliveryLogRecipientTypeTo
+	case DeliveryLogRecipientTypeCc:
+		*s = DeliveryLogRecipientTypeCc
+	case DeliveryLogRecipientTypeBcc:
+		*s = DeliveryLogRecipientTypeBcc
+	default:
+		*s = DeliveryLogRecipientType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s DeliveryLogRecipientType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeliveryLogRecipientType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -10961,6 +11654,8 @@ func (s *MailboxDomainVerifyResultStatus) Decode(d *jx.Decoder) error {
 		*s = MailboxDomainVerifyResultStatusVerified
 	case MailboxDomainVerifyResultStatusPending:
 		*s = MailboxDomainVerifyResultStatusPending
+	case MailboxDomainVerifyResultStatusFailed:
+		*s = MailboxDomainVerifyResultStatusFailed
 	default:
 		*s = MailboxDomainVerifyResultStatus(v)
 	}
@@ -12334,310 +13029,6 @@ func (s *MailboxSendScopeType) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes ManagementActivateProviderConflict as json.
-func (s *ManagementActivateProviderConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementActivateProviderConflict from json.
-func (s *ManagementActivateProviderConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementActivateProviderConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementActivateProviderConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementActivateProviderConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementActivateProviderConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementActivateProviderNotFound as json.
-func (s *ManagementActivateProviderNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementActivateProviderNotFound from json.
-func (s *ManagementActivateProviderNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementActivateProviderNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementActivateProviderNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementActivateProviderNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementActivateProviderNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCancelSharedAmazonSesLimitRequestConflict as json.
-func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCancelSharedAmazonSesLimitRequestConflict from json.
-func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCancelSharedAmazonSesLimitRequestConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCancelSharedAmazonSesLimitRequestConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCancelSharedAmazonSesLimitRequestNotFound as json.
-func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCancelSharedAmazonSesLimitRequestNotFound from json.
-func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCancelSharedAmazonSesLimitRequestNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCancelSharedAmazonSesLimitRequestNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCheckMailboxAvailabilityForbidden as json.
-func (s *ManagementCheckMailboxAvailabilityForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCheckMailboxAvailabilityForbidden from json.
-func (s *ManagementCheckMailboxAvailabilityForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCheckMailboxAvailabilityForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCheckMailboxAvailabilityForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCheckMailboxAvailabilityForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCheckMailboxAvailabilityForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCheckMailboxAvailabilityUnauthorized as json.
-func (s *ManagementCheckMailboxAvailabilityUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCheckMailboxAvailabilityUnauthorized from json.
-func (s *ManagementCheckMailboxAvailabilityUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCheckMailboxAvailabilityUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCheckMailboxAvailabilityUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCheckMailboxAvailabilityUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCheckMailboxAvailabilityUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateDomainBadRequest as json.
-func (s *ManagementCreateDomainBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateDomainBadRequest from json.
-func (s *ManagementCreateDomainBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateDomainBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateDomainBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateDomainBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateDomainBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateDomainConflict as json.
-func (s *ManagementCreateDomainConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateDomainConflict from json.
-func (s *ManagementCreateDomainConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateDomainConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateDomainConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateDomainConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateDomainConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *ManagementCreateDomainReq) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -12791,272 +13182,6 @@ func (s *ManagementCreateDomainReqMode) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes ManagementCreateDomainRequestEntityTooLarge as json.
-func (s *ManagementCreateDomainRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateDomainRequestEntityTooLarge from json.
-func (s *ManagementCreateDomainRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateDomainRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateDomainRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateDomainRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateDomainRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateDomainServiceUnavailable as json.
-func (s *ManagementCreateDomainServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateDomainServiceUnavailable from json.
-func (s *ManagementCreateDomainServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateDomainServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateDomainServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateDomainServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateDomainServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxBadRequest as json.
-func (s *ManagementCreateMailboxBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxBadRequest from json.
-func (s *ManagementCreateMailboxBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxConflict as json.
-func (s *ManagementCreateMailboxConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxConflict from json.
-func (s *ManagementCreateMailboxConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxKeyBadRequest as json.
-func (s *ManagementCreateMailboxKeyBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxKeyBadRequest from json.
-func (s *ManagementCreateMailboxKeyBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxKeyBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxKeyBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxKeyBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxKeyBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxKeyConflict as json.
-func (s *ManagementCreateMailboxKeyConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxKeyConflict from json.
-func (s *ManagementCreateMailboxKeyConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxKeyConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxKeyConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxKeyConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxKeyConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxKeyNotFound as json.
-func (s *ManagementCreateMailboxKeyNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxKeyNotFound from json.
-func (s *ManagementCreateMailboxKeyNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxKeyNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxKeyNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxKeyNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxKeyNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *ManagementCreateMailboxKeyReq) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -13149,120 +13274,6 @@ func (s *ManagementCreateMailboxKeyReq) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ManagementCreateMailboxKeyReq) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxKeyRequestEntityTooLarge as json.
-func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxKeyRequestEntityTooLarge from json.
-func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxKeyRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxKeyRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxKeyServiceUnavailable as json.
-func (s *ManagementCreateMailboxKeyServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxKeyServiceUnavailable from json.
-func (s *ManagementCreateMailboxKeyServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxKeyServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxKeyServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxKeyServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxKeyServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxKeyUnprocessableEntity as json.
-func (s *ManagementCreateMailboxKeyUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxKeyUnprocessableEntity from json.
-func (s *ManagementCreateMailboxKeyUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxKeyUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxKeyUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxKeyUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxKeyUnprocessableEntity) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -13610,3426 +13621,6 @@ func (s *ManagementCreateMailboxReqSendScopeType) UnmarshalJSON(data []byte) err
 	return s.Decode(d)
 }
 
-// Encode encodes ManagementCreateMailboxRequestEntityTooLarge as json.
-func (s *ManagementCreateMailboxRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxRequestEntityTooLarge from json.
-func (s *ManagementCreateMailboxRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxServiceUnavailable as json.
-func (s *ManagementCreateMailboxServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxServiceUnavailable from json.
-func (s *ManagementCreateMailboxServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateMailboxUnprocessableEntity as json.
-func (s *ManagementCreateMailboxUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateMailboxUnprocessableEntity from json.
-func (s *ManagementCreateMailboxUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateMailboxUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateMailboxUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateMailboxUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateMailboxUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateProviderBadRequest as json.
-func (s *ManagementCreateProviderBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateProviderBadRequest from json.
-func (s *ManagementCreateProviderBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateProviderBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateProviderBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateProviderBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateProviderBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateProviderConflict as json.
-func (s *ManagementCreateProviderConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateProviderConflict from json.
-func (s *ManagementCreateProviderConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateProviderConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateProviderConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateProviderConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateProviderConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateProviderRequestEntityTooLarge as json.
-func (s *ManagementCreateProviderRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateProviderRequestEntityTooLarge from json.
-func (s *ManagementCreateProviderRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateProviderRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateProviderRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateProviderRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateProviderRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateSharedAmazonSesLimitRequestConflict as json.
-func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateSharedAmazonSesLimitRequestConflict from json.
-func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateSharedAmazonSesLimitRequestConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateSharedAmazonSesLimitRequestConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateSharedAmazonSesLimitRequestNotFound as json.
-func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateSharedAmazonSesLimitRequestNotFound from json.
-func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateSharedAmazonSesLimitRequestNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateSharedAmazonSesLimitRequestNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity as json.
-func (s *ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity from json.
-func (s *ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateWebhookBadRequest as json.
-func (s *ManagementCreateWebhookBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateWebhookBadRequest from json.
-func (s *ManagementCreateWebhookBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateWebhookBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateWebhookBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateWebhookBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateWebhookBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateWebhookConflict as json.
-func (s *ManagementCreateWebhookConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateWebhookConflict from json.
-func (s *ManagementCreateWebhookConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateWebhookConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateWebhookConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateWebhookConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateWebhookConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateWebhookForbidden as json.
-func (s *ManagementCreateWebhookForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateWebhookForbidden from json.
-func (s *ManagementCreateWebhookForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateWebhookForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateWebhookForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateWebhookForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateWebhookForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateWebhookRequestEntityTooLarge as json.
-func (s *ManagementCreateWebhookRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateWebhookRequestEntityTooLarge from json.
-func (s *ManagementCreateWebhookRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateWebhookRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateWebhookRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateWebhookRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateWebhookRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateWebhookUnauthorized as json.
-func (s *ManagementCreateWebhookUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateWebhookUnauthorized from json.
-func (s *ManagementCreateWebhookUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateWebhookUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateWebhookUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateWebhookUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateWebhookUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementCreateWebhookUnprocessableEntity as json.
-func (s *ManagementCreateWebhookUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementCreateWebhookUnprocessableEntity from json.
-func (s *ManagementCreateWebhookUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementCreateWebhookUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementCreateWebhookUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementCreateWebhookUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementCreateWebhookUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementDeactivateProviderConflict as json.
-func (s *ManagementDeactivateProviderConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementDeactivateProviderConflict from json.
-func (s *ManagementDeactivateProviderConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementDeactivateProviderConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementDeactivateProviderConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementDeactivateProviderConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementDeactivateProviderConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementDeactivateProviderNotFound as json.
-func (s *ManagementDeactivateProviderNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementDeactivateProviderNotFound from json.
-func (s *ManagementDeactivateProviderNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementDeactivateProviderNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementDeactivateProviderNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementDeactivateProviderNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementDeactivateProviderNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementDeleteDomainConflict as json.
-func (s *ManagementDeleteDomainConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementDeleteDomainConflict from json.
-func (s *ManagementDeleteDomainConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementDeleteDomainConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementDeleteDomainConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementDeleteDomainConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementDeleteDomainConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementDeleteDomainNotFound as json.
-func (s *ManagementDeleteDomainNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementDeleteDomainNotFound from json.
-func (s *ManagementDeleteDomainNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementDeleteDomainNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementDeleteDomainNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementDeleteDomainNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementDeleteDomainNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementDeleteProviderNotFound as json.
-func (s *ManagementDeleteProviderNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementDeleteProviderNotFound from json.
-func (s *ManagementDeleteProviderNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementDeleteProviderNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementDeleteProviderNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementDeleteProviderNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementDeleteProviderNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementDeleteProviderUnprocessableEntity as json.
-func (s *ManagementDeleteProviderUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementDeleteProviderUnprocessableEntity from json.
-func (s *ManagementDeleteProviderUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementDeleteProviderUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementDeleteProviderUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementDeleteProviderUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementDeleteProviderUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetDeliveryPayloadForbidden as json.
-func (s *ManagementGetDeliveryPayloadForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetDeliveryPayloadForbidden from json.
-func (s *ManagementGetDeliveryPayloadForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetDeliveryPayloadForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetDeliveryPayloadForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetDeliveryPayloadForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetDeliveryPayloadForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetDeliveryPayloadNotFound as json.
-func (s *ManagementGetDeliveryPayloadNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetDeliveryPayloadNotFound from json.
-func (s *ManagementGetDeliveryPayloadNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetDeliveryPayloadNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetDeliveryPayloadNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetDeliveryPayloadNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetDeliveryPayloadNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetDeliveryPayloadUnauthorized as json.
-func (s *ManagementGetDeliveryPayloadUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetDeliveryPayloadUnauthorized from json.
-func (s *ManagementGetDeliveryPayloadUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetDeliveryPayloadUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetDeliveryPayloadUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetDeliveryPayloadUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetDeliveryPayloadUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetDomainFiltersConflict as json.
-func (s *ManagementGetDomainFiltersConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetDomainFiltersConflict from json.
-func (s *ManagementGetDomainFiltersConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetDomainFiltersConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetDomainFiltersConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetDomainFiltersConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetDomainFiltersConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetDomainFiltersNotFound as json.
-func (s *ManagementGetDomainFiltersNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetDomainFiltersNotFound from json.
-func (s *ManagementGetDomainFiltersNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetDomainFiltersNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetDomainFiltersNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetDomainFiltersNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetDomainFiltersNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetDomainFiltersServiceUnavailable as json.
-func (s *ManagementGetDomainFiltersServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetDomainFiltersServiceUnavailable from json.
-func (s *ManagementGetDomainFiltersServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetDomainFiltersServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetDomainFiltersServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetDomainFiltersServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetDomainFiltersServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetEmailLogForbidden as json.
-func (s *ManagementGetEmailLogForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetEmailLogForbidden from json.
-func (s *ManagementGetEmailLogForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetEmailLogForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetEmailLogForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetEmailLogForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetEmailLogForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetEmailLogNotFound as json.
-func (s *ManagementGetEmailLogNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetEmailLogNotFound from json.
-func (s *ManagementGetEmailLogNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetEmailLogNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetEmailLogNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetEmailLogNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetEmailLogNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetEmailLogUnauthorized as json.
-func (s *ManagementGetEmailLogUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetEmailLogUnauthorized from json.
-func (s *ManagementGetEmailLogUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetEmailLogUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetEmailLogUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetEmailLogUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetEmailLogUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetEmailMetricsForbidden as json.
-func (s *ManagementGetEmailMetricsForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetEmailMetricsForbidden from json.
-func (s *ManagementGetEmailMetricsForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetEmailMetricsForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetEmailMetricsForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetEmailMetricsForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetEmailMetricsForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetEmailMetricsUnauthorized as json.
-func (s *ManagementGetEmailMetricsUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetEmailMetricsUnauthorized from json.
-func (s *ManagementGetEmailMetricsUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetEmailMetricsUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetEmailMetricsUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetEmailMetricsUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetEmailMetricsUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetInboxLogForbidden as json.
-func (s *ManagementGetInboxLogForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetInboxLogForbidden from json.
-func (s *ManagementGetInboxLogForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetInboxLogForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetInboxLogForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetInboxLogForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetInboxLogForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetInboxLogNotFound as json.
-func (s *ManagementGetInboxLogNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetInboxLogNotFound from json.
-func (s *ManagementGetInboxLogNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetInboxLogNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetInboxLogNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetInboxLogNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetInboxLogNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetInboxLogUnauthorized as json.
-func (s *ManagementGetInboxLogUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetInboxLogUnauthorized from json.
-func (s *ManagementGetInboxLogUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetInboxLogUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetInboxLogUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetInboxLogUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetInboxLogUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetMailboxFiltersNotFound as json.
-func (s *ManagementGetMailboxFiltersNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetMailboxFiltersNotFound from json.
-func (s *ManagementGetMailboxFiltersNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetMailboxFiltersNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetMailboxFiltersNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetMailboxFiltersNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetMailboxFiltersNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetMailboxFiltersServiceUnavailable as json.
-func (s *ManagementGetMailboxFiltersServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetMailboxFiltersServiceUnavailable from json.
-func (s *ManagementGetMailboxFiltersServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetMailboxFiltersServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetMailboxFiltersServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetMailboxFiltersServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetMailboxFiltersServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetProviderStatsForbidden as json.
-func (s *ManagementGetProviderStatsForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetProviderStatsForbidden from json.
-func (s *ManagementGetProviderStatsForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetProviderStatsForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetProviderStatsForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetProviderStatsForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetProviderStatsForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetProviderStatsUnauthorized as json.
-func (s *ManagementGetProviderStatsUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetProviderStatsUnauthorized from json.
-func (s *ManagementGetProviderStatsUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetProviderStatsUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetProviderStatsUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetProviderStatsUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetProviderStatsUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetSpendSummaryForbidden as json.
-func (s *ManagementGetSpendSummaryForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetSpendSummaryForbidden from json.
-func (s *ManagementGetSpendSummaryForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetSpendSummaryForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetSpendSummaryForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetSpendSummaryForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetSpendSummaryForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementGetSpendSummaryUnauthorized as json.
-func (s *ManagementGetSpendSummaryUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementGetSpendSummaryUnauthorized from json.
-func (s *ManagementGetSpendSummaryUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementGetSpendSummaryUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementGetSpendSummaryUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementGetSpendSummaryUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementGetSpendSummaryUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListBalanceForbidden as json.
-func (s *ManagementListBalanceForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListBalanceForbidden from json.
-func (s *ManagementListBalanceForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListBalanceForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListBalanceForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListBalanceForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListBalanceForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListBalanceUnauthorized as json.
-func (s *ManagementListBalanceUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListBalanceUnauthorized from json.
-func (s *ManagementListBalanceUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListBalanceUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListBalanceUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListBalanceUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListBalanceUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListDeliveryBadRequest as json.
-func (s *ManagementListDeliveryBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListDeliveryBadRequest from json.
-func (s *ManagementListDeliveryBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListDeliveryBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListDeliveryBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListDeliveryBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListDeliveryBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListDeliveryForbidden as json.
-func (s *ManagementListDeliveryForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListDeliveryForbidden from json.
-func (s *ManagementListDeliveryForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListDeliveryForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListDeliveryForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListDeliveryForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListDeliveryForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListDeliveryNotFound as json.
-func (s *ManagementListDeliveryNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListDeliveryNotFound from json.
-func (s *ManagementListDeliveryNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListDeliveryNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListDeliveryNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListDeliveryNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListDeliveryNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListDeliveryUnauthorized as json.
-func (s *ManagementListDeliveryUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListDeliveryUnauthorized from json.
-func (s *ManagementListDeliveryUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListDeliveryUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListDeliveryUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListDeliveryUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListDeliveryUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListDomainsForbidden as json.
-func (s *ManagementListDomainsForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListDomainsForbidden from json.
-func (s *ManagementListDomainsForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListDomainsForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListDomainsForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListDomainsForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListDomainsForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListDomainsUnauthorized as json.
-func (s *ManagementListDomainsUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListDomainsUnauthorized from json.
-func (s *ManagementListDomainsUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListDomainsUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListDomainsUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListDomainsUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListDomainsUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListEmailLogsForbidden as json.
-func (s *ManagementListEmailLogsForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListEmailLogsForbidden from json.
-func (s *ManagementListEmailLogsForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListEmailLogsForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListEmailLogsForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListEmailLogsForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListEmailLogsForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListEmailLogsUnauthorized as json.
-func (s *ManagementListEmailLogsUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListEmailLogsUnauthorized from json.
-func (s *ManagementListEmailLogsUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListEmailLogsUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListEmailLogsUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListEmailLogsUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListEmailLogsUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListInboxLogsForbidden as json.
-func (s *ManagementListInboxLogsForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListInboxLogsForbidden from json.
-func (s *ManagementListInboxLogsForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListInboxLogsForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListInboxLogsForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListInboxLogsForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListInboxLogsForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListInboxLogsUnauthorized as json.
-func (s *ManagementListInboxLogsUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListInboxLogsUnauthorized from json.
-func (s *ManagementListInboxLogsUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListInboxLogsUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListInboxLogsUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListInboxLogsUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListInboxLogsUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListMailboxesForbidden as json.
-func (s *ManagementListMailboxesForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListMailboxesForbidden from json.
-func (s *ManagementListMailboxesForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListMailboxesForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListMailboxesForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListMailboxesForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListMailboxesForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListMailboxesUnauthorized as json.
-func (s *ManagementListMailboxesUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListMailboxesUnauthorized from json.
-func (s *ManagementListMailboxesUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListMailboxesUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListMailboxesUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListMailboxesUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListMailboxesUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListProvidersForbidden as json.
-func (s *ManagementListProvidersForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListProvidersForbidden from json.
-func (s *ManagementListProvidersForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListProvidersForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListProvidersForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListProvidersForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListProvidersForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListProvidersUnauthorized as json.
-func (s *ManagementListProvidersUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListProvidersUnauthorized from json.
-func (s *ManagementListProvidersUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListProvidersUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListProvidersUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListProvidersUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListProvidersUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListTransactionsForbidden as json.
-func (s *ManagementListTransactionsForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListTransactionsForbidden from json.
-func (s *ManagementListTransactionsForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListTransactionsForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListTransactionsForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListTransactionsForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListTransactionsForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListTransactionsUnauthorized as json.
-func (s *ManagementListTransactionsUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListTransactionsUnauthorized from json.
-func (s *ManagementListTransactionsUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListTransactionsUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListTransactionsUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListTransactionsUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListTransactionsUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListWebhooksForbidden as json.
-func (s *ManagementListWebhooksForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListWebhooksForbidden from json.
-func (s *ManagementListWebhooksForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListWebhooksForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListWebhooksForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListWebhooksForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListWebhooksForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementListWebhooksUnauthorized as json.
-func (s *ManagementListWebhooksUnauthorized) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementListWebhooksUnauthorized from json.
-func (s *ManagementListWebhooksUnauthorized) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementListWebhooksUnauthorized to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementListWebhooksUnauthorized(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementListWebhooksUnauthorized) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementListWebhooksUnauthorized) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementRequestSendingAccountLimitIncreaseConflict as json.
-func (s *ManagementRequestSendingAccountLimitIncreaseConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementRequestSendingAccountLimitIncreaseConflict from json.
-func (s *ManagementRequestSendingAccountLimitIncreaseConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementRequestSendingAccountLimitIncreaseConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementRequestSendingAccountLimitIncreaseConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementRequestSendingAccountLimitIncreaseConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementRequestSendingAccountLimitIncreaseConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity as json.
-func (s *ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity from json.
-func (s *ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementResumeMailboxConflict as json.
-func (s *ManagementResumeMailboxConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementResumeMailboxConflict from json.
-func (s *ManagementResumeMailboxConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementResumeMailboxConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementResumeMailboxConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementResumeMailboxConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementResumeMailboxConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementResumeMailboxForbidden as json.
-func (s *ManagementResumeMailboxForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementResumeMailboxForbidden from json.
-func (s *ManagementResumeMailboxForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementResumeMailboxForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementResumeMailboxForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementResumeMailboxForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementResumeMailboxForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementResumeMailboxNotFound as json.
-func (s *ManagementResumeMailboxNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementResumeMailboxNotFound from json.
-func (s *ManagementResumeMailboxNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementResumeMailboxNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementResumeMailboxNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementResumeMailboxNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementResumeMailboxNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementResumeMailboxServiceUnavailable as json.
-func (s *ManagementResumeMailboxServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementResumeMailboxServiceUnavailable from json.
-func (s *ManagementResumeMailboxServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementResumeMailboxServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementResumeMailboxServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementResumeMailboxServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementResumeMailboxServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementRotateWebhookSecretConflict as json.
-func (s *ManagementRotateWebhookSecretConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementRotateWebhookSecretConflict from json.
-func (s *ManagementRotateWebhookSecretConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementRotateWebhookSecretConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementRotateWebhookSecretConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementRotateWebhookSecretConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementRotateWebhookSecretConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementRotateWebhookSecretNotFound as json.
-func (s *ManagementRotateWebhookSecretNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementRotateWebhookSecretNotFound from json.
-func (s *ManagementRotateWebhookSecretNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementRotateWebhookSecretNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementRotateWebhookSecretNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementRotateWebhookSecretNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementRotateWebhookSecretNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetDomainFiltersBadRequest as json.
-func (s *ManagementSetDomainFiltersBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetDomainFiltersBadRequest from json.
-func (s *ManagementSetDomainFiltersBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetDomainFiltersBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetDomainFiltersBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetDomainFiltersBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetDomainFiltersBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetDomainFiltersConflict as json.
-func (s *ManagementSetDomainFiltersConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetDomainFiltersConflict from json.
-func (s *ManagementSetDomainFiltersConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetDomainFiltersConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetDomainFiltersConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetDomainFiltersConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetDomainFiltersConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetDomainFiltersNotFound as json.
-func (s *ManagementSetDomainFiltersNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetDomainFiltersNotFound from json.
-func (s *ManagementSetDomainFiltersNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetDomainFiltersNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetDomainFiltersNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetDomainFiltersNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetDomainFiltersNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetDomainFiltersRequestEntityTooLarge as json.
-func (s *ManagementSetDomainFiltersRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetDomainFiltersRequestEntityTooLarge from json.
-func (s *ManagementSetDomainFiltersRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetDomainFiltersRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetDomainFiltersRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetDomainFiltersRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetDomainFiltersRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetDomainFiltersServiceUnavailable as json.
-func (s *ManagementSetDomainFiltersServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetDomainFiltersServiceUnavailable from json.
-func (s *ManagementSetDomainFiltersServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetDomainFiltersServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetDomainFiltersServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetDomainFiltersServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetDomainFiltersServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetDomainFiltersUnprocessableEntity as json.
-func (s *ManagementSetDomainFiltersUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetDomainFiltersUnprocessableEntity from json.
-func (s *ManagementSetDomainFiltersUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetDomainFiltersUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetDomainFiltersUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetDomainFiltersUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetDomainFiltersUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetMailboxFiltersBadRequest as json.
-func (s *ManagementSetMailboxFiltersBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetMailboxFiltersBadRequest from json.
-func (s *ManagementSetMailboxFiltersBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetMailboxFiltersBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetMailboxFiltersBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetMailboxFiltersBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetMailboxFiltersBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetMailboxFiltersConflict as json.
-func (s *ManagementSetMailboxFiltersConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetMailboxFiltersConflict from json.
-func (s *ManagementSetMailboxFiltersConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetMailboxFiltersConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetMailboxFiltersConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetMailboxFiltersConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetMailboxFiltersConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetMailboxFiltersNotFound as json.
-func (s *ManagementSetMailboxFiltersNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetMailboxFiltersNotFound from json.
-func (s *ManagementSetMailboxFiltersNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetMailboxFiltersNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetMailboxFiltersNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetMailboxFiltersNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetMailboxFiltersNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetMailboxFiltersRequestEntityTooLarge as json.
-func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetMailboxFiltersRequestEntityTooLarge from json.
-func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetMailboxFiltersRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetMailboxFiltersRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetMailboxFiltersServiceUnavailable as json.
-func (s *ManagementSetMailboxFiltersServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetMailboxFiltersServiceUnavailable from json.
-func (s *ManagementSetMailboxFiltersServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetMailboxFiltersServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetMailboxFiltersServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetMailboxFiltersServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetMailboxFiltersServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSetMailboxFiltersUnprocessableEntity as json.
-func (s *ManagementSetMailboxFiltersUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSetMailboxFiltersUnprocessableEntity from json.
-func (s *ManagementSetMailboxFiltersUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSetMailboxFiltersUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSetMailboxFiltersUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSetMailboxFiltersUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSetMailboxFiltersUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSuspendMailboxConflict as json.
-func (s *ManagementSuspendMailboxConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSuspendMailboxConflict from json.
-func (s *ManagementSuspendMailboxConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSuspendMailboxConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSuspendMailboxConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSuspendMailboxConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSuspendMailboxConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSuspendMailboxForbidden as json.
-func (s *ManagementSuspendMailboxForbidden) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSuspendMailboxForbidden from json.
-func (s *ManagementSuspendMailboxForbidden) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSuspendMailboxForbidden to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSuspendMailboxForbidden(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSuspendMailboxForbidden) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSuspendMailboxForbidden) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSuspendMailboxNotFound as json.
-func (s *ManagementSuspendMailboxNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSuspendMailboxNotFound from json.
-func (s *ManagementSuspendMailboxNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSuspendMailboxNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSuspendMailboxNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSuspendMailboxNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSuspendMailboxNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementSuspendMailboxServiceUnavailable as json.
-func (s *ManagementSuspendMailboxServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementSuspendMailboxServiceUnavailable from json.
-func (s *ManagementSuspendMailboxServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementSuspendMailboxServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementSuspendMailboxServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementSuspendMailboxServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementSuspendMailboxServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementTestProviderNotFound as json.
-func (s *ManagementTestProviderNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementTestProviderNotFound from json.
-func (s *ManagementTestProviderNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementTestProviderNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementTestProviderNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementTestProviderNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementTestProviderNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementTestProviderServiceUnavailable as json.
-func (s *ManagementTestProviderServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementTestProviderServiceUnavailable from json.
-func (s *ManagementTestProviderServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementTestProviderServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementTestProviderServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementTestProviderServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementTestProviderServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementTestProviderUnprocessableEntity as json.
-func (s *ManagementTestProviderUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementTestProviderUnprocessableEntity from json.
-func (s *ManagementTestProviderUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementTestProviderUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementTestProviderUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementTestProviderUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementTestProviderUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementTestWebhookConflict as json.
-func (s *ManagementTestWebhookConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementTestWebhookConflict from json.
-func (s *ManagementTestWebhookConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementTestWebhookConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementTestWebhookConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementTestWebhookConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementTestWebhookConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementTestWebhookNotFound as json.
-func (s *ManagementTestWebhookNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementTestWebhookNotFound from json.
-func (s *ManagementTestWebhookNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementTestWebhookNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementTestWebhookNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementTestWebhookNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementTestWebhookNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *ManagementTestWebhookOK) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -17359,158 +13950,6 @@ func (s *ManagementTestWebhookOKOk) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes ManagementTestWebhookServiceUnavailable as json.
-func (s *ManagementTestWebhookServiceUnavailable) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementTestWebhookServiceUnavailable from json.
-func (s *ManagementTestWebhookServiceUnavailable) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementTestWebhookServiceUnavailable to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementTestWebhookServiceUnavailable(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementTestWebhookServiceUnavailable) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementTestWebhookServiceUnavailable) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateDomainBadRequest as json.
-func (s *ManagementUpdateDomainBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateDomainBadRequest from json.
-func (s *ManagementUpdateDomainBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateDomainBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateDomainBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateDomainBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateDomainBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateDomainConflict as json.
-func (s *ManagementUpdateDomainConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateDomainConflict from json.
-func (s *ManagementUpdateDomainConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateDomainConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateDomainConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateDomainConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateDomainConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateDomainNotFound as json.
-func (s *ManagementUpdateDomainNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateDomainNotFound from json.
-func (s *ManagementUpdateDomainNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateDomainNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateDomainNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateDomainNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateDomainNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *ManagementUpdateDomainReq) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -17643,652 +14082,6 @@ func (s *ManagementUpdateDomainReqMode) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes ManagementUpdateDomainRequestEntityTooLarge as json.
-func (s *ManagementUpdateDomainRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateDomainRequestEntityTooLarge from json.
-func (s *ManagementUpdateDomainRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateDomainRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateDomainRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateDomainRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateDomainRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateDomainUnprocessableEntity as json.
-func (s *ManagementUpdateDomainUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateDomainUnprocessableEntity from json.
-func (s *ManagementUpdateDomainUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateDomainUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateDomainUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateDomainUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateDomainUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateMailboxBadRequest as json.
-func (s *ManagementUpdateMailboxBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateMailboxBadRequest from json.
-func (s *ManagementUpdateMailboxBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateMailboxBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateMailboxBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateMailboxBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateMailboxBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateMailboxConflict as json.
-func (s *ManagementUpdateMailboxConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateMailboxConflict from json.
-func (s *ManagementUpdateMailboxConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateMailboxConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateMailboxConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateMailboxConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateMailboxConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateMailboxNotFound as json.
-func (s *ManagementUpdateMailboxNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateMailboxNotFound from json.
-func (s *ManagementUpdateMailboxNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateMailboxNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateMailboxNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateMailboxNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateMailboxNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateMailboxRequestEntityTooLarge as json.
-func (s *ManagementUpdateMailboxRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateMailboxRequestEntityTooLarge from json.
-func (s *ManagementUpdateMailboxRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateMailboxRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateMailboxRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateMailboxRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateMailboxRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateMailboxUnprocessableEntity as json.
-func (s *ManagementUpdateMailboxUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateMailboxUnprocessableEntity from json.
-func (s *ManagementUpdateMailboxUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateMailboxUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateMailboxUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateMailboxUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateMailboxUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateProviderBadRequest as json.
-func (s *ManagementUpdateProviderBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateProviderBadRequest from json.
-func (s *ManagementUpdateProviderBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateProviderBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateProviderBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateProviderBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateProviderBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateProviderConflict as json.
-func (s *ManagementUpdateProviderConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateProviderConflict from json.
-func (s *ManagementUpdateProviderConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateProviderConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateProviderConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateProviderConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateProviderConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateProviderNotFound as json.
-func (s *ManagementUpdateProviderNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateProviderNotFound from json.
-func (s *ManagementUpdateProviderNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateProviderNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateProviderNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateProviderNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateProviderNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateProviderRequestEntityTooLarge as json.
-func (s *ManagementUpdateProviderRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateProviderRequestEntityTooLarge from json.
-func (s *ManagementUpdateProviderRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateProviderRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateProviderRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateProviderRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateProviderRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateProviderUnprocessableEntity as json.
-func (s *ManagementUpdateProviderUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateProviderUnprocessableEntity from json.
-func (s *ManagementUpdateProviderUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateProviderUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateProviderUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateProviderUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateProviderUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateWebhookBadRequest as json.
-func (s *ManagementUpdateWebhookBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateWebhookBadRequest from json.
-func (s *ManagementUpdateWebhookBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateWebhookBadRequest to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateWebhookBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateWebhookBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateWebhookBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateWebhookConflict as json.
-func (s *ManagementUpdateWebhookConflict) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateWebhookConflict from json.
-func (s *ManagementUpdateWebhookConflict) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateWebhookConflict to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateWebhookConflict(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateWebhookConflict) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateWebhookConflict) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateWebhookNotFound as json.
-func (s *ManagementUpdateWebhookNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateWebhookNotFound from json.
-func (s *ManagementUpdateWebhookNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateWebhookNotFound to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateWebhookNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateWebhookNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateWebhookNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateWebhookRequestEntityTooLarge as json.
-func (s *ManagementUpdateWebhookRequestEntityTooLarge) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateWebhookRequestEntityTooLarge from json.
-func (s *ManagementUpdateWebhookRequestEntityTooLarge) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateWebhookRequestEntityTooLarge to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateWebhookRequestEntityTooLarge(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateWebhookRequestEntityTooLarge) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateWebhookRequestEntityTooLarge) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ManagementUpdateWebhookUnprocessableEntity as json.
-func (s *ManagementUpdateWebhookUnprocessableEntity) Encode(e *jx.Encoder) {
-	unwrapped := (*ApiError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes ManagementUpdateWebhookUnprocessableEntity from json.
-func (s *ManagementUpdateWebhookUnprocessableEntity) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ManagementUpdateWebhookUnprocessableEntity to nil")
-	}
-	var unwrapped ApiError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = ManagementUpdateWebhookUnprocessableEntity(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ManagementUpdateWebhookUnprocessableEntity) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ManagementUpdateWebhookUnprocessableEntity) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes bool as json.
 func (o NilBool) Encode(e *jx.Encoder) {
 	if o.Null {
@@ -18331,6 +14124,50 @@ func (s NilBool) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *NilBool) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeliveryLogRecipientType as json.
+func (o NilDeliveryLogRecipientType) Encode(e *jx.Encoder) {
+	if o.Null {
+		e.Null()
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes DeliveryLogRecipientType from json.
+func (o *NilDeliveryLogRecipientType) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode NilDeliveryLogRecipientType to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v DeliveryLogRecipientType
+		o.Value = v
+		o.Null = true
+		return nil
+	}
+	o.Null = false
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s NilDeliveryLogRecipientType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *NilDeliveryLogRecipientType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

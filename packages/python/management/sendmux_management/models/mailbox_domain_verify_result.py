@@ -37,8 +37,8 @@ class MailboxDomainVerifyResult(BaseModel):
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['verified', 'pending']):
-            raise ValueError("must be one of enum values ('verified', 'pending')")
+        if value not in set(['verified', 'pending', 'failed']):
+            raise ValueError("must be one of enum values ('verified', 'pending', 'failed')")
         return value
 
     model_config = ConfigDict(

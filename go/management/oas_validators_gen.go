@@ -100,6 +100,29 @@ func (s ApiErrorErrorCode) Validate() error {
 	}
 }
 
+func (s *ApiErrorHeaders) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Response.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "Response",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
 func (s ApiErrorOk) Validate() error {
 	switch s {
 	case false:
@@ -184,12 +207,39 @@ func (s BalanceResponseOk) Validate() error {
 	}
 }
 
-func (s *DeliveryLogItem) Validate() error {
+func (s *DeliveryLogDetail) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
 
 	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.AcceptedRecipientCount.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        true,
+					Max:           50,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "accepted_recipient_count",
+			Error: err,
+		})
+	}
 	if err := func() error {
 		if err := (validate.Float{}).Validate(float64(s.Attempts)); err != nil {
 			return errors.Wrap(err, "float")
@@ -198,6 +248,244 @@ func (s *DeliveryLogItem) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "attempts",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.RecipientCount.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        true,
+					Max:           50,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "recipient_count",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.Recipients == nil {
+			return nil // null
+		}
+		if err := (validate.Array{
+			MinLength:    0,
+			MinLengthSet: false,
+			MaxLength:    50,
+			MaxLengthSet: true,
+		}).ValidateLength(len(s.Recipients)); err != nil {
+			return errors.Wrap(err, "array")
+		}
+		var failures []validate.FieldError
+		for i, elem := range s.Recipients {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "recipients",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.RejectedRecipientCount.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        true,
+					Max:           50,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "rejected_recipient_count",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.SizeBytes.Get(); ok {
+			if err := func() error {
+				if err := (validate.Float{}).Validate(float64(value)); err != nil {
+					return errors.Wrap(err, "float")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "size_bytes",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Status.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "status",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s DeliveryLogDetailStatus) Validate() error {
+	switch s {
+	case "pending":
+		return nil
+	case "sent":
+		return nil
+	case "failed":
+		return nil
+	case "rejected":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *DeliveryLogItem) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.AcceptedRecipientCount.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        true,
+					Max:           50,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "accepted_recipient_count",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := (validate.Float{}).Validate(float64(s.Attempts)); err != nil {
+			return errors.Wrap(err, "float")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "attempts",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.RecipientCount.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        true,
+					Max:           50,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "recipient_count",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.RejectedRecipientCount.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        true,
+					Max:           50,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "rejected_recipient_count",
 			Error: err,
 		})
 	}
@@ -371,6 +659,90 @@ func (s DeliveryLogItemStatus) Validate() error {
 	case "failed":
 		return nil
 	case "rejected":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *DeliveryLogRecipient) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.String{
+			MinLength:    0,
+			MinLengthSet: false,
+			MaxLength:    0,
+			MaxLengthSet: false,
+			Email:        true,
+			Hostname:     false,
+			Regex:        nil,
+		}).Validate(string(s.Email)); err != nil {
+			return errors.Wrap(err, "string")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "email",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Status.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "status",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if value, ok := s.Type.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s DeliveryLogRecipientStatus) Validate() error {
+	switch s {
+	case "accepted":
+		return nil
+	case "rejected":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s DeliveryLogRecipientType) Validate() error {
+	switch s {
+	case "to":
+		return nil
+	case "cc":
+		return nil
+	case "bcc":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -1847,6 +2219,8 @@ func (s MailboxDomainVerifyResultStatus) Validate() error {
 		return nil
 	case "pending":
 		return nil
+	case "failed":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
@@ -2090,7 +2464,7 @@ func (s MailboxSendScopeType) Validate() error {
 }
 
 func (s *ManagementActivateProviderConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2098,7 +2472,7 @@ func (s *ManagementActivateProviderConflict) Validate() error {
 }
 
 func (s *ManagementActivateProviderNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2106,7 +2480,7 @@ func (s *ManagementActivateProviderNotFound) Validate() error {
 }
 
 func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2114,7 +2488,7 @@ func (s *ManagementCancelSharedAmazonSesLimitRequestConflict) Validate() error {
 }
 
 func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2122,7 +2496,7 @@ func (s *ManagementCancelSharedAmazonSesLimitRequestNotFound) Validate() error {
 }
 
 func (s *ManagementCheckMailboxAvailabilityForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2130,7 +2504,7 @@ func (s *ManagementCheckMailboxAvailabilityForbidden) Validate() error {
 }
 
 func (s *ManagementCheckMailboxAvailabilityUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2138,7 +2512,7 @@ func (s *ManagementCheckMailboxAvailabilityUnauthorized) Validate() error {
 }
 
 func (s *ManagementCreateDomainBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2146,7 +2520,7 @@ func (s *ManagementCreateDomainBadRequest) Validate() error {
 }
 
 func (s *ManagementCreateDomainConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2195,7 +2569,7 @@ func (s ManagementCreateDomainReqMode) Validate() error {
 }
 
 func (s *ManagementCreateDomainRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2203,7 +2577,7 @@ func (s *ManagementCreateDomainRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementCreateDomainServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2211,7 +2585,7 @@ func (s *ManagementCreateDomainServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementCreateMailboxBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2219,7 +2593,7 @@ func (s *ManagementCreateMailboxBadRequest) Validate() error {
 }
 
 func (s *ManagementCreateMailboxConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2227,7 +2601,7 @@ func (s *ManagementCreateMailboxConflict) Validate() error {
 }
 
 func (s *ManagementCreateMailboxKeyBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2235,7 +2609,7 @@ func (s *ManagementCreateMailboxKeyBadRequest) Validate() error {
 }
 
 func (s *ManagementCreateMailboxKeyConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2243,7 +2617,7 @@ func (s *ManagementCreateMailboxKeyConflict) Validate() error {
 }
 
 func (s *ManagementCreateMailboxKeyNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2282,7 +2656,7 @@ func (s *ManagementCreateMailboxKeyReq) Validate() error {
 }
 
 func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2290,7 +2664,7 @@ func (s *ManagementCreateMailboxKeyRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementCreateMailboxKeyServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2298,7 +2672,7 @@ func (s *ManagementCreateMailboxKeyServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementCreateMailboxKeyUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2510,7 +2884,7 @@ func (s ManagementCreateMailboxReqSendScopeType) Validate() error {
 }
 
 func (s *ManagementCreateMailboxRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2518,7 +2892,7 @@ func (s *ManagementCreateMailboxRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementCreateMailboxServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2526,7 +2900,7 @@ func (s *ManagementCreateMailboxServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementCreateMailboxUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2534,7 +2908,7 @@ func (s *ManagementCreateMailboxUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementCreateProviderBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2542,7 +2916,7 @@ func (s *ManagementCreateProviderBadRequest) Validate() error {
 }
 
 func (s *ManagementCreateProviderConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2550,7 +2924,7 @@ func (s *ManagementCreateProviderConflict) Validate() error {
 }
 
 func (s *ManagementCreateProviderRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2558,7 +2932,7 @@ func (s *ManagementCreateProviderRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2566,7 +2940,7 @@ func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) Validate() error {
 }
 
 func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2574,7 +2948,7 @@ func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) Validate() error {
 }
 
 func (s *ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2582,7 +2956,7 @@ func (s *ManagementCreateSharedAmazonSesLimitRequestUnprocessableEntity) Validat
 }
 
 func (s *ManagementCreateWebhookBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2590,7 +2964,7 @@ func (s *ManagementCreateWebhookBadRequest) Validate() error {
 }
 
 func (s *ManagementCreateWebhookConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2598,7 +2972,7 @@ func (s *ManagementCreateWebhookConflict) Validate() error {
 }
 
 func (s *ManagementCreateWebhookForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2606,7 +2980,7 @@ func (s *ManagementCreateWebhookForbidden) Validate() error {
 }
 
 func (s *ManagementCreateWebhookRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2614,7 +2988,7 @@ func (s *ManagementCreateWebhookRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementCreateWebhookUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2622,7 +2996,7 @@ func (s *ManagementCreateWebhookUnauthorized) Validate() error {
 }
 
 func (s *ManagementCreateWebhookUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2630,7 +3004,7 @@ func (s *ManagementCreateWebhookUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementDeactivateProviderConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2638,7 +3012,7 @@ func (s *ManagementDeactivateProviderConflict) Validate() error {
 }
 
 func (s *ManagementDeactivateProviderNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2646,7 +3020,7 @@ func (s *ManagementDeactivateProviderNotFound) Validate() error {
 }
 
 func (s *ManagementDeleteDomainConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2654,7 +3028,7 @@ func (s *ManagementDeleteDomainConflict) Validate() error {
 }
 
 func (s *ManagementDeleteDomainNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2662,7 +3036,7 @@ func (s *ManagementDeleteDomainNotFound) Validate() error {
 }
 
 func (s *ManagementDeleteProviderNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2670,7 +3044,7 @@ func (s *ManagementDeleteProviderNotFound) Validate() error {
 }
 
 func (s *ManagementDeleteProviderUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2678,7 +3052,7 @@ func (s *ManagementDeleteProviderUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementGetDeliveryPayloadForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2686,7 +3060,7 @@ func (s *ManagementGetDeliveryPayloadForbidden) Validate() error {
 }
 
 func (s *ManagementGetDeliveryPayloadNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2694,7 +3068,7 @@ func (s *ManagementGetDeliveryPayloadNotFound) Validate() error {
 }
 
 func (s *ManagementGetDeliveryPayloadUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2702,7 +3076,7 @@ func (s *ManagementGetDeliveryPayloadUnauthorized) Validate() error {
 }
 
 func (s *ManagementGetDomainFiltersConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2710,7 +3084,7 @@ func (s *ManagementGetDomainFiltersConflict) Validate() error {
 }
 
 func (s *ManagementGetDomainFiltersNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2718,7 +3092,7 @@ func (s *ManagementGetDomainFiltersNotFound) Validate() error {
 }
 
 func (s *ManagementGetDomainFiltersServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2726,7 +3100,7 @@ func (s *ManagementGetDomainFiltersServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementGetEmailLogForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2734,7 +3108,7 @@ func (s *ManagementGetEmailLogForbidden) Validate() error {
 }
 
 func (s *ManagementGetEmailLogNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2742,7 +3116,7 @@ func (s *ManagementGetEmailLogNotFound) Validate() error {
 }
 
 func (s *ManagementGetEmailLogUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2750,7 +3124,7 @@ func (s *ManagementGetEmailLogUnauthorized) Validate() error {
 }
 
 func (s *ManagementGetEmailMetricsForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2769,7 +3143,7 @@ func (s ManagementGetEmailMetricsGranularity) Validate() error {
 }
 
 func (s *ManagementGetEmailMetricsUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2790,7 +3164,7 @@ func (s ManagementGetEmailMetricsWindow) Validate() error {
 }
 
 func (s *ManagementGetInboxLogForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2798,7 +3172,7 @@ func (s *ManagementGetInboxLogForbidden) Validate() error {
 }
 
 func (s *ManagementGetInboxLogNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2806,7 +3180,7 @@ func (s *ManagementGetInboxLogNotFound) Validate() error {
 }
 
 func (s *ManagementGetInboxLogUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2814,7 +3188,7 @@ func (s *ManagementGetInboxLogUnauthorized) Validate() error {
 }
 
 func (s *ManagementGetMailboxFiltersNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2822,7 +3196,7 @@ func (s *ManagementGetMailboxFiltersNotFound) Validate() error {
 }
 
 func (s *ManagementGetMailboxFiltersServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2830,7 +3204,7 @@ func (s *ManagementGetMailboxFiltersServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementGetProviderStatsForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2838,7 +3212,7 @@ func (s *ManagementGetProviderStatsForbidden) Validate() error {
 }
 
 func (s *ManagementGetProviderStatsUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2859,7 +3233,7 @@ func (s ManagementGetSpendSummaryDays) Validate() error {
 }
 
 func (s *ManagementGetSpendSummaryForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2867,7 +3241,7 @@ func (s *ManagementGetSpendSummaryForbidden) Validate() error {
 }
 
 func (s *ManagementGetSpendSummaryUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2875,7 +3249,7 @@ func (s *ManagementGetSpendSummaryUnauthorized) Validate() error {
 }
 
 func (s *ManagementListBalanceForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2883,7 +3257,7 @@ func (s *ManagementListBalanceForbidden) Validate() error {
 }
 
 func (s *ManagementListBalanceUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2891,7 +3265,7 @@ func (s *ManagementListBalanceUnauthorized) Validate() error {
 }
 
 func (s *ManagementListDeliveryBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2922,7 +3296,7 @@ func (s ManagementListDeliveryEventType) Validate() error {
 }
 
 func (s *ManagementListDeliveryForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2930,7 +3304,7 @@ func (s *ManagementListDeliveryForbidden) Validate() error {
 }
 
 func (s *ManagementListDeliveryNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2953,7 +3327,7 @@ func (s ManagementListDeliveryResult) Validate() error {
 }
 
 func (s *ManagementListDeliveryUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2961,7 +3335,7 @@ func (s *ManagementListDeliveryUnauthorized) Validate() error {
 }
 
 func (s *ManagementListDomainsForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2969,7 +3343,7 @@ func (s *ManagementListDomainsForbidden) Validate() error {
 }
 
 func (s *ManagementListDomainsUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -2977,7 +3351,7 @@ func (s *ManagementListDomainsUnauthorized) Validate() error {
 }
 
 func (s *ManagementListEmailLogsForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3000,7 +3374,7 @@ func (s ManagementListEmailLogsStatus) Validate() error {
 }
 
 func (s *ManagementListEmailLogsUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3019,7 +3393,7 @@ func (s ManagementListInboxLogsEventType) Validate() error {
 }
 
 func (s *ManagementListInboxLogsForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3027,7 +3401,7 @@ func (s *ManagementListInboxLogsForbidden) Validate() error {
 }
 
 func (s *ManagementListInboxLogsUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3035,7 +3409,7 @@ func (s *ManagementListInboxLogsUnauthorized) Validate() error {
 }
 
 func (s *ManagementListMailboxesForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3052,7 +3426,7 @@ func (s ManagementListMailboxesIncludeDeleted) Validate() error {
 }
 
 func (s *ManagementListMailboxesUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3060,7 +3434,7 @@ func (s *ManagementListMailboxesUnauthorized) Validate() error {
 }
 
 func (s *ManagementListProvidersForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3098,7 +3472,7 @@ func (s ManagementListProvidersType) Validate() error {
 }
 
 func (s *ManagementListProvidersUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3106,7 +3480,7 @@ func (s *ManagementListProvidersUnauthorized) Validate() error {
 }
 
 func (s *ManagementListTransactionsForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3131,7 +3505,7 @@ func (s ManagementListTransactionsType) Validate() error {
 }
 
 func (s *ManagementListTransactionsUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3139,7 +3513,7 @@ func (s *ManagementListTransactionsUnauthorized) Validate() error {
 }
 
 func (s *ManagementListWebhooksForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3147,7 +3521,7 @@ func (s *ManagementListWebhooksForbidden) Validate() error {
 }
 
 func (s *ManagementListWebhooksUnauthorized) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3155,7 +3529,7 @@ func (s *ManagementListWebhooksUnauthorized) Validate() error {
 }
 
 func (s *ManagementRequestSendingAccountLimitIncreaseConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3163,7 +3537,7 @@ func (s *ManagementRequestSendingAccountLimitIncreaseConflict) Validate() error 
 }
 
 func (s *ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3171,7 +3545,7 @@ func (s *ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity) Valida
 }
 
 func (s *ManagementResumeMailboxConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3179,7 +3553,7 @@ func (s *ManagementResumeMailboxConflict) Validate() error {
 }
 
 func (s *ManagementResumeMailboxForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3187,7 +3561,7 @@ func (s *ManagementResumeMailboxForbidden) Validate() error {
 }
 
 func (s *ManagementResumeMailboxNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3195,7 +3569,7 @@ func (s *ManagementResumeMailboxNotFound) Validate() error {
 }
 
 func (s *ManagementResumeMailboxServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3203,7 +3577,7 @@ func (s *ManagementResumeMailboxServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementRotateWebhookSecretConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3211,7 +3585,7 @@ func (s *ManagementRotateWebhookSecretConflict) Validate() error {
 }
 
 func (s *ManagementRotateWebhookSecretNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3219,7 +3593,7 @@ func (s *ManagementRotateWebhookSecretNotFound) Validate() error {
 }
 
 func (s *ManagementSetDomainFiltersBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3227,7 +3601,7 @@ func (s *ManagementSetDomainFiltersBadRequest) Validate() error {
 }
 
 func (s *ManagementSetDomainFiltersConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3235,7 +3609,7 @@ func (s *ManagementSetDomainFiltersConflict) Validate() error {
 }
 
 func (s *ManagementSetDomainFiltersNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3243,7 +3617,7 @@ func (s *ManagementSetDomainFiltersNotFound) Validate() error {
 }
 
 func (s *ManagementSetDomainFiltersRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3251,7 +3625,7 @@ func (s *ManagementSetDomainFiltersRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementSetDomainFiltersServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3259,7 +3633,7 @@ func (s *ManagementSetDomainFiltersServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementSetDomainFiltersUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3267,7 +3641,7 @@ func (s *ManagementSetDomainFiltersUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3275,7 +3649,7 @@ func (s *ManagementSetMailboxFiltersBadRequest) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3283,7 +3657,7 @@ func (s *ManagementSetMailboxFiltersConflict) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3291,7 +3665,7 @@ func (s *ManagementSetMailboxFiltersNotFound) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3299,7 +3673,7 @@ func (s *ManagementSetMailboxFiltersRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3307,7 +3681,7 @@ func (s *ManagementSetMailboxFiltersServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementSetMailboxFiltersUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3315,7 +3689,7 @@ func (s *ManagementSetMailboxFiltersUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementSuspendMailboxConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3323,7 +3697,7 @@ func (s *ManagementSuspendMailboxConflict) Validate() error {
 }
 
 func (s *ManagementSuspendMailboxForbidden) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3331,7 +3705,7 @@ func (s *ManagementSuspendMailboxForbidden) Validate() error {
 }
 
 func (s *ManagementSuspendMailboxNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3339,7 +3713,7 @@ func (s *ManagementSuspendMailboxNotFound) Validate() error {
 }
 
 func (s *ManagementSuspendMailboxServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3347,7 +3721,7 @@ func (s *ManagementSuspendMailboxServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementTestProviderNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3355,7 +3729,7 @@ func (s *ManagementTestProviderNotFound) Validate() error {
 }
 
 func (s *ManagementTestProviderServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3363,7 +3737,7 @@ func (s *ManagementTestProviderServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementTestProviderUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3371,7 +3745,7 @@ func (s *ManagementTestProviderUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementTestWebhookConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3379,7 +3753,7 @@ func (s *ManagementTestWebhookConflict) Validate() error {
 }
 
 func (s *ManagementTestWebhookNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3419,7 +3793,7 @@ func (s ManagementTestWebhookOKOk) Validate() error {
 }
 
 func (s *ManagementTestWebhookServiceUnavailable) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3427,7 +3801,7 @@ func (s *ManagementTestWebhookServiceUnavailable) Validate() error {
 }
 
 func (s *ManagementUpdateDomainBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3435,7 +3809,7 @@ func (s *ManagementUpdateDomainBadRequest) Validate() error {
 }
 
 func (s *ManagementUpdateDomainConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3443,7 +3817,7 @@ func (s *ManagementUpdateDomainConflict) Validate() error {
 }
 
 func (s *ManagementUpdateDomainNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3483,7 +3857,7 @@ func (s ManagementUpdateDomainReqMode) Validate() error {
 }
 
 func (s *ManagementUpdateDomainRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3491,7 +3865,7 @@ func (s *ManagementUpdateDomainRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementUpdateDomainUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3499,7 +3873,7 @@ func (s *ManagementUpdateDomainUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementUpdateMailboxBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3507,7 +3881,7 @@ func (s *ManagementUpdateMailboxBadRequest) Validate() error {
 }
 
 func (s *ManagementUpdateMailboxConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3515,7 +3889,7 @@ func (s *ManagementUpdateMailboxConflict) Validate() error {
 }
 
 func (s *ManagementUpdateMailboxNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3523,7 +3897,7 @@ func (s *ManagementUpdateMailboxNotFound) Validate() error {
 }
 
 func (s *ManagementUpdateMailboxRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3531,7 +3905,7 @@ func (s *ManagementUpdateMailboxRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementUpdateMailboxUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3539,7 +3913,7 @@ func (s *ManagementUpdateMailboxUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementUpdateProviderBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3547,7 +3921,7 @@ func (s *ManagementUpdateProviderBadRequest) Validate() error {
 }
 
 func (s *ManagementUpdateProviderConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3555,7 +3929,7 @@ func (s *ManagementUpdateProviderConflict) Validate() error {
 }
 
 func (s *ManagementUpdateProviderNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3563,7 +3937,7 @@ func (s *ManagementUpdateProviderNotFound) Validate() error {
 }
 
 func (s *ManagementUpdateProviderRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3571,7 +3945,7 @@ func (s *ManagementUpdateProviderRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementUpdateProviderUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3579,7 +3953,7 @@ func (s *ManagementUpdateProviderUnprocessableEntity) Validate() error {
 }
 
 func (s *ManagementUpdateWebhookBadRequest) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3587,7 +3961,7 @@ func (s *ManagementUpdateWebhookBadRequest) Validate() error {
 }
 
 func (s *ManagementUpdateWebhookConflict) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3595,7 +3969,7 @@ func (s *ManagementUpdateWebhookConflict) Validate() error {
 }
 
 func (s *ManagementUpdateWebhookNotFound) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3603,7 +3977,7 @@ func (s *ManagementUpdateWebhookNotFound) Validate() error {
 }
 
 func (s *ManagementUpdateWebhookRequestEntityTooLarge) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -3611,7 +3985,39 @@ func (s *ManagementUpdateWebhookRequestEntityTooLarge) Validate() error {
 }
 
 func (s *ManagementUpdateWebhookUnprocessableEntity) Validate() error {
-	alias := (*ApiError)(s)
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementVerifyDomainConflict) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementVerifyDomainInternalServerError) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementVerifyDomainNotFound) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementVerifyDomainServiceUnavailable) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}

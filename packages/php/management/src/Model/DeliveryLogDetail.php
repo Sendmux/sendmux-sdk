@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DeliveryLogItem
+ * DeliveryLogDetail
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Management\ObjectSerializer;
 
 /**
- * DeliveryLogItem Class Doc Comment
+ * DeliveryLogDetail Class Doc Comment
  *
  * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
+class DeliveryLogDetail implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'DeliveryLogItem';
+    protected static string $openAPIModelName = 'DeliveryLogDetail';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -68,6 +68,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'provider_id' => 'string',
         'provider_name' => 'string',
         'recipient_count' => 'int',
+        'recipients' => '\Sendmux\Management\Model\DeliveryLogRecipient[]',
         'rejected_recipient_count' => 'int',
         'sent_at' => 'string',
         'sent_from_email' => 'string',
@@ -93,6 +94,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'provider_id' => null,
         'provider_name' => null,
         'recipient_count' => null,
+        'recipients' => null,
         'rejected_recipient_count' => null,
         'sent_at' => null,
         'sent_from_email' => null,
@@ -118,6 +120,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'provider_id' => true,
         'provider_name' => true,
         'recipient_count' => true,
+        'recipients' => true,
         'rejected_recipient_count' => true,
         'sent_at' => true,
         'sent_from_email' => true,
@@ -213,6 +216,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'provider_id' => 'provider_id',
         'provider_name' => 'provider_name',
         'recipient_count' => 'recipient_count',
+        'recipients' => 'recipients',
         'rejected_recipient_count' => 'rejected_recipient_count',
         'sent_at' => 'sent_at',
         'sent_from_email' => 'sent_from_email',
@@ -238,6 +242,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'provider_id' => 'setProviderId',
         'provider_name' => 'setProviderName',
         'recipient_count' => 'setRecipientCount',
+        'recipients' => 'setRecipients',
         'rejected_recipient_count' => 'setRejectedRecipientCount',
         'sent_at' => 'setSentAt',
         'sent_from_email' => 'setSentFromEmail',
@@ -263,6 +268,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'provider_id' => 'getProviderId',
         'provider_name' => 'getProviderName',
         'recipient_count' => 'getRecipientCount',
+        'recipients' => 'getRecipients',
         'rejected_recipient_count' => 'getRejectedRecipientCount',
         'sent_at' => 'getSentAt',
         'sent_from_email' => 'getSentFromEmail',
@@ -350,6 +356,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('provider_id', $data ?? [], null);
         $this->setIfExists('provider_name', $data ?? [], null);
         $this->setIfExists('recipient_count', $data ?? [], null);
+        $this->setIfExists('recipients', $data ?? [], null);
         $this->setIfExists('rejected_recipient_count', $data ?? [], null);
         $this->setIfExists('sent_at', $data ?? [], null);
         $this->setIfExists('sent_from_email', $data ?? [], null);
@@ -426,6 +433,13 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
 
         if (!is_null($this->container['recipient_count']) && ($this->container['recipient_count'] < 0)) {
             $invalidProperties[] = "invalid value for 'recipient_count', must be bigger than or equal to 0.";
+        }
+
+        if ($this->container['recipients'] === null && !$this->isNullableSetToNull('recipients')) {
+            $invalidProperties[] = "'recipients' is required";
+        }
+        if (!is_null($this->container['recipients']) && (count($this->container['recipients']) > 50)) {
+            $invalidProperties[] = "invalid value for 'recipients', number of items must be less than or equal to 50.";
         }
 
         if ($this->container['rejected_recipient_count'] === null && !$this->isNullableSetToNull('rejected_recipient_count')) {
@@ -512,10 +526,10 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         }
 
         if (!is_null($accepted_recipient_count) && ($accepted_recipient_count > 50)) {
-            throw new InvalidArgumentException('invalid value for $accepted_recipient_count when calling DeliveryLogItem., must be smaller than or equal to 50.');
+            throw new InvalidArgumentException('invalid value for $accepted_recipient_count when calling DeliveryLogDetail., must be smaller than or equal to 50.');
         }
         if (!is_null($accepted_recipient_count) && ($accepted_recipient_count < 0)) {
-            throw new InvalidArgumentException('invalid value for $accepted_recipient_count when calling DeliveryLogItem., must be bigger than or equal to 0.');
+            throw new InvalidArgumentException('invalid value for $accepted_recipient_count when calling DeliveryLogDetail., must be bigger than or equal to 0.');
         }
 
         $this->container['accepted_recipient_count'] = $accepted_recipient_count;
@@ -771,13 +785,51 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         }
 
         if (!is_null($recipient_count) && ($recipient_count > 50)) {
-            throw new InvalidArgumentException('invalid value for $recipient_count when calling DeliveryLogItem., must be smaller than or equal to 50.');
+            throw new InvalidArgumentException('invalid value for $recipient_count when calling DeliveryLogDetail., must be smaller than or equal to 50.');
         }
         if (!is_null($recipient_count) && ($recipient_count < 0)) {
-            throw new InvalidArgumentException('invalid value for $recipient_count when calling DeliveryLogItem., must be bigger than or equal to 0.');
+            throw new InvalidArgumentException('invalid value for $recipient_count when calling DeliveryLogDetail., must be bigger than or equal to 0.');
         }
 
         $this->container['recipient_count'] = $recipient_count;
+
+        return $this;
+    }
+
+    /**
+     * Gets recipients
+     *
+     * @return \Sendmux\Management\Model\DeliveryLogRecipient[]|null
+     */
+    public function getRecipients(): ?array
+    {
+        return $this->container['recipients'];
+    }
+
+    /**
+     * Sets recipients
+     *
+     * @param \Sendmux\Management\Model\DeliveryLogRecipient[]|null $recipients Ordered recipient outcome snapshot for this send, or null when no snapshot exists
+     *
+     * @return $this
+     */
+    public function setRecipients(?array $recipients): static
+    {
+        if (is_null($recipients)) {
+            array_push($this->openAPINullablesSetToNull, 'recipients');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('recipients', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+
+        if (!is_null($recipients) && (count($recipients) > 50)) {
+            throw new InvalidArgumentException('invalid value for $recipients when calling DeliveryLogDetail., number of items must be less than or equal to 50.');
+        }
+        $this->container['recipients'] = $recipients;
 
         return $this;
     }
@@ -813,10 +865,10 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         }
 
         if (!is_null($rejected_recipient_count) && ($rejected_recipient_count > 50)) {
-            throw new InvalidArgumentException('invalid value for $rejected_recipient_count when calling DeliveryLogItem., must be smaller than or equal to 50.');
+            throw new InvalidArgumentException('invalid value for $rejected_recipient_count when calling DeliveryLogDetail., must be smaller than or equal to 50.');
         }
         if (!is_null($rejected_recipient_count) && ($rejected_recipient_count < 0)) {
-            throw new InvalidArgumentException('invalid value for $rejected_recipient_count when calling DeliveryLogItem., must be bigger than or equal to 0.');
+            throw new InvalidArgumentException('invalid value for $rejected_recipient_count when calling DeliveryLogDetail., must be bigger than or equal to 0.');
         }
 
         $this->container['rejected_recipient_count'] = $rejected_recipient_count;

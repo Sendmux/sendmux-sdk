@@ -119,11 +119,11 @@ export type EmailSendRequest = {
      */
     attachments?: Array<Attachment>;
     /**
-     * BCC recipients (max 100)
+     * BCC recipients (subject to 50 total To, CC, and BCC recipients)
      */
     bcc?: Array<Recipient>;
     /**
-     * CC recipients (max 100)
+     * CC recipients (subject to 50 total To, CC, and BCC recipients)
      */
     cc?: Array<Recipient>;
     /**

@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
-from sendmux_management.models.delivery_log_item import DeliveryLogItem
+from sendmux_management.models.delivery_log_detail import DeliveryLogDetail
 from sendmux_management.models.response_meta import ResponseMeta
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,7 @@ class DeliveryLogItemResponse(BaseModel):
     """ # noqa: E501
     meta: ResponseMeta
     ok: StrictBool
-    data: DeliveryLogItem
+    data: DeliveryLogDetail
     __properties: ClassVar[List[str]] = ["meta", "ok", "data"]
 
     model_config = ConfigDict(
@@ -93,6 +93,6 @@ class DeliveryLogItemResponse(BaseModel):
         _obj = cls.model_validate({
             "meta": ResponseMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
             "ok": obj.get("ok"),
-            "data": DeliveryLogItem.from_dict(obj["data"]) if obj.get("data") is not None else None
+            "data": DeliveryLogDetail.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj

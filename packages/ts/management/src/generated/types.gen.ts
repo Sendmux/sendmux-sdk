@@ -147,7 +147,7 @@ export type WebhookEventData = {
     /**
      * Bounce category for `message.bounced` events.
      */
-    bounce_type: 'Permanent' | 'Transient' | 'Undetermined';
+    bounce_type: 'Permanent' | 'Transient' | 'Undetermined' | null;
     /**
      * More specific complaint category when available.
      */
@@ -179,7 +179,7 @@ export type WebhookEventData = {
     /**
      * `provider` for sending feedback IDs; `rfc5322` for inbound email Message-ID header values.
      */
-    message_id_kind: 'provider' | 'rfc5322';
+    message_id_kind: 'provider' | 'rfc5322' | null;
     /**
      * All affected recipients. Empty for synthetic test events.
      */
@@ -1253,7 +1253,7 @@ export type DeliveryLogRecipient = {
     /**
      * Recipient header type when known
      */
-    type: 'to' | 'cc' | 'bcc';
+    type: 'to' | 'cc' | 'bcc' | null;
 };
 
 export type DeliveryLogItemResponse = SuccessEnvelope & {

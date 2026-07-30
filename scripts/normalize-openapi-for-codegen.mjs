@@ -125,6 +125,7 @@ function normalizeOpenApiGeneratorDocument(document) {
 function normalizeOpenApi31Document(document) {
   return walkSchemaLikeObjects(document, (schema) => {
     normalizeOpenApi31NullableAllOfBranches(schema);
+    normalizeOpenApi31NullableEnums(schema);
     return schema;
   });
 }
@@ -245,6 +246,17 @@ function normalizeOpenApi31NullableAllOfBranches(schema) {
     branches.length === 1 ? branches[0] : { allOf: branches },
     { type: "null" },
   ];
+}
+
+function normalizeOpenApi31NullableEnums(schema) {
+  if (
+    Array.isArray(schema.type) &&
+    schema.type.includes("null") &&
+    Array.isArray(schema.enum) &&
+    !schema.enum.includes(null)
+  ) {
+    schema.enum = [...schema.enum, null];
+  }
 }
 
 function removeNullableMarker(schema) {

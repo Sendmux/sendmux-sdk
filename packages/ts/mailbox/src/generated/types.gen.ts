@@ -301,7 +301,7 @@ export type MailboxMessageContent = {
     attachments: Array<MailboxAttachment>;
     body: {
         extracted_links: Array<string>;
-        format: 'text' | 'html';
+        format: 'text' | 'html' | null;
         /**
          * HTML body when requested. Returned as a JSON string and not as rendered content.
          */
@@ -572,7 +572,7 @@ export type MailboxRealtimeEvent = {
     mailbox_id: string;
     message: MailboxRealtimeMessage;
     message_id: string | null;
-    message_id_kind: 'provider' | 'rfc5322';
+    message_id_kind: 'provider' | 'rfc5322' | null;
     occurred_at: string;
     recipients: Array<string>;
     sender: string | null;

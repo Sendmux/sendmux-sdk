@@ -6,6 +6,14 @@
 
 * regenerate mailbox models for short-lived attachment download URLs and upload intents
 
+## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.4.0...go/v1.4.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **go:** preserve API errors with response headers ([e23f33a](https://github.com/Sendmux/sendmux-sdk/commit/e23f33aee2f39d6efeca545d7a48ff792aac3370))
+* **sdk:** regenerate management clients for the Amazon SES identity fields ([#137](https://github.com/Sendmux/sendmux-sdk/issues/137)) ([b0a3d63](https://github.com/Sendmux/sendmux-sdk/commit/b0a3d63f7d836d3d0e290a5b8c4e315a1a017e43))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.3.0...go/v1.4.0) (2026-07-22)
 
 

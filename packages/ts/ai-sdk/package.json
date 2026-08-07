@@ -3,6 +3,24 @@
   "version": "0.3.0",
   "license": "MIT",
   "description": "Vercel AI SDK tools for the Sendmux email API for AI agents - send email and read the agent inbox.",
+  "keywords": [
+    "sendmux",
+    "email",
+    "email-api",
+    "ai-agents",
+    "agent",
+    "agents",
+    "ai-sdk",
+    "vercel-ai-sdk",
+    "tools",
+    "toolset",
+    "inbox",
+    "mailbox",
+    "send-email",
+    "transactional-email",
+    "llm"
+  ],
+  "homepage": "https://sendmux.ai",
   "type": "module",
   "exports": {
     ".": {
@@ -34,6 +52,9 @@
     "type": "git",
     "url": "git+https://github.com/Sendmux/sendmux-sdk.git",
     "directory": "packages/ts/ai-sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/Sendmux/sendmux-sdk/issues"
   },
   "publishConfig": {
     "access": "public",

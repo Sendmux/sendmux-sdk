@@ -6,6 +6,13 @@
 
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 
+## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.5.0...python-mcp-v1.5.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **sdk:** regenerate management clients for the Amazon SES identity fields ([#137](https://github.com/Sendmux/sendmux-sdk/issues/137)) ([b0a3d63](https://github.com/Sendmux/sendmux-sdk/commit/b0a3d63f7d836d3d0e290a5b8c4e315a1a017e43))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.4.0...python-mcp-v1.5.0) (2026-07-22)
 
 

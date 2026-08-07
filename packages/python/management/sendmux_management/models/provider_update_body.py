@@ -29,7 +29,7 @@ class ProviderUpdateBody(BaseModel):
     """
     ProviderUpdateBody
     """ # noqa: E501
-    from_email: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None
+    from_email: Optional[Annotated[str, Field(strict=True, max_length=255)]] = Field(default=None, description="Default From email address for an SMTP account. Connected Google and Microsoft accounts keep their authorised account address.")
     from_name: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None
     name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
     percentage: Optional[Annotated[int, Field(le=100, strict=True, ge=0)]] = None

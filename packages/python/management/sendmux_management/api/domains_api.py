@@ -401,6 +401,8 @@ class DomainsApi:
             '200': "DomainDeletedResponse",
             '404': "ApiError",
             '409': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -470,6 +472,8 @@ class DomainsApi:
             '200': "DomainDeletedResponse",
             '404': "ApiError",
             '409': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -539,6 +543,8 @@ class DomainsApi:
             '200': "DomainDeletedResponse",
             '404': "ApiError",
             '409': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
         }
         response_data = self.api_client.call_api(
             *_param,

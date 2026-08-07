@@ -31,7 +31,7 @@ class ProviderItem(BaseModel):
     """ # noqa: E501
     allowed_actions: ProviderAllowedActions
     created_at: StrictStr = Field(description="ISO 8601 creation timestamp")
-    from_email: Optional[StrictStr] = Field(description="Default From email address.")
+    from_email: Optional[StrictStr] = Field(description="Default From email address. Connected Google and Microsoft accounts always use their authorised account address.")
     from_name: Optional[StrictStr] = Field(description="Default From display name.")
     has_refresh_token: StrictBool = Field(description="Whether an OAuth account has an active connection token.")
     has_smtp_password: StrictBool = Field(description="Whether a custom SMTP password is stored.")

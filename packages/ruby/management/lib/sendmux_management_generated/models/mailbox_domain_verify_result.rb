@@ -17,11 +17,23 @@ module Sendmux::Management::Generated
   class MailboxDomainVerifyResult < ApiModelBase
     attr_accessor :checks
 
+    # Whether Amazon SES DKIM signing is enabled
+    attr_accessor :ses_dkim_signing_enabled
+
     # Latest Amazon SES DKIM status
     attr_accessor :ses_dkim_status
 
+    # ISO 8601 time of this SES identity check
+    attr_accessor :ses_identity_checked_at
+
+    # Latest Amazon SES identity status
+    attr_accessor :ses_identity_verification_status
+
     # Latest Amazon SES MAIL FROM status
     attr_accessor :ses_mail_from_status
+
+    # Whether Amazon SES permits identity sending
+    attr_accessor :ses_verified_for_sending
 
     # Post-check verification status
     attr_accessor :status
@@ -52,8 +64,12 @@ module Sendmux::Management::Generated
     def self.attribute_map
       {
         :'checks' => :'checks',
+        :'ses_dkim_signing_enabled' => :'ses_dkim_signing_enabled',
         :'ses_dkim_status' => :'ses_dkim_status',
+        :'ses_identity_checked_at' => :'ses_identity_checked_at',
+        :'ses_identity_verification_status' => :'ses_identity_verification_status',
         :'ses_mail_from_status' => :'ses_mail_from_status',
+        :'ses_verified_for_sending' => :'ses_verified_for_sending',
         :'status' => :'status'
       }
     end
@@ -72,8 +88,12 @@ module Sendmux::Management::Generated
     def self.openapi_types
       {
         :'checks' => :'MailboxDomainVerifyChecks',
+        :'ses_dkim_signing_enabled' => :'Boolean',
         :'ses_dkim_status' => :'String',
+        :'ses_identity_checked_at' => :'String',
+        :'ses_identity_verification_status' => :'String',
         :'ses_mail_from_status' => :'String',
+        :'ses_verified_for_sending' => :'Boolean',
         :'status' => :'String'
       }
     end
@@ -106,16 +126,40 @@ module Sendmux::Management::Generated
         self.checks = nil
       end
 
+      if attributes.key?(:'ses_dkim_signing_enabled')
+        self.ses_dkim_signing_enabled = attributes[:'ses_dkim_signing_enabled']
+      else
+        self.ses_dkim_signing_enabled = nil
+      end
+
       if attributes.key?(:'ses_dkim_status')
         self.ses_dkim_status = attributes[:'ses_dkim_status']
       else
         self.ses_dkim_status = nil
       end
 
+      if attributes.key?(:'ses_identity_checked_at')
+        self.ses_identity_checked_at = attributes[:'ses_identity_checked_at']
+      else
+        self.ses_identity_checked_at = nil
+      end
+
+      if attributes.key?(:'ses_identity_verification_status')
+        self.ses_identity_verification_status = attributes[:'ses_identity_verification_status']
+      else
+        self.ses_identity_verification_status = nil
+      end
+
       if attributes.key?(:'ses_mail_from_status')
         self.ses_mail_from_status = attributes[:'ses_mail_from_status']
       else
         self.ses_mail_from_status = nil
+      end
+
+      if attributes.key?(:'ses_verified_for_sending')
+        self.ses_verified_for_sending = attributes[:'ses_verified_for_sending']
+      else
+        self.ses_verified_for_sending = nil
       end
 
       if attributes.key?(:'status')
@@ -134,12 +178,28 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "checks", checks cannot be nil.')
       end
 
+      if @ses_dkim_signing_enabled.nil?
+        invalid_properties.push('invalid value for "ses_dkim_signing_enabled", ses_dkim_signing_enabled cannot be nil.')
+      end
+
       if @ses_dkim_status.nil?
         invalid_properties.push('invalid value for "ses_dkim_status", ses_dkim_status cannot be nil.')
       end
 
+      if @ses_identity_checked_at.nil?
+        invalid_properties.push('invalid value for "ses_identity_checked_at", ses_identity_checked_at cannot be nil.')
+      end
+
+      if @ses_identity_verification_status.nil?
+        invalid_properties.push('invalid value for "ses_identity_verification_status", ses_identity_verification_status cannot be nil.')
+      end
+
       if @ses_mail_from_status.nil?
         invalid_properties.push('invalid value for "ses_mail_from_status", ses_mail_from_status cannot be nil.')
+      end
+
+      if @ses_verified_for_sending.nil?
+        invalid_properties.push('invalid value for "ses_verified_for_sending", ses_verified_for_sending cannot be nil.')
       end
 
       if @status.nil?
@@ -154,8 +214,12 @@ module Sendmux::Management::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @checks.nil?
+      return false if @ses_dkim_signing_enabled.nil?
       return false if @ses_dkim_status.nil?
+      return false if @ses_identity_checked_at.nil?
+      return false if @ses_identity_verification_status.nil?
       return false if @ses_mail_from_status.nil?
+      return false if @ses_verified_for_sending.nil?
       return false if @status.nil?
       status_validator = EnumAttributeValidator.new('String', ["verified", "pending", "failed", "unknown_default_open_api"])
       return false unless status_validator.valid?(@status)
@@ -173,6 +237,16 @@ module Sendmux::Management::Generated
     end
 
     # Custom attribute writer method with validation
+    # @param [Object] ses_dkim_signing_enabled Value to be assigned
+    def ses_dkim_signing_enabled=(ses_dkim_signing_enabled)
+      if ses_dkim_signing_enabled.nil?
+        fail ArgumentError, 'ses_dkim_signing_enabled cannot be nil'
+      end
+
+      @ses_dkim_signing_enabled = ses_dkim_signing_enabled
+    end
+
+    # Custom attribute writer method with validation
     # @param [Object] ses_dkim_status Value to be assigned
     def ses_dkim_status=(ses_dkim_status)
       if ses_dkim_status.nil?
@@ -183,6 +257,26 @@ module Sendmux::Management::Generated
     end
 
     # Custom attribute writer method with validation
+    # @param [Object] ses_identity_checked_at Value to be assigned
+    def ses_identity_checked_at=(ses_identity_checked_at)
+      if ses_identity_checked_at.nil?
+        fail ArgumentError, 'ses_identity_checked_at cannot be nil'
+      end
+
+      @ses_identity_checked_at = ses_identity_checked_at
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] ses_identity_verification_status Value to be assigned
+    def ses_identity_verification_status=(ses_identity_verification_status)
+      if ses_identity_verification_status.nil?
+        fail ArgumentError, 'ses_identity_verification_status cannot be nil'
+      end
+
+      @ses_identity_verification_status = ses_identity_verification_status
+    end
+
+    # Custom attribute writer method with validation
     # @param [Object] ses_mail_from_status Value to be assigned
     def ses_mail_from_status=(ses_mail_from_status)
       if ses_mail_from_status.nil?
@@ -190,6 +284,16 @@ module Sendmux::Management::Generated
       end
 
       @ses_mail_from_status = ses_mail_from_status
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] ses_verified_for_sending Value to be assigned
+    def ses_verified_for_sending=(ses_verified_for_sending)
+      if ses_verified_for_sending.nil?
+        fail ArgumentError, 'ses_verified_for_sending cannot be nil'
+      end
+
+      @ses_verified_for_sending = ses_verified_for_sending
     end
 
     # Custom attribute writer method checking allowed values (enum).
@@ -208,8 +312,12 @@ module Sendmux::Management::Generated
       return true if self.equal?(o)
       self.class == o.class &&
           checks == o.checks &&
+          ses_dkim_signing_enabled == o.ses_dkim_signing_enabled &&
           ses_dkim_status == o.ses_dkim_status &&
+          ses_identity_checked_at == o.ses_identity_checked_at &&
+          ses_identity_verification_status == o.ses_identity_verification_status &&
           ses_mail_from_status == o.ses_mail_from_status &&
+          ses_verified_for_sending == o.ses_verified_for_sending &&
           status == o.status
     end
 
@@ -222,7 +330,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [checks, ses_dkim_status, ses_mail_from_status, status].hash
+      [checks, ses_dkim_signing_enabled, ses_dkim_status, ses_identity_checked_at, ses_identity_verification_status, ses_mail_from_status, ses_verified_for_sending, status].hash
     end
 
     # Builds the object from hash

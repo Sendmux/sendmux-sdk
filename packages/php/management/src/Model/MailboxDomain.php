@@ -65,8 +65,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'string',
         'mailbox_count' => 'int',
         'mode' => 'string',
+        'ses_dkim_signing_enabled' => 'bool',
         'ses_dkim_status' => 'string',
+        'ses_identity_checked_at' => 'string',
+        'ses_identity_verification_status' => 'string',
         'ses_mail_from_status' => 'string',
+        'ses_verified_for_sending' => 'bool',
         'verification_status' => 'string',
         'verified_at' => 'string'
     ];
@@ -83,8 +87,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => null,
         'mailbox_count' => null,
         'mode' => null,
+        'ses_dkim_signing_enabled' => null,
         'ses_dkim_status' => null,
+        'ses_identity_checked_at' => null,
+        'ses_identity_verification_status' => null,
         'ses_mail_from_status' => null,
+        'ses_verified_for_sending' => null,
         'verification_status' => null,
         'verified_at' => null
     ];
@@ -101,8 +109,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => false,
         'mailbox_count' => false,
         'mode' => false,
+        'ses_dkim_signing_enabled' => true,
         'ses_dkim_status' => true,
+        'ses_identity_checked_at' => true,
+        'ses_identity_verification_status' => true,
         'ses_mail_from_status' => true,
+        'ses_verified_for_sending' => true,
         'verification_status' => false,
         'verified_at' => true
     ];
@@ -189,8 +201,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'id',
         'mailbox_count' => 'mailbox_count',
         'mode' => 'mode',
+        'ses_dkim_signing_enabled' => 'ses_dkim_signing_enabled',
         'ses_dkim_status' => 'ses_dkim_status',
+        'ses_identity_checked_at' => 'ses_identity_checked_at',
+        'ses_identity_verification_status' => 'ses_identity_verification_status',
         'ses_mail_from_status' => 'ses_mail_from_status',
+        'ses_verified_for_sending' => 'ses_verified_for_sending',
         'verification_status' => 'verification_status',
         'verified_at' => 'verified_at'
     ];
@@ -207,8 +223,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'setId',
         'mailbox_count' => 'setMailboxCount',
         'mode' => 'setMode',
+        'ses_dkim_signing_enabled' => 'setSesDkimSigningEnabled',
         'ses_dkim_status' => 'setSesDkimStatus',
+        'ses_identity_checked_at' => 'setSesIdentityCheckedAt',
+        'ses_identity_verification_status' => 'setSesIdentityVerificationStatus',
         'ses_mail_from_status' => 'setSesMailFromStatus',
+        'ses_verified_for_sending' => 'setSesVerifiedForSending',
         'verification_status' => 'setVerificationStatus',
         'verified_at' => 'setVerifiedAt'
     ];
@@ -225,8 +245,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'getId',
         'mailbox_count' => 'getMailboxCount',
         'mode' => 'getMode',
+        'ses_dkim_signing_enabled' => 'getSesDkimSigningEnabled',
         'ses_dkim_status' => 'getSesDkimStatus',
+        'ses_identity_checked_at' => 'getSesIdentityCheckedAt',
+        'ses_identity_verification_status' => 'getSesIdentityVerificationStatus',
         'ses_mail_from_status' => 'getSesMailFromStatus',
+        'ses_verified_for_sending' => 'getSesVerifiedForSending',
         'verification_status' => 'getVerificationStatus',
         'verified_at' => 'getVerifiedAt'
     ];
@@ -320,8 +344,12 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('mailbox_count', $data ?? [], null);
         $this->setIfExists('mode', $data ?? [], null);
+        $this->setIfExists('ses_dkim_signing_enabled', $data ?? [], null);
         $this->setIfExists('ses_dkim_status', $data ?? [], null);
+        $this->setIfExists('ses_identity_checked_at', $data ?? [], null);
+        $this->setIfExists('ses_identity_verification_status', $data ?? [], null);
         $this->setIfExists('ses_mail_from_status', $data ?? [], null);
+        $this->setIfExists('ses_verified_for_sending', $data ?? [], null);
         $this->setIfExists('verification_status', $data ?? [], null);
         $this->setIfExists('verified_at', $data ?? [], null);
     }
@@ -382,11 +410,23 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
             );
         }
 
+        if ($this->container['ses_dkim_signing_enabled'] === null && !$this->isNullableSetToNull('ses_dkim_signing_enabled')) {
+            $invalidProperties[] = "'ses_dkim_signing_enabled' is required";
+        }
         if ($this->container['ses_dkim_status'] === null && !$this->isNullableSetToNull('ses_dkim_status')) {
             $invalidProperties[] = "'ses_dkim_status' is required";
         }
+        if ($this->container['ses_identity_checked_at'] === null && !$this->isNullableSetToNull('ses_identity_checked_at')) {
+            $invalidProperties[] = "'ses_identity_checked_at' is required";
+        }
+        if ($this->container['ses_identity_verification_status'] === null && !$this->isNullableSetToNull('ses_identity_verification_status')) {
+            $invalidProperties[] = "'ses_identity_verification_status' is required";
+        }
         if ($this->container['ses_mail_from_status'] === null && !$this->isNullableSetToNull('ses_mail_from_status')) {
             $invalidProperties[] = "'ses_mail_from_status' is required";
+        }
+        if ($this->container['ses_verified_for_sending'] === null && !$this->isNullableSetToNull('ses_verified_for_sending')) {
+            $invalidProperties[] = "'ses_verified_for_sending' is required";
         }
         if ($this->container['verification_status'] === null) {
             $invalidProperties[] = "'verification_status' can't be null";
@@ -587,6 +627,40 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets ses_dkim_signing_enabled
+     *
+     * @return bool|null
+     */
+    public function getSesDkimSigningEnabled(): ?bool
+    {
+        return $this->container['ses_dkim_signing_enabled'];
+    }
+
+    /**
+     * Sets ses_dkim_signing_enabled
+     *
+     * @param bool|null $ses_dkim_signing_enabled Whether Amazon SES DKIM signing is currently enabled for this identity
+     *
+     * @return $this
+     */
+    public function setSesDkimSigningEnabled(?bool $ses_dkim_signing_enabled): static
+    {
+        if (is_null($ses_dkim_signing_enabled)) {
+            array_push($this->openAPINullablesSetToNull, 'ses_dkim_signing_enabled');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('ses_dkim_signing_enabled', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['ses_dkim_signing_enabled'] = $ses_dkim_signing_enabled;
+
+        return $this;
+    }
+
+    /**
      * Gets ses_dkim_status
      *
      * @return string|null
@@ -621,6 +695,74 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets ses_identity_checked_at
+     *
+     * @return string|null
+     */
+    public function getSesIdentityCheckedAt(): ?string
+    {
+        return $this->container['ses_identity_checked_at'];
+    }
+
+    /**
+     * Sets ses_identity_checked_at
+     *
+     * @param string|null $ses_identity_checked_at ISO 8601 timestamp of the latest complete Amazon SES identity check
+     *
+     * @return $this
+     */
+    public function setSesIdentityCheckedAt(?string $ses_identity_checked_at): static
+    {
+        if (is_null($ses_identity_checked_at)) {
+            array_push($this->openAPINullablesSetToNull, 'ses_identity_checked_at');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('ses_identity_checked_at', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['ses_identity_checked_at'] = $ses_identity_checked_at;
+
+        return $this;
+    }
+
+    /**
+     * Gets ses_identity_verification_status
+     *
+     * @return string|null
+     */
+    public function getSesIdentityVerificationStatus(): ?string
+    {
+        return $this->container['ses_identity_verification_status'];
+    }
+
+    /**
+     * Sets ses_identity_verification_status
+     *
+     * @param string|null $ses_identity_verification_status Latest Amazon SES identity verification status
+     *
+     * @return $this
+     */
+    public function setSesIdentityVerificationStatus(?string $ses_identity_verification_status): static
+    {
+        if (is_null($ses_identity_verification_status)) {
+            array_push($this->openAPINullablesSetToNull, 'ses_identity_verification_status');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('ses_identity_verification_status', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['ses_identity_verification_status'] = $ses_identity_verification_status;
+
+        return $this;
+    }
+
+    /**
      * Gets ses_mail_from_status
      *
      * @return string|null
@@ -650,6 +792,40 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
             }
         }
         $this->container['ses_mail_from_status'] = $ses_mail_from_status;
+
+        return $this;
+    }
+
+    /**
+     * Gets ses_verified_for_sending
+     *
+     * @return bool|null
+     */
+    public function getSesVerifiedForSending(): ?bool
+    {
+        return $this->container['ses_verified_for_sending'];
+    }
+
+    /**
+     * Sets ses_verified_for_sending
+     *
+     * @param bool|null $ses_verified_for_sending Whether Amazon SES currently permits sending for this identity
+     *
+     * @return $this
+     */
+    public function setSesVerifiedForSending(?bool $ses_verified_for_sending): static
+    {
+        if (is_null($ses_verified_for_sending)) {
+            array_push($this->openAPINullablesSetToNull, 'ses_verified_for_sending');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('ses_verified_for_sending', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['ses_verified_for_sending'] = $ses_verified_for_sending;
 
         return $this;
     }

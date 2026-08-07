@@ -525,6 +525,9 @@ export type ProviderUsage = {
 };
 
 export type ProviderUpdateBody = {
+    /**
+     * Default From email address for an SMTP account. Connected Google and Microsoft accounts keep their authorised account address.
+     */
     from_email?: string | null;
     from_name?: string | null;
     name?: string;
@@ -675,7 +678,7 @@ export type ProviderItem = {
      */
     created_at: string;
     /**
-     * Default From email address.
+     * Default From email address. Connected Google and Microsoft accounts always use their authorised account address.
      */
     from_email: string | null;
     /**
@@ -790,6 +793,9 @@ export type ProviderDeleted = {
 };
 
 export type ProviderCreateBody = {
+    /**
+     * Default From email address for an SMTP account.
+     */
     from_email?: string | null;
     from_name?: string | null;
     name: string;
@@ -895,13 +901,29 @@ export type MailboxItemCursorListResponse = SuccessEnvelope & {
 export type MailboxDomainVerifyResult = {
     checks: MailboxDomainVerifyChecks;
     /**
+     * Whether Amazon SES DKIM signing is enabled
+     */
+    ses_dkim_signing_enabled: boolean;
+    /**
      * Latest Amazon SES DKIM status
      */
     ses_dkim_status: string;
     /**
+     * ISO 8601 time of this SES identity check
+     */
+    ses_identity_checked_at: string;
+    /**
+     * Latest Amazon SES identity status
+     */
+    ses_identity_verification_status: string;
+    /**
      * Latest Amazon SES MAIL FROM status
      */
     ses_mail_from_status: string;
+    /**
+     * Whether Amazon SES permits identity sending
+     */
+    ses_verified_for_sending: boolean;
     /**
      * Post-check verification status
      */
@@ -1003,13 +1025,29 @@ export type MailboxDomain = {
      */
     mode: 'send_only' | 'send_receive';
     /**
+     * Whether Amazon SES DKIM signing is currently enabled for this identity
+     */
+    ses_dkim_signing_enabled: boolean | null;
+    /**
      * Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)
      */
     ses_dkim_status: string | null;
     /**
+     * ISO 8601 timestamp of the latest complete Amazon SES identity check
+     */
+    ses_identity_checked_at: string | null;
+    /**
+     * Latest Amazon SES identity verification status
+     */
+    ses_identity_verification_status: string | null;
+    /**
      * Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)
      */
     ses_mail_from_status: string | null;
+    /**
+     * Whether Amazon SES currently permits sending for this identity
+     */
+    ses_verified_for_sending: boolean | null;
     /**
      * Current verification state
      */
@@ -1654,6 +1692,14 @@ export type ManagementDeleteDomainErrors = {
      * Domain still has active mailboxes (error code `conflict`).
      */
     409: ApiError;
+    /**
+     * Unexpected server error.
+     */
+    500: ApiError;
+    /**
+     * Deletion is temporarily unavailable; retry after the indicated delay.
+     */
+    503: ApiError;
 };
 
 export type ManagementDeleteDomainError = ManagementDeleteDomainErrors[keyof ManagementDeleteDomainErrors];
@@ -1832,7 +1878,7 @@ export type ManagementSetDomainFiltersErrors = {
      */
     404: ApiError;
     /**
-     * `If-Match` ETag does not match the server's current version, or the domain is send-only.
+     * `If-Match` ETag does not match the server's current version, the domain is send-only, or deletion is in progress.
      */
     409: ApiError;
     /**

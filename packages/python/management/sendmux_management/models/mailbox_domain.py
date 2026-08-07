@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from sendmux_management.models.mailbox_domain_dns_records import MailboxDomainDnsRecords
@@ -35,11 +35,15 @@ class MailboxDomain(BaseModel):
     id: StrictStr = Field(description="Public ID")
     mailbox_count: Annotated[int, Field(strict=True, ge=0)] = Field(description="Active mailboxes currently using this domain")
     mode: StrictStr = Field(description="`send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host mailboxes.")
+    ses_dkim_signing_enabled: Optional[StrictBool] = Field(description="Whether Amazon SES DKIM signing is currently enabled for this identity")
     ses_dkim_status: Optional[StrictStr] = Field(description="Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)")
+    ses_identity_checked_at: Optional[StrictStr] = Field(description="ISO 8601 timestamp of the latest complete Amazon SES identity check")
+    ses_identity_verification_status: Optional[StrictStr] = Field(description="Latest Amazon SES identity verification status")
     ses_mail_from_status: Optional[StrictStr] = Field(description="Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)")
+    ses_verified_for_sending: Optional[StrictBool] = Field(description="Whether Amazon SES currently permits sending for this identity")
     verification_status: StrictStr = Field(description="Current verification state")
     verified_at: Optional[StrictStr] = Field(description="ISO 8601 timestamp of last successful verification")
-    __properties: ClassVar[List[str]] = ["created_at", "dns_records", "domain", "id", "mailbox_count", "mode", "ses_dkim_status", "ses_mail_from_status", "verification_status", "verified_at"]
+    __properties: ClassVar[List[str]] = ["created_at", "dns_records", "domain", "id", "mailbox_count", "mode", "ses_dkim_signing_enabled", "ses_dkim_status", "ses_identity_checked_at", "ses_identity_verification_status", "ses_mail_from_status", "ses_verified_for_sending", "verification_status", "verified_at"]
 
     @field_validator('mode')
     def mode_validate_enum(cls, value):
@@ -97,15 +101,35 @@ class MailboxDomain(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of dns_records
         if self.dns_records:
             _dict['dns_records'] = self.dns_records.to_dict()
+        # set to None if ses_dkim_signing_enabled (nullable) is None
+        # and model_fields_set contains the field
+        if self.ses_dkim_signing_enabled is None and "ses_dkim_signing_enabled" in self.model_fields_set:
+            _dict['ses_dkim_signing_enabled'] = None
+
         # set to None if ses_dkim_status (nullable) is None
         # and model_fields_set contains the field
         if self.ses_dkim_status is None and "ses_dkim_status" in self.model_fields_set:
             _dict['ses_dkim_status'] = None
 
+        # set to None if ses_identity_checked_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.ses_identity_checked_at is None and "ses_identity_checked_at" in self.model_fields_set:
+            _dict['ses_identity_checked_at'] = None
+
+        # set to None if ses_identity_verification_status (nullable) is None
+        # and model_fields_set contains the field
+        if self.ses_identity_verification_status is None and "ses_identity_verification_status" in self.model_fields_set:
+            _dict['ses_identity_verification_status'] = None
+
         # set to None if ses_mail_from_status (nullable) is None
         # and model_fields_set contains the field
         if self.ses_mail_from_status is None and "ses_mail_from_status" in self.model_fields_set:
             _dict['ses_mail_from_status'] = None
+
+        # set to None if ses_verified_for_sending (nullable) is None
+        # and model_fields_set contains the field
+        if self.ses_verified_for_sending is None and "ses_verified_for_sending" in self.model_fields_set:
+            _dict['ses_verified_for_sending'] = None
 
         # set to None if verified_at (nullable) is None
         # and model_fields_set contains the field
@@ -130,8 +154,12 @@ class MailboxDomain(BaseModel):
             "id": obj.get("id"),
             "mailbox_count": obj.get("mailbox_count"),
             "mode": obj.get("mode"),
+            "ses_dkim_signing_enabled": obj.get("ses_dkim_signing_enabled"),
             "ses_dkim_status": obj.get("ses_dkim_status"),
+            "ses_identity_checked_at": obj.get("ses_identity_checked_at"),
+            "ses_identity_verification_status": obj.get("ses_identity_verification_status"),
             "ses_mail_from_status": obj.get("ses_mail_from_status"),
+            "ses_verified_for_sending": obj.get("ses_verified_for_sending"),
             "verification_status": obj.get("verification_status"),
             "verified_at": obj.get("verified_at")
         })

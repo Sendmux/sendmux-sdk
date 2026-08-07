@@ -10027,12 +10027,28 @@ func (s *MailboxDomain) encodeFields(e *jx.Encoder) {
 		s.Mode.Encode(e)
 	}
 	{
+		e.FieldStart("ses_dkim_signing_enabled")
+		s.SesDkimSigningEnabled.Encode(e)
+	}
+	{
 		e.FieldStart("ses_dkim_status")
 		s.SesDkimStatus.Encode(e)
 	}
 	{
+		e.FieldStart("ses_identity_checked_at")
+		s.SesIdentityCheckedAt.Encode(e)
+	}
+	{
+		e.FieldStart("ses_identity_verification_status")
+		s.SesIdentityVerificationStatus.Encode(e)
+	}
+	{
 		e.FieldStart("ses_mail_from_status")
 		s.SesMailFromStatus.Encode(e)
+	}
+	{
+		e.FieldStart("ses_verified_for_sending")
+		s.SesVerifiedForSending.Encode(e)
 	}
 	{
 		e.FieldStart("verification_status")
@@ -10044,17 +10060,21 @@ func (s *MailboxDomain) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxDomain = [10]string{
-	0: "created_at",
-	1: "dns_records",
-	2: "domain",
-	3: "id",
-	4: "mailbox_count",
-	5: "mode",
-	6: "ses_dkim_status",
-	7: "ses_mail_from_status",
-	8: "verification_status",
-	9: "verified_at",
+var jsonFieldsNameOfMailboxDomain = [14]string{
+	0:  "created_at",
+	1:  "dns_records",
+	2:  "domain",
+	3:  "id",
+	4:  "mailbox_count",
+	5:  "mode",
+	6:  "ses_dkim_signing_enabled",
+	7:  "ses_dkim_status",
+	8:  "ses_identity_checked_at",
+	9:  "ses_identity_verification_status",
+	10: "ses_mail_from_status",
+	11: "ses_verified_for_sending",
+	12: "verification_status",
+	13: "verified_at",
 }
 
 // Decode decodes MailboxDomain from json.
@@ -10134,8 +10154,18 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"mode\"")
 			}
-		case "ses_dkim_status":
+		case "ses_dkim_signing_enabled":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				if err := s.SesDkimSigningEnabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_dkim_signing_enabled\"")
+			}
+		case "ses_dkim_status":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				if err := s.SesDkimStatus.Decode(d); err != nil {
 					return err
@@ -10144,8 +10174,28 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"ses_dkim_status\"")
 			}
+		case "ses_identity_checked_at":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				if err := s.SesIdentityCheckedAt.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_identity_checked_at\"")
+			}
+		case "ses_identity_verification_status":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				if err := s.SesIdentityVerificationStatus.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_identity_verification_status\"")
+			}
 		case "ses_mail_from_status":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				if err := s.SesMailFromStatus.Decode(d); err != nil {
 					return err
@@ -10154,8 +10204,18 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"ses_mail_from_status\"")
 			}
+		case "ses_verified_for_sending":
+			requiredBitSet[1] |= 1 << 3
+			if err := func() error {
+				if err := s.SesVerifiedForSending.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_verified_for_sending\"")
+			}
 		case "verification_status":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 4
 			if err := func() error {
 				if err := s.VerificationStatus.Decode(d); err != nil {
 					return err
@@ -10165,7 +10225,7 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"verification_status\"")
 			}
 		case "verified_at":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 5
 			if err := func() error {
 				if err := s.VerifiedAt.Decode(d); err != nil {
 					return err
@@ -10185,7 +10245,7 @@ func (s *MailboxDomain) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111111,
-		0b00000011,
+		0b00111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -11505,12 +11565,28 @@ func (s *MailboxDomainVerifyResult) encodeFields(e *jx.Encoder) {
 		s.Checks.Encode(e)
 	}
 	{
+		e.FieldStart("ses_dkim_signing_enabled")
+		e.Bool(s.SesDkimSigningEnabled)
+	}
+	{
 		e.FieldStart("ses_dkim_status")
 		e.Str(s.SesDkimStatus)
 	}
 	{
+		e.FieldStart("ses_identity_checked_at")
+		e.Str(s.SesIdentityCheckedAt)
+	}
+	{
+		e.FieldStart("ses_identity_verification_status")
+		e.Str(s.SesIdentityVerificationStatus)
+	}
+	{
 		e.FieldStart("ses_mail_from_status")
 		e.Str(s.SesMailFromStatus)
+	}
+	{
+		e.FieldStart("ses_verified_for_sending")
+		e.Bool(s.SesVerifiedForSending)
 	}
 	{
 		e.FieldStart("status")
@@ -11518,11 +11594,15 @@ func (s *MailboxDomainVerifyResult) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxDomainVerifyResult = [4]string{
+var jsonFieldsNameOfMailboxDomainVerifyResult = [8]string{
 	0: "checks",
-	1: "ses_dkim_status",
-	2: "ses_mail_from_status",
-	3: "status",
+	1: "ses_dkim_signing_enabled",
+	2: "ses_dkim_status",
+	3: "ses_identity_checked_at",
+	4: "ses_identity_verification_status",
+	5: "ses_mail_from_status",
+	6: "ses_verified_for_sending",
+	7: "status",
 }
 
 // Decode decodes MailboxDomainVerifyResult from json.
@@ -11544,8 +11624,20 @@ func (s *MailboxDomainVerifyResult) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"checks\"")
 			}
-		case "ses_dkim_status":
+		case "ses_dkim_signing_enabled":
 			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Bool()
+				s.SesDkimSigningEnabled = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_dkim_signing_enabled\"")
+			}
+		case "ses_dkim_status":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.SesDkimStatus = string(v)
@@ -11556,8 +11648,32 @@ func (s *MailboxDomainVerifyResult) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"ses_dkim_status\"")
 			}
+		case "ses_identity_checked_at":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.SesIdentityCheckedAt = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_identity_checked_at\"")
+			}
+		case "ses_identity_verification_status":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := d.Str()
+				s.SesIdentityVerificationStatus = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_identity_verification_status\"")
+			}
 		case "ses_mail_from_status":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Str()
 				s.SesMailFromStatus = string(v)
@@ -11568,8 +11684,20 @@ func (s *MailboxDomainVerifyResult) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"ses_mail_from_status\"")
 			}
+		case "ses_verified_for_sending":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Bool()
+				s.SesVerifiedForSending = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ses_verified_for_sending\"")
+			}
 		case "status":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				if err := s.Status.Decode(d); err != nil {
 					return err
@@ -11588,7 +11716,7 @@ func (s *MailboxDomainVerifyResult) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b11111111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

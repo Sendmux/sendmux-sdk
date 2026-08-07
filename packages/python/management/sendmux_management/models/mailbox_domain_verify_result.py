@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from sendmux_management.models.mailbox_domain_verify_checks import MailboxDomainVerifyChecks
 from typing import Optional, Set
@@ -29,10 +29,14 @@ class MailboxDomainVerifyResult(BaseModel):
     MailboxDomainVerifyResult
     """ # noqa: E501
     checks: MailboxDomainVerifyChecks
+    ses_dkim_signing_enabled: StrictBool = Field(description="Whether Amazon SES DKIM signing is enabled")
     ses_dkim_status: StrictStr = Field(description="Latest Amazon SES DKIM status")
+    ses_identity_checked_at: StrictStr = Field(description="ISO 8601 time of this SES identity check")
+    ses_identity_verification_status: StrictStr = Field(description="Latest Amazon SES identity status")
     ses_mail_from_status: StrictStr = Field(description="Latest Amazon SES MAIL FROM status")
+    ses_verified_for_sending: StrictBool = Field(description="Whether Amazon SES permits identity sending")
     status: StrictStr = Field(description="Post-check verification status")
-    __properties: ClassVar[List[str]] = ["checks", "ses_dkim_status", "ses_mail_from_status", "status"]
+    __properties: ClassVar[List[str]] = ["checks", "ses_dkim_signing_enabled", "ses_dkim_status", "ses_identity_checked_at", "ses_identity_verification_status", "ses_mail_from_status", "ses_verified_for_sending", "status"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -96,8 +100,12 @@ class MailboxDomainVerifyResult(BaseModel):
 
         _obj = cls.model_validate({
             "checks": MailboxDomainVerifyChecks.from_dict(obj["checks"]) if obj.get("checks") is not None else None,
+            "ses_dkim_signing_enabled": obj.get("ses_dkim_signing_enabled"),
             "ses_dkim_status": obj.get("ses_dkim_status"),
+            "ses_identity_checked_at": obj.get("ses_identity_checked_at"),
+            "ses_identity_verification_status": obj.get("ses_identity_verification_status"),
             "ses_mail_from_status": obj.get("ses_mail_from_status"),
+            "ses_verified_for_sending": obj.get("ses_verified_for_sending"),
             "status": obj.get("status")
         })
         return _obj

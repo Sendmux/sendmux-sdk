@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/Sendmux/sendmux-sdk/compare/python-langchain-v0.2.0...python-langchain-v0.2.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **packages:** add registry metadata and full READMEs to the framework wrappers ([#136](https://github.com/Sendmux/sendmux-sdk/issues/136)) ([936280e](https://github.com/Sendmux/sendmux-sdk/commit/936280e217fa0a1eb84debf8e808807bc613940f))
+
 ## [0.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-langchain-v0.1.0...python-langchain-v0.2.0) (2026-07-22)
 
 

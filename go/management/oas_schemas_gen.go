@@ -3973,10 +3973,18 @@ type MailboxDomain struct {
 	// `send_only` verifies outbound DNS only. `send_receive` also verifies MX records and can host
 	// mailboxes.
 	Mode MailboxDomainMode `json:"mode"`
+	// Whether Amazon SES DKIM signing is currently enabled for this identity.
+	SesDkimSigningEnabled NilBool `json:"ses_dkim_signing_enabled"`
 	// Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started).
 	SesDkimStatus NilString `json:"ses_dkim_status"`
+	// ISO 8601 timestamp of the latest complete Amazon SES identity check.
+	SesIdentityCheckedAt NilString `json:"ses_identity_checked_at"`
+	// Latest Amazon SES identity verification status.
+	SesIdentityVerificationStatus NilString `json:"ses_identity_verification_status"`
 	// Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started).
 	SesMailFromStatus NilString `json:"ses_mail_from_status"`
+	// Whether Amazon SES currently permits sending for this identity.
+	SesVerifiedForSending NilBool `json:"ses_verified_for_sending"`
 	// Current verification state.
 	VerificationStatus MailboxDomainVerificationStatus `json:"verification_status"`
 	// ISO 8601 timestamp of last successful verification.
@@ -4013,14 +4021,34 @@ func (s *MailboxDomain) GetMode() MailboxDomainMode {
 	return s.Mode
 }
 
+// GetSesDkimSigningEnabled returns the value of SesDkimSigningEnabled.
+func (s *MailboxDomain) GetSesDkimSigningEnabled() NilBool {
+	return s.SesDkimSigningEnabled
+}
+
 // GetSesDkimStatus returns the value of SesDkimStatus.
 func (s *MailboxDomain) GetSesDkimStatus() NilString {
 	return s.SesDkimStatus
 }
 
+// GetSesIdentityCheckedAt returns the value of SesIdentityCheckedAt.
+func (s *MailboxDomain) GetSesIdentityCheckedAt() NilString {
+	return s.SesIdentityCheckedAt
+}
+
+// GetSesIdentityVerificationStatus returns the value of SesIdentityVerificationStatus.
+func (s *MailboxDomain) GetSesIdentityVerificationStatus() NilString {
+	return s.SesIdentityVerificationStatus
+}
+
 // GetSesMailFromStatus returns the value of SesMailFromStatus.
 func (s *MailboxDomain) GetSesMailFromStatus() NilString {
 	return s.SesMailFromStatus
+}
+
+// GetSesVerifiedForSending returns the value of SesVerifiedForSending.
+func (s *MailboxDomain) GetSesVerifiedForSending() NilBool {
+	return s.SesVerifiedForSending
 }
 
 // GetVerificationStatus returns the value of VerificationStatus.
@@ -4063,14 +4091,34 @@ func (s *MailboxDomain) SetMode(val MailboxDomainMode) {
 	s.Mode = val
 }
 
+// SetSesDkimSigningEnabled sets the value of SesDkimSigningEnabled.
+func (s *MailboxDomain) SetSesDkimSigningEnabled(val NilBool) {
+	s.SesDkimSigningEnabled = val
+}
+
 // SetSesDkimStatus sets the value of SesDkimStatus.
 func (s *MailboxDomain) SetSesDkimStatus(val NilString) {
 	s.SesDkimStatus = val
 }
 
+// SetSesIdentityCheckedAt sets the value of SesIdentityCheckedAt.
+func (s *MailboxDomain) SetSesIdentityCheckedAt(val NilString) {
+	s.SesIdentityCheckedAt = val
+}
+
+// SetSesIdentityVerificationStatus sets the value of SesIdentityVerificationStatus.
+func (s *MailboxDomain) SetSesIdentityVerificationStatus(val NilString) {
+	s.SesIdentityVerificationStatus = val
+}
+
 // SetSesMailFromStatus sets the value of SesMailFromStatus.
 func (s *MailboxDomain) SetSesMailFromStatus(val NilString) {
 	s.SesMailFromStatus = val
+}
+
+// SetSesVerifiedForSending sets the value of SesVerifiedForSending.
+func (s *MailboxDomain) SetSesVerifiedForSending(val NilBool) {
+	s.SesVerifiedForSending = val
 }
 
 // SetVerificationStatus sets the value of VerificationStatus.
@@ -4522,10 +4570,18 @@ func (s *MailboxDomainVerifyChecks) SetVerificationTxt(val bool) {
 // Ref: #/components/schemas/MailboxDomainVerifyResult
 type MailboxDomainVerifyResult struct {
 	Checks MailboxDomainVerifyChecks `json:"checks"`
+	// Whether Amazon SES DKIM signing is enabled.
+	SesDkimSigningEnabled bool `json:"ses_dkim_signing_enabled"`
 	// Latest Amazon SES DKIM status.
 	SesDkimStatus string `json:"ses_dkim_status"`
+	// ISO 8601 time of this SES identity check.
+	SesIdentityCheckedAt string `json:"ses_identity_checked_at"`
+	// Latest Amazon SES identity status.
+	SesIdentityVerificationStatus string `json:"ses_identity_verification_status"`
 	// Latest Amazon SES MAIL FROM status.
 	SesMailFromStatus string `json:"ses_mail_from_status"`
+	// Whether Amazon SES permits identity sending.
+	SesVerifiedForSending bool `json:"ses_verified_for_sending"`
 	// Post-check verification status.
 	Status MailboxDomainVerifyResultStatus `json:"status"`
 }
@@ -4535,14 +4591,34 @@ func (s *MailboxDomainVerifyResult) GetChecks() MailboxDomainVerifyChecks {
 	return s.Checks
 }
 
+// GetSesDkimSigningEnabled returns the value of SesDkimSigningEnabled.
+func (s *MailboxDomainVerifyResult) GetSesDkimSigningEnabled() bool {
+	return s.SesDkimSigningEnabled
+}
+
 // GetSesDkimStatus returns the value of SesDkimStatus.
 func (s *MailboxDomainVerifyResult) GetSesDkimStatus() string {
 	return s.SesDkimStatus
 }
 
+// GetSesIdentityCheckedAt returns the value of SesIdentityCheckedAt.
+func (s *MailboxDomainVerifyResult) GetSesIdentityCheckedAt() string {
+	return s.SesIdentityCheckedAt
+}
+
+// GetSesIdentityVerificationStatus returns the value of SesIdentityVerificationStatus.
+func (s *MailboxDomainVerifyResult) GetSesIdentityVerificationStatus() string {
+	return s.SesIdentityVerificationStatus
+}
+
 // GetSesMailFromStatus returns the value of SesMailFromStatus.
 func (s *MailboxDomainVerifyResult) GetSesMailFromStatus() string {
 	return s.SesMailFromStatus
+}
+
+// GetSesVerifiedForSending returns the value of SesVerifiedForSending.
+func (s *MailboxDomainVerifyResult) GetSesVerifiedForSending() bool {
+	return s.SesVerifiedForSending
 }
 
 // GetStatus returns the value of Status.
@@ -4555,14 +4631,34 @@ func (s *MailboxDomainVerifyResult) SetChecks(val MailboxDomainVerifyChecks) {
 	s.Checks = val
 }
 
+// SetSesDkimSigningEnabled sets the value of SesDkimSigningEnabled.
+func (s *MailboxDomainVerifyResult) SetSesDkimSigningEnabled(val bool) {
+	s.SesDkimSigningEnabled = val
+}
+
 // SetSesDkimStatus sets the value of SesDkimStatus.
 func (s *MailboxDomainVerifyResult) SetSesDkimStatus(val string) {
 	s.SesDkimStatus = val
 }
 
+// SetSesIdentityCheckedAt sets the value of SesIdentityCheckedAt.
+func (s *MailboxDomainVerifyResult) SetSesIdentityCheckedAt(val string) {
+	s.SesIdentityCheckedAt = val
+}
+
+// SetSesIdentityVerificationStatus sets the value of SesIdentityVerificationStatus.
+func (s *MailboxDomainVerifyResult) SetSesIdentityVerificationStatus(val string) {
+	s.SesIdentityVerificationStatus = val
+}
+
 // SetSesMailFromStatus sets the value of SesMailFromStatus.
 func (s *MailboxDomainVerifyResult) SetSesMailFromStatus(val string) {
 	s.SesMailFromStatus = val
+}
+
+// SetSesVerifiedForSending sets the value of SesVerifiedForSending.
+func (s *MailboxDomainVerifyResult) SetSesVerifiedForSending(val bool) {
+	s.SesVerifiedForSending = val
 }
 
 // SetStatus sets the value of Status.
@@ -5436,9 +5532,17 @@ type ManagementDeleteDomainConflict ApiErrorHeaders
 
 func (*ManagementDeleteDomainConflict) managementDeleteDomainRes() {}
 
+type ManagementDeleteDomainInternalServerError ApiErrorHeaders
+
+func (*ManagementDeleteDomainInternalServerError) managementDeleteDomainRes() {}
+
 type ManagementDeleteDomainNotFound ApiErrorHeaders
 
 func (*ManagementDeleteDomainNotFound) managementDeleteDomainRes() {}
+
+type ManagementDeleteDomainServiceUnavailable ApiErrorHeaders
+
+func (*ManagementDeleteDomainServiceUnavailable) managementDeleteDomainRes() {}
 
 type ManagementDeleteProviderNotFound ApiErrorHeaders
 
@@ -9610,6 +9714,7 @@ func (s *ProviderAllowedActions) SetUpdate(val bool) {
 
 // Ref: #/components/schemas/ProviderCreateBody
 type ProviderCreateBody struct {
+	// Default From email address for an SMTP account.
 	FromEmail      OptNilString                   `json:"from_email"`
 	FromName       OptNilString                   `json:"from_name"`
 	Name           string                         `json:"name"`
@@ -10488,7 +10593,8 @@ type ProviderItem struct {
 	AllowedActions ProviderAllowedActions `json:"allowed_actions"`
 	// ISO 8601 creation timestamp.
 	CreatedAt string `json:"created_at"`
-	// Default From email address.
+	// Default From email address. Connected Google and Microsoft accounts always use their authorised
+	// account address.
 	FromEmail NilString `json:"from_email"`
 	// Default From display name.
 	FromName NilString `json:"from_name"`
@@ -11762,6 +11868,8 @@ func (s *ProviderTypeCounts) SetSMTP(val float64) {
 
 // Ref: #/components/schemas/ProviderUpdateBody
 type ProviderUpdateBody struct {
+	// Default From email address for an SMTP account. Connected Google and Microsoft accounts keep their
+	// authorised account address.
 	FromEmail      OptNilString                      `json:"from_email"`
 	FromName       OptNilString                      `json:"from_name"`
 	Name           OptString                         `json:"name"`

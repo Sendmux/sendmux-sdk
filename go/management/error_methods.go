@@ -218,9 +218,21 @@ func (r *ManagementDeleteDomainConflict) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementDeleteDomainInternalServerError into the shared typed API error.
+func (r *ManagementDeleteDomainInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 500)
+	return err
+}
+
 // APIError maps ManagementDeleteDomainNotFound into the shared typed API error.
 func (r *ManagementDeleteDomainNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 404)
+	return err
+}
+
+// APIError maps ManagementDeleteDomainServiceUnavailable into the shared typed API error.
+func (r *ManagementDeleteDomainServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
 	return err
 }
 

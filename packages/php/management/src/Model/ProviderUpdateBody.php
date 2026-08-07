@@ -459,7 +459,7 @@ class ProviderUpdateBody implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets from_email
      *
-     * @param string|null $from_email from_email
+     * @param string|null $from_email Default From email address for an SMTP account. Connected Google and Microsoft accounts keep their authorised account address.
      *
      * @return $this
      */

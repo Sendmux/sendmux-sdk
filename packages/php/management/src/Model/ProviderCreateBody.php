@@ -477,7 +477,7 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets from_email
      *
-     * @param string|null $from_email from_email
+     * @param string|null $from_email Default From email address for an SMTP account.
      *
      * @return $this
      */

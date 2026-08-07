@@ -3027,7 +3027,23 @@ func (s *ManagementDeleteDomainConflict) Validate() error {
 	return nil
 }
 
+func (s *ManagementDeleteDomainInternalServerError) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementDeleteDomainNotFound) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementDeleteDomainServiceUnavailable) Validate() error {
 	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err

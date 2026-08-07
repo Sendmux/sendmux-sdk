@@ -654,7 +654,7 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets from_email
      *
-     * @param string|null $from_email Default From email address.
+     * @param string|null $from_email Default From email address. Connected Google and Microsoft accounts always use their authorised account address.
      *
      * @return $this
      */

@@ -15,6 +15,7 @@ require 'time'
 
 module Sendmux::Management::Generated
   class ProviderCreateBody < ApiModelBase
+    # Default From email address for an SMTP account.
     attr_accessor :from_email
 
     attr_accessor :from_name

@@ -15,6 +15,7 @@ require 'time'
 
 module Sendmux::Management::Generated
   class ProviderUpdateBody < ApiModelBase
+    # Default From email address for an SMTP account. Connected Google and Microsoft accounts keep their authorised account address.
     attr_accessor :from_email
 
     attr_accessor :from_name

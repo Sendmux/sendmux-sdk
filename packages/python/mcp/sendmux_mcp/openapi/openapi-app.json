@@ -2274,8 +2274,29 @@
             "example": "send_receive",
             "type": "string"
           },
+          "ses_dkim_signing_enabled": {
+            "description": "Whether Amazon SES DKIM signing is currently enabled for this identity",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
           "ses_dkim_status": {
             "description": "Amazon SES DKIM status (pending/success/failed/temporary_failure/not_started)",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ses_identity_checked_at": {
+            "description": "ISO 8601 timestamp of the latest complete Amazon SES identity check",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ses_identity_verification_status": {
+            "description": "Latest Amazon SES identity verification status",
             "type": [
               "string",
               "null"
@@ -2285,6 +2306,13 @@
             "description": "Amazon SES MAIL FROM status (pending/success/failed/temporary_failure/not_started)",
             "type": [
               "string",
+              "null"
+            ]
+          },
+          "ses_verified_for_sending": {
+            "description": "Whether Amazon SES currently permits sending for this identity",
+            "type": [
+              "boolean",
               "null"
             ]
           },
@@ -2310,7 +2338,11 @@
           "domain",
           "mode",
           "verification_status",
+          "ses_identity_verification_status",
+          "ses_verified_for_sending",
           "ses_dkim_status",
+          "ses_dkim_signing_enabled",
+          "ses_identity_checked_at",
           "ses_mail_from_status",
           "verified_at",
           "created_at",
@@ -2502,13 +2534,29 @@
           "checks": {
             "$ref": "#/components/schemas/MailboxDomainVerifyChecks"
           },
+          "ses_dkim_signing_enabled": {
+            "description": "Whether Amazon SES DKIM signing is enabled",
+            "type": "boolean"
+          },
           "ses_dkim_status": {
             "description": "Latest Amazon SES DKIM status",
+            "type": "string"
+          },
+          "ses_identity_checked_at": {
+            "description": "ISO 8601 time of this SES identity check",
+            "type": "string"
+          },
+          "ses_identity_verification_status": {
+            "description": "Latest Amazon SES identity status",
             "type": "string"
           },
           "ses_mail_from_status": {
             "description": "Latest Amazon SES MAIL FROM status",
             "type": "string"
+          },
+          "ses_verified_for_sending": {
+            "description": "Whether Amazon SES permits identity sending",
+            "type": "boolean"
           },
           "status": {
             "description": "Post-check verification status",
@@ -2522,7 +2570,11 @@
         },
         "required": [
           "status",
+          "ses_identity_verification_status",
+          "ses_verified_for_sending",
           "ses_dkim_status",
+          "ses_dkim_signing_enabled",
+          "ses_identity_checked_at",
           "ses_mail_from_status",
           "checks"
         ],
@@ -5334,6 +5386,7 @@
         "additionalProperties": false,
         "properties": {
           "from_email": {
+            "description": "Default From email address for an SMTP account.",
             "example": "sender@example.com",
             "format": "email",
             "maxLength": 255,
@@ -5579,7 +5632,7 @@
             "type": "string"
           },
           "from_email": {
-            "description": "Default From email address.",
+            "description": "Default From email address. Connected Google and Microsoft accounts always use their authorised account address.",
             "type": [
               "string",
               "null"
@@ -6088,6 +6141,7 @@
         "additionalProperties": false,
         "properties": {
           "from_email": {
+            "description": "Default From email address for an SMTP account. Connected Google and Microsoft accounts keep their authorised account address.",
             "example": "sender@example.com",
             "format": "email",
             "maxLength": 255,
@@ -8405,6 +8459,35 @@
               }
             },
             "description": "Domain still has active mailboxes (error code `conflict`)."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unexpected server error."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Deletion is temporarily unavailable; retry after the indicated delay.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying.",
+                "schema": {
+                  "example": 30,
+                  "type": "integer"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -8796,7 +8879,7 @@
                 }
               }
             },
-            "description": "`If-Match` ETag does not match the server's current version, or the domain is send-only."
+            "description": "`If-Match` ETag does not match the server's current version, the domain is send-only, or deletion is in progress."
           },
           "413": {
             "content": {

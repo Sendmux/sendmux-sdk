@@ -20,7 +20,7 @@ module Sendmux::Management::Generated
     # ISO 8601 creation timestamp
     attr_accessor :created_at
 
-    # Default From email address.
+    # Default From email address. Connected Google and Microsoft accounts always use their authorised account address.
     attr_accessor :from_email
 
     # Default From display name.

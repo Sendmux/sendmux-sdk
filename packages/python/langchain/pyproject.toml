@@ -9,6 +9,22 @@ description = "LangChain toolkit for the Sendmux email API for AI agents."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
+keywords = [
+  "sendmux",
+  "email",
+  "email-api",
+  "ai-agents",
+  "agent",
+  "agents",
+  "langchain",
+  "langchain-toolkit",
+  "tools",
+  "inbox",
+  "mailbox",
+  "send-email",
+  "transactional-email",
+  "llm",
+]
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
@@ -24,7 +40,10 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://sendmux.ai"
+Documentation = "https://sendmux.ai/docs/sdks"
 Repository = "https://github.com/Sendmux/sendmux-sdk"
+Issues = "https://github.com/Sendmux/sendmux-sdk/issues"
 
 [tool.hatch.build.targets.sdist]
 core-metadata-version = "2.4"

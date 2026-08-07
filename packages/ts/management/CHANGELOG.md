@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.2.0...ts-management-v1.2.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **sdk:** regenerate management clients for the Amazon SES identity fields ([#137](https://github.com/Sendmux/sendmux-sdk/issues/137)) ([b0a3d63](https://github.com/Sendmux/sendmux-sdk/commit/b0a3d63f7d836d3d0e290a5b8c4e315a1a017e43))
+* **ts:** preserve nullable enum members ([40868fe](https://github.com/Sendmux/sendmux-sdk/commit/40868fee3ea8ccd4f40ef4588ce942980a3329ff))
+
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.1.0...ts-management-v1.2.0) (2026-07-22)
 
 

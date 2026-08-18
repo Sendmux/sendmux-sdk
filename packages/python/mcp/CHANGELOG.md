@@ -4,6 +4,7 @@
 
 ### Features
 
+* add an OAuth-protected A2A 1.0 HTTP+JSON endpoint with full hosted-operation parity
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 
 ## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.5.0...python-mcp-v1.5.1) (2026-08-07)

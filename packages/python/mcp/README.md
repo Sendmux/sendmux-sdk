@@ -5,7 +5,7 @@
 [![PyPI downloads](https://img.shields.io/pypi/dm/sendmux-mcp)](https://pypi.org/project/sendmux-mcp/)
 [![Licence](https://img.shields.io/pypi/l/sendmux-mcp)](https://github.com/Sendmux/sendmux-sdk/blob/main/LICENSE)
 
-Email inbox API, inbound mail, and outbound sending MCP servers for AI agents, with inbound email, clean JSON parsing, webhooks, and multi-provider routing through Sendmux.
+Email inbox API, inbound mail, and outbound sending MCP and A2A servers for AI agents, with inbound email, clean JSON parsing, webhooks, and multi-provider routing through Sendmux.
 
 This package is the Sendmux MCP. Keep it separate from any documentation-search MCP used by docs tooling.
 
@@ -90,6 +90,27 @@ For hosted clients, use HTTP transport with OAuth. Do not add manual `Authorizat
 Hosted OAuth clients that omit requested scopes during registration or authorization are supported; the server advertises the hosted scope set through discovery and bearer challenges.
 
 The packaged `sendmux-mcp-hosted` command runs the hosted server runtime. Local and private deployments should use the local commands above unless you are operating a compatible OAuth-backed hosted environment.
+
+## Hosted A2A Endpoint
+
+The same hosted runtime exposes deterministic A2A 1.0 over HTTP+JSON at `https://a2a.sendmux.ai/a2a/v1`. Discover it from `https://a2a.sendmux.ai/.well-known/agent-card.json`; OAuth resource metadata is at `https://a2a.sendmux.ai/.well-known/oauth-protected-resource`.
+
+Send exactly one JSON `DataPart` to the A2A `message:send` operation. Its data selects a curated Sendmux operation and supplies that operation's inputs:
+
+```json
+{
+  "operationId": "managementListDomains",
+  "pathParameters": {},
+  "query": { "limit": 10 },
+  "headers": {},
+  "body": null,
+  "mailboxId": null
+}
+```
+
+`operationId` uses the same curated operation IDs as the hosted MCP service. OAuth grants are audience-bound to the A2A resource and retain their Sendmux surface and permission limits. The service returns one JSON `DataPart` containing the upstream status, safe response headers, and JSON body (or `bodyBase64` for non-JSON responses).
+
+The A2A endpoint is immediate and stateless: streaming, push notifications, persistent tasks, and task cancellation are not advertised or routed.
 
 ## Configuration
 

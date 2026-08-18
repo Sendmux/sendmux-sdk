@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
+from pathlib import Path
 
 import httpx
 from a2a.client import ClientConfig, ClientFactory
@@ -31,9 +33,13 @@ from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 
 def test_agent_card_advertises_a2a_1_0_http_json_and_oauth() -> None:
     card = agent_card_to_dict(build_a2a_agent_card())
+    pyproject = (Path(__file__).parents[1] / "pyproject.toml").read_text()
+    project = pyproject.split("[project]", maxsplit=1)[1].split("\n[", maxsplit=1)[0]
+    package_version = re.search(r'^version = "([^"]+)"$', project, re.MULTILINE)
 
     assert card["name"] == "Sendmux A2A"
-    assert card["version"] == "1.5.1"
+    assert package_version is not None
+    assert card["version"] == package_version.group(1)
     assert card["description"]
     assert card["supportedInterfaces"] == [
         {
@@ -182,10 +188,21 @@ def test_official_a2a_client_discovers_and_executes_without_task_routes() -> Non
         ) as http_client:
             card_response = await http_client.get("/.well-known/agent-card.json")
             assert card_response.status_code == 200
+            assert "max-age=" in card_response.headers["cache-control"]
+            assert card_response.headers["etag"]
+            assert card_response.headers["strict-transport-security"].startswith("max-age=")
+
+            cached_card_response = await http_client.get(
+                "/.well-known/agent-card.json",
+                headers={"If-None-Match": card_response.headers["etag"]},
+            )
+            assert cached_card_response.status_code == 304
+            assert cached_card_response.content == b""
 
             resource_response = await http_client.get("/.well-known/oauth-protected-resource")
             assert resource_response.status_code == 200
             assert resource_response.json()["resource"] == A2A_RESOURCE_URL
+            assert resource_response.headers["strict-transport-security"].startswith("max-age=")
 
             missing_auth = await http_client.post(
                 "/a2a/v1/message:send",
@@ -193,7 +210,26 @@ def test_official_a2a_client_discovers_and_executes_without_task_routes() -> Non
                 json={},
             )
             assert missing_auth.status_code == 401
+            assert missing_auth.headers["content-type"] == "application/a2a+json"
             assert missing_auth.headers["www-authenticate"].startswith("Bearer resource_metadata=")
+            assert missing_auth.headers["strict-transport-security"].startswith("max-age=")
+
+            unsupported_version = await http_client.post(
+                "/a2a/v1/message:send",
+                content=b"{}",
+                headers={"A2A-Version": "0.3", "Content-Type": "application/a2a+json"},
+            )
+            assert unsupported_version.status_code == 400
+            assert unsupported_version.headers["content-type"] == "application/a2a+json"
+            assert unsupported_version.json()["error"]["details"][0]["reason"] == "VERSION_NOT_SUPPORTED"
+
+            unsupported_minor_version = await http_client.post(
+                "/a2a/v1/message:send",
+                content=b"{}",
+                headers={"A2A-Version": "1.1", "Content-Type": "application/a2a+json"},
+            )
+            assert unsupported_minor_version.status_code == 400
+            assert unsupported_minor_version.json()["error"]["details"][0]["reason"] == "VERSION_NOT_SUPPORTED"
 
             assert (await http_client.post("/a2a/v1/message:stream", json={})).status_code == 404
             assert (await http_client.get("/a2a/v1/tasks/task_123")).status_code == 404

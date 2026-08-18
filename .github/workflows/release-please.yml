@@ -360,30 +360,7 @@ jobs:
           MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
         run: |
           set -euo pipefail
-          encoded_name="$(python3 - <<'PY'
-          import os
-          import urllib.parse
-
-          print(urllib.parse.quote(os.environ["MCP_SERVER_NAME"], safe=""))
-          PY
-          )"
-          curl -fsSL "https://registry.modelcontextprotocol.io/v0.1/servers?search=${encoded_name}" -o /tmp/mcp-registry.json || echo '{"servers":[]}' > /tmp/mcp-registry.json
-          already_published="$(python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          data = json.loads(Path("/tmp/mcp-registry.json").read_text())
-          name = os.environ["MCP_SERVER_NAME"]
-          version = os.environ["MCP_SERVER_VERSION"]
-          exists = any(
-            item.get("server", {}).get("name") == name and
-            item.get("server", {}).get("version") == version
-            for item in data.get("servers", [])
-          )
-          print("true" if exists else "false")
-          PY
-          )"
+          already_published="$(node scripts/mcp-registry-version.mjs --check)"
           echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
 
       - name: Authenticate to MCP Registry
@@ -398,33 +375,7 @@ jobs:
         env:
           MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
           MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
-        run: |
-          set -euo pipefail
-          encoded_name="$(python3 - <<'PY'
-          import os
-          import urllib.parse
-
-          print(urllib.parse.quote(os.environ["MCP_SERVER_NAME"], safe=""))
-          PY
-          )"
-          curl -fsSL "https://registry.modelcontextprotocol.io/v0.1/servers?search=${encoded_name}" -o /tmp/mcp-registry.json
-          python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          data = json.loads(Path("/tmp/mcp-registry.json").read_text())
-          name = os.environ["MCP_SERVER_NAME"]
-          version = os.environ["MCP_SERVER_VERSION"]
-
-          for item in data.get("servers", []):
-            server = item.get("server", {})
-            if server.get("name") == name and server.get("version") == version:
-              print(f"Verified {name} {version}")
-              break
-          else:
-            raise SystemExit(f"Registry search did not return {name} {version}")
-          PY
+        run: node scripts/mcp-registry-version.mjs
 
   publish-pypi:
     needs: release-please
@@ -608,30 +559,7 @@ jobs:
           MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
         run: |
           set -euo pipefail
-          encoded_name="$(python3 - <<'PY'
-          import os
-          import urllib.parse
-
-          print(urllib.parse.quote(os.environ["MCP_SERVER_NAME"], safe=""))
-          PY
-          )"
-          curl -fsSL "https://registry.modelcontextprotocol.io/v0.1/servers?search=${encoded_name}" -o /tmp/mcp-registry.json || echo '{"servers":[]}' > /tmp/mcp-registry.json
-          already_published="$(python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          data = json.loads(Path("/tmp/mcp-registry.json").read_text())
-          name = os.environ["MCP_SERVER_NAME"]
-          version = os.environ["MCP_SERVER_VERSION"]
-          exists = any(
-            item.get("server", {}).get("name") == name and
-            item.get("server", {}).get("version") == version
-            for item in data.get("servers", [])
-          )
-          print("true" if exists else "false")
-          PY
-          )"
+          already_published="$(node scripts/mcp-registry-version.mjs --check)"
           echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
 
       - name: Authenticate to MCP Registry
@@ -665,33 +593,7 @@ jobs:
         env:
           MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
           MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
-        run: |
-          set -euo pipefail
-          encoded_name="$(python3 - <<'PY'
-          import os
-          import urllib.parse
-
-          print(urllib.parse.quote(os.environ["MCP_SERVER_NAME"], safe=""))
-          PY
-          )"
-          curl -fsSL "https://registry.modelcontextprotocol.io/v0.1/servers?search=${encoded_name}" -o /tmp/mcp-registry.json
-          python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          data = json.loads(Path("/tmp/mcp-registry.json").read_text())
-          name = os.environ["MCP_SERVER_NAME"]
-          version = os.environ["MCP_SERVER_VERSION"]
-
-          for item in data.get("servers", []):
-            server = item.get("server", {})
-            if server.get("name") == name and server.get("version") == version:
-              print(f"Verified {name} {version}")
-              break
-          else:
-            raise SystemExit(f"Registry search did not return {name} {version}")
-          PY
+        run: node scripts/mcp-registry-version.mjs
 
   publish-rubygems:
     needs: release-please

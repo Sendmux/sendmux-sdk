@@ -33,7 +33,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | PyPI | `sendmux-mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `pip install sendmux-mailbox` | [`packages/python/mailbox`](packages/python/mailbox) |
 | PyPI | `sendmux-management` | Management API | `smx_root_*` | `pip install sendmux-management` | [`packages/python/management`](packages/python/management) |
 | PyPI | `sendmux-sdk` | Python umbrella package | surface-specific | `pip install sendmux-sdk` | [`packages/python/sdk`](packages/python/sdk) |
-| PyPI | `sendmux-mcp` | Local, self-hosted, and hosted MCP servers | OAuth for hosted; surface-specific keys for local | `pip install sendmux-mcp` | [`packages/python/mcp`](packages/python/mcp) |
+| PyPI | `sendmux-mcp` | Local MCP plus hosted MCP and A2A servers | OAuth for hosted; surface-specific keys for local | `pip install sendmux-mcp` | [`packages/python/mcp`](packages/python/mcp) |
 | PyPI | `langchain-sendmux` | LangChain toolkit (agent inbox + sending) | send + receive `smx_mbx_*` or `smx_agent_*` | `pip install langchain-sendmux` | [`packages/python/langchain`](packages/python/langchain) |
 | Go | `sendmux.ai/go/core` | Shared Go helpers | n/a | `go get sendmux.ai/go@v1.0.0` | [`go/core`](go/core) |
 | Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/sending`](go/sending) |
@@ -83,6 +83,8 @@ sendmux-mcp-mailbox --help
 ```
 
 The hosted MCP endpoint is `https://mcp.sendmux.ai/mcp`. Local MCP commands support stdio and HTTP transports; hosted MCP uses OAuth and does not require manual API keys or custom OAuth endpoints.
+
+For A2A 1.0 clients, discover the hosted HTTP+JSON service from `https://a2a.sendmux.ai/.well-known/agent-card.json`. It exposes the same curated mailbox, management, and sending operations with an OAuth grant bound specifically to `https://a2a.sendmux.ai/a2a/v1`.
 
 For AI-agent frameworks, first-party tool wrappers are available:
 

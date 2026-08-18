@@ -5,7 +5,7 @@ import json
 import re
 from dataclasses import dataclass
 from time import monotonic
-from typing import Any, Mapping
+from typing import Any, Literal, Mapping
 
 import httpx
 from fastmcp.server.dependencies import get_access_token
@@ -32,12 +32,13 @@ HOP_BY_HOP_HEADERS = {
     "proxy-connection",
 }
 
-
 @dataclass(frozen=True)
 class HostedProxyConfig:
     proxy_url: str
     upstream_base_url: str
     internal_bearer_token: str | None = None
+    resource: str | None = None
+    protocol: Literal["mcp", "a2a"] | None = None
 
 
 @dataclass(frozen=True)
@@ -162,31 +163,59 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
         relative_path: str,
         body: bytes,
     ) -> httpx.Request:
-        headers = {"content-type": "application/json"}
-        if self.config.internal_bearer_token:
-            headers["authorization"] = f"Bearer {self.config.internal_bearer_token}"
-
-        envelope = {
-            "grant_id": grant_id,
-            "operation_id": route.operation_id,
-            "tool_name": route.tool_name,
-            "surface": route.surface,
-            "method": request.method.upper(),
-            "path": relative_path,
-            "query": request.url.query.decode("ascii"),
-            "headers": sanitised_headers(request.headers),
-            "body_base64": base64.b64encode(body).decode("ascii") if body else None,
-        }
         mailbox_id = hosted_mailbox_id(request.url, route)
-        if mailbox_id is not None:
-            envelope["mailbox_id"] = mailbox_id
-
-        return httpx.Request(
-            "POST",
-            self.config.proxy_url,
-            headers=headers,
-            content=json.dumps(envelope, separators=(",", ":")).encode("utf8"),
+        return build_hosted_proxy_request(
+            config=self.config,
+            route=route,
+            grant_id=grant_id,
+            relative_path=relative_path,
+            query=request.url.query.decode("ascii"),
+            headers=request.headers,
+            body=body,
+            mailbox_id=mailbox_id,
         )
+
+
+def build_hosted_proxy_request(
+    *,
+    config: HostedProxyConfig,
+    route: HostedOperationRoute,
+    grant_id: str,
+    relative_path: str,
+    query: str,
+    headers: Mapping[str, str],
+    body: bytes,
+    mailbox_id: str | None = None,
+) -> httpx.Request:
+    request_headers = {"content-type": "application/json"}
+    if config.internal_bearer_token:
+        request_headers["authorization"] = f"Bearer {config.internal_bearer_token}"
+
+    envelope = {
+        "grant_id": grant_id,
+        "operation_id": route.operation_id,
+        "tool_name": route.tool_name,
+        "surface": route.surface,
+        "method": route.method,
+        "path": relative_path,
+        "query": query,
+        "headers": sanitised_headers(httpx.Headers(headers)),
+        "body_base64": base64.b64encode(body).decode("ascii") if body else None,
+    }
+    if (config.resource is None) != (config.protocol is None):
+        raise ValueError("hosted proxy resource and protocol must be configured together")
+    if config.resource is not None and config.protocol is not None:
+        envelope["resource"] = config.resource
+        envelope["protocol"] = config.protocol
+    if mailbox_id is not None:
+        envelope["mailbox_id"] = mailbox_id
+
+    return httpx.Request(
+        "POST",
+        config.proxy_url,
+        headers=request_headers,
+        content=json.dumps(envelope, separators=(",", ":")).encode("utf8"),
+    )
 
 
 def build_hosted_operation_manifest(document: Mapping[str, Any], surface: Surface) -> HostedOperationManifest:

@@ -18,6 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+  "a2a-sdk[http-server]==1.1.2",
   "fastmcp==3.3.1",
   "httpx>=0.28.1,<1",
   "posthog>=7.21.0,<8",

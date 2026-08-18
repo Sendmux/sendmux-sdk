@@ -1,46 +1,36 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Sequence
+from collections.abc import AsyncIterator, Sequence
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
+import httpx
+import uvicorn
 from fastmcp import FastMCP
+from fastmcp.server.auth.providers.jwt import JWTVerifier
 from fastmcp.server.middleware import AuthMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.applications import Starlette
 
 from sendmux_mcp.config import DEFAULT_APP_BASE_URL, ServerConfig, Surface, config_from_env, parse_csv
-from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider
-from sendmux_mcp.hosted_proxy import HostedProxyConfig
+from sendmux_mcp.a2a import A2A_RESOURCE_URL, A2ATokenVerifier, build_a2a_http_components
+from sendmux_mcp.hosted_auth import HOSTED_MCP_DISCOVERY_SCOPES, HostedAuthConfig, create_remote_auth_provider
+from sendmux_mcp.hosted_proxy import HostedProxyConfig, build_hosted_operation_manifest
 from sendmux_mcp.observability import init_posthog_from_env, posthog_exception_middleware
 from sendmux_mcp.permissions import tool_permission_auth_check
 from sendmux_mcp.security import BearerScopeChallengeMiddleware, OriginGuardMiddleware
 from sendmux_mcp.server import create_server
+from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 
 HOSTED_SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
 DEFAULT_MCP_RESOURCE_BASE_URL = "https://mcp.sendmux.ai"
 DEFAULT_MCP_APP_ORIGIN = "https://app.sendmux.ai"
 DEFAULT_MCP_PATH = "/mcp"
-HOSTED_MCP_DISCOVERY_SCOPES = (
-    "analytics.read",
-    "billing.read",
-    "domain.create",
-    "domain.read",
-    "domain.verify",
-    "email.send",
-    "logs.read",
-    "mailbox.admin.create",
-    "mailbox.admin.manage",
-    "mailbox.admin.read",
-    "mailbox.read",
-    "mailbox.settings.update",
-    "webhook.create",
-    "webhook.manage",
-    "webhook.read",
-)
 HOSTED_CORS_ALLOWED_HEADERS = (
     "Accept",
     "Authorization",
@@ -140,20 +130,71 @@ def create_hosted_server(runtime: HostedServerRuntimeConfig | None = None) -> Fa
 def run_hosted() -> None:
     observability = init_posthog_from_env()
     runtime = hosted_runtime_config_from_env()
-    server = create_hosted_server(runtime)
+    app = create_hosted_http_app(runtime)
     try:
-        server.run(
-            transport="http",
+        uvicorn.run(
+            app,
             host=runtime.host,
             port=runtime.port,
-            path=runtime.mcp_path,
-            middleware=hosted_http_middleware(runtime.allowed_origins, runtime.scopes_supported),
-            stateless_http=runtime.stateless_http,
-            show_banner=False,
         )
     finally:
         if observability is not None:
             observability.shutdown()
+
+
+def create_hosted_http_app(
+    runtime: HostedServerRuntimeConfig | None = None,
+    *,
+    a2a_token_verifier: A2ATokenVerifier | None = None,
+    a2a_proxy_transport: httpx.AsyncBaseTransport | None = None,
+) -> Starlette:
+    runtime = runtime or hosted_runtime_config_from_env()
+    server = create_hosted_server(runtime)
+    app = server.http_app(
+        path=runtime.mcp_path,
+        middleware=hosted_http_middleware(runtime.allowed_origins, runtime.scopes_supported),
+        stateless_http=runtime.stateless_http,
+        transport="http",
+    )
+
+    manifests = []
+    for surface in HOSTED_SURFACES:
+        surface_config = hosted_surface_config(surface, runtime)
+        document = prepare_for_fastmcp(load_spec(surface_config), base_url=surface_config.api_base_url)
+        manifests.append(build_hosted_operation_manifest(document, surface))
+
+    verifier = a2a_token_verifier or JWTVerifier(
+        jwks_uri=runtime.jwks_uri,
+        issuer=runtime.issuer,
+        audience=A2A_RESOURCE_URL,
+    )
+    a2a_components = build_a2a_http_components(
+        manifests=tuple(manifests),
+        token_verifier=verifier,
+        proxy_config=HostedProxyConfig(
+            proxy_url=runtime.proxy_url,
+            upstream_base_url=A2A_RESOURCE_URL,
+            internal_bearer_token=runtime.internal_bearer_token,
+            resource=A2A_RESOURCE_URL,
+            protocol="a2a",
+        ),
+        proxy_transport=a2a_proxy_transport,
+    )
+    app.router.routes[0:0] = a2a_components.routes
+
+    original_lifespan = app.router.lifespan_context
+
+    @asynccontextmanager
+    async def hosted_lifespan(application: Starlette) -> AsyncIterator[None]:
+        try:
+            async with original_lifespan(application):
+                yield
+        finally:
+            await a2a_components.request_handler.aclose()
+            await a2a_components.proxy.aclose()
+
+    app.router.lifespan_context = hosted_lifespan
+    return app
 
 
 def hosted_http_middleware(

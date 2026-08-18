@@ -10,6 +10,23 @@ from pydantic import AnyHttpUrl, TypeAdapter, UrlConstraints
 
 AuthorizationServerUrl = Annotated[AnyHttpUrl, UrlConstraints(preserve_empty_path=True)]
 AUTHORIZATION_SERVER_URL_ADAPTER = TypeAdapter(AuthorizationServerUrl)
+HOSTED_MCP_DISCOVERY_SCOPES = (
+    "analytics.read",
+    "billing.read",
+    "domain.create",
+    "domain.read",
+    "domain.verify",
+    "email.send",
+    "logs.read",
+    "mailbox.admin.create",
+    "mailbox.admin.manage",
+    "mailbox.admin.read",
+    "mailbox.read",
+    "mailbox.settings.update",
+    "webhook.create",
+    "webhook.manage",
+    "webhook.read",
+)
 
 
 @dataclass(frozen=True)

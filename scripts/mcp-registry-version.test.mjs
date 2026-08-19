@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { test } from "node:test";
-import { waitForMcpRegistryVersion } from "./mcp-registry-version.mjs";
+import {
+  isRetryableMcpPublisherError,
+  waitForMcpRegistryVersion,
+} from "./mcp-registry-version.mjs";
 
 const name = "io.github.Sendmux/sendmux-mcp";
 const version = "1.6.0";
@@ -71,6 +74,20 @@ test("preflight retries transient errors but treats an exact 404 as unpublished"
 
   assert.equal(result, null);
   assert.equal(requests.length, 2);
+});
+
+test("retries PyPI version propagation failures from the MCP publisher", () => {
+  const output =
+    "registry validation failed for package 0 (sendmux-mcp): PyPI package 'sendmux-mcp' exists, but version '1.6.1' was not found (status: 404). A newly published release can take a moment to appear on PyPI.";
+
+  assert.equal(isRetryableMcpPublisherError(output), true);
+});
+
+test("does not retry unrelated MCP publisher failures", () => {
+  const output =
+    'server returned status 400: {"detail":"Failed to publish server","errors":[{"message":"namespace is not owned by this repository"}]}';
+
+  assert.equal(isRetryableMcpPublisherError(output), false);
 });
 
 async function listen(server) {

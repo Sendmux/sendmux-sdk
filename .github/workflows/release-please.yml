@@ -576,7 +576,7 @@ jobs:
               exit 0
             fi
 
-            if ! grep -q "PyPI package 'sendmux-mcp' not found (status: 404)" /tmp/mcp-publish.log; then
+            if ! node scripts/mcp-registry-version.mjs --retryable-publish-log /tmp/mcp-publish.log; then
               exit 1
             fi
 

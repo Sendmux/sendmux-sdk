@@ -1,8 +1,18 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const defaultRegistryBaseUrl = "https://registry.modelcontextprotocol.io";
+
+export function isRetryableMcpPublisherError(output) {
+  return output
+    .split(/\r?\n/u)
+    .some(
+      (line) =>
+        line.includes("PyPI package 'sendmux-mcp'") && line.includes("status: 404"),
+    );
+}
 
 export async function checkMcpRegistryVersion({
   fetchImpl = fetch,
@@ -75,6 +85,16 @@ export async function waitForMcpRegistryVersion({
 }
 
 async function main() {
+  const retryablePublishLogIndex = process.argv.indexOf("--retryable-publish-log");
+  if (retryablePublishLogIndex !== -1) {
+    const path = process.argv[retryablePublishLogIndex + 1];
+    if (!path) {
+      throw new Error("--retryable-publish-log requires a path");
+    }
+    process.exitCode = isRetryableMcpPublisherError(readFileSync(path, "utf8")) ? 0 : 1;
+    return;
+  }
+
   const name = requiredEnvironmentVariable("MCP_SERVER_NAME");
   const version = requiredEnvironmentVariable("MCP_SERVER_VERSION");
 

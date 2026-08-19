@@ -13,7 +13,6 @@
 ### Bug Fixes
 
 * **mcp:** tighten A2A and release verification ([b54cb28](https://github.com/Sendmux/sendmux-sdk/commit/b54cb28271b88e47fe41c5b89ebef12d9312c0d3))
-* **mcp:** tighten A2A and release verification ([9f53fdd](https://github.com/Sendmux/sendmux-sdk/commit/9f53fdda87d44602ae6f978a056f15b19e524b2e))
 
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.5.1...python-mcp-v1.6.0) (2026-08-18)
 

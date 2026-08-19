@@ -20,6 +20,7 @@ const options = parseArgs(process.argv.slice(2));
 const docsDir = resolve(options.docsDir ?? process.env.OPENAPI_INPUT_DIR ?? "sendmux-docs");
 const liveDir = options.liveDir ? resolve(options.liveDir) : undefined;
 const mismatches = [];
+const issueTitle = "OpenAPI live-vs-snapshot drift";
 
 for (const spec of specs) {
   const snapshotPath = join(docsDir, spec.snapshot);
@@ -45,6 +46,9 @@ for (const spec of specs) {
 
 if (mismatches.length === 0) {
   console.log("Live OpenAPI specs match committed snapshots.");
+  if (options.issue) {
+    await closeResolvedIssue({ title: issueTitle });
+  }
   process.exit(0);
 }
 
@@ -52,7 +56,7 @@ const body = issueBody(mismatches);
 console.error(body);
 
 if (options.issue) {
-  await createOrUpdateIssue({ title: "OpenAPI live-vs-snapshot drift", body });
+  await createOrUpdateIssue({ title: issueTitle, body });
 }
 
 process.exit(1);
@@ -217,8 +221,35 @@ async function createOrUpdateIssue({ title, body }) {
   }
 }
 
+async function closeResolvedIssue({ title }) {
+  const token = process.env.GITHUB_TOKEN;
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    throw new Error("GITHUB_TOKEN and GITHUB_REPOSITORY are required when --issue is set");
+  }
+
+  const [owner, repo] = repository.split("/");
+  const existing = await githubJson(
+    `/repos/${owner}/${repo}/issues?state=open&labels=spec-drift&per_page=100`,
+    { token },
+  );
+  const issue = existing.find((item) => item.title === title && !item.pull_request);
+  if (!issue) {
+    return;
+  }
+
+  await githubJson(`/repos/${owner}/${repo}/issues/${issue.number}`, {
+    token,
+    method: "PATCH",
+    body: { state: "closed", state_reason: "completed" },
+  });
+  console.log(`Closed resolved spec drift issue #${issue.number}`);
+}
+
 async function githubJson(path, { token, method = "GET", body, tolerateStatus } = {}) {
-  const response = await fetch(`https://api.github.com${path}`, {
+  const githubApiUrl = (process.env.GITHUB_API_URL ?? "https://api.github.com").replace(/\/$/, "");
+  const response = await fetch(`${githubApiUrl}${path}`, {
     method,
     headers: {
       Accept: "application/vnd.github+json",

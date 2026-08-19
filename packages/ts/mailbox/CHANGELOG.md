@@ -6,6 +6,13 @@
 
 * expose short-lived attachment download URLs, upload intents, typed event streaming, and file attachment helpers
 
+## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.4.0...ts-mailbox-v1.4.1) (2026-08-19)
+
+
+### Bug Fixes
+
+* **ts:** preserve nullable enum members ([40868fe](https://github.com/Sendmux/sendmux-sdk/commit/40868fee3ea8ccd4f40ef4588ce942980a3329ff))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.3.0...ts-mailbox-v1.4.0) (2026-07-22)
 
 

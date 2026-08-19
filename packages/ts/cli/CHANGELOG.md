@@ -6,6 +6,15 @@
 
 * add mailbox event follow mode, attachment commands, `--attach` send flags, and presigned upload support
 
+## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.4.0...ts-cli-v1.4.1) (2026-08-19)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/sdk bumped to 1.4.1
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.3.2...ts-cli-v1.4.0) (2026-07-22)
 
 

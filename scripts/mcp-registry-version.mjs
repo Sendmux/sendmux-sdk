@@ -44,6 +44,7 @@ export async function waitForMcpRegistryVersion({
   fetchImpl = fetch,
   name,
   registryBaseUrl = defaultRegistryBaseUrl,
+  retryNotFound = true,
   sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
   version,
 }) {
@@ -52,6 +53,9 @@ export async function waitForMcpRegistryVersion({
       const data = await checkMcpRegistryVersion({ fetchImpl, name, registryBaseUrl, version });
       if (data) {
         return data;
+      }
+      if (!retryNotFound) {
+        return null;
       }
     } catch (error) {
       if (!error.retryable || attempt === attempts) {
@@ -75,7 +79,7 @@ async function main() {
   const version = requiredEnvironmentVariable("MCP_SERVER_VERSION");
 
   if (process.argv.includes("--check")) {
-    const data = await checkMcpRegistryVersion({ name, version });
+    const data = await waitForMcpRegistryVersion({ name, retryNotFound: false, version });
     process.stdout.write(`${data ? "true" : "false"}\n`);
     return;
   }

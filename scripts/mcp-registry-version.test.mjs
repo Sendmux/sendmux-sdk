@@ -51,6 +51,28 @@ test("rejects mismatched metadata from the exact version endpoint", async (t) =>
   );
 });
 
+test("preflight retries transient errors but treats an exact 404 as unpublished", async (t) => {
+  const requests = [];
+  const server = createServer((request, response) => {
+    requests.push(request.url);
+    response.writeHead(requests.length === 1 ? 503 : 404).end();
+  });
+  t.after(() => server.close());
+
+  const registryBaseUrl = await listen(server);
+  const result = await waitForMcpRegistryVersion({
+    attempts: 2,
+    delayMs: 0,
+    name,
+    registryBaseUrl,
+    retryNotFound: false,
+    version,
+  });
+
+  assert.equal(result, null);
+  assert.equal(requests.length, 2);
+});
+
 async function listen(server) {
   server.listen(0, "127.0.0.1");
   await new Promise((resolve, reject) => {

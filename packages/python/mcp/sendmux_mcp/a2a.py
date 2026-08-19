@@ -28,6 +28,7 @@ from a2a.types import (
     SecurityRequirement,
     SecurityScheme,
     StringList,
+    VersionNotSupportedError,
 )
 from fastmcp.server.auth import AccessToken
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -51,6 +52,8 @@ OAUTH_AUTHORIZE_URL = "https://app.sendmux.ai/mcp/oauth/authorize"
 OAUTH_TOKEN_URL = "https://app.sendmux.ai/mcp/oauth/token"
 OAUTH_PROTECTED_RESOURCE_METADATA_URL = "https://a2a.sendmux.ai/.well-known/oauth-protected-resource"
 A2A_PATH_PREFIX = "/a2a/v1"
+A2A_PROTOCOL_VERSION = "1.0"
+A2A_HSTS_HEADER = "max-age=63072000; includeSubDomains"
 A2A_RESPONSE_HEADERS = {
     "cache-control",
     "content-type",
@@ -143,6 +146,15 @@ class A2ATokenVerifier(Protocol):
 
 class A2AServerCallContextBuilder(DefaultServerCallContextBuilder):
     def build(self, request: Request) -> ServerCallContext:
+        requested_version = request.headers.get("A2A-Version") or "0.3"
+        version_match = re.fullmatch(r"(\d+)\.(\d+)(?:\.[0-9A-Za-z.-]+)?", requested_version)
+        if version_match is None or ".".join(version_match.groups()[:2]) != A2A_PROTOCOL_VERSION:
+            raise VersionNotSupportedError(
+                message=(
+                    f"A2A version '{requested_version}' is not supported by this handler. "
+                    f"Expected version '{A2A_PROTOCOL_VERSION}'."
+                )
+            )
         context = super().build(request)
         access_token = request.scope.get("a2a_access_token")
         if access_token is not None:
@@ -230,7 +242,7 @@ def build_a2a_http_components(
         route for route in rest_routes if isinstance(route, Route) and route.path == f"{A2A_PATH_PREFIX}/message:send"
     )
     routes: list[BaseRoute] = [
-        *create_agent_card_routes(card),
+        *cacheable_agent_card_routes(card),
         Route(
             "/.well-known/oauth-protected-resource",
             endpoint=a2a_protected_resource_metadata,
@@ -239,6 +251,27 @@ def build_a2a_http_components(
         protected_a2a_route(message_route, token_verifier),
     ]
     return A2AHttpComponents(routes=routes, request_handler=request_handler, proxy=proxy)
+
+
+def cacheable_agent_card_routes(card: AgentCard) -> list[BaseRoute]:
+    card_route = create_agent_card_routes(card)[0]
+    card_endpoint = card_route.endpoint
+    etag = f'"{card.version}"'
+    cache_headers = {
+        "Cache-Control": "public, max-age=300",
+        "ETag": etag,
+        "Access-Control-Allow-Origin": "*",
+        "Strict-Transport-Security": A2A_HSTS_HEADER,
+    }
+
+    async def endpoint(request: Request) -> Response:
+        if etag in {value.strip() for value in request.headers.get("if-none-match", "").split(",")}:
+            return Response(status_code=304, headers=cache_headers)
+        response = await card_endpoint(request)
+        response.headers.update(cache_headers)
+        return response
+
+    return [Route(card_route.path, endpoint=endpoint, methods=["GET"])]
 
 
 def protected_a2a_route(route: Route, token_verifier: A2ATokenVerifier) -> Route:
@@ -251,11 +284,16 @@ def protected_a2a_route(route: Route, token_verifier: A2ATokenVerifier) -> Route
                 {"error": "invalid_token"},
                 status_code=401,
                 headers={
-                    "WWW-Authenticate": f'Bearer resource_metadata="{OAUTH_PROTECTED_RESOURCE_METADATA_URL}"'
+                    "Content-Type": "application/a2a+json",
+                    "WWW-Authenticate": f'Bearer resource_metadata="{OAUTH_PROTECTED_RESOURCE_METADATA_URL}"',
+                    "Strict-Transport-Security": A2A_HSTS_HEADER,
                 },
             )
         request.scope["a2a_access_token"] = access_token
-        return await route.endpoint(request)
+        response = await route.endpoint(request)
+        response.headers["Content-Type"] = "application/a2a+json"
+        response.headers["Strict-Transport-Security"] = A2A_HSTS_HEADER
+        return response
 
     return Route(route.path, endpoint=endpoint, methods=["POST"])
 
@@ -269,7 +307,11 @@ async def a2a_protected_resource_metadata(_request: Request) -> JSONResponse:
             "bearer_methods_supported": ["header"],
             "resource_name": "Sendmux A2A",
         },
-        headers={"Cache-Control": "public, max-age=300", "Access-Control-Allow-Origin": "*"},
+        headers={
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+            "Strict-Transport-Security": A2A_HSTS_HEADER,
+        },
     )
 
 
@@ -347,7 +389,7 @@ def build_a2a_agent_card() -> AgentCard:
             AgentInterface(
                 url=A2A_RESOURCE_URL,
                 protocol_binding="HTTP+JSON",
-                protocol_version="1.0",
+                protocol_version=A2A_PROTOCOL_VERSION,
             )
         ],
         capabilities=AgentCapabilities(

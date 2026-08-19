@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.3.2...ts-ai-sdk-v0.4.0) (2026-08-19)
+
+
+### Features
+
+* add @sendmux/ai-sdk and langchain-sendmux framework wrapper packages ([1884e8d](https://github.com/Sendmux/sendmux-sdk/commit/1884e8dba80778fe71b90a49d4e4e4b9a77f5da1))
+* add @sendmux/ai-sdk and langchain-sendmux framework wrapper packages ([d994ca3](https://github.com/Sendmux/sendmux-sdk/commit/d994ca39e44dde10be73fb8cb375c27704ef2d81))
+
+
+### Bug Fixes
+
+* **ai-sdk,langchain:** address review - idempotency, HTML breaks, mailbox floor ([c31a005](https://github.com/Sendmux/sendmux-sdk/commit/c31a0054ef1a7c2c1a9c5c1b668b2688ab6d01e1))
+* **packages:** add registry metadata and full READMEs to the framework wrappers ([#136](https://github.com/Sendmux/sendmux-sdk/issues/136)) ([936280e](https://github.com/Sendmux/sendmux-sdk/commit/936280e217fa0a1eb84debf8e808807bc613940f))
+
 ## [0.3.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.3.1...ts-ai-sdk-v0.3.2) (2026-08-19)
 
 

@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.22.0",
   "scripts": {
-    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:ts-helpers && pnpm test:ts-ai-sdk && pnpm test:python-release-guardrails && pnpm test:mcp-registry-version && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:snap-workflow && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage && pnpm check:live-e2e && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
+    "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:release-state && pnpm test:openapi-canary && pnpm test:ts-helpers && pnpm test:ts-ai-sdk && pnpm test:python-release-guardrails && pnpm test:mcp-registry-version && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:snap-workflow && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage && pnpm check:live-e2e && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
     "build:go": "pnpm generate:go && node scripts/check-go.mjs && cd go && go test ./... && go vet ./... && go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.3.0 run",
     "build:live-e2e-surfaces": "pnpm drift:check && pnpm -r --if-present build && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
     "build:mcp": "pnpm generate:mcp && node scripts/check-mcp.mjs",
@@ -43,6 +43,8 @@
     "test:ts-ai-sdk": "node scripts/test-ts-ai-sdk.mjs",
     "test:python-release-guardrails": "node scripts/test-python-release-guardrails.mjs",
     "test:mcp-registry-version": "node --test scripts/mcp-registry-version.test.mjs",
+    "test:openapi-canary": "node --test scripts/check-openapi-canary.test.mjs",
+    "test:release-state": "node scripts/release-state.test.mjs",
     "test:windows-command-shims": "node scripts/test-windows-command-shims.mjs",
     "verify:codegen": "node scripts/verify-normalized-openapi.mjs",
     "verify:layout": "node scripts/verify-layout.mjs",

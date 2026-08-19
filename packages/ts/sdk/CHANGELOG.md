@@ -6,6 +6,15 @@
 
 * export Node attachment helpers from the umbrella SDK package
 
+## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.0...ts-sdk-v1.4.1) (2026-08-19)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 1.4.1
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.3.1...ts-sdk-v1.4.0) (2026-07-22)
 
 

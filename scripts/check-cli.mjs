@@ -6,7 +6,7 @@ import { createServer } from "node:http";
 import { once } from "node:events";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { commandForWindowsShim } from "./windows-command-shims.mjs";
+import { spawnCommandSync } from "./windows-command-shims.mjs";
 
 const cliPath = "packages/ts/cli/bin/run.js";
 const cliManifestPath = "packages/ts/cli/package.json";
@@ -762,8 +762,7 @@ try {
 
 function ensureCliBuilt() {
   const command = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-  const commandArgs = commandForWindowsShim(command, ["--filter", "@sendmux/cli", "build"]);
-  const result = spawnSync(commandArgs.command, commandArgs.args, {
+  const result = spawnCommandSync(command, ["--filter", "@sendmux/cli", "build"], {
     encoding: "utf8",
     stdio: "inherit",
   });

@@ -62,18 +62,19 @@
     "@openapitools/openapi-generator-cli": "2.32.0",
     "@redocly/cli": "2.31.5",
     "@sendmux/sdk": "workspace:*",
+    "cross-spawn": "7.0.6",
     "esbuild": "0.28.1",
     "typescript": "5.9.3"
   },
   "pnpm": {
     "overrides": {
       "@opentelemetry/core": "2.8.0",
-      "dompurify": "3.4.11",
+      "dompurify": "3.4.14",
       "form-data": "4.0.6",
-      "js-yaml": "4.3.0",
-      "protobufjs": "7.6.4",
-      "shell-quote": "1.8.4",
-      "undici": "6.27.0"
+      "js-yaml": "4.3.1",
+      "protobufjs": "7.6.5",
+      "shell-quote": "1.9.0",
+      "undici": "6.28.0"
     }
   }
 }

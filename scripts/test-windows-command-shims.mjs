@@ -2,33 +2,28 @@
 
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import { commandForWindowsShim, nodeBinCandidates } from "./windows-command-shims.mjs";
+import { nodeBinCandidates, spawnCommandSync } from "./windows-command-shims.mjs";
 
-assert.deepEqual(commandForWindowsShim("pnpm", ["--version"], { platform: "linux" }), {
-  args: ["--version"],
-  command: "pnpm",
+const spawnCalls = [];
+const spawnResult = { status: 0 };
+const commandWithMetacharacters = "C:/repo & tools/node_modules/.bin/oclif.CMD";
+const argsWithMetacharacters = ["pack", "--root", "C:/tmp/stage & safe"];
+const result = spawnCommandSync(commandWithMetacharacters, argsWithMetacharacters, {
+  cwd: "C:/repo & tools",
+  spawnSync(command, args, options) {
+    spawnCalls.push({ args, command, options });
+    return spawnResult;
+  },
 });
 
-assert.deepEqual(
-  commandForWindowsShim("pnpm.cmd", ["--filter", "@sendmux/cli", "build"], {
-    comSpec: "C:/Windows/System32/cmd.exe",
-    platform: "win32",
-  }),
+assert.equal(result, spawnResult);
+assert.deepEqual(spawnCalls, [
   {
-    args: ["/d", "/s", "/c", "pnpm.cmd", "--filter", "@sendmux/cli", "build"],
-    command: "C:/Windows/System32/cmd.exe",
+    args: argsWithMetacharacters,
+    command: commandWithMetacharacters,
+    options: { cwd: "C:/repo & tools" },
   },
-);
-
-assert.deepEqual(
-  commandForWindowsShim("C:/repo/node_modules/.bin/oclif.CMD", ["pack"], {
-    platform: "win32",
-  }),
-  {
-    args: ["/d", "/s", "/c", "C:/repo/node_modules/.bin/oclif.CMD", "pack"],
-    command: "cmd.exe",
-  },
-);
+]);
 
 assert.deepEqual(nodeBinCandidates("oclif", ["root/.bin"], { platform: "win32" }), [
   join("root/.bin", "oclif.cmd"),

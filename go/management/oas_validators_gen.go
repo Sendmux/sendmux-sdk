@@ -2939,6 +2939,14 @@ func (s *ManagementCreateSharedAmazonSesLimitRequestConflict) Validate() error {
 	return nil
 }
 
+func (s *ManagementCreateSharedAmazonSesLimitRequestForbidden) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ManagementCreateSharedAmazonSesLimitRequestNotFound) Validate() error {
 	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
@@ -3545,6 +3553,14 @@ func (s *ManagementListWebhooksUnauthorized) Validate() error {
 }
 
 func (s *ManagementRequestSendingAccountLimitIncreaseConflict) Validate() error {
+	alias := (*ApiErrorHeaders)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ManagementRequestSendingAccountLimitIncreaseForbidden) Validate() error {
 	alias := (*ApiErrorHeaders)(s)
 	if err := alias.Validate(); err != nil {
 		return err

@@ -952,6 +952,7 @@ class SendingAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SharedAmazonSesLimitRequestCreateResponse",
+            '403': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
             '422': "ApiError",
@@ -1022,6 +1023,7 @@ class SendingAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SharedAmazonSesLimitRequestCreateResponse",
+            '403': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
             '422': "ApiError",
@@ -1092,6 +1094,7 @@ class SendingAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SharedAmazonSesLimitRequestCreateResponse",
+            '403': "ApiError",
             '404': "ApiError",
             '409': "ApiError",
             '422': "ApiError",
@@ -3363,6 +3366,7 @@ class SendingAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SendingAccountLimitRequestResponse",
+            '403': "ApiError",
             '409': "ApiError",
             '422': "ApiError",
         }
@@ -3432,6 +3436,7 @@ class SendingAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SendingAccountLimitRequestResponse",
+            '403': "ApiError",
             '409': "ApiError",
             '422': "ApiError",
         }
@@ -3501,6 +3506,7 @@ class SendingAccountsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SendingAccountLimitRequestResponse",
+            '403': "ApiError",
             '409': "ApiError",
             '422': "ApiError",
         }

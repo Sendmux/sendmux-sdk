@@ -579,7 +579,7 @@ export type SendingSendEmailErrors = {
      */
     422: ErrorResponse;
     /**
-     * Rate limit exceeded (Retry-After header included)
+     * Rate limit exceeded or Free daily sending limit reached (Retry-After header included)
      */
     429: ErrorResponse;
     /**
@@ -642,7 +642,7 @@ export type SendingSendEmailBatchErrors = {
      */
     422: ErrorResponse;
     /**
-     * Rate limit exceeded
+     * Rate limit exceeded or Free daily sending limit reached (Retry-After header included)
      */
     429: ErrorResponse;
     /**

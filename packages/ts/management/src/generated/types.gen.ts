@@ -3137,6 +3137,10 @@ export type ManagementRequestSendingAccountLimitIncreaseData = {
 
 export type ManagementRequestSendingAccountLimitIncreaseErrors = {
     /**
+     * Free plan limits are fixed; upgrade to Pro to add more sending accounts
+     */
+    403: ApiError;
+    /**
      * A request is already pending
      */
     409: ApiError;
@@ -3187,6 +3191,10 @@ export type ManagementCreateSharedAmazonSesLimitRequestData = {
 };
 
 export type ManagementCreateSharedAmazonSesLimitRequestErrors = {
+    /**
+     * Free plan limits are fixed; upgrade to Pro to increase the managed sending limit
+     */
+    403: ApiError;
     /**
      * Shared Amazon SES account not found
      */

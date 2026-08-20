@@ -1328,7 +1328,7 @@
                 }
               }
             },
-            "description": "Rate limit exceeded (Retry-After header included)"
+            "description": "Rate limit exceeded or Free daily sending limit reached (Retry-After header included)"
           },
           "503": {
             "content": {
@@ -1468,7 +1468,7 @@
                 }
               }
             },
-            "description": "Rate limit exceeded"
+            "description": "Rate limit exceeded or Free daily sending limit reached (Retry-After header included)"
           },
           "503": {
             "content": {

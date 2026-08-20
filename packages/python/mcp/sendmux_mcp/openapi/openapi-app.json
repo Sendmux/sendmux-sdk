@@ -15853,6 +15853,16 @@
             },
             "description": "Request submitted"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Free plan limits are fixed; upgrade to Pro to add more sending accounts"
+          },
           "409": {
             "content": {
               "application/json": {
@@ -15937,6 +15947,16 @@
               }
             },
             "description": "Request submitted"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Free plan limits are fixed; upgrade to Pro to increase the managed sending limit"
           },
           "404": {
             "content": {

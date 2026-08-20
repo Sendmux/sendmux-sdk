@@ -152,6 +152,12 @@ func (r *ManagementCreateSharedAmazonSesLimitRequestConflict) APIError() *core.A
 	return err
 }
 
+// APIError maps ManagementCreateSharedAmazonSesLimitRequestForbidden into the shared typed API error.
+func (r *ManagementCreateSharedAmazonSesLimitRequestForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
 // APIError maps ManagementCreateSharedAmazonSesLimitRequestNotFound into the shared typed API error.
 func (r *ManagementCreateSharedAmazonSesLimitRequestNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 404)
@@ -491,6 +497,12 @@ func (r *ManagementListWebhooksUnauthorized) APIError() *core.APIError {
 // APIError maps ManagementRequestSendingAccountLimitIncreaseConflict into the shared typed API error.
 func (r *ManagementRequestSendingAccountLimitIncreaseConflict) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 409)
+	return err
+}
+
+// APIError maps ManagementRequestSendingAccountLimitIncreaseForbidden into the shared typed API error.
+func (r *ManagementRequestSendingAccountLimitIncreaseForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
 	return err
 }
 

@@ -14,7 +14,7 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { commandForWindowsShim, nodeBinCandidates } from "./windows-command-shims.mjs";
+import { nodeBinCandidates, spawnCommandSync } from "./windows-command-shims.mjs";
 
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const cliDir = join(rootDir, "packages/ts/cli");
@@ -54,7 +54,7 @@ const keepTmp = process.env.SENDMUX_CLI_KEEP_PACK_TMP === "true";
 try {
   stagePackage(stagingDir);
   writePackageLock(stagingDir);
-  const oclifCommand = commandForWindowsShim(oclifBin, [
+  runCommand(oclifBin, [
     "pack",
     "tarballs",
     "--root",
@@ -64,23 +64,18 @@ try {
     "--targets",
     targets,
     "--no-xz",
-  ]);
-  execFileSync(
-    oclifCommand.command,
-    oclifCommand.args,
-    {
-      cwd: cliDir,
-      env: {
-        ...process.env,
-        CI: "false",
-        npm_config_audit: "false",
-        npm_config_bin_links: "false",
-        npm_config_fund: "false",
-        npm_config_install_strategy: "hoisted",
-      },
-      stdio: "inherit",
+  ], {
+    cwd: cliDir,
+    env: {
+      ...process.env,
+      CI: "false",
+      npm_config_audit: "false",
+      npm_config_bin_links: "false",
+      npm_config_fund: "false",
+      npm_config_install_strategy: "hoisted",
     },
-  );
+    stdio: "inherit",
+  });
 
   cpTarballs(join(stagingDir, "dist"), distDir);
 } finally {
@@ -109,16 +104,14 @@ function stagePackage(stagingDir) {
 }
 
 function writePackageLock(stagingDir) {
-  const npmCommand = commandForWindowsShim(process.platform === "win32" ? "npm.cmd" : "npm", [
+  runCommand(process.platform === "win32" ? "npm.cmd" : "npm", [
     "install",
     "--package-lock-only",
     "--ignore-scripts",
     "--omit=dev",
     "--audit=false",
     "--fund=false",
-  ]);
-
-  execFileSync(npmCommand.command, npmCommand.args, {
+  ], {
     cwd: stagingDir,
     env: {
       ...process.env,
@@ -126,6 +119,16 @@ function writePackageLock(stagingDir) {
     },
     stdio: "inherit",
   });
+}
+
+function runCommand(command, args, options) {
+  const result = spawnCommandSync(command, args, options);
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(`Command failed with exit code ${result.status}: ${command}`);
+  }
 }
 
 function assertNoWorkspaceDependencies(manifest) {

@@ -35,11 +35,11 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | PyPI | `sendmux-sdk` | Python umbrella package | surface-specific | `pip install sendmux-sdk` | [`packages/python/sdk`](packages/python/sdk) |
 | PyPI | `sendmux-mcp` | Local MCP plus hosted MCP and A2A servers | OAuth for hosted; surface-specific keys for local | `pip install sendmux-mcp` | [`packages/python/mcp`](packages/python/mcp) |
 | PyPI | `langchain-sendmux` | LangChain toolkit (agent inbox + sending) | send + receive `smx_mbx_*` or `smx_agent_*` | `pip install langchain-sendmux` | [`packages/python/langchain`](packages/python/langchain) |
-| Go | `sendmux.ai/go/core` | Shared Go helpers | n/a | `go get sendmux.ai/go@v1.0.0` | [`go/core`](go/core) |
-| Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/sending`](go/sending) |
-| Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `go get sendmux.ai/go@v1.0.0` | [`go/mailbox`](go/mailbox) |
-| Go | `sendmux.ai/go/management` | Management API | `smx_root_*` | `go get sendmux.ai/go@v1.0.0` | [`go/management`](go/management) |
-| Go | `sendmux.ai/go/sdk` | Go umbrella package | surface-specific | `go get sendmux.ai/go@v1.0.0` | [`go/sdk`](go/sdk) |
+| Go | `sendmux.ai/go/core` | Shared Go helpers | n/a | `go get sendmux.ai/go@v1.4.1` | [`go/core`](go/core) |
+| Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `go get sendmux.ai/go@v1.4.1` | [`go/sending`](go/sending) |
+| Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `go get sendmux.ai/go@v1.4.1` | [`go/mailbox`](go/mailbox) |
+| Go | `sendmux.ai/go/management` | Management API | `smx_root_*` | `go get sendmux.ai/go@v1.4.1` | [`go/management`](go/management) |
+| Go | `sendmux.ai/go/sdk` | Go umbrella package | surface-specific | `go get sendmux.ai/go@v1.4.1` | [`go/sdk`](go/sdk) |
 | crates.io | `sendmux` | Rust umbrella crate | surface-specific | `cargo add sendmux` | [`rust`](rust) |
 | Packagist | `sendmux/core` | Shared PHP helpers | n/a | `composer require sendmux/core:^1.0` | [`packages/php/core`](packages/php/core) |
 | Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `composer require sendmux/sending:^1.0` | [`packages/php/sending`](packages/php/sending) |
@@ -59,7 +59,7 @@ Install only the package for the surface you need.
 ```sh
 npm install @sendmux/sending
 pip install sendmux-sending
-go get sendmux.ai/go@v1.0.0
+go get sendmux.ai/go@v1.4.1
 cargo add sendmux
 composer require sendmux/sending:^1.0
 gem install sendmux-sending

@@ -5486,6 +5486,11 @@ type ManagementCreateSharedAmazonSesLimitRequestConflict ApiErrorHeaders
 func (*ManagementCreateSharedAmazonSesLimitRequestConflict) managementCreateSharedAmazonSesLimitRequestRes() {
 }
 
+type ManagementCreateSharedAmazonSesLimitRequestForbidden ApiErrorHeaders
+
+func (*ManagementCreateSharedAmazonSesLimitRequestForbidden) managementCreateSharedAmazonSesLimitRequestRes() {
+}
+
 type ManagementCreateSharedAmazonSesLimitRequestNotFound ApiErrorHeaders
 
 func (*ManagementCreateSharedAmazonSesLimitRequestNotFound) managementCreateSharedAmazonSesLimitRequestRes() {
@@ -6449,6 +6454,11 @@ func (*ManagementListWebhooksUnauthorized) managementListWebhooksRes() {}
 type ManagementRequestSendingAccountLimitIncreaseConflict ApiErrorHeaders
 
 func (*ManagementRequestSendingAccountLimitIncreaseConflict) managementRequestSendingAccountLimitIncreaseRes() {
+}
+
+type ManagementRequestSendingAccountLimitIncreaseForbidden ApiErrorHeaders
+
+func (*ManagementRequestSendingAccountLimitIncreaseForbidden) managementRequestSendingAccountLimitIncreaseRes() {
 }
 
 type ManagementRequestSendingAccountLimitIncreaseUnprocessableEntity ApiErrorHeaders

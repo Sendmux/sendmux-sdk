@@ -828,7 +828,10 @@ try {
 
   const agentConfigDir = join(tempHome, ".config", "sendmux");
   const agentConfigPath = join(agentConfigDir, "config.json");
-  if ((statSync(agentConfigDir).mode & 0o777) !== 0o700 || (statSync(agentConfigPath).mode & 0o777) !== 0o600) {
+  if (
+    process.platform !== "win32" &&
+    ((statSync(agentConfigDir).mode & 0o777) !== 0o700 || (statSync(agentConfigPath).mode & 0o777) !== 0o600)
+  ) {
     throw new Error("agent profile storage permissions are not 0700/0600");
   }
   const agentConfig = JSON.parse(readFileSync(agentConfigPath, "utf8"));

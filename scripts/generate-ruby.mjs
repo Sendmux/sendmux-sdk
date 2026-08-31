@@ -95,6 +95,11 @@ for (const surface of surfaces) {
     recursive: true,
   });
   patchGeneratedApiClientHeaders(join(packageDir, "lib", surface.generatedGemName, "api_client.rb"));
+  if (surface.name === "management") {
+    patchGeneratedManagementMailboxEmailAnchors(
+      join(packageDir, "lib", surface.generatedGemName, "models", "management_create_mailbox_request.rb"),
+    );
+  }
   stripTrailingWhitespace(join(packageDir, "lib", `${surface.generatedGemName}.rb`));
   stripTrailingWhitespace(join(packageDir, "lib", surface.generatedGemName));
   writeSurfaceClient(surface, packageDir);
@@ -324,6 +329,20 @@ function patchGeneratedApiClientHeaders(apiClientPath) {
   writeFileSync(
     apiClientPath,
     source.replace(headerAssignment, patchedHeaderAssignment).replace(methodInsertionPoint, stringifyMethod + methodInsertionPoint),
+  );
+}
+
+function patchGeneratedManagementMailboxEmailAnchors(modelPath) {
+  const source = readFileSync(modelPath, "utf8");
+  const anchoredPattern = /Regexp\.new\(\/\^((?:\\.|[^/\n])*)\$\/\)/g;
+  const matches = source.match(anchoredPattern) ?? [];
+  if (matches.length !== 3) {
+    throw new Error(`Expected three anchored email validators in ${modelPath}; found ${matches.length}`);
+  }
+
+  writeFileSync(
+    modelPath,
+    source.replace(anchoredPattern, (_match, body) => `Regexp.new(/\\A${body}\\z/)`),
   );
 }
 

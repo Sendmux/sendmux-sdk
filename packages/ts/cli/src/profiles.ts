@@ -1,8 +1,10 @@
 import {
   chmod,
   mkdir,
+  open,
   readFile,
   rename,
+  stat,
   unlink,
   writeFile,
 } from "node:fs/promises";
@@ -54,6 +56,9 @@ export interface CliConfig {
 }
 
 const CONFIG_FILE = "config.json";
+const CONFIG_LOCK_RETRY_MS = 25;
+const CONFIG_LOCK_STALE_MS = 5_000;
+const CONFIG_LOCK_TIMEOUT_MS = 10_000;
 
 export async function readCliConfig(configDir: string): Promise<CliConfig> {
   const path = configPath(configDir);
@@ -76,12 +81,17 @@ export async function readCliConfig(configDir: string): Promise<CliConfig> {
 
 export async function writeCliConfig(configDir: string, config: CliConfig): Promise<void> {
   await mkdir(configDir, { mode: 0o700, recursive: true });
-  const path = configPath(configDir);
-  const tempPath = `${path}.${process.pid}.tmp`;
-  await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
-  await chmod(tempPath, 0o600);
-  await rename(tempPath, path);
-  await chmod(path, 0o600);
+  const releaseLock = await acquireConfigWriteLock(configDir);
+  try {
+    const path = configPath(configDir);
+    const tempPath = `${path}.${process.pid}.tmp`;
+    await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+    await chmod(tempPath, 0o600);
+    await rename(tempPath, path);
+    await chmod(path, 0o600);
+  } finally {
+    await releaseLock();
+  }
 }
 
 export async function reserveAgentRegistrationIntent(
@@ -124,6 +134,51 @@ export async function clearAgentRegistrationIntent(configDir: string, profileNam
 
 export function configPath(configDir: string): string {
   return join(configDir, CONFIG_FILE);
+}
+
+async function acquireConfigWriteLock(configDir: string): Promise<() => Promise<void>> {
+  const lockPath = `${configPath(configDir)}.lock`;
+  const deadline = Date.now() + CONFIG_LOCK_TIMEOUT_MS;
+
+  while (true) {
+    try {
+      const handle = await open(lockPath, "wx", 0o600);
+      return async () => {
+        try {
+          await handle.close();
+        } finally {
+          try {
+            await unlink(lockPath);
+          } catch (error) {
+            if (!isNodeError(error) || error.code !== "ENOENT") throw error;
+          }
+        }
+      };
+    } catch (error) {
+      if (!isNodeError(error) || error.code !== "EEXIST") throw error;
+    }
+
+    try {
+      const lock = await stat(lockPath);
+      if (Date.now() - lock.mtimeMs >= CONFIG_LOCK_STALE_MS) {
+        try {
+          await unlink(lockPath);
+          continue;
+        } catch (error) {
+          if (isNodeError(error) && error.code === "ENOENT") continue;
+          if (!isNodeError(error) || (error.code !== "EACCES" && error.code !== "EPERM")) throw error;
+        }
+      }
+    } catch (error) {
+      if (isNodeError(error) && error.code === "ENOENT") continue;
+      throw error;
+    }
+
+    if (Date.now() >= deadline) {
+      throw new Error("Timed out waiting for another Sendmux process to finish updating the profile config.");
+    }
+    await new Promise((resolve) => setTimeout(resolve, CONFIG_LOCK_RETRY_MS));
+  }
 }
 
 function registrationIntentPath(configDir: string, profileName: string): string {

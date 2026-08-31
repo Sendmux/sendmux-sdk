@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { once } from "node:events";
 import { join } from "node:path";
@@ -818,6 +818,13 @@ try {
     throw new Error("Idempotency-Key header was not passed through for sending:send");
   }
 
+  const agentConfigDir = join(tempHome, ".config", "sendmux");
+  const agentConfigPath = join(agentConfigDir, "config.json");
+  const staleConfigLockPath = `${agentConfigPath}.lock`;
+  writeFileSync(staleConfigLockPath, "");
+  const staleConfigLockTime = new Date(Date.now() - 60_000);
+  utimesSync(staleConfigLockPath, staleConfigLockTime, staleConfigLockTime);
+
   const durableRegistrationResult = await runCli([
     "agent:register",
     "durable-agent",
@@ -833,6 +840,9 @@ try {
     "--json",
   ]);
   assertCliSuccess(durableRegistrationResult, "agent:register durable profile");
+  if (existsSync(staleConfigLockPath)) {
+    throw new Error("agent:register did not recover a stale profile config lock");
+  }
   if (durableRegistrationResult.stdout.includes(durableAgentKey)) {
     throw new Error("agent:register printed the durable access token");
   }
@@ -846,8 +856,6 @@ try {
     status: "active",
   }, "agent:register returned unexpected safe profile metadata");
 
-  const agentConfigDir = join(tempHome, ".config", "sendmux");
-  const agentConfigPath = join(agentConfigDir, "config.json");
   if (
     process.platform !== "win32" &&
     ((statSync(agentConfigDir).mode & 0o777) !== 0o700 || (statSync(agentConfigPath).mode & 0o777) !== 0o600)

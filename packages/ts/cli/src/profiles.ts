@@ -3,8 +3,10 @@ import {
   mkdir,
   readFile,
   rename,
+  unlink,
   writeFile,
 } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 
 export interface ApiKeyCliProfile {
@@ -82,8 +84,66 @@ export async function writeCliConfig(configDir: string, config: CliConfig): Prom
   await chmod(path, 0o600);
 }
 
+export async function reserveAgentRegistrationIntent(
+  configDir: string,
+  profileName: string,
+  candidate: RegisteringAgentCliProfile,
+): Promise<RegisteringAgentCliProfile> {
+  await mkdir(configDir, { mode: 0o700, recursive: true });
+  const path = registrationIntentPath(configDir, profileName);
+
+  while (true) {
+    try {
+      await writeFile(path, `${JSON.stringify(candidate, null, 2)}\n`, { flag: "wx", mode: 0o600 });
+      await chmod(path, 0o600);
+      return candidate;
+    } catch (error) {
+      if (!isNodeError(error) || error.code !== "EEXIST") throw error;
+    }
+
+    try {
+      const existing = JSON.parse(await readFile(path, "utf8")) as unknown;
+      if (!isRegisteringAgentProfile(existing)) {
+        throw new Error(`Sendmux agent profile "${profileName}" has an invalid registration intent.`);
+      }
+      return existing;
+    } catch (error) {
+      if (isNodeError(error) && error.code === "ENOENT") continue;
+      throw error;
+    }
+  }
+}
+
+export async function clearAgentRegistrationIntent(configDir: string, profileName: string): Promise<void> {
+  try {
+    await unlink(registrationIntentPath(configDir, profileName));
+  } catch (error) {
+    if (!isNodeError(error) || error.code !== "ENOENT") throw error;
+  }
+}
+
 export function configPath(configDir: string): string {
   return join(configDir, CONFIG_FILE);
+}
+
+function registrationIntentPath(configDir: string, profileName: string): string {
+  const profileHash = createHash("sha256").update(profileName, "utf8").digest("hex");
+  return join(configDir, `agent-registration-${profileHash}.json`);
+}
+
+function isRegisteringAgentProfile(value: unknown): value is RegisteringAgentCliProfile {
+  if (!value || typeof value !== "object") return false;
+  const profile = value as Partial<RegisteringAgentCliProfile>;
+  return (
+    profile.type === "agent" &&
+    profile.state === "registering" &&
+    typeof profile.appApiBaseUrl === "string" &&
+    typeof profile.authBaseUrl === "string" &&
+    typeof profile.idempotencyKey === "string" &&
+    typeof profile.sendingApiBaseUrl === "string" &&
+    (profile.clientName === undefined || typeof profile.clientName === "string") &&
+    (profile.mailboxLocalPart === undefined || typeof profile.mailboxLocalPart === "string")
+  );
 }
 
 export function isAgentProfile(profile: CliProfile): profile is AgentCliProfile {

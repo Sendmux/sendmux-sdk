@@ -41,7 +41,13 @@ const openApiDocument = {
 
 ensureCliBuilt();
 
-const serverState = { readinessAttempts: 0, registrations: 0, requests: [], tokenExchanges: 0 };
+const serverState = {
+  readinessAttempts: 0,
+  registrationIdempotencyKeys: [],
+  registrations: 0,
+  requests: [],
+  tokenExchanges: 0,
+};
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 const server = createServer(async (request, response) => {
   const chunks = [];
@@ -91,8 +97,9 @@ const server = createServer(async (request, response) => {
     serverState.registrations += 1;
     const configPath = join(tempHome, ".config", "sendmux", "config.json");
     const savedConfig = JSON.parse(readFileSync(configPath, "utf8"));
-    const registeringProfile = savedConfig.profiles["durable-agent"];
     const parsed = JSON.parse(body.toString("utf8"));
+    const profileName = parsed.mailbox_local_part;
+    const registeringProfile = savedConfig.profiles[profileName];
     if (registeringProfile?.type !== "agent" || registeringProfile?.state !== "registering") {
       response.writeHead(500);
       response.end(JSON.stringify({ error: "registration state was not saved before network" }));
@@ -103,11 +110,20 @@ const server = createServer(async (request, response) => {
       response.end(JSON.stringify({ error: "saved idempotency key did not match request" }));
       return;
     }
+    serverState.registrationIdempotencyKeys.push({
+      key: request.headers["idempotency-key"],
+      profileName,
+    });
+    if (profileName === "concurrent-agent") {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    const accessToken = profileName === "durable-agent" ? durableAgentKey : `${durableAgentKey}_${profileName}`;
+    const registrationId = profileName === "durable-agent" ? "areg_cli_durable" : `areg_cli_${profileName}`;
     response.writeHead(201, { "Content-Type": "application/json" });
     response.end(JSON.stringify({
-      access_token: durableAgentKey,
-      mailbox: { email: "durable-agent@myagent.mx", status: "provisioning" },
-      registration_id: "areg_cli_durable",
+      access_token: accessToken,
+      mailbox: { email: `${profileName}@myagent.mx`, status: "provisioning" },
+      registration_id: registrationId,
       registration_type: "anonymous",
       scope: "mailbox.read email.receive",
       token_type: "Bearer",
@@ -116,13 +132,16 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === "GET" && requestUrl === "/api/v1/mailbox/me") {
-    serverState.readinessAttempts += 1;
-    if (request.headers.authorization !== `Bearer ${durableAgentKey}`) {
+    const authorization = request.headers.authorization;
+    if (authorization !== `Bearer ${durableAgentKey}` && authorization !== `Bearer ${durableAgentKey}_concurrent-agent`) {
       response.writeHead(401, { "Content-Type": "application/json" });
       response.end(JSON.stringify({ error: "wrong durable token" }));
       return;
     }
-    if (serverState.readinessAttempts === 1) {
+    if (authorization === `Bearer ${durableAgentKey}`) {
+      serverState.readinessAttempts += 1;
+    }
+    if (authorization === `Bearer ${durableAgentKey}` && serverState.readinessAttempts === 1) {
       response.writeHead(503, { "Content-Type": "application/json", "Retry-After": "0" });
       response.end(JSON.stringify({ error: "temporarily_unavailable", retry_after: 0 }));
       return;
@@ -258,6 +277,7 @@ try {
   assertCliCommandCoverage();
   assertBinaryOperationRunnerGuard();
   await assertCliArrayParameterSupport();
+  await assertAgentAuthNetworkBoundaries();
 
   const address = server.address();
   if (!address || typeof address === "string") {
@@ -845,18 +865,42 @@ try {
   const resumedRegistrationResult = await runCli([
     "agent:register",
     "durable-agent",
-    "--base-url",
-    baseUrl,
-    "--client-name",
-    "CLI durable agent",
-    "--mailbox-local-part",
-    "durable-agent",
     "--default",
     "--json",
   ]);
   assertCliSuccess(resumedRegistrationResult, "agent:register resume from an active persisted profile");
   if (serverState.registrations !== 1) {
     throw new Error("agent:register resume created a duplicate registration");
+  }
+
+  const concurrentResults = await Promise.all([
+    runCli([
+      "agent:register",
+      "concurrent-agent",
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      "concurrent-agent",
+      "--json",
+    ]),
+    runCli([
+      "agent:register",
+      "concurrent-agent",
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      "concurrent-agent",
+      "--json",
+    ]),
+  ]);
+  for (const result of concurrentResults) {
+    assertCliSuccess(result, "concurrent agent:register");
+  }
+  const concurrentKeys = serverState.registrationIdempotencyKeys
+    .filter(({ profileName }) => profileName === "concurrent-agent")
+    .map(({ key }) => key);
+  if (concurrentKeys.length !== 2 || new Set(concurrentKeys).size !== 1) {
+    throw new Error(`concurrent agent:register used different idempotency keys: ${JSON.stringify(concurrentKeys)}`);
   }
 
   const ownerInviteResult = await runCli([
@@ -1087,6 +1131,71 @@ function assertBinaryOperationRunnerGuard() {
   if (!branch.includes('throw new Error("SDK operation mailboxGetMessageAttachment did not return binary content");')) {
     throw new Error("CLI attachment branch must reject non-binary data instead of falling through");
   }
+}
+
+async function assertAgentAuthNetworkBoundaries() {
+  const { normaliseAppOrigin, waitForMailbox } = await import("../packages/ts/cli/dist/agent-auth.js");
+
+  for (const origin of ["http://localhost:3000", "http://127.0.0.2:3000", "http://[::1]:3000"]) {
+    if (normaliseAppOrigin(origin) !== new URL(origin).origin) {
+      throw new Error(`agent auth rejected loopback HTTP origin ${origin}`);
+    }
+  }
+  for (const origin of ["http://example.com", "http://127.1", "http://2130706433"]) {
+    try {
+      normaliseAppOrigin(origin);
+      throw new Error(`agent auth accepted non-loopback or non-canonical HTTP origin ${origin}`);
+    } catch (error) {
+      if (String(error).includes("accepted non-loopback")) throw error;
+    }
+  }
+
+  const profile = {
+    accessToken: "smx_agent_timeout",
+    appApiBaseUrl: "https://app.sendmux.ai/api/v1",
+    authBaseUrl: "https://app.sendmux.ai/agent-auth",
+    idempotencyKey: "idem_timeout",
+    mailboxEmail: "timeout@myagent.mx",
+    registrationId: "areg_timeout",
+    sendingApiBaseUrl: "https://smtp.sendmux.ai/api/v1",
+    state: "active",
+    type: "agent",
+  };
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = (_url, options) =>
+      new Promise((_resolve, reject) => {
+        options?.signal?.addEventListener("abort", () => reject(options.signal.reason), { once: true });
+      });
+    const startedAt = Date.now();
+    await expectMailboxTimeout(() => waitForMailbox(profile, 50));
+    if (Date.now() - startedAt > 500) {
+      throw new Error("agent mailbox readiness fetch exceeded its timeout budget");
+    }
+
+    globalThis.fetch = async () =>
+      new Response(JSON.stringify({ error: "service_unavailable", retry_after: 999_999 }), {
+        headers: { "Content-Type": "application/json", "Retry-After": "999999" },
+        status: 503,
+      });
+    const retryStartedAt = Date.now();
+    await expectMailboxTimeout(() => waitForMailbox(profile, 50));
+    if (Date.now() - retryStartedAt > 500) {
+      throw new Error("agent mailbox Retry-After exceeded the remaining timeout budget");
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+async function expectMailboxTimeout(run) {
+  try {
+    await run();
+  } catch (error) {
+    if (String(error).includes("did not finish within the allowed time")) return;
+    throw error;
+  }
+  throw new Error("agent mailbox readiness unexpectedly completed");
 }
 
 async function assertCliArrayParameterSupport() {

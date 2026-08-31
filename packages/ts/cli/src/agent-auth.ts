@@ -1,8 +1,11 @@
 import { randomUUID } from "node:crypto";
+import { isIP } from "node:net";
 
 import {
+  clearAgentRegistrationIntent,
   isActiveAgentProfile,
   readCliConfig,
+  reserveAgentRegistrationIntent,
   type ActiveAgentCliProfile,
   type AgentCliProfile,
   type CliConfig,
@@ -47,7 +50,7 @@ export interface SafeAgentRegistrationResult {
 }
 
 export async function registerAgent(input: RegisterAgentInput): Promise<SafeAgentRegistrationResult> {
-  const config = await readCliConfig(input.configDir);
+  let config = await readCliConfig(input.configDir);
   const existing = config.profiles[input.profileName];
   let activeProfile: ActiveAgentCliProfile;
 
@@ -58,36 +61,61 @@ export async function registerAgent(input: RegisterAgentInput): Promise<SafeAgen
       config.defaultProfile = input.profileName;
       await writeCliConfig(input.configDir, config);
     }
+    await clearAgentRegistrationIntent(input.configDir, input.profileName);
   } else {
-    const registering = registrationIntent({ existing, input });
-    config.profiles[input.profileName] = registering;
-    if (input.makeDefault || !config.defaultProfile) {
-      config.defaultProfile = input.profileName;
+    const candidate = registrationIntent({ existing, input });
+    const registering = await reserveAgentRegistrationIntent(input.configDir, input.profileName, candidate);
+    assertMatchingRegistration(registering, input);
+
+    config = await readCliConfig(input.configDir);
+    const latestExisting = config.profiles[input.profileName];
+    if (latestExisting && isActiveAgentProfile(latestExisting)) {
+      assertMatchingRegistration(latestExisting, input);
+      activeProfile = latestExisting;
+      if (input.makeDefault || !config.defaultProfile) {
+        config.defaultProfile = input.profileName;
+        await writeCliConfig(input.configDir, config);
+      }
+      await clearAgentRegistrationIntent(input.configDir, input.profileName);
+    } else {
+      if (latestExisting) {
+        if (latestExisting.type !== "agent" || latestExisting.state !== "registering") {
+          throw new Error(`Sendmux profile "${input.profileName}" already exists and is not an agent profile.`);
+        }
+        if (latestExisting.idempotencyKey !== registering.idempotencyKey) {
+          throw new Error(`Sendmux agent profile "${input.profileName}" belongs to a different registration request.`);
+        }
+      }
+      config.profiles[input.profileName] = registering;
+      if (input.makeDefault || !config.defaultProfile) {
+        config.defaultProfile = input.profileName;
+      }
+      await writeCliConfig(input.configDir, config);
+
+      const registration = await postJson<AgentRegistrationResponse>(`${registering.authBaseUrl}/agent/identity`, {
+        headers: { "Idempotency-Key": registering.idempotencyKey },
+        body: {
+          type: "anonymous",
+          ...(registering.mailboxLocalPart ? { mailbox_local_part: registering.mailboxLocalPart } : {}),
+          ...(registering.clientName ? { client_name: registering.clientName } : {}),
+          idempotency_key: registering.idempotencyKey,
+        },
+        expectedStatuses: [200, 201],
+      });
+      assertRegistrationResponse(registration);
+
+      const afterRegistration = await readCliConfig(input.configDir);
+      activeProfile = {
+        ...registering,
+        accessToken: registration.access_token,
+        mailboxEmail: registration.mailbox.email,
+        registrationId: registration.registration_id,
+        state: "active",
+      };
+      afterRegistration.profiles[input.profileName] = activeProfile;
+      await writeCliConfig(input.configDir, afterRegistration);
+      await clearAgentRegistrationIntent(input.configDir, input.profileName);
     }
-    await writeCliConfig(input.configDir, config);
-
-    const registration = await postJson<AgentRegistrationResponse>(`${registering.authBaseUrl}/agent/identity`, {
-      headers: { "Idempotency-Key": registering.idempotencyKey },
-      body: {
-        type: "anonymous",
-        ...(registering.mailboxLocalPart ? { mailbox_local_part: registering.mailboxLocalPart } : {}),
-        ...(registering.clientName ? { client_name: registering.clientName } : {}),
-        idempotency_key: registering.idempotencyKey,
-      },
-      expectedStatuses: [200, 201],
-    });
-    assertRegistrationResponse(registration);
-
-    const afterRegistration = await readCliConfig(input.configDir);
-    activeProfile = {
-      ...registering,
-      accessToken: registration.access_token,
-      mailboxEmail: registration.mailbox.email,
-      registrationId: registration.registration_id,
-      state: "active",
-    };
-    afterRegistration.profiles[input.profileName] = activeProfile;
-    await writeCliConfig(input.configDir, afterRegistration);
   }
 
   const reloaded = await activeAgentProfile(input.configDir, input.profileName);
@@ -230,16 +258,24 @@ function registrationIntent({
 }
 
 function assertMatchingRegistration(profile: AgentCliProfile, input: RegisterAgentInput): void {
-  const urls = agentUrls(input.appOrigin);
   if (
-    profile.appApiBaseUrl !== urls.appApiBaseUrl ||
-    profile.authBaseUrl !== urls.authBaseUrl ||
-    profile.sendingApiBaseUrl !== urls.sendingApiBaseUrl ||
-    profile.clientName !== input.clientName ||
-    profile.mailboxLocalPart !== input.mailboxLocalPart
+    (input.appOrigin !== undefined && !registrationUrlsMatch(profile, agentUrls(input.appOrigin))) ||
+    (input.clientName !== undefined && profile.clientName !== input.clientName) ||
+    (input.mailboxLocalPart !== undefined && profile.mailboxLocalPart !== input.mailboxLocalPart)
   ) {
     throw new Error(`Sendmux agent profile "${input.profileName}" belongs to a different registration request.`);
   }
+}
+
+function registrationUrlsMatch(
+  profile: AgentCliProfile,
+  urls: Pick<RegisteringAgentCliProfile, "appApiBaseUrl" | "authBaseUrl" | "sendingApiBaseUrl">,
+): boolean {
+  return (
+    profile.appApiBaseUrl === urls.appApiBaseUrl &&
+    profile.authBaseUrl === urls.authBaseUrl &&
+    profile.sendingApiBaseUrl === urls.sendingApiBaseUrl
+  );
 }
 
 function agentUrls(appOriginInput: string | undefined): Pick<RegisteringAgentCliProfile, "appApiBaseUrl" | "authBaseUrl" | "sendingApiBaseUrl"> {
@@ -252,7 +288,7 @@ function agentUrls(appOriginInput: string | undefined): Pick<RegisteringAgentCli
   };
 }
 
-function normaliseAppOrigin(value: string): string {
+export function normaliseAppOrigin(value: string): string {
   const url = new URL(value);
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
     throw new Error("--base-url must be an HTTP(S) origin without credentials, query, or fragment.");
@@ -260,23 +296,62 @@ function normaliseAppOrigin(value: string): string {
   if (url.pathname !== "/") {
     throw new Error("--base-url must be an origin without a path.");
   }
+  if (url.protocol === "http:" && !isLoopbackHttpOrigin(value)) {
+    throw new Error("--base-url must use HTTPS unless it is a canonical loopback origin.");
+  }
   return url.origin;
 }
 
-async function waitForMailbox(profile: ActiveAgentCliProfile): Promise<void> {
-  const deadline = Date.now() + READINESS_TIMEOUT_MS;
+function isLoopbackHttpOrigin(value: string): boolean {
+  const authority = value.match(/^http:\/\/([^/?#]+)/i)?.[1];
+  if (!authority) return false;
+  const rawHostname = authority.startsWith("[")
+    ? authority.slice(1, authority.indexOf("]"))
+    : authority.split(":", 1)[0];
+  if (!rawHostname) return false;
+  if (rawHostname.toLowerCase() === "localhost" || rawHostname === "::1") return true;
+  return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(rawHostname) && isIP(rawHostname) === 4 && rawHostname.split(".")[0] === "127";
+}
+
+export async function waitForMailbox(
+  profile: ActiveAgentCliProfile,
+  timeoutMs = READINESS_TIMEOUT_MS,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
   while (true) {
-    const response = await fetch(`${profile.appApiBaseUrl}/mailbox/me`, {
-      headers: { Authorization: `Bearer ${profile.accessToken}` },
-    });
+    const remainingBeforeFetch = deadline - Date.now();
+    if (remainingBeforeFetch <= 0) throw mailboxReadinessTimeoutError();
+
+    let response: Response;
+    try {
+      response = await fetch(`${profile.appApiBaseUrl}/mailbox/me`, {
+        headers: { Authorization: `Bearer ${profile.accessToken}` },
+        signal: AbortSignal.timeout(remainingBeforeFetch),
+      });
+    } catch (error) {
+      if (isAbortError(error) || Date.now() >= deadline) throw mailboxReadinessTimeoutError();
+      throw error;
+    }
     if (response.ok) return;
     const body = await responseJson(response);
-    if (response.status !== 503 || body.error !== "temporarily_unavailable" || Date.now() >= deadline) {
+    const provisioningUnavailable =
+      response.status === 503 && (body.error === "service_unavailable" || body.error === "temporarily_unavailable");
+    if (!provisioningUnavailable) {
       throw new Error(agentAuthFailureMessage(response.status, body));
     }
-    const retryAfter = retryAfterSeconds(response, body);
-    await new Promise((resolve) => setTimeout(resolve, retryAfter * 1_000));
+    const remainingBeforeRetry = deadline - Date.now();
+    if (remainingBeforeRetry <= 0) throw mailboxReadinessTimeoutError();
+    const retryDelayMs = Math.min(Math.max(retryAfterSeconds(response, body) * 1_000, 1_000), remainingBeforeRetry);
+    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
   }
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError");
+}
+
+function mailboxReadinessTimeoutError(): Error {
+  return new Error("Agent mailbox provisioning did not finish within the allowed time.");
 }
 
 async function activeAgentProfile(configDir: string, profileName: string): Promise<ActiveAgentCliProfile> {
@@ -321,14 +396,14 @@ async function responseJson(response: Response): Promise<Record<string, unknown>
 
 function retryAfterSeconds(response: Response, body: Record<string, unknown>): number {
   const value = Number(response.headers.get("Retry-After") ?? body.retry_after ?? 10);
-  return Number.isFinite(value) && value >= 0 ? value : 10;
+  return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
 function agentAuthFailureMessage(status: number, body: Record<string, unknown>): string {
   if (status === 503 && body.error === "authorization_pending") {
     return "Agent sending is awaiting owner acceptance or approval.";
   }
-  if (status === 503 && body.error === "temporarily_unavailable") {
+  if (status === 503 && (body.error === "service_unavailable" || body.error === "temporarily_unavailable")) {
     return "Agent mailbox provisioning did not finish within the allowed time.";
   }
   const description = typeof body.error_description === "string" ? body.error_description : null;

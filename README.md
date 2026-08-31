@@ -72,8 +72,10 @@ For command-line access, install the CLI:
 ```sh
 brew install sendmux/tap/sendmux
 npm install -g @sendmux/cli
-sendmux --help
+sendmux agent:register my-agent --mailbox-local-part my-agent --default --json
 ```
+
+Agent registration does not require an existing account or API key. It creates a local profile with a durable, revocable credential for reading and receiving mail. To send, invite the owner with `sendmux agent:invite-owner owner@example.com --profile my-agent`; after the owner accepts and approves sending, Sending API commands exchange and cache a one-hour delegated token automatically.
 
 For MCP clients, install `sendmux-mcp` or connect to the hosted MCP endpoint:
 

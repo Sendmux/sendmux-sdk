@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { once } from "node:events";
 import { join } from "node:path";
@@ -15,6 +15,8 @@ const operationRunnerPath = "packages/ts/cli/src/operation-runner.ts";
 const commandsDir = "packages/ts/cli/src/commands";
 const mailboxKey = "smx_mbx_testkey1234567890";
 const agentKey = "smx_agent_testkey1234567890";
+const durableAgentKey = "smx_agent_durable_read_testkey1234567890";
+const delegatedAgentSendKey = "smx_agent_delegated_send_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
 const envelope = {
   ok: true,
@@ -39,7 +41,7 @@ const openApiDocument = {
 
 ensureCliBuilt();
 
-const serverState = { requests: [] };
+const serverState = { readinessAttempts: 0, registrations: 0, requests: [], tokenExchanges: 0 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 const server = createServer(async (request, response) => {
   const chunks = [];
@@ -85,6 +87,82 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = request.url ?? "";
+  if (request.method === "POST" && requestUrl === "/agent-auth/agent/identity") {
+    serverState.registrations += 1;
+    const configPath = join(tempHome, ".config", "sendmux", "config.json");
+    const savedConfig = JSON.parse(readFileSync(configPath, "utf8"));
+    const registeringProfile = savedConfig.profiles["durable-agent"];
+    const parsed = JSON.parse(body.toString("utf8"));
+    if (registeringProfile?.type !== "agent" || registeringProfile?.state !== "registering") {
+      response.writeHead(500);
+      response.end(JSON.stringify({ error: "registration state was not saved before network" }));
+      return;
+    }
+    if (registeringProfile.idempotencyKey !== request.headers["idempotency-key"] || parsed.idempotency_key !== registeringProfile.idempotencyKey) {
+      response.writeHead(500);
+      response.end(JSON.stringify({ error: "saved idempotency key did not match request" }));
+      return;
+    }
+    response.writeHead(201, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({
+      access_token: durableAgentKey,
+      mailbox: { email: "durable-agent@myagent.mx", status: "provisioning" },
+      registration_id: "areg_cli_durable",
+      registration_type: "anonymous",
+      scope: "mailbox.read email.receive",
+      token_type: "Bearer",
+    }));
+    return;
+  }
+
+  if (request.method === "GET" && requestUrl === "/api/v1/mailbox/me") {
+    serverState.readinessAttempts += 1;
+    if (request.headers.authorization !== `Bearer ${durableAgentKey}`) {
+      response.writeHead(401, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ error: "wrong durable token" }));
+      return;
+    }
+    if (serverState.readinessAttempts === 1) {
+      response.writeHead(503, { "Content-Type": "application/json", "Retry-After": "0" });
+      response.end(JSON.stringify({ error: "temporarily_unavailable", retry_after: 0 }));
+      return;
+    }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({ ok: true, data: { email: "durable-agent@myagent.mx" }, meta: {} }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/agent-auth/agent/identity/invite") {
+    response.writeHead(202, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ invite_id: "ainv_cli_owner", status: "pending" }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/agent-auth/oauth2/token") {
+    serverState.tokenExchanges += 1;
+    const form = new URLSearchParams(body.toString("utf8"));
+    if (
+      form.get("grant_type") !== "urn:ietf:params:oauth:grant-type:token-exchange" ||
+      form.get("subject_token") !== durableAgentKey ||
+      form.get("subject_token_type") !== "urn:ietf:params:oauth:token-type:access_token" ||
+      form.get("resource") !== "https://smtp.sendmux.ai/api/v1" ||
+      form.get("scope") !== "email.send"
+    ) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ error: "invalid exchange" }));
+      return;
+    }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({
+      access_token: delegatedAgentSendKey,
+      expires_in: 3600,
+      issued_token_type: "urn:ietf:params:oauth:token-type:access_token",
+      scope: "email.send",
+      token_type: "Bearer",
+    }));
+    return;
+  }
+
   if (request.method === "POST" && requestUrl.startsWith("/mailbox/attachments:upload")) {
     const url = new URL(requestUrl, "http://127.0.0.1");
     const filename = url.searchParams.get("filename") ?? "attachment.bin";
@@ -718,6 +796,119 @@ try {
 
   if (latestRequest().headers["idempotency-key"] !== "idem_cli_send") {
     throw new Error("Idempotency-Key header was not passed through for sending:send");
+  }
+
+  const durableRegistrationResult = await runCli([
+    "agent:register",
+    "durable-agent",
+    "--base-url",
+    baseUrl,
+    "--client-name",
+    "CLI durable agent",
+    "--mailbox-local-part",
+    "durable-agent",
+    "--owner-email",
+    "owner@example.com",
+    "--default",
+    "--json",
+  ]);
+  assertCliSuccess(durableRegistrationResult, "agent:register durable profile");
+  if (durableRegistrationResult.stdout.includes(durableAgentKey)) {
+    throw new Error("agent:register printed the durable access token");
+  }
+  const durableResultBody = JSON.parse(durableRegistrationResult.stdout);
+  assertDeepEqual(durableResultBody.data, {
+    default: true,
+    mailbox_email: "durable-agent@myagent.mx",
+    name: "durable-agent",
+    owner_invite_status: "pending",
+    registration_id: "areg_cli_durable",
+    status: "active",
+  }, "agent:register returned unexpected safe profile metadata");
+
+  const agentConfigDir = join(tempHome, ".config", "sendmux");
+  const agentConfigPath = join(agentConfigDir, "config.json");
+  if ((statSync(agentConfigDir).mode & 0o777) !== 0o700 || (statSync(agentConfigPath).mode & 0o777) !== 0o600) {
+    throw new Error("agent profile storage permissions are not 0700/0600");
+  }
+  const agentConfig = JSON.parse(readFileSync(agentConfigPath, "utf8"));
+  if (agentConfig.profiles["durable-agent"].accessToken !== durableAgentKey) {
+    throw new Error("agent:register did not persist the durable access token");
+  }
+  if (serverState.readinessAttempts !== 2) {
+    throw new Error(`agent:register did not poll readiness through a temporary 503: ${serverState.readinessAttempts}`);
+  }
+
+  const resumedRegistrationResult = await runCli([
+    "agent:register",
+    "durable-agent",
+    "--base-url",
+    baseUrl,
+    "--client-name",
+    "CLI durable agent",
+    "--mailbox-local-part",
+    "durable-agent",
+    "--default",
+    "--json",
+  ]);
+  assertCliSuccess(resumedRegistrationResult, "agent:register resume from an active persisted profile");
+  if (serverState.registrations !== 1) {
+    throw new Error("agent:register resume created a duplicate registration");
+  }
+
+  const ownerInviteResult = await runCli([
+    "agent:invite-owner",
+    "second-owner@example.com",
+    "--profile",
+    "durable-agent",
+    "--json",
+  ]);
+  assertCliSuccess(ownerInviteResult, "agent:invite-owner with a freshly reloaded durable profile");
+  assertDeepEqual(JSON.parse(ownerInviteResult.stdout).data, {
+    email: "second-owner@example.com",
+    profile: "durable-agent",
+    status: "pending",
+  }, "agent:invite-owner returned unexpected safe metadata");
+  if (latestRequest().headers.authorization !== `Bearer ${durableAgentKey}`) {
+    throw new Error("agent:invite-owner did not use the durable read token");
+  }
+
+  const durableMailboxResult = await runCli(["mailbox:me:get", "--profile", "durable-agent", "--json"]);
+  assertCliSuccess(durableMailboxResult, "mailbox read with a freshly reloaded durable profile");
+  if (latestRequest().headers.authorization !== `Bearer ${durableAgentKey}`) {
+    throw new Error("mailbox operation did not use the durable read token");
+  }
+
+  const exchangedSendResult = await runCli([
+    "sending:send",
+    "--profile",
+    "durable-agent",
+    "--body",
+    "{}",
+    "--idempotency-key",
+    "idem_cli_exchanged_send",
+    "--json",
+  ]);
+  assertCliSuccess(exchangedSendResult, "sending:send with automatic agent token exchange");
+  if (latestRequest().headers.authorization !== `Bearer ${delegatedAgentSendKey}`) {
+    throw new Error("sending operation did not use the delegated send token");
+  }
+  if (serverState.tokenExchanges !== 1) {
+    throw new Error(`sending operation made ${serverState.tokenExchanges} token exchanges instead of one`);
+  }
+
+  const cachedSendResult = await runCli([
+    "sending:send",
+    "--profile",
+    "durable-agent",
+    "--body",
+    "{}",
+    "--idempotency-key",
+    "idem_cli_cached_send",
+  ]);
+  assertCliSuccess(cachedSendResult, "sending:send with cached delegated token");
+  if (serverState.tokenExchanges !== 1) {
+    throw new Error("sending operation did not reuse the unexpired delegated token across processes");
   }
 
   const requestCountBeforeAgentSendingPreflight = serverState.requests.length;

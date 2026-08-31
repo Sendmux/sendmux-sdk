@@ -44,6 +44,9 @@
     "commands": "./dist/commands",
     "topicSeparator": ":",
     "topics": {
+      "agent": {
+        "description": "Register and link agent inboxes"
+      },
       "mailbox": {
         "description": "Mailbox API commands"
       },

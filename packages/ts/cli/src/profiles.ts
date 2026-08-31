@@ -7,10 +7,44 @@ import {
 } from "node:fs/promises";
 import { join } from "node:path";
 
-export interface CliProfile {
+export interface ApiKeyCliProfile {
   apiKey: string;
   baseUrl?: string;
+  type?: "api_key";
 }
+
+interface AgentProfileBase {
+  appApiBaseUrl: string;
+  authBaseUrl: string;
+  clientName?: string;
+  idempotencyKey: string;
+  mailboxLocalPart?: string;
+  sendingApiBaseUrl: string;
+  type: "agent";
+}
+
+export interface RegisteringAgentCliProfile extends AgentProfileBase {
+  state: "registering";
+}
+
+export interface ActiveAgentCliProfile extends AgentProfileBase {
+  accessToken: string;
+  mailboxEmail: string;
+  ownerInvite?: {
+    email: string;
+    idempotencyKey: string;
+    status: "dispatching" | "pending";
+  };
+  registrationId: string;
+  sendingToken?: {
+    accessToken: string;
+    expiresAt: string;
+  };
+  state: "active";
+}
+
+export type AgentCliProfile = ActiveAgentCliProfile | RegisteringAgentCliProfile;
+export type CliProfile = AgentCliProfile | ApiKeyCliProfile;
 
 export interface CliConfig {
   defaultProfile?: string;
@@ -50,6 +84,18 @@ export async function writeCliConfig(configDir: string, config: CliConfig): Prom
 
 export function configPath(configDir: string): string {
   return join(configDir, CONFIG_FILE);
+}
+
+export function isAgentProfile(profile: CliProfile): profile is AgentCliProfile {
+  return profile.type === "agent";
+}
+
+export function isApiKeyProfile(profile: CliProfile): profile is ApiKeyCliProfile {
+  return !isAgentProfile(profile);
+}
+
+export function isActiveAgentProfile(profile: CliProfile): profile is ActiveAgentCliProfile {
+  return isAgentProfile(profile) && profile.state === "active";
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

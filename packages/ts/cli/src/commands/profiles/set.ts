@@ -40,6 +40,7 @@ export default class ProfilesSet extends SendmuxCommand {
     config.profiles[args.name] = {
       apiKey,
       ...(flags["base-url"] ? { baseUrl: flags["base-url"] } : {}),
+      type: "api_key",
     };
 
     if (flags.default || !config.defaultProfile) {

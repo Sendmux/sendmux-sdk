@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { once } from "node:events";
@@ -43,6 +44,7 @@ ensureCliBuilt();
 
 const serverState = {
   readinessAttempts: 0,
+  crossProfileRegistrationRequests: 0,
   registrationIdempotencyKeys: [],
   registrations: 0,
   requests: [],
@@ -96,16 +98,28 @@ const server = createServer(async (request, response) => {
   if (request.method === "POST" && requestUrl === "/agent-auth/agent/identity") {
     serverState.registrations += 1;
     const configPath = join(tempHome, ".config", "sendmux", "config.json");
-    const savedConfig = JSON.parse(readFileSync(configPath, "utf8"));
     const parsed = JSON.parse(body.toString("utf8"));
     const profileName = parsed.mailbox_local_part;
+    if (profileName === "concurrent-alpha" || profileName === "concurrent-bravo") {
+      serverState.crossProfileRegistrationRequests += 1;
+      while (serverState.crossProfileRegistrationRequests < 2) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+    }
+    const savedConfig = JSON.parse(readFileSync(configPath, "utf8"));
     const registeringProfile = savedConfig.profiles[profileName];
     if (registeringProfile?.type !== "agent" || registeringProfile?.state !== "registering") {
       response.writeHead(500);
       response.end(JSON.stringify({ error: "registration state was not saved before network" }));
       return;
     }
-    if (registeringProfile.idempotencyKey !== request.headers["idempotency-key"] || parsed.idempotency_key !== registeringProfile.idempotencyKey) {
+    const requestIdempotencyKey = request.headers["idempotency-key"];
+    if (
+      typeof requestIdempotencyKey !== "string" ||
+      requestIdempotencyKey.length === 0 ||
+      registeringProfile.idempotencyKey !== requestIdempotencyKey ||
+      parsed.idempotency_key !== registeringProfile.idempotencyKey
+    ) {
       response.writeHead(500);
       response.end(JSON.stringify({ error: "saved idempotency key did not match request" }));
       return;
@@ -133,7 +147,10 @@ const server = createServer(async (request, response) => {
 
   if (request.method === "GET" && requestUrl === "/api/v1/mailbox/me") {
     const authorization = request.headers.authorization;
-    if (authorization !== `Bearer ${durableAgentKey}` && authorization !== `Bearer ${durableAgentKey}_concurrent-agent`) {
+    if (
+      authorization !== `Bearer ${durableAgentKey}` &&
+      !authorization?.startsWith(`Bearer ${durableAgentKey}_`)
+    ) {
       response.writeHead(401, { "Content-Type": "application/json" });
       response.end(JSON.stringify({ error: "wrong durable token" }));
       return;
@@ -907,8 +924,66 @@ try {
   const concurrentKeys = serverState.registrationIdempotencyKeys
     .filter(({ profileName }) => profileName === "concurrent-agent")
     .map(({ key }) => key);
-  if (concurrentKeys.length !== 2 || new Set(concurrentKeys).size !== 1) {
+  if (
+    concurrentKeys.length !== 2 ||
+    concurrentKeys.some((key) => typeof key !== "string" || key.length === 0) ||
+    new Set(concurrentKeys).size !== 1
+  ) {
     throw new Error(`concurrent agent:register used different idempotency keys: ${JSON.stringify(concurrentKeys)}`);
+  }
+
+  writeFileSync(staleConfigLockPath, "");
+  const crossProfileNames = ["concurrent-alpha", "concurrent-bravo"];
+  const crossProfileRuns = crossProfileNames.map((profileName) =>
+    runCli([
+      "agent:register",
+      profileName,
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      profileName,
+      "--json",
+    ]),
+  );
+  await waitForPaths(
+    crossProfileNames.map((profileName) =>
+      join(agentConfigDir, `agent-registration-${createHash("sha256").update(profileName, "utf8").digest("hex")}.json`),
+    ),
+  );
+  rmSync(staleConfigLockPath);
+  const crossProfileResults = await Promise.all(crossProfileRuns);
+  for (const result of crossProfileResults) {
+    assertCliSuccess(result, "concurrent cross-profile agent:register");
+  }
+  const configAfterCrossProfileRegistration = JSON.parse(readFileSync(agentConfigPath, "utf8"));
+  for (const profileName of crossProfileNames) {
+    if (configAfterCrossProfileRegistration.profiles[profileName]?.state !== "active") {
+      throw new Error(`concurrent agent:register lost profile ${profileName}`);
+    }
+  }
+
+  for (const [recoveredProfileName, invalidIntent] of [
+    ["recovered-malformed-agent", "{\"state\":"],
+    ["recovered-wrong-shape-agent", JSON.stringify({ type: "api_key" })],
+  ]) {
+    const recoveredIntentPath = join(
+      agentConfigDir,
+      `agent-registration-${createHash("sha256").update(recoveredProfileName, "utf8").digest("hex")}.json`,
+    );
+    writeFileSync(recoveredIntentPath, invalidIntent);
+    const recoveredRegistrationResult = await runCli([
+      "agent:register",
+      recoveredProfileName,
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      recoveredProfileName,
+      "--json",
+    ]);
+    assertCliSuccess(recoveredRegistrationResult, `agent:register with invalid intent ${recoveredProfileName}`);
+    if (existsSync(recoveredIntentPath)) {
+      throw new Error(`agent:register did not clear the recovered intent ${recoveredProfileName}`);
+    }
   }
 
   const ownerInviteResult = await runCli([
@@ -1061,6 +1136,16 @@ function runCli(args) {
       });
     });
   });
+}
+
+async function waitForPaths(paths) {
+  const deadline = Date.now() + 5_000;
+  while (paths.some((path) => !existsSync(path))) {
+    if (Date.now() >= deadline) {
+      throw new Error(`Timed out waiting for paths: ${paths.join(", ")}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
 }
 
 function assertDeepEqual(actual, expected, message) {

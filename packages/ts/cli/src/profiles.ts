@@ -79,16 +79,17 @@ export async function readCliConfig(configDir: string): Promise<CliConfig> {
   }
 }
 
-export async function writeCliConfig(configDir: string, config: CliConfig): Promise<void> {
+export async function updateCliConfig<T>(
+  configDir: string,
+  update: (config: CliConfig) => T,
+): Promise<T> {
   await mkdir(configDir, { mode: 0o700, recursive: true });
   const releaseLock = await acquireConfigWriteLock(configDir);
   try {
-    const path = configPath(configDir);
-    const tempPath = `${path}.${process.pid}.tmp`;
-    await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
-    await chmod(tempPath, 0o600);
-    await rename(tempPath, path);
-    await chmod(path, 0o600);
+    const config = await readCliConfig(configDir);
+    const result = update(config);
+    await writeCliConfigFile(configDir, config);
+    return result;
   } finally {
     await releaseLock();
   }
@@ -101,26 +102,39 @@ export async function reserveAgentRegistrationIntent(
 ): Promise<RegisteringAgentCliProfile> {
   await mkdir(configDir, { mode: 0o700, recursive: true });
   const path = registrationIntentPath(configDir, profileName);
+  const releaseLock = await acquireFileLock(
+    `${path}.lock`,
+    "Timed out waiting for another Sendmux process to reserve the agent registration.",
+  );
 
-  while (true) {
-    try {
-      await writeFile(path, `${JSON.stringify(candidate, null, 2)}\n`, { flag: "wx", mode: 0o600 });
-      await chmod(path, 0o600);
-      return candidate;
-    } catch (error) {
-      if (!isNodeError(error) || error.code !== "EEXIST") throw error;
-    }
-
-    try {
-      const existing = JSON.parse(await readFile(path, "utf8")) as unknown;
-      if (!isRegisteringAgentProfile(existing)) {
-        throw new Error(`Sendmux agent profile "${profileName}" has an invalid registration intent.`);
+  try {
+    while (true) {
+      try {
+        const existing = JSON.parse(await readFile(path, "utf8")) as unknown;
+        if (isRegisteringAgentProfile(existing)) {
+          return existing;
+        }
+        await unlink(path);
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          await unlink(path).catch((unlinkError: unknown) => {
+            if (!isNodeError(unlinkError) || unlinkError.code !== "ENOENT") throw unlinkError;
+          });
+        } else if (!isNodeError(error) || error.code !== "ENOENT") {
+          throw error;
+        }
       }
-      return existing;
-    } catch (error) {
-      if (isNodeError(error) && error.code === "ENOENT") continue;
-      throw error;
+
+      try {
+        await writeFile(path, `${JSON.stringify(candidate, null, 2)}\n`, { flag: "wx", mode: 0o600 });
+        await chmod(path, 0o600);
+        return candidate;
+      } catch (error) {
+        if (!isNodeError(error) || error.code !== "EEXIST") throw error;
+      }
     }
+  } finally {
+    await releaseLock();
   }
 }
 
@@ -136,8 +150,23 @@ export function configPath(configDir: string): string {
   return join(configDir, CONFIG_FILE);
 }
 
+async function writeCliConfigFile(configDir: string, config: CliConfig): Promise<void> {
+  const path = configPath(configDir);
+  const tempPath = `${path}.${process.pid}.tmp`;
+  await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+  await chmod(tempPath, 0o600);
+  await rename(tempPath, path);
+  await chmod(path, 0o600);
+}
+
 async function acquireConfigWriteLock(configDir: string): Promise<() => Promise<void>> {
-  const lockPath = `${configPath(configDir)}.lock`;
+  return acquireFileLock(
+    `${configPath(configDir)}.lock`,
+    "Timed out waiting for another Sendmux process to finish updating the profile config.",
+  );
+}
+
+async function acquireFileLock(lockPath: string, timeoutMessage: string): Promise<() => Promise<void>> {
   const deadline = Date.now() + CONFIG_LOCK_TIMEOUT_MS;
 
   while (true) {
@@ -175,7 +204,7 @@ async function acquireConfigWriteLock(configDir: string): Promise<() => Promise<
     }
 
     if (Date.now() >= deadline) {
-      throw new Error("Timed out waiting for another Sendmux process to finish updating the profile config.");
+      throw new Error(timeoutMessage);
     }
     await new Promise((resolve) => setTimeout(resolve, CONFIG_LOCK_RETRY_MS));
   }

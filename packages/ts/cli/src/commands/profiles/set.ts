@@ -2,10 +2,7 @@ import { Args, Flags } from "@oclif/core";
 
 import { SendmuxCommand } from "../../base-command.js";
 import { inferApiKeyKind } from "../../key-kind.js";
-import {
-  readCliConfig,
-  writeCliConfig,
-} from "../../profiles.js";
+import { updateCliConfig } from "../../profiles.js";
 
 export default class ProfilesSet extends SendmuxCommand {
   static args = {
@@ -36,23 +33,20 @@ export default class ProfilesSet extends SendmuxCommand {
     }
 
     const keyKind = inferApiKeyKind(apiKey);
-    const config = await readCliConfig(this.config.configDir);
-    config.profiles[args.name] = {
-      apiKey,
-      ...(flags["base-url"] ? { baseUrl: flags["base-url"] } : {}),
-      type: "api_key",
-    };
-
-    if (flags.default || !config.defaultProfile) {
-      config.defaultProfile = args.name;
-    }
-
-    await writeCliConfig(this.config.configDir, config);
+    const isDefault = await updateCliConfig(this.config.configDir, (config) => {
+      config.profiles[args.name] = {
+        apiKey,
+        ...(flags["base-url"] ? { baseUrl: flags["base-url"] } : {}),
+        type: "api_key",
+      };
+      if (flags.default || !config.defaultProfile) config.defaultProfile = args.name;
+      return config.defaultProfile === args.name;
+    });
 
     const result = {
       ok: true,
       data: {
-        default: config.defaultProfile === args.name,
+        default: isDefault,
         key_kind: keyKind,
         name: args.name,
         ...(flags["base-url"] ? { base_url: flags["base-url"] } : {}),

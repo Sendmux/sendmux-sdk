@@ -10,7 +10,7 @@ import {
   type AgentCliProfile,
   type CliConfig,
   type RegisteringAgentCliProfile,
-  writeCliConfig,
+  updateCliConfig,
 } from "./profiles.js";
 
 const DEFAULT_APP_ORIGIN = "https://app.sendmux.ai";
@@ -50,48 +50,50 @@ export interface SafeAgentRegistrationResult {
 }
 
 export async function registerAgent(input: RegisterAgentInput): Promise<SafeAgentRegistrationResult> {
-  let config = await readCliConfig(input.configDir);
-  const existing = config.profiles[input.profileName];
+  const initialConfig = await readCliConfig(input.configDir);
+  const existing = initialConfig.profiles[input.profileName];
   let activeProfile: ActiveAgentCliProfile;
 
   if (existing && isActiveAgentProfile(existing)) {
-    assertMatchingRegistration(existing, input);
-    activeProfile = existing;
-    if (input.makeDefault || !config.defaultProfile) {
-      config.defaultProfile = input.profileName;
-      await writeCliConfig(input.configDir, config);
-    }
+    activeProfile = await updateCliConfig(input.configDir, (config) => {
+      const current = config.profiles[input.profileName];
+      if (!current || !isActiveAgentProfile(current)) {
+        throw new Error(`Sendmux agent profile "${input.profileName}" is not active.`);
+      }
+      assertMatchingRegistration(current, input);
+      if (input.makeDefault || !config.defaultProfile) config.defaultProfile = input.profileName;
+      return current;
+    });
     await clearAgentRegistrationIntent(input.configDir, input.profileName);
   } else {
     const candidate = registrationIntent({ existing, input });
     const registering = await reserveAgentRegistrationIntent(input.configDir, input.profileName, candidate);
     assertMatchingRegistration(registering, input);
 
-    config = await readCliConfig(input.configDir);
-    const latestExisting = config.profiles[input.profileName];
-    if (latestExisting && isActiveAgentProfile(latestExisting)) {
-      assertMatchingRegistration(latestExisting, input);
-      activeProfile = latestExisting;
-      if (input.makeDefault || !config.defaultProfile) {
-        config.defaultProfile = input.profileName;
-        await writeCliConfig(input.configDir, config);
+    const persisted = await updateCliConfig(input.configDir, (config) => {
+      const current = config.profiles[input.profileName];
+      if (current && isActiveAgentProfile(current)) {
+        assertMatchingRegistration(current, input);
+        if (input.makeDefault || !config.defaultProfile) config.defaultProfile = input.profileName;
+        return { active: current };
       }
-      await clearAgentRegistrationIntent(input.configDir, input.profileName);
-    } else {
-      if (latestExisting) {
-        if (latestExisting.type !== "agent" || latestExisting.state !== "registering") {
+      if (current) {
+        if (current.type !== "agent" || current.state !== "registering") {
           throw new Error(`Sendmux profile "${input.profileName}" already exists and is not an agent profile.`);
         }
-        if (latestExisting.idempotencyKey !== registering.idempotencyKey) {
+        if (current.idempotencyKey !== registering.idempotencyKey) {
           throw new Error(`Sendmux agent profile "${input.profileName}" belongs to a different registration request.`);
         }
       }
       config.profiles[input.profileName] = registering;
-      if (input.makeDefault || !config.defaultProfile) {
-        config.defaultProfile = input.profileName;
-      }
-      await writeCliConfig(input.configDir, config);
+      if (input.makeDefault || !config.defaultProfile) config.defaultProfile = input.profileName;
+      return { active: null };
+    });
 
+    if (persisted.active) {
+      activeProfile = persisted.active;
+      await clearAgentRegistrationIntent(input.configDir, input.profileName);
+    } else {
       const registration = await postJson<AgentRegistrationResponse>(`${registering.authBaseUrl}/agent/identity`, {
         headers: { "Idempotency-Key": registering.idempotencyKey },
         body: {
@@ -104,16 +106,32 @@ export async function registerAgent(input: RegisterAgentInput): Promise<SafeAgen
       });
       assertRegistrationResponse(registration);
 
-      const afterRegistration = await readCliConfig(input.configDir);
-      activeProfile = {
-        ...registering,
-        accessToken: registration.access_token,
-        mailboxEmail: registration.mailbox.email,
-        registrationId: registration.registration_id,
-        state: "active",
-      };
-      afterRegistration.profiles[input.profileName] = activeProfile;
-      await writeCliConfig(input.configDir, afterRegistration);
+      activeProfile = await updateCliConfig(input.configDir, (config) => {
+        const current = config.profiles[input.profileName];
+        if (current && isActiveAgentProfile(current)) {
+          if (current.idempotencyKey !== registering.idempotencyKey) {
+            throw new Error(`Sendmux agent profile "${input.profileName}" belongs to a different registration request.`);
+          }
+          return current;
+        }
+        if (
+          !current ||
+          current.type !== "agent" ||
+          current.state !== "registering" ||
+          current.idempotencyKey !== registering.idempotencyKey
+        ) {
+          throw new Error(`Sendmux agent profile "${input.profileName}" belongs to a different registration request.`);
+        }
+        const activated: ActiveAgentCliProfile = {
+          ...current,
+          accessToken: registration.access_token,
+          mailboxEmail: registration.mailbox.email,
+          registrationId: registration.registration_id,
+          state: "active",
+        };
+        config.profiles[input.profileName] = activated;
+        return activated;
+      });
       await clearAgentRegistrationIntent(input.configDir, input.profileName);
     }
   }
@@ -147,35 +165,37 @@ export async function inviteAgentOwner({
   email: string;
   profileName: string;
 }): Promise<{ email: string; status: "pending" }> {
-  const config = await readCliConfig(configDir);
-  const profile = activeAgentProfileFromConfig(config, profileName);
-  const existingInvite = profile.ownerInvite;
-  const idempotencyKey =
-    existingInvite?.email.toLowerCase() === email.toLowerCase() ? existingInvite.idempotencyKey : randomUUID();
+  const invitation = await updateCliConfig(configDir, (config) => {
+    const profile = activeAgentProfileFromConfig(config, profileName);
+    const existingInvite = profile.ownerInvite;
+    const idempotencyKey =
+      existingInvite?.email.toLowerCase() === email.toLowerCase() ? existingInvite.idempotencyKey : randomUUID();
+    const updatedProfile: ActiveAgentCliProfile = {
+      ...profile,
+      ownerInvite: { email, idempotencyKey, status: "dispatching" },
+    };
+    config.profiles[profileName] = updatedProfile;
+    return { idempotencyKey, profile: updatedProfile };
+  });
 
-  config.profiles[profileName] = {
-    ...profile,
-    ownerInvite: { email, idempotencyKey, status: "dispatching" as const },
-  };
-  await writeCliConfig(configDir, config);
-
-  const reloaded = await activeAgentProfile(configDir, profileName);
-  await postJson(`${reloaded.authBaseUrl}/agent/identity/invite`, {
+  await postJson(`${invitation.profile.authBaseUrl}/agent/identity/invite`, {
     headers: {
-      Authorization: `Bearer ${reloaded.accessToken}`,
-      "Idempotency-Key": idempotencyKey,
+      Authorization: `Bearer ${invitation.profile.accessToken}`,
+      "Idempotency-Key": invitation.idempotencyKey,
     },
-    body: { email, idempotency_key: idempotencyKey, requested_role: "owner" },
+    body: { email, idempotency_key: invitation.idempotencyKey, requested_role: "owner" },
     expectedStatuses: [200, 202],
   });
 
-  const afterInvite = await readCliConfig(configDir);
-  const current = activeAgentProfileFromConfig(afterInvite, profileName);
-  afterInvite.profiles[profileName] = {
-    ...current,
-    ownerInvite: { email, idempotencyKey, status: "pending" as const },
-  };
-  await writeCliConfig(configDir, afterInvite);
+  await updateCliConfig(configDir, (config) => {
+    const current = activeAgentProfileFromConfig(config, profileName);
+    if (current.ownerInvite?.idempotencyKey === invitation.idempotencyKey) {
+      config.profiles[profileName] = {
+        ...current,
+        ownerInvite: { email, idempotencyKey: invitation.idempotencyKey, status: "pending" as const },
+      };
+    }
+  });
   return { email, status: "pending" };
 }
 
@@ -215,18 +235,23 @@ export async function resolveAgentSendingToken({
     throw new Error("Sendmux token exchange returned an invalid expiry.");
   }
 
-  const latestConfig = await readCliConfig(configDir);
-  const latestProfile = activeAgentProfileFromConfig(latestConfig, profileName);
-  latestConfig.profiles[profileName] = {
-    ...latestProfile,
-    sendingToken: {
-      accessToken,
-      expiresAt: new Date(Date.now() + expiresIn * 1_000).toISOString(),
-    },
-  };
-  await writeCliConfig(configDir, latestConfig);
-  config.profiles[profileName] = latestConfig.profiles[profileName];
-  return accessToken;
+  const updatedProfile = await updateCliConfig(configDir, (latestConfig) => {
+    const latestProfile = activeAgentProfileFromConfig(latestConfig, profileName);
+    if (latestProfile.sendingToken && Date.parse(latestProfile.sendingToken.expiresAt) > Date.now() + SENDING_TOKEN_SKEW_MS) {
+      return latestProfile;
+    }
+    const updated: ActiveAgentCliProfile = {
+      ...latestProfile,
+      sendingToken: {
+        accessToken,
+        expiresAt: new Date(Date.now() + expiresIn * 1_000).toISOString(),
+      },
+    };
+    latestConfig.profiles[profileName] = updated;
+    return updated;
+  });
+  config.profiles[profileName] = updatedProfile;
+  return updatedProfile.sendingToken!.accessToken;
 }
 
 function registrationIntent({

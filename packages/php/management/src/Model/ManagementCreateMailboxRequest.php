@@ -292,8 +292,8 @@ class ManagementCreateMailboxRequest implements ModelInterface, ArrayAccess, Jso
             $invalidProperties[] = "invalid value for 'email', the character length must be bigger than or equal to 5.";
         }
 
-        if (!preg_match("/^(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/", $this->container['email'])) {
-            $invalidProperties[] = "invalid value for 'email', must be conform to the pattern /^(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/.";
+        if (!preg_match("/^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/", $this->container['email'])) {
+            $invalidProperties[] = "invalid value for 'email', must be conform to the pattern /^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/.";
         }
 
         if (!is_null($this->container['quota_bytes']) && ($this->container['quota_bytes'] < 1)) {
@@ -374,8 +374,8 @@ class ManagementCreateMailboxRequest implements ModelInterface, ArrayAccess, Jso
         if ((mb_strlen($email) < 5)) {
             throw new InvalidArgumentException('invalid length for $email when calling ManagementCreateMailboxRequest., must be bigger than or equal to 5.');
         }
-        if ((!preg_match("/^(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/", ObjectSerializer::toString($email)))) {
-            throw new InvalidArgumentException("invalid value for \$email when calling ManagementCreateMailboxRequest., must conform to the pattern /^(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/.");
+        if ((!preg_match("/^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/", ObjectSerializer::toString($email)))) {
+            throw new InvalidArgumentException("invalid value for \$email when calling ManagementCreateMailboxRequest., must conform to the pattern /^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/.");
         }
 
         $this->container['email'] = $email;

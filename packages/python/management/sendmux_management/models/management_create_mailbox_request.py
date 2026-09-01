@@ -41,8 +41,8 @@ class ManagementCreateMailboxRequest(BaseModel):
         if not isinstance(value, str):
             value = str(value)
 
-        if not re.match(r"^(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$", value):
-            raise ValueError(r"must validate the regular expression /^(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/")
+        if not re.match(r"^(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$", value):
+            raise ValueError(r"must validate the regular expression /^(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/")
         return value
 
     model_config = ConfigDict(

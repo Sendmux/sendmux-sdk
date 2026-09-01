@@ -12,9 +12,13 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
+	"github.com/ogen-go/ogen/ogenregex"
 	"github.com/ogen-go/ogen/otelogen"
 )
 
+var regexMap = map[string]ogenregex.Regexp{
+	"^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$": ogenregex.MustCompile("^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$"),
+}
 var (
 	// Allocate option closure once.
 	clientSpanKind = trace.WithSpanKind(trace.SpanKindClient)

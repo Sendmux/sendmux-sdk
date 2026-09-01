@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from sendmux_management.models.management_create_mailbox_request_send_scope import ManagementCreateMailboxRequestSendScope
@@ -34,6 +34,16 @@ class ManagementCreateMailboxRequest(BaseModel):
     quota_bytes: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, description="Storage quota in bytes. Allowed values: 1073741824 (1 GB), 5368709120 (5 GB), 53687091200 (50 GB).")
     send_scope: Optional[ManagementCreateMailboxRequestSendScope] = None
     __properties: ClassVar[List[str]] = ["display_name", "email", "quota_bytes", "send_scope"]
+
+    @field_validator('email')
+    def email_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not isinstance(value, str):
+            value = str(value)
+
+        if not re.match(r"^(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$", value):
+            raise ValueError(r"must validate the regular expression /^(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,

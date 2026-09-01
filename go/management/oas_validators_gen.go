@@ -2719,7 +2719,7 @@ func (s *ManagementCreateMailboxReq) Validate() error {
 			MaxLengthSet: true,
 			Email:        false,
 			Hostname:     false,
-			Regex:        nil,
+			Regex:        regexMap["^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$"],
 		}).Validate(string(s.Email)); err != nil {
 			return errors.Wrap(err, "string")
 		}

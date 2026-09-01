@@ -14150,6 +14150,7 @@
                     "description": "Mailbox email address to create.",
                     "maxLength": 254,
                     "minLength": 5,
+                    "pattern": "^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$",
                     "type": "string"
                   },
                   "quota_bytes": {

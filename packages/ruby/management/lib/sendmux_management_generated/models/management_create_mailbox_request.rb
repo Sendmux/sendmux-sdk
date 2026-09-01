@@ -122,6 +122,11 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "email", the character length must be greater than or equal to 5.')
       end
 
+      pattern = Regexp.new(/\A(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}\z/)
+      if @email !~ pattern
+        invalid_properties.push("invalid value for \"email\", must conform to the pattern #{pattern}.")
+      end
+
       if !@quota_bytes.nil? && @quota_bytes < 1
         invalid_properties.push('invalid value for "quota_bytes", must be greater than or equal to 1.')
       end
@@ -138,6 +143,7 @@ module Sendmux::Management::Generated
       return false if @email.nil?
       return false if @email.to_s.length > 254
       return false if @email.to_s.length < 5
+      return false if @email !~ Regexp.new(/\A(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}\z/)
       return false if !@quota_bytes.nil? && @quota_bytes < 1
       true
     end
@@ -173,6 +179,11 @@ module Sendmux::Management::Generated
 
       if email.to_s.length < 5
         fail ArgumentError, 'invalid value for "email", the character length must be greater than or equal to 5.'
+      end
+
+      pattern = Regexp.new(/\A(?![^\r\n]*[\r\n])(?![^@]*\.\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}\z/)
+      if email !~ pattern
+        fail ArgumentError, "invalid value for \"email\", must conform to the pattern #{pattern}."
       end
 
       @email = email

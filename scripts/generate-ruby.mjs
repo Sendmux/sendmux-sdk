@@ -334,7 +334,7 @@ function patchGeneratedApiClientHeaders(apiClientPath) {
 
 function patchGeneratedManagementMailboxEmailAnchors(modelPath) {
   const source = readFileSync(modelPath, "utf8");
-  const anchoredPattern = /Regexp\.new\(\/\^((?:\\.|[^/\n])*)\$\/\)/g;
+  const anchoredPattern = /Regexp\.new\(\/\^((?:\\.|[^\\/\n])*)\$\/\)/g;
   const matches = source.match(anchoredPattern) ?? [];
   if (matches.length !== 3) {
     throw new Error(`Expected three anchored email validators in ${modelPath}; found ${matches.length}`);

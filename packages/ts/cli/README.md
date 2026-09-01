@@ -17,10 +17,11 @@ Agent-drivable command line interface for Sendmux.
 
 ## Requirements
 
+- No existing Sendmux account or API key is required to register an agent inbox.
 - npm global installs, `npx`, or a downloaded release tarball.
 - A root `smx_root_*` key for Management commands.
-- A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token for Sending commands.
-- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox commands. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
+- A send-capable `smx_mbx_*` key or owner-approved agent profile for Sending commands.
+- A mailbox-scoped `smx_mbx_*` key or registered agent profile for Mailbox commands.
 
 ## Installation
 
@@ -32,7 +33,41 @@ The package exposes the `sendmux` binary.
 
 ## Usage
 
-Create profiles for each key type before running API commands.
+Register an agent inbox and save its durable read credential in a local profile:
+
+```sh
+sendmux agent:register my-agent \
+  --mailbox-local-part my-agent \
+  --client-name "My agent" \
+  --default \
+  --json
+```
+
+The registration result never prints the credential. The profile can read and receive mail without an expiry date, unless the registration is fully revoked. Inbox readiness may take a moment; the command waits for provisioning for up to 10 minutes and can be rerun safely with the same profile.
+
+Read the inbox from any later process:
+
+```sh
+sendmux mailbox:messages:list --profile my-agent --query limit=25 --json
+```
+
+To enable sending, invite the inbox owner either during registration with `--owner-email` or afterward:
+
+```sh
+sendmux agent:invite-owner owner@example.com --profile my-agent --json
+```
+
+The owner must accept the invitation and approve sending. After approval, Sending API commands automatically exchange the durable read credential for a one-hour `email.send` token and reuse it until it approaches expiry:
+
+```sh
+sendmux sending:send \
+  --profile my-agent \
+  --idempotency-key "$IDEMPOTENCY_KEY" \
+  --body '{"from":{"email":"sender@example.com"},"to":{"email":"recipient@example.com"},"subject":"Hello","text_body":"Hello"}' \
+  --json
+```
+
+Existing Sendmux users can continue creating API-key profiles:
 
 ```sh
 sendmux profiles:set default --api-key smx_root_... --default
@@ -103,6 +138,7 @@ The CLI includes `97` generated API operation commands:
 - `41` Mailbox commands, including `mailbox:messages:list`, `mailbox:messages:get`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
 - `53` Management commands, including `management:domains:list`, `management:create-mailbox`, `management:get-spend-summary`, and `management:create-webhook`.
 - `3` Sending commands: `sending:get-open-api-spec`, `sending:send`, and `sending:send:batch`.
+- Agent onboarding commands: `agent:register` and `agent:invite-owner`.
 - Profile commands: `profiles:list`, `profiles:set`, and `profiles:show`.
 
 Use command-level help for required path, query, header, and body fields.

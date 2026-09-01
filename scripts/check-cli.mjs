@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { once } from "node:events";
 import { join } from "node:path";
@@ -15,6 +16,8 @@ const operationRunnerPath = "packages/ts/cli/src/operation-runner.ts";
 const commandsDir = "packages/ts/cli/src/commands";
 const mailboxKey = "smx_mbx_testkey1234567890";
 const agentKey = "smx_agent_testkey1234567890";
+const durableAgentKey = "smx_agent_durable_read_testkey1234567890";
+const delegatedAgentSendKey = "smx_agent_delegated_send_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
 const envelope = {
   ok: true,
@@ -39,7 +42,14 @@ const openApiDocument = {
 
 ensureCliBuilt();
 
-const serverState = { requests: [] };
+const serverState = {
+  readinessAttempts: 0,
+  crossProfileRegistrationRequests: 0,
+  registrationIdempotencyKeys: [],
+  registrations: 0,
+  requests: [],
+  tokenExchanges: 0,
+};
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 const server = createServer(async (request, response) => {
   const chunks = [];
@@ -85,6 +95,110 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = request.url ?? "";
+  if (request.method === "POST" && requestUrl === "/agent-auth/agent/identity") {
+    serverState.registrations += 1;
+    const configPath = join(tempHome, ".config", "sendmux", "config.json");
+    const parsed = JSON.parse(body.toString("utf8"));
+    const profileName = parsed.mailbox_local_part;
+    if (profileName === "concurrent-alpha" || profileName === "concurrent-bravo") {
+      serverState.crossProfileRegistrationRequests += 1;
+      while (serverState.crossProfileRegistrationRequests < 2) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+    }
+    const savedConfig = JSON.parse(readFileSync(configPath, "utf8"));
+    const registeringProfile = savedConfig.profiles[profileName];
+    if (registeringProfile?.type !== "agent" || registeringProfile?.state !== "registering") {
+      response.writeHead(500);
+      response.end(JSON.stringify({ error: "registration state was not saved before network" }));
+      return;
+    }
+    const requestIdempotencyKey = request.headers["idempotency-key"];
+    if (
+      typeof requestIdempotencyKey !== "string" ||
+      requestIdempotencyKey.length === 0 ||
+      registeringProfile.idempotencyKey !== requestIdempotencyKey ||
+      parsed.idempotency_key !== registeringProfile.idempotencyKey
+    ) {
+      response.writeHead(500);
+      response.end(JSON.stringify({ error: "saved idempotency key did not match request" }));
+      return;
+    }
+    serverState.registrationIdempotencyKeys.push({
+      key: request.headers["idempotency-key"],
+      profileName,
+    });
+    if (profileName === "concurrent-agent") {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    const accessToken = profileName === "durable-agent" ? durableAgentKey : `${durableAgentKey}_${profileName}`;
+    const registrationId = profileName === "durable-agent" ? "areg_cli_durable" : `areg_cli_${profileName}`;
+    response.writeHead(201, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({
+      access_token: accessToken,
+      mailbox: { email: `${profileName}@myagent.mx`, status: "provisioning" },
+      registration_id: registrationId,
+      registration_type: "anonymous",
+      scope: "mailbox.read email.receive",
+      token_type: "Bearer",
+    }));
+    return;
+  }
+
+  if (request.method === "GET" && requestUrl === "/api/v1/mailbox/me") {
+    const authorization = request.headers.authorization;
+    if (
+      authorization !== `Bearer ${durableAgentKey}` &&
+      !authorization?.startsWith(`Bearer ${durableAgentKey}_`)
+    ) {
+      response.writeHead(401, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ error: "wrong durable token" }));
+      return;
+    }
+    if (authorization === `Bearer ${durableAgentKey}`) {
+      serverState.readinessAttempts += 1;
+    }
+    if (authorization === `Bearer ${durableAgentKey}` && serverState.readinessAttempts === 1) {
+      response.writeHead(503, { "Content-Type": "application/json", "Retry-After": "0" });
+      response.end(JSON.stringify({ error: "temporarily_unavailable", retry_after: 0 }));
+      return;
+    }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({ ok: true, data: { email: "durable-agent@myagent.mx" }, meta: {} }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/agent-auth/agent/identity/invite") {
+    response.writeHead(202, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ invite_id: "ainv_cli_owner", status: "pending" }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/agent-auth/oauth2/token") {
+    serverState.tokenExchanges += 1;
+    const form = new URLSearchParams(body.toString("utf8"));
+    if (
+      form.get("grant_type") !== "urn:ietf:params:oauth:grant-type:token-exchange" ||
+      form.get("subject_token") !== durableAgentKey ||
+      form.get("subject_token_type") !== "urn:ietf:params:oauth:token-type:access_token" ||
+      form.get("resource") !== "https://smtp.sendmux.ai/api/v1" ||
+      form.get("scope") !== "email.send"
+    ) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ error: "invalid exchange" }));
+      return;
+    }
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({
+      access_token: delegatedAgentSendKey,
+      expires_in: 3600,
+      issued_token_type: "urn:ietf:params:oauth:token-type:access_token",
+      scope: "email.send",
+      token_type: "Bearer",
+    }));
+    return;
+  }
+
   if (request.method === "POST" && requestUrl.startsWith("/mailbox/attachments:upload")) {
     const url = new URL(requestUrl, "http://127.0.0.1");
     const filename = url.searchParams.get("filename") ?? "attachment.bin";
@@ -180,6 +294,7 @@ try {
   assertCliCommandCoverage();
   assertBinaryOperationRunnerGuard();
   await assertCliArrayParameterSupport();
+  await assertAgentAuthNetworkBoundaries();
 
   const address = server.address();
   if (!address || typeof address === "string") {
@@ -720,6 +835,212 @@ try {
     throw new Error("Idempotency-Key header was not passed through for sending:send");
   }
 
+  const agentConfigDir = join(tempHome, ".config", "sendmux");
+  const agentConfigPath = join(agentConfigDir, "config.json");
+  const staleConfigLockPath = `${agentConfigPath}.lock`;
+  writeFileSync(staleConfigLockPath, "");
+  const staleConfigLockTime = new Date(Date.now() - 60_000);
+  utimesSync(staleConfigLockPath, staleConfigLockTime, staleConfigLockTime);
+
+  const durableRegistrationResult = await runCli([
+    "agent:register",
+    "durable-agent",
+    "--base-url",
+    baseUrl,
+    "--client-name",
+    "CLI durable agent",
+    "--mailbox-local-part",
+    "durable-agent",
+    "--owner-email",
+    "owner@example.com",
+    "--default",
+    "--json",
+  ]);
+  assertCliSuccess(durableRegistrationResult, "agent:register durable profile");
+  if (existsSync(staleConfigLockPath)) {
+    throw new Error("agent:register did not recover a stale profile config lock");
+  }
+  if (durableRegistrationResult.stdout.includes(durableAgentKey)) {
+    throw new Error("agent:register printed the durable access token");
+  }
+  const durableResultBody = JSON.parse(durableRegistrationResult.stdout);
+  assertDeepEqual(durableResultBody.data, {
+    default: true,
+    mailbox_email: "durable-agent@myagent.mx",
+    name: "durable-agent",
+    owner_invite_status: "pending",
+    registration_id: "areg_cli_durable",
+    status: "active",
+  }, "agent:register returned unexpected safe profile metadata");
+
+  if (
+    process.platform !== "win32" &&
+    ((statSync(agentConfigDir).mode & 0o777) !== 0o700 || (statSync(agentConfigPath).mode & 0o777) !== 0o600)
+  ) {
+    throw new Error("agent profile storage permissions are not 0700/0600");
+  }
+  const agentConfig = JSON.parse(readFileSync(agentConfigPath, "utf8"));
+  if (agentConfig.profiles["durable-agent"].accessToken !== durableAgentKey) {
+    throw new Error("agent:register did not persist the durable access token");
+  }
+  if (serverState.readinessAttempts !== 2) {
+    throw new Error(`agent:register did not poll readiness through a temporary 503: ${serverState.readinessAttempts}`);
+  }
+
+  const resumedRegistrationResult = await runCli([
+    "agent:register",
+    "durable-agent",
+    "--default",
+    "--json",
+  ]);
+  assertCliSuccess(resumedRegistrationResult, "agent:register resume from an active persisted profile");
+  if (serverState.registrations !== 1) {
+    throw new Error("agent:register resume created a duplicate registration");
+  }
+
+  const concurrentResults = await Promise.all([
+    runCli([
+      "agent:register",
+      "concurrent-agent",
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      "concurrent-agent",
+      "--json",
+    ]),
+    runCli([
+      "agent:register",
+      "concurrent-agent",
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      "concurrent-agent",
+      "--json",
+    ]),
+  ]);
+  for (const result of concurrentResults) {
+    assertCliSuccess(result, "concurrent agent:register");
+  }
+  const concurrentKeys = serverState.registrationIdempotencyKeys
+    .filter(({ profileName }) => profileName === "concurrent-agent")
+    .map(({ key }) => key);
+  if (
+    concurrentKeys.length !== 2 ||
+    concurrentKeys.some((key) => typeof key !== "string" || key.length === 0) ||
+    new Set(concurrentKeys).size !== 1
+  ) {
+    throw new Error(`concurrent agent:register used different idempotency keys: ${JSON.stringify(concurrentKeys)}`);
+  }
+
+  writeFileSync(staleConfigLockPath, "");
+  const crossProfileNames = ["concurrent-alpha", "concurrent-bravo"];
+  const crossProfileRuns = crossProfileNames.map((profileName) =>
+    runCli([
+      "agent:register",
+      profileName,
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      profileName,
+      "--json",
+    ]),
+  );
+  await waitForPaths(
+    crossProfileNames.map((profileName) =>
+      join(agentConfigDir, `agent-registration-${createHash("sha256").update(profileName, "utf8").digest("hex")}.json`),
+    ),
+  );
+  rmSync(staleConfigLockPath);
+  const crossProfileResults = await Promise.all(crossProfileRuns);
+  for (const result of crossProfileResults) {
+    assertCliSuccess(result, "concurrent cross-profile agent:register");
+  }
+  const configAfterCrossProfileRegistration = JSON.parse(readFileSync(agentConfigPath, "utf8"));
+  for (const profileName of crossProfileNames) {
+    if (configAfterCrossProfileRegistration.profiles[profileName]?.state !== "active") {
+      throw new Error(`concurrent agent:register lost profile ${profileName}`);
+    }
+  }
+
+  for (const [recoveredProfileName, invalidIntent] of [
+    ["recovered-malformed-agent", "{\"state\":"],
+    ["recovered-wrong-shape-agent", JSON.stringify({ type: "api_key" })],
+  ]) {
+    const recoveredIntentPath = join(
+      agentConfigDir,
+      `agent-registration-${createHash("sha256").update(recoveredProfileName, "utf8").digest("hex")}.json`,
+    );
+    writeFileSync(recoveredIntentPath, invalidIntent);
+    const recoveredRegistrationResult = await runCli([
+      "agent:register",
+      recoveredProfileName,
+      "--base-url",
+      baseUrl,
+      "--mailbox-local-part",
+      recoveredProfileName,
+      "--json",
+    ]);
+    assertCliSuccess(recoveredRegistrationResult, `agent:register with invalid intent ${recoveredProfileName}`);
+    if (existsSync(recoveredIntentPath)) {
+      throw new Error(`agent:register did not clear the recovered intent ${recoveredProfileName}`);
+    }
+  }
+
+  const ownerInviteResult = await runCli([
+    "agent:invite-owner",
+    "second-owner@example.com",
+    "--profile",
+    "durable-agent",
+    "--json",
+  ]);
+  assertCliSuccess(ownerInviteResult, "agent:invite-owner with a freshly reloaded durable profile");
+  assertDeepEqual(JSON.parse(ownerInviteResult.stdout).data, {
+    email: "second-owner@example.com",
+    profile: "durable-agent",
+    status: "pending",
+  }, "agent:invite-owner returned unexpected safe metadata");
+  if (latestRequest().headers.authorization !== `Bearer ${durableAgentKey}`) {
+    throw new Error("agent:invite-owner did not use the durable read token");
+  }
+
+  const durableMailboxResult = await runCli(["mailbox:me:get", "--profile", "durable-agent", "--json"]);
+  assertCliSuccess(durableMailboxResult, "mailbox read with a freshly reloaded durable profile");
+  if (latestRequest().headers.authorization !== `Bearer ${durableAgentKey}`) {
+    throw new Error("mailbox operation did not use the durable read token");
+  }
+
+  const exchangedSendResult = await runCli([
+    "sending:send",
+    "--profile",
+    "durable-agent",
+    "--body",
+    "{}",
+    "--idempotency-key",
+    "idem_cli_exchanged_send",
+    "--json",
+  ]);
+  assertCliSuccess(exchangedSendResult, "sending:send with automatic agent token exchange");
+  if (latestRequest().headers.authorization !== `Bearer ${delegatedAgentSendKey}`) {
+    throw new Error("sending operation did not use the delegated send token");
+  }
+  if (serverState.tokenExchanges !== 1) {
+    throw new Error(`sending operation made ${serverState.tokenExchanges} token exchanges instead of one`);
+  }
+
+  const cachedSendResult = await runCli([
+    "sending:send",
+    "--profile",
+    "durable-agent",
+    "--body",
+    "{}",
+    "--idempotency-key",
+    "idem_cli_cached_send",
+  ]);
+  assertCliSuccess(cachedSendResult, "sending:send with cached delegated token");
+  if (serverState.tokenExchanges !== 1) {
+    throw new Error("sending operation did not reuse the unexpired delegated token across processes");
+  }
+
   const requestCountBeforeAgentSendingPreflight = serverState.requests.length;
   const agentSendingResult = await runCli([
     "sending:send",
@@ -817,6 +1138,16 @@ function runCli(args) {
   });
 }
 
+async function waitForPaths(paths) {
+  const deadline = Date.now() + 5_000;
+  while (paths.some((path) => !existsSync(path))) {
+    if (Date.now() >= deadline) {
+      throw new Error(`Timed out waiting for paths: ${paths.join(", ")}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+}
+
 function assertDeepEqual(actual, expected, message) {
   const actualJson = JSON.stringify(actual);
   const expectedJson = JSON.stringify(expected);
@@ -893,6 +1224,71 @@ function assertBinaryOperationRunnerGuard() {
   if (!branch.includes('throw new Error("SDK operation mailboxGetMessageAttachment did not return binary content");')) {
     throw new Error("CLI attachment branch must reject non-binary data instead of falling through");
   }
+}
+
+async function assertAgentAuthNetworkBoundaries() {
+  const { normaliseAppOrigin, waitForMailbox } = await import("../packages/ts/cli/dist/agent-auth.js");
+
+  for (const origin of ["http://localhost:3000", "http://127.0.0.2:3000", "http://[::1]:3000"]) {
+    if (normaliseAppOrigin(origin) !== new URL(origin).origin) {
+      throw new Error(`agent auth rejected loopback HTTP origin ${origin}`);
+    }
+  }
+  for (const origin of ["http://example.com", "http://127.1", "http://2130706433"]) {
+    try {
+      normaliseAppOrigin(origin);
+      throw new Error(`agent auth accepted non-loopback or non-canonical HTTP origin ${origin}`);
+    } catch (error) {
+      if (String(error).includes("accepted non-loopback")) throw error;
+    }
+  }
+
+  const profile = {
+    accessToken: "smx_agent_timeout",
+    appApiBaseUrl: "https://app.sendmux.ai/api/v1",
+    authBaseUrl: "https://app.sendmux.ai/agent-auth",
+    idempotencyKey: "idem_timeout",
+    mailboxEmail: "timeout@myagent.mx",
+    registrationId: "areg_timeout",
+    sendingApiBaseUrl: "https://smtp.sendmux.ai/api/v1",
+    state: "active",
+    type: "agent",
+  };
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = (_url, options) =>
+      new Promise((_resolve, reject) => {
+        options?.signal?.addEventListener("abort", () => reject(options.signal.reason), { once: true });
+      });
+    const startedAt = Date.now();
+    await expectMailboxTimeout(() => waitForMailbox(profile, 50));
+    if (Date.now() - startedAt > 500) {
+      throw new Error("agent mailbox readiness fetch exceeded its timeout budget");
+    }
+
+    globalThis.fetch = async () =>
+      new Response(JSON.stringify({ error: "service_unavailable", retry_after: 999_999 }), {
+        headers: { "Content-Type": "application/json", "Retry-After": "999999" },
+        status: 503,
+      });
+    const retryStartedAt = Date.now();
+    await expectMailboxTimeout(() => waitForMailbox(profile, 50));
+    if (Date.now() - retryStartedAt > 500) {
+      throw new Error("agent mailbox Retry-After exceeded the remaining timeout budget");
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+async function expectMailboxTimeout(run) {
+  try {
+    await run();
+  } catch (error) {
+    if (String(error).includes("did not finish within the allowed time")) return;
+    throw error;
+  }
+  throw new Error("agent mailbox readiness unexpectedly completed");
 }
 
 async function assertCliArrayParameterSupport() {

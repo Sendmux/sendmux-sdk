@@ -7,7 +7,12 @@ import {
   type ApiKeyKind,
   type RequiredApiKeyKind,
 } from "./key-kind.js";
-import { readCliConfig } from "./profiles.js";
+import { resolveAgentSendingToken } from "./agent-auth.js";
+import {
+  isActiveAgentProfile,
+  isAgentProfile,
+  readCliConfig,
+} from "./profiles.js";
 
 export interface AuthFlags {
   "api-key"?: string;
@@ -42,8 +47,9 @@ export abstract class SendmuxCommand extends Command {
   static enableJsonFlag = true;
 
   async resolveAuth(flags: AuthFlags, expectedKind: RequiredApiKeyKind): Promise<ResolvedAuth> {
-    const envApiKey = process.env.SENDMUX_API_KEY;
-    const envBaseUrl = process.env.SENDMUX_BASE_URL;
+    const envApiKey = process.env.SENDMUX_API_KEY || undefined;
+    const envBaseUrl = process.env.SENDMUX_BASE_URL || undefined;
+    const envProfile = process.env.SENDMUX_PROFILE || undefined;
 
     if (flags["api-key"] || envApiKey) {
       const apiKey = flags["api-key"] ?? envApiKey;
@@ -65,7 +71,7 @@ export abstract class SendmuxCommand extends Command {
     }
 
     const config = await readCliConfig(this.config.configDir);
-    const profileName = flags.profile ?? process.env.SENDMUX_PROFILE ?? config.defaultProfile;
+    const profileName = flags.profile ?? envProfile ?? config.defaultProfile;
     if (!profileName) {
       this.error("No Sendmux profile configured. Run `sendmux profiles:set <name> --api-key <key> --default` or pass --api-key.", {
         exit: 2,
@@ -76,6 +82,35 @@ export abstract class SendmuxCommand extends Command {
     if (!profile) {
       this.error(`Sendmux profile "${profileName}" was not found. Run \`sendmux profiles:list\` to see configured profiles.`, {
         exit: 2,
+      });
+    }
+
+    if (isAgentProfile(profile)) {
+      if (!isActiveAgentProfile(profile)) {
+        this.error(`Sendmux agent profile "${profileName}" has not finished registration. Re-run \`sendmux agent:register ${profileName}\`.`, {
+          exit: 2,
+        });
+      }
+      if (expectedKind === "root") {
+        this.error(`Command requires a root API key, but profile "${profileName}" is an agent profile.`, { exit: 2 });
+      }
+
+      const apiKey =
+        expectedKind === "sending"
+          ? await resolveAgentSendingToken({
+              config,
+              configDir: this.config.configDir,
+              profile,
+              profileName,
+            })
+          : profile.accessToken;
+      const profileBaseUrl = expectedKind === "sending" ? profile.sendingApiBaseUrl : profile.appApiBaseUrl;
+      const baseUrl = flags["base-url"] ?? envBaseUrl ?? profileBaseUrl;
+      return this.assertKeyKind({
+        apiKey,
+        baseUrl,
+        expectedKind,
+        source: `agent profile "${profileName}"`,
       });
     }
 

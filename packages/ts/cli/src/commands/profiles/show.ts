@@ -5,7 +5,11 @@ import {
   inferApiKeyKind,
   maskApiKey,
 } from "../../key-kind.js";
-import { readCliConfig } from "../../profiles.js";
+import {
+  isActiveAgentProfile,
+  isApiKeyProfile,
+  readCliConfig,
+} from "../../profiles.js";
 
 export default class ProfilesShow extends SendmuxCommand {
   static args = {
@@ -29,16 +33,29 @@ export default class ProfilesShow extends SendmuxCommand {
       this.error(`Sendmux profile "${profileName}" was not found.`, { exit: 2 });
     }
 
-    return this.renderResult({
-      ok: true,
-      data: {
-        api_key: maskApiKey(profile.apiKey),
-        default: profileName === config.defaultProfile,
-        key_kind: inferApiKeyKind(profile.apiKey),
-        name: profileName,
-        ...(profile.baseUrl ? { base_url: profile.baseUrl } : {}),
-      },
-      meta: {},
-    });
+    const data = isApiKeyProfile(profile)
+      ? {
+          api_key: maskApiKey(profile.apiKey),
+          default: profileName === config.defaultProfile,
+          key_kind: inferApiKeyKind(profile.apiKey),
+          name: profileName,
+          ...(profile.baseUrl ? { base_url: profile.baseUrl } : {}),
+          type: "api_key",
+        }
+      : {
+          default: profileName === config.defaultProfile,
+          ...(isActiveAgentProfile(profile)
+            ? {
+                mailbox_email: profile.mailboxEmail,
+                owner_invite_status: profile.ownerInvite?.status,
+                registration_id: profile.registrationId,
+              }
+            : {}),
+          name: profileName,
+          status: profile.state,
+          type: "agent",
+        };
+
+    return this.renderResult({ ok: true, data, meta: {} });
   }
 }

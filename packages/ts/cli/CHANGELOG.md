@@ -6,6 +6,21 @@
 
 * add mailbox event follow mode, attachment commands, `--attach` send flags, and presigned upload support
 
+## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.4.1...ts-cli-v1.5.0) (2026-09-02)
+
+
+### Features
+
+* **cli:** add durable agent onboarding ([96afdeb](https://github.com/Sendmux/sendmux-sdk/commit/96afdebdf488cce5bb1266d1a8609224c0eb4e1a))
+* **cli:** add durable agent onboarding ([752c180](https://github.com/Sendmux/sendmux-sdk/commit/752c1802877bccf15202d5abb5955496f83242d6))
+
+
+### Bug Fixes
+
+* **cli:** address durable agent review ([b662c5d](https://github.com/Sendmux/sendmux-sdk/commit/b662c5dd1200b03232493e5602d8695927fd0bb5))
+* **cli:** make profile mutations atomic ([5dd79d6](https://github.com/Sendmux/sendmux-sdk/commit/5dd79d68f9b936561ba957d2d1d824f139dbc081))
+* **cli:** serialize profile config writes ([536b82e](https://github.com/Sendmux/sendmux-sdk/commit/536b82e533c1a9ee6367a46d52b10b02ca9d3a1c))
+
 ## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.4.0...ts-cli-v1.4.1) (2026-08-19)
 
 

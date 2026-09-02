@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.2](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.1.1...ruby-management/v1.1.2) (2026-09-02)
+
+
+### Bug Fixes
+
+* anchor generated Ruby email validation ([a87933b](https://github.com/Sendmux/sendmux-sdk/commit/a87933b507c572104b1832818e7db0587ad0352b))
+* reject mailbox email line breaks in generated clients ([7934cbe](https://github.com/Sendmux/sendmux-sdk/commit/7934cbe13f1d966878239e7c1d9e75ba44927937))
+* sync mailbox reliability clients ([fad78fa](https://github.com/Sendmux/sendmux-sdk/commit/fad78faf1d495c31bc0e0c40ef7d605f72727431))
+* sync mailbox reliability clients ([e8e7148](https://github.com/Sendmux/sendmux-sdk/commit/e8e7148e21f8fdba790c89331e8a2e144f86be4b))
+
 ## [1.1.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.1.0...ruby-management/v1.1.1) (2026-08-07)
 
 

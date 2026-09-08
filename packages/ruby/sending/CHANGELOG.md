@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.2.0...ruby-sending/v1.3.0) (2026-09-08)
+
+
+### Features
+
+* add connection checks across SDKs, CLI and MCP ([77f449e](https://github.com/Sendmux/sendmux-sdk/commit/77f449e2c8cba49bc8bc84c49c35baa61120866a))
+* **sdk:** add connection checks across clients, CLI and MCP ([3e02c67](https://github.com/Sendmux/sendmux-sdk/commit/3e02c67dcab45e37dad7abbdd4c4e1bd0b1fbbe6))
+
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.1.0...ruby-sending/v1.2.0) (2026-07-08)
 
 

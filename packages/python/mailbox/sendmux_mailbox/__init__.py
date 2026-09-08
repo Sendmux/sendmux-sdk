@@ -34,6 +34,11 @@ __all__ = [
     "ApiErrorMeta",
     "BatchDeleteMailboxMessagesBody",
     "BatchUpdateMailboxMessagesBody",
+    "Connection",
+    "ConnectionCredential",
+    "ConnectionMailboxesInner",
+    "ConnectionResponse",
+    "ConnectionTeam",
     "CreateMailboxFolderBody",
     "CursorPagination",
     "GrantedMailbox",
@@ -180,6 +185,11 @@ from sendmux_mailbox.models.api_error_error import ApiErrorError as ApiErrorErro
 from sendmux_mailbox.models.api_error_meta import ApiErrorMeta as ApiErrorMeta
 from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDeleteMailboxMessagesBody as BatchDeleteMailboxMessagesBody
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody as BatchUpdateMailboxMessagesBody
+from sendmux_mailbox.models.connection import Connection as Connection
+from sendmux_mailbox.models.connection_credential import ConnectionCredential as ConnectionCredential
+from sendmux_mailbox.models.connection_mailboxes_inner import ConnectionMailboxesInner as ConnectionMailboxesInner
+from sendmux_mailbox.models.connection_response import ConnectionResponse as ConnectionResponse
+from sendmux_mailbox.models.connection_team import ConnectionTeam as ConnectionTeam
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody as CreateMailboxFolderBody
 from sendmux_mailbox.models.cursor_pagination import CursorPagination as CursorPagination
 from sendmux_mailbox.models.granted_mailbox import GrantedMailbox as GrantedMailbox

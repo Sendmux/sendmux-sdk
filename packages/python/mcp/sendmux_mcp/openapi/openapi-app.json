@@ -157,7 +157,7 @@
             "type": "object"
           },
           "balance": {
-            "description": "Current balance (purchased - consumed)",
+            "description": "Current spendable balance",
             "example": "45.230000",
             "type": "string"
           },
@@ -274,6 +274,116 @@
           "ids"
         ],
         "type": "object"
+      },
+      "Connection": {
+        "additionalProperties": false,
+        "properties": {
+          "credential": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "enum": [
+                  "api_key",
+                  "oauth",
+                  "agent_token"
+                ],
+                "example": "api_key",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name"
+            ],
+            "type": "object"
+          },
+          "label": {
+            "description": "Display label for this connection.",
+            "type": "string"
+          },
+          "mailboxes": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "format": "email",
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "email"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "team": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "team",
+          "credential",
+          "label",
+          "permissions",
+          "mailboxes"
+        ],
+        "type": "object"
+      },
+      "ConnectionResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/Connection"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
       },
       "CreateMailboxFolderBody": {
         "additionalProperties": false,
@@ -8037,7 +8147,7 @@
   "paths": {
     "/billing/balance": {
       "get": {
-        "description": "Returns the current team balance and auto top-up configuration.",
+        "description": "Returns the current spendable balance.",
         "operationId": "managementListBalance",
         "responses": {
           "200": {
@@ -8048,7 +8158,7 @@
                 }
               }
             },
-            "description": "Current balance"
+            "description": "Current spendable balance"
           },
           "401": {
             "content": {
@@ -9870,6 +9980,144 @@
           }
         ],
         "summary": "Get mailbox changes",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/connection": {
+      "get": {
+        "description": "Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.",
+        "operationId": "mailboxGetConnection",
+        "parameters": [
+          {
+            "description": "ETag from a previous response. A match returns 304 with no body after rechecking authentication.",
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionResponse"
+                }
+              }
+            },
+            "description": "Connection information",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request identifier.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Connection information is unchanged. Authentication is checked on every request.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request identifier.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Credential is not authorised for this API"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unexpected server error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Authentication service temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get Mailbox connection",
         "tags": [
           "Mailbox API"
         ]
@@ -15162,6 +15410,144 @@
         "summary": "Check mailbox address availability",
         "tags": [
           "Mailboxes"
+        ]
+      }
+    },
+    "/me": {
+      "get": {
+        "description": "Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.",
+        "operationId": "managementGetConnection",
+        "parameters": [
+          {
+            "description": "ETag from a previous response. A match returns 304 with no body after rechecking authentication.",
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionResponse"
+                }
+              }
+            },
+            "description": "Connection information",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request identifier.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Connection information is unchanged. Authentication is checked on every request.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request identifier.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Credential is not authorised for this API"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unexpected server error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Authentication service temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get Management connection",
+        "tags": [
+          "Connection"
         ]
       }
     },

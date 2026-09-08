@@ -63,6 +63,7 @@ function createApis(string $surface): array
     if ($surface === 'management') {
         return [
             Sendmux\Management\ClientFactory::createBillingApi(rootApiKey(), appBaseUrl()),
+            Sendmux\Management\ClientFactory::createConnectionApi(rootApiKey(), appBaseUrl()),
             Sendmux\Management\ClientFactory::createDomainFiltersApi(rootApiKey(), appBaseUrl()),
             Sendmux\Management\ClientFactory::createDomainsApi(rootApiKey(), appBaseUrl()),
             Sendmux\Management\ClientFactory::createEmailsApi(rootApiKey(), appBaseUrl()),

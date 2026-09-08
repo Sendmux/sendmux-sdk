@@ -29,6 +29,7 @@ from sendmux_mcp.verification import structured_result
 
 EXPECTED_TOOL_NAMES_BY_SURFACE = {
     "mailbox": {
+        "mailbox_get_connection",
         "mailbox_batch_delete_messages",
         "mailbox_batch_get_messages",
         "mailbox_batch_update_messages",
@@ -56,6 +57,7 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "mailbox_wait_for_message",
     },
     "management": {
+        "management_get_connection",
         "management_check_mailbox_availability",
         "management_create_domain",
         "management_create_mailbox",
@@ -79,6 +81,7 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "management_verify_domain",
     },
     "sending": {
+        "sending_get_connection",
         "sending_create_attachment_upload",
         "sending_get_attachment",
         "sending_send_email",
@@ -88,6 +91,9 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
 }
 
 READ_ONLY_TOOL_NAMES = {
+    "mailbox_get_connection",
+    "management_get_connection",
+    "sending_get_connection",
     "mailbox_batch_get_messages",
     "mailbox_count_messages",
     "mailbox_get_changes",
@@ -197,7 +203,7 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
             async with Client(server) as client:
                 tools.extend(await client.list_tools())
 
-        assert len(tools) == 51
+        assert len(tools) == 54
         assert {tool.name for tool in tools if tool.outputSchema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
 
         for tool in tools:
@@ -315,6 +321,53 @@ def test_umbrella_cli_reads_surfaces_from_env(monkeypatch: pytest.MonkeyPatch) -
     args = parser(prog="sendmux-mcp").parse_args([])
 
     assert surfaces_from_args(args) == ("mailbox", "sending")
+
+
+@pytest.mark.parametrize("surface,api_key,endpoint", [
+    ("management", "smx_root_test", "/api/v1/me"),
+    ("mailbox", "smx_mbx_test", "/api/v1/mailbox/connection"),
+    ("sending", "smx_mbx_test", "/api/v1/me"),
+])
+def test_connection_tool_lists_schema_and_calls_without_mailbox_selection(surface: Surface, api_key: str, endpoint: str) -> None:
+    requests: list[httpx.Request] = []
+    payload = {
+        "ok": True,
+        "data": {
+            "team": {"id": "team_test", "name": "Fixture team"},
+            "credential": {"id": "key_test", "type": "api_key", "name": None},
+            "label": "Fixture team", "permissions": [], "mailboxes": [],
+        },
+        "meta": {"request_id": "req_test"},
+    }
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=payload)
+
+    async def check() -> None:
+        server = create_server(ServerConfig(surfaces=(surface,), api_key=api_key), transport=httpx.MockTransport(handler))
+        async with Client(server) as client:
+            tools = {tool.name: tool for tool in await client.list_tools()}
+            tool_name = f"{surface}_get_connection"
+            assert tool_name in tools
+            tool = tools[tool_name]
+            assert tool.outputSchema is not None
+            assert "mailbox_id" not in tool.inputSchema.get("properties", {})
+            assert not tool.inputSchema.get("required")
+            assert tool.annotations is not None
+            assert tool.annotations.readOnlyHint is True
+            assert tool.annotations.destructiveHint is False
+            assert tool.annotations.idempotentHint is True
+            assert tool.annotations.openWorldHint is True
+            assert structured_result(await client.call_tool(tool_name, {})) == payload
+
+    asyncio.run(check())
+    assert len(requests) == 1
+    assert requests[0].method == "GET"
+    assert requests[0].url.path == endpoint
+    assert not requests[0].url.query
+    assert not requests[0].content
+    assert requests[0].headers["Authorization"] == f"Bearer {api_key}"
 
 
 def test_mailbox_tool_call_injects_bearer_auth() -> None:

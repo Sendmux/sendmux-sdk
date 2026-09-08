@@ -12,6 +12,9 @@ PermissionRequirement = tuple[str, ...]
 
 TOOL_PERMISSION_REQUIREMENTS: Mapping[str, PermissionRequirement] = MappingProxyType(
     {
+        "management_get_connection": (),
+        "mailbox_get_connection": (),
+        "sending_get_connection": ("email.send",),
         "mailbox_list_granted_mailboxes": ("mailbox.read",),
         "mailbox_get_me": ("mailbox.read",),
         "mailbox_get_session": ("mailbox.read",),

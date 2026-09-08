@@ -13,6 +13,10 @@ type SendingGetAttachmentRes interface {
 	sendingGetAttachmentRes()
 }
 
+type SendingGetConnectionRes interface {
+	sendingGetConnectionRes()
+}
+
 type SendingGetOpenApiSpecRes interface {
 	sendingGetOpenApiSpecRes()
 }

@@ -21,6 +21,7 @@ const (
 	ManagementDeleteMailboxKeyOperation                   OperationName = "ManagementDeleteMailboxKey"
 	ManagementDeleteProviderOperation                     OperationName = "ManagementDeleteProvider"
 	ManagementDeleteWebhookOperation                      OperationName = "ManagementDeleteWebhook"
+	ManagementGetConnectionOperation                      OperationName = "ManagementGetConnection"
 	ManagementGetDeliveryPayloadOperation                 OperationName = "ManagementGetDeliveryPayload"
 	ManagementGetDomainOperation                          OperationName = "ManagementGetDomain"
 	ManagementGetDomainFiltersOperation                   OperationName = "ManagementGetDomainFilters"

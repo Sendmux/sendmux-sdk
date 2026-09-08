@@ -45,6 +45,7 @@ var operationRolesBearerAuth = map[string][]string{
 	MailboxDeleteFolderOperation:           []string{},
 	MailboxDeleteMessageOperation:          []string{},
 	MailboxGetChangesOperation:             []string{},
+	MailboxGetConnectionOperation:          []string{},
 	MailboxGetFolderOperation:              []string{},
 	MailboxGetFolderChangesOperation:       []string{},
 	MailboxGetIdentityOperation:            []string{},

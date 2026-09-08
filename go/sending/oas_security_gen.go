@@ -37,6 +37,7 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 var operationRolesBearerAuth = map[string][]string{
 	SendingCreateAttachmentUploadOperation: []string{},
 	SendingGetAttachmentOperation:          []string{},
+	SendingGetConnectionOperation:          []string{},
 	SendingSendEmailOperation:              []string{},
 	SendingSendEmailBatchOperation:         []string{},
 	SendingUploadAttachmentOperation:       []string{},

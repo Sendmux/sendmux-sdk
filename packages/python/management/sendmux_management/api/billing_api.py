@@ -327,7 +327,7 @@ class BillingApi:
     ) -> BalanceResponse:
         """Get current balance
 
-        Returns the current team balance and auto top-up configuration.
+        Returns the current spendable balance.
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -392,7 +392,7 @@ class BillingApi:
     ) -> ApiResponse[BalanceResponse]:
         """Get current balance
 
-        Returns the current team balance and auto top-up configuration.
+        Returns the current spendable balance.
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -457,7 +457,7 @@ class BillingApi:
     ) -> RESTResponseType:
         """Get current balance
 
-        Returns the current team balance and auto top-up configuration.
+        Returns the current spendable balance.
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

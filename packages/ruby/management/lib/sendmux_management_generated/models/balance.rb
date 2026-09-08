@@ -17,7 +17,7 @@ module Sendmux::Management::Generated
   class Balance < ApiModelBase
     attr_accessor :auto_topup
 
-    # Current balance (purchased - consumed)
+    # Current spendable balance
     attr_accessor :balance
 
     attr_accessor :balance_consumed

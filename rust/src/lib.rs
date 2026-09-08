@@ -7,8 +7,9 @@ pub mod management;
 pub mod sending;
 
 pub use crate::core::{
-    validate_api_key, ApiError, ApiKeySurface, Error, ErrorDetail, ErrorIssue, RequestOptions,
-    Response, ResponseMeta, Result,
+    validate_api_key, ApiError, ApiKeySurface, Connection, ConnectionCredential, ConnectionMailbox,
+    ConnectionTeam, CredentialType, Error, ErrorDetail, ErrorIssue, RequestOptions, Response,
+    ResponseMeta, Result,
 };
 pub use crate::mailbox::MailboxClient;
 pub use crate::management::ManagementClient;

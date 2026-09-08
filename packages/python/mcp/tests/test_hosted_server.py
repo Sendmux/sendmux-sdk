@@ -291,7 +291,7 @@ def test_hosted_mailbox_action_tools_expose_mailbox_target(monkeypatch: pytest.M
 
         for tool in tools:
             properties = (tool.parameters or {}).get("properties", {})
-            if tool.name == "mailbox_list_granted_mailboxes":
+            if tool.name in {"mailbox_list_granted_mailboxes", "mailbox_get_connection"}:
                 assert "mailbox_id" not in properties
                 continue
             if tool.name.startswith("mailbox_") and "mailbox_id" not in properties:

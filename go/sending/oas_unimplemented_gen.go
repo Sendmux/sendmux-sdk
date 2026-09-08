@@ -44,6 +44,17 @@ func (UnimplementedHandler) SendingGetAttachment(ctx context.Context, params Sen
 	return r, ht.ErrNotImplemented
 }
 
+// SendingGetConnection implements sendingGetConnection operation.
+//
+// Validate this Sending credential and return its team, connection label, permissions and authorised
+// mailboxes. Requires email.send. Credits, provider readiness and mailbox storage are not checked.
+// No user profile or secrets are returned.
+//
+// GET /me
+func (UnimplementedHandler) SendingGetConnection(ctx context.Context, params SendingGetConnectionParams) (r SendingGetConnectionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // SendingGetOpenApiSpec implements sendingGetOpenApiSpec operation.
 //
 // Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).

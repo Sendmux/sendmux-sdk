@@ -420,86 +420,34 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 'm': // Prefix: "mailboxes"
+			case 'm': // Prefix: "m"
 
-				if l := len("mailboxes"); len(elem) >= l && elem[0:l] == "mailboxes" {
+				if l := len("m"); len(elem) >= l && elem[0:l] == "m" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleManagementListMailboxesRequest([0]string{}, elemIsEscaped, w, r)
-					case "POST":
-						s.handleManagementCreateMailboxRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET,POST")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case 'a': // Prefix: "ailboxes"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("ailboxes"); len(elem) >= l && elem[0:l] == "ailboxes" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						break
-					}
-					switch elem[0] {
-					case 'a': // Prefix: "availability"
-						origElem := elem
-						if l := len("availability"); len(elem) >= l && elem[0:l] == "availability" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "GET":
-								s.handleManagementCheckMailboxAvailabilityRequest([0]string{}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "GET")
-							}
-
-							return
-						}
-
-						elem = origElem
-					}
-					// Param: "public_id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
-					if len(elem) == 0 {
 						switch r.Method {
-						case "DELETE":
-							s.handleManagementDeleteMailboxRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
 						case "GET":
-							s.handleManagementGetMailboxRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						case "PATCH":
-							s.handleManagementUpdateMailboxRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
+							s.handleManagementListMailboxesRequest([0]string{}, elemIsEscaped, w, r)
+						case "POST":
+							s.handleManagementCreateMailboxRequest([0]string{}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH")
+							s.notAllowed(w, r, "GET,POST")
 						}
 
 						return
@@ -517,9 +465,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 						switch elem[0] {
-						case 'f': // Prefix: "filters"
-
-							if l := len("filters"); len(elem) >= l && elem[0:l] == "filters" {
+						case 'a': // Prefix: "availability"
+							origElem := elem
+							if l := len("availability"); len(elem) >= l && elem[0:l] == "availability" {
 								elem = elem[l:]
 							} else {
 								break
@@ -529,68 +477,178 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "GET":
-									s.handleManagementGetMailboxFiltersRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								case "PUT":
-									s.handleManagementSetMailboxFiltersRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
+									s.handleManagementCheckMailboxAvailabilityRequest([0]string{}, elemIsEscaped, w, r)
 								default:
-									s.notAllowed(w, r, "GET,PUT")
+									s.notAllowed(w, r, "GET")
 								}
 
 								return
 							}
 
-						case 'k': // Prefix: "keys"
+							elem = origElem
+						}
+						// Param: "public_id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
 
-							if l := len("keys"); len(elem) >= l && elem[0:l] == "keys" {
+						if len(elem) == 0 {
+							switch r.Method {
+							case "DELETE":
+								s.handleManagementDeleteMailboxRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							case "GET":
+								s.handleManagementGetMailboxRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							case "PATCH":
+								s.handleManagementUpdateMailboxRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE,GET,PATCH")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								switch r.Method {
-								case "POST":
-									s.handleManagementCreateMailboxKeyRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
-								}
-
-								return
+								break
 							}
 							switch elem[0] {
-							case '/': // Prefix: "/"
+							case 'f': // Prefix: "filters"
 
-								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								if l := len("filters"); len(elem) >= l && elem[0:l] == "filters" {
 									elem = elem[l:]
 								} else {
 									break
 								}
 
-								// Param: "key_id"
-								// Leaf parameter, slashes are prohibited
-								idx := strings.IndexByte(elem, '/')
-								if idx >= 0 {
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleManagementGetMailboxFiltersRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "PUT":
+										s.handleManagementSetMailboxFiltersRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET,PUT")
+									}
+
+									return
+								}
+
+							case 'k': // Prefix: "keys"
+
+								if l := len("keys"); len(elem) >= l && elem[0:l] == "keys" {
+									elem = elem[l:]
+								} else {
 									break
 								}
-								args[1] = elem
-								elem = ""
+
+								if len(elem) == 0 {
+									switch r.Method {
+									case "POST":
+										s.handleManagementCreateMailboxKeyRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "key_id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "DELETE":
+											s.handleManagementDeleteMailboxKeyRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "DELETE")
+										}
+
+										return
+									}
+
+								}
+
+							case 'r': // Prefix: "resume"
+
+								if l := len("resume"); len(elem) >= l && elem[0:l] == "resume" {
+									elem = elem[l:]
+								} else {
+									break
+								}
 
 								if len(elem) == 0 {
 									// Leaf node.
 									switch r.Method {
-									case "DELETE":
-										s.handleManagementDeleteMailboxKeyRequest([2]string{
+									case "POST":
+										s.handleManagementResumeMailboxRequest([1]string{
 											args[0],
-											args[1],
 										}, elemIsEscaped, w, r)
 									default:
-										s.notAllowed(w, r, "DELETE")
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 's': // Prefix: "suspend"
+
+								if l := len("suspend"); len(elem) >= l && elem[0:l] == "suspend" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleManagementSuspendMailboxRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
 									}
 
 									return
@@ -598,52 +656,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 							}
 
-						case 'r': // Prefix: "resume"
-
-							if l := len("resume"); len(elem) >= l && elem[0:l] == "resume" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleManagementResumeMailboxRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
-								}
-
-								return
-							}
-
-						case 's': // Prefix: "suspend"
-
-							if l := len("suspend"); len(elem) >= l && elem[0:l] == "suspend" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "POST":
-									s.handleManagementSuspendMailboxRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "POST")
-								}
-
-								return
-							}
-
 						}
 
+					}
+
+				case 'e': // Prefix: "e"
+
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleManagementGetConnectionRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
 					}
 
 				}
@@ -1649,109 +1683,43 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 'm': // Prefix: "mailboxes"
+			case 'm': // Prefix: "m"
 
-				if l := len("mailboxes"); len(elem) >= l && elem[0:l] == "mailboxes" {
+				if l := len("m"); len(elem) >= l && elem[0:l] == "m" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = ManagementListMailboxesOperation
-						r.summary = "List mailboxes"
-						r.operationID = "managementListMailboxes"
-						r.pathPattern = "/mailboxes"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "POST":
-						r.name = ManagementCreateMailboxOperation
-						r.summary = "Create a mailbox"
-						r.operationID = "managementCreateMailbox"
-						r.pathPattern = "/mailboxes"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case 'a': // Prefix: "ailboxes"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("ailboxes"); len(elem) >= l && elem[0:l] == "ailboxes" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						break
-					}
-					switch elem[0] {
-					case 'a': // Prefix: "availability"
-						origElem := elem
-						if l := len("availability"); len(elem) >= l && elem[0:l] == "availability" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "GET":
-								r.name = ManagementCheckMailboxAvailabilityOperation
-								r.summary = "Check mailbox address availability"
-								r.operationID = "managementCheckMailboxAvailability"
-								r.pathPattern = "/mailboxes/availability"
-								r.args = args
-								r.count = 0
-								return r, true
-							default:
-								return
-							}
-						}
-
-						elem = origElem
-					}
-					// Param: "public_id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
-					if len(elem) == 0 {
 						switch method {
-						case "DELETE":
-							r.name = ManagementDeleteMailboxOperation
-							r.summary = "Delete a mailbox"
-							r.operationID = "managementDeleteMailbox"
-							r.pathPattern = "/mailboxes/{public_id}"
-							r.args = args
-							r.count = 1
-							return r, true
 						case "GET":
-							r.name = ManagementGetMailboxOperation
-							r.summary = "Get a mailbox"
-							r.operationID = "managementGetMailbox"
-							r.pathPattern = "/mailboxes/{public_id}"
+							r.name = ManagementListMailboxesOperation
+							r.summary = "List mailboxes"
+							r.operationID = "managementListMailboxes"
+							r.pathPattern = "/mailboxes"
 							r.args = args
-							r.count = 1
+							r.count = 0
 							return r, true
-						case "PATCH":
-							r.name = ManagementUpdateMailboxOperation
-							r.summary = "Update a mailbox"
-							r.operationID = "managementUpdateMailbox"
-							r.pathPattern = "/mailboxes/{public_id}"
+						case "POST":
+							r.name = ManagementCreateMailboxOperation
+							r.summary = "Create a mailbox"
+							r.operationID = "managementCreateMailbox"
+							r.pathPattern = "/mailboxes"
 							r.args = args
-							r.count = 1
+							r.count = 0
 							return r, true
 						default:
 							return
@@ -1770,9 +1738,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							break
 						}
 						switch elem[0] {
-						case 'f': // Prefix: "filters"
-
-							if l := len("filters"); len(elem) >= l && elem[0:l] == "filters" {
+						case 'a': // Prefix: "availability"
+							origElem := elem
+							if l := len("availability"); len(elem) >= l && elem[0:l] == "availability" {
 								elem = elem[l:]
 							} else {
 								break
@@ -1782,76 +1750,204 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								// Leaf node.
 								switch method {
 								case "GET":
-									r.name = ManagementGetMailboxFiltersOperation
-									r.summary = "Get mailbox sender filters"
-									r.operationID = "managementGetMailboxFilters"
-									r.pathPattern = "/mailboxes/{public_id}/filters"
+									r.name = ManagementCheckMailboxAvailabilityOperation
+									r.summary = "Check mailbox address availability"
+									r.operationID = "managementCheckMailboxAvailability"
+									r.pathPattern = "/mailboxes/availability"
 									r.args = args
-									r.count = 1
-									return r, true
-								case "PUT":
-									r.name = ManagementSetMailboxFiltersOperation
-									r.summary = "Replace mailbox sender filters"
-									r.operationID = "managementSetMailboxFilters"
-									r.pathPattern = "/mailboxes/{public_id}/filters"
-									r.args = args
-									r.count = 1
+									r.count = 0
 									return r, true
 								default:
 									return
 								}
 							}
 
-						case 'k': // Prefix: "keys"
+							elem = origElem
+						}
+						// Param: "public_id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
 
-							if l := len("keys"); len(elem) >= l && elem[0:l] == "keys" {
+						if len(elem) == 0 {
+							switch method {
+							case "DELETE":
+								r.name = ManagementDeleteMailboxOperation
+								r.summary = "Delete a mailbox"
+								r.operationID = "managementDeleteMailbox"
+								r.pathPattern = "/mailboxes/{public_id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "GET":
+								r.name = ManagementGetMailboxOperation
+								r.summary = "Get a mailbox"
+								r.operationID = "managementGetMailbox"
+								r.pathPattern = "/mailboxes/{public_id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "PATCH":
+								r.name = ManagementUpdateMailboxOperation
+								r.summary = "Update a mailbox"
+								r.operationID = "managementUpdateMailbox"
+								r.pathPattern = "/mailboxes/{public_id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								switch method {
-								case "POST":
-									r.name = ManagementCreateMailboxKeyOperation
-									r.summary = "Create a mailbox API key"
-									r.operationID = "managementCreateMailboxKey"
-									r.pathPattern = "/mailboxes/{public_id}/keys"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
+								break
 							}
 							switch elem[0] {
-							case '/': // Prefix: "/"
+							case 'f': // Prefix: "filters"
 
-								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								if l := len("filters"); len(elem) >= l && elem[0:l] == "filters" {
 									elem = elem[l:]
 								} else {
 									break
 								}
 
-								// Param: "key_id"
-								// Leaf parameter, slashes are prohibited
-								idx := strings.IndexByte(elem, '/')
-								if idx >= 0 {
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = ManagementGetMailboxFiltersOperation
+										r.summary = "Get mailbox sender filters"
+										r.operationID = "managementGetMailboxFilters"
+										r.pathPattern = "/mailboxes/{public_id}/filters"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "PUT":
+										r.name = ManagementSetMailboxFiltersOperation
+										r.summary = "Replace mailbox sender filters"
+										r.operationID = "managementSetMailboxFilters"
+										r.pathPattern = "/mailboxes/{public_id}/filters"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'k': // Prefix: "keys"
+
+								if l := len("keys"); len(elem) >= l && elem[0:l] == "keys" {
+									elem = elem[l:]
+								} else {
 									break
 								}
-								args[1] = elem
-								elem = ""
+
+								if len(elem) == 0 {
+									switch method {
+									case "POST":
+										r.name = ManagementCreateMailboxKeyOperation
+										r.summary = "Create a mailbox API key"
+										r.operationID = "managementCreateMailboxKey"
+										r.pathPattern = "/mailboxes/{public_id}/keys"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "key_id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "DELETE":
+											r.name = ManagementDeleteMailboxKeyOperation
+											r.summary = "Revoke a mailbox API key"
+											r.operationID = "managementDeleteMailboxKey"
+											r.pathPattern = "/mailboxes/{public_id}/keys/{key_id}"
+											r.args = args
+											r.count = 2
+											return r, true
+										default:
+											return
+										}
+									}
+
+								}
+
+							case 'r': // Prefix: "resume"
+
+								if l := len("resume"); len(elem) >= l && elem[0:l] == "resume" {
+									elem = elem[l:]
+								} else {
+									break
+								}
 
 								if len(elem) == 0 {
 									// Leaf node.
 									switch method {
-									case "DELETE":
-										r.name = ManagementDeleteMailboxKeyOperation
-										r.summary = "Revoke a mailbox API key"
-										r.operationID = "managementDeleteMailboxKey"
-										r.pathPattern = "/mailboxes/{public_id}/keys/{key_id}"
+									case "POST":
+										r.name = ManagementResumeMailboxOperation
+										r.summary = "Resume a mailbox"
+										r.operationID = "managementResumeMailbox"
+										r.pathPattern = "/mailboxes/{public_id}/resume"
 										r.args = args
-										r.count = 2
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 's': // Prefix: "suspend"
+
+								if l := len("suspend"); len(elem) >= l && elem[0:l] == "suspend" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = ManagementSuspendMailboxOperation
+										r.summary = "Suspend a mailbox"
+										r.operationID = "managementSuspendMailbox"
+										r.pathPattern = "/mailboxes/{public_id}/suspend"
+										r.args = args
+										r.count = 1
 										return r, true
 									default:
 										return
@@ -1860,56 +1956,32 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 							}
 
-						case 'r': // Prefix: "resume"
-
-							if l := len("resume"); len(elem) >= l && elem[0:l] == "resume" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = ManagementResumeMailboxOperation
-									r.summary = "Resume a mailbox"
-									r.operationID = "managementResumeMailbox"
-									r.pathPattern = "/mailboxes/{public_id}/resume"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-
-						case 's': // Prefix: "suspend"
-
-							if l := len("suspend"); len(elem) >= l && elem[0:l] == "suspend" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "POST":
-									r.name = ManagementSuspendMailboxOperation
-									r.summary = "Suspend a mailbox"
-									r.operationID = "managementSuspendMailbox"
-									r.pathPattern = "/mailboxes/{public_id}/suspend"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-
 						}
 
+					}
+
+				case 'e': // Prefix: "e"
+
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = ManagementGetConnectionOperation
+							r.summary = "Get Management connection"
+							r.operationID = "managementGetConnection"
+							r.pathPattern = "/me"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
 					}
 
 				}

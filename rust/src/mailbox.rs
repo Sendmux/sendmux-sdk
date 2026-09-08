@@ -1,5 +1,5 @@
 use crate::core::{
-    encode_path_segment, ApiKeySurface, RequestOptions, Response, Result, Transport,
+    encode_path_segment, ApiKeySurface, Connection, RequestOptions, Response, Result, Transport,
 };
 use reqwest::Client;
 use serde::Serialize;
@@ -32,6 +32,10 @@ impl MailboxClient {
     pub fn with_user_agent(mut self, user_agent: impl AsRef<str>) -> Result<Self> {
         self.transport = self.transport.with_user_agent(user_agent)?;
         Ok(self)
+    }
+
+    pub async fn get_connection(&self) -> Result<Response<Connection>> {
+        self.transport.get_json("/mailbox/connection").await
     }
 
     pub async fn get_me(&self) -> Result<Response<serde_json::Value>> {

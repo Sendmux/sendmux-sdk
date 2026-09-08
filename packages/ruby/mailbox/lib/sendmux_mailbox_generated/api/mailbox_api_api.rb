@@ -715,6 +715,66 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # Get Mailbox connection
+    # Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+    # @return [ConnectionResponse]
+    def mailbox_get_connection(opts = {})
+      data, _status_code, _headers = mailbox_get_connection_with_http_info(opts)
+      data
+    end
+
+    # Get Mailbox connection
+    # Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+    # @return [Array<(ConnectionResponse, Integer, Hash)>] ConnectionResponse data, response status code and response headers
+    def mailbox_get_connection_with_http_info(opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_get_connection ...'
+      end
+      # resource path
+      local_var_path = '/mailbox/connection'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'ConnectionResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_get_connection",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_get_connection\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Get a mailbox folder
     # Returns one folder from the authenticated mailbox. Responses include a weak `ETag` header.
     # @param folder_id [String]

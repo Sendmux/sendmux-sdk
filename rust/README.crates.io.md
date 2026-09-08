@@ -41,6 +41,20 @@ async fn main() -> sendmux::Result<()> {
 }
 ```
 
+## Connection Checks
+
+Each surface exposes `get_connection()` to validate its current credential and retrieve the team, label, permissions and authorised mailboxes. It does not require a mailbox selector or send an email. Sending credentials must include `email.send`.
+
+```rust,no_run
+#[tokio::main]
+async fn main() -> sendmux::Result<()> {
+    let client = sendmux::management(std::env::var("SENDMUX_API_KEY").unwrap())?;
+    let connection = client.get_connection().await?;
+    println!("{}", connection.data.label);
+    Ok(())
+}
+```
+
 ## Sending API
 
 Use a send-capable `smx_mbx_` key or owner-approved Sending-resource `smx_agent_` token.

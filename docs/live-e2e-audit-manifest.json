@@ -3,9 +3,9 @@
   "kind": "sendmux-live-e2e-audit-manifest",
   "note": "Sanitized audit record only: no API keys, bearer tokens, base URLs, request bodies, or response bodies.",
   "run": {
-    "commit_sha": "a875ad9c0ab91a65db3d4efa492fac82f59314e7",
-    "generated_at": "2026-07-08T03:23:27.488Z",
-    "source": "protected-live-e2e:20260708-content-length"
+    "commit_sha": "3e02c67dcab45e37dad7abbdd4c4e1bd0b1fbbe6",
+    "generated_at": "2026-09-08T07:30:15.531Z",
+    "source": "protected-live-e2e:integration-connections-only:3-operations:21-adapter-checks"
   },
   "ci_refresh": {
     "workflow": ".github/workflows/live-e2e.yml",
@@ -13,7 +13,7 @@
     "artifact_name": "live-e2e-audit-manifest"
   },
   "gates": {
-    "SENDMUX_LIVE_E2E": false,
+    "SENDMUX_LIVE_E2E": true,
     "SENDMUX_LIVE_E2E_FIXTURE_SETUP": false,
     "SENDMUX_LIVE_E2E_MUTATIONS": false,
     "SENDMUX_LIVE_E2E_BINARY": false,
@@ -24,8 +24,8 @@
     "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST": false
   },
   "operation_counts": {
-    "total": 103,
-    "executable": 54,
+    "total": 106,
+    "executable": 57,
     "gated": 49,
     "blocked": 0,
     "gated_by_risk": {
@@ -39,78 +39,78 @@
   "result_summary": {
     "total": {
       "failed": 0,
-      "passed": 656,
-      "skipped": 51
+      "passed": 21,
+      "skipped": 0
     },
     "surfaces": {
       "sdk": {
         "failed": 0,
-        "passed": 505,
+        "passed": 15,
         "skipped": 0
       },
       "cli": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       },
       "mcp": {
         "failed": 0,
-        "passed": 50,
-        "skipped": 51
+        "passed": 3,
+        "skipped": 0
       }
     },
     "adapters": {
       "cli": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       },
       "go": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       },
       "mcp": {
         "failed": 0,
-        "passed": 50,
-        "skipped": 51
+        "passed": 3,
+        "skipped": 0
       },
       "php": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       },
       "python": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       },
       "ruby": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       },
       "typescript": {
         "failed": 0,
-        "passed": 101,
+        "passed": 3,
         "skipped": 0
       }
     },
     "product_lines": {
       "mailbox": {
         "failed": 0,
-        "passed": 270,
-        "skipped": 17
+        "passed": 7,
+        "skipped": 0
       },
       "management": {
         "failed": 0,
-        "passed": 339,
-        "skipped": 32
+        "passed": 7,
+        "skipped": 0
       },
       "sending": {
         "failed": 0,
-        "passed": 47,
-        "skipped": 2
+        "passed": 7,
+        "skipped": 0
       }
     }
   }

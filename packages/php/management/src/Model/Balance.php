@@ -371,7 +371,7 @@ class Balance implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets balance
      *
-     * @param string $balance Current balance (purchased - consumed)
+     * @param string $balance Current spendable balance
      *
      * @return $this
      */

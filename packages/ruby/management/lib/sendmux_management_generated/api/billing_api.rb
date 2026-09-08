@@ -84,7 +84,7 @@ module Sendmux::Management::Generated
     end
 
     # Get current balance
-    # Returns the current team balance and auto top-up configuration.
+    # Returns the current spendable balance.
     # @param [Hash] opts the optional parameters
     # @return [BalanceResponse]
     def management_list_balance(opts = {})
@@ -93,7 +93,7 @@ module Sendmux::Management::Generated
     end
 
     # Get current balance
-    # Returns the current team balance and auto top-up configuration.
+    # Returns the current spendable balance.
     # @param [Hash] opts the optional parameters
     # @return [Array<(BalanceResponse, Integer, Hash)>] BalanceResponse data, response status code and response headers
     def management_list_balance_with_http_info(opts = {})

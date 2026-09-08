@@ -39,6 +39,17 @@ const openApiDocument = {
   },
   paths: {},
 };
+const connectionEnvelope = {
+  ok: true,
+  data: {
+    team: { id: "team_cli", name: "CLI fixture" },
+    credential: { id: "key_cli", type: "api_key", name: null },
+    label: "CLI fixture",
+    permissions: [],
+    mailboxes: [],
+  },
+  meta: { request_id: "req_cli_connection" },
+};
 
 ensureCliBuilt();
 
@@ -95,6 +106,11 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = request.url ?? "";
+  if (request.method === "GET" && ["/me", "/mailbox/connection"].includes(requestUrl)) {
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify(connectionEnvelope));
+    return;
+  }
   if (request.method === "POST" && requestUrl === "/agent-auth/agent/identity") {
     serverState.registrations += 1;
     const configPath = join(tempHome, ".config", "sendmux", "config.json");
@@ -302,6 +318,23 @@ try {
   }
 
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  for (const [surface, key, route] of [
+    ["management", rootKey, "/me"],
+    ["mailbox", mailboxKey, "/mailbox/connection"],
+    ["sending", mailboxKey, "/me"],
+  ]) {
+    const before = serverState.requests.length;
+    const result = await runCli([
+      `${surface}:get-connection`, "--base-url", baseUrl, "--json",
+    ], { SENDMUX_API_KEY: key });
+    assertCliSuccess(result, `${surface} connection check`);
+    assertDeepEqual(JSON.parse(result.stdout), connectionEnvelope, "connection JSON must be the API envelope");
+    assertDeepEqual(serverState.requests.slice(before).map((request) => ({
+      method: request.method, url: request.url, authorization: request.headers.authorization,
+      body: request.body.toString("utf8"),
+    })), [{ method: "GET", url: route, authorization: `Bearer ${key}`, body: "" }],
+    "connection check must make one authenticated GET without a mailbox selector or body");
+  }
   const jsonResult = await runCli([
     "mailbox:messages:list",
     "--api-key",
@@ -1095,7 +1128,7 @@ function ensureCliBuilt() {
   }
 }
 
-function runCli(args) {
+function runCli(args, env = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliPath, ...args], {
       env: {
@@ -1105,6 +1138,7 @@ function runCli(args) {
         SENDMUX_BASE_URL: "",
         SENDMUX_PROFILE: "",
         XDG_CONFIG_HOME: join(tempHome, ".config"),
+        ...env,
       },
       stdio: ["ignore", "pipe", "pipe"],
     });

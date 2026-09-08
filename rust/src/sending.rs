@@ -1,4 +1,4 @@
-use crate::core::{ApiKeySurface, RequestOptions, Response, Result, Transport};
+use crate::core::{ApiKeySurface, Connection, RequestOptions, Response, Result, Transport};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -31,6 +31,10 @@ impl SendingClient {
     pub fn with_user_agent(mut self, user_agent: impl AsRef<str>) -> Result<Self> {
         self.transport = self.transport.with_user_agent(user_agent)?;
         Ok(self)
+    }
+
+    pub async fn get_connection(&self) -> Result<Response<Connection>> {
+        self.transport.get_json("/me").await
     }
 
     pub async fn send_email(

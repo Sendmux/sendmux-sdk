@@ -122,6 +122,30 @@ func (r *SendingGetAttachmentUnauthorized) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps SendingGetConnectionForbidden into the shared typed API error.
+func (r *SendingGetConnectionForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
+// APIError maps SendingGetConnectionServiceUnavailable into the shared typed API error.
+func (r *SendingGetConnectionServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps SendingGetConnectionTooManyRequests into the shared typed API error.
+func (r *SendingGetConnectionTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 429)
+	return err
+}
+
+// APIError maps SendingGetConnectionUnauthorized into the shared typed API error.
+func (r *SendingGetConnectionUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
 // APIError maps SendingSendEmailBadRequest into the shared typed API error.
 func (r *SendingSendEmailBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)

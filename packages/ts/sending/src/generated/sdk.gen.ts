@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { SendingCompleteAttachmentUploadData, SendingCompleteAttachmentUploadErrors, SendingCompleteAttachmentUploadResponses, SendingCreateAttachmentUploadData, SendingCreateAttachmentUploadErrors, SendingCreateAttachmentUploadResponses, SendingGetAttachmentData, SendingGetAttachmentErrors, SendingGetAttachmentResponses, SendingGetOpenApiSpecData, SendingGetOpenApiSpecResponses, SendingSendEmailBatchData, SendingSendEmailBatchErrors, SendingSendEmailBatchResponses, SendingSendEmailData, SendingSendEmailErrors, SendingSendEmailResponses, SendingUploadAttachmentData, SendingUploadAttachmentErrors, SendingUploadAttachmentResponses } from './types.gen.js';
+import type { SendingCompleteAttachmentUploadData, SendingCompleteAttachmentUploadErrors, SendingCompleteAttachmentUploadResponses, SendingCreateAttachmentUploadData, SendingCreateAttachmentUploadErrors, SendingCreateAttachmentUploadResponses, SendingGetAttachmentData, SendingGetAttachmentErrors, SendingGetAttachmentResponses, SendingGetConnectionData, SendingGetConnectionErrors, SendingGetConnectionResponses, SendingGetOpenApiSpecData, SendingGetOpenApiSpecResponses, SendingSendEmailBatchData, SendingSendEmailBatchErrors, SendingSendEmailBatchResponses, SendingSendEmailData, SendingSendEmailErrors, SendingSendEmailResponses, SendingUploadAttachmentData, SendingUploadAttachmentErrors, SendingUploadAttachmentResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -103,6 +103,17 @@ export const sendingSendEmailBatch = <ThrowOnError extends boolean = false>(opti
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Get Sending connection
+ *
+ * Validate this Sending credential and return its team, connection label, permissions and authorised mailboxes. Requires email.send. Credits, provider readiness and mailbox storage are not checked. No user profile or secrets are returned.
+ */
+export const sendingGetConnection = <ThrowOnError extends boolean = false>(options?: Options<SendingGetConnectionData, ThrowOnError>) => (options?.client ?? client).get<SendingGetConnectionResponses, SendingGetConnectionErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/me',
+    ...options
 });
 
 /**

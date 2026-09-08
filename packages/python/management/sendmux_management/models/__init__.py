@@ -20,6 +20,11 @@ from sendmux_management.models.api_error_meta import ApiErrorMeta
 from sendmux_management.models.balance import Balance
 from sendmux_management.models.balance_auto_topup import BalanceAutoTopup
 from sendmux_management.models.balance_response import BalanceResponse
+from sendmux_management.models.connection import Connection
+from sendmux_management.models.connection_credential import ConnectionCredential
+from sendmux_management.models.connection_mailboxes_inner import ConnectionMailboxesInner
+from sendmux_management.models.connection_response import ConnectionResponse
+from sendmux_management.models.connection_team import ConnectionTeam
 from sendmux_management.models.cursor_pagination import CursorPagination
 from sendmux_management.models.delivery_log_detail import DeliveryLogDetail
 from sendmux_management.models.delivery_log_item import DeliveryLogItem

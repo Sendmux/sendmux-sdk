@@ -80,6 +80,44 @@ pub struct ResponseMeta {
     pub request_id: String,
 }
 
+/// Current credential context returned by a connection check.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct Connection {
+    pub team: ConnectionTeam,
+    pub credential: ConnectionCredential,
+    pub label: String,
+    pub permissions: Vec<String>,
+    pub mailboxes: Vec<ConnectionMailbox>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ConnectionTeam {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ConnectionCredential {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub credential_type: CredentialType,
+    pub name: Option<String>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CredentialType {
+    ApiKey,
+    Oauth,
+    AgentToken,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ConnectionMailbox {
+    pub id: String,
+    pub email: String,
+}
+
 /// Optional request headers shared across surfaces.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct RequestOptions {

@@ -67,6 +67,7 @@ def create_apis(surface)
     client = Sendmux::SDK.management(api_key: root_api_key, base_url: app_base_url)
     [
       client.billing,
+      client.connection,
       client.domain_filters,
       client.domains,
       client.emails,

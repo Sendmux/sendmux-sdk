@@ -37,6 +37,10 @@ type MailboxGetChangesRes interface {
 	mailboxGetChangesRes()
 }
 
+type MailboxGetConnectionRes interface {
+	mailboxGetConnectionRes()
+}
+
 type MailboxGetFolderChangesRes interface {
 	mailboxGetFolderChangesRes()
 }

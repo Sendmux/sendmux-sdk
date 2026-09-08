@@ -104,6 +104,36 @@ func (r *MailboxDeleteMessageNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxGetConnectionForbidden into the shared typed API error.
+func (r *MailboxGetConnectionForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
+// APIError maps MailboxGetConnectionInternalServerError into the shared typed API error.
+func (r *MailboxGetConnectionInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 500)
+	return err
+}
+
+// APIError maps MailboxGetConnectionServiceUnavailable into the shared typed API error.
+func (r *MailboxGetConnectionServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps MailboxGetConnectionTooManyRequests into the shared typed API error.
+func (r *MailboxGetConnectionTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 429)
+	return err
+}
+
+// APIError maps MailboxGetConnectionUnauthorized into the shared typed API error.
+func (r *MailboxGetConnectionUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
 // APIError maps MailboxGetIdentityForbidden into the shared typed API error.
 func (r *MailboxGetIdentityForbidden) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 403)

@@ -19,6 +19,7 @@ __version__ = "1.2.2"
 # Define package exports
 __all__ = [
     "BillingApi",
+    "ConnectionApi",
     "DomainFiltersApi",
     "DomainsApi",
     "EmailsApi",
@@ -43,6 +44,11 @@ __all__ = [
     "Balance",
     "BalanceAutoTopup",
     "BalanceResponse",
+    "Connection",
+    "ConnectionCredential",
+    "ConnectionMailboxesInner",
+    "ConnectionResponse",
+    "ConnectionTeam",
     "CursorPagination",
     "DeliveryLogDetail",
     "DeliveryLogItem",
@@ -159,6 +165,7 @@ __all__ = [
 
 # import apis into sdk package
 from sendmux_management.api.billing_api import BillingApi as BillingApi
+from sendmux_management.api.connection_api import ConnectionApi as ConnectionApi
 from sendmux_management.api.domain_filters_api import DomainFiltersApi as DomainFiltersApi
 from sendmux_management.api.domains_api import DomainsApi as DomainsApi
 from sendmux_management.api.emails_api import EmailsApi as EmailsApi
@@ -187,6 +194,11 @@ from sendmux_management.models.api_error_meta import ApiErrorMeta as ApiErrorMet
 from sendmux_management.models.balance import Balance as Balance
 from sendmux_management.models.balance_auto_topup import BalanceAutoTopup as BalanceAutoTopup
 from sendmux_management.models.balance_response import BalanceResponse as BalanceResponse
+from sendmux_management.models.connection import Connection as Connection
+from sendmux_management.models.connection_credential import ConnectionCredential as ConnectionCredential
+from sendmux_management.models.connection_mailboxes_inner import ConnectionMailboxesInner as ConnectionMailboxesInner
+from sendmux_management.models.connection_response import ConnectionResponse as ConnectionResponse
+from sendmux_management.models.connection_team import ConnectionTeam as ConnectionTeam
 from sendmux_management.models.cursor_pagination import CursorPagination as CursorPagination
 from sendmux_management.models.delivery_log_detail import DeliveryLogDetail as DeliveryLogDetail
 from sendmux_management.models.delivery_log_item import DeliveryLogItem as DeliveryLogItem

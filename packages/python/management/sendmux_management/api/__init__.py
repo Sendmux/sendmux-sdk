@@ -2,6 +2,7 @@
 
 # import apis into api package
 from sendmux_management.api.billing_api import BillingApi
+from sendmux_management.api.connection_api import ConnectionApi
 from sendmux_management.api.domain_filters_api import DomainFiltersApi
 from sendmux_management.api.domains_api import DomainsApi
 from sendmux_management.api.emails_api import EmailsApi

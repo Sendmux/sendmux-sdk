@@ -57,6 +57,7 @@ export default defineConfig([
         tags: {
           include: [
             "Billing",
+            "Connection",
             "Domain Filters",
             "Domains",
             "Emails",

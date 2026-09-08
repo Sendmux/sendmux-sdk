@@ -25,6 +25,11 @@ from sendmux_sending.models.batch_send_request import BatchSendRequest
 from sendmux_sending.models.batch_send_success_data import BatchSendSuccessData
 from sendmux_sending.models.batch_send_success_response import BatchSendSuccessResponse
 from sendmux_sending.models.batch_summary import BatchSummary
+from sendmux_sending.models.connection import Connection
+from sendmux_sending.models.connection_credential import ConnectionCredential
+from sendmux_sending.models.connection_mailboxes_inner import ConnectionMailboxesInner
+from sendmux_sending.models.connection_response import ConnectionResponse
+from sendmux_sending.models.connection_team import ConnectionTeam
 from sendmux_sending.models.email_send_request import EmailSendRequest
 from sendmux_sending.models.error_detail import ErrorDetail
 from sendmux_sending.models.error_issue import ErrorIssue

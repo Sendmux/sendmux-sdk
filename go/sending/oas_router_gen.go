@@ -234,6 +234,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'm': // Prefix: "me"
+
+				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handleSendingGetConnectionRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+
 			case 'o': // Prefix: "openapi.json"
 
 				if l := len("openapi.json"); len(elem) >= l && elem[0:l] == "openapi.json" {
@@ -539,6 +559,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 					}
 
+				}
+
+			case 'm': // Prefix: "me"
+
+				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "GET":
+						r.name = SendingGetConnectionOperation
+						r.summary = "Get Sending connection"
+						r.operationID = "sendingGetConnection"
+						r.pathPattern = "/me"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
 				}
 
 			case 'o': // Prefix: "openapi.json"

@@ -20,6 +20,7 @@ from typing import Optional, Tuple, Union
 from typing_extensions import Annotated
 from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDeleteMailboxMessagesBody
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
+from sendmux_mailbox.models.connection_response import ConnectionResponse
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody
 from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody
@@ -3184,6 +3185,285 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/mailbox/changes',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_get_connection(
+        self,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="ETag from a previous response. A match returns 304 with no body after rechecking authentication.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ConnectionResponse:
+        """Get Mailbox connection
+
+        Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
+
+        :param if_none_match: ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+        :type if_none_match: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_connection_serialize(
+            if_none_match=if_none_match,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ConnectionResponse",
+            '304': None,
+            '401': "ApiError",
+            '403': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_get_connection_with_http_info(
+        self,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="ETag from a previous response. A match returns 304 with no body after rechecking authentication.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ConnectionResponse]:
+        """Get Mailbox connection
+
+        Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
+
+        :param if_none_match: ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+        :type if_none_match: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_connection_serialize(
+            if_none_match=if_none_match,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ConnectionResponse",
+            '304': None,
+            '401': "ApiError",
+            '403': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_get_connection_without_preload_content(
+        self,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="ETag from a previous response. A match returns 304 with no body after rechecking authentication.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get Mailbox connection
+
+        Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
+
+        :param if_none_match: ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+        :type if_none_match: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_connection_serialize(
+            if_none_match=if_none_match,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ConnectionResponse",
+            '304': None,
+            '401': "ApiError",
+            '403': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_get_connection_serialize(
+        self,
+        if_none_match,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if if_none_match is not None:
+            _header_params['If-None-Match'] = if_none_match
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/connection',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

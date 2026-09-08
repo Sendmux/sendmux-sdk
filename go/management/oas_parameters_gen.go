@@ -1354,6 +1354,69 @@ func decodeManagementDeleteWebhookParams(args [1]string, argsEscaped bool, r *ht
 	return params, nil
 }
 
+// ManagementGetConnectionParams is parameters of managementGetConnection operation.
+type ManagementGetConnectionParams struct {
+	// ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+	IfNoneMatch OptString
+}
+
+func unpackManagementGetConnectionParams(packed middleware.Parameters) (params ManagementGetConnectionParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "If-None-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfNoneMatch = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeManagementGetConnectionParams(args [0]string, argsEscaped bool, r *http.Request) (params ManagementGetConnectionParams, _ error) {
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: If-None-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfNoneMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfNoneMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfNoneMatch.SetTo(paramsDotIfNoneMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-None-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ManagementGetDeliveryPayloadParams is parameters of managementGetDeliveryPayload operation.
 type ManagementGetDeliveryPayloadParams struct {
 	PublicID   string

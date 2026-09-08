@@ -89,6 +89,7 @@ console.log("Generated PHP SDK packages");
 
 function writeFilteredSpec(surface) {
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
+  prepareAttachmentUnion(source);
   const allowed = new Set(surface.tags);
   const paths = {};
 
@@ -113,6 +114,36 @@ function writeFilteredSpec(surface) {
   const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
   writeFileSync(outputPath, `${JSON.stringify(markTrailingSdkParams(pruneComponents({ ...source, paths })), null, 2)}\n`);
   return outputPath;
+}
+
+function prepareAttachmentUnion(document) {
+  const schemas = document.components?.schemas;
+  const attachment = schemas?.Attachment;
+  if (!attachment?.anyOf) {
+    return;
+  }
+
+  const { anyOf, ...metadata } = attachment;
+  const variants = anyOf.map((ref) => ({
+    ...ref,
+    model: ref.$ref.split("/").at(-1),
+  }));
+  const properties = {};
+  for (const { model } of variants) {
+    for (const [name, property] of Object.entries(schemas[model].properties)) {
+      const { default: variantDefault, ...withoutDefault } = property;
+      properties[name] = withoutDefault;
+    }
+  }
+
+  schemas.Attachment = {
+    ...metadata,
+    type: "object",
+    additionalProperties: false,
+    properties,
+    "x-sendmux-attachment-union": true,
+    "x-sendmux-any-of-variants": variants,
+  };
 }
 
 function markTrailingSdkParams(document) {

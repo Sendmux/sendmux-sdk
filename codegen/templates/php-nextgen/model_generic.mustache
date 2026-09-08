@@ -265,6 +265,22 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
      */
     public function listInvalidProperties(): array
     {
+        {{#vendorExtensions.x-sendmux-attachment-union}}
+        $values = array_filter($this->container, static fn ($value) => $value !== null);
+        $variants = [
+            {{#vendorExtensions.x-sendmux-any-of-variants}}
+            {{{model}}}::class,
+            {{/vendorExtensions.x-sendmux-any-of-variants}}
+        ];
+        foreach ($variants as $variant) {
+            if (array_diff_key($values, $variant::openAPITypes()) === [] && (new $variant($values))->valid()) {
+                return [];
+            }
+        }
+
+        return ['attachment must match an inline attachment or an uploaded attachment reference'];
+        {{/vendorExtensions.x-sendmux-attachment-union}}
+        {{^vendorExtensions.x-sendmux-attachment-union}}
         {{#parentSchema}}
         $invalidProperties = parent::listInvalidProperties();
         {{/parentSchema}}
@@ -337,6 +353,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
         {{/hasValidation}}
         {{/vars}}
         return $invalidProperties;
+        {{/vendorExtensions.x-sendmux-attachment-union}}
     }
 
     /**

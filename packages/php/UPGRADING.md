@@ -12,6 +12,14 @@ composer require sendmux/sdk:^2.0 --with-all-dependencies
 
 If you install individual packages, update your direct `sendmux/core`, `sendmux/sending`, `sendmux/mailbox`, and `sendmux/management` constraints to `^2.0` together. The 2.0 API clients require core 2.0.
 
+## Sending attachment forms
+
+`Sendmux\Sending\Model\Attachment` accepts either an inline attachment (`content` and `filename`) or an uploaded attachment reference (`attachment_id`). Do not mix the two forms. `listInvalidProperties()` validates each form against its own schema.
+
+`getContent()` and `getFilename()` now return `?string`; their setters also accept `?string` because these fields are absent from uploaded references. The new `getAttachmentId()` is likewise nullable for inline attachments. Update typed wrappers or method overrides accordingly.
+
+The union model no longer supplies `encoding` by default, so an uploaded reference does not receive an inline-only field. The API defaults inline encoding to `base64`; set `encoding` explicitly if your code needs it present in the serialized request or getter result.
+
 ## Mailbox attachment lists
 
 `Sendmux\Mailbox\Model\MailboxMessage` and `MailboxRealtimeMessage` now expose nullable attachment arrays: `getAttachments()` returns `?array`, and `setAttachments()` accepts `?array`. The schema makes this field optional; an absent field can remain null in the PHP model.

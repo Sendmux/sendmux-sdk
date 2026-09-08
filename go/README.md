@@ -20,6 +20,43 @@ go get sendmux.ai/go@latest
 | Management client | `sendmux.ai/go/management` | `smx_root_*` |
 | Module anchor | `sendmux.ai/go/sdk` | n/a |
 
+## Connection checks
+
+Check the authenticated team and credential before using the API:
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"sendmux.ai/go/management"
+)
+
+func main() {
+	client, err := management.New(os.Getenv("SENDMUX_API_KEY"))
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := client.ManagementGetConnection(context.Background(), management.ManagementGetConnectionParams{})
+	if err != nil {
+		panic(err)
+	}
+	success, ok := res.(*management.ConnectionResponseHeaders)
+	if !ok {
+		panic(fmt.Sprintf("connection check failed: %T", res))
+	}
+	fmt.Println(success.Response.Data.Label)
+}
+```
+
+The Mailbox and Sending clients expose `MailboxGetConnection` and `SendingGetConnection` with their corresponding empty parameter structs. These checks send no email and require no mailbox selector.
+
+Use `ConnectionInvoker` for a connection-check interface. Existing `Invoker` and `Handler` implementations stay compatible; server handlers can optionally implement `ConnectionInvoker` to serve the new operation.
+
 ## Sending quickstart
 
 ```go

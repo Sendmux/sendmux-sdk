@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.1.0...ruby-sdk/v1.2.0) (2026-09-08)
+
+
+### Features
+
+* **ruby-sdk:** require connection-capable client versions ([175f89f](https://github.com/Sendmux/sendmux-sdk/commit/175f89f9dbe72bb84a4c65b6db77d0223ce80d3f))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.0.0...ruby-sdk/v1.1.0) (2026-07-01)
 
 

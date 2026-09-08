@@ -8,6 +8,7 @@
 * The following workspace dependencies were updated
   * dependencies
     * @sendmux/mailbox bumped to 1.5.0
+    * @sendmux/sending bumped to 1.4.0
 
 ## [0.3.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.3.1...ts-ai-sdk-v0.3.2) (2026-08-19)
 

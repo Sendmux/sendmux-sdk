@@ -1,15 +1,11 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* expose short-lived attachment download URLs, upload intents, typed event streaming, and file attachment helpers
-
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.4.1...ts-mailbox-v1.5.0) (2026-09-08)
 
 
 ### Features
+
+* expose short-lived attachment download URLs, upload intents, typed event streaming, and file attachment helpers
 
 * add connection checks across SDKs, CLI and MCP ([77f449e](https://github.com/Sendmux/sendmux-sdk/commit/77f449e2c8cba49bc8bc84c49c35baa61120866a))
 * **sdk:** add connection checks across clients, CLI and MCP ([3e02c67](https://github.com/Sendmux/sendmux-sdk/commit/3e02c67dcab45e37dad7abbdd4c4e1bd0b1fbbe6))

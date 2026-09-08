@@ -47,6 +47,18 @@ The package exports every generated Mailbox model and API class plus:
 - `iter_mailbox_events`
 - file helpers: `upload_mailbox_attachment_from_file`, `create_mailbox_attachment_upload_from_file`, `upload_mailbox_attachment_via_presigned_file`, and `send_mailbox_message_with_files`
 
+## Connection checks
+
+Check the current credential before choosing a mailbox:
+
+```python
+with create_mailbox_client(api_key=os.environ["SENDMUX_MAILBOX_API_KEY"]) as client:
+    connection = MailboxAPIApi(client).mailbox_get_connection()
+    print(connection.data.label)
+```
+
+The result includes team and credential details, permissions and authorised mailboxes.
+
 ## Attachments
 
 Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Prefer `download_mailbox_attachment()` or `read_mailbox_text_attachment()` when you already have an authenticated client. Plain HTTP clients can fetch `download_url` promptly with no `Authorization` header; if it expires, call `mailbox_get_message()` or list/search messages again to receive fresh metadata.

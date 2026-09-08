@@ -101,7 +101,7 @@ Both wrap the generated Sending and Mailbox clients, so the OpenAPI spec stays t
 
 Authenticated connection checks for all three API surfaces return the current team, credential identity, connection label, permissions and authorised mailboxes. Mailbox checks need no mailbox selector or provisioned storage; Sending checks require `email.send` without sending an email or checking delivery readiness. Existing `mailboxGetMe` behaviour is unchanged.
 
-Use TypeScript Sending 1.4.0, Mailbox 1.5.0 and Management 1.3.0 (or umbrella SDK 1.4.2), CLI 1.5.0, MCP 1.7.0, Ruby SDK 1.2.0, Rust 0.3.0, or Python Management 1.3.0 and Mailbox 1.4.0. Connection-capable Go, PHP, and Python Sending and umbrella package releases are pending.
+Use TypeScript Sending 1.4.0, Mailbox 1.5.0 and Management 1.3.0 (or umbrella SDK 1.4.2), CLI 1.5.0, MCP 1.7.0, Ruby SDK 1.2.0, Rust 0.3.0, or Python Sending 1.4.0, Mailbox 1.4.0 and Management 1.3.0. Connection-capable Go, PHP and Python umbrella package releases are pending.
 
 | Surface | TypeScript operation | CLI command | MCP tool |
 | --- | --- | --- | --- |

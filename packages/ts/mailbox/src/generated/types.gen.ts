@@ -999,6 +999,32 @@ export type CreateMailboxFolderBody = {
     sort_order?: number;
 };
 
+export type ConnectionResponse = SuccessEnvelope & {
+    data: Connection;
+    meta?: ResponseMeta;
+};
+
+export type Connection = {
+    credential: {
+        id: string;
+        name: string | null;
+        type: 'api_key' | 'oauth' | 'agent_token';
+    };
+    /**
+     * Display label for this connection.
+     */
+    label: string;
+    mailboxes: Array<{
+        email: string;
+        id: string;
+    }>;
+    permissions: Array<string>;
+    team: {
+        id: string;
+        name: string;
+    };
+};
+
 export type BatchUpdateMailboxMessagesBody = {
     /**
      * Set or clear the flagged marker.
@@ -1235,6 +1261,53 @@ export type MailboxGetChangesResponses = {
 };
 
 export type MailboxGetChangesResponse = MailboxGetChangesResponses[keyof MailboxGetChangesResponses];
+
+export type MailboxGetConnectionData = {
+    body?: never;
+    headers?: {
+        /**
+         * ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+         */
+        'If-None-Match'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/mailbox/connection';
+};
+
+export type MailboxGetConnectionErrors = {
+    /**
+     * Authentication required
+     */
+    401: ApiError;
+    /**
+     * Credential is not authorised for this API
+     */
+    403: ApiError;
+    /**
+     * Rate limit exceeded
+     */
+    429: ApiError;
+    /**
+     * Unexpected server error
+     */
+    500: ApiError;
+    /**
+     * Authentication service temporarily unavailable
+     */
+    503: ApiError;
+};
+
+export type MailboxGetConnectionError = MailboxGetConnectionErrors[keyof MailboxGetConnectionErrors];
+
+export type MailboxGetConnectionResponses = {
+    /**
+     * Connection information
+     */
+    200: ConnectionResponse;
+};
+
+export type MailboxGetConnectionResponse = MailboxGetConnectionResponses[keyof MailboxGetConnectionResponses];
 
 export type MailboxStreamEventsData = {
     body?: never;

@@ -51,6 +51,14 @@ type Invoker interface {
 	//
 	// GET /emails/attachments/{attachment_id}
 	SendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (SendingGetAttachmentRes, error)
+	// SendingGetConnection invokes sendingGetConnection operation.
+	//
+	// Validate this Sending credential and return its team, connection label, permissions and authorised
+	// mailboxes. Requires email.send. Credits, provider readiness and mailbox storage are not checked.
+	// No user profile or secrets are returned.
+	//
+	// GET /me
+	SendingGetConnection(ctx context.Context, params SendingGetConnectionParams) (SendingGetConnectionRes, error)
 	// SendingGetOpenApiSpec invokes sendingGetOpenApiSpec operation.
 	//
 	// Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).
@@ -489,6 +497,130 @@ func (c *Client) sendSendingGetAttachment(ctx context.Context, params SendingGet
 
 	stage = "DecodeResponse"
 	result, err := decodeSendingGetAttachmentResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// SendingGetConnection invokes sendingGetConnection operation.
+//
+// Validate this Sending credential and return its team, connection label, permissions and authorised
+// mailboxes. Requires email.send. Credits, provider readiness and mailbox storage are not checked.
+// No user profile or secrets are returned.
+//
+// GET /me
+func (c *Client) SendingGetConnection(ctx context.Context, params SendingGetConnectionParams) (SendingGetConnectionRes, error) {
+	res, err := c.sendSendingGetConnection(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendSendingGetConnection(ctx context.Context, params SendingGetConnectionParams) (res SendingGetConnectionRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("sendingGetConnection"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/me"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SendingGetConnectionOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/me"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfNoneMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, SendingGetConnectionOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSendingGetConnectionResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

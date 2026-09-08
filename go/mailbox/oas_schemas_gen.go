@@ -468,6 +468,624 @@ func (s *BearerAuth) SetRoles(val []string) {
 	s.Roles = val
 }
 
+// Ref: #/components/schemas/Connection
+type Connection struct {
+	Credential ConnectionCredential `json:"credential"`
+	// Display label for this connection.
+	Label       string                    `json:"label"`
+	Mailboxes   []ConnectionMailboxesItem `json:"mailboxes"`
+	Permissions []string                  `json:"permissions"`
+	Team        ConnectionTeam            `json:"team"`
+}
+
+// GetCredential returns the value of Credential.
+func (s *Connection) GetCredential() ConnectionCredential {
+	return s.Credential
+}
+
+// GetLabel returns the value of Label.
+func (s *Connection) GetLabel() string {
+	return s.Label
+}
+
+// GetMailboxes returns the value of Mailboxes.
+func (s *Connection) GetMailboxes() []ConnectionMailboxesItem {
+	return s.Mailboxes
+}
+
+// GetPermissions returns the value of Permissions.
+func (s *Connection) GetPermissions() []string {
+	return s.Permissions
+}
+
+// GetTeam returns the value of Team.
+func (s *Connection) GetTeam() ConnectionTeam {
+	return s.Team
+}
+
+// SetCredential sets the value of Credential.
+func (s *Connection) SetCredential(val ConnectionCredential) {
+	s.Credential = val
+}
+
+// SetLabel sets the value of Label.
+func (s *Connection) SetLabel(val string) {
+	s.Label = val
+}
+
+// SetMailboxes sets the value of Mailboxes.
+func (s *Connection) SetMailboxes(val []ConnectionMailboxesItem) {
+	s.Mailboxes = val
+}
+
+// SetPermissions sets the value of Permissions.
+func (s *Connection) SetPermissions(val []string) {
+	s.Permissions = val
+}
+
+// SetTeam sets the value of Team.
+func (s *Connection) SetTeam(val ConnectionTeam) {
+	s.Team = val
+}
+
+type ConnectionCredential struct {
+	ID   string                   `json:"id"`
+	Name NilString                `json:"name"`
+	Type ConnectionCredentialType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *ConnectionCredential) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ConnectionCredential) GetName() NilString {
+	return s.Name
+}
+
+// GetType returns the value of Type.
+func (s *ConnectionCredential) GetType() ConnectionCredentialType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *ConnectionCredential) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ConnectionCredential) SetName(val NilString) {
+	s.Name = val
+}
+
+// SetType sets the value of Type.
+func (s *ConnectionCredential) SetType(val ConnectionCredentialType) {
+	s.Type = val
+}
+
+type ConnectionCredentialType string
+
+const (
+	ConnectionCredentialTypeAPIKey     ConnectionCredentialType = "api_key"
+	ConnectionCredentialTypeOAuth      ConnectionCredentialType = "oauth"
+	ConnectionCredentialTypeAgentToken ConnectionCredentialType = "agent_token"
+)
+
+// AllValues returns all ConnectionCredentialType values.
+func (ConnectionCredentialType) AllValues() []ConnectionCredentialType {
+	return []ConnectionCredentialType{
+		ConnectionCredentialTypeAPIKey,
+		ConnectionCredentialTypeOAuth,
+		ConnectionCredentialTypeAgentToken,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ConnectionCredentialType) MarshalText() ([]byte, error) {
+	switch s {
+	case ConnectionCredentialTypeAPIKey:
+		return []byte(s), nil
+	case ConnectionCredentialTypeOAuth:
+		return []byte(s), nil
+	case ConnectionCredentialTypeAgentToken:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ConnectionCredentialType) UnmarshalText(data []byte) error {
+	switch ConnectionCredentialType(data) {
+	case ConnectionCredentialTypeAPIKey:
+		*s = ConnectionCredentialTypeAPIKey
+		return nil
+	case ConnectionCredentialTypeOAuth:
+		*s = ConnectionCredentialTypeOAuth
+		return nil
+	case ConnectionCredentialTypeAgentToken:
+		*s = ConnectionCredentialTypeAgentToken
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/ConnectionErrorResponse
+type ConnectionErrorResponse struct {
+	Error ConnectionErrorResponseError `json:"error"`
+	Meta  ConnectionErrorResponseMeta  `json:"meta"`
+	Ok    ConnectionErrorResponseOk    `json:"ok"`
+}
+
+// GetError returns the value of Error.
+func (s *ConnectionErrorResponse) GetError() ConnectionErrorResponseError {
+	return s.Error
+}
+
+// GetMeta returns the value of Meta.
+func (s *ConnectionErrorResponse) GetMeta() ConnectionErrorResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *ConnectionErrorResponse) GetOk() ConnectionErrorResponseOk {
+	return s.Ok
+}
+
+// SetError sets the value of Error.
+func (s *ConnectionErrorResponse) SetError(val ConnectionErrorResponseError) {
+	s.Error = val
+}
+
+// SetMeta sets the value of Meta.
+func (s *ConnectionErrorResponse) SetMeta(val ConnectionErrorResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *ConnectionErrorResponse) SetOk(val ConnectionErrorResponseOk) {
+	s.Ok = val
+}
+
+type ConnectionErrorResponseError struct {
+	// Machine-readable error code.
+	Code ConnectionErrorResponseErrorCode `json:"code"`
+	// Link to relevant documentation.
+	DocURL OptString `json:"doc_url"`
+	// Accumulated per-field issues for validation errors. Only present on 400/422 responses.
+	Errors []ApiErrorDetail `json:"errors"`
+	// Human-readable error description.
+	Message string `json:"message"`
+	// The parameter that caused the error.
+	Param OptString `json:"param"`
+	// Whether the caller may safely retry this request. 4xx are typically false (except 429); 5xx are
+	// typically true.
+	Retryable bool `json:"retryable"`
+}
+
+// GetCode returns the value of Code.
+func (s *ConnectionErrorResponseError) GetCode() ConnectionErrorResponseErrorCode {
+	return s.Code
+}
+
+// GetDocURL returns the value of DocURL.
+func (s *ConnectionErrorResponseError) GetDocURL() OptString {
+	return s.DocURL
+}
+
+// GetErrors returns the value of Errors.
+func (s *ConnectionErrorResponseError) GetErrors() []ApiErrorDetail {
+	return s.Errors
+}
+
+// GetMessage returns the value of Message.
+func (s *ConnectionErrorResponseError) GetMessage() string {
+	return s.Message
+}
+
+// GetParam returns the value of Param.
+func (s *ConnectionErrorResponseError) GetParam() OptString {
+	return s.Param
+}
+
+// GetRetryable returns the value of Retryable.
+func (s *ConnectionErrorResponseError) GetRetryable() bool {
+	return s.Retryable
+}
+
+// SetCode sets the value of Code.
+func (s *ConnectionErrorResponseError) SetCode(val ConnectionErrorResponseErrorCode) {
+	s.Code = val
+}
+
+// SetDocURL sets the value of DocURL.
+func (s *ConnectionErrorResponseError) SetDocURL(val OptString) {
+	s.DocURL = val
+}
+
+// SetErrors sets the value of Errors.
+func (s *ConnectionErrorResponseError) SetErrors(val []ApiErrorDetail) {
+	s.Errors = val
+}
+
+// SetMessage sets the value of Message.
+func (s *ConnectionErrorResponseError) SetMessage(val string) {
+	s.Message = val
+}
+
+// SetParam sets the value of Param.
+func (s *ConnectionErrorResponseError) SetParam(val OptString) {
+	s.Param = val
+}
+
+// SetRetryable sets the value of Retryable.
+func (s *ConnectionErrorResponseError) SetRetryable(val bool) {
+	s.Retryable = val
+}
+
+// Machine-readable error code.
+type ConnectionErrorResponseErrorCode string
+
+const (
+	ConnectionErrorResponseErrorCodeInvalidParameter        ConnectionErrorResponseErrorCode = "invalid_parameter"
+	ConnectionErrorResponseErrorCodeMissingParameter        ConnectionErrorResponseErrorCode = "missing_parameter"
+	ConnectionErrorResponseErrorCodeAuthenticationRequired  ConnectionErrorResponseErrorCode = "authentication_required"
+	ConnectionErrorResponseErrorCodeInsufficientPermissions ConnectionErrorResponseErrorCode = "insufficient_permissions"
+	ConnectionErrorResponseErrorCodeNotFound                ConnectionErrorResponseErrorCode = "not_found"
+	ConnectionErrorResponseErrorCodeConflict                ConnectionErrorResponseErrorCode = "conflict"
+	ConnectionErrorResponseErrorCodeLimitExceeded           ConnectionErrorResponseErrorCode = "limit_exceeded"
+	ConnectionErrorResponseErrorCodeIdempotencyConflict     ConnectionErrorResponseErrorCode = "idempotency_conflict"
+	ConnectionErrorResponseErrorCodePayloadTooLarge         ConnectionErrorResponseErrorCode = "payload_too_large"
+	ConnectionErrorResponseErrorCodeValidationError         ConnectionErrorResponseErrorCode = "validation_error"
+	ConnectionErrorResponseErrorCodeRateLimitExceeded       ConnectionErrorResponseErrorCode = "rate_limit_exceeded"
+	ConnectionErrorResponseErrorCodeServiceUnavailable      ConnectionErrorResponseErrorCode = "service_unavailable"
+	ConnectionErrorResponseErrorCodeInternalError           ConnectionErrorResponseErrorCode = "internal_error"
+)
+
+// AllValues returns all ConnectionErrorResponseErrorCode values.
+func (ConnectionErrorResponseErrorCode) AllValues() []ConnectionErrorResponseErrorCode {
+	return []ConnectionErrorResponseErrorCode{
+		ConnectionErrorResponseErrorCodeInvalidParameter,
+		ConnectionErrorResponseErrorCodeMissingParameter,
+		ConnectionErrorResponseErrorCodeAuthenticationRequired,
+		ConnectionErrorResponseErrorCodeInsufficientPermissions,
+		ConnectionErrorResponseErrorCodeNotFound,
+		ConnectionErrorResponseErrorCodeConflict,
+		ConnectionErrorResponseErrorCodeLimitExceeded,
+		ConnectionErrorResponseErrorCodeIdempotencyConflict,
+		ConnectionErrorResponseErrorCodePayloadTooLarge,
+		ConnectionErrorResponseErrorCodeValidationError,
+		ConnectionErrorResponseErrorCodeRateLimitExceeded,
+		ConnectionErrorResponseErrorCodeServiceUnavailable,
+		ConnectionErrorResponseErrorCodeInternalError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ConnectionErrorResponseErrorCode) MarshalText() ([]byte, error) {
+	switch s {
+	case ConnectionErrorResponseErrorCodeInvalidParameter:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeMissingParameter:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeAuthenticationRequired:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeInsufficientPermissions:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeNotFound:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeConflict:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeLimitExceeded:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeIdempotencyConflict:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodePayloadTooLarge:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeValidationError:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeRateLimitExceeded:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeServiceUnavailable:
+		return []byte(s), nil
+	case ConnectionErrorResponseErrorCodeInternalError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ConnectionErrorResponseErrorCode) UnmarshalText(data []byte) error {
+	switch ConnectionErrorResponseErrorCode(data) {
+	case ConnectionErrorResponseErrorCodeInvalidParameter:
+		*s = ConnectionErrorResponseErrorCodeInvalidParameter
+		return nil
+	case ConnectionErrorResponseErrorCodeMissingParameter:
+		*s = ConnectionErrorResponseErrorCodeMissingParameter
+		return nil
+	case ConnectionErrorResponseErrorCodeAuthenticationRequired:
+		*s = ConnectionErrorResponseErrorCodeAuthenticationRequired
+		return nil
+	case ConnectionErrorResponseErrorCodeInsufficientPermissions:
+		*s = ConnectionErrorResponseErrorCodeInsufficientPermissions
+		return nil
+	case ConnectionErrorResponseErrorCodeNotFound:
+		*s = ConnectionErrorResponseErrorCodeNotFound
+		return nil
+	case ConnectionErrorResponseErrorCodeConflict:
+		*s = ConnectionErrorResponseErrorCodeConflict
+		return nil
+	case ConnectionErrorResponseErrorCodeLimitExceeded:
+		*s = ConnectionErrorResponseErrorCodeLimitExceeded
+		return nil
+	case ConnectionErrorResponseErrorCodeIdempotencyConflict:
+		*s = ConnectionErrorResponseErrorCodeIdempotencyConflict
+		return nil
+	case ConnectionErrorResponseErrorCodePayloadTooLarge:
+		*s = ConnectionErrorResponseErrorCodePayloadTooLarge
+		return nil
+	case ConnectionErrorResponseErrorCodeValidationError:
+		*s = ConnectionErrorResponseErrorCodeValidationError
+		return nil
+	case ConnectionErrorResponseErrorCodeRateLimitExceeded:
+		*s = ConnectionErrorResponseErrorCodeRateLimitExceeded
+		return nil
+	case ConnectionErrorResponseErrorCodeServiceUnavailable:
+		*s = ConnectionErrorResponseErrorCodeServiceUnavailable
+		return nil
+	case ConnectionErrorResponseErrorCodeInternalError:
+		*s = ConnectionErrorResponseErrorCodeInternalError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// ConnectionErrorResponseHeaders wraps ConnectionErrorResponse with response headers.
+type ConnectionErrorResponseHeaders struct {
+	RetryAfter OptString
+	Response   ConnectionErrorResponse
+}
+
+// GetRetryAfter returns the value of RetryAfter.
+func (s *ConnectionErrorResponseHeaders) GetRetryAfter() OptString {
+	return s.RetryAfter
+}
+
+// GetResponse returns the value of Response.
+func (s *ConnectionErrorResponseHeaders) GetResponse() ConnectionErrorResponse {
+	return s.Response
+}
+
+// SetRetryAfter sets the value of RetryAfter.
+func (s *ConnectionErrorResponseHeaders) SetRetryAfter(val OptString) {
+	s.RetryAfter = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ConnectionErrorResponseHeaders) SetResponse(val ConnectionErrorResponse) {
+	s.Response = val
+}
+
+type ConnectionErrorResponseMeta struct {
+	RequestID string `json:"request_id"`
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *ConnectionErrorResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *ConnectionErrorResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+type ConnectionErrorResponseOk bool
+
+const (
+	ConnectionErrorResponseOkFalse ConnectionErrorResponseOk = false
+)
+
+// AllValues returns all ConnectionErrorResponseOk values.
+func (ConnectionErrorResponseOk) AllValues() []ConnectionErrorResponseOk {
+	return []ConnectionErrorResponseOk{
+		ConnectionErrorResponseOkFalse,
+	}
+}
+
+type ConnectionMailboxesItem struct {
+	Email string `json:"email"`
+	ID    string `json:"id"`
+}
+
+// GetEmail returns the value of Email.
+func (s *ConnectionMailboxesItem) GetEmail() string {
+	return s.Email
+}
+
+// GetID returns the value of ID.
+func (s *ConnectionMailboxesItem) GetID() string {
+	return s.ID
+}
+
+// SetEmail sets the value of Email.
+func (s *ConnectionMailboxesItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetID sets the value of ID.
+func (s *ConnectionMailboxesItem) SetID(val string) {
+	s.ID = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ConnectionResponse
+type ConnectionResponse struct {
+	// Merged property.
+	Meta ConnectionResponseMeta `json:"meta"`
+	Ok   ConnectionResponseOk   `json:"ok"`
+	Data Connection             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *ConnectionResponse) GetMeta() ConnectionResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *ConnectionResponse) GetOk() ConnectionResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *ConnectionResponse) GetData() Connection {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *ConnectionResponse) SetMeta(val ConnectionResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *ConnectionResponse) SetOk(val ConnectionResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *ConnectionResponse) SetData(val Connection) {
+	s.Data = val
+}
+
+// ConnectionResponseHeaders wraps ConnectionResponse with response headers.
+type ConnectionResponseHeaders struct {
+	CacheControl OptString
+	ETag         OptString
+	XRequestID   OptString
+	Response     ConnectionResponse
+}
+
+// GetCacheControl returns the value of CacheControl.
+func (s *ConnectionResponseHeaders) GetCacheControl() OptString {
+	return s.CacheControl
+}
+
+// GetETag returns the value of ETag.
+func (s *ConnectionResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetXRequestID returns the value of XRequestID.
+func (s *ConnectionResponseHeaders) GetXRequestID() OptString {
+	return s.XRequestID
+}
+
+// GetResponse returns the value of Response.
+func (s *ConnectionResponseHeaders) GetResponse() ConnectionResponse {
+	return s.Response
+}
+
+// SetCacheControl sets the value of CacheControl.
+func (s *ConnectionResponseHeaders) SetCacheControl(val OptString) {
+	s.CacheControl = val
+}
+
+// SetETag sets the value of ETag.
+func (s *ConnectionResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetXRequestID sets the value of XRequestID.
+func (s *ConnectionResponseHeaders) SetXRequestID(val OptString) {
+	s.XRequestID = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ConnectionResponseHeaders) SetResponse(val ConnectionResponse) {
+	s.Response = val
+}
+
+func (*ConnectionResponseHeaders) mailboxGetConnectionRes() {}
+
+// Merged schema.
+type ConnectionResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps ConnectionResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *ConnectionResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *ConnectionResponseMeta) GetAdditionalProps() ConnectionResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *ConnectionResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *ConnectionResponseMeta) SetAdditionalProps(val ConnectionResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type ConnectionResponseMetaAdditional map[string]jx.Raw
+
+func (s *ConnectionResponseMetaAdditional) init() ConnectionResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type ConnectionResponseOk bool
+
+const (
+	ConnectionResponseOkTrue ConnectionResponseOk = true
+)
+
+// AllValues returns all ConnectionResponseOk values.
+func (ConnectionResponseOk) AllValues() []ConnectionResponseOk {
+	return []ConnectionResponseOk{
+		ConnectionResponseOkTrue,
+	}
+}
+
+type ConnectionTeam struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *ConnectionTeam) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ConnectionTeam) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *ConnectionTeam) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ConnectionTeam) SetName(val string) {
+	s.Name = val
+}
+
 // Ref: #/components/schemas/CreateMailboxFolderBody
 type CreateMailboxFolderBody struct {
 	Name      string       `json:"name"`
@@ -3124,6 +3742,54 @@ func (MailboxGetChangesOKOk) AllValues() []MailboxGetChangesOKOk {
 		MailboxGetChangesOKOkTrue,
 	}
 }
+
+type MailboxGetConnectionForbidden ConnectionErrorResponseHeaders
+
+func (*MailboxGetConnectionForbidden) mailboxGetConnectionRes() {}
+
+type MailboxGetConnectionInternalServerError ConnectionErrorResponseHeaders
+
+func (*MailboxGetConnectionInternalServerError) mailboxGetConnectionRes() {}
+
+// MailboxGetConnectionNotModified is response for MailboxGetConnection operation.
+type MailboxGetConnectionNotModified struct {
+	CacheControl OptString
+	XRequestID   OptString
+}
+
+// GetCacheControl returns the value of CacheControl.
+func (s *MailboxGetConnectionNotModified) GetCacheControl() OptString {
+	return s.CacheControl
+}
+
+// GetXRequestID returns the value of XRequestID.
+func (s *MailboxGetConnectionNotModified) GetXRequestID() OptString {
+	return s.XRequestID
+}
+
+// SetCacheControl sets the value of CacheControl.
+func (s *MailboxGetConnectionNotModified) SetCacheControl(val OptString) {
+	s.CacheControl = val
+}
+
+// SetXRequestID sets the value of XRequestID.
+func (s *MailboxGetConnectionNotModified) SetXRequestID(val OptString) {
+	s.XRequestID = val
+}
+
+func (*MailboxGetConnectionNotModified) mailboxGetConnectionRes() {}
+
+type MailboxGetConnectionServiceUnavailable ConnectionErrorResponseHeaders
+
+func (*MailboxGetConnectionServiceUnavailable) mailboxGetConnectionRes() {}
+
+type MailboxGetConnectionTooManyRequests ConnectionErrorResponseHeaders
+
+func (*MailboxGetConnectionTooManyRequests) mailboxGetConnectionRes() {}
+
+type MailboxGetConnectionUnauthorized ConnectionErrorResponseHeaders
+
+func (*MailboxGetConnectionUnauthorized) mailboxGetConnectionRes() {}
 
 // MailboxGetFolderNotModified is response for MailboxGetFolder operation.
 type MailboxGetFolderNotModified struct{}

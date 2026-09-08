@@ -21,7 +21,9 @@ def test_every_curated_tool_has_permission_requirements() -> None:
     curated_tool_names = {tool.name for tools in TOOLS_BY_SURFACE.values() for tool in tools}
 
     assert set(TOOL_PERMISSION_REQUIREMENTS) == curated_tool_names
-    assert all(TOOL_PERMISSION_REQUIREMENTS[tool_name] for tool_name in curated_tool_names)
+    assert {
+        tool_name for tool_name in curated_tool_names if not TOOL_PERMISSION_REQUIREMENTS[tool_name]
+    } == {"management_get_connection", "mailbox_get_connection"}
 
 
 def test_permission_lookup_returns_required_permissions_for_tool() -> None:
@@ -52,6 +54,7 @@ def test_authorised_tools_are_filtered_per_surface() -> None:
     granted = ("mailbox.read", "email.send")
 
     assert authorised_tool_names("mailbox", granted) == {
+        "mailbox_get_connection",
         "mailbox_get_me",
         "mailbox_list_granted_mailboxes",
         "mailbox_get_session",
@@ -81,6 +84,7 @@ def test_authorised_tools_respect_management_wildcards() -> None:
     granted = ("domain.*", "mailbox.admin.read")
 
     assert authorised_tool_names("management", granted) == {
+        "management_get_connection",
         "management_list_domains",
         "management_create_domain",
         "management_get_domain",

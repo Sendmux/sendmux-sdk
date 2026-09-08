@@ -15,6 +15,7 @@ const (
 	MailboxDeleteFolderOperation           OperationName = "MailboxDeleteFolder"
 	MailboxDeleteMessageOperation          OperationName = "MailboxDeleteMessage"
 	MailboxGetChangesOperation             OperationName = "MailboxGetChanges"
+	MailboxGetConnectionOperation          OperationName = "MailboxGetConnection"
 	MailboxGetFolderOperation              OperationName = "MailboxGetFolder"
 	MailboxGetFolderChangesOperation       OperationName = "MailboxGetFolderChanges"
 	MailboxGetIdentityOperation            OperationName = "MailboxGetIdentity"

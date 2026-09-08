@@ -51,6 +51,7 @@ var operationRolesBearerAuth = map[string][]string{
 	ManagementDeleteMailboxKeyOperation:                   []string{},
 	ManagementDeleteProviderOperation:                     []string{},
 	ManagementDeleteWebhookOperation:                      []string{},
+	ManagementGetConnectionOperation:                      []string{},
 	ManagementGetDeliveryPayloadOperation:                 []string{},
 	ManagementGetDomainOperation:                          []string{},
 	ManagementGetDomainFiltersOperation:                   []string{},

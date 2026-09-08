@@ -97,6 +97,32 @@ pip install langchain-sendmux        # LangChain: SendmuxToolkit(api_key=...).ge
 
 Both wrap the generated Sending and Mailbox clients, so the OpenAPI spec stays the single source of truth.
 
+## Connection checks (unreleased)
+
+The next release adds authenticated connection checks for all three API surfaces. They return the current team, credential identity, connection label, permissions and authorised mailboxes. Mailbox checks need no mailbox selector or provisioned storage; Sending checks require `email.send` without sending an email or checking delivery readiness. Existing `mailboxGetMe` behaviour is unchanged.
+
+| Surface | TypeScript operation | CLI command | MCP tool |
+| --- | --- | --- | --- |
+| Management | `managementGetConnection` | `management:get-connection` | `management_get_connection` |
+| Mailbox | `mailboxGetConnection` | `mailbox:get-connection` | `mailbox_get_connection` |
+| Sending | `sendingGetConnection` | `sending:get-connection` | `sending_get_connection` |
+
+Use the corresponding client factory and credential. For example, with `SENDMUX_API_KEY` set to a Management key:
+
+```ts
+import { createManagementClient, managementGetConnection } from "@sendmux/sdk";
+
+const client = createManagementClient({ apiKey: process.env.SENDMUX_API_KEY! });
+const response = await managementGetConnection({ client });
+console.log(response.data?.data.label);
+```
+
+```sh
+sendmux management:get-connection --json
+```
+
+Each Rust client exposes `get_connection()`, returning `Response<Connection>`. Generated Go, Python, PHP and Ruby references include the corresponding `GetConnection` operation for each surface. These additions require the matching API deployment and package release before use against production.
+
 ## Attachments And Live Mailbox Events
 
 Mailbox attachment metadata now includes a short-lived `download_url`. Fetch that URL promptly with a plain HTTP client; it does not require an `Authorization` header, but it expires after a short TTL. If a download URL expires, re-fetch the message or attachment metadata to receive a fresh URL.

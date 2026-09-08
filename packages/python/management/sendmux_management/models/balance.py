@@ -29,7 +29,7 @@ class Balance(BaseModel):
     Balance
     """ # noqa: E501
     auto_topup: BalanceAutoTopup
-    balance: StrictStr = Field(description="Current balance (purchased - consumed)")
+    balance: StrictStr = Field(description="Current spendable balance")
     balance_consumed: StrictStr
     balance_purchased: StrictStr
     currency: StrictStr

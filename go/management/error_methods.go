@@ -254,6 +254,36 @@ func (r *ManagementDeleteProviderUnprocessableEntity) APIError() *core.APIError 
 	return err
 }
 
+// APIError maps ManagementGetConnectionForbidden into the shared typed API error.
+func (r *ManagementGetConnectionForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
+// APIError maps ManagementGetConnectionInternalServerError into the shared typed API error.
+func (r *ManagementGetConnectionInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 500)
+	return err
+}
+
+// APIError maps ManagementGetConnectionServiceUnavailable into the shared typed API error.
+func (r *ManagementGetConnectionServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps ManagementGetConnectionTooManyRequests into the shared typed API error.
+func (r *ManagementGetConnectionTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 429)
+	return err
+}
+
+// APIError maps ManagementGetConnectionUnauthorized into the shared typed API error.
+func (r *ManagementGetConnectionUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
 // APIError maps ManagementGetDeliveryPayloadForbidden into the shared typed API error.
 func (r *ManagementGetDeliveryPayloadForbidden) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 403)

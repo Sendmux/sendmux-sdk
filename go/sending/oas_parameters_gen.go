@@ -371,6 +371,70 @@ func decodeSendingGetAttachmentParams(args [1]string, argsEscaped bool, r *http.
 	return params, nil
 }
 
+// SendingGetConnectionParams is parameters of sendingGetConnection operation.
+type SendingGetConnectionParams struct {
+	// Weak ETag from a previous response. When it matches the current resource, the server returns 304
+	// Not Modified with no body.
+	IfNoneMatch OptString
+}
+
+func unpackSendingGetConnectionParams(packed middleware.Parameters) (params SendingGetConnectionParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "If-None-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfNoneMatch = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeSendingGetConnectionParams(args [0]string, argsEscaped bool, r *http.Request) (params SendingGetConnectionParams, _ error) {
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: If-None-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfNoneMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfNoneMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfNoneMatch.SetTo(paramsDotIfNoneMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-None-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // SendingGetOpenApiSpecParams is parameters of sendingGetOpenApiSpec operation.
 type SendingGetOpenApiSpecParams struct {
 	// Weak ETag from a previous response. When it matches the current resource, the server returns 304

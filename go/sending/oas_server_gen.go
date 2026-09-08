@@ -30,6 +30,14 @@ type Handler interface {
 	//
 	// GET /emails/attachments/{attachment_id}
 	SendingGetAttachment(ctx context.Context, params SendingGetAttachmentParams) (SendingGetAttachmentRes, error)
+	// SendingGetConnection implements sendingGetConnection operation.
+	//
+	// Validate this Sending credential and return its team, connection label, permissions and authorised
+	// mailboxes. Requires email.send. Credits, provider readiness and mailbox storage are not checked.
+	// No user profile or secrets are returned.
+	//
+	// GET /me
+	SendingGetConnection(ctx context.Context, params SendingGetConnectionParams) (SendingGetConnectionRes, error)
 	// SendingGetOpenApiSpec implements sendingGetOpenApiSpec operation.
 	//
 	// Auto-generated OpenAPI 3.1 spec for the Sendmux Sending API. Public endpoint (no authentication).

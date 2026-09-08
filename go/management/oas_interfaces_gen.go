@@ -61,6 +61,10 @@ type ManagementDeleteWebhookRes interface {
 	managementDeleteWebhookRes()
 }
 
+type ManagementGetConnectionRes interface {
+	managementGetConnectionRes()
+}
+
 type ManagementGetDeliveryPayloadRes interface {
 	managementGetDeliveryPayloadRes()
 }

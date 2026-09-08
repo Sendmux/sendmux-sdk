@@ -865,6 +865,377 @@ func (s *BearerAuth) SetRoles(val []string) {
 	s.Roles = val
 }
 
+// Ref: #/components/schemas/Connection
+type Connection struct {
+	Credential ConnectionCredential `json:"credential"`
+	// Display label for this connection.
+	Label       string                    `json:"label"`
+	Mailboxes   []ConnectionMailboxesItem `json:"mailboxes"`
+	Permissions []string                  `json:"permissions"`
+	Team        ConnectionTeam            `json:"team"`
+}
+
+// GetCredential returns the value of Credential.
+func (s *Connection) GetCredential() ConnectionCredential {
+	return s.Credential
+}
+
+// GetLabel returns the value of Label.
+func (s *Connection) GetLabel() string {
+	return s.Label
+}
+
+// GetMailboxes returns the value of Mailboxes.
+func (s *Connection) GetMailboxes() []ConnectionMailboxesItem {
+	return s.Mailboxes
+}
+
+// GetPermissions returns the value of Permissions.
+func (s *Connection) GetPermissions() []string {
+	return s.Permissions
+}
+
+// GetTeam returns the value of Team.
+func (s *Connection) GetTeam() ConnectionTeam {
+	return s.Team
+}
+
+// SetCredential sets the value of Credential.
+func (s *Connection) SetCredential(val ConnectionCredential) {
+	s.Credential = val
+}
+
+// SetLabel sets the value of Label.
+func (s *Connection) SetLabel(val string) {
+	s.Label = val
+}
+
+// SetMailboxes sets the value of Mailboxes.
+func (s *Connection) SetMailboxes(val []ConnectionMailboxesItem) {
+	s.Mailboxes = val
+}
+
+// SetPermissions sets the value of Permissions.
+func (s *Connection) SetPermissions(val []string) {
+	s.Permissions = val
+}
+
+// SetTeam sets the value of Team.
+func (s *Connection) SetTeam(val ConnectionTeam) {
+	s.Team = val
+}
+
+type ConnectionCredential struct {
+	ID   string                   `json:"id"`
+	Name NilString                `json:"name"`
+	Type ConnectionCredentialType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *ConnectionCredential) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ConnectionCredential) GetName() NilString {
+	return s.Name
+}
+
+// GetType returns the value of Type.
+func (s *ConnectionCredential) GetType() ConnectionCredentialType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *ConnectionCredential) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ConnectionCredential) SetName(val NilString) {
+	s.Name = val
+}
+
+// SetType sets the value of Type.
+func (s *ConnectionCredential) SetType(val ConnectionCredentialType) {
+	s.Type = val
+}
+
+type ConnectionCredentialType string
+
+const (
+	ConnectionCredentialTypeAPIKey     ConnectionCredentialType = "api_key"
+	ConnectionCredentialTypeOAuth      ConnectionCredentialType = "oauth"
+	ConnectionCredentialTypeAgentToken ConnectionCredentialType = "agent_token"
+)
+
+// AllValues returns all ConnectionCredentialType values.
+func (ConnectionCredentialType) AllValues() []ConnectionCredentialType {
+	return []ConnectionCredentialType{
+		ConnectionCredentialTypeAPIKey,
+		ConnectionCredentialTypeOAuth,
+		ConnectionCredentialTypeAgentToken,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ConnectionCredentialType) MarshalText() ([]byte, error) {
+	switch s {
+	case ConnectionCredentialTypeAPIKey:
+		return []byte(s), nil
+	case ConnectionCredentialTypeOAuth:
+		return []byte(s), nil
+	case ConnectionCredentialTypeAgentToken:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ConnectionCredentialType) UnmarshalText(data []byte) error {
+	switch ConnectionCredentialType(data) {
+	case ConnectionCredentialTypeAPIKey:
+		*s = ConnectionCredentialTypeAPIKey
+		return nil
+	case ConnectionCredentialTypeOAuth:
+		*s = ConnectionCredentialTypeOAuth
+		return nil
+	case ConnectionCredentialTypeAgentToken:
+		*s = ConnectionCredentialTypeAgentToken
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/ConnectionErrorResponse
+type ConnectionErrorResponse struct {
+	Error ErrorDetail               `json:"error"`
+	Meta  Meta                      `json:"meta"`
+	Ok    ConnectionErrorResponseOk `json:"ok"`
+}
+
+// GetError returns the value of Error.
+func (s *ConnectionErrorResponse) GetError() ErrorDetail {
+	return s.Error
+}
+
+// GetMeta returns the value of Meta.
+func (s *ConnectionErrorResponse) GetMeta() Meta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *ConnectionErrorResponse) GetOk() ConnectionErrorResponseOk {
+	return s.Ok
+}
+
+// SetError sets the value of Error.
+func (s *ConnectionErrorResponse) SetError(val ErrorDetail) {
+	s.Error = val
+}
+
+// SetMeta sets the value of Meta.
+func (s *ConnectionErrorResponse) SetMeta(val Meta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *ConnectionErrorResponse) SetOk(val ConnectionErrorResponseOk) {
+	s.Ok = val
+}
+
+// ConnectionErrorResponseHeaders wraps ConnectionErrorResponse with response headers.
+type ConnectionErrorResponseHeaders struct {
+	RetryAfter OptString
+	Response   ConnectionErrorResponse
+}
+
+// GetRetryAfter returns the value of RetryAfter.
+func (s *ConnectionErrorResponseHeaders) GetRetryAfter() OptString {
+	return s.RetryAfter
+}
+
+// GetResponse returns the value of Response.
+func (s *ConnectionErrorResponseHeaders) GetResponse() ConnectionErrorResponse {
+	return s.Response
+}
+
+// SetRetryAfter sets the value of RetryAfter.
+func (s *ConnectionErrorResponseHeaders) SetRetryAfter(val OptString) {
+	s.RetryAfter = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ConnectionErrorResponseHeaders) SetResponse(val ConnectionErrorResponse) {
+	s.Response = val
+}
+
+type ConnectionErrorResponseOk bool
+
+const (
+	ConnectionErrorResponseOkFalse ConnectionErrorResponseOk = false
+)
+
+// AllValues returns all ConnectionErrorResponseOk values.
+func (ConnectionErrorResponseOk) AllValues() []ConnectionErrorResponseOk {
+	return []ConnectionErrorResponseOk{
+		ConnectionErrorResponseOkFalse,
+	}
+}
+
+type ConnectionMailboxesItem struct {
+	Email string `json:"email"`
+	ID    string `json:"id"`
+}
+
+// GetEmail returns the value of Email.
+func (s *ConnectionMailboxesItem) GetEmail() string {
+	return s.Email
+}
+
+// GetID returns the value of ID.
+func (s *ConnectionMailboxesItem) GetID() string {
+	return s.ID
+}
+
+// SetEmail sets the value of Email.
+func (s *ConnectionMailboxesItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetID sets the value of ID.
+func (s *ConnectionMailboxesItem) SetID(val string) {
+	s.ID = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ConnectionResponse
+type ConnectionResponse struct {
+	Meta Meta                 `json:"meta"`
+	Ok   ConnectionResponseOk `json:"ok"`
+	Data Connection           `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *ConnectionResponse) GetMeta() Meta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *ConnectionResponse) GetOk() ConnectionResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *ConnectionResponse) GetData() Connection {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *ConnectionResponse) SetMeta(val Meta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *ConnectionResponse) SetOk(val ConnectionResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *ConnectionResponse) SetData(val Connection) {
+	s.Data = val
+}
+
+// ConnectionResponseHeaders wraps ConnectionResponse with response headers.
+type ConnectionResponseHeaders struct {
+	CacheControl OptString
+	ETag         OptString
+	XRequestID   OptString
+	Response     ConnectionResponse
+}
+
+// GetCacheControl returns the value of CacheControl.
+func (s *ConnectionResponseHeaders) GetCacheControl() OptString {
+	return s.CacheControl
+}
+
+// GetETag returns the value of ETag.
+func (s *ConnectionResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetXRequestID returns the value of XRequestID.
+func (s *ConnectionResponseHeaders) GetXRequestID() OptString {
+	return s.XRequestID
+}
+
+// GetResponse returns the value of Response.
+func (s *ConnectionResponseHeaders) GetResponse() ConnectionResponse {
+	return s.Response
+}
+
+// SetCacheControl sets the value of CacheControl.
+func (s *ConnectionResponseHeaders) SetCacheControl(val OptString) {
+	s.CacheControl = val
+}
+
+// SetETag sets the value of ETag.
+func (s *ConnectionResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetXRequestID sets the value of XRequestID.
+func (s *ConnectionResponseHeaders) SetXRequestID(val OptString) {
+	s.XRequestID = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ConnectionResponseHeaders) SetResponse(val ConnectionResponse) {
+	s.Response = val
+}
+
+func (*ConnectionResponseHeaders) sendingGetConnectionRes() {}
+
+type ConnectionResponseOk bool
+
+const (
+	ConnectionResponseOkTrue ConnectionResponseOk = true
+)
+
+// AllValues returns all ConnectionResponseOk values.
+func (ConnectionResponseOk) AllValues() []ConnectionResponseOk {
+	return []ConnectionResponseOk{
+		ConnectionResponseOkTrue,
+	}
+}
+
+type ConnectionTeam struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *ConnectionTeam) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ConnectionTeam) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *ConnectionTeam) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ConnectionTeam) SetName(val string) {
+	s.Name = val
+}
+
 // Ref: #/components/schemas/EmailSendRequest
 type EmailSendRequest struct {
 	// File attachments (max 10). Use attachment_id refs for uploaded files.
@@ -1807,6 +2178,27 @@ func (*SendingGetAttachmentTooManyRequests) sendingGetAttachmentRes() {}
 type SendingGetAttachmentUnauthorized ErrorResponse
 
 func (*SendingGetAttachmentUnauthorized) sendingGetAttachmentRes() {}
+
+type SendingGetConnectionForbidden ConnectionErrorResponseHeaders
+
+func (*SendingGetConnectionForbidden) sendingGetConnectionRes() {}
+
+// SendingGetConnectionNotModified is response for SendingGetConnection operation.
+type SendingGetConnectionNotModified struct{}
+
+func (*SendingGetConnectionNotModified) sendingGetConnectionRes() {}
+
+type SendingGetConnectionServiceUnavailable ConnectionErrorResponseHeaders
+
+func (*SendingGetConnectionServiceUnavailable) sendingGetConnectionRes() {}
+
+type SendingGetConnectionTooManyRequests ConnectionErrorResponseHeaders
+
+func (*SendingGetConnectionTooManyRequests) sendingGetConnectionRes() {}
+
+type SendingGetConnectionUnauthorized ConnectionErrorResponseHeaders
+
+func (*SendingGetConnectionUnauthorized) sendingGetConnectionRes() {}
 
 // SendingGetOpenApiSpecNotModified is response for SendingGetOpenApiSpec operation.
 type SendingGetOpenApiSpecNotModified struct {

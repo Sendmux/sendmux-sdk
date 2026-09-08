@@ -30,6 +30,10 @@ module Sendmux
         @billing ||= Generated::BillingApi.new(@api_client)
       end
 
+      def connection
+        @connection ||= Generated::ConnectionApi.new(@api_client)
+      end
+
       def domain_filters
         @domain_filters ||= Generated::DomainFiltersApi.new(@api_client)
       end

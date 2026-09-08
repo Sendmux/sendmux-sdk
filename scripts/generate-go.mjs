@@ -45,6 +45,7 @@ const surfaces = [
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
     tags: [
       "Billing",
+      "Connection",
       "Domain Filters",
       "Domains",
       "Emails",
@@ -112,6 +113,17 @@ function writeFilteredSpec(surface) {
       }
 
       if ((operation.tags ?? []).some((tag) => allowed.has(tag))) {
+        if (operation.operationId?.endsWith("GetConnection")) {
+          // Keep new connection headers from changing existing public error types.
+          for (const [status, response] of Object.entries(operation.responses ?? {})) {
+            const schema = response.content?.["application/json"]?.schema;
+            if (Number(status) >= 400 && schema?.$ref?.startsWith("#/components/schemas/")) {
+              const originalName = schema.$ref.split("/").at(-1);
+              source.components.schemas.ConnectionErrorResponse = structuredClone(source.components.schemas[originalName]);
+              schema.$ref = "#/components/schemas/ConnectionErrorResponse";
+            }
+          }
+        }
         nextPathItem[method] = operation;
       }
     }
@@ -833,10 +845,10 @@ function replaceInFile(filePath, pattern, replacement, label) {
 function buildErrorMethods(packageName, packageDir) {
   const generatedSchemas = readFileSync(join(packageDir, "oas_schemas_gen.go"), "utf8");
   const entries = [
-    ...generatedSchemas.matchAll(/^type ([A-Z]\w+) (ApiError|ErrorResponse|ApiErrorHeaders)$/gm),
+    ...generatedSchemas.matchAll(/^type ([A-Z]\w+) ((?:ApiError|ErrorResponse|ConnectionErrorResponse)(?:Headers)?)$/gm),
   ].map((match) => {
     return {
-      response: match[2] === "ApiErrorHeaders" ? "&r.Response" : "r",
+      response: match[2].endsWith("Headers") ? "&r.Response" : "r",
       status: inferStatus(match[1]),
       typeName: match[1],
     };

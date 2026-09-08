@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sendmux\Management;
 
 use Sendmux\Management\Api\BillingApi;
+use Sendmux\Management\Api\ConnectionApi;
 use Sendmux\Management\Api\DomainFiltersApi;
 use Sendmux\Management\Api\DomainsApi;
 use Sendmux\Management\Api\EmailsApi;
@@ -49,6 +50,17 @@ final class ClientFactory
         ?RetryOptions $retryOptions = null
     ): BillingApi {
         return new BillingApi(
+            self::httpClient($retryOptions),
+            self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    public static function createConnectionApi(
+        string $apiKey,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): ConnectionApi {
+        return new ConnectionApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
         );

@@ -104,6 +104,17 @@ func (UnimplementedHandler) MailboxGetChanges(ctx context.Context, params Mailbo
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxGetConnection implements mailboxGetConnection operation.
+//
+// Validate this credential and return its team, connection label, permissions and authorised
+// mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and
+// sending availability are not checked. No user profile or secrets are returned.
+//
+// GET /mailbox/connection
+func (UnimplementedHandler) MailboxGetConnection(ctx context.Context, params MailboxGetConnectionParams) (r MailboxGetConnectionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxGetFolder implements mailboxGetFolder operation.
 //
 // Returns one folder from the authenticated mailbox. Responses include a weak `ETag` header.

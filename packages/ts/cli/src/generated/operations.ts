@@ -449,6 +449,29 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxGetConnection: {
+    "bodyKind": "none",
+    "command": "mailbox:get-connection",
+    "description": "Get Mailbox connection",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "mailboxGetConnection",
+    "path": "/mailbox/connection",
+    "pathParams": [],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxGetFolder: {
     "bodyKind": "none",
     "command": "mailbox:get-folder",
@@ -2904,6 +2927,29 @@ export const operations = {
     "requiredKeyKind": "root",
     "surface": "management"
   },
+  managementGetConnection: {
+    "bodyKind": "none",
+    "command": "management:get-connection",
+    "description": "Get Management connection",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "managementGetConnection",
+    "path": "/me",
+    "pathParams": [],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
   managementGetDeliveryPayload: {
     "bodyKind": "none",
     "command": "management:get-delivery-payload",
@@ -4259,6 +4305,29 @@ export const operations = {
         }
       }
     ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "sending",
+    "surface": "sending"
+  },
+  sendingGetConnection: {
+    "bodyKind": "none",
+    "command": "sending:get-connection",
+    "description": "Get Sending connection",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "sendingGetConnection",
+    "path": "/me",
+    "pathParams": [],
     "queryParams": [],
     "responseKind": "json",
     "requestBodyRequired": false,

@@ -54,6 +54,7 @@ module Sendmux
 
         configuration.scheme = uri.scheme
         configuration.host = uri.host
+        configuration.host += ":#{uri.port}" if uri.port && uri.port != uri.default_port
         configuration.base_path = uri.path
         configuration.ignore_operation_servers = true if configuration.respond_to?(:ignore_operation_servers=)
       end

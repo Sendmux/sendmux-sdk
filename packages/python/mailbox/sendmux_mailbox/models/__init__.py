@@ -19,6 +19,11 @@ from sendmux_mailbox.models.api_error_error import ApiErrorError
 from sendmux_mailbox.models.api_error_meta import ApiErrorMeta
 from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDeleteMailboxMessagesBody
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
+from sendmux_mailbox.models.connection import Connection
+from sendmux_mailbox.models.connection_credential import ConnectionCredential
+from sendmux_mailbox.models.connection_mailboxes_inner import ConnectionMailboxesInner
+from sendmux_mailbox.models.connection_response import ConnectionResponse
+from sendmux_mailbox.models.connection_team import ConnectionTeam
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody
 from sendmux_mailbox.models.cursor_pagination import CursorPagination
 from sendmux_mailbox.models.granted_mailbox import GrantedMailbox

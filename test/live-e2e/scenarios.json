@@ -281,6 +281,36 @@
       "mode": "read",
       "risk": "read"
     },
+    "mailboxGetConnection": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_connection",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
     "mailboxGetFolder": {
       "adapters": {
         "cli": true,
@@ -1805,6 +1835,36 @@
       "mode": "destructive_cleanup_only",
       "risk": "destructive"
     },
+    "managementGetConnection": {
+      "adapters": {
+        "cli": true,
+        "mcp": "management_get_connection",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
     "managementGetDeliveryPayload": {
       "adapters": {
         "cli": true,
@@ -3013,7 +3073,8 @@
       "fixture": {
         "body": "binary",
         "headers": [
-          "X-Sendmux-Upload-Token"
+          "X-Sendmux-Upload-Token",
+          "Content-Length"
         ],
         "pathParams": [
           "upload_id"
@@ -3093,6 +3154,36 @@
       ],
       "mode": "binary_fixture",
       "risk": "binary"
+    },
+    "sendingGetConnection": {
+      "adapters": {
+        "cli": true,
+        "mcp": "sending_get_connection",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
     },
     "sendingGetOpenApiSpec": {
       "adapters": {
@@ -3210,7 +3301,8 @@
       "fixture": {
         "body": "binary",
         "headers": [
-          "Idempotency-Key"
+          "Idempotency-Key",
+          "Content-Length"
         ],
         "pathParams": [],
         "queryParams": [

@@ -9,6 +9,7 @@ const (
 	SendingCompleteAttachmentUploadOperation OperationName = "SendingCompleteAttachmentUpload"
 	SendingCreateAttachmentUploadOperation   OperationName = "SendingCreateAttachmentUpload"
 	SendingGetAttachmentOperation            OperationName = "SendingGetAttachment"
+	SendingGetConnectionOperation            OperationName = "SendingGetConnection"
 	SendingGetOpenApiSpecOperation           OperationName = "SendingGetOpenApiSpec"
 	SendingSendEmailOperation                OperationName = "SendingSendEmail"
 	SendingSendEmailBatchOperation           OperationName = "SendingSendEmailBatch"

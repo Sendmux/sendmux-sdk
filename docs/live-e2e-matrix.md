@@ -15,16 +15,16 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 
 ## Summary
 
-- Operations: 103 total; 101 OpenAPI operations and 2 custom MCP operation.
-- OpenAPI operations by surface: management 53, mailbox 41, sending 7.
+- Operations: 106 total; 104 OpenAPI operations and 2 custom MCP operation.
+- OpenAPI operations by surface: management 54, mailbox 42, sending 8.
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
-- MCP adapters required for curated tools: 52.
-- Default executable live operations: 54.
+- MCP adapters required for curated tools: 55.
+- Default executable live operations: 57.
 - Blocked behind safety gates: 49.
 - Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
-- Risks: binary 8, destructive 8, mutation 30, read 54, send 2, stream 1.
-- Modes: binary_fixture 8, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 15, read 33, read_fixture 21, send 2, stream 1, update_restore 8.
+- Risks: binary 8, destructive 8, mutation 30, read 57, send 2, stream 1.
+- Modes: binary_fixture 8, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 15, read 36, read_fixture 21, send 2, stream 1, update_restore 8.
 
 ## Matrix
 
@@ -39,6 +39,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | mailbox | `mailboxDeleteFolder` | DELETE | `/mailbox/folders/{folder_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | mailbox | `mailboxDeleteMessage` | DELETE | `/mailbox/messages/{message_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | mailbox | `mailboxGetChanges` | GET | `/mailbox/changes` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_changes | none | fixture |
+| mailbox | `mailboxGetConnection` | GET | `/mailbox/connection` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_connection | none | fixture |
 | mailbox | `mailboxGetFolder` | GET | `/mailbox/folders/{folder_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetFolderChanges` | GET | `/mailbox/folders/changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetIdentity` | GET | `/mailbox/identity` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_identity | none | fixture |
@@ -88,6 +89,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | management | `managementDeleteMailboxKey` | DELETE | `/mailboxes/{public_id}/keys/{key_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | management_delete_mailbox_key | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | management | `managementDeleteProvider` | DELETE | `/providers/{public_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | management | `managementDeleteWebhook` | DELETE | `/webhooks/{public_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
+| management | `managementGetConnection` | GET | `/me` | read | read | typescript, python, go, php, ruby | yes | management_get_connection | none | fixture |
 | management | `managementGetDeliveryPayload` | GET | `/webhooks/{public_id}/deliveries/{delivery_id}/payload` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetDomain` | GET | `/domains/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | management_get_domain | none | fixture |
 | management | `managementGetDomainFilters` | GET | `/domains/{public_id}/filters` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
@@ -129,6 +131,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | sending | `sendingCompleteAttachmentUpload` | PUT | `/emails/attachment-uploads/{upload_id}` | binary_fixture | binary | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | restore-original |
 | sending | `sendingCreateAttachmentUpload` | POST | `/emails/attachment-uploads` | binary_fixture | binary | typescript, python, go, php, ruby | yes | sending_create_attachment_upload | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |
 | sending | `sendingGetAttachment` | GET | `/emails/attachments/{attachment_id}` | binary_fixture | binary | typescript, python, go, php, ruby | yes | sending_get_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | fixture |
+| sending | `sendingGetConnection` | GET | `/me` | read | read | typescript, python, go, php, ruby | yes | sending_get_connection | none | fixture |
 | sending | `sendingGetOpenApiSpec` | GET | `/openapi.json` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | sending | `sendingSendEmail` | POST | `/emails/send` | send | send | typescript, python, go, php, ruby | yes | sending_send_email | SENDMUX_STAGING_SEND=1; SENDMUX_STAGING_SEND_TO allowlist | fixture |
 | sending | `sendingSendEmailBatch` | POST | `/emails/send/batch` | send | send | typescript, python, go, php, ruby | yes | sending_send_email_batch | SENDMUX_STAGING_SEND=1; SENDMUX_STAGING_SEND_TO allowlist | fixture |

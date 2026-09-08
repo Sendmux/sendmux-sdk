@@ -1409,6 +1409,32 @@ export type DeliveryLogItem = {
     to_email: string | null;
 };
 
+export type ConnectionResponse = SuccessEnvelope & {
+    data: Connection;
+    meta?: ResponseMeta;
+};
+
+export type Connection = {
+    credential: {
+        id: string;
+        name: string | null;
+        type: 'api_key' | 'oauth' | 'agent_token';
+    };
+    /**
+     * Display label for this connection.
+     */
+    label: string;
+    mailboxes: Array<{
+        email: string;
+        id: string;
+    }>;
+    permissions: Array<string>;
+    team: {
+        id: string;
+        name: string;
+    };
+};
+
 export type BalanceResponse = SuccessEnvelope & {
     data: Balance;
     meta?: ResponseMeta;
@@ -1423,7 +1449,7 @@ export type Balance = {
         threshold: string | null;
     };
     /**
-     * Current balance (purchased - consumed)
+     * Current spendable balance
      */
     balance: string;
     balance_consumed: string;
@@ -1501,7 +1527,7 @@ export type ManagementListBalanceError = ManagementListBalanceErrors[keyof Manag
 
 export type ManagementListBalanceResponses = {
     /**
-     * Current balance
+     * Current spendable balance
      */
     200: BalanceResponse;
 };
@@ -2780,6 +2806,53 @@ export type ManagementCheckMailboxAvailabilityResponses = {
 };
 
 export type ManagementCheckMailboxAvailabilityResponse = ManagementCheckMailboxAvailabilityResponses[keyof ManagementCheckMailboxAvailabilityResponses];
+
+export type ManagementGetConnectionData = {
+    body?: never;
+    headers?: {
+        /**
+         * ETag from a previous response. A match returns 304 with no body after rechecking authentication.
+         */
+        'If-None-Match'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/me';
+};
+
+export type ManagementGetConnectionErrors = {
+    /**
+     * Authentication required
+     */
+    401: ApiError;
+    /**
+     * Credential is not authorised for this API
+     */
+    403: ApiError;
+    /**
+     * Rate limit exceeded
+     */
+    429: ApiError;
+    /**
+     * Unexpected server error
+     */
+    500: ApiError;
+    /**
+     * Authentication service temporarily unavailable
+     */
+    503: ApiError;
+};
+
+export type ManagementGetConnectionError = ManagementGetConnectionErrors[keyof ManagementGetConnectionErrors];
+
+export type ManagementGetConnectionResponses = {
+    /**
+     * Connection information
+     */
+    200: ConnectionResponse;
+};
+
+export type ManagementGetConnectionResponse = ManagementGetConnectionResponses[keyof ManagementGetConnectionResponses];
 
 export type ManagementListProvidersData = {
     body?: never;

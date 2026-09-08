@@ -20,8 +20,8 @@ assert.equal(result.status, 0, result.stderr || result.stdout);
 const plan = JSON.parse(result.stdout);
 assert.equal(plan.ok, true);
 assert.deepEqual(plan.adapters, ["typescript", "python", "go", "php", "ruby", "cli", "mcp"]);
-assert.equal(plan.summary.total, 103);
-assert.equal(plan.summary.executable, 54);
+assert.equal(plan.summary.total, 106);
+assert.equal(plan.summary.executable, 57);
 assert.equal(plan.summary.gated, 49);
 assert.equal(plan.summary.blocked, 0);
 assert.equal(plan.summary.gatedByRisk.mutation, 30);
@@ -98,8 +98,8 @@ const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--
 
 assert.equal(gatedResult.status, 0, gatedResult.stderr || gatedResult.stdout);
 const gatedPlan = JSON.parse(gatedResult.stdout);
-assert.equal(gatedPlan.summary.total, 103);
-assert.equal(gatedPlan.summary.executable, 103);
+assert.equal(gatedPlan.summary.total, 106);
+assert.equal(gatedPlan.summary.executable, 106);
 assert.equal(gatedPlan.summary.gated, 0);
 assert.equal(gatedPlan.summary.blocked, 0);
 

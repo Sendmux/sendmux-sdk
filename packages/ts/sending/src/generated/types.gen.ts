@@ -169,6 +169,31 @@ export type Address = {
 
 export type Attachment = InlineAttachment | UploadedAttachmentRef;
 
+export type ConnectionResponse = SuccessEnvelope & {
+    data: Connection;
+};
+
+export type Connection = {
+    credential: {
+        id: string;
+        name: string | null;
+        type: 'api_key' | 'oauth' | 'agent_token';
+    };
+    /**
+     * Display label for this connection.
+     */
+    label: string;
+    mailboxes: Array<{
+        email: string;
+        id: string;
+    }>;
+    permissions: Array<string>;
+    team: {
+        id: string;
+        name: string;
+    };
+};
+
 export type BatchSummary = {
     /**
      * Failed count
@@ -661,6 +686,49 @@ export type SendingSendEmailBatchResponses = {
 };
 
 export type SendingSendEmailBatchResponse = SendingSendEmailBatchResponses[keyof SendingSendEmailBatchResponses];
+
+export type SendingGetConnectionData = {
+    body?: never;
+    headers?: {
+        /**
+         * Weak ETag from a previous response. When it matches the current resource, the server returns 304 Not Modified with no body.
+         */
+        'If-None-Match'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/me';
+};
+
+export type SendingGetConnectionErrors = {
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse;
+    /**
+     * Credential is not authorised for this API
+     */
+    403: ErrorResponse;
+    /**
+     * Rate limit exceeded
+     */
+    429: ErrorResponse;
+    /**
+     * Authentication service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type SendingGetConnectionError = SendingGetConnectionErrors[keyof SendingGetConnectionErrors];
+
+export type SendingGetConnectionResponses = {
+    /**
+     * Connection information
+     */
+    200: ConnectionResponse;
+};
+
+export type SendingGetConnectionResponse = SendingGetConnectionResponses[keyof SendingGetConnectionResponses];
 
 export type SendingGetOpenApiSpecData = {
     body?: never;

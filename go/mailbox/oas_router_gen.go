@@ -115,24 +115,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 'c': // Prefix: "changes"
+			case 'c': // Prefix: "c"
 
-				if l := len("changes"); len(elem) >= l && elem[0:l] == "changes" {
+				if l := len("c"); len(elem) >= l && elem[0:l] == "c" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "GET":
-						s.handleMailboxGetChangesRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET")
+					break
+				}
+				switch elem[0] {
+				case 'h': // Prefix: "hanges"
+
+					if l := len("hanges"); len(elem) >= l && elem[0:l] == "hanges" {
+						elem = elem[l:]
+					} else {
+						break
 					}
 
-					return
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleMailboxGetChangesRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+				case 'o': // Prefix: "onnection"
+
+					if l := len("onnection"); len(elem) >= l && elem[0:l] == "onnection" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleMailboxGetConnectionRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
 				}
 
 			case 'e': // Prefix: "events"
@@ -1142,28 +1176,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 'c': // Prefix: "changes"
+			case 'c': // Prefix: "c"
 
-				if l := len("changes"); len(elem) >= l && elem[0:l] == "changes" {
+				if l := len("c"); len(elem) >= l && elem[0:l] == "c" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
-					switch method {
-					case "GET":
-						r.name = MailboxGetChangesOperation
-						r.summary = "Get mailbox changes"
-						r.operationID = "mailboxGetChanges"
-						r.pathPattern = "/mailbox/changes"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
+					break
+				}
+				switch elem[0] {
+				case 'h': // Prefix: "hanges"
+
+					if l := len("hanges"); len(elem) >= l && elem[0:l] == "hanges" {
+						elem = elem[l:]
+					} else {
+						break
 					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = MailboxGetChangesOperation
+							r.summary = "Get mailbox changes"
+							r.operationID = "mailboxGetChanges"
+							r.pathPattern = "/mailbox/changes"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'o': // Prefix: "onnection"
+
+					if l := len("onnection"); len(elem) >= l && elem[0:l] == "onnection" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = MailboxGetConnectionOperation
+							r.summary = "Get Mailbox connection"
+							r.operationID = "mailboxGetConnection"
+							r.pathPattern = "/mailbox/connection"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
 				}
 
 			case 'e': // Prefix: "events"

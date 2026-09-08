@@ -22,6 +22,12 @@ class ToolSpec:
 
 OPENAPI_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
+        operation_id="mailboxGetConnection",
+        name="mailbox_get_connection",
+        title="Get Mailbox Connection",
+        description="Validate the current Mailbox credential and read its team, connection label, permissions and authorised mailboxes. No mailbox selection or mailbox storage access is required.",
+    ),
+    ToolSpec(
         operation_id="mailboxListGrantedMailboxes",
         name="mailbox_list_granted_mailboxes",
         title="List Granted Mailboxes",
@@ -195,6 +201,12 @@ MAILBOX_TOOLS: tuple[ToolSpec, ...] = OPENAPI_MAILBOX_TOOLS + CUSTOM_MAILBOX_TOO
 
 MANAGEMENT_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
+        operation_id="managementGetConnection",
+        name="management_get_connection",
+        title="Get Management Connection",
+        description="Validate the current Management credential and read its team, connection label and permissions. No additional resource read permission is required.",
+    ),
+    ToolSpec(
         operation_id="managementListDomains",
         name="management_list_domains",
         title="List Domains",
@@ -324,6 +336,12 @@ MANAGEMENT_TOOLS: tuple[ToolSpec, ...] = (
 
 OPENAPI_SENDING_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
+        operation_id="sendingGetConnection",
+        name="sending_get_connection",
+        title="Get Sending Connection",
+        description="Validate the current Sending credential and read its team, connection label and permissions. Requires email.send. This does not send email or check credits or provider readiness.",
+    ),
+    ToolSpec(
         operation_id="sendingCreateAttachmentUpload",
         name="sending_create_attachment_upload",
         title="Create Attachment Upload",
@@ -395,6 +413,9 @@ TOOL_BY_OPERATION_ID = {
 
 READ_ONLY_OPERATION_IDS = frozenset(
     {
+        "managementGetConnection",
+        "mailboxGetConnection",
+        "sendingGetConnection",
         "mailboxListGrantedMailboxes",
         "mailboxGetMe",
         "mailboxGetSession",

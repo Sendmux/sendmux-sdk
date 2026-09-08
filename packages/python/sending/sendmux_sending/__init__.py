@@ -42,6 +42,11 @@ __all__ = [
     "BatchSendSuccessData",
     "BatchSendSuccessResponse",
     "BatchSummary",
+    "Connection",
+    "ConnectionCredential",
+    "ConnectionMailboxesInner",
+    "ConnectionResponse",
+    "ConnectionTeam",
     "EmailSendRequest",
     "ErrorDetail",
     "ErrorIssue",
@@ -84,6 +89,11 @@ from sendmux_sending.models.batch_send_request import BatchSendRequest as BatchS
 from sendmux_sending.models.batch_send_success_data import BatchSendSuccessData as BatchSendSuccessData
 from sendmux_sending.models.batch_send_success_response import BatchSendSuccessResponse as BatchSendSuccessResponse
 from sendmux_sending.models.batch_summary import BatchSummary as BatchSummary
+from sendmux_sending.models.connection import Connection as Connection
+from sendmux_sending.models.connection_credential import ConnectionCredential as ConnectionCredential
+from sendmux_sending.models.connection_mailboxes_inner import ConnectionMailboxesInner as ConnectionMailboxesInner
+from sendmux_sending.models.connection_response import ConnectionResponse as ConnectionResponse
+from sendmux_sending.models.connection_team import ConnectionTeam as ConnectionTeam
 from sendmux_sending.models.email_send_request import EmailSendRequest as EmailSendRequest
 from sendmux_sending.models.error_detail import ErrorDetail as ErrorDetail
 from sendmux_sending.models.error_issue import ErrorIssue as ErrorIssue

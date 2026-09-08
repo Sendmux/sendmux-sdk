@@ -180,6 +180,17 @@ func (UnimplementedHandler) ManagementDeleteWebhook(ctx context.Context, params 
 	return r, ht.ErrNotImplemented
 }
 
+// ManagementGetConnection implements managementGetConnection operation.
+//
+// Validate this credential and return its team, connection label, permissions and authorised
+// mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and
+// sending availability are not checked. No user profile or secrets are returned.
+//
+// GET /me
+func (UnimplementedHandler) ManagementGetConnection(ctx context.Context, params ManagementGetConnectionParams) (r ManagementGetConnectionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ManagementGetDeliveryPayload implements managementGetDeliveryPayload operation.
 //
 // Returns the retained JSON request body for one delivery attempt. Payloads are retained for 7 days
@@ -349,7 +360,7 @@ func (UnimplementedHandler) ManagementGetWebhook(ctx context.Context, params Man
 
 // ManagementListBalance implements managementListBalance operation.
 //
-// Returns the current team balance and auto top-up configuration.
+// Returns the current spendable balance.
 //
 // GET /billing/balance
 func (UnimplementedHandler) ManagementListBalance(ctx context.Context) (r ManagementListBalanceRes, _ error) {

@@ -33,6 +33,7 @@ const surfaces = [
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
     tags: [
       "Billing",
+      "Connection",
       "Domain Filters",
       "Domains",
       "Emails",

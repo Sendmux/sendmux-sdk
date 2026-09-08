@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.1.0...python-sdk-v1.1.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **python-sdk:** require connection-capable components ([#179](https://github.com/Sendmux/sendmux-sdk/issues/179)) ([df3bf12](https://github.com/Sendmux/sendmux-sdk/commit/df3bf12f0dc6ce4e39dd36550d49187e8b9aabfb))
+
 ## [1.1.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.0.4...python-sdk-v1.1.0) (2026-07-01)
 
 

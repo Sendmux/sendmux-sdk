@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* add file attachment helper for Sending API email sends
-
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sending-v1.3.0...python-sending-v1.4.0) (2026-09-08)
 
 

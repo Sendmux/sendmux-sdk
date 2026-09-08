@@ -23,6 +23,20 @@ Generated Python client for the Sendmux Sending API.
 pip install sendmux-sending
 ```
 
+## Connection checks
+
+Check the authenticated team and credential without sending an email:
+
+```python
+import os
+
+from sendmux_sending import MetaApi, create_sending_client
+
+with create_sending_client(api_key=os.environ["SENDMUX_SENDING_API_KEY"]) as client:
+    connection = MetaApi(client).sending_get_connection()
+    print(connection.data.label)
+```
+
 ## Usage
 
 ```python

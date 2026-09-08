@@ -275,7 +275,7 @@ class MailboxAttachmentUploadIntentBody implements ModelInterface, ArrayAccess, 
         if ($this->container['size_bytes'] === null) {
             $invalidProperties[] = "'size_bytes' can't be null";
         }
-        if (($this->container['size_bytes'] < 1)) {
+        if (!is_null($this->container['size_bytes']) && ($this->container['size_bytes'] < 1)) {
             $invalidProperties[] = "invalid value for 'size_bytes', must be bigger than or equal to 1.";
         }
 

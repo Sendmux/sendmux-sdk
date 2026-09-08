@@ -312,7 +312,7 @@ class WebhookCreateBody implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['event_types'] === null) {
             $invalidProperties[] = "'event_types' can't be null";
         }
-        if ((count($this->container['event_types']) < 1)) {
+        if (!is_null($this->container['event_types']) && (count($this->container['event_types']) < 1)) {
             $invalidProperties[] = "invalid value for 'event_types', number of items must be greater than or equal to 1.";
         }
 

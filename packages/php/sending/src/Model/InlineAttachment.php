@@ -291,7 +291,7 @@ class InlineAttachment implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['content'] === null) {
             $invalidProperties[] = "'content' can't be null";
         }
-        if ((mb_strlen($this->container['content']) < 1)) {
+        if (!is_null($this->container['content']) && (mb_strlen($this->container['content']) < 1)) {
             $invalidProperties[] = "invalid value for 'content', the character length must be bigger than or equal to 1.";
         }
 
@@ -307,11 +307,11 @@ class InlineAttachment implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['filename'] === null) {
             $invalidProperties[] = "'filename' can't be null";
         }
-        if ((mb_strlen($this->container['filename']) > 255)) {
+        if (!is_null($this->container['filename']) && (mb_strlen($this->container['filename']) > 255)) {
             $invalidProperties[] = "invalid value for 'filename', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['filename']) < 1)) {
+        if (!is_null($this->container['filename']) && (mb_strlen($this->container['filename']) < 1)) {
             $invalidProperties[] = "invalid value for 'filename', the character length must be bigger than or equal to 1.";
         }
 

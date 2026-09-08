@@ -514,7 +514,7 @@ use {{invokerPackage}}\ObjectSerializer;
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     {{#returnType}}
                     {{#responses}}
                     {{#vendorExtensions.x-sendmux-bodyless-success}}
@@ -524,20 +524,7 @@ use {{invokerPackage}}\ObjectSerializer;
 
                     {{/vendorExtensions.x-sendmux-bodyless-success}}
                     {{/responses}}
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                     {{/returnType}}
                     {{^returnType}}
                     return [null, $response->getStatusCode(), $response->getHeaders()];

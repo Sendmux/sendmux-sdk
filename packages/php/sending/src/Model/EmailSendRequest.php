@@ -340,11 +340,11 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['html_body'] === null) {
             $invalidProperties[] = "'html_body' can't be null";
         }
-        if ((mb_strlen($this->container['html_body']) > 26214400)) {
+        if (!is_null($this->container['html_body']) && (mb_strlen($this->container['html_body']) > 26214400)) {
             $invalidProperties[] = "invalid value for 'html_body', the character length must be smaller than or equal to 26214400.";
         }
 
-        if ((mb_strlen($this->container['html_body']) < 1)) {
+        if (!is_null($this->container['html_body']) && (mb_strlen($this->container['html_body']) < 1)) {
             $invalidProperties[] = "invalid value for 'html_body', the character length must be bigger than or equal to 1.";
         }
 
@@ -355,15 +355,15 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['subject'] === null) {
             $invalidProperties[] = "'subject' can't be null";
         }
-        if ((mb_strlen($this->container['subject']) > 998)) {
+        if (!is_null($this->container['subject']) && (mb_strlen($this->container['subject']) > 998)) {
             $invalidProperties[] = "invalid value for 'subject', the character length must be smaller than or equal to 998.";
         }
 
-        if ((mb_strlen($this->container['subject']) < 1)) {
+        if (!is_null($this->container['subject']) && (mb_strlen($this->container['subject']) < 1)) {
             $invalidProperties[] = "invalid value for 'subject', the character length must be bigger than or equal to 1.";
         }
 
-        if (!preg_match("/^[^\\r\\n]*$/", $this->container['subject'])) {
+        if (!is_null($this->container['subject']) && !preg_match("/^[^\\r\\n]*$/", $this->container['subject'])) {
             $invalidProperties[] = "invalid value for 'subject', must be conform to the pattern /^[^\\r\\n]*$/.";
         }
 

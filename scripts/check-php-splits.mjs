@@ -45,12 +45,12 @@ writeFileSync(
         options: {
           symlink: false,
           versions: {
-            [pkg.composer]: "1.1.0",
+            [pkg.composer]: "2.0.0",
           },
         },
       })),
       require: {
-        "sendmux/sdk": "1.1.0",
+        "sendmux/sdk": "2.0.0",
       },
       config: {
         "sort-packages": true,

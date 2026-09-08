@@ -326,7 +326,7 @@ class AttachmentUploadIntentData implements ModelInterface, ArrayAccess, JsonSer
         if ($this->container['upload_id'] === null) {
             $invalidProperties[] = "'upload_id' can't be null";
         }
-        if (!preg_match("/^upl_[a-z0-9]{24}$/", $this->container['upload_id'])) {
+        if (!is_null($this->container['upload_id']) && !preg_match("/^upl_[a-z0-9]{24}$/", $this->container['upload_id'])) {
             $invalidProperties[] = "invalid value for 'upload_id', must be conform to the pattern /^upl_[a-z0-9]{24}$/.";
         }
 

@@ -329,7 +329,7 @@ class WebhookDeliveryPayload implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['delivery_attempt'] === null) {
             $invalidProperties[] = "'delivery_attempt' can't be null";
         }
-        if (($this->container['delivery_attempt'] <= 0)) {
+        if (!is_null($this->container['delivery_attempt']) && ($this->container['delivery_attempt'] <= 0)) {
             $invalidProperties[] = "invalid value for 'delivery_attempt', must be bigger than 0.";
         }
 

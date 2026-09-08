@@ -293,7 +293,7 @@ class SetFilterStateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         if ($this->container['rules'] === null) {
             $invalidProperties[] = "'rules' can't be null";
         }
-        if ((count($this->container['rules']) > 1000)) {
+        if (!is_null($this->container['rules']) && (count($this->container['rules']) > 1000)) {
             $invalidProperties[] = "invalid value for 'rules', number of items must be less than or equal to 1000.";
         }
 

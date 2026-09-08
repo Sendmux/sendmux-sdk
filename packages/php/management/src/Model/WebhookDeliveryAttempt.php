@@ -413,7 +413,7 @@ class WebhookDeliveryAttempt implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['delivery_attempt'] === null) {
             $invalidProperties[] = "'delivery_attempt' can't be null";
         }
-        if (($this->container['delivery_attempt'] <= 0)) {
+        if (!is_null($this->container['delivery_attempt']) && ($this->container['delivery_attempt'] <= 0)) {
             $invalidProperties[] = "invalid value for 'delivery_attempt', must be bigger than 0.";
         }
 
@@ -441,7 +441,7 @@ class WebhookDeliveryAttempt implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['max_attempts'] === null) {
             $invalidProperties[] = "'max_attempts' can't be null";
         }
-        if (($this->container['max_attempts'] <= 0)) {
+        if (!is_null($this->container['max_attempts']) && ($this->container['max_attempts'] <= 0)) {
             $invalidProperties[] = "invalid value for 'max_attempts', must be bigger than 0.";
         }
 
@@ -457,7 +457,7 @@ class WebhookDeliveryAttempt implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['request_payload_bytes'] === null) {
             $invalidProperties[] = "'request_payload_bytes' can't be null";
         }
-        if (($this->container['request_payload_bytes'] < 0)) {
+        if (!is_null($this->container['request_payload_bytes']) && ($this->container['request_payload_bytes'] < 0)) {
             $invalidProperties[] = "invalid value for 'request_payload_bytes', must be bigger than or equal to 0.";
         }
 
@@ -470,7 +470,7 @@ class WebhookDeliveryAttempt implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['response_ms'] === null) {
             $invalidProperties[] = "'response_ms' can't be null";
         }
-        if (($this->container['response_ms'] < 0)) {
+        if (!is_null($this->container['response_ms']) && ($this->container['response_ms'] < 0)) {
             $invalidProperties[] = "invalid value for 'response_ms', must be bigger than or equal to 0.";
         }
 

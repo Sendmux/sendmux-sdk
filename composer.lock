@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff181e7899433b8a5252b3bc174f8966",
+    "content-hash": "7767c935ea35f66f3af97b0c0d405a77",
     "packages": [],
     "packages-dev": [
         {
@@ -2283,11 +2283,11 @@
         },
         {
             "name": "sendmux/core",
-            "version": "1.1.0",
+            "version": "2.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/core",
-                "reference": "0b051a5595f21b068cb52d82fcfc0db07387961f"
+                "reference": "65dd95fb2f4b1845013d1244503f5a04479e0667"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.10",
@@ -2311,11 +2311,11 @@
         },
         {
             "name": "sendmux/mailbox",
-            "version": "1.1.0",
+            "version": "2.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/mailbox",
-                "reference": "92ebca30571f643ed7b7590dfe0c0f408657697d"
+                "reference": "453bdcfd29807ec2e6ee08d9fc7e2cba811149f8"
             },
             "require": {
                 "ext-curl": "*",
@@ -2324,7 +2324,7 @@
                 "guzzlehttp/guzzle": "^7.10",
                 "guzzlehttp/psr7": "^2.7",
                 "php": "^8.2",
-                "sendmux/core": "^1.1"
+                "sendmux/core": "^2.0"
             },
             "type": "library",
             "autoload": {
@@ -2343,11 +2343,11 @@
         },
         {
             "name": "sendmux/management",
-            "version": "1.1.0",
+            "version": "2.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/management",
-                "reference": "776ea8e9c265d4d3f94f2c1a778e28e3ba8a5a6e"
+                "reference": "1d79fffad82e9c8555698819beb53a659ab1aac8"
             },
             "require": {
                 "ext-curl": "*",
@@ -2356,7 +2356,7 @@
                 "guzzlehttp/guzzle": "^7.10",
                 "guzzlehttp/psr7": "^2.7",
                 "php": "^8.2",
-                "sendmux/core": "^1.1"
+                "sendmux/core": "^2.0"
             },
             "type": "library",
             "autoload": {
@@ -2375,18 +2375,18 @@
         },
         {
             "name": "sendmux/sdk",
-            "version": "1.1.0",
+            "version": "2.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/sdk",
-                "reference": "faac769cf6dcef88db91a54d908a715509208d0a"
+                "reference": "35a74ac8fe3739799b8fad01fa16748da8ff58a6"
             },
             "require": {
                 "php": "^8.2",
-                "sendmux/core": "^1.1",
-                "sendmux/mailbox": "^1.1",
-                "sendmux/management": "^1.1",
-                "sendmux/sending": "^1.1"
+                "sendmux/core": "^2.0",
+                "sendmux/mailbox": "^2.0",
+                "sendmux/management": "^2.0",
+                "sendmux/sending": "^2.0"
             },
             "type": "library",
             "autoload": {
@@ -2405,11 +2405,11 @@
         },
         {
             "name": "sendmux/sending",
-            "version": "1.1.0",
+            "version": "2.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/sending",
-                "reference": "324cbec79091fb88b154022db4a03412f3a417da"
+                "reference": "65fb6c1f0f50f94e9863cf809c16abd18840189e"
             },
             "require": {
                 "ext-curl": "*",
@@ -2418,7 +2418,7 @@
                 "guzzlehttp/guzzle": "^7.10",
                 "guzzlehttp/psr7": "^2.7",
                 "php": "^8.2",
-                "sendmux/core": "^1.1"
+                "sendmux/core": "^2.0"
             },
             "type": "library",
             "autoload": {

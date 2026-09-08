@@ -321,7 +321,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['to'] === null) {
             $invalidProperties[] = "'to' can't be null";
         }
-        if ((count($this->container['to']) < 1)) {
+        if (!is_null($this->container['to']) && (count($this->container['to']) < 1)) {
             $invalidProperties[] = "invalid value for 'to', number of items must be greater than or equal to 1.";
         }
 

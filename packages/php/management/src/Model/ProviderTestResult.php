@@ -276,7 +276,7 @@ class ProviderTestResult implements ModelInterface, ArrayAccess, JsonSerializabl
         if ($this->container['latency_ms'] === null) {
             $invalidProperties[] = "'latency_ms' can't be null";
         }
-        if (($this->container['latency_ms'] < 0)) {
+        if (!is_null($this->container['latency_ms']) && ($this->container['latency_ms'] < 0)) {
             $invalidProperties[] = "invalid value for 'latency_ms', must be bigger than or equal to 0.";
         }
 

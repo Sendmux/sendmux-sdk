@@ -263,7 +263,7 @@ class Address implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['email'] === null) {
             $invalidProperties[] = "'email' can't be null";
         }
-        if ((mb_strlen($this->container['email']) > 254)) {
+        if (!is_null($this->container['email']) && (mb_strlen($this->container['email']) > 254)) {
             $invalidProperties[] = "invalid value for 'email', the character length must be smaller than or equal to 254.";
         }
 

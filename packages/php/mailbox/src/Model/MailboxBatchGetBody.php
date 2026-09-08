@@ -403,11 +403,11 @@ class MailboxBatchGetBody implements ModelInterface, ArrayAccess, JsonSerializab
         if ($this->container['ids'] === null) {
             $invalidProperties[] = "'ids' can't be null";
         }
-        if ((count($this->container['ids']) > 100)) {
+        if (!is_null($this->container['ids']) && (count($this->container['ids']) > 100)) {
             $invalidProperties[] = "invalid value for 'ids', number of items must be less than or equal to 100.";
         }
 
-        if ((count($this->container['ids']) < 1)) {
+        if (!is_null($this->container['ids']) && (count($this->container['ids']) < 1)) {
             $invalidProperties[] = "invalid value for 'ids', number of items must be greater than or equal to 1.";
         }
 

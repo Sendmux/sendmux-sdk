@@ -327,7 +327,7 @@ class ResourceLimitSnapshot implements ModelInterface, ArrayAccess, JsonSerializ
         if ($this->container['max_allowed'] === null) {
             $invalidProperties[] = "'max_allowed' can't be null";
         }
-        if (($this->container['max_allowed'] <= 0)) {
+        if (!is_null($this->container['max_allowed']) && ($this->container['max_allowed'] <= 0)) {
             $invalidProperties[] = "invalid value for 'max_allowed', must be bigger than 0.";
         }
 
@@ -337,7 +337,7 @@ class ResourceLimitSnapshot implements ModelInterface, ArrayAccess, JsonSerializ
         if ($this->container['reserved'] === null) {
             $invalidProperties[] = "'reserved' can't be null";
         }
-        if (($this->container['reserved'] < 0)) {
+        if (!is_null($this->container['reserved']) && ($this->container['reserved'] < 0)) {
             $invalidProperties[] = "invalid value for 'reserved', must be bigger than or equal to 0.";
         }
 
@@ -347,14 +347,14 @@ class ResourceLimitSnapshot implements ModelInterface, ArrayAccess, JsonSerializ
         if ($this->container['threshold_usage'] === null) {
             $invalidProperties[] = "'threshold_usage' can't be null";
         }
-        if (($this->container['threshold_usage'] < 0)) {
+        if (!is_null($this->container['threshold_usage']) && ($this->container['threshold_usage'] < 0)) {
             $invalidProperties[] = "invalid value for 'threshold_usage', must be bigger than or equal to 0.";
         }
 
         if ($this->container['usage'] === null) {
             $invalidProperties[] = "'usage' can't be null";
         }
-        if (($this->container['usage'] < 0)) {
+        if (!is_null($this->container['usage']) && ($this->container['usage'] < 0)) {
             $invalidProperties[] = "invalid value for 'usage', must be bigger than or equal to 0.";
         }
 

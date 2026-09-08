@@ -335,14 +335,14 @@ class SharedAmazonSesLimitRequest implements ModelInterface, ArrayAccess, JsonSe
         if ($this->container['current_daily_limit'] === null) {
             $invalidProperties[] = "'current_daily_limit' can't be null";
         }
-        if (($this->container['current_daily_limit'] < 0)) {
+        if (!is_null($this->container['current_daily_limit']) && ($this->container['current_daily_limit'] < 0)) {
             $invalidProperties[] = "invalid value for 'current_daily_limit', must be bigger than or equal to 0.";
         }
 
         if ($this->container['current_daily_sent'] === null) {
             $invalidProperties[] = "'current_daily_sent' can't be null";
         }
-        if (($this->container['current_daily_sent'] < 0)) {
+        if (!is_null($this->container['current_daily_sent']) && ($this->container['current_daily_sent'] < 0)) {
             $invalidProperties[] = "invalid value for 'current_daily_sent', must be bigger than or equal to 0.";
         }
 

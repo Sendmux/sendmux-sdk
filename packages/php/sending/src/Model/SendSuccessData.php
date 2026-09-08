@@ -277,7 +277,7 @@ class SendSuccessData implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['message_id'] === null) {
             $invalidProperties[] = "'message_id' can't be null";
         }
-        if (!preg_match("/^eml_[a-z0-9]{24}$/", $this->container['message_id'])) {
+        if (!is_null($this->container['message_id']) && !preg_match("/^eml_[a-z0-9]{24}$/", $this->container['message_id'])) {
             $invalidProperties[] = "invalid value for 'message_id', must be conform to the pattern /^eml_[a-z0-9]{24}$/.";
         }
 

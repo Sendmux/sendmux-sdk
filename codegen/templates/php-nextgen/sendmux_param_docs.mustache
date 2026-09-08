@@ -1,10 +1,14 @@
 {{#allParams}}
+{{^vendorExtensions.x-sendmux-after-content-type}}
 {{^vendorExtensions.x-sendmux-trailing-sdk-param}}
      * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
 {{/vendorExtensions.x-sendmux-trailing-sdk-param}}
+{{/vendorExtensions.x-sendmux-after-content-type}}
 {{/allParams}}
 {{#allParams}}
+{{^vendorExtensions.x-sendmux-after-content-type}}
 {{#vendorExtensions.x-sendmux-trailing-sdk-param}}
      * @param  {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{paramName}}{{#description}} {{.}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}
 {{/vendorExtensions.x-sendmux-trailing-sdk-param}}
+{{/vendorExtensions.x-sendmux-after-content-type}}
 {{/allParams}}

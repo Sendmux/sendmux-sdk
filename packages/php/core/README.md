@@ -16,7 +16,7 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 ## Installation
 
 ```bash
-composer require sendmux/core:^1.0
+composer require sendmux/core:^1.1
 ```
 
 ## Usage

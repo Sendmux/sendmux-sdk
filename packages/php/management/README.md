@@ -17,7 +17,7 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 ## Installation
 
 ```bash
-composer require sendmux/management:^1.0
+composer require sendmux/management:^1.1
 ```
 
 ## Usage
@@ -43,6 +43,8 @@ $webhooks = ClientFactory::createWebhooksApi(
     getenv('SENDMUX_ROOT_API_KEY') ?: ''
 );
 ```
+
+Use `ClientFactory::createConnectionApi($apiKey)->managementGetConnection()` to test credentials and retrieve team and credential details.
 
 The factory also exposes clients for billing, domain filters, emails, inboxes, mailbox filters, sending accounts, and webhooks.
 

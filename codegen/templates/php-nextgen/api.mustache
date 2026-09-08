@@ -163,6 +163,7 @@ use {{invokerPackage}}\ObjectSerializer;
 {{/-first}}
 {{/servers}}
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['{{{operationId}}}'] to see the possible values for this operation
+{{>sendmux_appended_param_docs}}
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
@@ -180,14 +181,14 @@ use {{invokerPackage}}\ObjectSerializer;
         array $variables = [],
     {{/-first}}
     {{/servers}}
-        string $contentType = self::contentTypes['{{{operationId}}}'][0]
+        string $contentType = self::contentTypes['{{{operationId}}}'][0]{{>sendmux_appended_param_signature}}
     {{/exts.x-group-parameters}}
     {{#exts.x-group-parameters}}
         array $associative_array
     {{/exts.x-group-parameters}}
     ): {{{exts.x-php-return-type}}}
     {
-        {{^exts.x-php-return-type-is-void}}list($response) = {{/exts.x-php-return-type-is-void}}$this->{{operationId}}WithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});{{^exts.x-php-return-type-is-void}}
+        {{^exts.x-php-return-type-is-void}}list($response) = {{/exts.x-php-return-type-is-void}}$this->{{operationId}}WithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{>sendmux_appended_param_args}}{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});{{^exts.x-php-return-type-is-void}}
         return $response;{{/exts.x-php-return-type-is-void}}
     }
 
@@ -234,6 +235,7 @@ use {{invokerPackage}}\ObjectSerializer;
 {{/-first}}
 {{/servers}}
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['{{{operationId}}}'] to see the possible values for this operation
+{{>sendmux_appended_param_docs}}
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
@@ -251,14 +253,14 @@ use {{invokerPackage}}\ObjectSerializer;
         array $variables = [],
     {{/-first}}
     {{/servers}}
-        string $contentType = self::contentTypes['{{{operationId}}}'][0]
+        string $contentType = self::contentTypes['{{{operationId}}}'][0]{{>sendmux_appended_param_signature}}
     {{/exts.x-group-parameters}}
     {{#exts.x-group-parameters}}
         array $associative_array
     {{/exts.x-group-parameters}}
     ): array
     {
-        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
+        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{>sendmux_appended_param_args}}{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
 
         try {
             $options = $this->createHttpClientOption();
@@ -407,6 +409,7 @@ use {{invokerPackage}}\ObjectSerializer;
 {{/-first}}
 {{/servers}}
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['{{{operationId}}}'] to see the possible values for this operation
+{{>sendmux_appended_param_docs}}
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
@@ -423,14 +426,14 @@ use {{invokerPackage}}\ObjectSerializer;
         array $variables = [],
     {{/-first}}
     {{/servers}}
-        string $contentType = self::contentTypes['{{{operationId}}}'][0]
+        string $contentType = self::contentTypes['{{{operationId}}}'][0]{{>sendmux_appended_param_signature}}
     {{/exts.x-group-parameters}}
     {{#exts.x-group-parameters}}
         array $associative_array
     {{/exts.x-group-parameters}}
     ): PromiseInterface
     {
-        return $this->{{operationId}}AsyncWithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}})
+        return $this->{{operationId}}AsyncWithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{>sendmux_appended_param_args}}{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}})
             ->then(
                 function ($response) {
                     return $response[0];
@@ -481,6 +484,7 @@ use {{invokerPackage}}\ObjectSerializer;
 {{/-first}}
 {{/servers}}
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['{{{operationId}}}'] to see the possible values for this operation
+{{>sendmux_appended_param_docs}}
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
@@ -497,7 +501,7 @@ use {{invokerPackage}}\ObjectSerializer;
         array $variables = [],
     {{/-first}}
     {{/servers}}
-        string $contentType = self::contentTypes['{{{operationId}}}'][0]
+        string $contentType = self::contentTypes['{{{operationId}}}'][0]{{>sendmux_appended_param_signature}}
     {{/exts.x-group-parameters}}
     {{#exts.x-group-parameters}}
         array $associative_array
@@ -505,7 +509,7 @@ use {{invokerPackage}}\ObjectSerializer;
     ): PromiseInterface
     {
         $returnType = '{{{returnType}}}';
-        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
+        $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{>sendmux_appended_param_args}}{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -607,6 +611,7 @@ use {{invokerPackage}}\ObjectSerializer;
 {{/-first}}
 {{/servers}}
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['{{{operationId}}}'] to see the possible values for this operation
+{{>sendmux_appended_param_docs}}
      *
      * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
@@ -623,7 +628,7 @@ use {{invokerPackage}}\ObjectSerializer;
         array $variables = [],
     {{/-first}}
     {{/servers}}
-        string $contentType = self::contentTypes['{{{operationId}}}'][0]
+        string $contentType = self::contentTypes['{{{operationId}}}'][0]{{>sendmux_appended_param_signature}}
     {{/exts.x-group-parameters}}
     {{#exts.x-group-parameters}}
         array $associative_array

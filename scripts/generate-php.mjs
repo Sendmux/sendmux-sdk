@@ -71,7 +71,7 @@ for (const surface of surfaces) {
       `composerPackageName=${surface.composerName}`,
       `invokerPackage=${surface.namespace.replaceAll("\\", "\\\\")}`,
       "srcBasePath=src",
-      "artifactVersion=1.0.0",
+      "artifactVersion=1.1.0",
       "hideGenerationTimestamp=true",
       "enumUnknownDefaultCase=true",
       "disallowAdditionalPropertiesIfNotPresent=false",
@@ -121,12 +121,12 @@ function markTrailingSdkParams(document) {
       if (!["get", "post", "put", "patch", "delete", "head", "options"].includes(method)) {
         continue;
       }
-      if (!operation?.requestBody) {
-        continue;
-      }
       for (const parameter of operation.parameters ?? []) {
-        if (parameter?.name === "mailbox_id" && parameter.in === "query") {
+        if (operation?.requestBody && parameter?.name === "mailbox_id" && parameter.in === "query") {
           parameter["x-sendmux-trailing-sdk-param"] = true;
+        }
+        if (operation.operationId === "mailboxGetMessageAttachment" && parameter?.name === "download_token") {
+          parameter["x-sendmux-after-content-type"] = true;
         }
       }
     }

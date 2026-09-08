@@ -19,9 +19,9 @@ classifiers = [
 ]
 dependencies = [
   "sendmux-core>=1.2.0,<2.0.0",
-  "sendmux-mailbox>=1.0.4,<2.0.0",
-  "sendmux-management>=1.0.4,<2.0.0",
-  "sendmux-sending>=1.1.0,<2.0.0",
+  "sendmux-mailbox>=1.4.0,<2.0.0",
+  "sendmux-management>=1.3.0,<2.0.0",
+  "sendmux-sending>=1.4.0,<2.0.0",
 ]
 
 [project.urls]

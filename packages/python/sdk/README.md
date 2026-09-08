@@ -28,6 +28,33 @@ Optional umbrella package for the Sendmux Python SDK.
 pip install sendmux-sdk
 ```
 
+## Connection checks
+
+Check a Management credential without creating resources:
+
+```python
+import os
+
+from sendmux_sdk import management
+
+with management.create_management_client(
+    api_key=os.environ["SENDMUX_MANAGEMENT_API_KEY"]
+) as client:
+    connection = management.ConnectionApi(client).management_get_connection()
+    print(connection.data.label, connection.data.team.id)
+```
+
+Use `data.label` for the connection name and `data.team.id` for its stable team
+identifier. Each API surface has its own connection operation:
+
+| Surface | API class | Method |
+| --- | --- | --- |
+| Management | `management.ConnectionApi` | `management_get_connection()` |
+| Mailbox | `mailbox.MailboxAPIApi` | `mailbox_get_connection()` |
+| Sending | `sending.MetaApi` | `sending_get_connection()` |
+
+Create each client with the credential for that surface.
+
 ## Usage
 
 ```python

@@ -149,14 +149,6 @@ type Invoker interface {
 	//
 	// DELETE /webhooks/{public_id}
 	ManagementDeleteWebhook(ctx context.Context, params ManagementDeleteWebhookParams) (ManagementDeleteWebhookRes, error)
-	// ManagementGetConnection invokes managementGetConnection operation.
-	//
-	// Validate this credential and return its team, connection label, permissions and authorised
-	// mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and
-	// sending availability are not checked. No user profile or secrets are returned.
-	//
-	// GET /me
-	ManagementGetConnection(ctx context.Context, params ManagementGetConnectionParams) (ManagementGetConnectionRes, error)
 	// ManagementGetDeliveryPayload invokes managementGetDeliveryPayload operation.
 	//
 	// Returns the retained JSON request body for one delivery attempt. Payloads are retained for 7 days

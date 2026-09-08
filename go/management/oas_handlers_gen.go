@@ -3045,12 +3045,12 @@ func (s *Server) handleManagementGetConnectionRequest(args [0]string, argsEscape
 			mreq,
 			unpackManagementGetConnectionParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ManagementGetConnection(ctx, params)
+				response, err = s.invokeConnection(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ManagementGetConnection(ctx, params)
+		response, err = s.invokeConnection(ctx, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)

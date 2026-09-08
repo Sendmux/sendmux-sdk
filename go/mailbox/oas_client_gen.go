@@ -93,14 +93,6 @@ type Invoker interface {
 	//
 	// GET /mailbox/changes
 	MailboxGetChanges(ctx context.Context, params MailboxGetChangesParams) (MailboxGetChangesRes, error)
-	// MailboxGetConnection invokes mailboxGetConnection operation.
-	//
-	// Validate this credential and return its team, connection label, permissions and authorised
-	// mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and
-	// sending availability are not checked. No user profile or secrets are returned.
-	//
-	// GET /mailbox/connection
-	MailboxGetConnection(ctx context.Context, params MailboxGetConnectionParams) (MailboxGetConnectionRes, error)
 	// MailboxGetFolder invokes mailboxGetFolder operation.
 	//
 	// Returns one folder from the authenticated mailbox. Responses include a weak `ETag` header.

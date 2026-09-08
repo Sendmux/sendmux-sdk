@@ -2047,12 +2047,12 @@ func (s *Server) handleMailboxGetConnectionRequest(args [0]string, argsEscaped b
 			mreq,
 			unpackMailboxGetConnectionParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.MailboxGetConnection(ctx, params)
+				response, err = s.invokeConnection(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.MailboxGetConnection(ctx, params)
+		response, err = s.invokeConnection(ctx, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)

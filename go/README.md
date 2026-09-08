@@ -55,6 +55,8 @@ func main() {
 
 The Mailbox and Sending clients expose `MailboxGetConnection` and `SendingGetConnection` with their corresponding empty parameter structs. These checks send no email and require no mailbox selector.
 
+Use `ConnectionInvoker` for a connection-check interface. Existing `Invoker` and `Handler` implementations stay compatible; server handlers can optionally implement `ConnectionInvoker` to serve the new operation.
+
 ## Sending quickstart
 
 ```go

@@ -736,12 +736,12 @@ func (s *Server) handleSendingGetConnectionRequest(args [0]string, argsEscaped b
 			mreq,
 			unpackSendingGetConnectionParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SendingGetConnection(ctx, params)
+				response, err = s.invokeConnection(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SendingGetConnection(ctx, params)
+		response, err = s.invokeConnection(ctx, params)
 	}
 	if err != nil {
 		defer recordError("Internal", err)

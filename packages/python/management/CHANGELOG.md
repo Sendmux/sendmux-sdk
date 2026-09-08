@@ -8,6 +8,10 @@
 * add connection checks across SDKs, CLI and MCP ([77f449e](https://github.com/Sendmux/sendmux-sdk/commit/77f449e2c8cba49bc8bc84c49c35baa61120866a))
 * **sdk:** add connection checks across clients, CLI and MCP ([3e02c67](https://github.com/Sendmux/sendmux-sdk/commit/3e02c67dcab45e37dad7abbdd4c4e1bd0b1fbbe6))
 
+### Bug Fixes
+
+* Require `sendmux-core>=1.2.0` so installed clients configure Bearer authentication correctly.
+
 ## [1.2.2](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.2.1...python-management-v1.2.2) (2026-09-01)
 
 

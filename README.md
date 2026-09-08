@@ -97,9 +97,11 @@ pip install langchain-sendmux        # LangChain: SendmuxToolkit(api_key=...).ge
 
 Both wrap the generated Sending and Mailbox clients, so the OpenAPI spec stays the single source of truth.
 
-## Connection checks (unreleased)
+## Connection checks
 
-The next release adds authenticated connection checks for all three API surfaces. They return the current team, credential identity, connection label, permissions and authorised mailboxes. Mailbox checks need no mailbox selector or provisioned storage; Sending checks require `email.send` without sending an email or checking delivery readiness. Existing `mailboxGetMe` behaviour is unchanged.
+Authenticated connection checks for all three API surfaces return the current team, credential identity, connection label, permissions and authorised mailboxes. Mailbox checks need no mailbox selector or provisioned storage; Sending checks require `email.send` without sending an email or checking delivery readiness. Existing `mailboxGetMe` behaviour is unchanged.
+
+Use TypeScript Sending 1.4.0, Mailbox 1.5.0 and Management 1.3.0 (or umbrella SDK 1.4.2), CLI 1.5.0, MCP 1.7.0, or Ruby SDK 1.2.0. Connection-capable Go, Python, PHP and Rust package releases are pending.
 
 | Surface | TypeScript operation | CLI command | MCP tool |
 | --- | --- | --- | --- |
@@ -121,7 +123,7 @@ console.log(response.data?.data.label);
 sendmux management:get-connection --json
 ```
 
-Each Rust client exposes `get_connection()`, returning `Response<Connection>`. Generated Go, Python, PHP and Ruby references include the corresponding `GetConnection` operation for each surface. These additions require the matching API deployment and package release before use against production.
+Each Rust client exposes `get_connection()`, returning `Response<Connection>`. Generated Go, Python, PHP and Ruby references include the corresponding `GetConnection` operation for each surface. Use the released package versions listed above; source code for pending releases is not yet available through package registries.
 
 ## Attachments And Live Mailbox Events
 

@@ -85,6 +85,16 @@ sendmux sending:send --profile sending --body '{"from":{"email":"sender@example.
 
 Commands reject mismatched key types before making a network request.
 
+Check the selected profile's connection without sending an email:
+
+```sh
+sendmux management:get-connection --profile default --json
+sendmux mailbox:get-connection --profile mailbox --json
+sendmux sending:get-connection --profile sending --json
+```
+
+Each command returns the team, credential, connection label, permissions, and authorised mailboxes. Mailbox connection checks do not need a mailbox selector.
+
 ## Attachments And Events
 
 Send a mailbox message with a local file in one command:
@@ -133,11 +143,11 @@ sendmux mailbox:stream-events \
 
 ## Commands
 
-The CLI includes `97` generated API operation commands:
+The CLI includes `104` generated API operation commands:
 
-- `41` Mailbox commands, including `mailbox:messages:list`, `mailbox:messages:get`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
-- `53` Management commands, including `management:domains:list`, `management:create-mailbox`, `management:get-spend-summary`, and `management:create-webhook`.
-- `3` Sending commands: `sending:get-open-api-spec`, `sending:send`, and `sending:send:batch`.
+- `42` Mailbox commands, including `mailbox:get-connection`, `mailbox:messages:list`, `mailbox:send-message`, and `mailbox:list-granted-mailboxes`.
+- `54` Management commands, including `management:get-connection`, `management:domains:list`, `management:create-mailbox`, and `management:create-webhook`.
+- `8` Sending commands, including `sending:get-connection`, `sending:get-open-api-spec`, `sending:send`, `sending:send:batch`, and attachment upload commands.
 - Agent onboarding commands: `agent:register` and `agent:invite-owner`.
 - Profile commands: `profiles:list`, `profiles:set`, and `profiles:show`.
 

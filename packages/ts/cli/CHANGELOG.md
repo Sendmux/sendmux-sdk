@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* add mailbox event follow mode, attachment commands, `--attach` send flags, and presigned upload support
-
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.4.1...ts-cli-v1.5.0) (2026-09-08)
 
 

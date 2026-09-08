@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.1.1...ruby-management/v1.2.0) (2026-09-08)
+
+
+### Features
+
+* add connection checks across SDKs, CLI and MCP ([77f449e](https://github.com/Sendmux/sendmux-sdk/commit/77f449e2c8cba49bc8bc84c49c35baa61120866a))
+* **sdk:** add connection checks across clients, CLI and MCP ([3e02c67](https://github.com/Sendmux/sendmux-sdk/commit/3e02c67dcab45e37dad7abbdd4c4e1bd0b1fbbe6))
+
+
+### Bug Fixes
+
+* anchor generated Ruby email validation ([a87933b](https://github.com/Sendmux/sendmux-sdk/commit/a87933b507c572104b1832818e7db0587ad0352b))
+* reject mailbox email line breaks in generated clients ([7934cbe](https://github.com/Sendmux/sendmux-sdk/commit/7934cbe13f1d966878239e7c1d9e75ba44927937))
+* sync mailbox reliability clients ([fad78fa](https://github.com/Sendmux/sendmux-sdk/commit/fad78faf1d495c31bc0e0c40ef7d605f72727431))
+* sync mailbox reliability clients ([e8e7148](https://github.com/Sendmux/sendmux-sdk/commit/e8e7148e21f8fdba790c89331e8a2e144f86be4b))
+
 ## [1.1.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.1.0...ruby-management/v1.1.1) (2026-08-07)
 
 

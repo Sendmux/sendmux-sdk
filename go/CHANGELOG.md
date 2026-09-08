@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* regenerate mailbox models for short-lived attachment download URLs and upload intents
-
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.4.1...go/v1.5.0) (2026-09-08)
 
 

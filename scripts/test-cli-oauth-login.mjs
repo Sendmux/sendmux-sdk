@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { once } from "node:events";
 import {
@@ -14,6 +14,48 @@ import { createServer, request as httpRequest } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { pathToFileURL } from "node:url";
+
+async function assertPrivatePath(path, mode) {
+  if (process.platform !== "win32") {
+    assert.equal((await stat(path)).mode & 0o777, mode);
+    return;
+  }
+  const descriptor = JSON.parse(
+    execFileSync(
+      "powershell.exe",
+      [
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        `
+      $ErrorActionPreference = 'Stop'
+      $acl = Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH
+      $user = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+      $rules = @($acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier]) |
+        Where-Object { $_.AccessControlType -eq 'Allow' -and
+          ($_.PropagationFlags -band [System.Security.AccessControl.PropagationFlags]::InheritOnly) -eq 0 } |
+        ForEach-Object { $_.IdentityReference.Value })
+      @{ rules = $rules; user = $user } | ConvertTo-Json -Compress
+    `,
+      ],
+      {
+        encoding: "utf8",
+        env: { ...process.env, SENDMUX_TEST_ACL_PATH: path },
+      },
+    ),
+  );
+  assert.ok(
+    descriptor.rules.length > 0,
+    "Credential path must have an explicit access list",
+  );
+  const allowed = new Set([descriptor.user, "S-1-5-18", "S-1-5-32-544"]);
+  assert.deepEqual(
+    descriptor.rules.filter((sid) => !allowed.has(sid)),
+    [],
+    "Credential path grants access outside its owner, SYSTEM and Administrators",
+  );
+}
 
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), "sendmux-native-oauth-"));
@@ -158,7 +200,7 @@ async function cli(t, state, args, authorize = false) {
   const child = spawn(
     process.execPath,
     [
-      ...(state.preload ? ["--import", state.preload] : []),
+      ...(state.preload ? ["--import", pathToFileURL(state.preload).href] : []),
       "packages/ts/cli/bin/run.js",
       ...args,
     ],
@@ -207,8 +249,14 @@ async function cli(t, state, args, authorize = false) {
         redirect: "manual",
         signal: AbortSignal.timeout(10_000),
       });
-      const callback = redirect.headers.get("location");
+      let callback = redirect.headers.get("location");
       assert.ok(callback);
+      if (authorize === "deny") {
+        const denied = new URL(callback);
+        denied.searchParams.delete("code");
+        denied.searchParams.set("error", "access_denied");
+        callback = denied.href;
+      }
       if (typeof authorize === "function") await authorize(callback);
       const result = await fetch(callback, {
         signal: AbortSignal.timeout(10_000),
@@ -252,11 +300,8 @@ test("native login uses S256, validates the callback and saves a protected profi
   assert.equal(config.profiles.native.type, "oauth");
   assert.equal(config.profiles.native.accessToken, "native_access_0");
   assert.equal(config.profiles.native.refreshToken, "native_refresh_0");
-  assert.equal((await stat(state.configPath)).mode & 0o777, 0o600);
-  assert.equal(
-    (await stat(join(state.directory, ".config", "sendmux"))).mode & 0o777,
-    0o700,
-  );
+  await assertPrivatePath(state.configPath, 0o600);
+  await assertPrivatePath(join(state.directory, ".config", "sendmux"), 0o700);
   assert.equal(state.registrations[0].application_type, "native");
   assert.equal(state.registrations[0].token_endpoint_auth_method, "none");
   assert.equal(state.registrations[0].resource, "https://sendmux.ai/api");
@@ -378,7 +423,11 @@ test("malformed callback targets are rejected without crashing login", async (t)
 
 test("cancelled login removes its reservation and closes the callback listener", async (t) => {
   const state = await fixture(t);
-  const result = await login(t, state, "terminate");
+  const result = await login(
+    t,
+    state,
+    process.platform === "win32" ? "deny" : "terminate",
+  );
   assert.notEqual(result.code, 0);
   const config = JSON.parse(await readFile(state.configPath, "utf8"));
   assert.equal(config.profiles.native, undefined);

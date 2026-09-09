@@ -394,7 +394,7 @@ class MailboxDomain implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['mailbox_count'] === null) {
             $invalidProperties[] = "'mailbox_count' can't be null";
         }
-        if (($this->container['mailbox_count'] < 0)) {
+        if (!is_null($this->container['mailbox_count']) && ($this->container['mailbox_count'] < 0)) {
             $invalidProperties[] = "invalid value for 'mailbox_count', must be bigger than or equal to 0.";
         }
 

@@ -284,15 +284,15 @@ class ManagementCreateMailboxRequest implements ModelInterface, ArrayAccess, Jso
         if ($this->container['email'] === null) {
             $invalidProperties[] = "'email' can't be null";
         }
-        if ((mb_strlen($this->container['email']) > 254)) {
+        if (!is_null($this->container['email']) && (mb_strlen($this->container['email']) > 254)) {
             $invalidProperties[] = "invalid value for 'email', the character length must be smaller than or equal to 254.";
         }
 
-        if ((mb_strlen($this->container['email']) < 5)) {
+        if (!is_null($this->container['email']) && (mb_strlen($this->container['email']) < 5)) {
             $invalidProperties[] = "invalid value for 'email', the character length must be bigger than or equal to 5.";
         }
 
-        if (!preg_match("/^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/", $this->container['email'])) {
+        if (!is_null($this->container['email']) && !preg_match("/^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/", $this->container['email'])) {
             $invalidProperties[] = "invalid value for 'email', must be conform to the pattern /^(?![^\\r\\n]*[\\r\\n])(?![^@]*\\.\\.)[a-zA-Z0-9_%+-](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9_%+-])?@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/.";
         }
 

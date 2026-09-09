@@ -297,14 +297,14 @@ class ProviderUsageItem implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['failed_7d'] === null) {
             $invalidProperties[] = "'failed_7d' can't be null";
         }
-        if (($this->container['failed_7d'] < 0)) {
+        if (!is_null($this->container['failed_7d']) && ($this->container['failed_7d'] < 0)) {
             $invalidProperties[] = "invalid value for 'failed_7d', must be bigger than or equal to 0.";
         }
 
         if ($this->container['pending_7d'] === null) {
             $invalidProperties[] = "'pending_7d' can't be null";
         }
-        if (($this->container['pending_7d'] < 0)) {
+        if (!is_null($this->container['pending_7d']) && ($this->container['pending_7d'] < 0)) {
             $invalidProperties[] = "invalid value for 'pending_7d', must be bigger than or equal to 0.";
         }
 
@@ -314,28 +314,28 @@ class ProviderUsageItem implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['rejected_7d'] === null) {
             $invalidProperties[] = "'rejected_7d' can't be null";
         }
-        if (($this->container['rejected_7d'] < 0)) {
+        if (!is_null($this->container['rejected_7d']) && ($this->container['rejected_7d'] < 0)) {
             $invalidProperties[] = "invalid value for 'rejected_7d', must be bigger than or equal to 0.";
         }
 
         if ($this->container['sent_7d'] === null) {
             $invalidProperties[] = "'sent_7d' can't be null";
         }
-        if (($this->container['sent_7d'] < 0)) {
+        if (!is_null($this->container['sent_7d']) && ($this->container['sent_7d'] < 0)) {
             $invalidProperties[] = "invalid value for 'sent_7d', must be bigger than or equal to 0.";
         }
 
         if ($this->container['sent_today'] === null) {
             $invalidProperties[] = "'sent_today' can't be null";
         }
-        if (($this->container['sent_today'] < 0)) {
+        if (!is_null($this->container['sent_today']) && ($this->container['sent_today'] < 0)) {
             $invalidProperties[] = "invalid value for 'sent_today', must be bigger than or equal to 0.";
         }
 
         if ($this->container['total_7d'] === null) {
             $invalidProperties[] = "'total_7d' can't be null";
         }
-        if (($this->container['total_7d'] < 0)) {
+        if (!is_null($this->container['total_7d']) && ($this->container['total_7d'] < 0)) {
             $invalidProperties[] = "invalid value for 'total_7d', must be bigger than or equal to 0.";
         }
 

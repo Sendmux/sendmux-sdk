@@ -255,11 +255,11 @@ class ManagementCreateMailboxKeyRequest implements ModelInterface, ArrayAccess, 
         if ($this->container['app_name'] === null) {
             $invalidProperties[] = "'app_name' can't be null";
         }
-        if ((mb_strlen($this->container['app_name']) > 255)) {
+        if (!is_null($this->container['app_name']) && (mb_strlen($this->container['app_name']) > 255)) {
             $invalidProperties[] = "invalid value for 'app_name', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['app_name']) < 1)) {
+        if (!is_null($this->container['app_name']) && (mb_strlen($this->container['app_name']) < 1)) {
             $invalidProperties[] = "invalid value for 'app_name', the character length must be bigger than or equal to 1.";
         }
 

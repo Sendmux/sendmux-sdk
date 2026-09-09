@@ -17,8 +17,10 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 ## Installation
 
 ```bash
-composer require sendmux/sdk:^1.0
+composer require sendmux/sdk:^2.0
 ```
+
+Upgrading from 1.x? Read the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) before changing your Composer constraint.
 
 ## Usage
 
@@ -55,7 +57,7 @@ $management = ManagementFactory::createMailboxesApi(
 | --- | --- | --- |
 | [`sendmux/core`](https://packagist.org/packages/sendmux/core) | Shared helpers for auth, headers, retries, pagination, and errors. | Any Sendmux API key. |
 | [`sendmux/sending`](https://packagist.org/packages/sendmux/sending) | Sending API client. | `smx_mbx_` or owner-approved `smx_agent_` |
-| [`sendmux/mailbox`](https://packagist.org/packages/sendmux/mailbox) | Mailbox API client. | `smx_mbx_` |
+| [`sendmux/mailbox`](https://packagist.org/packages/sendmux/mailbox) | Mailbox API client. | `smx_mbx_` or scoped `smx_agent_` |
 | [`sendmux/management`](https://packagist.org/packages/sendmux/management) | Management API client. | `smx_root_` |
 
 The package also exposes `Sendmux\Sdk\Sdk::VERSION` for package-version checks.

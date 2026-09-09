@@ -17,8 +17,10 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 ## Installation
 
 ```bash
-composer require sendmux/management:^1.0
+composer require sendmux/management:^2.0
 ```
+
+Upgrading from 1.x? Read the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) before changing your Composer constraint.
 
 ## Usage
 
@@ -30,6 +32,10 @@ Create the generated API group you need with a team-scoped key.
 require __DIR__ . '/vendor/autoload.php';
 
 use Sendmux\Management\ClientFactory;
+
+$connection = ClientFactory::createConnectionApi(
+    getenv('SENDMUX_ROOT_API_KEY') ?: ''
+);
 
 $mailboxes = ClientFactory::createMailboxesApi(
     getenv('SENDMUX_ROOT_API_KEY') ?: ''
@@ -43,6 +49,8 @@ $webhooks = ClientFactory::createWebhooksApi(
     getenv('SENDMUX_ROOT_API_KEY') ?: ''
 );
 ```
+
+Use `$connection->managementGetConnection()` to test credentials and retrieve team and credential details.
 
 The factory also exposes clients for billing, domain filters, emails, inboxes, mailbox filters, sending accounts, and webhooks.
 

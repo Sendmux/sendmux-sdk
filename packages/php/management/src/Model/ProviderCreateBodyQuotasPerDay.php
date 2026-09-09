@@ -263,14 +263,14 @@ class ProviderCreateBodyQuotasPerDay implements ModelInterface, ArrayAccess, Jso
         if ($this->container['max'] === null) {
             $invalidProperties[] = "'max' can't be null";
         }
-        if (($this->container['max'] <= 0)) {
+        if (!is_null($this->container['max']) && ($this->container['max'] <= 0)) {
             $invalidProperties[] = "invalid value for 'max', must be bigger than 0.";
         }
 
         if ($this->container['min'] === null) {
             $invalidProperties[] = "'min' can't be null";
         }
-        if (($this->container['min'] <= 0)) {
+        if (!is_null($this->container['min']) && ($this->container['min'] <= 0)) {
             $invalidProperties[] = "invalid value for 'min', must be bigger than 0.";
         }
 

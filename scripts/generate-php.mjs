@@ -71,7 +71,7 @@ for (const surface of surfaces) {
       `composerPackageName=${surface.composerName}`,
       `invokerPackage=${surface.namespace.replaceAll("\\", "\\\\")}`,
       "srcBasePath=src",
-      "artifactVersion=1.0.0",
+      "artifactVersion=2.0.0",
       "hideGenerationTimestamp=true",
       "enumUnknownDefaultCase=true",
       "disallowAdditionalPropertiesIfNotPresent=false",
@@ -89,6 +89,7 @@ console.log("Generated PHP SDK packages");
 
 function writeFilteredSpec(surface) {
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
+  prepareAttachmentUnion(source);
   const allowed = new Set(surface.tags);
   const paths = {};
 
@@ -115,18 +116,48 @@ function writeFilteredSpec(surface) {
   return outputPath;
 }
 
+function prepareAttachmentUnion(document) {
+  const schemas = document.components?.schemas;
+  const attachment = schemas?.Attachment;
+  if (!attachment?.anyOf) {
+    return;
+  }
+
+  const { anyOf, ...metadata } = attachment;
+  const variants = anyOf.map((ref) => ({
+    ...ref,
+    model: ref.$ref.split("/").at(-1),
+  }));
+  const properties = {};
+  for (const { model } of variants) {
+    for (const [name, property] of Object.entries(schemas[model].properties)) {
+      const { default: variantDefault, ...withoutDefault } = property;
+      properties[name] = withoutDefault;
+    }
+  }
+
+  schemas.Attachment = {
+    ...metadata,
+    type: "object",
+    additionalProperties: false,
+    properties,
+    "x-sendmux-attachment-union": true,
+    "x-sendmux-any-of-variants": variants,
+  };
+}
+
 function markTrailingSdkParams(document) {
   for (const pathItem of Object.values(document.paths ?? {})) {
     for (const [method, operation] of Object.entries(pathItem ?? {})) {
       if (!["get", "post", "put", "patch", "delete", "head", "options"].includes(method)) {
         continue;
       }
-      if (!operation?.requestBody) {
-        continue;
-      }
       for (const parameter of operation.parameters ?? []) {
-        if (parameter?.name === "mailbox_id" && parameter.in === "query") {
+        if (operation?.requestBody && parameter?.name === "mailbox_id" && parameter.in === "query") {
           parameter["x-sendmux-trailing-sdk-param"] = true;
+        }
+        if (operation.operationId === "mailboxGetMessageAttachment" && parameter?.name === "download_token") {
+          parameter["x-sendmux-after-content-type"] = true;
         }
       }
     }

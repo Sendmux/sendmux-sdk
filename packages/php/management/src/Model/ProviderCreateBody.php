@@ -368,11 +368,11 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         if ($this->container['name'] === null) {
             $invalidProperties[] = "'name' can't be null";
         }
-        if ((mb_strlen($this->container['name']) > 255)) {
+        if (!is_null($this->container['name']) && (mb_strlen($this->container['name']) > 255)) {
             $invalidProperties[] = "invalid value for 'name', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['name']) < 1)) {
+        if (!is_null($this->container['name']) && (mb_strlen($this->container['name']) < 1)) {
             $invalidProperties[] = "invalid value for 'name', the character length must be bigger than or equal to 1.";
         }
 
@@ -395,33 +395,33 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         if ($this->container['smtp_host'] === null) {
             $invalidProperties[] = "'smtp_host' can't be null";
         }
-        if ((mb_strlen($this->container['smtp_host']) > 255)) {
+        if (!is_null($this->container['smtp_host']) && (mb_strlen($this->container['smtp_host']) > 255)) {
             $invalidProperties[] = "invalid value for 'smtp_host', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['smtp_host']) < 1)) {
+        if (!is_null($this->container['smtp_host']) && (mb_strlen($this->container['smtp_host']) < 1)) {
             $invalidProperties[] = "invalid value for 'smtp_host', the character length must be bigger than or equal to 1.";
         }
 
         if ($this->container['smtp_password'] === null) {
             $invalidProperties[] = "'smtp_password' can't be null";
         }
-        if ((mb_strlen($this->container['smtp_password']) > 500)) {
+        if (!is_null($this->container['smtp_password']) && (mb_strlen($this->container['smtp_password']) > 500)) {
             $invalidProperties[] = "invalid value for 'smtp_password', the character length must be smaller than or equal to 500.";
         }
 
-        if ((mb_strlen($this->container['smtp_password']) < 1)) {
+        if (!is_null($this->container['smtp_password']) && (mb_strlen($this->container['smtp_password']) < 1)) {
             $invalidProperties[] = "invalid value for 'smtp_password', the character length must be bigger than or equal to 1.";
         }
 
         if ($this->container['smtp_port'] === null) {
             $invalidProperties[] = "'smtp_port' can't be null";
         }
-        if (($this->container['smtp_port'] > 65535)) {
+        if (!is_null($this->container['smtp_port']) && ($this->container['smtp_port'] > 65535)) {
             $invalidProperties[] = "invalid value for 'smtp_port', must be smaller than or equal to 65535.";
         }
 
-        if (($this->container['smtp_port'] < 1)) {
+        if (!is_null($this->container['smtp_port']) && ($this->container['smtp_port'] < 1)) {
             $invalidProperties[] = "invalid value for 'smtp_port', must be bigger than or equal to 1.";
         }
 
@@ -440,11 +440,11 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         if ($this->container['smtp_username'] === null) {
             $invalidProperties[] = "'smtp_username' can't be null";
         }
-        if ((mb_strlen($this->container['smtp_username']) > 255)) {
+        if (!is_null($this->container['smtp_username']) && (mb_strlen($this->container['smtp_username']) > 255)) {
             $invalidProperties[] = "invalid value for 'smtp_username', the character length must be smaller than or equal to 255.";
         }
 
-        if ((mb_strlen($this->container['smtp_username']) < 1)) {
+        if (!is_null($this->container['smtp_username']) && (mb_strlen($this->container['smtp_username']) < 1)) {
             $invalidProperties[] = "invalid value for 'smtp_username', the character length must be bigger than or equal to 1.";
         }
 

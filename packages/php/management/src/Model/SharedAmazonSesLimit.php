@@ -323,7 +323,7 @@ class SharedAmazonSesLimit implements ModelInterface, ArrayAccess, JsonSerializa
         if ($this->container['sent_today'] === null) {
             $invalidProperties[] = "'sent_today' can't be null";
         }
-        if (($this->container['sent_today'] < 0)) {
+        if (!is_null($this->container['sent_today']) && ($this->container['sent_today'] < 0)) {
             $invalidProperties[] = "invalid value for 'sent_today', must be bigger than or equal to 0.";
         }
 

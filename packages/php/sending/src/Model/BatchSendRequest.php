@@ -255,11 +255,11 @@ class BatchSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['messages'] === null) {
             $invalidProperties[] = "'messages' can't be null";
         }
-        if ((count($this->container['messages']) > 100)) {
+        if (!is_null($this->container['messages']) && (count($this->container['messages']) > 100)) {
             $invalidProperties[] = "invalid value for 'messages', number of items must be less than or equal to 100.";
         }
 
-        if ((count($this->container['messages']) < 1)) {
+        if (!is_null($this->container['messages']) && (count($this->container['messages']) < 1)) {
             $invalidProperties[] = "invalid value for 'messages', number of items must be greater than or equal to 1.";
         }
 

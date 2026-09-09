@@ -17,8 +17,10 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 ## Installation
 
 ```bash
-composer require sendmux/mailbox:^1.0
+composer require sendmux/mailbox:^2.0
 ```
+
+Upgrading from 1.x? Read the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) before changing your Composer constraint.
 
 ## Usage
 
@@ -35,6 +37,8 @@ $mailboxApi = ClientFactory::createMailboxAPIApi(
     getenv('SENDMUX_MAILBOX_API_KEY') ?: ''
 );
 ```
+
+Use `$mailboxApi->mailboxGetConnection()` to test credentials without selecting a target mailbox.
 
 The generated `MailboxAPIApi` exposes mailbox methods such as `mailboxGetMe()`, `mailboxListMessages()`, `mailboxSendMessage()`, and `mailboxUploadAttachment()`.
 

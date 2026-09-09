@@ -463,21 +463,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -828,21 +815,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -1193,21 +1167,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -1746,21 +1707,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -2335,21 +2283,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -2700,21 +2635,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -3049,21 +2971,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -3438,21 +3347,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -3897,21 +3793,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -4384,25 +4267,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -4724,25 +4594,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -5091,21 +4948,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -5464,21 +5308,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -5821,25 +5652,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -6173,25 +5991,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -6351,8 +6156,8 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
-     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
+     * @param  string|null $download_token download_token (optional)
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
@@ -6363,16 +6168,16 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
-        ?string $download_token = null,
-        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
+        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0],
+        ?string $download_token = null
     ): ?\Sendmux\Mailbox\Model\ApiError {
         list($response) = $this->mailboxGetMessageAttachmentWithHttpInfo(
             $message_id,
             $attachment_id,
             $range,
             $mailbox_id,
-            $download_token,
-            $contentType
+            $contentType,
+            $download_token
         );
         return $response;
     }
@@ -6386,8 +6191,8 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
-     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
+     * @param  string|null $download_token download_token (optional)
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
@@ -6398,16 +6203,16 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
-        ?string $download_token = null,
-        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
+        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0],
+        ?string $download_token = null
     ): array {
         $request = $this->mailboxGetMessageAttachmentRequest(
             $message_id,
             $attachment_id,
             $range,
             $mailbox_id,
-            $download_token,
-            $contentType
+            $contentType,
+            $download_token
         );
 
         try {
@@ -6467,8 +6272,8 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
-     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
+     * @param  string|null $download_token download_token (optional)
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
@@ -6478,16 +6283,16 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
-        ?string $download_token = null,
-        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
+        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0],
+        ?string $download_token = null
     ): PromiseInterface {
         return $this->mailboxGetMessageAttachmentAsyncWithHttpInfo(
             $message_id,
             $attachment_id,
             $range,
             $mailbox_id,
-            $download_token,
-            $contentType
+            $contentType,
+            $download_token
         )
             ->then(
                 function ($response) {
@@ -6505,8 +6310,8 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
-     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
+     * @param  string|null $download_token download_token (optional)
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
@@ -6516,8 +6321,8 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
-        ?string $download_token = null,
-        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
+        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0],
+        ?string $download_token = null
     ): PromiseInterface {
         $returnType = '';
         $request = $this->mailboxGetMessageAttachmentRequest(
@@ -6525,14 +6330,14 @@ class MailboxAPIApi
             $attachment_id,
             $range,
             $mailbox_id,
-            $download_token,
-            $contentType
+            $contentType,
+            $download_token
         );
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     return [null, $response->getStatusCode(), $response->getHeaders()];
                 },
                 function ($exception) {
@@ -6575,8 +6380,8 @@ class MailboxAPIApi
      * @param  string $attachment_id attachment_id (required)
      * @param  string|null $range range (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
-     * @param  string|null $download_token download_token (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetMessageAttachment'] to see the possible values for this operation
+     * @param  string|null $download_token download_token (optional)
      *
      * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
@@ -6586,8 +6391,8 @@ class MailboxAPIApi
         string $attachment_id,
         ?string $range = null,
         ?string $mailbox_id = null,
-        ?string $download_token = null,
-        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0]
+        string $contentType = self::contentTypes['mailboxGetMessageAttachment'][0],
+        ?string $download_token = null
     ): Request {
 
         // verify the required parameter 'message_id' is set
@@ -6911,21 +6716,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -7298,25 +7090,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -7650,25 +7429,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -8017,21 +7783,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -8388,25 +8141,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -8903,25 +8643,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -9454,25 +9181,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -9963,25 +9677,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -10418,21 +10119,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -10801,21 +10489,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -11198,21 +10873,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -11847,21 +11509,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -12546,21 +12195,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -13083,21 +12719,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -13586,21 +13209,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -14108,21 +13718,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -14549,25 +14146,12 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
+                function ($response) use ($returnType, $request) {
                     if ($response->getStatusCode() === 304) {
                         return [null, $response->getStatusCode(), $response->getHeaders()];
                     }
 
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -14899,21 +14483,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -15532,21 +15103,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -16387,21 +15945,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -17040,21 +16585,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -17491,21 +17023,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -17951,21 +17470,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -18382,21 +17888,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -18785,21 +18278,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {
@@ -19186,21 +18666,8 @@ class MailboxAPIApi
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
             ->then(
-                function ($response) use ($returnType) {
-                    if (in_array($returnType, ['\SplFileObject', '\Psr\Http\Message\StreamInterface'])) {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
                 },
                 function ($exception) {
                     if ($exception instanceof RequestException) {

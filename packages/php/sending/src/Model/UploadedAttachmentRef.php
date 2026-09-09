@@ -255,7 +255,7 @@ class UploadedAttachmentRef implements ModelInterface, ArrayAccess, JsonSerializ
         if ($this->container['attachment_id'] === null) {
             $invalidProperties[] = "'attachment_id' can't be null";
         }
-        if (!preg_match("/^att_[a-z0-9]{24}$/", $this->container['attachment_id'])) {
+        if (!is_null($this->container['attachment_id']) && !preg_match("/^att_[a-z0-9]{24}$/", $this->container['attachment_id'])) {
             $invalidProperties[] = "invalid value for 'attachment_id', must be conform to the pattern /^att_[a-z0-9]{24}$/.";
         }
 

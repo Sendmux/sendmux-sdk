@@ -679,6 +679,7 @@ class AttachmentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'OAuth2',
             'BearerAuth'
         ]
 
@@ -955,6 +956,7 @@ class AttachmentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'OAuth2',
             'BearerAuth'
         ]
 
@@ -1275,13 +1277,13 @@ class AttachmentsApi:
         # process the path parameters
         # process the query parameters
         if filename is not None:
-            
+
             _query_params.append(('filename', filename))
-            
+
         if content_type is not None:
-            
+
             _query_params.append(('content_type', content_type))
-            
+
         # process the header parameters
         if idempotency_key is not None:
             _header_params['Idempotency-Key'] = idempotency_key
@@ -1325,6 +1327,7 @@ class AttachmentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'OAuth2',
             'BearerAuth'
         ]
 

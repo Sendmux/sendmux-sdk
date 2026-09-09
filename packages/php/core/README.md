@@ -52,7 +52,8 @@ $retryOptions = new RetryOptions(maxAttempts: 3);
 - `Auth` validates `smx_root_` prefixes for root clients, send-capable `smx_mbx_` prefixes or owner-approved Sending-resource `smx_agent_` tokens for Sending clients, and mailbox-compatible `smx_mbx_` or `smx_agent_` prefixes for Mailbox clients.
 - `Headers` builds `Idempotency-Key`, `If-Match`, and `If-None-Match` header arrays.
 - `Pagination::iterate()` streams cursor-paginated responses.
-- `RetryMiddleware` and `RetryOptions` add retry and rate-limit backoff behaviour.
+- `Auth::accessTokenMiddleware()` validates a bare OAuth token or callable provider and adds the bearer header per attempt.
+- `RetryMiddleware` honours `Retry-After`, `X-RateLimit-Reset` and explicit `error.retryable: false`. `maxDelayMilliseconds` caps local backoff only; `RetryOptions(maxElapsedMilliseconds: 5000)` stops retries that would exceed the budget and returns the last response with its retry metadata. The budget does not interrupt an in-flight request; configure transport timeouts separately.
 - `ErrorMapper` maps generated exceptions into `SendmuxApiError`.
 
 ## Package map

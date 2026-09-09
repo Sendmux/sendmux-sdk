@@ -16,7 +16,9 @@ export interface SendmuxToolsConfig {
    * A send + receive capable mailbox API key (`smx_mbx_*`) or a scoped agent
    * token. Read it from your environment; never hard-code it.
    */
-  apiKey: string;
+  apiKey?: string;
+  /** REST OAuth token or provider; supply this instead of apiKey. */
+  accessToken?: Parameters<typeof createMailboxClient>[0]["accessToken"];
   /**
    * Default From address used by the `send_email` tool when a call omits
    * `from`. Optional - if unset, the model must supply `from` per call.
@@ -49,8 +51,9 @@ const htmlFromText = (text: string): string =>
  * ```
  */
 export function sendmux(config: SendmuxToolsConfig): ToolSet {
-  const sendingClient = createSendingClient({ apiKey: config.apiKey });
-  const mailboxClient = createMailboxClient({ apiKey: config.apiKey });
+  const auth = { apiKey: config.apiKey, accessToken: config.accessToken };
+  const sendingClient = createSendingClient(auth);
+  const mailboxClient = createMailboxClient(auth);
 
   return {
     send_email: tool({

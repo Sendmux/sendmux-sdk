@@ -13,10 +13,18 @@ module Sendmux
       end
 
       def self.retryable_request?(env)
+        return false if explicitly_non_retryable?(env[:body])
+
         method = env[:method].to_s.upcase
         return true if SAFE_METHODS.include?(method)
 
         method == 'POST' && header(env[:request_headers] || {}, 'Idempotency-Key') && replayable_body?(env[:body])
+      end
+
+      def self.explicitly_non_retryable?(body)
+        payload = ErrorMapper.payload_from(body)
+        detail = ErrorMapper.hash_at(payload, 'error')
+        payload.is_a?(Hash) && payload['ok'] == false && detail && detail['retryable'] == false
       end
 
       def self.header(headers, name)

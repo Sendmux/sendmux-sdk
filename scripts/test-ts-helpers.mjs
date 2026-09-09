@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import test from "node:test";
+import { setImmediate as nextTurn } from "node:timers/promises";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -30,6 +32,50 @@ const {
   uploadMailboxAttachmentViaPresignedFile,
 } = await import("../packages/ts/mailbox/dist/node.js");
 const { createSendingClient } = await import("../packages/ts/sending/dist/index.js");
+const { createManagementClient, managementGetConnection } = await import("../packages/ts/management/dist/index.js");
+const { mailboxGetConnection } = await import("../packages/ts/mailbox/dist/index.js");
+const { sendingGetConnection } = await import("../packages/ts/sending/dist/index.js");
+
+for (const [surface, createClient, getConnection] of [
+  ["management", createManagementClient, managementGetConnection],
+  ["mailbox", createMailboxClient, mailboxGetConnection],
+  ["sending", createSendingClient, sendingGetConnection],
+]) {
+  await test(`${surface} accepts an access token and resolves a provider for each request`, async () => {
+    const observed = [];
+    const fetch = async (request) => {
+      observed.push(request.headers.get("Authorization"));
+      return Response.json({ ok: true, data: { label: "Test connection" }, meta: { request_id: "req_oauth" } });
+    };
+    const staticClient = createClient({ accessToken: "access-token-one", fetch });
+    await getConnection({ client: staticClient });
+    let token = "access-token-two";
+    const refreshingClient = createClient({ accessToken: async () => token, fetch });
+    await getConnection({ client: refreshingClient });
+    token = "access-token-three";
+    await getConnection({ client: refreshingClient });
+    assert.deepEqual(observed, ["Bearer access-token-one", "Bearer access-token-two", "Bearer access-token-three"]);
+  });
+
+  await test(`${surface} rejects missing, ambiguous or malformed credentials before making a request`, async () => {
+    let requests = 0;
+    const fetch = async () => { requests += 1; return Response.json({}); };
+    for (const credentials of [
+      {},
+      { apiKey: "smx_root_test", accessToken: "access-token" },
+      { accessToken: "" },
+      { accessToken: async () => "Bearer access-token" },
+      { accessToken: "token\r\nInjected: value" },
+      { accessToken: "token\n" },
+    ]) {
+      await assert.rejects(async () => {
+        const client = createClient({ ...credentials, fetch });
+        await getConnection({ client });
+      }, /Sendmux authentication|access token/);
+    }
+    assert.equal(requests, 0);
+  });
+}
 const {
   attachmentFromFile,
   sendEmailWithFiles,
@@ -97,7 +143,141 @@ const retryingGet = createRetryingFetch(
 assert.equal((await retryingGet("https://sdk.test/resource")).status, 200);
 assert.equal(getAttempts, 2);
 
+for (const header of ["Retry-After", "Retry-After date", "X-RateLimit-Reset"]) {
+  await test(`honours a 120-second ${header} without capping or changing an idempotent request`, async (t) => {
+    const now = Date.UTC(2026, 8, 9);
+    t.mock.timers.enable({ apis: ["Date", "setTimeout"], now });
+    const headers = header === "Retry-After" ? { "Retry-After": "120" }
+      : header === "Retry-After date" ? { "Retry-After": new Date(now + 120_000).toUTCString() }
+        : { "X-RateLimit-Reset": String(now / 1_000 + 120) };
+    const requests = [];
+    const fetch = createRetryingFetch({ maxAttempts: 2, maxDelayMs: 5_000 }, async (request) => {
+      requests.push({ key: request.headers.get("Idempotency-Key"), body: await request.text(), time: Date.now() });
+      return new Response(null, { status: requests.length === 1 ? 429 : 200, headers });
+    });
+    const pending = fetch("https://sdk.test/emails/send", {
+      method: "POST", body: '{"subject":"test"}',
+      headers: { "Idempotency-Key": "idem_oauth", "Content-Type": "application/json" },
+    });
+    await nextTurn();
+    t.mock.timers.tick(119_999);
+    await nextTurn();
+    assert.equal(requests.length, 1);
+    t.mock.timers.tick(1);
+    assert.equal((await pending).status, 200);
+    assert.deepEqual(requests, [
+      { key: "idem_oauth", body: '{"subject":"test"}', time: now },
+      { key: "idem_oauth", body: '{"subject":"test"}', time: now + 120_000 },
+    ]);
+  });
+}
+
 let zeroAttemptFetches = 0;
+await test("abort interrupts a retry wait without another HTTP attempt", async (t) => {
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: Date.UTC(2026, 8, 9) });
+  const controller = new AbortController();
+  let calls = 0;
+  let error;
+  const fetch = createRetryingFetch({ maxAttempts: 2 }, async (request) => {
+    calls += 1;
+    request.signal.throwIfAborted();
+    return new Response(null, { status: 429, headers: { "Retry-After": "120" } });
+  });
+  const pending = fetch("https://sdk.test/connection", { signal: controller.signal }).catch((value) => { error = value; });
+  await nextTurn();
+  controller.abort();
+  await nextTurn();
+  try {
+    assert.equal(error?.name, "AbortError");
+    assert.equal(calls, 1);
+  } finally {
+    t.mock.timers.tick(120_000);
+    await pending;
+  }
+});
+
+await test("does not retry a server error marked retryable=false", async (t) => {
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: Date.UTC(2026, 8, 9) });
+  let calls = 0;
+  const fetch = createRetryingFetch({ maxAttempts: 2 }, async () => {
+    calls += 1;
+    return Response.json({ ok: false, error: { code: "service_unavailable", message: "Unavailable", retryable: false }, meta: { request_id: "req_retry" } }, { status: 503 });
+  });
+  const pending = fetch("https://sdk.test/connection");
+  await nextTurn();
+  t.mock.timers.tick(120_000);
+  const response = await pending;
+  assert.equal(calls, 1);
+  assert.equal((await response.json()).error.retryable, false);
+});
+
+await test("returns the original retry response when its delay exceeds the retry budget", async (t) => {
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: Date.UTC(2026, 8, 9) });
+  let calls = 0;
+  const fetch = createRetryingFetch({ maxAttempts: 2, maxElapsedMs: 30_000 }, async () => {
+    calls += 1;
+    return new Response(null, { status: calls === 1 ? 429 : 200, headers: { "Retry-After": "120", "X-Request-Id": "req_retry" } });
+  });
+  const pending = fetch("https://sdk.test/connection");
+  await nextTurn();
+  t.mock.timers.tick(120_000);
+  const response = await pending;
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("Retry-After"), "120");
+  assert.equal(response.headers.get("X-Request-Id"), "req_retry");
+  assert.equal(calls, 1);
+});
+
+await test("returns retry metadata for a delay above the runtime timer limit", async (t) => {
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: Date.UTC(2026, 8, 9) });
+  let calls = 0;
+  const fetch = createRetryingFetch({ maxAttempts: 2 }, async () => {
+    calls += 1;
+    return new Response(null, { status: calls === 1 ? 429 : 200, headers: { "Retry-After": "2147484" } });
+  });
+  const pending = fetch("https://sdk.test/connection");
+  await nextTurn();
+  t.mock.timers.tick(2_147_484_000);
+  const response = await pending;
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("Retry-After"), "2147484");
+  assert.equal(calls, 1);
+});
+
+await test("does not start a retry after a delayed timer exhausts the budget", async (t) => {
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: Date.UTC(2026, 8, 9) });
+  let calls = 0;
+  const fetch = createRetryingFetch({ maxAttempts: 2, maxElapsedMs: 1_500 }, async () => {
+    calls += 1;
+    return Response.json({ ok: false, error: { retryable: true } }, {
+      status: calls === 1 ? 429 : 200, headers: { "Retry-After": "1" },
+    });
+  });
+  const pending = fetch("https://sdk.test/connection");
+  await nextTurn();
+  t.mock.timers.tick(2_000);
+  const response = await pending;
+  assert.equal(response.status, 429);
+  assert.equal(calls, 1);
+  assert.equal((await response.json()).error.retryable, true);
+});
+
+await test("network retries also stop when a delayed timer exhausts the budget", async (t) => {
+  t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: Date.UTC(2026, 8, 9) });
+  const networkError = new TypeError("Network unavailable");
+  let calls = 0;
+  const fetch = createRetryingFetch({ maxAttempts: 2, maxElapsedMs: 1_500, baseDelayMs: 1_000, jitter: false }, async () => {
+    calls += 1;
+    if (calls === 1) throw networkError;
+    return new Response(null, { status: 200 });
+  });
+  const pending = fetch("https://sdk.test/connection").catch((error) => error);
+  await nextTurn();
+  t.mock.timers.tick(2_000);
+  assert.equal(await pending, networkError);
+  assert.equal(calls, 1);
+});
+
 const zeroAttemptFetch = createRetryingFetch({ maxAttempts: 0 }, async () => {
   zeroAttemptFetches += 1;
   return new Response("ok", { status: 200 });

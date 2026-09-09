@@ -325,9 +325,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -359,6 +359,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -625,9 +626,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -659,6 +660,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -925,9 +927,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -959,6 +961,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1453,85 +1456,85 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if folder_id is not None:
-            
+
             _query_params.append(('folder_id', folder_id))
-            
+
         if thread_id is not None:
-            
+
             _query_params.append(('thread_id', thread_id))
-            
+
         if q is not None:
-            
+
             _query_params.append(('q', q))
-            
+
         if var_from is not None:
-            
+
             _query_params.append(('from', var_from))
-            
+
         if to is not None:
-            
+
             _query_params.append(('to', to))
-            
+
         if cc is not None:
-            
+
             _query_params.append(('cc', cc))
-            
+
         if bcc is not None:
-            
+
             _query_params.append(('bcc', bcc))
-            
+
         if subject is not None:
-            
+
             _query_params.append(('subject', subject))
-            
+
         if body is not None:
-            
+
             _query_params.append(('body', body))
-            
+
         if header_name is not None:
-            
+
             _query_params.append(('header_name', header_name))
-            
+
         if header_value is not None:
-            
+
             _query_params.append(('header_value', header_value))
-            
+
         if min_size_bytes is not None:
-            
+
             _query_params.append(('min_size_bytes', min_size_bytes))
-            
+
         if max_size_bytes is not None:
-            
+
             _query_params.append(('max_size_bytes', max_size_bytes))
-            
+
         if keyword is not None:
-            
+
             _query_params.append(('keyword', keyword))
-            
+
         if not_keyword is not None:
-            
+
             _query_params.append(('not_keyword', not_keyword))
-            
+
         if after is not None:
-            
+
             _query_params.append(('after', after))
-            
+
         if before is not None:
-            
+
             _query_params.append(('before', before))
-            
+
         if has_attachment is not None:
-            
+
             _query_params.append(('has_attachment', has_attachment))
-            
+
         if is_unread is not None:
-            
+
             _query_params.append(('is_unread', is_unread))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1548,6 +1551,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1589,7 +1593,7 @@ class MailboxAPIApi:
     ) -> MailboxAttachmentUploadIntentResultResponse:
         """Create a presigned mailbox attachment upload
 
-        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
 
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
@@ -1663,7 +1667,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxAttachmentUploadIntentResultResponse]:
         """Create a presigned mailbox attachment upload
 
-        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
 
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
@@ -1737,7 +1741,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Create a presigned mailbox attachment upload
 
-        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+        Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
 
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
@@ -1814,9 +1818,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1848,6 +1852,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2114,9 +2119,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2148,6 +2153,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2423,9 +2429,9 @@ class MailboxAPIApi:
             _path_params['folder_id'] = folder_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -2444,6 +2450,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2735,13 +2742,13 @@ class MailboxAPIApi:
             _path_params['message_id'] = message_id
         # process the query parameters
         if permanent is not None:
-            
+
             _query_params.append(('permanent', permanent))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -2760,6 +2767,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -3124,45 +3132,45 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if since_state is not None:
-            
+
             _query_params.append(('since_state', since_state))
-            
+
         if types is not None:
-            
+
             _query_params.append(('types', types))
-            
+
         if messages_since_state is not None:
-            
+
             _query_params.append(('messages_since_state', messages_since_state))
-            
+
         if folders_since_state is not None:
-            
+
             _query_params.append(('folders_since_state', folders_since_state))
-            
+
         if threads_since_state is not None:
-            
+
             _query_params.append(('threads_since_state', threads_since_state))
-            
+
         if submissions_since_state is not None:
-            
+
             _query_params.append(('submissions_since_state', submissions_since_state))
-            
+
         if identities_since_state is not None:
-            
+
             _query_params.append(('identities_since_state', identities_since_state))
-            
+
         if quotas_since_state is not None:
-            
+
             _query_params.append(('quotas_since_state', quotas_since_state))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -3179,6 +3187,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -3458,6 +3467,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -3736,9 +3746,9 @@ class MailboxAPIApi:
             _path_params['folder_id'] = folder_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -3757,6 +3767,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -4030,17 +4041,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if since_state is not None:
-            
+
             _query_params.append(('since_state', since_state))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -4057,6 +4068,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -4310,9 +4322,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -4329,6 +4341,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -4370,7 +4383,7 @@ class MailboxAPIApi:
     ) -> MailboxMeItemResponse:
         """Self-introspect the calling mailbox
 
-        Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
+        Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
 
         :param if_none_match:
         :type if_none_match: str
@@ -4445,7 +4458,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxMeItemResponse]:
         """Self-introspect the calling mailbox
 
-        Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
+        Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
 
         :param if_none_match:
         :type if_none_match: str
@@ -4520,7 +4533,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """Self-introspect the calling mailbox
 
-        Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
+        Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
 
         :param if_none_match:
         :type if_none_match: str
@@ -4598,9 +4611,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -4619,6 +4632,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -4897,9 +4911,9 @@ class MailboxAPIApi:
             _path_params['message_id'] = message_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -4918,6 +4932,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -5227,13 +5242,13 @@ class MailboxAPIApi:
             _path_params['attachment_id'] = attachment_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         if download_token is not None:
-            
+
             _query_params.append(('download_token', download_token))
-            
+
         # process the header parameters
         if range is not None:
             _header_params['Range'] = range
@@ -5252,6 +5267,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -5525,17 +5541,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if since_state is not None:
-            
+
             _query_params.append(('since_state', since_state))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -5552,6 +5568,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -5821,9 +5838,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -5842,6 +5859,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -6120,9 +6138,9 @@ class MailboxAPIApi:
             _path_params['submission_id'] = submission_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -6141,6 +6159,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -6414,17 +6433,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if since_state is not None:
-            
+
             _query_params.append(('since_state', since_state))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -6441,6 +6460,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -6719,9 +6739,9 @@ class MailboxAPIApi:
             _path_params['thread_id'] = thread_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -6740,6 +6760,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -7164,53 +7185,53 @@ class MailboxAPIApi:
             _path_params['thread_id'] = thread_id
         # process the query parameters
         if part is not None:
-            
+
             _query_params.append(('part', part))
-            
+
         if max_body_chars is not None:
-            
+
             _query_params.append(('max_body_chars', max_body_chars))
-            
+
         if strip_signature is not None:
-            
+
             _query_params.append(('strip_signature', strip_signature))
-            
+
         if strip_quotes is not None:
-            
+
             _query_params.append(('strip_quotes', strip_quotes))
-            
+
         if include_links is not None:
-            
+
             _query_params.append(('include_links', include_links))
-            
+
         if include_html is not None:
-            
+
             _query_params.append(('include_html', include_html))
-            
+
         if include_headers is not None:
-            
+
             _query_params.append(('include_headers', include_headers))
-            
+
         if include_attachments is not None:
-            
+
             _query_params.append(('include_attachments', include_attachments))
-            
+
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if sort is not None:
-            
+
             _query_params.append(('sort', sort))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -7229,6 +7250,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -7536,17 +7558,17 @@ class MailboxAPIApi:
             _path_params['message_id'] = message_id
         # process the query parameters
         if part is not None:
-            
+
             _query_params.append(('part', part))
-            
+
         if max_body_chars is not None:
-            
+
             _query_params.append(('max_body_chars', max_body_chars))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -7565,6 +7587,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -7950,41 +7973,41 @@ class MailboxAPIApi:
             _path_params['message_id'] = message_id
         # process the query parameters
         if part is not None:
-            
+
             _query_params.append(('part', part))
-            
+
         if max_body_chars is not None:
-            
+
             _query_params.append(('max_body_chars', max_body_chars))
-            
+
         if strip_signature is not None:
-            
+
             _query_params.append(('strip_signature', strip_signature))
-            
+
         if strip_quotes is not None:
-            
+
             _query_params.append(('strip_quotes', strip_quotes))
-            
+
         if include_links is not None:
-            
+
             _query_params.append(('include_links', include_links))
-            
+
         if include_html is not None:
-            
+
             _query_params.append(('include_html', include_html))
-            
+
         if include_headers is not None:
-            
+
             _query_params.append(('include_headers', include_headers))
-            
+
         if include_attachments is not None:
-            
+
             _query_params.append(('include_attachments', include_attachments))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -8003,6 +8026,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -8273,17 +8297,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -8300,6 +8324,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -8576,17 +8601,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if q is not None:
-            
+
             _query_params.append(('q', q))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -8603,6 +8628,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -8882,17 +8908,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -8909,6 +8935,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -8972,7 +8999,7 @@ class MailboxAPIApi:
     ) -> MailboxMessageSummaryCursorListResponse:
         """List mailbox messages
 
-        Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.
+        Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.
 
         :param cursor:
         :type cursor: str
@@ -9134,7 +9161,7 @@ class MailboxAPIApi:
     ) -> ApiResponse[MailboxMessageSummaryCursorListResponse]:
         """List mailbox messages
 
-        Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.
+        Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.
 
         :param cursor:
         :type cursor: str
@@ -9296,7 +9323,7 @@ class MailboxAPIApi:
     ) -> RESTResponseType:
         """List mailbox messages
 
-        Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.
+        Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.
 
         :param cursor:
         :type cursor: str
@@ -9461,101 +9488,101 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if folder_id is not None:
-            
+
             _query_params.append(('folder_id', folder_id))
-            
+
         if thread_id is not None:
-            
+
             _query_params.append(('thread_id', thread_id))
-            
+
         if q is not None:
-            
+
             _query_params.append(('q', q))
-            
+
         if var_from is not None:
-            
+
             _query_params.append(('from', var_from))
-            
+
         if to is not None:
-            
+
             _query_params.append(('to', to))
-            
+
         if cc is not None:
-            
+
             _query_params.append(('cc', cc))
-            
+
         if bcc is not None:
-            
+
             _query_params.append(('bcc', bcc))
-            
+
         if subject is not None:
-            
+
             _query_params.append(('subject', subject))
-            
+
         if body is not None:
-            
+
             _query_params.append(('body', body))
-            
+
         if header_name is not None:
-            
+
             _query_params.append(('header_name', header_name))
-            
+
         if header_value is not None:
-            
+
             _query_params.append(('header_value', header_value))
-            
+
         if min_size_bytes is not None:
-            
+
             _query_params.append(('min_size_bytes', min_size_bytes))
-            
+
         if max_size_bytes is not None:
-            
+
             _query_params.append(('max_size_bytes', max_size_bytes))
-            
+
         if keyword is not None:
-            
+
             _query_params.append(('keyword', keyword))
-            
+
         if not_keyword is not None:
-            
+
             _query_params.append(('not_keyword', not_keyword))
-            
+
         if after is not None:
-            
+
             _query_params.append(('after', after))
-            
+
         if before is not None:
-            
+
             _query_params.append(('before', before))
-            
+
         if has_attachment is not None:
-            
+
             _query_params.append(('has_attachment', has_attachment))
-            
+
         if is_unread is not None:
-            
+
             _query_params.append(('is_unread', is_unread))
-            
+
         if sort_by is not None:
-            
+
             _query_params.append(('sort_by', sort_by))
-            
+
         if sort_direction is not None:
-            
+
             _query_params.append(('sort_direction', sort_direction))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -9572,6 +9599,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -9923,41 +9951,41 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if name is not None:
-            
+
             _query_params.append(('name', name))
-            
+
         if scope is not None:
-            
+
             _query_params.append(('scope', scope))
-            
+
         if resource_type is not None:
-            
+
             _query_params.append(('resource_type', resource_type))
-            
+
         if type is not None:
-            
+
             _query_params.append(('type', type))
-            
+
         if sort_by is not None:
-            
+
             _query_params.append(('sort_by', sort_by))
-            
+
         if sort_direction is not None:
-            
+
             _query_params.append(('sort_direction', sort_direction))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -9974,6 +10002,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -10351,49 +10380,49 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if identity_ids is not None:
-            
+
             _query_params.append(('identity_ids', identity_ids))
-            
+
         if email_ids is not None:
-            
+
             _query_params.append(('email_ids', email_ids))
-            
+
         if thread_ids is not None:
-            
+
             _query_params.append(('thread_ids', thread_ids))
-            
+
         if undo_status is not None:
-            
+
             _query_params.append(('undo_status', undo_status))
-            
+
         if after is not None:
-            
+
             _query_params.append(('after', after))
-            
+
         if before is not None:
-            
+
             _query_params.append(('before', before))
-            
+
         if sort_by is not None:
-            
+
             _query_params.append(('sort_by', sort_by))
-            
+
         if sort_direction is not None:
-            
+
             _query_params.append(('sort_direction', sort_direction))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -10410,6 +10439,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -10714,21 +10744,21 @@ class MailboxAPIApi:
             _path_params['thread_id'] = thread_id
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if sort is not None:
-            
+
             _query_params.append(('sort', sort))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -10745,6 +10775,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -11128,49 +11159,49 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if q is not None:
-            
+
             _query_params.append(('q', q))
-            
+
         if participant is not None:
-            
+
             _query_params.append(('participant', participant))
-            
+
         if folder_id is not None:
-            
+
             _query_params.append(('folder_id', folder_id))
-            
+
         if after is not None:
-            
+
             _query_params.append(('after', after))
-            
+
         if before is not None:
-            
+
             _query_params.append(('before', before))
-            
+
         if has_attachment is not None:
-            
+
             _query_params.append(('has_attachment', has_attachment))
-            
+
         if is_unread is not None:
-            
+
             _query_params.append(('is_unread', is_unread))
-            
+
         if sort_direction is not None:
-            
+
             _query_params.append(('sort_direction', sort_direction))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -11187,6 +11218,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -11447,9 +11479,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_none_match is not None:
             _header_params['If-None-Match'] = if_none_match
@@ -11468,6 +11500,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -11741,17 +11774,17 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if since_query_state is not None:
-            
+
             _query_params.append(('since_query_state', since_query_state))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -11768,6 +11801,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -12327,105 +12361,105 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if since_query_state is not None:
-            
+
             _query_params.append(('since_query_state', since_query_state))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if up_to_id is not None:
-            
+
             _query_params.append(('up_to_id', up_to_id))
-            
+
         if calculate_total is not None:
-            
+
             _query_params.append(('calculate_total', calculate_total))
-            
+
         if folder_id is not None:
-            
+
             _query_params.append(('folder_id', folder_id))
-            
+
         if q is not None:
-            
+
             _query_params.append(('q', q))
-            
+
         if var_from is not None:
-            
+
             _query_params.append(('from', var_from))
-            
+
         if to is not None:
-            
+
             _query_params.append(('to', to))
-            
+
         if cc is not None:
-            
+
             _query_params.append(('cc', cc))
-            
+
         if bcc is not None:
-            
+
             _query_params.append(('bcc', bcc))
-            
+
         if subject is not None:
-            
+
             _query_params.append(('subject', subject))
-            
+
         if body is not None:
-            
+
             _query_params.append(('body', body))
-            
+
         if header_name is not None:
-            
+
             _query_params.append(('header_name', header_name))
-            
+
         if header_value is not None:
-            
+
             _query_params.append(('header_value', header_value))
-            
+
         if min_size_bytes is not None:
-            
+
             _query_params.append(('min_size_bytes', min_size_bytes))
-            
+
         if max_size_bytes is not None:
-            
+
             _query_params.append(('max_size_bytes', max_size_bytes))
-            
+
         if keyword is not None:
-            
+
             _query_params.append(('keyword', keyword))
-            
+
         if not_keyword is not None:
-            
+
             _query_params.append(('not_keyword', not_keyword))
-            
+
         if after is not None:
-            
+
             _query_params.append(('after', after))
-            
+
         if before is not None:
-            
+
             _query_params.append(('before', before))
-            
+
         if has_attachment is not None:
-            
+
             _query_params.append(('has_attachment', has_attachment))
-            
+
         if is_unread is not None:
-            
+
             _query_params.append(('is_unread', is_unread))
-            
+
         if sort_by is not None:
-            
+
             _query_params.append(('sort_by', sort_by))
-            
+
         if sort_direction is not None:
-            
+
             _query_params.append(('sort_direction', sort_direction))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -12442,6 +12476,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -12949,89 +12984,89 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if folder_id is not None:
-            
+
             _query_params.append(('folder_id', folder_id))
-            
+
         if var_from is not None:
-            
+
             _query_params.append(('from', var_from))
-            
+
         if to is not None:
-            
+
             _query_params.append(('to', to))
-            
+
         if cc is not None:
-            
+
             _query_params.append(('cc', cc))
-            
+
         if bcc is not None:
-            
+
             _query_params.append(('bcc', bcc))
-            
+
         if subject is not None:
-            
+
             _query_params.append(('subject', subject))
-            
+
         if body is not None:
-            
+
             _query_params.append(('body', body))
-            
+
         if header_name is not None:
-            
+
             _query_params.append(('header_name', header_name))
-            
+
         if header_value is not None:
-            
+
             _query_params.append(('header_value', header_value))
-            
+
         if min_size_bytes is not None:
-            
+
             _query_params.append(('min_size_bytes', min_size_bytes))
-            
+
         if max_size_bytes is not None:
-            
+
             _query_params.append(('max_size_bytes', max_size_bytes))
-            
+
         if keyword is not None:
-            
+
             _query_params.append(('keyword', keyword))
-            
+
         if not_keyword is not None:
-            
+
             _query_params.append(('not_keyword', not_keyword))
-            
+
         if after is not None:
-            
+
             _query_params.append(('after', after))
-            
+
         if before is not None:
-            
+
             _query_params.append(('before', before))
-            
+
         if has_attachment is not None:
-            
+
             _query_params.append(('has_attachment', has_attachment))
-            
+
         if is_unread is not None:
-            
+
             _query_params.append(('is_unread', is_unread))
-            
+
         if q is not None:
-            
+
             _query_params.append(('q', q))
-            
+
         if message_ids is not None:
-            
+
             _query_params.append(('message_ids', message_ids))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -13048,6 +13083,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -13333,9 +13369,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if idempotency_key is not None:
             _header_params['Idempotency-Key'] = idempotency_key
@@ -13369,6 +13405,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -13393,12 +13430,12 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_stream_events(
         self,
+        mailbox_id: Optional[StrictStr] = None,
         event_types: Optional[StrictStr] = None,
         last_event_id: Optional[StrictStr] = None,
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13416,6 +13453,8 @@ class MailboxAPIApi:
 
         Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
 
+        :param mailbox_id:
+        :type mailbox_id: str
         :param event_types:
         :type event_types: str
         :param last_event_id:
@@ -13426,8 +13465,6 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
-        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
-        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -13451,12 +13488,12 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_stream_events_serialize(
+            mailbox_id=mailbox_id,
             event_types=event_types,
             last_event_id=last_event_id,
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
-            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -13485,12 +13522,12 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_stream_events_with_http_info(
         self,
+        mailbox_id: Optional[StrictStr] = None,
         event_types: Optional[StrictStr] = None,
         last_event_id: Optional[StrictStr] = None,
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13508,6 +13545,8 @@ class MailboxAPIApi:
 
         Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
 
+        :param mailbox_id:
+        :type mailbox_id: str
         :param event_types:
         :type event_types: str
         :param last_event_id:
@@ -13518,8 +13557,6 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
-        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
-        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -13543,12 +13580,12 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_stream_events_serialize(
+            mailbox_id=mailbox_id,
             event_types=event_types,
             last_event_id=last_event_id,
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
-            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -13577,12 +13614,12 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_stream_events_without_preload_content(
         self,
+        mailbox_id: Optional[StrictStr] = None,
         event_types: Optional[StrictStr] = None,
         last_event_id: Optional[StrictStr] = None,
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
-        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13600,6 +13637,8 @@ class MailboxAPIApi:
 
         Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
 
+        :param mailbox_id:
+        :type mailbox_id: str
         :param event_types:
         :type event_types: str
         :param last_event_id:
@@ -13610,8 +13649,6 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
-        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
-        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -13635,12 +13672,12 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_stream_events_serialize(
+            mailbox_id=mailbox_id,
             event_types=event_types,
             last_event_id=last_event_id,
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
-            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -13664,12 +13701,12 @@ class MailboxAPIApi:
 
     def _mailbox_stream_events_serialize(
         self,
+        mailbox_id,
         event_types,
         last_event_id,
         ping,
         close_after,
         last_event_id2,
-        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -13692,26 +13729,26 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
-        if event_types is not None:
-            
-            _query_params.append(('event_types', event_types))
-            
-        if last_event_id is not None:
-            
-            _query_params.append(('last_event_id', last_event_id))
-            
-        if ping is not None:
-            
-            _query_params.append(('ping', ping))
-            
-        if close_after is not None:
-            
-            _query_params.append(('close_after', close_after))
-            
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
+        if event_types is not None:
+
+            _query_params.append(('event_types', event_types))
+
+        if last_event_id is not None:
+
+            _query_params.append(('last_event_id', last_event_id))
+
+        if ping is not None:
+
+            _query_params.append(('ping', ping))
+
+        if close_after is not None:
+
+            _query_params.append(('close_after', close_after))
+
         # process the header parameters
         if last_event_id2 is not None:
             _header_params['Last-Event-ID'] = last_event_id2
@@ -13723,7 +13760,7 @@ class MailboxAPIApi:
         if 'Accept' not in _header_params:
             _header_params['Accept'] = self.api_client.select_header_accept(
                 [
-                    'text/event-stream', 
+                    'text/event-stream',
                     'application/json'
                 ]
             )
@@ -13731,6 +13768,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -14028,9 +14066,9 @@ class MailboxAPIApi:
             _path_params['folder_id'] = folder_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -14064,6 +14102,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -14339,9 +14378,9 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -14373,6 +14412,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -14670,9 +14710,9 @@ class MailboxAPIApi:
             _path_params['message_id'] = message_id
         # process the query parameters
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         if if_match is not None:
             _header_params['If-Match'] = if_match
@@ -14706,6 +14746,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -14985,13 +15026,13 @@ class MailboxAPIApi:
         # process the path parameters
         # process the query parameters
         if filename is not None:
-            
+
             _query_params.append(('filename', filename))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -15031,6 +15072,7 @@ class MailboxAPIApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

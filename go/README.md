@@ -184,6 +184,12 @@ func main() {
 }
 ```
 
+## OAuth access tokens
+
+All three surface packages expose `NewWithAccessToken(token, opts...)` and `NewWithTokenProvider(provider, opts...)`. The provider has signature `func(context.Context) (string, error)` and runs for each authenticated request with its request context. Your application owns token storage, expiry checks and refresh coordination.
+
+Use a bare REST access token with the operation's required scopes and mailbox access. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth). Existing `New` constructors retain API-key prefix validation.
+
 ## Runtime behaviour
 
 - `sending.New` accepts send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens.

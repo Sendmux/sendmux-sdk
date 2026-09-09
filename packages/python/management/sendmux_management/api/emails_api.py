@@ -307,6 +307,7 @@ class EmailsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -609,25 +610,25 @@ class EmailsApi:
         # process the path parameters
         # process the query parameters
         if window is not None:
-            
+
             _query_params.append(('window', window))
-            
+
         if from_date is not None:
-            
+
             _query_params.append(('from_date', from_date))
-            
+
         if to_date is not None:
-            
+
             _query_params.append(('to_date', to_date))
-            
+
         if granularity is not None:
-            
+
             _query_params.append(('granularity', granularity))
-            
+
         if provider_id is not None:
-            
+
             _query_params.append(('provider_id', provider_id))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -644,6 +645,7 @@ class EmailsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -972,33 +974,33 @@ class EmailsApi:
         # process the path parameters
         # process the query parameters
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if status is not None:
-            
+
             _query_params.append(('status', status))
-            
+
         if from_date is not None:
-            
+
             _query_params.append(('from_date', from_date))
-            
+
         if to_date is not None:
-            
+
             _query_params.append(('to_date', to_date))
-            
+
         if provider_id is not None:
-            
+
             _query_params.append(('provider_id', provider_id))
-            
+
         if search is not None:
-            
+
             _query_params.append(('search', search))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1015,6 +1017,7 @@ class EmailsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

@@ -36,12 +36,18 @@ final class ClientFactory
         return $configured;
     }
 
-    public static function httpClient(?RetryOptions $retryOptions = null): ClientInterface
-    {
+    /** @param string|callable(): string|null $accessToken */
+    public static function httpClient(
+        ?RetryOptions $retryOptions = null,
+        string|callable|null $accessToken = null
+    ): ClientInterface {
         $stack = HandlerStack::create();
         $stack->push(RetryMiddleware::create($retryOptions), 'sendmux_retry');
+        if ($accessToken !== null) {
+            $stack->push(Auth::accessTokenMiddleware($accessToken), 'sendmux_oauth');
+        }
 
-        return new Client(['handler' => $stack]);
+        return new Client(['handler' => $stack, 'allow_redirects' => $accessToken === null]);
     }
 
     public static function createBillingApi(
@@ -52,6 +58,23 @@ final class ClientFactory
         return new BillingApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createBillingApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): BillingApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new BillingApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 
@@ -66,6 +89,23 @@ final class ClientFactory
         );
     }
 
+    /** @param string|callable(): string $accessToken */
+    public static function createConnectionApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): ConnectionApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new ConnectionApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
+        );
+    }
+
     public static function createDomainFiltersApi(
         string $apiKey,
         ?string $baseUrl = null,
@@ -74,6 +114,23 @@ final class ClientFactory
         return new DomainFiltersApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createDomainFiltersApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): DomainFiltersApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new DomainFiltersApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 
@@ -88,6 +145,23 @@ final class ClientFactory
         );
     }
 
+    /** @param string|callable(): string $accessToken */
+    public static function createDomainsApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): DomainsApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new DomainsApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
+        );
+    }
+
     public static function createEmailsApi(
         string $apiKey,
         ?string $baseUrl = null,
@@ -96,6 +170,23 @@ final class ClientFactory
         return new EmailsApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createEmailsApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): EmailsApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new EmailsApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 
@@ -110,6 +201,23 @@ final class ClientFactory
         );
     }
 
+    /** @param string|callable(): string $accessToken */
+    public static function createInboxesApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): InboxesApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new InboxesApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
+        );
+    }
+
     public static function createMailboxFiltersApi(
         string $apiKey,
         ?string $baseUrl = null,
@@ -118,6 +226,23 @@ final class ClientFactory
         return new MailboxFiltersApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createMailboxFiltersApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): MailboxFiltersApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new MailboxFiltersApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 
@@ -132,6 +257,23 @@ final class ClientFactory
         );
     }
 
+    /** @param string|callable(): string $accessToken */
+    public static function createMailboxesApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): MailboxesApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new MailboxesApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
+        );
+    }
+
     public static function createSendingAccountsApi(
         string $apiKey,
         ?string $baseUrl = null,
@@ -143,6 +285,23 @@ final class ClientFactory
         );
     }
 
+    /** @param string|callable(): string $accessToken */
+    public static function createSendingAccountsApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): SendingAccountsApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new SendingAccountsApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
+        );
+    }
+
     public static function createWebhooksApi(
         string $apiKey,
         ?string $baseUrl = null,
@@ -151,6 +310,23 @@ final class ClientFactory
         return new WebhooksApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createWebhooksApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): WebhooksApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new WebhooksApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 }

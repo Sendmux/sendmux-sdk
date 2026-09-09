@@ -18,7 +18,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 
 ## Packages
 
-| Ecosystem | Package | Surface | API key or auth | Install | Source |
+| Ecosystem | Package | Surface | API-key / hosted auth | Install | Source |
 | --- | --- | --- | --- | --- | --- |
 | npm | `@sendmux/core` | Shared TypeScript helpers | n/a | `npm install @sendmux/core` | [`packages/ts/core`](packages/ts/core) |
 | npm | `@sendmux/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `npm install @sendmux/sending` | [`packages/ts/sending`](packages/ts/sending) |
@@ -41,11 +41,11 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | Go | `sendmux.ai/go/management` | Management API | `smx_root_*` | `go get sendmux.ai/go@v1.5.0` | [`go/management`](go/management) |
 | Go | `sendmux.ai/go/sdk` | Go umbrella package | surface-specific | `go get sendmux.ai/go@v1.5.0` | [`go/sdk`](go/sdk) |
 | crates.io | `sendmux` | Rust umbrella crate | surface-specific | `cargo add sendmux` | [`rust`](rust) |
-| Packagist | `sendmux/core` | Shared PHP helpers | n/a | `composer require sendmux/core:^1.0` | [`packages/php/core`](packages/php/core) |
-| Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `composer require sendmux/sending:^1.0` | [`packages/php/sending`](packages/php/sending) |
-| Packagist | `sendmux/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `composer require sendmux/mailbox:^1.0` | [`packages/php/mailbox`](packages/php/mailbox) |
-| Packagist | `sendmux/management` | Management API | `smx_root_*` | `composer require sendmux/management:^1.0` | [`packages/php/management`](packages/php/management) |
-| Packagist | `sendmux/sdk` | PHP umbrella package | surface-specific | `composer require sendmux/sdk:^1.0` | [`packages/php/sdk`](packages/php/sdk) |
+| Packagist | `sendmux/core` | Shared PHP helpers | n/a | `composer require sendmux/core:^2.0` | [`packages/php/core`](packages/php/core) |
+| Packagist | `sendmux/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `composer require sendmux/sending:^2.0` | [`packages/php/sending`](packages/php/sending) |
+| Packagist | `sendmux/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `composer require sendmux/mailbox:^2.0` | [`packages/php/mailbox`](packages/php/mailbox) |
+| Packagist | `sendmux/management` | Management API | `smx_root_*` | `composer require sendmux/management:^2.0` | [`packages/php/management`](packages/php/management) |
+| Packagist | `sendmux/sdk` | PHP umbrella package | surface-specific | `composer require sendmux/sdk:^2.0` | [`packages/php/sdk`](packages/php/sdk) |
 | RubyGems | `sendmux-core` | Shared Ruby helpers | n/a | `gem install sendmux-core` | [`packages/ruby/core`](packages/ruby/core) |
 | RubyGems | `sendmux-sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `gem install sendmux-sending` | [`packages/ruby/sending`](packages/ruby/sending) |
 | RubyGems | `sendmux-mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `gem install sendmux-mailbox` | [`packages/ruby/mailbox`](packages/ruby/mailbox) |
@@ -61,11 +61,32 @@ npm install @sendmux/sending
 pip install sendmux-sending
 go get sendmux.ai/go@v1.5.0
 cargo add sendmux
-composer require sendmux/sending:^1.0
+composer require sendmux/sending:^2.0
 gem install sendmux-sending
 ```
 
 Use send-capable `smx_mbx_*` keys or owner-approved Sending-resource `smx_agent_*` tokens for Sending clients. Use `smx_mbx_*` keys or scoped `smx_agent_*` tokens for Mailbox clients. Use root `smx_root_*` keys for Management clients. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
+
+## OAuth authentication
+
+TypeScript, Python, Go, PHP, Ruby, and Rust surface clients accept a bare REST OAuth access token or a provider that resolves one before each request. Use the explicit token API below; API-key configuration continues to validate key prefixes.
+
+| Client | Access-token configuration |
+| --- | --- |
+| TypeScript | `accessToken: token` or `accessToken: () => token`; async providers are supported. |
+| Vercel AI SDK | `sendmux({ accessToken: token })` or an async token provider; grant `mailbox.read` and `email.send` for one mailbox. |
+| Python | `access_token=token` or a callable. |
+| LangChain | `SendmuxToolkit(access_token=token)` or a callable; grant `mailbox.read` and `email.send` for one mailbox. |
+| Go | `NewWithAccessToken(token)` or `NewWithTokenProvider(provider)`; providers receive the request context. |
+| PHP | `ClientFactory::createMetaApiWithAccessToken($token)` or a callable; each API factory has a `WithAccessToken` variant. |
+| Ruby | `access_token: token` or a callable. |
+| Rust | `new_with_access_token(token)` or `new_with_token_provider(provider)`; providers return a future. |
+
+Choose one credential source. Your application owns secure storage and refresh coordination. Request `resource=https://sendmux.ai/api`; each API still checks its required scopes and granted surface. The CLI manages browser login and token refresh with `sendmux auth:login`; use `sendmux auth:logout` to revoke its connection.
+
+[OAuth setup and lifecycle](https://sendmux.ai/docs/developer-tools/oauth).
+
+## Command-line access
 
 For command-line access, install the CLI:
 

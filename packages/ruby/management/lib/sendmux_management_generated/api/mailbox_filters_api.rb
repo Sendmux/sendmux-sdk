@@ -66,7 +66,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'FilterStateResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxFiltersApi.management_get_mailbox_filters",
@@ -139,7 +139,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'FilterStateResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxFiltersApi.management_set_mailbox_filters",

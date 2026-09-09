@@ -64,7 +64,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxAvailabilityResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_check_mailbox_availability",
@@ -135,7 +135,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxCreateResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_create_mailbox",
@@ -212,7 +212,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxAppPasswordResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_create_mailbox_key",
@@ -275,7 +275,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_delete_mailbox",
@@ -344,7 +344,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxKeyDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_delete_mailbox_key",
@@ -410,7 +410,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_get_mailbox",
@@ -488,7 +488,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxItemCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_list_mailboxes",
@@ -558,7 +558,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_resume_mailbox",
@@ -628,7 +628,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_suspend_mailbox",
@@ -701,7 +701,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'MailboxItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxesApi.management_update_mailbox",

@@ -19,6 +19,24 @@ impl MailboxClient {
         })
     }
 
+    /// Creates a client using an OAuth access token instead of an API key.
+    pub fn new_with_access_token(token: impl Into<String>) -> Result<Self> {
+        Ok(Self {
+            transport: Transport::new_with_access_token(token, DEFAULT_BASE_URL)?,
+        })
+    }
+
+    /// Resolves an async token provider for each request, including requests from cloned clients.
+    pub fn new_with_token_provider<F, Fut>(provider: F) -> Result<Self>
+    where
+        F: Fn() -> Fut + Send + Sync + 'static,
+        Fut: std::future::Future<Output = Result<String>> + Send + 'static,
+    {
+        Ok(Self {
+            transport: Transport::new_with_token_provider(provider, DEFAULT_BASE_URL)?,
+        })
+    }
+
     pub fn with_base_url(mut self, base_url: impl AsRef<str>) -> Result<Self> {
         self.transport = self.transport.with_base_url(base_url)?;
         Ok(self)

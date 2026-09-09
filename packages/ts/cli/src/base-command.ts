@@ -8,9 +8,11 @@ import {
   type RequiredApiKeyKind,
 } from "./key-kind.js";
 import { resolveAgentSendingToken } from "./agent-auth.js";
+import { resolveOAuthToken } from "./oauth-profile.js";
 import {
   isActiveAgentProfile,
   isAgentProfile,
+  isOAuthProfile,
   readCliConfig,
 } from "./profiles.js";
 
@@ -20,12 +22,13 @@ export interface AuthFlags {
   profile?: string;
 }
 
-export interface ResolvedAuth {
-  apiKey: string;
-  apiKeyKind: ApiKeyKind;
+export type ResolvedAuth = {
   baseUrl?: string;
   source: string;
-}
+} & (
+  | { apiKey: string; apiKeyKind: ApiKeyKind; accessToken?: never }
+  | { accessToken: string | (() => Promise<string>); apiKey?: never; apiKeyKind: "oauth" }
+);
 
 export const authFlags = {
   "api-key": Flags.string({
@@ -48,8 +51,22 @@ export abstract class SendmuxCommand extends Command {
 
   async resolveAuth(flags: AuthFlags, expectedKind: RequiredApiKeyKind): Promise<ResolvedAuth> {
     const envApiKey = process.env.SENDMUX_API_KEY || undefined;
+    const accessToken = process.env.SENDMUX_ACCESS_TOKEN || undefined;
     const envBaseUrl = process.env.SENDMUX_BASE_URL || undefined;
     const envProfile = process.env.SENDMUX_PROFILE || undefined;
+
+    if (accessToken && (flags["api-key"] || envApiKey)) {
+      this.error("Provide exactly one of an API key or SENDMUX_ACCESS_TOKEN.", { exit: 2 });
+    }
+    if (accessToken) {
+      const baseUrl = flags["base-url"] ?? envBaseUrl;
+      return {
+        accessToken,
+        apiKeyKind: "oauth",
+        source: "SENDMUX_ACCESS_TOKEN",
+        ...(baseUrl ? { baseUrl } : {}),
+      };
+    }
 
     if (flags["api-key"] || envApiKey) {
       const apiKey = flags["api-key"] ?? envApiKey;
@@ -83,6 +100,11 @@ export abstract class SendmuxCommand extends Command {
       this.error(`Sendmux profile "${profileName}" was not found. Run \`sendmux profiles:list\` to see configured profiles.`, {
         exit: 2,
       });
+    }
+
+    if (isOAuthProfile(profile)) {
+      const baseUrl = flags["base-url"] ?? envBaseUrl;
+      return { accessToken: () => resolveOAuthToken(this.config.configDir, profileName), apiKeyKind: "oauth", source: `OAuth profile "${profileName}"`, ...(baseUrl ? { baseUrl } : {}) };
     }
 
     if (isAgentProfile(profile)) {
@@ -134,6 +156,12 @@ export abstract class SendmuxCommand extends Command {
 
     this.log(JSON.stringify(value, null, 2));
     return value;
+  }
+
+  protected toErrorJson(error: unknown): unknown {
+    return {
+      error: error instanceof Error ? { ...error, message: error.message, name: error.name } : error,
+    };
   }
 
   renderTextResult(value: string): unknown {

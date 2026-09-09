@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from langchain_core.tools import BaseTool, BaseToolkit, tool
 from pydantic import Field
@@ -35,10 +35,22 @@ class SendmuxToolkit(BaseToolkit):
         >>> agent = create_agent(model="gpt-4o", tools=smx.get_tools())
     """
 
-    api_key: str = Field(
+    api_key: Optional[str] = Field(
+        default=None,
+        repr=False,
+        exclude=True,
         description=(
             "A send + receive capable mailbox API key (smx_mbx_*) or a scoped "
             "agent token. Read it from your environment; never hard-code it."
+        ),
+    )
+    access_token: str | Callable[[], str] | None = Field(
+        default=None,
+        repr=False,
+        exclude=True,
+        description=(
+            "A REST OAuth access token or a callable returning the current token. "
+            "Supply this instead of api_key."
         ),
     )
     default_from: Optional[str] = Field(
@@ -50,8 +62,8 @@ class SendmuxToolkit(BaseToolkit):
     )
 
     def get_tools(self) -> list[BaseTool]:
-        sending_client = create_sending_client(api_key=self.api_key)
-        mailbox_client = create_mailbox_client(api_key=self.api_key)
+        sending_client = create_sending_client(api_key=self.api_key, access_token=self.access_token)
+        mailbox_client = create_mailbox_client(api_key=self.api_key, access_token=self.access_token)
         emails = EmailsApi(sending_client)
         mailbox = MailboxAPIApi(mailbox_client)
         default_from = self.default_from

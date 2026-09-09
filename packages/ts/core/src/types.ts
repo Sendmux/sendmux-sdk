@@ -38,6 +38,7 @@ export interface ApiError {
 
 export interface RetryConfig {
   maxAttempts?: number;
+  maxElapsedMs?: number;
   baseDelayMs?: number;
   maxDelayMs?: number;
   maxReplayBodyBytes?: number;
@@ -45,7 +46,8 @@ export interface RetryConfig {
 }
 
 export interface SendmuxClientConfig {
-  apiKey: string | (() => string | Promise<string>);
+  apiKey?: string | (() => string | Promise<string>);
+  accessToken?: string | (() => string | Promise<string>);
   apiKeyKind?: ApiKeyKind;
   baseUrl?: string;
   fetch?: typeof fetch;

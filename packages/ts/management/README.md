@@ -14,7 +14,7 @@ Generated TypeScript client for the Sendmux Management API.
 
 ## Requirements
 
-- A root Sendmux API key with the `smx_root_*` prefix.
+- A root Sendmux API key with the `smx_root_*` prefix; alternatively, a REST OAuth grant for this surface.
 - A JavaScript runtime with the standard Fetch API.
 
 ## Installation
@@ -22,6 +22,20 @@ Generated TypeScript client for the Sendmux Management API.
 ```sh
 npm install @sendmux/management
 ```
+
+## OAuth access tokens
+
+Pass `accessToken` instead of `apiKey` for a REST OAuth token or synchronous/asynchronous provider.
+
+```ts
+import { createManagementClient } from "@sendmux/management";
+
+const client = createManagementClient({
+  accessToken: () => process.env.SENDMUX_ACCESS_TOKEN!,
+});
+```
+
+The provider runs before each request. Your application owns token storage and refresh; required scopes still apply. See [OAuth setup](https://sendmux.ai/docs/developer-tools/oauth).
 
 ## Usage
 

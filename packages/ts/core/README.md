@@ -47,7 +47,7 @@ const headers = {
 - `assertApiKeyKind` validates `smx_root_*` prefixes for root clients, send-capable `smx_mbx_*` prefixes or owner-approved Sending-resource `smx_agent_*` tokens for Sending clients, and mailbox-compatible `smx_mbx_*` or `smx_agent_*` prefixes for Mailbox clients.
 - `paginate` iterates cursor-paginated Sendmux list responses.
 - `idempotencyHeaders`, `conditionalHeaders`, and `responseEtag` cover idempotency and conditional requests.
-- `createRetryingFetch` retries safe requests and idempotent `POST` requests with replayable bodies.
+- `createRetryingFetch` retries safe requests and idempotent `POST` requests with replayable bodies. It honours `retryable: false` and server retry delays; when a delay exceeds the configured deadline or runtime limit, it returns the response instead of retrying early.
 - `SendmuxApiError`, `mapApiError`, and `createErrorInterceptor` normalise API errors.
 
 ## Support

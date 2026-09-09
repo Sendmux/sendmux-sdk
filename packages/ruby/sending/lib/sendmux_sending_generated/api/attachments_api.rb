@@ -172,7 +172,7 @@ module Sendmux::Sending::Generated
       return_type = opts[:debug_return_type] || 'AttachmentUploadIntentResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['BearerAuth']
+      auth_names = opts[:debug_auth_names] || ['OAuth2', 'BearerAuth']
 
       new_options = opts.merge(
         :operation => :"AttachmentsApi.sending_create_attachment_upload",
@@ -240,7 +240,7 @@ module Sendmux::Sending::Generated
       return_type = opts[:debug_return_type] || 'AttachmentUploadResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['BearerAuth']
+      auth_names = opts[:debug_auth_names] || ['OAuth2', 'BearerAuth']
 
       new_options = opts.merge(
         :operation => :"AttachmentsApi.sending_get_attachment",
@@ -348,7 +348,7 @@ module Sendmux::Sending::Generated
       return_type = opts[:debug_return_type] || 'AttachmentUploadResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['BearerAuth']
+      auth_names = opts[:debug_auth_names] || ['OAuth2', 'BearerAuth']
 
       new_options = opts.merge(
         :operation => :"AttachmentsApi.sending_upload_attachment",

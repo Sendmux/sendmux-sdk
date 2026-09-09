@@ -130,6 +130,24 @@ async fn main() -> sendmux::Result<()> {
 }
 ```
 
+## OAuth Access Tokens
+
+Each surface client provides `new_with_access_token` for a bare token string and `new_with_token_provider` for an asynchronous provider. The provider runs for each request, including requests from cloned clients. Your application owns token storage, expiry checks and refresh coordination.
+
+```rust,no_run
+#[tokio::main]
+async fn main() -> sendmux::Result<()> {
+    let client = sendmux::management::ManagementClient::new_with_token_provider(|| async {
+        Ok(std::env::var("SENDMUX_ACCESS_TOKEN").expect("access token is configured"))
+    })?;
+    let connection = client.get_connection().await?;
+    println!("{}", connection.data.label);
+    Ok(())
+}
+```
+
+Use a REST access token with the operation's required scopes and mailbox access. The API-key constructors retain their prefix checks. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## API Keys
 
 Do not hard-code API keys or commit them to source control.

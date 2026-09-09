@@ -1,13 +1,17 @@
 package core
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"io"
 	"math/big"
+	"mime"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -74,9 +78,13 @@ func (t *retryingTransport) RoundTrip(req *http.Request) (*http.Response, error)
 
 		lastResponse = response
 		lastErr = err
+		delay := retryDelay(response, attempt, t.options)
+		if deadline, ok := req.Context().Deadline(); ok && response != nil && delay >= time.Until(deadline) {
+			return response, nil
+		}
 		closeResponse(response)
 
-		if err := sleepWithContext(req.Context(), retryDelay(response, attempt, t.options)); err != nil {
+		if err := sleepWithContext(req.Context(), delay); err != nil {
 			return nil, err
 		}
 	}
@@ -159,10 +167,41 @@ func shouldRetry(response *http.Response, err error, attempt int, maxAttempts in
 		http.StatusBadGateway,
 		http.StatusServiceUnavailable,
 		http.StatusGatewayTimeout:
-		return true
+		return responseAllowsRetry(response)
 	default:
 		return false
 	}
+}
+
+func responseAllowsRetry(response *http.Response) bool {
+	mediaType, _, _ := mime.ParseMediaType(response.Header.Get("Content-Type"))
+	if response.Body == nil || mediaType != "application/json" || response.Header.Get("Content-Encoding") != "" {
+		return true
+	}
+	const limit = 64 * 1024
+	body := response.Body
+	reader := bufio.NewReaderSize(body, limit+1)
+	response.Body = struct {
+		io.Reader
+		io.Closer
+	}{reader, body}
+	prefix, err := reader.Peek(limit + 1)
+	if err != nil && err != io.EOF {
+		return false
+	}
+	if len(prefix) > limit {
+		return true
+	}
+	var envelope struct {
+		OK    *bool `json:"ok"`
+		Error struct {
+			Retryable *bool `json:"retryable"`
+		} `json:"error"`
+	}
+	if json.Unmarshal(prefix, &envelope) != nil {
+		return true
+	}
+	return envelope.OK == nil || *envelope.OK || envelope.Error.Retryable == nil || *envelope.Error.Retryable
 }
 
 func retryDelay(response *http.Response, attempt int, options RetryOptions) time.Duration {
@@ -185,12 +224,17 @@ func retryAfterDelay(response *http.Response) (time.Duration, bool) {
 		return 0, false
 	}
 
-	value := response.Header.Get("Retry-After")
+	value := strings.TrimSpace(response.Header.Get("Retry-After"))
 	if value == "" {
 		return 0, false
 	}
 
-	if seconds, err := strconv.Atoi(value); err == nil {
+	if strings.IndexFunc(value, func(r rune) bool { return r < '0' || r > '9' }) == -1 {
+		seconds, err := strconv.ParseUint(value, 10, 64)
+		const maxDelay = time.Duration(1<<63 - 1)
+		if err != nil || seconds > uint64(maxDelay/time.Second) {
+			return maxDelay, true
+		}
 		return time.Duration(seconds) * time.Second, true
 	}
 

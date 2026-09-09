@@ -8,6 +8,7 @@ import {
 import {
   isActiveAgentProfile,
   isApiKeyProfile,
+  isOAuthProfile,
   readCliConfig,
 } from "../../profiles.js";
 
@@ -33,7 +34,9 @@ export default class ProfilesShow extends SendmuxCommand {
       this.error(`Sendmux profile "${profileName}" was not found.`, { exit: 2 });
     }
 
-    const data = isApiKeyProfile(profile)
+    const data = isOAuthProfile(profile)
+      ? { name: profileName, type: "oauth", status: profile.state, default: profileName === config.defaultProfile, ...(profile.state === "authorizing" ? {} : { scopes: profile.scopes }) }
+      : isApiKeyProfile(profile)
       ? {
           api_key: maskApiKey(profile.apiKey),
           default: profileName === config.defaultProfile,

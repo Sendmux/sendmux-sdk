@@ -1317,16 +1317,16 @@ export type MailboxStreamEventsData = {
     path?: never;
     query?: {
         /**
+         * Select a granted mailbox when using an OAuth token with multiple mailboxes.
+         */
+        mailbox_id?: string;
+        /**
          * Comma-separated list: message.received, message.received.spam.
          */
         event_types?: string;
         last_event_id?: string;
         ping?: number;
         close_after?: number;
-        /**
-         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
-         */
-        mailbox_id?: string;
     };
     url: '/mailbox/events';
 };
@@ -1643,7 +1643,7 @@ export type MailboxListIdentitiesErrors = {
      */
     401: ApiError;
     /**
-     * Mailbox API key required
+     * Mailbox API access required
      */
     403: ApiError;
 };
@@ -1677,7 +1677,7 @@ export type MailboxGetIdentityErrors = {
      */
     401: ApiError;
     /**
-     * Mailbox API key required
+     * Mailbox API access required
      */
     403: ApiError;
     /**
@@ -1719,7 +1719,7 @@ export type MailboxUpdateIdentityErrors = {
      */
     401: ApiError;
     /**
-     * Mailbox API key required
+     * Mailbox API access required
      */
     403: ApiError;
     /**
@@ -1947,7 +1947,7 @@ export type MailboxListMessagesErrors = {
      */
     401: ApiError;
     /**
-     * Mailbox API key required
+     * Mailbox API access required
      */
     403: ApiError;
 };
@@ -2854,7 +2854,7 @@ export type MailboxGetSessionErrors = {
      */
     401: ApiError;
     /**
-     * Mailbox API key required
+     * Mailbox API access required
      */
     403: ApiError;
     /**
@@ -3052,7 +3052,7 @@ export type MailboxListThreadsErrors = {
      */
     401: ApiError;
     /**
-     * Mailbox API key required
+     * Mailbox API access required
      */
     403: ApiError;
 };

@@ -293,6 +293,7 @@ class MetaApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'OAuth2',
             'BearerAuth'
         ]
 

@@ -17,6 +17,8 @@ Generated Python client for the Sendmux Sending API.
 - Python 3.10 or newer.
 - A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
 
+For OAuth, use a REST access token with the scopes and mailbox access required by the operation. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Installation
 
 ```sh
@@ -35,6 +37,20 @@ from sendmux_sending import MetaApi, create_sending_client
 with create_sending_client(api_key=os.environ["SENDMUX_SENDING_API_KEY"]) as client:
     connection = MetaApi(client).sending_get_connection()
     print(connection.data.label)
+```
+
+## OAuth access tokens
+
+Pass either `api_key` or `access_token`. `access_token` accepts a bare token string or a synchronous callable; the callable is evaluated for each authenticated request. Your application owns token storage, expiry checks and refresh coordination.
+
+```python
+import os
+
+from sendmux_sending import create_sending_client
+
+client = create_sending_client(
+    access_token=lambda: os.environ["SENDMUX_ACCESS_TOKEN"]
+)
 ```
 
 ## Usage

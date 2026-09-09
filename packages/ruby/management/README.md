@@ -18,6 +18,8 @@ Ruby SDK package for the Sendmux Management API.
 - Ruby 3.1 or newer.
 - A root Sendmux API key beginning with `smx_root_`.
 
+For OAuth, use a REST access token with the scopes and mailbox access required by the operation. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Installation
 
 ```sh
@@ -30,9 +32,21 @@ Or add it to your Gemfile:
 gem "sendmux-management", "~> 1.0"
 ```
 
+## OAuth access tokens
+
+Pass either `api_key:` or `access_token:`. `access_token:` accepts a bare token string or a callable; the callable is evaluated once per authenticated request. Your application owns token storage, expiry checks and refresh coordination.
+
+```ruby
+require "sendmux/management"
+
+client = Sendmux::Management::Client.new(
+  access_token: -> { ENV.fetch("SENDMUX_ACCESS_TOKEN") }
+)
+```
+
 ## Usage
 
-Create a management client with a root key before calling generated operations.
+Create a management client with a root key for the API-key example below.
 
 ```ruby
 require "sendmux/management"

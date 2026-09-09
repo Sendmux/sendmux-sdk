@@ -1,8 +1,26 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+import re
+from typing import Any, Callable, Literal
 
 ApiKeySurface = Literal["root", "mailbox", "sending"]
+AccessToken = str | Callable[[], str]
+
+
+def resolve_access_token(access_token: AccessToken) -> str:
+    token = access_token() if callable(access_token) else access_token
+    if not isinstance(token, str) or not re.fullmatch(r"[A-Za-z0-9._~+/-]+=*", token):
+        raise ValueError("Expected a non-empty bearer token without a scheme or whitespace")
+    return token
+
+
+def validate_auth(*, api_key: str | None, access_token: AccessToken | None, surface: ApiKeySurface) -> None:
+    if (api_key is None) == (access_token is None):
+        raise ValueError("Provide exactly one of api_key or access_token")
+    if api_key is not None:
+        validate_api_key(api_key, surface=surface)
+    elif access_token is not None and not callable(access_token):
+        resolve_access_token(access_token)
 
 
 def validate_api_key(api_key: str, *, surface: ApiKeySurface) -> None:

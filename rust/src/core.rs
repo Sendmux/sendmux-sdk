@@ -4,6 +4,9 @@ use reqwest::{Client, Method, StatusCode};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 use thiserror::Error;
 use url::Url;
 
@@ -58,6 +61,18 @@ pub fn validate_api_key(api_key: &str, surface: ApiKeySurface) -> Result<()> {
         }
         _ => Ok(()),
     }
+}
+
+fn validate_access_token(token: &str) -> Result<()> {
+    let value = token.trim_end_matches('=');
+    if value.is_empty()
+        || !value.bytes().all(|byte| {
+            byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'.' | b'_' | b'~' | b'+' | b'/')
+        })
+    {
+        return Err(Error::InvalidAccessToken);
+    }
+    Ok(())
 }
 
 /// HTTP response wrapper returned by SDK operations.
@@ -156,6 +171,8 @@ pub enum Error {
     InvalidApiKey,
     #[error("sendmux: {expected} API key has the wrong prefix")]
     InvalidApiKeySurface { expected: ApiKeySurface },
+    #[error("sendmux: a valid bare access token is required")]
+    InvalidAccessToken,
     #[error("sendmux: invalid base URL")]
     InvalidBaseUrl(#[from] url::ParseError),
     #[error("sendmux: base URL cannot be used for path segments")]
@@ -228,10 +245,18 @@ pub struct ErrorIssue {
 }
 
 #[derive(Clone)]
+enum Credential {
+    Static(String),
+    Provider(Arc<dyn Fn() -> TokenFuture + Send + Sync>),
+}
+
+type TokenFuture = Pin<Box<dyn Future<Output = Result<String>> + Send>>;
+
+#[derive(Clone)]
 pub(crate) struct Transport {
     client: Client,
     base_url: Url,
-    api_key: String,
+    credential: Credential,
     user_agent: HeaderValue,
 }
 
@@ -243,11 +268,31 @@ impl Transport {
     ) -> Result<Self> {
         let api_key = api_key.into();
         validate_api_key(&api_key, surface)?;
+        Self::with_credential(Credential::Static(api_key), base_url)
+    }
 
+    pub(crate) fn new_with_access_token(token: impl Into<String>, base_url: &str) -> Result<Self> {
+        let token = token.into();
+        validate_access_token(&token)?;
+        Self::with_credential(Credential::Static(token), base_url)
+    }
+
+    pub(crate) fn new_with_token_provider<F, Fut>(provider: F, base_url: &str) -> Result<Self>
+    where
+        F: Fn() -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<String>> + Send + 'static,
+    {
+        Self::with_credential(
+            Credential::Provider(Arc::new(move || Box::pin(provider()))),
+            base_url,
+        )
+    }
+
+    fn with_credential(credential: Credential, base_url: &str) -> Result<Self> {
         Ok(Self {
             client: Client::new(),
             base_url: normalize_base_url(base_url)?,
-            api_key,
+            credential,
             user_agent: HeaderValue::from_static(concat!(
                 "sendmux-rust/",
                 env!("CARGO_PKG_VERSION")
@@ -379,7 +424,7 @@ impl Transport {
         let mut request = self
             .client
             .request(method, self.url(path)?)
-            .headers(self.default_headers()?);
+            .headers(self.default_headers().await?);
 
         if let Some(options) = options {
             request = apply_options(request, options)?;
@@ -403,13 +448,20 @@ impl Transport {
         Ok((status, headers, bytes.to_vec()))
     }
 
-    fn default_headers(&self) -> Result<HeaderMap> {
+    async fn default_headers(&self) -> Result<HeaderMap> {
+        let token = match &self.credential {
+            Credential::Static(token) => token.clone(),
+            Credential::Provider(provider) => {
+                let token = provider().await?;
+                validate_access_token(&token)?;
+                token
+            }
+        };
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, self.user_agent.clone());
-        headers.insert(
-            AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {}", self.api_key))?,
-        );
+        let mut authorization = HeaderValue::from_str(&format!("Bearer {token}"))?;
+        authorization.set_sensitive(true);
+        headers.insert(AUTHORIZATION, authorization);
         Ok(headers)
     }
 

@@ -27,12 +27,18 @@ final class ClientFactory
         return $configured;
     }
 
-    public static function httpClient(?RetryOptions $retryOptions = null): ClientInterface
-    {
+    /** @param string|callable(): string|null $accessToken */
+    public static function httpClient(
+        ?RetryOptions $retryOptions = null,
+        string|callable|null $accessToken = null
+    ): ClientInterface {
         $stack = HandlerStack::create();
         $stack->push(RetryMiddleware::create($retryOptions), 'sendmux_retry');
+        if ($accessToken !== null) {
+            $stack->push(Auth::accessTokenMiddleware($accessToken), 'sendmux_oauth');
+        }
 
-        return new Client(['handler' => $stack]);
+        return new Client(['handler' => $stack, 'allow_redirects' => $accessToken === null]);
     }
 
     public static function createMailboxAPIApi(
@@ -43,6 +49,23 @@ final class ClientFactory
         return new MailboxAPIApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createMailboxAPIApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): MailboxAPIApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new MailboxAPIApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 }

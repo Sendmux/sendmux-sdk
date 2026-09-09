@@ -28,6 +28,20 @@ Optional umbrella package for the Sendmux TypeScript SDK.
 npm install @sendmux/sdk
 ```
 
+## OAuth access tokens
+
+Each surface client also accepts `accessToken`: a bare token string or a synchronous or asynchronous provider. Pass either `apiKey` or `accessToken`. The provider runs for each authenticated request; your application owns token storage and refresh coordination.
+
+```ts
+import { management } from "@sendmux/sdk";
+
+const client = management.createManagementClient({
+  accessToken: () => process.env.SENDMUX_ACCESS_TOKEN!,
+});
+```
+
+Use a REST access token with the operation's required scopes and mailbox access. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Usage
 
 ```ts

@@ -11,10 +11,7 @@ import {
 import type { OperationDefinition } from "./operation-types.js";
 
 type SdkOperation = (options: Record<string, unknown>) => Promise<unknown>;
-type ClientFactory = (config: {
-  apiKey: string;
-  baseUrl?: string;
-}) => unknown;
+type ClientFactory = (config: sdk.core.SurfaceClientConfig) => unknown;
 type MailboxClient = ReturnType<typeof sdk.mailbox.createMailboxClient>;
 type SendingClient = ReturnType<typeof sdk.sending.createSendingClient>;
 
@@ -45,7 +42,7 @@ export async function runSdkOperation(
     const auth = await command.resolveAuth(flags, operation.requiredKeyKind);
     baseUrl = auth.baseUrl;
     client = clientFactories[operation.surface]({
-      apiKey: auth.apiKey,
+      ...(auth.apiKeyKind === "oauth" ? { accessToken: auth.accessToken } : { apiKey: auth.apiKey }),
       ...(baseUrl ? { baseUrl } : {}),
     });
   }

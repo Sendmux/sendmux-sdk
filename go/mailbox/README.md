@@ -20,6 +20,18 @@ import "sendmux.ai/go/mailbox"
 
 Use a mailbox-scoped `smx_mbx_` key or a scoped `smx_agent_` token. `mailbox.New` validates the prefix before creating the client.
 
+### OAuth access tokens
+
+Use `mailbox.NewWithAccessToken` for a bare token string, or `mailbox.NewWithTokenProvider` for a function with signature `func(context.Context) (string, error)`. The provider runs for each authenticated request and receives that request's context. Your application owns token storage, expiry checks and refresh coordination.
+
+```go
+client, err := mailbox.NewWithTokenProvider(func(ctx context.Context) (string, error) {
+    return os.Getenv("SENDMUX_ACCESS_TOKEN"), nil
+})
+```
+
+Use a REST access token with the operation's required scopes and mailbox access. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Quickstart
 
 ```go

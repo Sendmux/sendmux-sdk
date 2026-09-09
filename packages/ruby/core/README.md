@@ -15,7 +15,7 @@ Shared authentication, retry, pagination, header, and error helpers for the Send
 ## Requirements
 
 - Ruby 3.1 or newer.
-- A Sendmux API key when using the helpers with a surface client.
+- A Sendmux API key or REST OAuth access token when using a surface client.
 
 ## Installation
 
@@ -45,6 +45,8 @@ puts surface
 ```
 
 Use `Sendmux::Core::ApiKeySurface::ROOT` for root-key management clients, `Sendmux::Core::ApiKeySurface::SENDING` for send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens, and `Sendmux::Core::ApiKeySurface::MAILBOX` for mailbox-compatible credentials. Mailbox-compatible credentials can start with `smx_mbx_` or `smx_agent_`.
+
+Surface clients accept `access_token:` as a bare token or callable instead of `api_key:`. Token providers run before each request; the application owns token storage and refresh.
 
 ### Header helpers
 

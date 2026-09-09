@@ -336,6 +336,7 @@ class EmailsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'OAuth2',
             'BearerAuth'
         ]
 
@@ -652,6 +653,7 @@ class EmailsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'OAuth2',
             'BearerAuth'
         ]
 

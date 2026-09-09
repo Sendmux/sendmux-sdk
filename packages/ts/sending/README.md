@@ -14,7 +14,7 @@ Generated TypeScript client for the Sendmux Sending API.
 
 ## Requirements
 
-- A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
+- A send-capable `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token; alternatively, a REST OAuth grant for this surface.
 - A JavaScript runtime with the standard Fetch API.
 
 ## Installation
@@ -22,6 +22,20 @@ Generated TypeScript client for the Sendmux Sending API.
 ```sh
 npm install @sendmux/sending
 ```
+
+## OAuth access tokens
+
+Pass `accessToken` instead of `apiKey` for a REST OAuth token or synchronous/asynchronous provider.
+
+```ts
+import { createSendingClient } from "@sendmux/sending";
+
+const client = createSendingClient({
+  accessToken: () => process.env.SENDMUX_ACCESS_TOKEN!,
+});
+```
+
+The provider runs before each request. Your application owns token storage and refresh; required scopes still apply. See [OAuth setup](https://sendmux.ai/docs/developer-tools/oauth).
 
 ## Usage
 

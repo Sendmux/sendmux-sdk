@@ -101,6 +101,7 @@ function writeFilteredSpec(surface) {
   // nullable-downconverted artifact as OpenAPI Generator. The committed
   // snapshots remain the 3.1 source of truth.
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
+  normalizeGoBearerSecurity(source);
   const allowed = new Set(surface.tags);
   const paths = {};
 
@@ -141,6 +142,29 @@ function writeFilteredSpec(surface) {
 function normalizeForOgen(value) {
   const harmonized = harmonizeResponseHeaders(value);
   return normalizeOgenNode(stripFalseAdditionalProperties(harmonized), harmonized);
+}
+
+function normalizeGoBearerSecurity(document) {
+  const schemes = document.components?.securitySchemes ?? {};
+  const bearer = Object.keys(schemes).find((name) => schemes[name].type === "http" && schemes[name].scheme === "bearer");
+  const oauth = Object.keys(schemes).find((name) => schemes[name].type === "oauth2");
+  if (!bearer || !oauth) return;
+
+  // Both credentials use the same Authorization header. Preserve existing Go
+  // security interfaces; the public spec and server retain OAuth scope policy.
+  for (const owner of [document, ...Object.values(document.paths ?? {}).flatMap((item) => Object.values(item))]) {
+    const security = owner?.security;
+    if (!security?.some((requirement) => oauth in requirement)) continue;
+    if (
+      security.length !== 2 ||
+      !security.every((requirement) => Object.keys(requirement).length === 1) ||
+      !security.some((requirement) => Array.isArray(requirement[bearer]) && requirement[bearer].length === 0)
+    ) {
+      throw new Error("Go OAuth compatibility requires an alternative HTTP Bearer scheme.");
+    }
+    owner.security = [{ [bearer]: [] }];
+  }
+  delete schemes[oauth];
 }
 
 function harmonizeResponseHeaders(document) {
@@ -400,17 +424,25 @@ const DefaultBaseURL = "${surface.defaultBaseUrl}"
 
 import (
 \t"context"
+\t"errors"
 \t"net/http"
 
 \t"sendmux.ai/go/core"
 )
 
 type securitySource struct {
-\tapiKey string
+\tprovider func(context.Context) (string, error)
 }
 
-func (s securitySource) BearerAuth(_ context.Context, _ OperationName) (BearerAuth, error) {
-\treturn BearerAuth{Token: s.apiKey}, nil
+func (s securitySource) BearerAuth(ctx context.Context, _ OperationName) (BearerAuth, error) {
+\ttoken, err := s.provider(ctx)
+\tif err != nil {
+\t\treturn BearerAuth{}, err
+\t}
+\tif err := core.ValidateAccessToken(token); err != nil {
+\t\treturn BearerAuth{}, err
+\t}
+\treturn BearerAuth{Token: token}, nil
 }
 
 type sendmuxClientConfig struct {
@@ -447,22 +479,35 @@ func WithRetryOptions(options core.RetryOptions) SendmuxOption {
 \t}
 }
 
-// New returns a Sendmux ${surface.description} client.
+// New returns a Sendmux ${surface.description} client authenticated with an API key.
 func New(apiKey string, opts ...SendmuxOption) (*Client, error) {
 \tif err := core.ValidateAPIKey(apiKey, core.KeySurface${packageTitle(surface.keySurface)}); err != nil {
 \t\treturn nil, err
 \t}
+\treturn NewWithTokenProvider(func(context.Context) (string, error) { return apiKey, nil }, opts...)
+}
 
-\tconfig := sendmuxClientConfig{
-\t\tbaseURL: DefaultBaseURL,
+// NewWithAccessToken returns a client authenticated with an OAuth access token.
+func NewWithAccessToken(token string, opts ...SendmuxOption) (*Client, error) {
+\tif err := core.ValidateAccessToken(token); err != nil {
+\t\treturn nil, err
 \t}
+\treturn NewWithTokenProvider(func(context.Context) (string, error) { return token, nil }, opts...)
+}
+
+// NewWithTokenProvider resolves an OAuth access token for each API request.
+// The provider must be safe for concurrent calls.
+func NewWithTokenProvider(provider func(context.Context) (string, error), opts ...SendmuxOption) (*Client, error) {
+\tif provider == nil {
+\t\treturn nil, errors.New("sendmux: token provider is required")
+\t}
+\tconfig := sendmuxClientConfig{baseURL: DefaultBaseURL}
 \tfor _, opt := range opts {
 \t\topt(&config)
 \t}
-
 \treturn NewClient(
 \t\tconfig.baseURL,
-\t\tsecuritySource{apiKey: apiKey},
+\t\tsecuritySource{provider: provider},
 \t\tWithClient(core.NewHTTPClient(config.httpClient, config.retryOptions)),
 \t)
 }

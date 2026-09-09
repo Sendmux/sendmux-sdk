@@ -43,10 +43,10 @@ headers = {
 ## Helpers
 
 - `validate_api_key` checks `smx_root_*` prefixes for root clients, send-capable `smx_mbx_*` prefixes or owner-approved Sending-resource `smx_agent_*` tokens for Sending clients, and mailbox-compatible `smx_mbx_*` or `smx_agent_*` prefixes for Mailbox clients.
-- `configure_auth` applies bearer auth to generated client configuration objects.
+- `configure_auth` applies API-key bearer auth to generated client configuration objects. Surface factories also accept `access_token` as a bare token or callable; do not set both credential options.
 - `idempotency_headers` and `conditional_headers` prepare request headers.
 - `iter_cursor_pages` iterates cursor-paginated list responses.
-- `RetryOptions` configures retry behaviour for generated clients.
+- `RetryOptions` configures retry behaviour for generated clients. A single retry layer honours `retryable: false`, server retry delays and the total retry deadline.
 - `SendmuxApiError` normalises API errors and request IDs.
 
 ## Support

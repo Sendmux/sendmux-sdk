@@ -29,12 +29,18 @@ final class ClientFactory
         return $configured;
     }
 
-    public static function httpClient(?RetryOptions $retryOptions = null): ClientInterface
-    {
+    /** @param string|callable(): string|null $accessToken */
+    public static function httpClient(
+        ?RetryOptions $retryOptions = null,
+        string|callable|null $accessToken = null
+    ): ClientInterface {
         $stack = HandlerStack::create();
         $stack->push(RetryMiddleware::create($retryOptions), 'sendmux_retry');
+        if ($accessToken !== null) {
+            $stack->push(Auth::accessTokenMiddleware($accessToken), 'sendmux_oauth');
+        }
 
-        return new Client(['handler' => $stack]);
+        return new Client(['handler' => $stack, 'allow_redirects' => $accessToken === null]);
     }
 
     public static function createAttachmentsApi(
@@ -45,6 +51,23 @@ final class ClientFactory
         return new AttachmentsApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createAttachmentsApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): AttachmentsApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new AttachmentsApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 
@@ -59,6 +82,23 @@ final class ClientFactory
         );
     }
 
+    /** @param string|callable(): string $accessToken */
+    public static function createEmailsApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): EmailsApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new EmailsApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
+        );
+    }
+
     public static function createMetaApi(
         string $apiKey,
         ?string $baseUrl = null,
@@ -67,6 +107,23 @@ final class ClientFactory
         return new MetaApi(
             self::httpClient($retryOptions),
             self::configuration($apiKey, $baseUrl)
+        );
+    }
+
+    /** @param string|callable(): string $accessToken */
+    public static function createMetaApiWithAccessToken(
+        string|callable $accessToken,
+        ?string $baseUrl = null,
+        ?RetryOptions $retryOptions = null
+    ): MetaApi {
+        $configuration = new Configuration();
+        if ($baseUrl !== null && $baseUrl !== '') {
+            $configuration->setHost($baseUrl);
+        }
+
+        return new MetaApi(
+            self::httpClient($retryOptions, $accessToken),
+            $configuration
         );
     }
 }

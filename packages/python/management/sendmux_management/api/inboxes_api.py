@@ -288,6 +288,7 @@ class InboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -616,33 +617,33 @@ class InboxesApi:
         # process the path parameters
         # process the query parameters
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if mailbox_id is not None:
-            
+
             _query_params.append(('mailbox_id', mailbox_id))
-            
+
         if event_type is not None:
-            
+
             _query_params.append(('event_type', event_type))
-            
+
         if from_date is not None:
-            
+
             _query_params.append(('from_date', from_date))
-            
+
         if to_date is not None:
-            
+
             _query_params.append(('to_date', to_date))
-            
+
         if search is not None:
-            
+
             _query_params.append(('search', search))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -659,6 +660,7 @@ class InboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

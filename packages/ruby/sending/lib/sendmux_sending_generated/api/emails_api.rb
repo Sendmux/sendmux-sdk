@@ -75,7 +75,7 @@ module Sendmux::Sending::Generated
       return_type = opts[:debug_return_type] || 'SendSuccessResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['BearerAuth']
+      auth_names = opts[:debug_auth_names] || ['OAuth2', 'BearerAuth']
 
       new_options = opts.merge(
         :operation => :"EmailsApi.sending_send_email",
@@ -150,7 +150,7 @@ module Sendmux::Sending::Generated
       return_type = opts[:debug_return_type] || 'BatchSendSuccessResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['BearerAuth']
+      auth_names = opts[:debug_auth_names] || ['OAuth2', 'BearerAuth']
 
       new_options = opts.merge(
         :operation => :"EmailsApi.sending_send_email_batch",

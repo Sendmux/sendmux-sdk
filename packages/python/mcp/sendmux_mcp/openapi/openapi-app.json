@@ -8135,6 +8135,68 @@
         "description": "Sendmux API key. Use a root API key for Management API routes, or a mailbox credential for Mailbox API routes. Obtain keys from the dashboard under API Keys.",
         "scheme": "bearer",
         "type": "http"
+      },
+      "oauth2": {
+        "description": "Use the authorisation-code flow with S256 PKCE and resource=https://sendmux.ai/api. The user selects the team, API access and mailboxes during consent. OAuth access tokens authenticate HTTP API requests; use separate credentials for SMTP and IMAP.",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://app.sendmux.ai/oauth/authorize",
+            "refreshUrl": "https://app.sendmux.ai/oauth/token",
+            "scopes": {
+              "analytics.*": "All analytics operations",
+              "analytics.read": "View key usage analytics and verification logs",
+              "billing.*": "All billing operations",
+              "billing.auto_topup": "Configure auto top-up settings",
+              "billing.read": "View balance, transactions, invoices",
+              "billing.topup": "Purchase balance top-ups",
+              "domain.*": "All domain operations",
+              "domain.create": "Add sending domains",
+              "domain.delete": "Remove domains",
+              "domain.read": "List/view domains and DNS status",
+              "domain.verify": "Trigger domain verification",
+              "email.receive": "Authorise email reception",
+              "email.send": "Send email through the HTTP API",
+              "key.*": "All key management operations",
+              "key.create": "Create new API keys (both root and mailbox)",
+              "key.read": "List/view API keys and their metadata",
+              "key.revoke": "Revoke API keys",
+              "key.rotate": "Rotate API keys",
+              "logs.*": "All log operations",
+              "logs.read": "View delivery logs",
+              "mailbox.admin.*": "All mailbox admin operations",
+              "mailbox.admin.create": "Create mailboxes (admin-level)",
+              "mailbox.admin.delete": "Delete mailboxes (admin-level)",
+              "mailbox.admin.manage": "Manage all mailbox settings",
+              "mailbox.admin.read": "List/view mailboxes (admin-level)",
+              "mailbox.read": "Read mailbox contents (folders, messages)",
+              "mailbox.settings.update": "Update own mailbox settings (signature, auto-reply)",
+              "provider.*": "All provider operations",
+              "provider.create": "Add email provider accounts (Google, Microsoft, SMTP)",
+              "provider.delete": "Remove provider accounts",
+              "provider.read": "List/view provider accounts and connection status",
+              "provider.update": "Update provider settings, refresh tokens",
+              "routing.*": "All routing operations",
+              "routing.create": "Create delivery groups",
+              "routing.delete": "Remove delivery groups",
+              "routing.read": "List/view delivery groups and routing rules",
+              "routing.update": "Update delivery group configuration",
+              "team.*": "All team operations",
+              "team.members.invite": "Invite team members",
+              "team.members.remove": "Remove team members",
+              "team.members.roles": "Change member roles",
+              "team.read": "View team settings and members",
+              "team.update": "Update team settings",
+              "webhook.*": "All webhook operations",
+              "webhook.create": "Create webhook subscriptions",
+              "webhook.delete": "Delete webhook subscriptions",
+              "webhook.manage": "Rotate signing secret + send test events",
+              "webhook.read": "List/view webhook subscriptions",
+              "webhook.update": "Update webhook URL, event types, enabled flag"
+            },
+            "tokenUrl": "https://app.sendmux.ai/oauth/token"
+          }
+        },
+        "type": "oauth2"
       }
     }
   },
@@ -8184,6 +8246,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "billing.read"
+            ]
           }
         ],
         "summary": "Get current balance",
@@ -8247,6 +8314,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "billing.read"
+            ]
           }
         ],
         "summary": "Get spend summary",
@@ -8331,6 +8403,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "billing.read"
+            ]
           }
         ],
         "summary": "List transactions",
@@ -8400,6 +8477,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.read"
+            ]
           }
         ],
         "summary": "List mailbox domains",
@@ -8516,6 +8598,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.create"
+            ]
           }
         ],
         "summary": "Add a mailbox domain",
@@ -8603,6 +8690,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.delete"
+            ]
           }
         ],
         "summary": "Delete a mailbox domain",
@@ -8679,6 +8771,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.read"
+            ]
           }
         ],
         "summary": "Get a mailbox domain",
@@ -8806,6 +8903,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.create"
+            ]
           }
         ],
         "summary": "Update a mailbox domain",
@@ -8903,6 +9005,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Get domain-wide sender filters",
@@ -9025,6 +9132,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Replace domain-wide sender filters",
@@ -9112,6 +9224,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.verify"
+            ]
           }
         ],
         "summary": "Verify a mailbox domain",
@@ -9169,6 +9286,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "domain.read"
+            ]
           }
         ],
         "summary": "Download a domain as a zone file",
@@ -9289,6 +9411,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "logs.read"
+            ]
           }
         ],
         "summary": "List delivery logs",
@@ -9386,6 +9513,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "logs.read"
+            ]
           }
         ],
         "summary": "Get delivery log",
@@ -9489,6 +9621,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "analytics.read"
+            ]
           }
         ],
         "summary": "Get email metrics",
@@ -9606,6 +9743,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "logs.read"
+            ]
           }
         ],
         "summary": "List incoming logs",
@@ -9674,6 +9816,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "logs.read"
+            ]
           }
         ],
         "summary": "Get incoming log",
@@ -9684,7 +9831,7 @@
     },
     "/mailbox/attachment-uploads": {
       "post": {
-        "description": "Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.",
+        "description": "Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.",
         "operationId": "mailboxCreateAttachmentUpload",
         "parameters": [
           {
@@ -9751,6 +9898,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Create a presigned mailbox attachment upload",
@@ -9839,6 +9991,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Upload a mailbox attachment",
@@ -9977,6 +10134,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get mailbox changes",
@@ -10115,6 +10277,9 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": []
           }
         ],
         "summary": "Get Mailbox connection",
@@ -10128,6 +10293,15 @@
         "description": "Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.",
         "operationId": "mailboxStreamEvents",
         "parameters": [
+          {
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "description": "Select a granted mailbox when using an OAuth token with multiple mailboxes.",
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "event_types",
@@ -10168,15 +10342,6 @@
           {
             "in": "header",
             "name": "Last-Event-ID",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
-            "in": "query",
-            "name": "mailbox_id",
             "required": false,
             "schema": {
               "type": "string"
@@ -10248,6 +10413,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Stream mailbox events",
@@ -10306,6 +10476,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List mailbox folders",
@@ -10381,6 +10556,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Create a mailbox folder",
@@ -10445,6 +10625,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Delete a mailbox folder",
@@ -10510,6 +10695,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get a mailbox folder",
@@ -10611,6 +10801,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Update a mailbox folder",
@@ -10677,6 +10872,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get folder changes",
@@ -10743,6 +10943,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get folder query changes",
@@ -10825,12 +11030,17 @@
                 }
               }
             },
-            "description": "Mailbox API key required"
+            "description": "Mailbox API access required"
           }
         },
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List mailbox sender identities",
@@ -10883,7 +11093,7 @@
                 }
               }
             },
-            "description": "Mailbox API key required"
+            "description": "Mailbox API access required"
           },
           "503": {
             "content": {
@@ -10899,6 +11109,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get mailbox sender identity",
@@ -10968,7 +11183,7 @@
                 }
               }
             },
-            "description": "Mailbox API key required"
+            "description": "Mailbox API access required"
           },
           "413": {
             "content": {
@@ -11004,6 +11219,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Update mailbox sender identity",
@@ -11082,6 +11302,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List granted mailboxes",
@@ -11092,7 +11317,7 @@
     },
     "/mailbox/me": {
       "get": {
-        "description": "Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.\n\nResponses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.",
+        "description": "Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.\n\nResponses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.",
         "operationId": "mailboxGetMe",
         "parameters": [
           {
@@ -11179,6 +11404,9 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": []
           }
         ],
         "summary": "Self-introspect the calling mailbox",
@@ -11189,7 +11417,7 @@
     },
     "/mailbox/messages": {
       "get": {
-        "description": "Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.",
+        "description": "Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.",
         "operationId": "mailboxListMessages",
         "parameters": [
           {
@@ -11464,12 +11692,17 @@
                 }
               }
             },
-            "description": "Mailbox API key required"
+            "description": "Mailbox API access required"
           }
         },
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List mailbox messages",
@@ -11547,6 +11780,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Batch delete mailbox messages",
@@ -11624,6 +11862,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Batch get mailbox messages",
@@ -11701,6 +11944,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Batch update mailbox messages",
@@ -11783,6 +12031,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Delete a mailbox message",
@@ -11850,6 +12103,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get a mailbox message",
@@ -11951,6 +12209,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.settings.update"
+            ]
           }
         ],
         "summary": "Update mailbox message flags",
@@ -12039,6 +12302,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Download a message attachment",
@@ -12143,6 +12411,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get raw message body",
@@ -12310,6 +12583,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get clean message content",
@@ -12531,6 +12809,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Count mailbox messages",
@@ -12805,6 +13088,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get message query changes",
@@ -13037,6 +13325,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get message search snippets",
@@ -13144,6 +13437,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Send a mailbox message",
@@ -13275,6 +13573,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List mailbox quotas",
@@ -13341,6 +13644,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get quota changes",
@@ -13405,7 +13713,7 @@
                 }
               }
             },
-            "description": "Mailbox API key required"
+            "description": "Mailbox API access required"
           },
           "503": {
             "content": {
@@ -13421,6 +13729,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get mailbox API session",
@@ -13568,6 +13881,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List mailbox submissions",
@@ -13635,6 +13953,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get a mailbox submission",
@@ -13701,6 +14024,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get submission changes",
@@ -13859,12 +14187,17 @@
                 }
               }
             },
-            "description": "Mailbox API key required"
+            "description": "Mailbox API access required"
           }
         },
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List mailbox threads",
@@ -13934,6 +14267,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get a mailbox thread",
@@ -14129,6 +14467,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get clean thread content",
@@ -14229,6 +14572,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "List thread messages",
@@ -14278,6 +14626,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
           }
         ],
         "summary": "Get mailbox usage",
@@ -14359,6 +14712,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.read"
+            ]
           }
         ],
         "summary": "List mailboxes",
@@ -14527,6 +14885,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.create"
+            ]
           }
         ],
         "summary": "Create a mailbox",
@@ -14575,6 +14938,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.delete"
+            ]
           }
         ],
         "summary": "Delete a mailbox",
@@ -14650,6 +15018,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.read"
+            ]
           }
         ],
         "summary": "Get a mailbox",
@@ -14762,6 +15135,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Update a mailbox",
@@ -14849,6 +15227,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Get mailbox sender filters",
@@ -14971,6 +15354,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Replace mailbox sender filters",
@@ -15110,6 +15498,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Create a mailbox API key",
@@ -15168,6 +15561,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Revoke a mailbox API key",
@@ -15221,7 +15619,7 @@
                 }
               }
             },
-            "description": "Root API key required"
+            "description": "Management API access required"
           },
           "404": {
             "content": {
@@ -15257,6 +15655,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Resume a mailbox",
@@ -15310,7 +15713,7 @@
                 }
               }
             },
-            "description": "Root API key required"
+            "description": "Management API access required"
           },
           "404": {
             "content": {
@@ -15346,6 +15749,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
           }
         ],
         "summary": "Suspend a mailbox",
@@ -15399,12 +15807,17 @@
                 }
               }
             },
-            "description": "Root API key with mailbox.admin.create is required"
+            "description": "Management API access with mailbox.admin.create is required"
           }
         },
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.create"
+            ]
           }
         ],
         "summary": "Check mailbox address availability",
@@ -15543,6 +15956,9 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": []
           }
         ],
         "summary": "Get Management connection",
@@ -15640,6 +16056,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.read"
+            ]
           }
         ],
         "summary": "List sending accounts",
@@ -15725,6 +16146,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.create"
+            ]
           }
         ],
         "summary": "Create an SMTP sending account",
@@ -15784,6 +16210,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.delete"
+            ]
           }
         ],
         "summary": "Delete a sending account",
@@ -15852,6 +16283,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.read"
+            ]
           }
         ],
         "summary": "Get a sending account",
@@ -15957,6 +16393,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.update"
+            ]
           }
         ],
         "summary": "Update a sending account",
@@ -16027,6 +16468,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.update"
+            ]
           }
         ],
         "summary": "Activate a sending account",
@@ -16097,6 +16543,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.update"
+            ]
           }
         ],
         "summary": "Deactivate a sending account",
@@ -16177,6 +16628,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.update"
+            ]
           }
         ],
         "summary": "Test an SMTP sending account",
@@ -16204,6 +16660,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.read"
+            ]
           }
         ],
         "summary": "Get sending account limits",
@@ -16274,6 +16735,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.create"
+            ]
           }
         ],
         "summary": "Request a sending account limit increase",
@@ -16301,6 +16767,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.read"
+            ]
           }
         ],
         "summary": "Get shared Amazon SES limit request state",
@@ -16379,6 +16850,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.update"
+            ]
           }
         ],
         "summary": "Request a shared Amazon SES daily limit increase",
@@ -16438,6 +16914,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.update"
+            ]
           }
         ],
         "summary": "Cancel a shared Amazon SES daily limit request",
@@ -16485,6 +16966,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.read"
+            ]
           }
         ],
         "summary": "Get sending account statistics",
@@ -16512,6 +16998,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "provider.read"
+            ]
           }
         ],
         "summary": "Get sending account usage",
@@ -16581,6 +17072,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.read"
+            ]
           }
         ],
         "summary": "List webhook subscriptions",
@@ -16697,6 +17193,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.create"
+            ]
           }
         ],
         "summary": "Create a webhook subscription",
@@ -16745,6 +17246,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.delete"
+            ]
           }
         ],
         "summary": "Delete a webhook subscription",
@@ -16821,6 +17327,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.read"
+            ]
           }
         ],
         "summary": "Get a webhook subscription",
@@ -16933,6 +17444,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.update"
+            ]
           }
         ],
         "summary": "Update a webhook subscription",
@@ -17066,6 +17582,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.read"
+            ]
           }
         ],
         "summary": "List webhook delivery attempts",
@@ -17143,6 +17664,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.read"
+            ]
           }
         ],
         "summary": "Get a webhook delivery payload",
@@ -17212,6 +17738,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.manage"
+            ]
           }
         ],
         "summary": "Rotate the signing secret",
@@ -17310,6 +17841,11 @@
         "security": [
           {
             "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "webhook.manage"
+            ]
           }
         ],
         "summary": "Send a synthetic test event",
@@ -17322,6 +17858,9 @@
   "security": [
     {
       "bearerAuth": []
+    },
+    {
+      "oauth2": []
     }
   ],
   "servers": [

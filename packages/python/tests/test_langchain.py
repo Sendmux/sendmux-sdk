@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import json
+from typing import Any
+from urllib.parse import urlsplit
+
+import pytest
+import urllib3
 from langchain_core.tools import BaseTool
 from sendmux_sending import EmailSendRequest
 
@@ -50,3 +56,74 @@ def test_email_send_request_builds_via_from_alias() -> None:
     )
     assert request.var_from.email == "agent@yourdomain.dev"
     assert request.to.email == "sarah@example.com"
+
+
+def test_all_tools_resolve_current_oauth_token(monkeypatch: Any) -> None:
+    requests: list[tuple[str, str]] = []
+
+    def request(
+        _pool: Any, method: str, url: str, **kwargs: Any,
+    ) -> urllib3.HTTPResponse:
+        requests.append((urlsplit(url).path, kwargs["headers"]["Authorization"]))
+        payload: dict[str, Any] = {
+            "ok": True,
+            "meta": {"request_id": "req_aaaaaaaaaaaaaaaaaaaaaaaa"},
+            "data": {"message_id": "eml_aaaaaaaaaaaaaaaaaaaaaaaa", "status": "queued"},
+        }
+        if method == "GET":
+            payload.update(data=[], pagination={"has_more": False})
+        return urllib3.HTTPResponse(
+            status=200, body=json.dumps(payload).encode(), headers={"Content-Type": "application/json"},
+        )
+
+    monkeypatch.setattr(urllib3.PoolManager, "request", request)
+    token = "oauth-first"
+    toolkit = SendmuxToolkit(access_token=lambda: token, default_from="agent@example.com")
+    tools = {tool.name: tool for tool in toolkit.get_tools()}
+    assert tools["list_messages"].invoke({"limit": 1}) == []
+    token = "oauth-second"
+    assert tools["send_email"].invoke({
+        "to": "reader@example.com", "subject": "Test", "text": "Test",
+    }).status == "queued"
+    token = "oauth-third"
+    assert tools["reply"].invoke({
+        "to": "reader@example.com", "subject": "Test", "text": "Test",
+    }).status == "queued"
+    assert requests == [
+        ("/api/v1/mailbox/messages", "Bearer oauth-first"),
+        ("/api/v1/emails/send", "Bearer oauth-second"),
+        ("/api/v1/mailbox/messages/send", "Bearer oauth-third"),
+    ]
+
+
+def test_tools_accept_static_oauth_token(monkeypatch: Any) -> None:
+    headers: list[str] = []
+
+    def request(
+        _pool: Any, _method: str, _url: str, **kwargs: Any,
+    ) -> urllib3.HTTPResponse:
+        headers.append(kwargs["headers"]["Authorization"])
+        return urllib3.HTTPResponse(status=200, headers={"Content-Type": "application/json"}, body=json.dumps({
+            "ok": True, "data": [], "meta": {"request_id": "req_aaaaaaaaaaaaaaaaaaaaaaaa"},
+            "pagination": {"has_more": False},
+        }).encode())
+
+    monkeypatch.setattr(urllib3.PoolManager, "request", request)
+    toolkit = SendmuxToolkit(access_token="oauth-static")
+    tool = next(tool for tool in toolkit.get_tools() if tool.name == "list_messages")
+    assert tool.invoke({"limit": 1}) == []
+    assert headers == ["Bearer oauth-static"]
+
+
+def test_tools_reject_ambiguous_oauth_configuration() -> None:
+    with pytest.raises(ValueError, match="exactly one of api_key or access_token"):
+        SendmuxToolkit(api_key="smx_mbx_test", access_token="oauth-static").get_tools()
+
+
+@pytest.mark.parametrize("field", ["api_key", "access_token"])
+def test_toolkit_representation_excludes_credentials(field: str) -> None:
+    secret = "smx_mbx_private_fixture" if field == "api_key" else "oauth-private-fixture"
+    toolkit = SendmuxToolkit(**{field: secret})
+    assert secret not in repr(toolkit)
+    assert field not in toolkit.model_dump()
+    assert secret not in toolkit.model_dump_json()

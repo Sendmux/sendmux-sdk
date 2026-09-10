@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.2.0...python-core-v1.3.0) (2026-09-10)
+
+
+### Features
+
+* add REST OAuth clients and CLI token lifecycle ([cc4a3aa](https://github.com/Sendmux/sendmux-sdk/commit/cc4a3aa6110378641418a94455ed5b9a986e65ff))
+
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.1.3...python-core-v1.2.0) (2026-07-01)
 
 

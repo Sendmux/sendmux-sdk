@@ -115,7 +115,8 @@ SendmuxToolkit(api_key=..., default_from=...)
 
 | Option | Required | Purpose |
 | --- | --- | --- |
-| `api_key` | yes | A send + receive mailbox key (`smx_mbx_*`) or a scoped agent token (`smx_agent_*`) |
+| `api_key` | Required unless `access_token` is set | A send + receive mailbox key (`smx_mbx_*`) or a scoped agent token (`smx_agent_*`) |
+| `access_token` | Required unless `api_key` is set | A bare REST OAuth token or callable returning the current token; supply exactly one credential option |
 | `default_from` | no | Default sender for `send_email`. Without it, the model has to supply `var_from` on every call |
 
 ## Retries and duplicate sends

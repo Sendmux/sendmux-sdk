@@ -50,11 +50,69 @@ for (const [surface, createClient, getConnection] of [
     const staticClient = createClient({ accessToken: "access-token-one", fetch });
     await getConnection({ client: staticClient });
     let token = "access-token-two";
-    const refreshingClient = createClient({ accessToken: async () => token, fetch });
+    let providerCalls = 0;
+    const refreshingClient = createClient({ accessToken: async () => { providerCalls += 1; return token; }, fetch });
+    assert.equal(providerCalls, 0);
     await getConnection({ client: refreshingClient });
     token = "access-token-three";
     await getConnection({ client: refreshingClient });
     assert.deepEqual(observed, ["Bearer access-token-one", "Bearer access-token-two", "Bearer access-token-three"]);
+    assert.equal(providerCalls, 2);
+  });
+
+  await test(`${surface} resolves API-key providers once per request`, async () => {
+    const prefix = surface === "management" ? "smx_root_" : "smx_mbx_";
+    let providerCalls = 0;
+    const observed = [];
+    const client = createClient({
+      apiKey: async () => `${prefix}test_${++providerCalls}`,
+      fetch: async (request) => {
+        observed.push(request.headers.get("Authorization"));
+        return Response.json({});
+      },
+    });
+    assert.equal(providerCalls, 0);
+    await getConnection({ client });
+    await getConnection({ client });
+    assert.deepEqual(observed, [`Bearer ${prefix}test_1`, `Bearer ${prefix}test_2`]);
+    assert.equal(providerCalls, 2);
+  });
+
+  await test(`${surface} resolves independent access tokens for concurrent requests`, async () => {
+    let providerCalls = 0;
+    const observed = [];
+    const client = createClient({
+      accessToken: async () => {
+        const token = `token-${++providerCalls}`;
+        await nextTurn();
+        return token;
+      },
+      fetch: async (request) => {
+        observed.push(request.headers.get("Authorization"));
+        return Response.json({});
+      },
+    });
+    await Promise.all([getConnection({ client }), getConnection({ client })]);
+    assert.deepEqual(observed.sort(), ["Bearer token-1", "Bearer token-2"]);
+    assert.equal(providerCalls, 2);
+  });
+
+  await test(`${surface} recognises explicit bearer headers without confusing query or cookie values`, async () => {
+    let providerCalls = 0;
+    const observed = [];
+    const client = createClient({
+      accessToken: async () => { providerCalls += 1; return "provider-token"; },
+      fetch: async (request) => {
+        observed.push(request.headers.get("Authorization"));
+        return Response.json({});
+      },
+    });
+    await getConnection({ client, headers: { authorization: "Bearer explicit-token" } });
+    assert.equal(providerCalls, 0);
+    await getConnection({ client, query: { Authorization: "query-value" } });
+    await getConnection({ client, headers: { Cookie: "Authorization=cookie-value" } });
+    assert.deepEqual(observed, ["Bearer explicit-token", "Bearer provider-token", "Bearer provider-token"]);
+    assert.equal(providerCalls, 2);
   });
 
   await test(`${surface} rejects missing, ambiguous or malformed credentials before making a request`, async () => {

@@ -106,7 +106,7 @@ const checkForExistence = (
   name?: string,
 ): boolean => {
   if (!name) {
-    return false;
+    return options.headers.has('Authorization');
   }
   if (
     options.headers.has(name) ||

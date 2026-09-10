@@ -13,6 +13,11 @@ overrides:
   shell-quote: 1.9.0
   undici: 6.28.0
 
+patchedDependencies:
+  '@hey-api/openapi-ts@0.97.3':
+    hash: 07847db1d946c3674909a4553717ae029683c136787d2fc300b00a29418981b9
+    path: patches/@hey-api__openapi-ts@0.97.3.patch
+
 importers:
 
   .:
@@ -22,7 +27,7 @@ importers:
         version: 0.14.2
       '@hey-api/openapi-ts':
         specifier: 0.97.3
-        version: 0.97.3(typescript@5.9.3)
+        version: 0.97.3(patch_hash=07847db1d946c3674909a4553717ae029683c136787d2fc300b00a29418981b9)(typescript@5.9.3)
       '@openapitools/openapi-generator-cli':
         specifier: 2.32.0
         version: 2.32.0
@@ -2717,7 +2722,7 @@ snapshots:
       '@types/json-schema': 7.0.15
       js-yaml: 4.3.1
 
-  '@hey-api/openapi-ts@0.97.3(typescript@5.9.3)':
+  '@hey-api/openapi-ts@0.97.3(patch_hash=07847db1d946c3674909a4553717ae029683c136787d2fc300b00a29418981b9)(typescript@5.9.3)':
     dependencies:
       '@hey-api/codegen-core': 0.8.2
       '@hey-api/json-schema-ref-parser': 1.4.2

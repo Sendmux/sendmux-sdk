@@ -62,7 +62,7 @@ const response = await sending.sendingSendEmail({
   },
 });
 
-console.log(response.data.message_id);
+console.log(response.data?.data.message_id);
 ```
 
 The umbrella package re-exports:

@@ -1,0 +1,13 @@
+diff --git a/dist/clients/fetch/utils.ts b/dist/clients/fetch/utils.ts
+index 29ebb80e4a91b3ad4db41f9009ee238ac6e48d09..cb3447cbc2fc8b8b038a4609f2756398a98448a9 100644
+--- a/dist/clients/fetch/utils.ts
++++ b/dist/clients/fetch/utils.ts
+@@ -104,7 +104,7 @@ const checkForExistence = (
+   name?: string,
+ ): boolean => {
+   if (!name) {
+-    return false;
++    return options.headers.has('Authorization');
+   }
+   if (
+     options.headers.has(name) ||

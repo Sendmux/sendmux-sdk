@@ -220,6 +220,7 @@ async function cli(t, state, args, authorize = false) {
   let stdout = "",
     stderr = "",
     resolveUrl;
+  let callbackResponse;
   const authorizationUrl = new Promise((resolve) => {
     resolveUrl = resolve;
   });
@@ -262,10 +263,14 @@ async function cli(t, state, args, authorize = false) {
         signal: AbortSignal.timeout(10_000),
       });
       assert.equal(result.status, 200);
+      callbackResponse = {
+        contentType: result.headers.get("content-type"),
+        body: await result.text(),
+      };
     }
   }
   const [code] = await closed;
-  return { code, stdout, stderr };
+  return { code, stdout, stderr, callbackResponse };
 }
 
 const login = (t, state, authorize = true) =>
@@ -284,6 +289,37 @@ const login = (t, state, authorize = true) =>
     ],
     authorize,
   );
+
+for (const [name, authorize, exitCode] of [
+  ["accepted", true, 0],
+  ["declined", "deny", 1],
+]) {
+  test(`native ${name} callback renders without another HTTP request after listener shutdown`, async (t) => {
+    const state = await fixture(t);
+    const result = await login(t, state, authorize);
+    assert.equal(result.code, exitCode, result.stderr);
+    assert.match(result.callbackResponse.contentType, /^text\/html(?:;|$)/);
+    const icons = result.callbackResponse.body.match(/<link\b[^>]*>/gi) ?? [];
+    assert.ok(
+      icons.some(
+        (tag) => /rel="icon"/.test(tag) && /href="data:image\//.test(tag),
+      ),
+      "callback must declare an inline icon instead of triggering the browser favicon fallback",
+    );
+    assert.doesNotMatch(
+      result.callbackResponse.body,
+      /(?:href|src)="(?:https?:|\/)/,
+    );
+    assert.match(
+      result.callbackResponse.body,
+      /Authorization received\. You can return to the terminal\./,
+    );
+    assert.doesNotMatch(
+      result.callbackResponse.body,
+      /native_test_code|access_denied/,
+    );
+  });
+}
 
 test("native login uses S256, validates the callback and saves a protected profile without exposing tokens", async (t) => {
   const state = await fixture(t);

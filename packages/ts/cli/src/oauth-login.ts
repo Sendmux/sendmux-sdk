@@ -239,8 +239,9 @@ async function loopbackCallback({
       return;
     }
     received = true;
+    response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.end(
-      "Authorization received. You can return to the terminal.",
+      '<!doctype html><meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27/%3E"><pre>Authorization received. You can return to the terminal.</pre>',
       () => {
         if (url.searchParams.has("error"))
           rejectCode(new Error("OAuth authorization was declined."));

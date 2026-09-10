@@ -78,7 +78,7 @@ const client = createManagementClient({
 const domain = await managementGetDomain({
   client,
   path: { public_id: "mdom_123" },
-  headers: conditionalHeaders({ ifNoneMatch: 'W/"etag"' }),
+  headers: { ...conditionalHeaders({ ifNoneMatch: 'W/"etag"' }) },
 });
 
 console.log(domain.data);

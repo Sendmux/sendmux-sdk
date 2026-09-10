@@ -72,6 +72,7 @@ def parser(*, default_surface: Surface | None = None, prog: str) -> argparse.Arg
     command.add_argument("--retry-max-attempts", type=int)
     command.add_argument("--retry-base-delay-seconds", type=float)
     command.add_argument("--retry-max-delay-seconds", type=float)
+    command.add_argument("--retry-max-elapsed-seconds", type=float)
     command.set_defaults(surface=default_surface)
     return command
 
@@ -117,6 +118,10 @@ def config_from_args(surfaces: tuple[Surface, ...], args: argparse.Namespace) ->
             max_attempts=args.retry_max_attempts or base.retry.max_attempts,
             base_delay_seconds=args.retry_base_delay_seconds or base.retry.base_delay_seconds,
             max_delay_seconds=args.retry_max_delay_seconds or base.retry.max_delay_seconds,
+            max_elapsed_seconds=(
+                args.retry_max_elapsed_seconds
+                if args.retry_max_elapsed_seconds is not None else base.retry.max_elapsed_seconds
+            ),
         ),
     )
 

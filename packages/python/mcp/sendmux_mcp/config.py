@@ -21,6 +21,7 @@ class RetryConfig:
     max_attempts: int = 3
     base_delay_seconds: float = 0.25
     max_delay_seconds: float = 8.0
+    max_elapsed_seconds: float | None = None
 
 
 @dataclass(frozen=True)
@@ -108,6 +109,7 @@ def config_from_env(
         surfaces if surfaces is not None else parse_surfaces(os.environ.get("SENDMUX_MCP_SURFACES"), default=("mailbox",))
     )
     env_api_keys = surface_api_keys_from_env()
+    retry_max_elapsed = os.environ.get("SENDMUX_MCP_RETRY_MAX_ELAPSED_SECONDS")
     return ServerConfig(
         surfaces=selected_surfaces,
         api_key=api_key or os.environ.get("SENDMUX_API_KEY") or None,
@@ -130,6 +132,7 @@ def config_from_env(
             max_attempts=int(os.environ.get("SENDMUX_MCP_RETRY_MAX_ATTEMPTS", "3")),
             base_delay_seconds=float(os.environ.get("SENDMUX_MCP_RETRY_BASE_DELAY_SECONDS", "0.25")),
             max_delay_seconds=float(os.environ.get("SENDMUX_MCP_RETRY_MAX_DELAY_SECONDS", "8")),
+            max_elapsed_seconds=float(retry_max_elapsed) if retry_max_elapsed else None,
         ),
     )
 

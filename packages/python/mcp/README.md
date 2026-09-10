@@ -135,6 +135,9 @@ The A2A endpoint is immediate and stateless: streaming, push notifications, pers
 | Sending snapshot override | `SENDMUX_MCP_SENDING_OPENAPI` | packaged sending snapshot |
 | Request timeout | `SENDMUX_MCP_TIMEOUT_SECONDS` | `30` |
 | Retry attempts | `SENDMUX_MCP_RETRY_MAX_ATTEMPTS` | `3` |
+| Retry time budget, in seconds | `SENDMUX_MCP_RETRY_MAX_ELAPSED_SECONDS` | unset |
+
+Retries honour `Retry-After` and `X-RateLimit-Reset` without applying the local backoff ceiling, and stop for `retryable: false`. Set the optional retry budget with `RetryConfig(max_elapsed_seconds=30)`, the environment variable above, or `--retry-max-elapsed-seconds 30`. A retry that would exceed the remaining budget returns the original error; in-flight requests keep their normal HTTP timeouts.
 
 Packaged OpenAPI snapshots are the default so released tool names, schemas, and descriptions stay stable. Path, directory, and URL overrides are available for development, canary, and debugging runs.
 

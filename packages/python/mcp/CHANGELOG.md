@@ -7,6 +7,19 @@
 * add an OAuth-protected A2A 1.0 HTTP+JSON endpoint with full hosted-operation parity
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 
+## [1.8.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.7.0...python-mcp-v1.8.0) (2026-09-10)
+
+
+### Features
+
+* add REST OAuth clients and CLI token lifecycle ([cc4a3aa](https://github.com/Sendmux/sendmux-sdk/commit/cc4a3aa6110378641418a94455ed5b9a986e65ff))
+
+
+### Bug Fixes
+
+* **python-mcp:** honour server retry policy and retry budgets ([0eb9fb7](https://github.com/Sendmux/sendmux-sdk/commit/0eb9fb7cfd9ad1b7cf35de1f84594ca16f9a1c36))
+* **python-mcp:** honour server retry policy and retry budgets ([6e6b821](https://github.com/Sendmux/sendmux-sdk/commit/6e6b821856c2d3b6e3b2702389619d7f07ce610f))
+
 ## [1.7.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.6.1...python-mcp-v1.7.0) (2026-09-08)
 
 

@@ -34,7 +34,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | PyPI | `sendmux-management` | Management API | `smx_root_*` | `pip install sendmux-management` | [`packages/python/management`](packages/python/management) |
 | PyPI | `sendmux-sdk` | Python umbrella package | surface-specific | `pip install sendmux-sdk` | [`packages/python/sdk`](packages/python/sdk) |
 | PyPI | `sendmux-mcp` | Local MCP plus hosted MCP and A2A servers | OAuth for hosted; surface-specific keys for local | `pip install sendmux-mcp` | [`packages/python/mcp`](packages/python/mcp) |
-| PyPI | `langchain-sendmux` | LangChain toolkit (agent inbox + sending) | send + receive `smx_mbx_*` or `smx_agent_*` | `pip install langchain-sendmux` | [`packages/python/langchain`](packages/python/langchain) |
+| PyPI | `langchain-sendmux` | LangChain toolkit (agent inbox + sending) | REST OAuth or send + receive `smx_mbx_*` / `smx_agent_*` | `pip install langchain-sendmux` | [`packages/python/langchain`](packages/python/langchain) |
 | Go | `sendmux.ai/go/core` | Shared Go helpers | n/a | `go get sendmux.ai/go@v1.5.0` | [`go/core`](go/core) |
 | Go | `sendmux.ai/go/sending` | Sending API | `smx_mbx_*` or owner-approved `smx_agent_*` | `go get sendmux.ai/go@v1.5.0` | [`go/sending`](go/sending) |
 | Go | `sendmux.ai/go/mailbox` | Mailbox API | `smx_mbx_*` or `smx_agent_*` | `go get sendmux.ai/go@v1.5.0` | [`go/mailbox`](go/mailbox) |

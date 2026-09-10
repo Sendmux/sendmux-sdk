@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import random
+import time
 from collections.abc import Awaitable, Callable
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -28,6 +29,10 @@ class RetryingAsyncTransport(httpx.AsyncBaseTransport):
         self._sleep = sleep
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        deadline = (
+            float("inf") if self.retry.max_elapsed_seconds is None
+            else time.monotonic() + max(0.0, self.retry.max_elapsed_seconds)
+        )
         body = await request.aread()
         attempts = max(1, self.retry.max_attempts)
         last_error: httpx.TransportError | None = None
@@ -40,15 +45,18 @@ class RetryingAsyncTransport(httpx.AsyncBaseTransport):
                 last_error = exc
                 if attempt + 1 >= attempts or not can_retry_request(request):
                     raise
-                await self.sleep(delay_for_attempt(attempt, self.retry))
+                if not await self._wait_for_retry(delay_for_attempt(attempt, self.retry), deadline):
+                    raise
                 continue
 
-            if attempt + 1 >= attempts or not should_retry_response(request, response):
+            if attempt + 1 >= attempts or not await should_retry_response(request, response):
                 return response
 
             delay = retry_delay(response, attempt, self.retry)
+            await response.aread()
             await response.aclose()
-            await self.sleep(delay)
+            if not await self._wait_for_retry(delay, deadline):
+                return response
 
         if last_error is not None:
             raise last_error
@@ -56,6 +64,12 @@ class RetryingAsyncTransport(httpx.AsyncBaseTransport):
 
     async def aclose(self) -> None:
         await self.inner.aclose()
+
+    async def _wait_for_retry(self, delay: float, deadline: float) -> bool:
+        if time.monotonic() + delay >= deadline:
+            return False
+        await self.sleep(delay)
+        return time.monotonic() < deadline
 
     async def sleep(self, seconds: float) -> None:
         if seconds <= 0:
@@ -78,8 +92,20 @@ def clone_request(request: httpx.Request, body: bytes) -> httpx.Request:
     )
 
 
-def should_retry_response(request: httpx.Request, response: httpx.Response) -> bool:
-    return response.status_code in RETRY_STATUSES and can_retry_request(request)
+async def should_retry_response(request: httpx.Request, response: httpx.Response) -> bool:
+    if response.status_code not in RETRY_STATUSES or not can_retry_request(request):
+        return False
+    if "application/json" not in response.headers.get("Content-Type", "").lower():
+        return True
+    await response.aread()
+    try:
+        payload = response.json()
+    except (ValueError, UnicodeDecodeError):
+        return True
+    return not (
+        isinstance(payload, dict) and payload.get("ok") is False
+        and isinstance(payload.get("error"), dict) and payload["error"].get("retryable") is False
+    )
 
 
 def can_retry_request(request: httpx.Request) -> bool:
@@ -91,11 +117,11 @@ def can_retry_request(request: httpx.Request) -> bool:
 def retry_delay(response: httpx.Response, attempt: int, retry: RetryConfig) -> float:
     retry_after = parse_retry_after(response.headers.get("Retry-After"))
     if retry_after is not None:
-        return min(retry_after, retry.max_delay_seconds)
+        return retry_after
 
     reset = parse_rate_limit_reset(response.headers.get("X-RateLimit-Reset"))
     if reset is not None:
-        return min(reset, retry.max_delay_seconds)
+        return reset
 
     return delay_for_attempt(attempt, retry)
 

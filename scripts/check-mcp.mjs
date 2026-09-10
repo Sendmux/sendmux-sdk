@@ -29,7 +29,7 @@ run(python, [
 ]);
 run(python, ["-m", "compileall", "-q", "packages/python/mcp"]);
 run(python, ["-m", "mypy", "packages/python/mcp"]);
-run(python, ["-m", "pytest", "packages/python/tests/test_mcp.py", "packages/python/mcp/tests"]);
+run(python, ["-m", "pytest", "packages/python/tests/test_mcp.py", "packages/python/tests/test_mcp_retry.py", "packages/python/mcp/tests"]);
 rmSync(distDir, { force: true, recursive: true });
 mkdirSync(distDir, { recursive: true });
 run(python, ["-m", "build", "--outdir", distDir, "packages/python/mcp"]);

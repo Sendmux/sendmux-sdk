@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sendmux-sdk"
-version = "1.1.1"
+version = "1.2.0"
 description = "Umbrella package for the Sendmux Python SDK."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,10 +18,10 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "sendmux-core>=1.2.0,<2.0.0",
-  "sendmux-mailbox>=1.4.0,<2.0.0",
-  "sendmux-management>=1.3.0,<2.0.0",
-  "sendmux-sending>=1.4.0,<2.0.0",
+  "sendmux-core>=1.3.0,<2.0.0",
+  "sendmux-mailbox>=1.5.0,<2.0.0",
+  "sendmux-management>=1.4.0,<2.0.0",
+  "sendmux-sending>=1.5.0,<2.0.0",
 ]
 
 [project.urls]

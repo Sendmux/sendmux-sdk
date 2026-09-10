@@ -60,7 +60,7 @@ const response = await sendingSendEmail({
   },
 });
 
-console.log(response.data.message_id);
+console.log(response.data?.data.message_id);
 ```
 
 The package exports every generated Sending operation plus:

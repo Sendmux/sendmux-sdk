@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
   }
   spec.files = Dir.chdir(__dir__) { Dir['lib/**/*.rb', 'README.md', 'CHANGELOG.md', 'LICENSE'] }
   spec.require_paths = ['lib']
-  spec.add_dependency 'sendmux-core', '>= 1.2.0', '< 2.0'
-  spec.add_dependency 'sendmux-mailbox', '>= 1.3.0', '< 2.0'
-  spec.add_dependency 'sendmux-management', '>= 1.2.0', '< 2.0'
-  spec.add_dependency 'sendmux-sending', '>= 1.3.0', '< 2.0'
+  spec.add_dependency 'sendmux-core', '>= 1.3.0', '< 2.0'
+  spec.add_dependency 'sendmux-mailbox', '>= 1.4.0', '< 2.0'
+  spec.add_dependency 'sendmux-management', '>= 1.3.0', '< 2.0'
+  spec.add_dependency 'sendmux-sending', '>= 1.4.0', '< 2.0'
 end

@@ -6,6 +6,19 @@
 
 * add Node file attachment helper for Sending API email sends
 
+## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sending-v1.4.0...ts-sending-v1.5.0) (2026-09-10)
+
+
+### Features
+
+* add REST OAuth clients and CLI token lifecycle ([cc4a3aa](https://github.com/Sendmux/sendmux-sdk/commit/cc4a3aa6110378641418a94455ed5b9a986e65ff))
+
+
+### Bug Fixes
+
+* resolve TypeScript credential providers once per request ([4740163](https://github.com/Sendmux/sendmux-sdk/commit/474016356e4e307497ef875acbf62a988e16f96c))
+* resolve TypeScript credential providers once per request ([3336363](https://github.com/Sendmux/sendmux-sdk/commit/3336363344040461bb89055a2966367bab6f9a96))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sending-v1.3.0...ts-sending-v1.4.0) (2026-09-08)
 
 

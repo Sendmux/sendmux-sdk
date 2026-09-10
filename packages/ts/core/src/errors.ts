@@ -12,13 +12,15 @@ export class SendmuxApiError extends Error {
   constructor({
     body,
     cause,
+    message,
     response,
   }: {
     body?: ApiError | undefined;
     cause?: unknown;
+    message?: string;
     response?: Response | undefined;
   }) {
-    super(body?.error.message ?? response?.statusText ?? "Sendmux API request failed", { cause });
+    super(message ?? body?.error.message ?? response?.statusText ?? "Sendmux API request failed", { cause });
     this.name = "SendmuxApiError";
     this.body = body;
     this.code = body?.error.code ?? "request_failed";

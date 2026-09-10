@@ -311,6 +311,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -578,6 +579,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -876,6 +878,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1149,6 +1152,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1431,6 +1435,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1698,6 +1703,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1980,6 +1986,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2226,6 +2233,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2478,6 +2486,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2724,6 +2733,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2970,6 +2980,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -3259,21 +3270,21 @@ class SendingAccountsApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if status is not None:
-            
+
             _query_params.append(('status', status))
-            
+
         if type is not None:
-            
+
             _query_params.append(('type', type))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -3290,6 +3301,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -3560,6 +3572,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -3845,6 +3858,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -4164,6 +4178,7 @@ class SendingAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

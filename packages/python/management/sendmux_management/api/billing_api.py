@@ -269,9 +269,9 @@ class BillingApi:
         # process the path parameters
         # process the query parameters
         if days is not None:
-            
+
             _query_params.append(('days', days))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -288,6 +288,7 @@ class BillingApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -540,6 +541,7 @@ class BillingApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -816,17 +818,17 @@ class BillingApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if type is not None:
-            
+
             _query_params.append(('type', type))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -843,6 +845,7 @@ class BillingApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

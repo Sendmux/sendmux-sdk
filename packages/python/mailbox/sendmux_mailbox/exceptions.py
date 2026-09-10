@@ -103,9 +103,9 @@ class ApiKeyError(OpenApiException, KeyError):
 class ApiException(OpenApiException):
 
     def __init__(
-        self, 
-        status=None, 
-        reason=None, 
+        self,
+        status=None,
+        reason=None,
         http_resp=None,
         *,
         body: Optional[str] = None,
@@ -131,10 +131,10 @@ class ApiException(OpenApiException):
 
     @classmethod
     def from_response(
-        cls, 
-        *, 
-        http_resp, 
-        body: Optional[str], 
+        cls,
+        *,
+        http_resp,
+        body: Optional[str],
         data: Optional[Any],
     ) -> Self:
         if http_resp.status == 400:

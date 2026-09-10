@@ -8,6 +8,7 @@ import {
 import {
   isActiveAgentProfile,
   isApiKeyProfile,
+  isOAuthProfile,
   readCliConfig,
 } from "../../profiles.js";
 
@@ -23,6 +24,7 @@ export default class ProfilesList extends SendmuxCommand {
     const { flags } = await this.parse(ProfilesList);
     const config = await readCliConfig(this.config.configDir);
     const profiles = Object.entries(config.profiles).map(([name, profile]) => {
+      if (isOAuthProfile(profile)) return { name, type: "oauth", status: profile.state, default: name === config.defaultProfile, ...(profile.state === "authorizing" ? {} : { scopes: profile.scopes }) };
       if (isApiKeyProfile(profile)) {
         return {
           default: name === config.defaultProfile,

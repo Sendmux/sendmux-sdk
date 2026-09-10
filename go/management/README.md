@@ -20,6 +20,18 @@ import "sendmux.ai/go/management"
 
 Use a root API key with the `smx_root_` prefix. `management.New` validates the prefix before creating the client.
 
+### OAuth access tokens
+
+Use `management.NewWithAccessToken` for a bare token string, or `management.NewWithTokenProvider` for a function with signature `func(context.Context) (string, error)`. The provider runs for each authenticated request and receives that request's context. Your application owns token storage, expiry checks and refresh coordination.
+
+```go
+client, err := management.NewWithTokenProvider(func(ctx context.Context) (string, error) {
+    return os.Getenv("SENDMUX_ACCESS_TOKEN"), nil
+})
+```
+
+Use a REST access token with the operation's required scopes and mailbox access. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Quickstart
 
 ```go

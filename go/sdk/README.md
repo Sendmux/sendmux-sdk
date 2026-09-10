@@ -29,6 +29,8 @@ import (
 | Management | `sendmux.ai/go/management` | `smx_root_*` |
 | Core helpers | `sendmux.ai/go/core` | n/a |
 
+All three surface packages also provide `NewWithAccessToken` and `NewWithTokenProvider` for [REST OAuth](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Documentation
 
 - Guides: <https://sendmux.ai/docs>

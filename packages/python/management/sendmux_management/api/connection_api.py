@@ -296,6 +296,7 @@ class ConnectionApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

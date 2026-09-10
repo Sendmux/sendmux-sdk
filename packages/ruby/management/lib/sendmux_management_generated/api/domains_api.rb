@@ -71,7 +71,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DomainItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_create_domain",
@@ -134,7 +134,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DomainDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_delete_domain",
@@ -200,7 +200,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DomainItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_get_domain",
@@ -263,7 +263,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'String'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_get_domain_zone_file",
@@ -334,7 +334,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DomainItemCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_list_domains",
@@ -407,7 +407,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DomainItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_update_domain",
@@ -470,7 +470,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DomainVerifyResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"DomainsApi.management_verify_domain",

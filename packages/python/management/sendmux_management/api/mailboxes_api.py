@@ -276,9 +276,9 @@ class MailboxesApi:
         # process the path parameters
         # process the query parameters
         if email is not None:
-            
+
             _query_params.append(('email', email))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -295,6 +295,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -599,6 +600,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -921,6 +923,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1185,6 +1188,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1464,6 +1468,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1746,6 +1751,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2022,17 +2028,17 @@ class MailboxesApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if include_deleted is not None:
-            
+
             _query_params.append(('include_deleted', include_deleted))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2049,6 +2055,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2337,6 +2344,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2625,6 +2633,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2944,6 +2953,7 @@ class MailboxesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

@@ -60,7 +60,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ConnectionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"ConnectionApi.management_get_connection",

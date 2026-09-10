@@ -24,7 +24,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Returns the current spendable balance.
  */
 export const managementListBalance = <ThrowOnError extends boolean = false>(options?: Options<ManagementListBalanceData, ThrowOnError>) => (options?.client ?? client).get<ManagementListBalanceResponses, ManagementListBalanceErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/billing/balance',
     ...options
 });
@@ -35,7 +35,7 @@ export const managementListBalance = <ThrowOnError extends boolean = false>(opti
  * Returns a spend summary over a configurable lookback period.
  */
 export const managementGetSpendSummary = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetSpendSummaryData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetSpendSummaryResponses, ManagementGetSpendSummaryErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/billing/summary',
     ...options
 });
@@ -46,7 +46,7 @@ export const managementGetSpendSummary = <ThrowOnError extends boolean = false>(
  * Returns paginated credit transaction history with optional type filter. Uses cursor-based pagination ordered by created_at descending — pass `cursor=<next_cursor>` from the previous response to fetch the next page.
  */
 export const managementListTransactions = <ThrowOnError extends boolean = false>(options?: Options<ManagementListTransactionsData, ThrowOnError>) => (options?.client ?? client).get<ManagementListTransactionsResponses, ManagementListTransactionsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/billing/transactions',
     ...options
 });
@@ -57,7 +57,7 @@ export const managementListTransactions = <ThrowOnError extends boolean = false>
  * Returns a cursor-paginated list of sending domains configured for the team, ordered by `created_at` descending. Each entry includes the DNS records the customer must place, the current verification status, and the SES DKIM state. Pass `cursor=<next_cursor>` from the previous response to fetch the next page.
  */
 export const managementListDomains = <ThrowOnError extends boolean = false>(options?: Options<ManagementListDomainsData, ThrowOnError>) => (options?.client ?? client).get<ManagementListDomainsResponses, ManagementListDomainsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains',
     ...options
 });
@@ -70,7 +70,7 @@ export const managementListDomains = <ThrowOnError extends boolean = false>(opti
  * Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
  */
 export const managementCreateDomain = <ThrowOnError extends boolean = false>(options?: Options<ManagementCreateDomainData, ThrowOnError>) => (options?.client ?? client).post<ManagementCreateDomainResponses, ManagementCreateDomainErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains',
     ...options,
     headers: {
@@ -85,7 +85,7 @@ export const managementCreateDomain = <ThrowOnError extends boolean = false>(opt
  * Removes a domain from our mail platform, Amazon SES, and Sendmux. Blocked if any active mailbox still uses the domain — delete those mailboxes first.
  */
 export const managementDeleteDomain = <ThrowOnError extends boolean = false>(options: Options<ManagementDeleteDomainData, ThrowOnError>) => (options.client ?? client).delete<ManagementDeleteDomainResponses, ManagementDeleteDomainErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}',
     ...options
 });
@@ -96,7 +96,7 @@ export const managementDeleteDomain = <ThrowOnError extends boolean = false>(opt
  * Returns a single domain including its DNS records and latest verification state. Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the resource has not changed.
  */
 export const managementGetDomain = <ThrowOnError extends boolean = false>(options: Options<ManagementGetDomainData, ThrowOnError>) => (options.client ?? client).get<ManagementGetDomainResponses, ManagementGetDomainErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}',
     ...options
 });
@@ -107,7 +107,7 @@ export const managementGetDomain = <ThrowOnError extends boolean = false>(option
  * Upgrades a send-only domain to sending and receiving. Downgrades are rejected. After upgrade, the domain returns to `pending` until the required MX record verifies.
  */
 export const managementUpdateDomain = <ThrowOnError extends boolean = false>(options: Options<ManagementUpdateDomainData, ThrowOnError>) => (options.client ?? client).patch<ManagementUpdateDomainResponses, ManagementUpdateDomainErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}',
     ...options,
     headers: {
@@ -124,7 +124,7 @@ export const managementUpdateDomain = <ThrowOnError extends boolean = false>(opt
  * Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
  */
 export const managementGetDomainFilters = <ThrowOnError extends boolean = false>(options: Options<ManagementGetDomainFiltersData, ThrowOnError>) => (options.client ?? client).get<ManagementGetDomainFiltersResponses, ManagementGetDomainFiltersErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}/filters',
     ...options
 });
@@ -137,7 +137,7 @@ export const managementGetDomainFilters = <ThrowOnError extends boolean = false>
  * For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
  */
 export const managementSetDomainFilters = <ThrowOnError extends boolean = false>(options: Options<ManagementSetDomainFiltersData, ThrowOnError>) => (options.client ?? client).put<ManagementSetDomainFiltersResponses, ManagementSetDomainFiltersErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}/filters',
     ...options,
     headers: {
@@ -152,7 +152,7 @@ export const managementSetDomainFilters = <ThrowOnError extends boolean = false>
  * Checks the domain's published DNS records and latest Amazon SES DKIM and MAIL FROM statuses. If every required check passes, the domain is marked verified. A previously failed domain remains failed until a complete check succeeds. Domains automatically re-verify every 6 hours — this endpoint is only needed to trigger a check on demand.
  */
 export const managementVerifyDomain = <ThrowOnError extends boolean = false>(options: Options<ManagementVerifyDomainData, ThrowOnError>) => (options.client ?? client).post<ManagementVerifyDomainResponses, ManagementVerifyDomainErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}/verify',
     ...options
 });
@@ -163,7 +163,7 @@ export const managementVerifyDomain = <ThrowOnError extends boolean = false>(opt
  * Returns the domain's DNS records formatted as a BIND-style zone file fragment. Suitable for direct paste into a DNS provider that accepts zone-file imports.
  */
 export const managementGetDomainZoneFile = <ThrowOnError extends boolean = false>(options: Options<ManagementGetDomainZoneFileData, ThrowOnError>) => (options.client ?? client).get<ManagementGetDomainZoneFileResponses, ManagementGetDomainZoneFileErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/domains/{public_id}/zone-file',
     ...options
 });
@@ -174,7 +174,7 @@ export const managementGetDomainZoneFile = <ThrowOnError extends boolean = false
  * Returns paginated delivery logs with cursor-based pagination and filters.
  */
 export const managementListEmailLogs = <ThrowOnError extends boolean = false>(options?: Options<ManagementListEmailLogsData, ThrowOnError>) => (options?.client ?? client).get<ManagementListEmailLogsResponses, ManagementListEmailLogsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/logs',
     ...options
 });
@@ -185,7 +185,7 @@ export const managementListEmailLogs = <ThrowOnError extends boolean = false>(op
  * Returns a single delivery log by its public ID. Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the log has not changed. Logs in a terminal status (sent/failed/rejected) stop changing, so 304 replay is a real bandwidth win on repeated polls.
  */
 export const managementGetEmailLog = <ThrowOnError extends boolean = false>(options: Options<ManagementGetEmailLogData, ThrowOnError>) => (options.client ?? client).get<ManagementGetEmailLogResponses, ManagementGetEmailLogErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/logs/{public_id}',
     ...options
 });
@@ -196,7 +196,7 @@ export const managementGetEmailLog = <ThrowOnError extends boolean = false>(opti
  * Returns aggregated email delivery counts with flexible time windowing and comparison period.
  */
 export const managementGetEmailMetrics = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetEmailMetricsData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetEmailMetricsResponses, ManagementGetEmailMetricsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/metrics',
     ...options
 });
@@ -207,7 +207,7 @@ export const managementGetEmailMetrics = <ThrowOnError extends boolean = false>(
  * Returns paginated incoming message logs for billing accountability.
  */
 export const managementListInboxLogs = <ThrowOnError extends boolean = false>(options?: Options<ManagementListInboxLogsData, ThrowOnError>) => (options?.client ?? client).get<ManagementListInboxLogsResponses, ManagementListInboxLogsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/inboxes/logs',
     ...options
 });
@@ -218,7 +218,7 @@ export const managementListInboxLogs = <ThrowOnError extends boolean = false>(op
  * Returns one incoming message log by public ID.
  */
 export const managementGetInboxLog = <ThrowOnError extends boolean = false>(options: Options<ManagementGetInboxLogData, ThrowOnError>) => (options.client ?? client).get<ManagementGetInboxLogResponses, ManagementGetInboxLogErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/inboxes/logs/{public_id}',
     ...options
 });
@@ -229,7 +229,7 @@ export const managementGetInboxLog = <ThrowOnError extends boolean = false>(opti
  * Returns a cursor-paginated list of mailboxes configured for the team, ordered by `created_at` descending. Pass `cursor=<next_cursor>` from the previous response to fetch the next page.
  */
 export const managementListMailboxes = <ThrowOnError extends boolean = false>(options?: Options<ManagementListMailboxesData, ThrowOnError>) => (options?.client ?? client).get<ManagementListMailboxesResponses, ManagementListMailboxesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes',
     ...options
 });
@@ -242,7 +242,7 @@ export const managementListMailboxes = <ThrowOnError extends boolean = false>(op
  * Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
  */
 export const managementCreateMailbox = <ThrowOnError extends boolean = false>(options?: Options<ManagementCreateMailboxData, ThrowOnError>) => (options?.client ?? client).post<ManagementCreateMailboxResponses, ManagementCreateMailboxErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes',
     ...options,
     headers: {
@@ -257,7 +257,7 @@ export const managementCreateMailbox = <ThrowOnError extends boolean = false>(op
  * Removes a mailbox from our mail platform, Amazon SES (for `@myagent.mx` addresses), and Sendmux. All associated API keys are revoked.
  */
 export const managementDeleteMailbox = <ThrowOnError extends boolean = false>(options: Options<ManagementDeleteMailboxData, ThrowOnError>) => (options.client ?? client).delete<ManagementDeleteMailboxResponses, ManagementDeleteMailboxErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}',
     ...options
 });
@@ -268,7 +268,7 @@ export const managementDeleteMailbox = <ThrowOnError extends boolean = false>(op
  * Returns a single mailbox, tenant-scoped to the caller's team. Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the resource has not changed. The same ETag is the value to use in `If-Match` on PATCH for optimistic concurrency.
  */
 export const managementGetMailbox = <ThrowOnError extends boolean = false>(options: Options<ManagementGetMailboxData, ThrowOnError>) => (options.client ?? client).get<ManagementGetMailboxResponses, ManagementGetMailboxErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}',
     ...options
 });
@@ -281,7 +281,7 @@ export const managementGetMailbox = <ThrowOnError extends boolean = false>(optio
  * For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
  */
 export const managementUpdateMailbox = <ThrowOnError extends boolean = false>(options: Options<ManagementUpdateMailboxData, ThrowOnError>) => (options.client ?? client).patch<ManagementUpdateMailboxResponses, ManagementUpdateMailboxErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}',
     ...options,
     headers: {
@@ -298,7 +298,7 @@ export const managementUpdateMailbox = <ThrowOnError extends boolean = false>(op
  * Responses carry a weak `ETag` — send it as `If-None-Match` to skip the body when the filter set has not changed (returns `304 Not Modified`). The same ETag is the value to use in `If-Match` on the corresponding PUT for optimistic concurrency.
  */
 export const managementGetMailboxFilters = <ThrowOnError extends boolean = false>(options: Options<ManagementGetMailboxFiltersData, ThrowOnError>) => (options.client ?? client).get<ManagementGetMailboxFiltersResponses, ManagementGetMailboxFiltersErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}/filters',
     ...options
 });
@@ -311,7 +311,7 @@ export const managementGetMailboxFilters = <ThrowOnError extends boolean = false
  * For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
  */
 export const managementSetMailboxFilters = <ThrowOnError extends boolean = false>(options: Options<ManagementSetMailboxFiltersData, ThrowOnError>) => (options.client ?? client).put<ManagementSetMailboxFiltersResponses, ManagementSetMailboxFiltersErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}/filters',
     ...options,
     headers: {
@@ -328,7 +328,7 @@ export const managementSetMailboxFilters = <ThrowOnError extends boolean = false
  * Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
  */
 export const managementCreateMailboxKey = <ThrowOnError extends boolean = false>(options: Options<ManagementCreateMailboxKeyData, ThrowOnError>) => (options.client ?? client).post<ManagementCreateMailboxKeyResponses, ManagementCreateMailboxKeyErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}/keys',
     ...options,
     headers: {
@@ -343,7 +343,7 @@ export const managementCreateMailboxKey = <ThrowOnError extends boolean = false>
  * Revokes a specific bearer token + matching mailbox password. Idempotent on already-revoked keys.
  */
 export const managementDeleteMailboxKey = <ThrowOnError extends boolean = false>(options: Options<ManagementDeleteMailboxKeyData, ThrowOnError>) => (options.client ?? client).delete<ManagementDeleteMailboxKeyResponses, ManagementDeleteMailboxKeyErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}/keys/{key_id}',
     ...options
 });
@@ -354,7 +354,7 @@ export const managementDeleteMailboxKey = <ThrowOnError extends boolean = false>
  * Restores a suspended mailbox so it can authenticate, receive mail, and send from the mailbox address again. The operation is idempotent and accepts `Idempotency-Key` for safe retries.
  */
 export const managementResumeMailbox = <ThrowOnError extends boolean = false>(options: Options<ManagementResumeMailboxData, ThrowOnError>) => (options.client ?? client).post<ManagementResumeMailboxResponses, ManagementResumeMailboxErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}/resume',
     ...options
 });
@@ -365,7 +365,7 @@ export const managementResumeMailbox = <ThrowOnError extends boolean = false>(op
  * Suspends a mailbox without deleting messages, credentials, or settings. Suspended mailboxes cannot receive mail, authenticate to mailbox protocols, or send from the mailbox address. The operation is idempotent and accepts `Idempotency-Key` for safe retries.
  */
 export const managementSuspendMailbox = <ThrowOnError extends boolean = false>(options: Options<ManagementSuspendMailboxData, ThrowOnError>) => (options.client ?? client).post<ManagementSuspendMailboxResponses, ManagementSuspendMailboxErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/{public_id}/suspend',
     ...options
 });
@@ -376,7 +376,7 @@ export const managementSuspendMailbox = <ThrowOnError extends boolean = false>(o
  * Checks whether an email address can be reserved for mailbox creation. `@myagent.mx` availability is global across all teams; custom-domain availability is scoped to the caller's team and requires a verified send/receive mailbox domain.
  */
 export const managementCheckMailboxAvailability = <ThrowOnError extends boolean = false>(options: Options<ManagementCheckMailboxAvailabilityData, ThrowOnError>) => (options.client ?? client).get<ManagementCheckMailboxAvailabilityResponses, ManagementCheckMailboxAvailabilityErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailboxes/availability',
     ...options
 });
@@ -387,7 +387,7 @@ export const managementCheckMailboxAvailability = <ThrowOnError extends boolean 
  * Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
  */
 export const managementGetConnection = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetConnectionData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetConnectionResponses, ManagementGetConnectionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/me',
     ...options
 });
@@ -398,7 +398,7 @@ export const managementGetConnection = <ThrowOnError extends boolean = false>(op
  * Returns a cursor-paginated list of sending accounts. Credentials are never returned. The shared Amazon SES account is included and marked with `is_shared: true`.
  */
 export const managementListProviders = <ThrowOnError extends boolean = false>(options?: Options<ManagementListProvidersData, ThrowOnError>) => (options?.client ?? client).get<ManagementListProvidersResponses, ManagementListProvidersErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers',
     ...options
 });
@@ -409,7 +409,7 @@ export const managementListProviders = <ThrowOnError extends boolean = false>(op
  * Creates a custom SMTP sending account. Supply an `Idempotency-Key` header to safely retry on network errors. The SMTP password is stored securely and is never returned.
  */
 export const managementCreateProvider = <ThrowOnError extends boolean = false>(options?: Options<ManagementCreateProviderData, ThrowOnError>) => (options?.client ?? client).post<ManagementCreateProviderResponses, ManagementCreateProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers',
     ...options,
     headers: {
@@ -424,7 +424,7 @@ export const managementCreateProvider = <ThrowOnError extends boolean = false>(o
  * Deletes a custom or connected sending account. The shared Amazon SES account cannot be deleted.
  */
 export const managementDeleteProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementDeleteProviderData, ThrowOnError>) => (options.client ?? client).delete<ManagementDeleteProviderResponses, ManagementDeleteProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/{public_id}',
     ...options
 });
@@ -435,7 +435,7 @@ export const managementDeleteProvider = <ThrowOnError extends boolean = false>(o
  * Returns one sending account. Responses include an ETag for conditional GET and optimistic PATCH.
  */
 export const managementGetProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementGetProviderData, ThrowOnError>) => (options.client ?? client).get<ManagementGetProviderResponses, ManagementGetProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/{public_id}',
     ...options
 });
@@ -446,7 +446,7 @@ export const managementGetProvider = <ThrowOnError extends boolean = false>(opti
  * Updates a custom sending account. The shared Amazon SES account cannot be edited here; use activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
  */
 export const managementUpdateProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementUpdateProviderData, ThrowOnError>) => (options.client ?? client).patch<ManagementUpdateProviderResponses, ManagementUpdateProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/{public_id}',
     ...options,
     headers: {
@@ -461,7 +461,7 @@ export const managementUpdateProvider = <ThrowOnError extends boolean = false>(o
  * Enables a sending account. OAuth accounts without an active connection are moved to pending until reconnected in the dashboard. The shared Amazon SES account can be activated.
  */
 export const managementActivateProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementActivateProviderData, ThrowOnError>) => (options.client ?? client).post<ManagementActivateProviderResponses, ManagementActivateProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/{public_id}/activate',
     ...options
 });
@@ -472,7 +472,7 @@ export const managementActivateProvider = <ThrowOnError extends boolean = false>
  * Disables a sending account. The shared Amazon SES account can be deactivated.
  */
 export const managementDeactivateProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementDeactivateProviderData, ThrowOnError>) => (options.client ?? client).post<ManagementDeactivateProviderResponses, ManagementDeactivateProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/{public_id}/deactivate',
     ...options
 });
@@ -483,7 +483,7 @@ export const managementDeactivateProvider = <ThrowOnError extends boolean = fals
  * Runs a connection test for a custom SMTP account. The shared Amazon SES account and OAuth accounts cannot be tested through this endpoint.
  */
 export const managementTestProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementTestProviderData, ThrowOnError>) => (options.client ?? client).post<ManagementTestProviderResponses, ManagementTestProviderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/{public_id}/test',
     ...options
 });
@@ -494,7 +494,7 @@ export const managementTestProvider = <ThrowOnError extends boolean = false>(opt
  * Returns custom-account capacity and shared Amazon SES daily sending limit state.
  */
 export const managementGetProviderLimits = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetProviderLimitsData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetProviderLimitsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/limits',
     ...options
 });
@@ -505,7 +505,7 @@ export const managementGetProviderLimits = <ThrowOnError extends boolean = false
  * Creates a request to increase the number of custom or connected sending accounts allowed for the team.
  */
 export const managementRequestSendingAccountLimitIncrease = <ThrowOnError extends boolean = false>(options?: Options<ManagementRequestSendingAccountLimitIncreaseData, ThrowOnError>) => (options?.client ?? client).post<ManagementRequestSendingAccountLimitIncreaseResponses, ManagementRequestSendingAccountLimitIncreaseErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/limits/sending-accounts/request-increase',
     ...options
 });
@@ -516,7 +516,7 @@ export const managementRequestSendingAccountLimitIncrease = <ThrowOnError extend
  * Returns the shared Amazon SES daily limit state and any pending increase request.
  */
 export const managementGetSharedAmazonSesLimitRequest = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetSharedAmazonSesLimitRequestData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetSharedAmazonSesLimitRequestResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/shared-amazon-ses-limit-request',
     ...options
 });
@@ -527,7 +527,7 @@ export const managementGetSharedAmazonSesLimitRequest = <ThrowOnError extends bo
  * Creates a review request for the shared Amazon SES daily sending limit. This does not modify the limit directly.
  */
 export const managementCreateSharedAmazonSesLimitRequest = <ThrowOnError extends boolean = false>(options?: Options<ManagementCreateSharedAmazonSesLimitRequestData, ThrowOnError>) => (options?.client ?? client).post<ManagementCreateSharedAmazonSesLimitRequestResponses, ManagementCreateSharedAmazonSesLimitRequestErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/shared-amazon-ses-limit-request',
     ...options
 });
@@ -538,7 +538,7 @@ export const managementCreateSharedAmazonSesLimitRequest = <ThrowOnError extends
  * Cancels a pending shared Amazon SES daily limit increase request for the caller's team. Approved or denied requests cannot be cancelled.
  */
 export const managementCancelSharedAmazonSesLimitRequest = <ThrowOnError extends boolean = false>(options: Options<ManagementCancelSharedAmazonSesLimitRequestData, ThrowOnError>) => (options.client ?? client).delete<ManagementCancelSharedAmazonSesLimitRequestResponses, ManagementCancelSharedAmazonSesLimitRequestErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/shared-amazon-ses-limit-request/{request_id}',
     ...options
 });
@@ -549,7 +549,7 @@ export const managementCancelSharedAmazonSesLimitRequest = <ThrowOnError extends
  * Returns aggregate counts of configured sending accounts with breakdowns by type and status.
  */
 export const managementGetProviderStats = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetProviderStatsData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetProviderStatsResponses, ManagementGetProviderStatsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/stats',
     ...options
 });
@@ -560,7 +560,7 @@ export const managementGetProviderStats = <ThrowOnError extends boolean = false>
  * Returns per-account delivery-log counts for today and the trailing 7-day window.
  */
 export const managementGetProviderUsage = <ThrowOnError extends boolean = false>(options?: Options<ManagementGetProviderUsageData, ThrowOnError>) => (options?.client ?? client).get<ManagementGetProviderUsageResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/providers/usage',
     ...options
 });
@@ -571,7 +571,7 @@ export const managementGetProviderUsage = <ThrowOnError extends boolean = false>
  * Returns a cursor-paginated list of webhook subscriptions configured for the team, ordered by `created_at` descending. The signing secret is never included. Pass `cursor=<next_cursor>` from the previous response to fetch the next page.
  */
 export const managementListWebhooks = <ThrowOnError extends boolean = false>(options?: Options<ManagementListWebhooksData, ThrowOnError>) => (options?.client ?? client).get<ManagementListWebhooksResponses, ManagementListWebhooksErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks',
     ...options
 });
@@ -584,7 +584,7 @@ export const managementListWebhooks = <ThrowOnError extends boolean = false>(opt
  * Supply an `Idempotency-Key` header (any unique string, max 255 chars) to safely retry on network errors. Replays with the same key return the original response; replays with a different body return `409 idempotency_conflict`.
  */
 export const managementCreateWebhook = <ThrowOnError extends boolean = false>(options?: Options<ManagementCreateWebhookData, ThrowOnError>) => (options?.client ?? client).post<ManagementCreateWebhookResponses, ManagementCreateWebhookErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks',
     ...options,
     headers: {
@@ -599,7 +599,7 @@ export const managementCreateWebhook = <ThrowOnError extends boolean = false>(op
  * Permanently removes the subscription. In-flight retries are dropped.
  */
 export const managementDeleteWebhook = <ThrowOnError extends boolean = false>(options: Options<ManagementDeleteWebhookData, ThrowOnError>) => (options.client ?? client).delete<ManagementDeleteWebhookResponses, ManagementDeleteWebhookErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}',
     ...options
 });
@@ -610,7 +610,7 @@ export const managementDeleteWebhook = <ThrowOnError extends boolean = false>(op
  * Returns a single webhook subscription. The signing secret is never included. Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the resource has not changed. The same ETag is the value to use in `If-Match` on PATCH for optimistic concurrency.
  */
 export const managementGetWebhook = <ThrowOnError extends boolean = false>(options: Options<ManagementGetWebhookData, ThrowOnError>) => (options.client ?? client).get<ManagementGetWebhookResponses, ManagementGetWebhookErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}',
     ...options
 });
@@ -623,7 +623,7 @@ export const managementGetWebhook = <ThrowOnError extends boolean = false>(optio
  * For optimistic concurrency, send `If-Match: <etag>` using the ETag from a prior GET. A mismatched `If-Match` returns `409 conflict` (the server's ETag is echoed back so you can decide whether to re-fetch). Responses carry the new ETag so chained edits can pipeline without a re-GET.
  */
 export const managementUpdateWebhook = <ThrowOnError extends boolean = false>(options: Options<ManagementUpdateWebhookData, ThrowOnError>) => (options.client ?? client).patch<ManagementUpdateWebhookResponses, ManagementUpdateWebhookErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}',
     ...options,
     headers: {
@@ -638,7 +638,7 @@ export const managementUpdateWebhook = <ThrowOnError extends boolean = false>(op
  * Returns recent delivery attempts for one webhook subscription, ordered by `created_at` descending. Delivery metadata is retained for 7 days. Use the payload endpoint while `payload_available` is true to inspect the exact JSON request body that was delivered.
  */
 export const managementListDelivery = <ThrowOnError extends boolean = false>(options: Options<ManagementListDeliveryData, ThrowOnError>) => (options.client ?? client).get<ManagementListDeliveryResponses, ManagementListDeliveryErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}/deliveries',
     ...options
 });
@@ -649,7 +649,7 @@ export const managementListDelivery = <ThrowOnError extends boolean = false>(opt
  * Returns the retained JSON request body for one delivery attempt. Payloads are retained for 7 days and may no longer be available after `payload_expires_at`.
  */
 export const managementGetDeliveryPayload = <ThrowOnError extends boolean = false>(options: Options<ManagementGetDeliveryPayloadData, ThrowOnError>) => (options.client ?? client).get<ManagementGetDeliveryPayloadResponses, ManagementGetDeliveryPayloadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}/deliveries/{delivery_id}/payload',
     ...options
 });
@@ -662,7 +662,7 @@ export const managementGetDeliveryPayload = <ThrowOnError extends boolean = fals
  * Supply an `Idempotency-Key` header to safely retry on network errors — replays under the same key return the original rotation response rather than minting a fresh secret. Replays against a different `public_id` under the same key return `409 idempotency_conflict`.
  */
 export const managementRotateWebhookSecret = <ThrowOnError extends boolean = false>(options: Options<ManagementRotateWebhookSecretData, ThrowOnError>) => (options.client ?? client).post<ManagementRotateWebhookSecretResponses, ManagementRotateWebhookSecretErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}/rotate-secret',
     ...options
 });
@@ -675,7 +675,7 @@ export const managementRotateWebhookSecret = <ThrowOnError extends boolean = fal
  * Supply an `Idempotency-Key` header to safely retry on network errors — replays under the same key return the original `event_id` rather than publishing a second test event.
  */
 export const managementTestWebhook = <ThrowOnError extends boolean = false>(options: Options<ManagementTestWebhookData, ThrowOnError>) => (options.client ?? client).post<ManagementTestWebhookResponses, ManagementTestWebhookErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/webhooks/{public_id}/test',
     ...options
 });

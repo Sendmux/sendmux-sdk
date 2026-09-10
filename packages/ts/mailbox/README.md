@@ -14,7 +14,7 @@ Generated TypeScript client for the Sendmux Mailbox API.
 
 ## Requirements
 
-- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token.
+- A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token; alternatively, a REST OAuth grant for this surface.
 - A JavaScript runtime with the standard Fetch API.
 
 ## Installation
@@ -22,6 +22,20 @@ Generated TypeScript client for the Sendmux Mailbox API.
 ```sh
 npm install @sendmux/mailbox
 ```
+
+## OAuth access tokens
+
+Pass `accessToken` instead of `apiKey` for a REST OAuth token or synchronous/asynchronous provider.
+
+```ts
+import { createMailboxClient } from "@sendmux/mailbox";
+
+const client = createMailboxClient({
+  accessToken: () => process.env.SENDMUX_ACCESS_TOKEN!,
+});
+```
+
+The provider runs before each request. Your application owns token storage and refresh; required scopes still apply. See [OAuth setup](https://sendmux.ai/docs/developer-tools/oauth).
 
 ## Usage
 

@@ -13,6 +13,7 @@ final class RetryOptions
         public readonly int $baseDelayMilliseconds = 250,
         public readonly int $maxDelayMilliseconds = 5000,
         public readonly bool $jitter = true,
+        public readonly ?int $maxElapsedMilliseconds = null,
     ) {
         if ($this->maxAttempts < 1) {
             throw new InvalidArgumentException('maxAttempts must be at least 1');
@@ -20,6 +21,10 @@ final class RetryOptions
 
         if ($this->baseDelayMilliseconds < 0 || $this->maxDelayMilliseconds < 0) {
             throw new InvalidArgumentException('retry delays must be non-negative');
+        }
+
+        if ($this->maxElapsedMilliseconds !== null && $this->maxElapsedMilliseconds < 0) {
+            throw new InvalidArgumentException('maxElapsedMilliseconds must be non-negative');
         }
     }
 }

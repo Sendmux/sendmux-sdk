@@ -23,6 +23,7 @@ checkRubyDependencyFloors();
 run(bundle, ["exec", "rubocop", "packages/ruby"]);
 run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_core.rb"]);
 run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_connection.rb"]);
+run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_oauth_retry.rb"]);
 run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_management_validation.rb"]);
 
 function commandWithRbenv(command) {

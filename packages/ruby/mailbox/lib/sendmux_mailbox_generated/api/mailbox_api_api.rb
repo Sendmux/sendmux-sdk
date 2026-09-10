@@ -67,7 +67,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxBatchDeleteMessagesResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_batch_delete_messages",
@@ -134,7 +134,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxBatchGetResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_batch_get_messages",
@@ -201,7 +201,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxBatchUpdateMessagesResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_batch_update_messages",
@@ -326,7 +326,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageCountResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_count_messages",
@@ -346,7 +346,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Create a presigned mailbox attachment upload
-    # Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+    # Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [MailboxAttachmentUploadIntentBody] :mailbox_attachment_upload_intent_body
@@ -357,7 +357,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Create a presigned mailbox attachment upload
-    # Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to &#x60;POST /mailbox/messages/send&#x60;.
+    # Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to &#x60;POST /mailbox/messages/send&#x60;.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @option opts [MailboxAttachmentUploadIntentBody] :mailbox_attachment_upload_intent_body
@@ -393,7 +393,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxAttachmentUploadIntentResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_create_attachment_upload",
@@ -460,7 +460,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxFolderResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_create_folder",
@@ -529,7 +529,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxFolderDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_delete_folder",
@@ -601,7 +601,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_delete_message",
@@ -696,7 +696,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxGetChanges200Response'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_changes",
@@ -756,7 +756,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'ConnectionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_connection",
@@ -825,7 +825,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxFolderResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_folder",
@@ -899,7 +899,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxChangesResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_folder_changes",
@@ -959,7 +959,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxIdentityResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_identity",
@@ -979,7 +979,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Self-introspect the calling mailbox
-    # Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
+    # Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.  Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -990,7 +990,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # Self-introspect the calling mailbox
-    # Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.  Responses carry a weak &#x60;ETag&#x60; header — send it back as &#x60;If-None-Match&#x60; on the next request and the server will return &#x60;304 Not Modified&#x60; (no body) when the mailbox state has not changed.
+    # Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.  Responses carry a weak &#x60;ETag&#x60; header — send it back as &#x60;If-None-Match&#x60; on the next request and the server will return &#x60;304 Not Modified&#x60; (no body) when the mailbox state has not changed.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :if_none_match
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
@@ -1022,7 +1022,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMeItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_me",
@@ -1091,7 +1091,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageDetailResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_message",
@@ -1169,7 +1169,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type]
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_message_attachment",
@@ -1243,7 +1243,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxChangesResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_quota_changes",
@@ -1306,7 +1306,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxSessionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_session",
@@ -1375,7 +1375,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxSubmissionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_submission",
@@ -1449,7 +1449,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxChangesResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_submission_changes",
@@ -1518,7 +1518,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxThreadDetailResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_thread",
@@ -1652,7 +1652,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxThreadContentResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_get_thread_content",
@@ -1739,7 +1739,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxRawBodyResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_body",
@@ -1852,7 +1852,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageContentResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_content",
@@ -1926,7 +1926,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxFolderCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_folders",
@@ -2000,7 +2000,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'GrantedMailboxListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_granted_mailboxes",
@@ -2074,7 +2074,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxIdentityCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_identities",
@@ -2094,7 +2094,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # List mailbox messages
-    # Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.
+    # Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
@@ -2127,7 +2127,7 @@ module Sendmux::Mailbox::Generated
     end
 
     # List mailbox messages
-    # Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.
+    # Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.
     # @param [Hash] opts the optional parameters
     # @option opts [String] :cursor
     # @option opts [Integer] :limit
@@ -2227,7 +2227,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageSummaryCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_messages",
@@ -2335,7 +2335,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxQuotaCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_quotas",
@@ -2445,7 +2445,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxSubmissionCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_submissions",
@@ -2532,7 +2532,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageSummaryCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_thread_messages",
@@ -2634,7 +2634,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxThreadSummaryCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_threads",
@@ -2697,7 +2697,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxUsageResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_list_usage",
@@ -2771,7 +2771,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxFolderQueryChangesResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_query_folder_changes",
@@ -2927,7 +2927,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageQueryChangesResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_query_message_changes",
@@ -3067,7 +3067,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxSearchSnippetsResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_search_message_snippets",
@@ -3141,7 +3141,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxSendResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_send_message",
@@ -3163,12 +3163,12 @@ module Sendmux::Mailbox::Generated
     # Stream mailbox events
     # Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id
     # @option opts [String] :event_types
     # @option opts [String] :last_event_id
     # @option opts [Integer] :ping
     # @option opts [Integer] :close_after
     # @option opts [String] :last_event_id2
-    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxRealtimeEvent]
     def mailbox_stream_events(opts = {})
       data, _status_code, _headers = mailbox_stream_events_with_http_info(opts)
@@ -3178,12 +3178,12 @@ module Sendmux::Mailbox::Generated
     # Stream mailbox events
     # Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
     # @param [Hash] opts the optional parameters
+    # @option opts [String] :mailbox_id
     # @option opts [String] :event_types
     # @option opts [String] :last_event_id
     # @option opts [Integer] :ping
     # @option opts [Integer] :close_after
     # @option opts [String] :last_event_id2
-    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxRealtimeEvent, Integer, Hash)>] MailboxRealtimeEvent data, response status code and response headers
     def mailbox_stream_events_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -3210,11 +3210,11 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
       query_params[:'event_types'] = opts[:'event_types'] if !opts[:'event_types'].nil?
       query_params[:'last_event_id'] = opts[:'last_event_id'] if !opts[:'last_event_id'].nil?
       query_params[:'ping'] = opts[:'ping'] if !opts[:'ping'].nil?
       query_params[:'close_after'] = opts[:'close_after'] if !opts[:'close_after'].nil?
-      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}
@@ -3232,7 +3232,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxRealtimeEvent'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_stream_events",
@@ -3308,7 +3308,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxFolderResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_update_folder",
@@ -3375,7 +3375,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxIdentityResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_update_identity",
@@ -3451,7 +3451,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxMessageDetailResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_update_message",
@@ -3525,7 +3525,7 @@ module Sendmux::Mailbox::Generated
       return_type = opts[:debug_return_type] || 'MailboxAttachmentUploadResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"MailboxAPIApi.mailbox_upload_attachment",

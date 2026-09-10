@@ -2,8 +2,19 @@ package core
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 )
+
+var bearerTokenPattern = regexp.MustCompile(`^[A-Za-z0-9._~+/\-]+=*$`)
+
+// ValidateAccessToken accepts a bare OAuth bearer token, without its scheme.
+func ValidateAccessToken(token string) error {
+	if !bearerTokenPattern.MatchString(token) {
+		return errors.New("sendmux: access token must be a non-empty bare bearer token")
+	}
+	return nil
+}
 
 // KeySurface identifies the Sendmux API key category a client accepts.
 type KeySurface string

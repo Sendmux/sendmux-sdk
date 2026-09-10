@@ -71,7 +71,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookSubscriptionWithSecretResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_create_webhook",
@@ -134,7 +134,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_delete_webhook",
@@ -203,7 +203,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookDeliveryPayloadResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_get_delivery_payload",
@@ -269,7 +269,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookSubscriptionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_get_webhook",
@@ -360,7 +360,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookDeliveryAttemptCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_list_delivery",
@@ -431,7 +431,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookSubscriptionCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_list_webhooks",
@@ -501,7 +501,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookSubscriptionWithSecretResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_rotate_webhook_secret",
@@ -571,7 +571,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ManagementTestWebhook200Response'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_test_webhook",
@@ -644,7 +644,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'WebhookSubscriptionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"WebhooksApi.management_update_webhook",

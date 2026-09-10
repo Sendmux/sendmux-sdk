@@ -763,6 +763,20 @@
         "description": "Sendmux API key (smx_...)",
         "scheme": "bearer",
         "type": "http"
+      },
+      "OAuth2": {
+        "description": "Use the authorisation-code flow with S256 PKCE and resource=https://sendmux.ai/api. The user must grant Sending API access and email.send. OAuth access tokens authenticate HTTP requests; use a send-capable API key for SMTP.",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://app.sendmux.ai/oauth/authorize",
+            "refreshUrl": "https://app.sendmux.ai/oauth/token",
+            "scopes": {
+              "email.send": "Send email and manage temporary sending attachments"
+            },
+            "tokenUrl": "https://app.sendmux.ai/oauth/token"
+          }
+        },
+        "type": "oauth2"
       }
     }
   },
@@ -903,6 +917,11 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "OAuth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Create an attachment upload URL",
@@ -1222,6 +1241,11 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "OAuth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Upload an attachment",
@@ -1311,6 +1335,11 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "OAuth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Get attachment metadata",
@@ -1451,6 +1480,11 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "OAuth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Send a single email",
@@ -1591,6 +1625,11 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "OAuth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Send a batch of emails",
@@ -1705,6 +1744,11 @@
         "security": [
           {
             "BearerAuth": []
+          },
+          {
+            "OAuth2": [
+              "email.send"
+            ]
           }
         ],
         "summary": "Get Sending connection",
@@ -1777,6 +1821,11 @@
   "security": [
     {
       "BearerAuth": []
+    },
+    {
+      "OAuth2": [
+        "email.send"
+      ]
     }
   ],
   "servers": [

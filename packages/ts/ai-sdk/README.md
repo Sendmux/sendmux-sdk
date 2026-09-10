@@ -17,7 +17,7 @@ npm install @sendmux/ai-sdk ai zod
 
 ## Getting an API key
 
-The tools need a key that can both send and receive. Two ways to get one:
+For API-key authentication, use a key that can both send and receive. Two ways to get one:
 
 - **Dashboard** — create a mailbox and a mailbox-scoped key (`smx_mbx_*`). See [API keys](https://sendmux.ai/docs/guides/api-keys).
 - **Agent self-registration** — the agent claims its own `@myagent.mx` mailbox and gets an `smx_agent_*` token, with no human signup first. See [email for AI agents](https://sendmux.ai/solutions/for-ai-agents/).
@@ -25,6 +25,21 @@ The tools need a key that can both send and receive. Two ways to get one:
 Note on agent tokens: a freshly self-registered `smx_agent_*` token can read and receive, but **cannot send** until a human owner has been invited and has approved it. Until then `send_email` and `reply` will fail. A dashboard `smx_mbx_*` key with send permission works immediately.
 
 Read the key from the environment. Never hard-code it.
+
+## OAuth access tokens
+
+Set `accessToken` to a bare REST OAuth token or a synchronous or asynchronous provider instead of `apiKey`:
+
+```ts
+import { sendmux } from "@sendmux/ai-sdk";
+
+const tools = sendmux({
+  accessToken: () => process.env.SENDMUX_ACCESS_TOKEN!,
+  defaultFrom: "agent@yourdomain.dev",
+});
+```
+
+The provider runs before every tool request. Your application owns protected token storage, expiry checks, and refresh coordination. Request `mailbox.read` and `email.send` to use all three tools, and select one mailbox at consent; these tools do not supply a mailbox selector. See [REST OAuth](https://sendmux.ai/docs/developer-tools/oauth).
 
 ## Quick start
 

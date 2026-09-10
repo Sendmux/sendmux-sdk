@@ -17,10 +17,26 @@ Generated Python client for the Sendmux Management API.
 - Python 3.10 or newer.
 - A root Sendmux API key with the `smx_root_*` prefix.
 
+For OAuth, use a REST access token with the scopes and mailbox access required by the operation. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Installation
 
 ```sh
 pip install sendmux-management
+```
+
+## OAuth access tokens
+
+Pass either `api_key` or `access_token`. `access_token` accepts a bare token string or a synchronous callable; the callable is evaluated for each authenticated request. Your application owns token storage, expiry checks and refresh coordination.
+
+```python
+import os
+
+from sendmux_management import create_management_client
+
+client = create_management_client(
+    access_token=lambda: os.environ["SENDMUX_ACCESS_TOKEN"]
+)
 ```
 
 ## Usage

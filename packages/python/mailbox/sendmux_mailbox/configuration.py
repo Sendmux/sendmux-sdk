@@ -129,6 +129,7 @@ AuthSettings = TypedDict(
     "AuthSettings",
     {
         "bearerAuth": BearerFormatAuthSetting,
+        "oauth2": OAuth2AuthSetting,
     },
     total=False,
 )
@@ -537,6 +538,13 @@ class Configuration:
                 'type': 'bearer',
                 'in': 'header',
                 'format': 'API Key',
+                'key': 'Authorization',
+                'value': 'Bearer ' + self.access_token
+            }
+        if self.access_token is not None:
+            auth['oauth2'] = {
+                'type': 'oauth2',
+                'in': 'header',
                 'key': 'Authorization',
                 'value': 'Bearer ' + self.access_token
             }

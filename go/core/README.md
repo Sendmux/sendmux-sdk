@@ -19,6 +19,7 @@ import "sendmux.ai/go/core"
 ## What it provides
 
 - API-key prefix validation with `ValidateAPIKey` and `KeySurface`.
+- Bare access-token validation with `ValidateAccessToken`.
 - Shared `APIError`, `ErrorIssue`, `SuccessEnvelope`, and `Pagination` types.
 - Retry-aware HTTP clients through `NewHTTPClient`, `NewRetryingTransport`, and `RetryOptions`.
 - Cursor iteration through `IterateCursor` for code that adapts a response type to the `core.Page` interface.

@@ -70,7 +70,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_activate_provider",
@@ -133,7 +133,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'SharedAmazonSesLimitRequestCancelResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_cancel_shared_amazon_ses_limit_request",
@@ -204,7 +204,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_create_provider",
@@ -268,7 +268,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'SharedAmazonSesLimitRequestCreateResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_create_shared_amazon_ses_limit_request",
@@ -338,7 +338,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_deactivate_provider",
@@ -401,7 +401,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderDeletedResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_delete_provider",
@@ -467,7 +467,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_get_provider",
@@ -524,7 +524,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderLimitsResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_get_provider_limits",
@@ -581,7 +581,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderStatsResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_get_provider_stats",
@@ -638,7 +638,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderUsageResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_get_provider_usage",
@@ -695,7 +695,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'SharedAmazonSesLimitRequestPageResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_get_shared_amazon_ses_limit_request",
@@ -780,7 +780,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderItemCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_list_providers",
@@ -844,7 +844,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'SendingAccountLimitRequestResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_request_sending_account_limit_increase",
@@ -914,7 +914,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderTestResultResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_test_provider",
@@ -987,7 +987,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'ProviderItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"SendingAccountsApi.management_update_provider",

@@ -2697,7 +2697,7 @@ export type ManagementResumeMailboxData = {
 
 export type ManagementResumeMailboxErrors = {
     /**
-     * Root API key required
+     * Management API access required
      */
     403: ApiError;
     /**
@@ -2745,7 +2745,7 @@ export type ManagementSuspendMailboxData = {
 
 export type ManagementSuspendMailboxErrors = {
     /**
-     * Root API key required
+     * Management API access required
      */
     403: ApiError;
     /**
@@ -2791,7 +2791,7 @@ export type ManagementCheckMailboxAvailabilityErrors = {
      */
     401: ApiError;
     /**
-     * Root API key with mailbox.admin.create is required
+     * Management API access with mailbox.admin.create is required
      */
     403: ApiError;
 };

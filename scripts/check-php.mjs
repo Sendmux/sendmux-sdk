@@ -20,6 +20,7 @@ runShell("find packages/php -name '*.php' -print0 | xargs -0 -n 1 php -l");
 runShell("vendor/bin/phpcs -d memory_limit=512M --standard=phpcs.xml");
 runShell("vendor/bin/phpstan analyse --configuration=phpstan.neon --level=max --memory-limit=1G");
 runShell("vendor/bin/phpunit --configuration phpunit.xml.dist");
+runShell("node --test scripts/test-php-oauth.mjs");
 
 function runShell(command) {
   const result = spawnSync(command, {

@@ -60,7 +60,7 @@ module Sendmux::Sending::Generated
       return_type = opts[:debug_return_type] || 'ConnectionResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['BearerAuth']
+      auth_names = opts[:debug_auth_names] || ['OAuth2', 'BearerAuth']
 
       new_options = opts.merge(
         :operation => :"MetaApi.sending_get_connection",

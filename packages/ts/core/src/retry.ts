@@ -1,5 +1,7 @@
 import type { RetryConfig } from "./types.js";
 
+const MAX_TIMER_DELAY_MS = 2 ** 31 - 1;
+
 export function createRetryingFetch(
   config: RetryConfig = {},
   baseFetch: typeof fetch = globalThis.fetch,
@@ -12,11 +14,13 @@ export function createRetryingFetch(
   const jitter = config.jitter ?? true;
 
   return async (input, init) => {
+    const deadline = config.maxElapsedMs === undefined ? Infinity : Date.now() + Math.max(0, config.maxElapsedMs);
     const request = new Request(input, init);
     const retryPlan = await createRetryPlan(request, maxReplayBodyBytes, replayBodies);
     return executeRetryLoop({
       baseDelayMs,
       baseFetch,
+      deadline,
       jitter,
       maxAttempts,
       maxDelayMs,
@@ -30,8 +34,23 @@ export function isRetryableStatus(status?: number): boolean {
   return status === 408 || status === 409 || status === 425 || status === 429 || (typeof status === "number" && status >= 500);
 }
 
-function shouldRetryResponse(response: Response, request: Request): boolean {
-  return isRetryableRequest(request) && (response.status === 429 || isRetryableStatus(response.status));
+async function shouldRetryResponse(response: Response, request: Request): Promise<boolean> {
+  if (!isRetryableRequest(request) || !isRetryableStatus(response.status)) return false;
+  if (response.headers.get("Content-Type")?.includes("application/json")) {
+    try {
+      const body: unknown = await response.clone().json();
+      if (
+        body && typeof body === "object" && "ok" in body && body.ok === false &&
+        "error" in body && body.error && typeof body.error === "object" &&
+        "retryable" in body.error && body.error.retryable === false
+      ) {
+        return false;
+      }
+    } catch {
+      // An unreadable error envelope leaves the HTTP status as the retry signal.
+    }
+  }
+  return true;
 }
 
 function isRetryableRequest(request: Request): boolean {
@@ -69,12 +88,12 @@ function retryDelay({
   if (retryAfter) {
     const parsed = Number(retryAfter);
     if (Number.isFinite(parsed)) {
-      return Math.min(parsed * 1_000, maxDelayMs);
+      return Math.max(0, parsed * 1_000);
     }
 
     const dateMs = Date.parse(retryAfter);
     if (Number.isFinite(dateMs)) {
-      return Math.min(Math.max(0, dateMs - Date.now()), maxDelayMs);
+      return Math.max(0, dateMs - Date.now());
     }
   }
 
@@ -82,7 +101,7 @@ function retryDelay({
   if (reset) {
     const resetSeconds = Number(reset);
     if (Number.isFinite(resetSeconds)) {
-      return Math.min(Math.max(0, resetSeconds * 1_000 - Date.now()), maxDelayMs);
+      return Math.max(0, resetSeconds * 1_000 - Date.now());
     }
   }
 
@@ -98,6 +117,7 @@ interface RetryPlan {
 interface RetryLoopOptions {
   baseDelayMs: number;
   baseFetch: typeof fetch;
+  deadline: number;
   jitter: boolean;
   maxAttempts: number;
   maxDelayMs: number;
@@ -108,6 +128,7 @@ interface RetryLoopOptions {
 async function executeRetryLoop({
   baseDelayMs,
   baseFetch,
+  deadline,
   jitter,
   maxAttempts,
   maxDelayMs,
@@ -122,19 +143,30 @@ async function executeRetryLoop({
 
     try {
       const response = await baseFetch(current);
-      if (!retryPlan.canRetry || !shouldRetryResponse(response, request) || attempt === maxAttempts - 1) {
+      if (!retryPlan.canRetry || attempt === maxAttempts - 1 || !(await shouldRetryResponse(response, request))) {
         return response;
       }
 
+      const delay = retryDelay({ attempt, baseDelayMs, headers: response.headers, jitter, maxDelayMs });
+      if (delay > MAX_TIMER_DELAY_MS || Date.now() + delay >= deadline) return response;
+      try {
+        await sleep({ ms: delay, signal: request.signal });
+      } catch (error) {
+        await discardResponseBody(response);
+        throw error;
+      }
+      if (Date.now() >= deadline) return response;
       await discardResponseBody(response);
-      await sleep(retryDelay({ attempt, baseDelayMs, headers: response.headers, jitter, maxDelayMs }));
     } catch (error) {
       lastError = error;
       if (isAbortError(error, request) || !retryPlan.canRetry || attempt === maxAttempts - 1) {
         throw error;
       }
 
-      await sleep(retryDelay({ attempt, baseDelayMs, jitter, maxDelayMs }));
+      const delay = retryDelay({ attempt, baseDelayMs, jitter, maxDelayMs });
+      if (delay > MAX_TIMER_DELAY_MS || Date.now() + delay >= deadline) throw error;
+      await sleep({ ms: delay, signal: request.signal });
+      if (Date.now() >= deadline) throw error;
     }
 
     attempt += 1;
@@ -240,6 +272,17 @@ function isAbortError(error: unknown, request: Request): boolean {
   return request.signal.aborted || (error instanceof Error && error.name === "AbortError");
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep({ ms, signal }: { ms: number; signal: AbortSignal }): Promise<void> {
+  return new Promise((resolve, reject) => {
+    signal.throwIfAborted();
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
 }

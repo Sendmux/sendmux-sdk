@@ -19,6 +19,8 @@ Umbrella Ruby SDK package for Sendmux.
 - A mailbox-scoped key beginning with `smx_mbx_` or scoped token beginning with `smx_agent_` for mailbox clients.
 - A root key beginning with `smx_root_` for management clients.
 
+For OAuth, use a REST access token with the scopes and mailbox access required by the operation. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Installation
 
 ```sh
@@ -29,6 +31,18 @@ Or add it to your Gemfile:
 
 ```ruby
 gem "sendmux-sdk", "~> 1.0"
+```
+
+## OAuth access tokens
+
+Pass either `api_key:` or `access_token:`. `access_token:` accepts a bare token string or a callable; the callable is evaluated once per authenticated request. Your application owns token storage, expiry checks and refresh coordination.
+
+```ruby
+require "sendmux/sdk"
+
+client = Sendmux::SDK.management(
+  access_token: -> { ENV.fetch("SENDMUX_ACCESS_TOKEN") }
+)
 ```
 
 ## Usage

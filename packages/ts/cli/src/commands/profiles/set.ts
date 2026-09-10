@@ -2,7 +2,7 @@ import { Args, Flags } from "@oclif/core";
 
 import { SendmuxCommand } from "../../base-command.js";
 import { inferApiKeyKind } from "../../key-kind.js";
-import { updateCliConfig } from "../../profiles.js";
+import { isOAuthProfile, updateCliConfig } from "../../profiles.js";
 
 export default class ProfilesSet extends SendmuxCommand {
   static args = {
@@ -34,6 +34,8 @@ export default class ProfilesSet extends SendmuxCommand {
 
     const keyKind = inferApiKeyKind(apiKey);
     const isDefault = await updateCliConfig(this.config.configDir, (config) => {
+      const existing = config.profiles[args.name];
+      if (existing && isOAuthProfile(existing)) throw new Error("Log out of this OAuth profile before replacing it.");
       config.profiles[args.name] = {
         apiKey,
         ...(flags["base-url"] ? { baseUrl: flags["base-url"] } : {}),

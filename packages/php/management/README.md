@@ -12,7 +12,7 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 
 - PHP 8.2 or newer.
 - Composer.
-- A team-scoped API key with the `smx_root_` prefix.
+- A team-scoped API key with the `smx_root_` prefix. Alternatively, use a REST OAuth access token with the required scopes.
 
 ## Installation
 
@@ -53,6 +53,18 @@ $webhooks = ClientFactory::createWebhooksApi(
 Use `$connection->managementGetConnection()` to test credentials and retrieve team and credential details.
 
 The factory also exposes clients for billing, domain filters, emails, inboxes, mailbox filters, sending accounts, and webhooks.
+
+## OAuth access tokens
+
+`ClientFactory::createConnectionApiWithAccessToken($accessToken)` accepts a bare token or a callable returning one. Every API group factory has the same `WithAccessToken` variant. Providers run on each request and retry; your application owns token storage and refresh coordination. OAuth clients do not follow redirects.
+
+```php
+$client = ClientFactory::createConnectionApiWithAccessToken(
+    static fn (): string => getenv('SENDMUX_ACCESS_TOKEN') ?: ''
+);
+```
+
+See [OAuth setup and lifecycle](https://sendmux.ai/docs/developer-tools/oauth).
 
 ## Features
 

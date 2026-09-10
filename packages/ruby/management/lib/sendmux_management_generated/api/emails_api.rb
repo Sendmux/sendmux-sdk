@@ -66,7 +66,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DeliveryLogItemResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"EmailsApi.management_get_email_log",
@@ -146,7 +146,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'EmailMetricsResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"EmailsApi.management_get_email_metrics",
@@ -236,7 +236,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'DeliveryLogItemCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"EmailsApi.management_list_email_logs",

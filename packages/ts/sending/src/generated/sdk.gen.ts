@@ -24,7 +24,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Create a short-lived upload URL and token that lets a remote client PUT one binary attachment without exposing the API key on the upload request. Requires `email.send` permission.
  */
 export const sendingCreateAttachmentUpload = <ThrowOnError extends boolean = false>(options: Options<SendingCreateAttachmentUploadData, ThrowOnError>) => (options.client ?? client).post<SendingCreateAttachmentUploadResponses, SendingCreateAttachmentUploadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/attachment-uploads',
     ...options,
     headers: {
@@ -55,7 +55,7 @@ export const sendingCompleteAttachmentUpload = <ThrowOnError extends boolean = f
  */
 export const sendingUploadAttachment = <ThrowOnError extends boolean = false>(options: Options<SendingUploadAttachmentData, ThrowOnError>) => (options.client ?? client).post<SendingUploadAttachmentResponses, SendingUploadAttachmentErrors, ThrowOnError>({
     bodySerializer: null,
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/attachments',
     ...options,
     headers: {
@@ -70,7 +70,7 @@ export const sendingUploadAttachment = <ThrowOnError extends boolean = false>(op
  * Return metadata for a temporary uploaded attachment owned by the authenticated team. File bytes are not returned.
  */
 export const sendingGetAttachment = <ThrowOnError extends boolean = false>(options: Options<SendingGetAttachmentData, ThrowOnError>) => (options.client ?? client).get<SendingGetAttachmentResponses, SendingGetAttachmentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/attachments/{attachment_id}',
     ...options
 });
@@ -81,7 +81,7 @@ export const sendingGetAttachment = <ThrowOnError extends boolean = false>(optio
  * Queue a single email for delivery. Requires `email.send` permission.
  */
 export const sendingSendEmail = <ThrowOnError extends boolean = false>(options: Options<SendingSendEmailData, ThrowOnError>) => (options.client ?? client).post<SendingSendEmailResponses, SendingSendEmailErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/send',
     ...options,
     headers: {
@@ -96,7 +96,7 @@ export const sendingSendEmail = <ThrowOnError extends boolean = false>(options: 
  * Queue up to 100 emails for delivery in a single request. Uses partial success model — individual message failures do not fail the entire batch. Requires `email.send` permission.
  */
 export const sendingSendEmailBatch = <ThrowOnError extends boolean = false>(options: Options<SendingSendEmailBatchData, ThrowOnError>) => (options.client ?? client).post<SendingSendEmailBatchResponses, SendingSendEmailBatchErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/emails/send/batch',
     ...options,
     headers: {
@@ -111,7 +111,7 @@ export const sendingSendEmailBatch = <ThrowOnError extends boolean = false>(opti
  * Validate this Sending credential and return its team, connection label, permissions and authorised mailboxes. Requires email.send. Credits, provider readiness and mailbox storage are not checked. No user profile or secrets are returned.
  */
 export const sendingGetConnection = <ThrowOnError extends boolean = false>(options?: Options<SendingGetConnectionData, ThrowOnError>) => (options?.client ?? client).get<SendingGetConnectionResponses, SendingGetConnectionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/me',
     ...options
 });

@@ -449,6 +449,11 @@ class MailboxFiltersApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -865,6 +870,11 @@ class MailboxFiltersApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)

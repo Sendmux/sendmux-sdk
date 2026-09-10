@@ -60,7 +60,7 @@ type Invoker interface {
 	//
 	// Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
 	// the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
-	// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+	// sending a bearer token. The PUT returns a blob ID that can be supplied to `POST
 	// /mailbox/messages/send`.
 	//
 	// POST /mailbox/attachment-uploads
@@ -113,9 +113,9 @@ type Invoker interface {
 	MailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (MailboxGetIdentityRes, error)
 	// MailboxGetMe invokes mailboxGetMe operation.
 	//
-	// Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK
-	// auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API
-	// key; root keys receive 403.
+	// Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth
+	// grant with Mailbox API access. For credential validation without selecting a mailbox or checking
+	// storage, use GET /mailbox/connection.
 	// Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and
 	// the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
 	//
@@ -211,8 +211,8 @@ type Invoker interface {
 	MailboxListIdentities(ctx context.Context, params MailboxListIdentitiesParams) (MailboxListIdentitiesRes, error)
 	// MailboxListMessages invokes mailboxListMessages operation.
 	//
-	// Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API
-	// key.
+	// Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API
+	// access.
 	//
 	// GET /mailbox/messages
 	MailboxListMessages(ctx context.Context, params MailboxListMessagesParams) (MailboxListMessagesRes, error)
@@ -1205,7 +1205,7 @@ func (c *Client) sendMailboxCountMessages(ctx context.Context, params MailboxCou
 //
 // Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
 // the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
-// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+// sending a bearer token. The PUT returns a blob ID that can be supplied to `POST
 // /mailbox/messages/send`.
 //
 // POST /mailbox/attachment-uploads
@@ -2657,9 +2657,9 @@ func (c *Client) sendMailboxGetIdentity(ctx context.Context, params MailboxGetId
 
 // MailboxGetMe invokes mailboxGetMe operation.
 //
-// Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK
-// auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API
-// key; root keys receive 403.
+// Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth
+// grant with Mailbox API access. For credential validation without selecting a mailbox or checking
+// storage, use GET /mailbox/connection.
 // Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and
 // the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
 //
@@ -5280,8 +5280,8 @@ func (c *Client) sendMailboxListIdentities(ctx context.Context, params MailboxLi
 
 // MailboxListMessages invokes mailboxListMessages operation.
 //
-// Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API
-// key.
+// Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API
+// access.
 //
 // GET /mailbox/messages
 func (c *Client) MailboxListMessages(ctx context.Context, params MailboxListMessagesParams) (MailboxListMessagesRes, error) {
@@ -8356,6 +8356,23 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
 		// Encode "event_types" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "event_types",
@@ -8417,23 +8434,6 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.CloseAfter.Get(); ok {
 				return e.EncodeValue(conv.IntToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
-		// Encode "mailbox_id" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "mailbox_id",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.MailboxID.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {

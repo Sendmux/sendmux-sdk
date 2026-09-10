@@ -19,9 +19,9 @@ Agent-drivable command line interface for Sendmux.
 
 - No existing Sendmux account or API key is required to register an agent inbox.
 - npm global installs, `npx`, or a downloaded release tarball.
-- A root `smx_root_*` key for Management commands.
-- A send-capable `smx_mbx_*` key or owner-approved agent profile for Sending commands.
-- A mailbox-scoped `smx_mbx_*` key or registered agent profile for Mailbox commands.
+- Management commands require an OAuth profile with the requested permissions or a root `smx_root_*` key.
+- Sending commands require an OAuth profile with `email.send`, a send-capable `smx_mbx_*` key, or an owner-approved agent profile.
+- Mailbox commands require an OAuth profile with the requested mailbox permissions, a mailbox-scoped `smx_mbx_*` key, or a registered agent profile.
 
 ## Installation
 
@@ -30,6 +30,29 @@ npm install -g @sendmux/cli
 ```
 
 The package exposes the `sendmux` binary.
+
+## Sign in with OAuth
+
+Sign in through your browser and request only the permissions your workflow needs:
+
+```sh
+sendmux auth:login work --scope mailbox.read
+sendmux mailbox:get-connection --profile work --json
+```
+
+Repeat `--scope` for additional permissions, such as `email.send` or `domain.read`. The consent screen lets you choose the team and mailboxes. A login creates a new profile; it cannot overwrite an existing profile. Use `--no-browser` to print the authorization URL without opening it automatically; open that URL on the same computer so the loopback callback reaches the CLI.
+
+The CLI uses an authorization code with S256 PKCE and validates the callback state and issuer. Access and refresh tokens are saved in the protected local configuration file; command results and profile listings do not reveal them. API commands refresh tokens when needed. Concurrent commands share one refresh operation. If a refresh response is lost, the CLI requires a new login instead of replaying the old refresh token.
+
+Revoke the connection and remove its profile:
+
+```sh
+sendmux auth:logout work
+```
+
+If revocation fails, the profile stays available for another logout attempt. Revocation affects the connection associated with that profile.
+
+For a headless workflow that already has an access token, supply it through `SENDMUX_ACCESS_TOKEN`. Do not also set `SENDMUX_API_KEY` or pass `--api-key`. The CLI does not refresh an environment-supplied token; its issuer or your credential provider must renew it.
 
 ## Usage
 

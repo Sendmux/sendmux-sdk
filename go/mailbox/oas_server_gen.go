@@ -39,7 +39,7 @@ type Handler interface {
 	//
 	// Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint
 	// the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without
-	// sending an API key. The PUT returns a blob ID that can be supplied to `POST
+	// sending a bearer token. The PUT returns a blob ID that can be supplied to `POST
 	// /mailbox/messages/send`.
 	//
 	// POST /mailbox/attachment-uploads
@@ -92,9 +92,9 @@ type Handler interface {
 	MailboxGetIdentity(ctx context.Context, params MailboxGetIdentityParams) (MailboxGetIdentityRes, error)
 	// MailboxGetMe implements mailboxGetMe operation.
 	//
-	// Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK
-	// auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API
-	// key; root keys receive 403.
+	// Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth
+	// grant with Mailbox API access. For credential validation without selecting a mailbox or checking
+	// storage, use GET /mailbox/connection.
 	// Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and
 	// the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
 	//
@@ -190,8 +190,8 @@ type Handler interface {
 	MailboxListIdentities(ctx context.Context, params MailboxListIdentitiesParams) (MailboxListIdentitiesRes, error)
 	// MailboxListMessages implements mailboxListMessages operation.
 	//
-	// Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API
-	// key.
+	// Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API
+	// access.
 	//
 	// GET /mailbox/messages
 	MailboxListMessages(ctx context.Context, params MailboxListMessagesParams) (MailboxListMessagesRes, error)

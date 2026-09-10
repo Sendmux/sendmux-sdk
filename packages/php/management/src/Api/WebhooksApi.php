@@ -516,6 +516,11 @@ class WebhooksApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -821,6 +826,11 @@ class WebhooksApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -1187,6 +1197,11 @@ class WebhooksApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -1517,6 +1532,11 @@ class WebhooksApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -1970,6 +1990,11 @@ class WebhooksApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -2316,6 +2341,11 @@ class WebhooksApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -2657,6 +2687,11 @@ class WebhooksApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -3014,6 +3049,11 @@ class WebhooksApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -3418,6 +3458,11 @@ class WebhooksApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)

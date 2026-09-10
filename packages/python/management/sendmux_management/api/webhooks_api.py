@@ -332,6 +332,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -596,6 +597,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -881,6 +883,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1163,6 +1166,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1473,21 +1477,21 @@ class WebhooksApi:
             _path_params['public_id'] = public_id
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         if event_type is not None:
-            
+
             _query_params.append(('event_type', event_type))
-            
+
         if result is not None:
-            
+
             _query_params.append(('result', result))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1504,6 +1508,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -1767,13 +1772,13 @@ class WebhooksApi:
         # process the path parameters
         # process the query parameters
         if cursor is not None:
-            
+
             _query_params.append(('cursor', cursor))
-            
+
         if limit is not None:
-            
+
             _query_params.append(('limit', limit))
-            
+
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1790,6 +1795,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2072,6 +2078,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2357,6 +2364,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 
@@ -2676,6 +2684,7 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'oauth2',
             'bearerAuth'
         ]
 

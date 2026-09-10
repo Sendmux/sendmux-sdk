@@ -140,9 +140,9 @@ Packaged OpenAPI snapshots are the default so released tool names, schemas, and 
 
 ## Tool Surfaces
 
-- Mailbox: `25` tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
-- Management: `21` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
-- Sending: `5` tools for attachment upload refs, single sends, and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
+- Mailbox: `26` tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
+- Management: `22` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
+- Sending: `6` tools for attachment upload refs, single sends, and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
 
 The server rejects keys with the wrong prefix before starting.
 

@@ -23,7 +23,13 @@ assert.deepEqual(
 for (const [name, tool] of Object.entries(tools)) {
   assert.ok(tool.description, `${name} has a description`);
   assert.ok(tool.inputSchema, `${name} has an inputSchema`);
-  assert.equal(typeof tool.execute, "function", `${name} has an execute function`);
+  assert.equal(
+    typeof tool.execute,
+    "function",
+    `${name} has an execute function`,
+  );
 }
 
 console.log("ai-sdk tool set OK:", names.join(", "));
+
+await import("../packages/ts/ai-sdk/tests/oauth.mjs");

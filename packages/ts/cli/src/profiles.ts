@@ -48,7 +48,30 @@ export interface ActiveAgentCliProfile extends AgentProfileBase {
 }
 
 export type AgentCliProfile = ActiveAgentCliProfile | RegisteringAgentCliProfile;
-export type CliProfile = AgentCliProfile | ApiKeyCliProfile;
+export interface AuthorizingOAuthCliProfile {
+  type: "oauth";
+  state: "authorizing";
+  sessionId: string;
+  issuer: string;
+}
+
+export interface ActiveOAuthCliProfile {
+  type: "oauth";
+  state: "active" | "refreshing" | "revoking" | "reauthorize";
+  sessionId: string;
+  issuer: string;
+  clientId: string;
+  tokenEndpoint: string;
+  revocationEndpoint: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+  scopes: string[];
+  refreshStartedAt?: number;
+}
+
+export type OAuthCliProfile = AuthorizingOAuthCliProfile | ActiveOAuthCliProfile;
+export type CliProfile = AgentCliProfile | ApiKeyCliProfile | OAuthCliProfile;
 
 export interface CliConfig {
   defaultProfile?: string;
@@ -235,7 +258,11 @@ export function isAgentProfile(profile: CliProfile): profile is AgentCliProfile 
 }
 
 export function isApiKeyProfile(profile: CliProfile): profile is ApiKeyCliProfile {
-  return !isAgentProfile(profile);
+  return profile.type === undefined || profile.type === "api_key";
+}
+
+export function isOAuthProfile(profile: CliProfile): profile is OAuthCliProfile {
+  return profile.type === "oauth";
 }
 
 export function isActiveAgentProfile(profile: CliProfile): profile is ActiveAgentCliProfile {

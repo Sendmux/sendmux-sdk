@@ -21,10 +21,10 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 /**
  * Create a presigned mailbox attachment upload
  *
- * Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending an API key. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
+ * Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.
  */
 export const mailboxCreateAttachmentUpload = <ThrowOnError extends boolean = false>(options?: Options<MailboxCreateAttachmentUploadData, ThrowOnError>) => (options?.client ?? client).post<MailboxCreateAttachmentUploadResponses, MailboxCreateAttachmentUploadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/attachment-uploads',
     ...options,
     headers: {
@@ -40,7 +40,7 @@ export const mailboxCreateAttachmentUpload = <ThrowOnError extends boolean = fal
  */
 export const mailboxUploadAttachment = <ThrowOnError extends boolean = false>(options: Options<MailboxUploadAttachmentData, ThrowOnError>) => (options.client ?? client).post<MailboxUploadAttachmentResponses, MailboxUploadAttachmentErrors, ThrowOnError>({
     bodySerializer: null,
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/attachments:upload',
     ...options,
     headers: {
@@ -55,7 +55,7 @@ export const mailboxUploadAttachment = <ThrowOnError extends boolean = false>(op
  * Returns message changes in the legacy shape when `types` is omitted. Pass a comma-separated `types` list for a typed state map.
  */
 export const mailboxGetChanges = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetChangesData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetChangesResponses, MailboxGetChangesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/changes',
     ...options
 });
@@ -66,7 +66,7 @@ export const mailboxGetChanges = <ThrowOnError extends boolean = false>(options?
  * Validate this credential and return its team, connection label, permissions and authorised mailboxes. No additional read permission or mailbox selection is required. Mailbox storage and sending availability are not checked. No user profile or secrets are returned.
  */
 export const mailboxGetConnection = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetConnectionData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetConnectionResponses, MailboxGetConnectionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/connection',
     ...options
 });
@@ -77,7 +77,7 @@ export const mailboxGetConnection = <ThrowOnError extends boolean = false>(optio
  * Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
  */
 export const mailboxStreamEvents = <ThrowOnError extends boolean = false>(options?: Options<MailboxStreamEventsData, ThrowOnError, MailboxStreamEventsResponse>) => (options?.client ?? client).sse.get<MailboxStreamEventsResponses, MailboxStreamEventsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/events',
     ...options
 });
@@ -88,7 +88,7 @@ export const mailboxStreamEvents = <ThrowOnError extends boolean = false>(option
  * Returns a cursor-paginated list of folders for the authenticated mailbox.
  */
 export const mailboxListFolders = <ThrowOnError extends boolean = false>(options?: Options<MailboxListFoldersData, ThrowOnError>) => (options?.client ?? client).get<MailboxListFoldersResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders',
     ...options
 });
@@ -99,7 +99,7 @@ export const mailboxListFolders = <ThrowOnError extends boolean = false>(options
  * Creates a folder in the authenticated mailbox.
  */
 export const mailboxCreateFolder = <ThrowOnError extends boolean = false>(options?: Options<MailboxCreateFolderData, ThrowOnError>) => (options?.client ?? client).post<MailboxCreateFolderResponses, MailboxCreateFolderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders',
     ...options,
     headers: {
@@ -114,7 +114,7 @@ export const mailboxCreateFolder = <ThrowOnError extends boolean = false>(option
  * Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and non-empty folders cannot be deleted. Send `If-Match` with a prior ETag to reject stale deletes.
  */
 export const mailboxDeleteFolder = <ThrowOnError extends boolean = false>(options: Options<MailboxDeleteFolderData, ThrowOnError>) => (options.client ?? client).delete<MailboxDeleteFolderResponses, MailboxDeleteFolderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders/{folder_id}',
     ...options
 });
@@ -125,7 +125,7 @@ export const mailboxDeleteFolder = <ThrowOnError extends boolean = false>(option
  * Returns one folder from the authenticated mailbox. Responses include a weak `ETag` header.
  */
 export const mailboxGetFolder = <ThrowOnError extends boolean = false>(options: Options<MailboxGetFolderData, ThrowOnError>) => (options.client ?? client).get<MailboxGetFolderResponses, MailboxGetFolderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders/{folder_id}',
     ...options
 });
@@ -136,7 +136,7 @@ export const mailboxGetFolder = <ThrowOnError extends boolean = false>(options: 
  * Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
  */
 export const mailboxUpdateFolder = <ThrowOnError extends boolean = false>(options: Options<MailboxUpdateFolderData, ThrowOnError>) => (options.client ?? client).patch<MailboxUpdateFolderResponses, MailboxUpdateFolderErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders/{folder_id}',
     ...options,
     headers: {
@@ -151,7 +151,7 @@ export const mailboxUpdateFolder = <ThrowOnError extends boolean = false>(option
  * Returns folder changes since a prior folder state, or the current folder state when omitted.
  */
 export const mailboxGetFolderChanges = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetFolderChangesData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetFolderChangesResponses, MailboxGetFolderChangesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders/changes',
     ...options
 });
@@ -162,7 +162,7 @@ export const mailboxGetFolderChanges = <ThrowOnError extends boolean = false>(op
  * Returns folder-list index changes since a prior folder query state, or the current folder query state when omitted.
  */
 export const mailboxQueryFolderChanges = <ThrowOnError extends boolean = false>(options?: Options<MailboxQueryFolderChangesData, ThrowOnError>) => (options?.client ?? client).get<MailboxQueryFolderChangesResponses, MailboxQueryFolderChangesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/folders/query-changes',
     ...options
 });
@@ -173,7 +173,7 @@ export const mailboxQueryFolderChanges = <ThrowOnError extends boolean = false>(
  * Returns sender identities available to the authenticated mailbox.
  */
 export const mailboxListIdentities = <ThrowOnError extends boolean = false>(options?: Options<MailboxListIdentitiesData, ThrowOnError>) => (options?.client ?? client).get<MailboxListIdentitiesResponses, MailboxListIdentitiesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/identities',
     ...options
 });
@@ -184,7 +184,7 @@ export const mailboxListIdentities = <ThrowOnError extends boolean = false>(opti
  * Returns the default sender identity and signatures for the authenticated mailbox.
  */
 export const mailboxGetIdentity = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetIdentityData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetIdentityResponses, MailboxGetIdentityErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/identity',
     ...options
 });
@@ -195,7 +195,7 @@ export const mailboxGetIdentity = <ThrowOnError extends boolean = false>(options
  * Updates the default sender name, plain text signature, and HTML signature for the authenticated mailbox.
  */
 export const mailboxUpdateIdentity = <ThrowOnError extends boolean = false>(options?: Options<MailboxUpdateIdentityData, ThrowOnError>) => (options?.client ?? client).patch<MailboxUpdateIdentityResponses, MailboxUpdateIdentityErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/identity',
     ...options,
     headers: {
@@ -210,7 +210,7 @@ export const mailboxUpdateIdentity = <ThrowOnError extends boolean = false>(opti
  * Lists the mailboxes available to the current mailbox credential or connected app. Use this before choosing a `mailbox_id` for mailbox actions when more than one mailbox is available.
  */
 export const mailboxListGrantedMailboxes = <ThrowOnError extends boolean = false>(options?: Options<MailboxListGrantedMailboxesData, ThrowOnError>) => (options?.client ?? client).get<MailboxListGrantedMailboxesResponses, MailboxListGrantedMailboxesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/mailboxes',
     ...options
 });
@@ -218,12 +218,12 @@ export const mailboxListGrantedMailboxes = <ThrowOnError extends boolean = false
 /**
  * Self-introspect the calling mailbox
  *
- * Returns the mailbox the bearer token is scoped to, including live storage usage. Intended for SDK auto-discovery — call once on startup to resolve the mailbox ID. Requires a mailbox-scoped API key; root keys receive 403.
+ * Returns the selected mailbox, including live storage usage. Requires a mailbox credential or OAuth grant with Mailbox API access. For credential validation without selecting a mailbox or checking storage, use GET /mailbox/connection.
  *
  * Responses carry a weak `ETag` header — send it back as `If-None-Match` on the next request and the server will return `304 Not Modified` (no body) when the mailbox state has not changed.
  */
 export const mailboxGetMe = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetMeData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetMeResponses, MailboxGetMeErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/me',
     ...options
 });
@@ -231,10 +231,10 @@ export const mailboxGetMe = <ThrowOnError extends boolean = false>(options?: Opt
 /**
  * List mailbox messages
  *
- * Returns a cursor-paginated list of messages for the authenticated mailbox. Requires a mailbox API key.
+ * Returns a cursor-paginated list of messages for the authenticated mailbox. Requires Mailbox API access.
  */
 export const mailboxListMessages = <ThrowOnError extends boolean = false>(options?: Options<MailboxListMessagesData, ThrowOnError>) => (options?.client ?? client).get<MailboxListMessagesResponses, MailboxListMessagesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages',
     ...options
 });
@@ -245,7 +245,7 @@ export const mailboxListMessages = <ThrowOnError extends boolean = false>(option
  * Moves up to 100 messages to Trash by default with state-safe conflict handling. Set `permanent=true` to permanently delete them.
  */
 export const mailboxBatchDeleteMessages = <ThrowOnError extends boolean = false>(options?: Options<MailboxBatchDeleteMessagesData, ThrowOnError>) => (options?.client ?? client).post<MailboxBatchDeleteMessagesResponses, MailboxBatchDeleteMessagesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages:batch-delete',
     ...options,
     headers: {
@@ -260,7 +260,7 @@ export const mailboxBatchDeleteMessages = <ThrowOnError extends boolean = false>
  * Returns exact messages by ID. Use `body_mode` to choose summary-only output, raw body output, or clean JSON content. Attachment output remains metadata only; attachment contents are not parsed.
  */
 export const mailboxBatchGetMessages = <ThrowOnError extends boolean = false>(options?: Options<MailboxBatchGetMessagesData, ThrowOnError>) => (options?.client ?? client).post<MailboxBatchGetMessagesResponses, MailboxBatchGetMessagesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages:batch-get',
     ...options,
     headers: {
@@ -275,7 +275,7 @@ export const mailboxBatchGetMessages = <ThrowOnError extends boolean = false>(op
  * Updates allowed message flags and keywords for up to 100 messages with state-safe conflict handling.
  */
 export const mailboxBatchUpdateMessages = <ThrowOnError extends boolean = false>(options?: Options<MailboxBatchUpdateMessagesData, ThrowOnError>) => (options?.client ?? client).post<MailboxBatchUpdateMessagesResponses, MailboxBatchUpdateMessagesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages:batch-update',
     ...options,
     headers: {
@@ -290,7 +290,7 @@ export const mailboxBatchUpdateMessages = <ThrowOnError extends boolean = false>
  * Moves a message to Trash by default, unconditionally unless `If-Match` is supplied. Set `permanent=true` to permanently delete it. Send `If-Match` with a prior ETag to reject stale deletes.
  */
 export const mailboxDeleteMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxDeleteMessageData, ThrowOnError>) => (options.client ?? client).delete<MailboxDeleteMessageResponses, MailboxDeleteMessageErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}',
     ...options
 });
@@ -301,7 +301,7 @@ export const mailboxDeleteMessage = <ThrowOnError extends boolean = false>(optio
  * Returns one message from the authenticated mailbox. Responses include a weak `ETag` header. When attachment metadata includes short-lived download URLs, a conditional request may return `200` even when the stable message ETag matches so the response can renew expired URLs.
  */
 export const mailboxGetMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxGetMessageData, ThrowOnError>) => (options.client ?? client).get<MailboxGetMessageResponses, MailboxGetMessageErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}',
     ...options
 });
@@ -312,7 +312,7 @@ export const mailboxGetMessage = <ThrowOnError extends boolean = false>(options:
  * Updates mutable message flags and keywords unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag to reject stale edits.
  */
 export const mailboxUpdateMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxUpdateMessageData, ThrowOnError>) => (options.client ?? client).patch<MailboxUpdateMessageResponses, MailboxUpdateMessageErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}',
     ...options,
     headers: {
@@ -327,7 +327,7 @@ export const mailboxUpdateMessage = <ThrowOnError extends boolean = false>(optio
  * Streams one attachment from a message through the authenticated endpoint. Attachment metadata also provides short-lived download URLs for clients that cannot set request headers. Supports standard byte ranges.
  */
 export const mailboxGetMessageAttachment = <ThrowOnError extends boolean = false>(options: Options<MailboxGetMessageAttachmentData, ThrowOnError>) => (options.client ?? client).get<MailboxGetMessageAttachmentResponses, MailboxGetMessageAttachmentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}/attachments/{attachment_id}',
     ...options
 });
@@ -338,7 +338,7 @@ export const mailboxGetMessageAttachment = <ThrowOnError extends boolean = false
  * Returns raw message body content for the authenticated mailbox. This endpoint does not strip signatures, strip quoted replies, extract links, or clean the body into a structured content shape.
  */
 export const mailboxListBody = <ThrowOnError extends boolean = false>(options: Options<MailboxListBodyData, ThrowOnError>) => (options.client ?? client).get<MailboxListBodyResponses, MailboxListBodyErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}/body',
     ...options
 });
@@ -349,7 +349,7 @@ export const mailboxListBody = <ThrowOnError extends boolean = false>(options: O
  * Returns deterministic clean JSON content for one message. Attachment output is metadata only; attachment contents are not parsed by this endpoint.
  */
 export const mailboxListContent = <ThrowOnError extends boolean = false>(options: Options<MailboxListContentData, ThrowOnError>) => (options.client ?? client).get<MailboxListContentResponses, MailboxListContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}/content',
     ...options
 });
@@ -360,7 +360,7 @@ export const mailboxListContent = <ThrowOnError extends boolean = false>(options
  * Returns a count for the supplied mailbox message filters without returning message rows.
  */
 export const mailboxCountMessages = <ThrowOnError extends boolean = false>(options?: Options<MailboxCountMessagesData, ThrowOnError>) => (options?.client ?? client).get<MailboxCountMessagesResponses, MailboxCountMessagesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/count',
     ...options
 });
@@ -371,7 +371,7 @@ export const mailboxCountMessages = <ThrowOnError extends boolean = false>(optio
  * Returns filtered message-list index changes since a prior message query state, or the current message query state when omitted.
  */
 export const mailboxQueryMessageChanges = <ThrowOnError extends boolean = false>(options?: Options<MailboxQueryMessageChangesData, ThrowOnError>) => (options?.client ?? client).get<MailboxQueryMessageChangesResponses, MailboxQueryMessageChangesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/query-changes',
     ...options
 });
@@ -382,7 +382,7 @@ export const mailboxQueryMessageChanges = <ThrowOnError extends boolean = false>
  * Returns subject and preview snippets for a text search. Provide `message_ids` to snippet exact messages, or omit it to snippet the first filtered results.
  */
 export const mailboxSearchMessageSnippets = <ThrowOnError extends boolean = false>(options: Options<MailboxSearchMessageSnippetsData, ThrowOnError>) => (options.client ?? client).get<MailboxSearchMessageSnippetsResponses, MailboxSearchMessageSnippetsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/search-snippets',
     ...options
 });
@@ -393,7 +393,7 @@ export const mailboxSearchMessageSnippets = <ThrowOnError extends boolean = fals
  * Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to safely retry. Attachments may use small inline base64 content or blob IDs returned by `POST /mailbox/attachments:upload` or `POST /mailbox/attachment-uploads`.
  */
 export const mailboxSendMessage = <ThrowOnError extends boolean = false>(options?: Options<MailboxSendMessageData, ThrowOnError>) => (options?.client ?? client).post<MailboxSendMessageResponses, MailboxSendMessageErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/send',
     ...options,
     headers: {
@@ -408,7 +408,7 @@ export const mailboxSendMessage = <ThrowOnError extends boolean = false>(options
  * Returns a cursor-paginated list of quota usage and limits for the authenticated mailbox.
  */
 export const mailboxListQuotas = <ThrowOnError extends boolean = false>(options?: Options<MailboxListQuotasData, ThrowOnError>) => (options?.client ?? client).get<MailboxListQuotasResponses, MailboxListQuotasErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/quotas',
     ...options
 });
@@ -419,7 +419,7 @@ export const mailboxListQuotas = <ThrowOnError extends boolean = false>(options?
  * Returns quota changes since a prior quota state, or the current quota state when omitted.
  */
 export const mailboxGetQuotaChanges = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetQuotaChangesData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetQuotaChangesResponses, MailboxGetQuotaChangesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/quotas/changes',
     ...options
 });
@@ -430,7 +430,7 @@ export const mailboxGetQuotaChanges = <ThrowOnError extends boolean = false>(opt
  * Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for the authenticated mailbox.
  */
 export const mailboxGetSession = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetSessionData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetSessionResponses, MailboxGetSessionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/session',
     ...options
 });
@@ -441,7 +441,7 @@ export const mailboxGetSession = <ThrowOnError extends boolean = false>(options?
  * Returns a cursor-paginated list of send submissions for the authenticated mailbox, including delivery lifecycle fields when available.
  */
 export const mailboxListSubmissions = <ThrowOnError extends boolean = false>(options?: Options<MailboxListSubmissionsData, ThrowOnError>) => (options?.client ?? client).get<MailboxListSubmissionsResponses, MailboxListSubmissionsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/submissions',
     ...options
 });
@@ -452,7 +452,7 @@ export const mailboxListSubmissions = <ThrowOnError extends boolean = false>(opt
  * Returns one send submission for the authenticated mailbox. Responses include a weak `ETag` header.
  */
 export const mailboxGetSubmission = <ThrowOnError extends boolean = false>(options: Options<MailboxGetSubmissionData, ThrowOnError>) => (options.client ?? client).get<MailboxGetSubmissionResponses, MailboxGetSubmissionErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/submissions/{submission_id}',
     ...options
 });
@@ -463,7 +463,7 @@ export const mailboxGetSubmission = <ThrowOnError extends boolean = false>(optio
  * Returns send submission changes since a prior submission state, or the current state when omitted.
  */
 export const mailboxGetSubmissionChanges = <ThrowOnError extends boolean = false>(options?: Options<MailboxGetSubmissionChangesData, ThrowOnError>) => (options?.client ?? client).get<MailboxGetSubmissionChangesResponses, MailboxGetSubmissionChangesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/submissions/changes',
     ...options
 });
@@ -474,7 +474,7 @@ export const mailboxGetSubmissionChanges = <ThrowOnError extends boolean = false
  * Returns a cursor-paginated list of conversation threads for the authenticated mailbox. Filter by text, participant, folder, unread state, attachment presence, or date range.
  */
 export const mailboxListThreads = <ThrowOnError extends boolean = false>(options?: Options<MailboxListThreadsData, ThrowOnError>) => (options?.client ?? client).get<MailboxListThreadsResponses, MailboxListThreadsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/threads',
     ...options
 });
@@ -485,7 +485,7 @@ export const mailboxListThreads = <ThrowOnError extends boolean = false>(options
  * Returns thread metadata, message IDs, participants, last message, unread count, and state for one conversation. Responses include a weak `ETag` header.
  */
 export const mailboxGetThread = <ThrowOnError extends boolean = false>(options: Options<MailboxGetThreadData, ThrowOnError>) => (options.client ?? client).get<MailboxGetThreadResponses, MailboxGetThreadErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/threads/{thread_id}',
     ...options
 });
@@ -496,7 +496,7 @@ export const mailboxGetThread = <ThrowOnError extends boolean = false>(options: 
  * Returns a cursor-paginated clean JSON view of messages in a thread. Attachment output is metadata only; attachment contents are not parsed by this endpoint.
  */
 export const mailboxGetThreadContent = <ThrowOnError extends boolean = false>(options: Options<MailboxGetThreadContentData, ThrowOnError>) => (options.client ?? client).get<MailboxGetThreadContentResponses, MailboxGetThreadContentErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/threads/{thread_id}/content',
     ...options
 });
@@ -507,7 +507,7 @@ export const mailboxGetThreadContent = <ThrowOnError extends boolean = false>(op
  * Returns cursor-paginated message summaries for one thread. Use the thread content endpoint when you need cleaned bodies.
  */
 export const mailboxListThreadMessages = <ThrowOnError extends boolean = false>(options: Options<MailboxListThreadMessagesData, ThrowOnError>) => (options.client ?? client).get<MailboxListThreadMessagesResponses, MailboxListThreadMessagesErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/threads/{thread_id}/messages',
     ...options
 });
@@ -518,7 +518,7 @@ export const mailboxListThreadMessages = <ThrowOnError extends boolean = false>(
  * Returns a compact usage view derived from mailbox quota records. Responses include a weak `ETag` header.
  */
 export const mailboxListUsage = <ThrowOnError extends boolean = false>(options?: Options<MailboxListUsageData, ThrowOnError>) => (options?.client ?? client).get<MailboxListUsageResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/usage',
     ...options
 });

@@ -2368,6 +2368,13 @@ export const operations = {
     "pathParams": [],
     "queryParams": [
       {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
         "name": "event_types",
         "required": false,
         "schema": {
@@ -2397,13 +2404,6 @@ export const operations = {
           "type": "integer",
           "minimum": 30,
           "maximum": 3600
-        }
-      },
-      {
-        "name": "mailbox_id",
-        "required": false,
-        "schema": {
-          "type": "string"
         }
       }
     ],

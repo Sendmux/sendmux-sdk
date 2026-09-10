@@ -64,7 +64,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'SpendSummaryResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"BillingApi.management_get_spend_summary",
@@ -121,7 +121,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'BalanceResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"BillingApi.management_list_balance",
@@ -199,7 +199,7 @@ module Sendmux::Management::Generated
       return_type = opts[:debug_return_type] || 'TransactionCursorListResponse'
 
       # auth_names
-      auth_names = opts[:debug_auth_names] || ['bearerAuth']
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
 
       new_options = opts.merge(
         :operation => :"BillingApi.management_list_transactions",

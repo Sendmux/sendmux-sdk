@@ -575,6 +575,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -927,6 +932,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -1277,6 +1287,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -2043,6 +2058,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -2393,6 +2413,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -2747,6 +2772,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -3095,6 +3125,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -3483,6 +3518,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -4009,6 +4049,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -4368,6 +4413,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -4722,6 +4772,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -5080,6 +5135,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -5408,6 +5468,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -5765,6 +5830,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -6119,6 +6189,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -6492,6 +6567,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -6848,6 +6928,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -7201,6 +7286,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -7559,6 +7649,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -7915,6 +8010,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -8269,6 +8369,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -8917,6 +9022,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -9339,6 +9449,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -9909,6 +10024,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -10249,6 +10369,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -10619,6 +10744,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -11003,6 +11133,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -11899,6 +12034,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -12397,6 +12537,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -12947,6 +13092,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -13368,6 +13518,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -13946,6 +14101,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -14257,6 +14417,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -14613,6 +14778,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -15505,6 +15675,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -16305,6 +16480,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -16707,6 +16887,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -16738,12 +16923,12 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
+     * @param  string|null $mailbox_id mailbox_id (optional)
      * @param  string|null $event_types event_types (optional)
      * @param  string|null $last_event_id last_event_id (optional)
      * @param  int|null $ping ping (optional)
      * @param  int|null $close_after close_after (optional)
      * @param  string|null $last_event_id2 last_event_id2 (optional)
-     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -16751,21 +16936,21 @@ class MailboxAPIApi
      * @return \Sendmux\Mailbox\Model\MailboxRealtimeEvent|\Sendmux\Mailbox\Model\ApiError
      */
     public function mailboxStreamEvents(
+        ?string $mailbox_id = null,
         ?string $event_types = null,
         ?string $last_event_id = null,
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
-        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): \Sendmux\Mailbox\Model\MailboxRealtimeEvent|\Sendmux\Mailbox\Model\ApiError {
         list($response) = $this->mailboxStreamEventsWithHttpInfo(
+            $mailbox_id,
             $event_types,
             $last_event_id,
             $ping,
             $close_after,
             $last_event_id2,
-            $mailbox_id,
             $contentType
         );
         return $response;
@@ -16776,12 +16961,12 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
+     * @param  string|null $mailbox_id mailbox_id (optional)
      * @param  string|null $event_types event_types (optional)
      * @param  string|null $last_event_id last_event_id (optional)
      * @param  int|null $ping ping (optional)
      * @param  int|null $close_after close_after (optional)
      * @param  string|null $last_event_id2 last_event_id2 (optional)
-     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
@@ -16789,21 +16974,21 @@ class MailboxAPIApi
      * @return array of \Sendmux\Mailbox\Model\MailboxRealtimeEvent|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxStreamEventsWithHttpInfo(
+        ?string $mailbox_id = null,
         ?string $event_types = null,
         ?string $last_event_id = null,
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
-        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): array {
         $request = $this->mailboxStreamEventsRequest(
+            $mailbox_id,
             $event_types,
             $last_event_id,
             $ping,
             $close_after,
             $last_event_id2,
-            $mailbox_id,
             $contentType
         );
 
@@ -16948,33 +17133,33 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
+     * @param  string|null $mailbox_id mailbox_id (optional)
      * @param  string|null $event_types event_types (optional)
      * @param  string|null $last_event_id last_event_id (optional)
      * @param  int|null $ping ping (optional)
      * @param  int|null $close_after close_after (optional)
      * @param  string|null $last_event_id2 last_event_id2 (optional)
-     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
      */
     public function mailboxStreamEventsAsync(
+        ?string $mailbox_id = null,
         ?string $event_types = null,
         ?string $last_event_id = null,
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
-        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): PromiseInterface {
         return $this->mailboxStreamEventsAsyncWithHttpInfo(
+            $mailbox_id,
             $event_types,
             $last_event_id,
             $ping,
             $close_after,
             $last_event_id2,
-            $mailbox_id,
             $contentType
         )
             ->then(
@@ -16989,34 +17174,34 @@ class MailboxAPIApi
      *
      * Stream mailbox events
      *
+     * @param  string|null $mailbox_id mailbox_id (optional)
      * @param  string|null $event_types event_types (optional)
      * @param  string|null $last_event_id last_event_id (optional)
      * @param  int|null $ping ping (optional)
      * @param  int|null $close_after close_after (optional)
      * @param  string|null $last_event_id2 last_event_id2 (optional)
-     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
      * @return PromiseInterface
      */
     public function mailboxStreamEventsAsyncWithHttpInfo(
+        ?string $mailbox_id = null,
         ?string $event_types = null,
         ?string $last_event_id = null,
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
-        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): PromiseInterface {
         $returnType = '\Sendmux\Mailbox\Model\MailboxRealtimeEvent';
         $request = $this->mailboxStreamEventsRequest(
+            $mailbox_id,
             $event_types,
             $last_event_id,
             $ping,
             $close_after,
             $last_event_id2,
-            $mailbox_id,
             $contentType
         );
 
@@ -17062,26 +17247,27 @@ class MailboxAPIApi
     /**
      * Create request for operation 'mailboxStreamEvents'
      *
+     * @param  string|null $mailbox_id mailbox_id (optional)
      * @param  string|null $event_types event_types (optional)
      * @param  string|null $last_event_id last_event_id (optional)
      * @param  int|null $ping ping (optional)
      * @param  int|null $close_after close_after (optional)
      * @param  string|null $last_event_id2 last_event_id2 (optional)
-     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxStreamEvents'] to see the possible values for this operation
      *
      * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     public function mailboxStreamEventsRequest(
+        ?string $mailbox_id = null,
         ?string $event_types = null,
         ?string $last_event_id = null,
         ?int $ping = null,
         ?int $close_after = null,
         ?string $last_event_id2 = null,
-        ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxStreamEvents'][0]
     ): Request {
+
 
 
 
@@ -17101,7 +17287,6 @@ class MailboxAPIApi
 
 
 
-
         $resourcePath = '/mailbox/events';
         $formParams = [];
         $queryParams = [];
@@ -17109,6 +17294,15 @@ class MailboxAPIApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
         // query params
         $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
             $event_types,
@@ -17141,15 +17335,6 @@ class MailboxAPIApi
             $close_after,
             'close_after', // param base name
             'integer', // openApiType
-            'form', // style
-            true, // explode
-            false // required
-        ) ?? []);
-        // query params
-        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
-            $mailbox_id,
-            'mailbox_id', // param base name
-            'string', // openApiType
             'form', // style
             true, // explode
             false // required
@@ -17190,6 +17375,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -17606,6 +17796,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -17998,6 +18193,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)
@@ -18414,6 +18614,11 @@ class MailboxAPIApi
             }
         }
 
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
         // this endpoint requires Bearer (API Key) authentication (access token)
         if (!empty($this->config->getAccessToken())) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
@@ -18794,6 +18999,11 @@ class MailboxAPIApi
                 // for HTTP post (form)
                 $httpBody = ObjectSerializer::buildQuery($formParams);
             }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
         }
 
         // this endpoint requires Bearer (API Key) authentication (access token)

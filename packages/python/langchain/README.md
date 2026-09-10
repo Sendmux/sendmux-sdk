@@ -17,7 +17,7 @@ pip install langchain-sendmux
 
 ## Getting an API key
 
-The toolkit needs a key that can both send and receive. Two ways to get one:
+For API-key authentication, use a key that can both send and receive. Two ways to get one:
 
 - **Dashboard** — create a mailbox and a mailbox-scoped key (`smx_mbx_*`). See [API keys](https://sendmux.ai/docs/guides/api-keys).
 - **Agent self-registration** — the agent claims its own `@myagent.mx` mailbox and gets an `smx_agent_*` token, with no human signup first. See [email for AI agents](https://sendmux.ai/solutions/for-ai-agents/).
@@ -25,6 +25,23 @@ The toolkit needs a key that can both send and receive. Two ways to get one:
 Note on agent tokens: a freshly self-registered `smx_agent_*` token can read and receive, but **cannot send** until a human owner has been invited and has approved it. Until then `send_email` and `reply` will fail. A dashboard `smx_mbx_*` key with send permission works immediately.
 
 Read the key from the environment. Never hard-code it.
+
+## OAuth access tokens
+
+Set `access_token` to a bare REST OAuth token or callable instead of `api_key`:
+
+```python
+import os
+from langchain_sendmux import SendmuxToolkit
+
+toolkit = SendmuxToolkit(
+    access_token=lambda: os.environ["SENDMUX_ACCESS_TOKEN"],
+    default_from="agent@yourdomain.dev",
+)
+tools = toolkit.get_tools()
+```
+
+The provider runs before every tool request. Your application owns protected token storage, expiry checks, and refresh coordination. Request `mailbox.read` and `email.send` to use all three tools, and select one mailbox at consent; these tools do not supply a mailbox selector. Credentials are excluded from the toolkit's representation and model serialisation. See [REST OAuth](https://sendmux.ai/docs/developer-tools/oauth).
 
 ## Quick start
 

@@ -52,6 +52,8 @@ const connectionEnvelope = {
 };
 
 ensureCliBuilt();
+const oauthCheck = spawnSync(process.execPath, ["--test", "scripts/test-cli-oauth.mjs", "scripts/test-cli-oauth-login.mjs"], { stdio: "inherit" });
+if (oauthCheck.status !== 0) throw new Error("CLI OAuth verification failed");
 
 const serverState = {
   readinessAttempts: 0,

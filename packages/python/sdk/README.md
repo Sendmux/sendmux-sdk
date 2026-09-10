@@ -22,6 +22,8 @@ Optional umbrella package for the Sendmux Python SDK.
 - A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox clients.
 - A root `smx_root_*` key for Management clients.
 
+For OAuth, use a REST access token with the scopes and mailbox access required by the operation. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth).
+
 ## Installation
 
 ```sh
@@ -54,6 +56,20 @@ identifier. Each API surface has its own connection operation:
 | Sending | `sending.MetaApi` | `sending_get_connection()` |
 
 Create each client with the credential for that surface.
+
+## OAuth access tokens
+
+Pass either `api_key` or `access_token`. `access_token` accepts a bare token string or a synchronous callable; the callable is evaluated for each authenticated request. Your application owns token storage, expiry checks and refresh coordination.
+
+```python
+import os
+
+from sendmux_sdk import management
+
+client = management.create_management_client(
+    access_token=lambda: os.environ["SENDMUX_ACCESS_TOKEN"]
+)
+```
 
 ## Usage
 

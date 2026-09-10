@@ -67,6 +67,7 @@ puts domains.data.length
 `Sendmux::Management::Client` exposes generated API groups:
 
 - `client.billing`
+- `client.connection`
 - `client.domain_filters`
 - `client.domains`
 - `client.emails`

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.2...ts-sdk-v1.5.0) (2026-09-10)
+
+
+### Features
+
+* add REST OAuth clients and CLI token lifecycle ([cc4a3aa](https://github.com/Sendmux/sendmux-sdk/commit/cc4a3aa6110378641418a94455ed5b9a986e65ff))
+
+
+### Bug Fixes
+
+* resolve TypeScript credential providers once per request ([4740163](https://github.com/Sendmux/sendmux-sdk/commit/474016356e4e307497ef875acbf62a988e16f96c))
+
 ## [1.4.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.1...ts-sdk-v1.4.2) (2026-09-08)
 
 

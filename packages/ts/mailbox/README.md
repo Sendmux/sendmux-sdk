@@ -87,16 +87,20 @@ const client = createMailboxClient({
 const message = await mailboxGetMessage({
   client,
   path: { message_id: "msg_123" },
+  throwOnError: true,
 });
-const attachment = message.data.data.attachments[0];
-const downloaded = await fetch(attachment.download_url);
-const bytes = await downloaded.arrayBuffer();
+const attachment = message.data.data.attachments?.[0];
+if (attachment?.download_url) {
+  const downloaded = await fetch(attachment.download_url);
+  const bytes = await downloaded.arrayBuffer();
+}
 
 const upload = await mailboxUploadAttachment({
   client,
-  body: new TextEncoder().encode("hello\n"),
+  body: new Blob(["hello\n"], { type: "text/plain" }),
   query: { filename: "hello.txt" },
   headers: { "Content-Type": "text/plain" },
+  throwOnError: true,
 });
 
 await mailboxSendMessage({
@@ -170,12 +174,14 @@ const client = createMailboxClient({
   apiKey: process.env.SENDMUX_MAILBOX_API_KEY!,
 });
 
-for await (const message of paginate((cursor) =>
-  mailboxListMessages({
+for await (const message of paginate(async (cursor) => {
+  const response = await mailboxListMessages({
     client,
     query: { cursor, limit: 50 },
-  }),
-)) {
+    throwOnError: true,
+  });
+  return response.data;
+})) {
   console.log(message.id);
 }
 ```

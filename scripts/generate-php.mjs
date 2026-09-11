@@ -71,7 +71,7 @@ for (const surface of surfaces) {
       `composerPackageName=${surface.composerName}`,
       `invokerPackage=${surface.namespace.replaceAll("\\", "\\\\")}`,
       "srcBasePath=src",
-      "artifactVersion=2.0.0",
+      "artifactVersion=2.1.0",
       "hideGenerationTimestamp=true",
       "enumUnknownDefaultCase=true",
       "disallowAdditionalPropertiesIfNotPresent=false",

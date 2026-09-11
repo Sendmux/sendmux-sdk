@@ -13082,24 +13082,15 @@ func decodeMailboxSendMessageParams(args [0]string, argsEscaped bool, r *http.Re
 
 // MailboxStreamEventsParams is parameters of mailboxStreamEvents operation.
 type MailboxStreamEventsParams struct {
-	MailboxID         OptString
 	EventTypes        OptString
 	QueryLastEventID  OptString
 	Ping              OptInt
 	CloseAfter        OptInt
 	HeaderLastEventID OptString
+	MailboxID         OptString
 }
 
 func unpackMailboxStreamEventsParams(packed middleware.Parameters) (params MailboxStreamEventsParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "mailbox_id",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.MailboxID = v.(OptString)
-		}
-	}
 	{
 		key := middleware.ParameterKey{
 			Name: "event_types",
@@ -13145,53 +13136,21 @@ func unpackMailboxStreamEventsParams(packed middleware.Parameters) (params Mailb
 			params.HeaderLastEventID = v.(OptString)
 		}
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
 	return params
 }
 
 func decodeMailboxStreamEventsParams(args [0]string, argsEscaped bool, r *http.Request) (params MailboxStreamEventsParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
 	h := uri.NewHeaderDecoder(r.Header)
-	// Decode query: mailbox_id.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "mailbox_id",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotMailboxIDVal string
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToString(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotMailboxIDVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.MailboxID.SetTo(paramsDotMailboxIDVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "mailbox_id",
-			In:   "query",
-			Err:  err,
-		}
-	}
 	// Decode query: event_types.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
@@ -13440,6 +13399,47 @@ func decodeMailboxStreamEventsParams(args [0]string, argsEscaped bool, r *http.R
 		return params, &ogenerrors.DecodeParamError{
 			Name: "Last-Event-ID",
 			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
 			Err:  err,
 		}
 	}

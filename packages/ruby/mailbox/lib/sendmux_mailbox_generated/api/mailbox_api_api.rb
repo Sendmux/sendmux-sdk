@@ -3163,12 +3163,12 @@ module Sendmux::Mailbox::Generated
     # Stream mailbox events
     # Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
     # @param [Hash] opts the optional parameters
-    # @option opts [String] :mailbox_id
     # @option opts [String] :event_types
     # @option opts [String] :last_event_id
     # @option opts [Integer] :ping
     # @option opts [Integer] :close_after
     # @option opts [String] :last_event_id2
+    # @option opts [String] :mailbox_id
     # @return [MailboxRealtimeEvent]
     def mailbox_stream_events(opts = {})
       data, _status_code, _headers = mailbox_stream_events_with_http_info(opts)
@@ -3178,12 +3178,12 @@ module Sendmux::Mailbox::Generated
     # Stream mailbox events
     # Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
     # @param [Hash] opts the optional parameters
-    # @option opts [String] :mailbox_id
     # @option opts [String] :event_types
     # @option opts [String] :last_event_id
     # @option opts [Integer] :ping
     # @option opts [Integer] :close_after
     # @option opts [String] :last_event_id2
+    # @option opts [String] :mailbox_id
     # @return [Array<(MailboxRealtimeEvent, Integer, Hash)>] MailboxRealtimeEvent data, response status code and response headers
     def mailbox_stream_events_with_http_info(opts = {})
       if @api_client.config.debugging
@@ -3210,11 +3210,11 @@ module Sendmux::Mailbox::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
-      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
       query_params[:'event_types'] = opts[:'event_types'] if !opts[:'event_types'].nil?
       query_params[:'last_event_id'] = opts[:'last_event_id'] if !opts[:'last_event_id'].nil?
       query_params[:'ping'] = opts[:'ping'] if !opts[:'ping'].nil?
       query_params[:'close_after'] = opts[:'close_after'] if !opts[:'close_after'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
 
       # header parameters
       header_params = opts[:header_params] || {}

@@ -20,6 +20,7 @@ for (const spec of specs) {
   assertOpenApi31({ document: source, file: inputPath });
 
   const stripped = stripUnevaluatedProperties(source);
+  preserveMailboxStreamParameterOrder(stripped);
   const openApi31Codegen = normalizeOpenApi31Document(stripped);
   const codegenName = spec.replace(/\.json$/, ".codegen.json");
   const oagCodegenName = spec.replace(/\.json$/, ".openapi-generator.codegen.json");
@@ -112,6 +113,24 @@ function stripUnevaluatedProperties(value) {
   }
 
   return next;
+}
+
+function preserveMailboxStreamParameterOrder(document) {
+  const operation = document.paths?.["/mailbox/events"]?.get;
+  if (!operation) {
+    return;
+  }
+
+  const index = operation.parameters.findIndex((parameter) => {
+    return parameter.name === "mailbox_id" && parameter.in === "query";
+  });
+  if (index === -1) {
+    throw new Error("Mailbox streaming is missing its mailbox_id query parameter");
+  }
+
+  // Published positional SDK methods place the mailbox selector after the stream options.
+  const [mailboxId] = operation.parameters.splice(index, 1);
+  operation.parameters.push(mailboxId);
 }
 
 function normalizeOpenApiGeneratorDocument(document) {

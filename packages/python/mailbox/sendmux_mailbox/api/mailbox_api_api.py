@@ -13430,12 +13430,12 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_stream_events(
         self,
-        mailbox_id: Optional[StrictStr] = None,
         event_types: Optional[StrictStr] = None,
         last_event_id: Optional[StrictStr] = None,
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
+        mailbox_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13453,8 +13453,6 @@ class MailboxAPIApi:
 
         Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
 
-        :param mailbox_id:
-        :type mailbox_id: str
         :param event_types:
         :type event_types: str
         :param last_event_id:
@@ -13465,6 +13463,8 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
+        :param mailbox_id:
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -13488,12 +13488,12 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_stream_events_serialize(
-            mailbox_id=mailbox_id,
             event_types=event_types,
             last_event_id=last_event_id,
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -13522,12 +13522,12 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_stream_events_with_http_info(
         self,
-        mailbox_id: Optional[StrictStr] = None,
         event_types: Optional[StrictStr] = None,
         last_event_id: Optional[StrictStr] = None,
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
+        mailbox_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13545,8 +13545,6 @@ class MailboxAPIApi:
 
         Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
 
-        :param mailbox_id:
-        :type mailbox_id: str
         :param event_types:
         :type event_types: str
         :param last_event_id:
@@ -13557,6 +13555,8 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
+        :param mailbox_id:
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -13580,12 +13580,12 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_stream_events_serialize(
-            mailbox_id=mailbox_id,
             event_types=event_types,
             last_event_id=last_event_id,
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -13614,12 +13614,12 @@ class MailboxAPIApi:
     @validate_call
     def mailbox_stream_events_without_preload_content(
         self,
-        mailbox_id: Optional[StrictStr] = None,
         event_types: Optional[StrictStr] = None,
         last_event_id: Optional[StrictStr] = None,
         ping: Optional[Annotated[int, Field(le=300, strict=True, ge=10)]] = None,
         close_after: Optional[Annotated[int, Field(le=3600, strict=True, ge=30)]] = None,
         last_event_id2: Optional[StrictStr] = None,
+        mailbox_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -13637,8 +13637,6 @@ class MailboxAPIApi:
 
         Streams bounded rich mailbox events for connected clients. Each received-message event includes subject, participants, preview, attachment metadata, and a capped body snapshot; use the message endpoints for full content or attachment bytes.
 
-        :param mailbox_id:
-        :type mailbox_id: str
         :param event_types:
         :type event_types: str
         :param last_event_id:
@@ -13649,6 +13647,8 @@ class MailboxAPIApi:
         :type close_after: int
         :param last_event_id2:
         :type last_event_id2: str
+        :param mailbox_id:
+        :type mailbox_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -13672,12 +13672,12 @@ class MailboxAPIApi:
         """ # noqa: E501
 
         _param = self._mailbox_stream_events_serialize(
-            mailbox_id=mailbox_id,
             event_types=event_types,
             last_event_id=last_event_id,
             ping=ping,
             close_after=close_after,
             last_event_id2=last_event_id2,
+            mailbox_id=mailbox_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -13701,12 +13701,12 @@ class MailboxAPIApi:
 
     def _mailbox_stream_events_serialize(
         self,
-        mailbox_id,
         event_types,
         last_event_id,
         ping,
         close_after,
         last_event_id2,
+        mailbox_id,
         _request_auth,
         _content_type,
         _headers,
@@ -13729,10 +13729,6 @@ class MailboxAPIApi:
 
         # process the path parameters
         # process the query parameters
-        if mailbox_id is not None:
-
-            _query_params.append(('mailbox_id', mailbox_id))
-
         if event_types is not None:
 
             _query_params.append(('event_types', event_types))
@@ -13748,6 +13744,10 @@ class MailboxAPIApi:
         if close_after is not None:
 
             _query_params.append(('close_after', close_after))
+
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
 
         # process the header parameters
         if last_event_id2 is not None:

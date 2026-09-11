@@ -4,16 +4,25 @@ import asyncio
 import base64
 import copy
 import re
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from binascii import Error as Base64DecodeError
 from datetime import datetime, timezone
+from importlib.metadata import version
 from typing import Annotated, Any
 from urllib.parse import quote
 
 import httpx
 import httpx2
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 from fastmcp.server.auth import AuthProvider
-from fastmcp.server.middleware import AuthMiddleware
+from fastmcp.server.middleware import AuthMiddleware, CallNext, Middleware, MiddlewareContext
+from fastmcp.tools.base import ToolResult
+from jsonschema.exceptions import best_match
+from jsonschema.protocols import Validator
+from jsonschema.validators import validator_for
+from mcp.types import CallToolRequestParams
 from mcp.types import ToolAnnotations
 from pydantic import Field
 from starlette.requests import Request
@@ -21,7 +30,12 @@ from starlette.responses import JSONResponse
 
 from sendmux_mcp.config import ServerConfig, Surface
 from sendmux_mcp.curation import customise_component, mcp_names_for_surface, route_maps_for_surface
-from sendmux_mcp.hosted_proxy import HostedProxyConfig, HostedProxyTransport, build_hosted_operation_manifest
+from sendmux_mcp.hosted_proxy import (
+    HostedProxyConfig,
+    HostedProxyTransport,
+    build_hosted_operation_manifest,
+    decoded_response_headers,
+)
 from sendmux_mcp.permissions import tool_permission_auth_check
 from sendmux_mcp.retry import RetryingAsyncTransport
 from sendmux_mcp.security import middleware_for_config
@@ -51,6 +65,38 @@ MCP_ATTACHMENT_TEXT_CONTENT_TYPES = {
 CONTENT_RANGE_RE = re.compile(r"^bytes (\d+)-(\d+)/(\d+|\*)$")
 
 JSON_SCHEMA_2020_12 = "https://json-schema.org/draft/2020-12/schema"
+SENDMUX_MCP_VERSION = version("sendmux-mcp")
+
+
+class StructuredOutputValidationMiddleware(Middleware):
+    def __init__(self) -> None:
+        self.validators: dict[str, Validator] = {}
+
+    async def on_call_tool(
+        self,
+        context: MiddlewareContext[CallToolRequestParams],
+        call_next: CallNext[CallToolRequestParams, ToolResult],
+    ) -> ToolResult:
+        result = await call_next(context)
+        if not isinstance(result, ToolResult) or result.is_error:
+            return result
+        fastmcp_context = context.fastmcp_context
+        tool = await fastmcp_context.fastmcp.get_tool(context.message.name) if fastmcp_context is not None else None
+        schema = tool.output_schema if tool is not None else None
+        if schema is None:
+            return result
+        if result.structured_content is None:
+            raise ToolError("Tool returned no structured data for its declared output schema.")
+        validator = self.validators.get(context.message.name)
+        if validator is None:
+            validator_class = validator_for(schema)
+            validator_class.check_schema(schema)
+            validator = validator_class(schema)
+            self.validators[context.message.name] = validator
+        error = best_match(validator.iter_errors(result.structured_content))
+        if error is not None:
+            raise ToolError("Tool returned data that does not match its declared output schema.")
+        return result
 
 
 class MCPHTTPTransport(httpx2.AsyncBaseTransport):
@@ -64,10 +110,16 @@ class MCPHTTPTransport(httpx2.AsyncBaseTransport):
             headers=dict(request.headers),
             content=await request.aread(),
         ) as response:
+            if response.is_stream_consumed:
+                response_body = response.content
+                response_headers = decoded_response_headers(response.headers)
+            else:
+                response_body = b"".join([chunk async for chunk in response.aiter_raw()])
+                response_headers = response.headers
             return httpx2.Response(
                 response.status_code,
-                headers=response.headers,
-                content=await response.aread(),
+                headers=response_headers,
+                content=response_body,
                 request=request,
             )
 
@@ -88,6 +140,7 @@ def create_server(
     if len(config.selected_surfaces) > 1:
         server = FastMCP(
             name="Sendmux MCP",
+            version=SENDMUX_MCP_VERSION,
             auth=auth_provider,
             middleware=[AuthMiddleware(auth=tool_permission_auth_check)] if auth_provider else None,
         )
@@ -159,13 +212,22 @@ def create_surface_server(
         transport=retrying_transport,
     )
 
-    middleware = [AuthMiddleware(auth=tool_permission_auth_check)] if auth_provider else None
+    middleware = server_middleware(auth_provider)
 
     mcp_client = httpx2.AsyncClient(base_url=api_base_url, transport=MCPHTTPTransport(client))
+
+    @asynccontextmanager
+    async def client_lifespan(_server: FastMCP) -> AsyncIterator[None]:
+        try:
+            yield
+        finally:
+            await mcp_client.aclose()
+
     server = FastMCP.from_openapi(
         openapi_spec=spec,
         client=mcp_client,
         name=f"Sendmux {surface} MCP",
+        version=SENDMUX_MCP_VERSION,
         route_maps=route_maps_for_surface(spec, surface),
         mcp_names=mcp_names_for_surface(surface),
         mcp_component_fn=customise_component,
@@ -173,6 +235,7 @@ def create_surface_server(
         validate_output=True,
         auth=auth_provider,
         middleware=middleware,
+        lifespan=client_lifespan,
     )
 
     if surface == "mailbox":
@@ -201,6 +264,13 @@ def create_surface_server(
     return server
 
 
+def server_middleware(auth_provider: AuthProvider | None) -> list[Middleware]:
+    middleware: list[Middleware] = [StructuredOutputValidationMiddleware()]
+    if auth_provider is not None:
+        middleware.insert(0, AuthMiddleware(auth=tool_permission_auth_check))
+    return middleware
+
+
 def run(config: ServerConfig) -> None:
     server = create_server(config)
     if config.transport == "stdio":
@@ -227,13 +297,21 @@ def add_mailbox_custom_tools(
     transport: str,
 ) -> None:
     attachment_schema = component_schema(spec, "MailboxAttachment")
-    read_attachment_schema = copy.deepcopy(attachment_schema)
-    read_attachment_schema["properties"].update(
-        {
-            "read_mode": {"enum": ["text", "resource_link"], "type": "string"},
-            "text": {"type": ["string", "null"]},
+    text_attachment_schema = extend_object_schema(
+        attachment_schema,
+        properties={
+            "read_mode": {"const": "text"},
+            "text": {"type": "string"},
             "truncated": {"type": "boolean"},
             "bytes_read": {"minimum": 0, "type": "integer"},
+        },
+        required=("read_mode", "text", "truncated", "bytes_read"),
+    )
+    link_attachment_schema = extend_object_schema(
+        attachment_schema,
+        properties={
+            "read_mode": {"const": "resource_link"},
+            "text": {"type": "null"},
             "resource_link": {
                 "additionalProperties": False,
                 "properties": {
@@ -245,8 +323,10 @@ def add_mailbox_custom_tools(
                 "required": ["uri", "name", "mime_type", "size_bytes"],
                 "type": "object",
             },
-        }
+        },
+        required=("read_mode", "text", "resource_link"),
     )
+    read_attachment_schema = {"oneOf": [attachment_schema, text_attachment_schema, link_attachment_schema]}
     upload_schema = {
         "oneOf": [component_schema(spec, "MailboxAttachmentUploadResult"), component_schema(spec, "MailboxAttachmentUploadIntentResult")]
     }
@@ -702,6 +782,18 @@ def component_schema(spec: dict[str, Any], name: str) -> dict[str, Any]:
     return rewrite_component_refs(schema, spec)
 
 
+def extend_object_schema(
+    schema: dict[str, Any],
+    *,
+    properties: dict[str, Any],
+    required: tuple[str, ...],
+) -> dict[str, Any]:
+    extended = copy.deepcopy(schema)
+    extended["properties"].update(properties)
+    extended["required"] = [*extended.get("required", []), *required]
+    return extended
+
+
 def rewrite_component_refs(value: Any, spec: dict[str, Any]) -> Any:
     if isinstance(value, list):
         return [rewrite_component_refs(item, spec) for item in value]
@@ -715,7 +807,11 @@ def rewrite_component_refs(value: Any, spec: dict[str, Any]) -> Any:
 
 
 def tool_envelope_schema(data_schema: dict[str, Any]) -> dict[str, Any]:
-    meta_schema = {"additionalProperties": True, "type": "object"}
+    meta_schema = {
+        "additionalProperties": False,
+        "properties": {"request_id": {"type": "string"}},
+        "type": "object",
+    }
     success = {
         "additionalProperties": False,
         "properties": {"ok": {"const": True}, "data": data_schema, "meta": meta_schema},
@@ -727,8 +823,27 @@ def tool_envelope_schema(data_schema: dict[str, Any]) -> dict[str, Any]:
         "properties": {
             "ok": {"const": False},
             "error": {
-                "additionalProperties": True,
-                "properties": {"code": {"type": "string"}, "message": {"type": "string"}},
+                "additionalProperties": False,
+                "properties": {
+                    "code": {"type": "string"},
+                    "doc_url": {"type": "string"},
+                    "errors": {
+                        "items": {
+                            "additionalProperties": False,
+                            "properties": {
+                                "code": {"type": "string"},
+                                "field": {"type": "string"},
+                                "message": {"type": "string"},
+                            },
+                            "required": ["field", "code", "message"],
+                            "type": "object",
+                        },
+                        "type": "array",
+                    },
+                    "message": {"type": "string"},
+                    "param": {"type": "string"},
+                    "retryable": {"type": "boolean"},
+                },
                 "required": ["code", "message"],
                 "type": "object",
             },

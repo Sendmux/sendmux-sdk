@@ -5,7 +5,7 @@ from fastmcp.server.auth.providers.jwt import JWTVerifier
 from fastmcp.server.middleware import AuthMiddleware
 
 from sendmux_mcp.config import ServerConfig
-from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider
+from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider, hosted_mcp_resource_url
 from sendmux_mcp.server import create_server
 
 
@@ -26,6 +26,12 @@ def test_remote_auth_provider_binds_resource_url_to_jwt_audience() -> None:
     assert auth_provider.token_verifier.audience == "https://mcp.sendmux.ai/mcp"
     assert auth_provider.token_verifier.issuer == "https://app.sendmux.ai"
     assert auth_provider.token_verifier.jwks_uri == "https://app.sendmux.ai/.well-known/jwks.json"
+
+
+def test_hosted_resource_builder_preserves_mounted_path_semantics() -> None:
+    assert hosted_mcp_resource_url("https://mcp.sendmux.ai", "/mcp") == "https://mcp.sendmux.ai/mcp"
+    assert hosted_mcp_resource_url("https://mcp.sendmux.ai/", "/custom") == "https://mcp.sendmux.ai/custom"
+    assert hosted_mcp_resource_url("https://mcp.sendmux.ai", "/custom/") == "https://mcp.sendmux.ai/custom/"
 
 
 def test_remote_auth_provider_advertises_authorization_server_and_scopes() -> None:

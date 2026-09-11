@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import gzip
 import json
 from collections.abc import Mapping
 from typing import Any
@@ -131,6 +132,35 @@ def test_proxy_transport_sends_operation_envelope_without_token_passthrough(
             "headers": {"idempotency-key": "idem_123"},
             "body_base64": None,
         }
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("compressed", [False, True])
+def test_proxy_transport_preserves_encoded_response_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    compressed: bool,
+) -> None:
+    async def run() -> None:
+        payload = b'{"ok":true}'
+        body = gzip.compress(payload) if compressed else payload
+        headers = {"content-encoding": "gzip", "content-length": str(len(body))} if compressed else {}
+        monkeypatch.setattr(
+            "sendmux_mcp.hosted_proxy.get_access_token",
+            lambda: AccessToken(token="token", client_id="client", scopes=[], claims={"grant_id": "grant"}),
+        )
+        config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
+        spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
+        transport = HostedProxyTransport(
+            HostedProxyConfig(proxy_url="https://app.sendmux.ai/api/internal/mcp/proxy", upstream_base_url=config.api_base_url),
+            manifest=build_hosted_operation_manifest(spec, "management"),
+            inner=httpx.MockTransport(lambda request: httpx.Response(200, content=body, headers=headers, request=request)),
+        )
+
+        response = await transport.handle_async_request(httpx.Request("GET", f"{config.api_base_url}/domains"))
+
+        assert await response.aread() == payload
+        await transport.aclose()
 
     asyncio.run(run())
 

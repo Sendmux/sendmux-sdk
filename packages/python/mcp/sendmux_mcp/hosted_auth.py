@@ -42,9 +42,11 @@ class HostedAuthConfig:
 
     @property
     def resource_url(self) -> str:
-        base_url = self.resource_base_url.rstrip("/")
-        path = "/" + self.mcp_path.strip("/")
-        return f"{base_url}{path}"
+        return hosted_mcp_resource_url(self.resource_base_url, self.mcp_path)
+
+
+def hosted_mcp_resource_url(resource_base_url: str, mcp_path: str) -> str:
+    return f"{resource_base_url.rstrip('/')}/{mcp_path.lstrip('/')}"
 
 
 def create_remote_auth_provider(config: HostedAuthConfig) -> RemoteAuthProvider:

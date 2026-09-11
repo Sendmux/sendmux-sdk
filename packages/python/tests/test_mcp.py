@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import gzip
 import json
+from importlib.metadata import version
 from typing import Any
 
 import httpx
@@ -23,6 +25,7 @@ from sendmux_mcp.hosted_proxy import (
     path_template_pattern,
 )
 from sendmux_mcp.live_e2e import expected_api_error_exception
+from sendmux_mcp.retry import RetryingAsyncTransport
 from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.server import MCPHTTPTransport, create_server
 from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
@@ -90,6 +93,17 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "sending_upload_attachment",
     },
 }
+
+
+class TrackingTransport(httpx.AsyncBaseTransport):
+    def __init__(self) -> None:
+        self.closed = False
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"ok": True, "data": {}, "meta": {"request_id": "req_test"}}, request=request)
+
+    async def aclose(self) -> None:
+        self.closed = True
 
 READ_ONLY_TOOL_NAMES = {
     "mailbox_get_connection",
@@ -229,6 +243,20 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
                 assert isinstance(schema, dict), f"{tool.name}.{property_name}"
                 assert str(schema.get("description") or "").strip(), f"{tool.name}.{property_name}"
 
+        read_attachment = next(tool for tool in tools if tool.name == "mailbox_read_attachment")
+        validator = Draft202012Validator(read_attachment.output_schema)
+        attachment = {
+            "id": "att_test",
+            "filename": "x.txt",
+            "content_type": "text/plain",
+            "size_bytes": 1,
+            "disposition": "attachment",
+            "content_id": None,
+        }
+        assert not list(validator.iter_errors({"ok": True, "data": attachment}))
+        assert list(validator.iter_errors({"ok": True, "data": {**attachment, "read_mode": "text"}}))
+        assert list(validator.iter_errors({"ok": True, "data": {**attachment, "read_mode": "resource_link", "text": None}}))
+
     asyncio.run(check())
 
 
@@ -310,6 +338,49 @@ def test_mcp_http_transport_propagates_cancellation() -> None:
     asyncio.run(check())
 
 
+@pytest.mark.parametrize("compressed", [False, True])
+def test_mcp_http_transport_preserves_encoded_response_bytes(compressed: bool) -> None:
+    payload = b'{"ok":true}'
+    body = gzip.compress(payload) if compressed else payload
+    headers = {"content-encoding": "gzip", "content-length": str(len(body))} if compressed else {}
+
+    async def check() -> None:
+        transport = MCPHTTPTransport(
+            httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(200, content=body, headers=headers, request=request)))
+        )
+        response = await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+
+        assert await response.aread() == payload
+        await transport.aclose()
+
+    asyncio.run(check())
+
+
+def test_mcp_http_transport_preserves_gzip_after_retry_consumes_response() -> None:
+    attempts = 0
+    payload = b'{"ok":true}'
+    body = gzip.compress(payload)
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        status = 503 if attempts == 1 else 200
+        return httpx.Response(status, content=body, headers={"content-encoding": "gzip"}, request=request)
+
+    async def check() -> None:
+        client = httpx.AsyncClient(
+            transport=RetryingAsyncTransport(retry=RetryConfig(max_attempts=2, base_delay_seconds=0), inner=httpx.MockTransport(handler))
+        )
+        transport = MCPHTTPTransport(client)
+        response = await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+
+        assert await response.aread() == payload
+        assert attempts == 2
+        await transport.aclose()
+
+    asyncio.run(check())
+
+
 def test_selected_surface_composition_exposes_exact_curated_tools() -> None:
     async def check() -> None:
         mailbox_sending = create_server(
@@ -352,6 +423,13 @@ def test_selected_surface_composition_exposes_exact_curated_tools() -> None:
         assert "management_list_domains" in all_names
         assert "sending_send_email" in all_names
         assert len(all_names) == len(mailbox_sending_names) + len(management_names)
+        assert all_surfaces._mcp_server.server_info.version == version("sendmux-mcp")
+        mounted_versions = [
+            provider.server._mcp_server.server_info.version
+            for provider in all_surfaces.providers
+            if hasattr(provider, "server")
+        ]
+        assert mounted_versions == [version("sendmux-mcp")] * 3
 
     asyncio.run(check())
 
@@ -394,6 +472,7 @@ def test_http_server_negotiates_modern_discovery_and_legacy_initialise() -> None
         assert modern.json()["result"]["supportedVersions"] == ["2026-07-28"]
         assert modern.json()["result"]["ttlMs"] == 0
         assert modern.json()["result"]["cacheScope"] == "private"
+        assert modern.json()["result"]["_meta"]["io.modelcontextprotocol/serverInfo"]["version"] == version("sendmux-mcp")
         assert "mcp-session-id" not in modern.headers
         assert modern_tools.status_code == 200
         assert modern_tools.json()["result"]["ttlMs"] == 0
@@ -401,6 +480,88 @@ def test_http_server_negotiates_modern_discovery_and_legacy_initialise() -> None
         assert "mcp-session-id" not in modern_tools.headers
         assert legacy.status_code == 200
         assert legacy.json()["result"]["protocolVersion"] == "2025-11-25"
+        assert legacy.json()["result"]["serverInfo"]["version"] == version("sendmux-mcp")
+
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize("surfaces", [("management",), ("mailbox", "sending")])
+def test_http_lifespan_closes_surface_upstream_transport(surfaces: tuple[Surface, ...]) -> None:
+    async def check() -> None:
+        upstream = TrackingTransport()
+        api_keys = {surface: "smx_root_test" if surface == "management" else "smx_mbx_test" for surface in surfaces}
+        server = create_server(ServerConfig(surfaces=surfaces, api_keys=api_keys), transport=upstream)
+        app = server.http_app(path="/mcp", stateless_http=True, json_response=True)
+
+        async with app.router.lifespan_context(app):
+            assert not upstream.closed
+
+        assert upstream.closed
+
+    asyncio.run(check())
+
+
+def test_http_lifespan_closes_upstream_transport_after_request_cancellation() -> None:
+    async def check() -> None:
+        upstream = TrackingTransport()
+        server = create_server(ServerConfig(surfaces=("management",), api_key="smx_root_test"), transport=upstream)
+        app = server.http_app(path="/mcp", stateless_http=True, json_response=True)
+
+        async with app.router.lifespan_context(app):
+            request_task = asyncio.create_task(asyncio.Event().wait())
+            request_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await request_task
+
+        assert upstream.closed
+
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize(
+    "surface,tool_name,arguments",
+    [
+        ("management", "management_get_connection", {}),
+        ("sending", "sending_upload_attachment", {"filename": "x.txt", "content_base64": "eA=="}),
+    ],
+)
+def test_raw_modern_tool_call_rejects_invalid_structured_output(
+    surface: Surface,
+    tool_name: str,
+    arguments: dict[str, Any],
+) -> None:
+    async def check() -> None:
+        upstream = httpx.MockTransport(
+            lambda request: httpx.Response(
+                200,
+                json={"ok": True, "data": {"unexpected": True}, "meta": {"request_id": "req_test"}},
+                request=request,
+            )
+        )
+        api_key = "smx_root_test" if surface == "management" else "smx_mbx_test"
+        server = create_server(ServerConfig(surfaces=(surface,), api_key=api_key), transport=upstream)
+        app = server.http_app(path="/mcp", stateless_http=True, json_response=True)
+
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="https://mcp.sendmux.ai") as client:
+                response = await client.post(
+                    "/mcp",
+                    headers={"Content-Type": "application/json", "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": "tools/call", "Mcp-Name": tool_name},
+                    json={
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "tools/call",
+                        "params": {
+                            "name": tool_name,
+                            "arguments": arguments,
+                            "_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {}},
+                        },
+                    },
+                )
+
+        assert response.status_code == 200
+        assert response.json()["result"]["isError"] is True
+        assert "does not match its declared output schema" in response.json()["result"]["content"][0]["text"]
 
     asyncio.run(check())
 

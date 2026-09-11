@@ -4,3 +4,4 @@ mypy==1.16.1
 posthog==7.21.0
 pytest==8.4.1
 twine==6.1.0
+types-jsonschema==4.26.0.20260518

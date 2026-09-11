@@ -19,12 +19,17 @@ from starlette.applications import Starlette
 
 from sendmux_mcp.config import DEFAULT_APP_BASE_URL, ServerConfig, Surface, config_from_env, parse_csv
 from sendmux_mcp.a2a import A2A_RESOURCE_URL, A2ATokenVerifier, build_a2a_http_components
-from sendmux_mcp.hosted_auth import HOSTED_MCP_DISCOVERY_SCOPES, HostedAuthConfig, create_remote_auth_provider
+from sendmux_mcp.hosted_auth import (
+    HOSTED_MCP_DISCOVERY_SCOPES,
+    HostedAuthConfig,
+    create_remote_auth_provider,
+    hosted_mcp_resource_url,
+)
 from sendmux_mcp.hosted_proxy import HostedProxyConfig, build_hosted_operation_manifest
 from sendmux_mcp.observability import init_posthog_from_env, posthog_exception_middleware
 from sendmux_mcp.permissions import tool_permission_auth_check
 from sendmux_mcp.security import BearerScopeChallengeMiddleware, MCPHeaderGuardMiddleware, OriginGuardMiddleware
-from sendmux_mcp.server import create_server
+from sendmux_mcp.server import SENDMUX_MCP_VERSION, create_server
 from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 
 HOSTED_SURFACES: tuple[Surface, ...] = ("mailbox", "management", "sending")
@@ -105,6 +110,7 @@ def create_hosted_server(runtime: HostedServerRuntimeConfig | None = None) -> Fa
     )
     parent = FastMCP(
         "Sendmux MCP",
+        version=SENDMUX_MCP_VERSION,
         auth=auth_provider,
         middleware=[AuthMiddleware(auth=tool_permission_auth_check)],
     )
@@ -133,7 +139,7 @@ def hosted_mcp_proxy_config(
         proxy_url=runtime.proxy_url,
         upstream_base_url=surface_config.api_base_url,
         internal_bearer_token=runtime.internal_bearer_token,
-        resource=f"{runtime.resource_base_url.rstrip('/')}{runtime.mcp_path}",
+        resource=hosted_mcp_resource_url(runtime.resource_base_url, runtime.mcp_path),
         protocol="mcp",
     )
 

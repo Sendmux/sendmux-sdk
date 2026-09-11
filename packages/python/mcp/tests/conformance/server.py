@@ -1,5 +1,10 @@
 """FastMCP conformance test server.
 
+Vendored from FastMCP commit 7129236c770e14d52e6bd14af1100f7c9450769c
+under Apache-2.0; see LICENSE.fastmcp in this directory. Sendmux modified this
+file to add frozen 2025-11-25 resource subscription handlers and a typed app
+factory/entry point for repository-owned execution.
+
 Registers the exact tools, resources, and prompts expected by the
 MCP conformance test suite (https://github.com/modelcontextprotocol/conformance).
 """

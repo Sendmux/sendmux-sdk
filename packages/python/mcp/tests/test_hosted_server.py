@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
+from importlib.metadata import version
 
 import httpx
 import pytest
+from fastmcp.server.auth import RemoteAuthProvider
+from fastmcp.server.auth.providers.jwt import JWTVerifier
 
 from sendmux_mcp.curation import MAILBOX_TOOLS
 from sendmux_mcp.hosted import (
@@ -278,6 +282,34 @@ def test_hosted_server_protected_resource_metadata_preserves_authorization_serve
         assert response.json()["scopes_supported"] == list(HOSTED_MCP_DISCOVERY_SCOPES)
 
     asyncio.run(run())
+
+
+@pytest.mark.parametrize("mcp_path", ["/mcp", "/custom", "/custom/"])
+def test_hosted_prm_jwt_and_proxy_share_exact_mounted_resource(mcp_path: str) -> None:
+    async def run() -> None:
+        runtime = replace(runtime_config(), mcp_path=mcp_path)
+        server = create_hosted_server(runtime)
+        app = server.http_app(path=mcp_path, middleware=hosted_http_middleware(), stateless_http=True)
+        metadata_path = f"/.well-known/oauth-protected-resource{mcp_path}"
+
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="https://mcp.sendmux.ai") as client:
+            response = await client.get(metadata_path)
+
+        expected = f"https://mcp.sendmux.ai{mcp_path}"
+        assert response.status_code == 200
+        assert response.json()["resource"] == expected
+        assert isinstance(server.auth, RemoteAuthProvider)
+        assert isinstance(server.auth.token_verifier, JWTVerifier)
+        assert server.auth.token_verifier.audience == expected
+        assert hosted_mcp_proxy_config(runtime, hosted_surface_config("mailbox", runtime)).resource == expected
+
+    asyncio.run(run())
+
+
+def test_hosted_server_advertises_sendmux_package_version() -> None:
+    server = create_hosted_server(runtime_config())
+
+    assert server._mcp_server.server_info.version == version("sendmux-mcp")
 
 
 def test_hosted_surface_config_does_not_require_upstream_api_key(monkeypatch: pytest.MonkeyPatch) -> None:

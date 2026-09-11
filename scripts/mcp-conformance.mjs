@@ -1,59 +1,100 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { spawn } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const python = join(root, ".tmp", "python-venv", "bin", "python");
 const fixture = join(root, "packages", "python", "mcp", "tests", "conformance", "server.py");
-const stamp = new Date().toISOString().replaceAll(":", "-");
-const outputRoot = process.env.MCP_CONFORMANCE_OUTPUT_DIR ?? join(root, ".tmp", "mcp-conformance", stamp);
-const port = await availablePort();
-const url = `http://127.0.0.1:${port}/mcp`;
-const serverLog = join(outputRoot, "server.log");
-const requiredServerScenarios = {
-  "2025-11-25": ["server-initialize", "logging-set-level", "ping", "completion-complete", "tools-list", "tools-call-simple-text", "tools-call-image", "tools-call-audio", "tools-call-embedded-resource", "tools-call-mixed-content", "tools-call-with-logging", "tools-call-error", "tools-call-with-progress", "tools-call-sampling", "tools-call-elicitation", "elicitation-sep1034-defaults", "server-sse-multiple-streams", "elicitation-sep1330-enums", "resources-list", "resources-read-text", "resources-read-binary", "resources-templates-read", "resources-subscribe", "resources-unsubscribe", "prompts-list", "prompts-get-simple", "prompts-get-with-args", "prompts-get-embedded-resource", "prompts-get-with-image", "dns-rebinding-protection"],
-  "2026-07-28": ["server-stateless", "completion-complete", "tools-list", "tools-call-simple-text", "tools-call-image", "tools-call-audio", "tools-call-embedded-resource", "tools-call-mixed-content", "tools-call-error", "tools-call-with-progress", "server-sse-multiple-streams", "resources-list", "resources-read-text", "resources-read-binary", "resources-templates-read", "sep-2164-resource-not-found", "prompts-list", "prompts-get-simple", "prompts-get-with-args", "prompts-get-embedded-resource", "prompts-get-with-image", "dns-rebinding-protection", "caching", "input-required-result-basic-elicitation", "input-required-result-basic-sampling", "input-required-result-basic-list-roots", "input-required-result-request-state", "input-required-result-multiple-input-requests", "input-required-result-multi-round", "input-required-result-missing-input-response", "input-required-result-non-tool-request", "input-required-result-result-type", "input-required-result-unsupported-methods", "input-required-result-tampered-state", "input-required-result-capability-check", "input-required-result-ignore-extra-params", "input-required-result-validate-input"],
+const conformancePackage = dirname(fileURLToPath(import.meta.resolve("@modelcontextprotocol/conformance/package.json")));
+const exactAllowedStatuses = {
+  INFO: new Set(["server-sse-streams-functional"]),
+  SKIPPED: new Map([
+    ["sep-2575-server-sends-subscription-ack", "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."],
+    ["sep-2575-server-tags-subscription-id", "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."],
+    ["sep-2575-server-honors-notification-filter", "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."],
+    ["sep-2575-server-sends-prompts-list-changed-on-subscription", "Server did not declare prompts.listChanged capability in server/discover"],
+    ["sep-2575-server-sends-tools-list-changed-on-subscription", "Server did not declare tools.listChanged capability in server/discover"],
+  ]),
 };
+const expectedRequiredCounts = {
+  "2025-11-25": { SUCCESS: 70, INFO: 0, SKIPPED: 0 },
+  "2026-07-28": { SUCCESS: 114, INFO: 1, SKIPPED: 5 },
+};
+let activeConformanceChild = null;
 
-mkdirSync(outputRoot, { recursive: true });
-const server = spawn(python, [fixture, String(port)], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
-const logChunks = [];
-server.stdout.on("data", (chunk) => logChunks.push(chunk));
-server.stderr.on("data", (chunk) => logChunks.push(chunk));
-for (const signal of ["SIGINT", "SIGTERM"]) {
-  process.once(signal, () => {
-    void stopServer(server).then(() => process.kill(process.pid, signal));
-  });
-}
-
-try {
-  await waitUntilReady(url, server);
-  for (const revision of ["2025-11-25", "2026-07-28"]) {
-    const outputDir = join(outputRoot, revision);
-    await runConformance(url, revision, outputDir);
-    assertRequiredResults(revision, outputDir);
+async function main() {
+  const stamp = new Date().toISOString().replaceAll(":", "-");
+  const outputRoot = process.env.MCP_CONFORMANCE_OUTPUT_DIR ?? join(root, ".tmp", "mcp-conformance", stamp);
+  const port = await availablePort();
+  const url = `http://127.0.0.1:${port}/mcp`;
+  const serverLog = join(outputRoot, "server.log");
+  mkdirSync(outputRoot, { recursive: true });
+  const server = spawn(python, [fixture, String(port)], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+  const logChunks = [];
+  server.stdout.on("data", (chunk) => logChunks.push(chunk));
+  server.stderr.on("data", (chunk) => logChunks.push(chunk));
+  for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.once(signal, () => void stopChildrenAndReraise(signal, server));
   }
-  console.log(`MCP required scenarios passed with zero failures/skipped scenarios; capability-inapplicable checks and non-scored results remain visible in ${outputRoot}`);
-} finally {
-  await stopServer(server);
-  writeFileSync(serverLog, Buffer.concat(logChunks));
+  try {
+    await Promise.race([
+      waitUntilReady(url, server),
+      new Promise((_, reject) => server.once("error", reject)),
+    ]);
+    for (const revision of ["2025-11-25", "2026-07-28"]) {
+      const outputDir = join(outputRoot, revision);
+      await runConformance(url, revision, outputDir);
+      assertRequiredResults(revision, outputDir);
+    }
+    console.log(`MCP required scenarios passed; exact capability exclusions and non-scored results remain visible in ${outputRoot}`);
+  } finally {
+    await stopChild(server);
+    writeFileSync(serverLog, Buffer.concat(logChunks));
+  }
 }
 
-function assertRequiredResults(revision, outputDir) {
+export function requiredServerScenarios(revision) {
+  const yaml = readFileSync(join(conformancePackage, "requirements", `${revision}.yaml`), "utf8");
+  const serverBlock = yaml.match(/^server:\n((?:  - .+\n)+)/m)?.[1];
+  if (!serverBlock) throw new Error(`MCP ${revision} immutable requirements contain no server scenarios`);
+  return serverBlock.trim().split("\n").map((line) => line.replace(/^\s*-\s+/, ""));
+}
+
+export function assertRequiredResults(revision, outputDir) {
   const directories = readdirSync(outputDir, { withFileTypes: true }).filter((entry) => entry.isDirectory());
-  for (const scenario of requiredServerScenarios[revision]) {
+  const counts = { SUCCESS: 0, INFO: 0, SKIPPED: 0 };
+  for (const scenario of requiredServerScenarios(revision)) {
     const prefix = `server-${scenario}-`;
     const matches = directories.filter((entry) => entry.name.startsWith(prefix));
     if (matches.length !== 1) throw new Error(`MCP ${revision} required scenario ${scenario} produced ${matches.length} result directories`);
     const checks = JSON.parse(readFileSync(join(outputDir, matches[0].name, "checks.json"), "utf8"));
-    const unacceptable = checks.filter((check) => check.status === "FAILURE");
-    if (unacceptable.length) {
-      throw new Error(`MCP ${revision} required scenario ${scenario} has non-success checks: ${unacceptable.map((check) => `${check.id}:${check.status}`).join(", ")}`);
+    if (!Array.isArray(checks) || checks.length === 0) throw new Error(`MCP ${revision} required scenario ${scenario} produced no checks`);
+    for (const check of checks) {
+      if (check.status === "SUCCESS") {
+        counts.SUCCESS += 1;
+        continue;
+      }
+      if (check.status === "INFO" && exactAllowedStatuses.INFO.has(check.id)) {
+        counts.INFO += 1;
+        continue;
+      }
+      if (check.status === "SKIPPED" && exactAllowedStatuses.SKIPPED.get(check.id) === check.details?.note) {
+        counts.SKIPPED += 1;
+        continue;
+      }
+      throw new Error(`MCP ${revision} required scenario ${scenario} has unacceptable check ${check.id}:${check.status}`);
     }
-    const unexpectedSkips = checks.filter((check) => check.status === "SKIPPED" && !/not applicable|did not declare/.test(check.details?.note ?? ""));
-    if (unexpectedSkips.length) throw new Error(`MCP ${revision} required scenario ${scenario} has unexplained skips: ${unexpectedSkips.map((check) => check.id).join(", ")}`);
   }
+  const expected = expectedRequiredCounts[revision];
+  if (!expected) throw new Error(`MCP ${revision} has no frozen required-result count`);
+  for (const status of Object.keys(counts)) {
+    if (counts[status] !== expected[status]) {
+      throw new Error(`MCP ${revision} required ${status} count was ${counts[status]}, expected ${expected[status]}`);
+    }
+  }
+  return counts;
 }
 
 function availablePort() {
@@ -89,8 +130,13 @@ function runConformance(target, revision, outputDir) {
       ["exec", "conformance", "server", "--url", target, "--requirements", revision, "--output-dir", outputDir],
       { cwd: root, stdio: "inherit" },
     );
-    child.once("error", reject);
+    activeConformanceChild = child;
+    child.once("error", (error) => {
+      activeConformanceChild = null;
+      reject(error);
+    });
     child.once("exit", (code, signal) => {
+      activeConformanceChild = null;
       if (code === 0) resolve();
       else reject(new Error(`MCP ${revision} conformance failed with ${signal ?? `exit code ${code}`}`));
     });
@@ -102,7 +148,8 @@ function waitForExit(child) {
   return new Promise((resolve) => child.once("exit", resolve));
 }
 
-async function stopServer(child) {
+async function stopChild(child) {
+  if (child === null) return;
   if (child.exitCode !== null || child.signalCode !== null) return;
   child.kill("SIGTERM");
   await Promise.race([
@@ -114,3 +161,12 @@ async function stopServer(child) {
   ]);
   await waitForExit(child);
 }
+
+async function stopChildrenAndReraise(signal, server) {
+  await stopChild(activeConformanceChild);
+  await stopChild(server);
+  process.removeAllListeners(signal);
+  process.kill(process.pid, signal);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

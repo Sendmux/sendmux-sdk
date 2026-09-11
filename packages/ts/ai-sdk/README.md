@@ -6,8 +6,8 @@ Gives an agent its own mailbox: it can send email, read what arrives, and reply 
 
 ## Requirements
 
-- Node.js 18 or newer
-- `ai` v5 and `zod` (peer dependencies — you already install `ai` to call `generateText`)
+- A Node.js version supported by your installed `ai` version (`ai` v7 requires Node.js 22 or newer)
+- `ai` v5 or newer and a compatible `zod` version (peer dependencies — you already install `ai` to call `generateText`)
 
 ## Installation
 
@@ -98,13 +98,16 @@ Sends from the agent's own mailbox address, rather than through a sending provid
 
 ## Configuration
 
+Supply exactly one of `apiKey` or `accessToken`.
+
 ```ts
 sendmux({ apiKey, defaultFrom });
 ```
 
 | Option | Required | Purpose |
 | --- | --- | --- |
-| `apiKey` | yes | A send + receive mailbox key (`smx_mbx_*`) or a scoped agent token (`smx_agent_*`) |
+| `apiKey` | If no `accessToken` | A send + receive mailbox key (`smx_mbx_*`) or a scoped agent token (`smx_agent_*`) |
+| `accessToken` | If no `apiKey` | A bare REST OAuth token or a synchronous or asynchronous token provider |
 | `defaultFrom` | no | Default sender for `send_email`. Without it, the model has to supply `from` on every call |
 
 ## Retries and duplicate sends

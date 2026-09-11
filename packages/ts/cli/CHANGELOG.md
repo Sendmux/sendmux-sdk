@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.6.0...ts-cli-v1.6.1) (2026-09-11)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/sdk bumped to 1.5.1
+
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.5.0...ts-cli-v1.6.0) (2026-09-11)
 
 

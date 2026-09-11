@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.5.0...ts-sdk-v1.5.1) (2026-09-11)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 1.6.1
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.2...ts-sdk-v1.5.0) (2026-09-10)
 
 

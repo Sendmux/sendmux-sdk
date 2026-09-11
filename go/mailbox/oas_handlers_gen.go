@@ -7787,10 +7787,6 @@ func (s *Server) handleMailboxStreamEventsRequest(args [0]string, argsEscaped bo
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "mailbox_id",
-					In:   "query",
-				}: params.MailboxID,
-				{
 					Name: "event_types",
 					In:   "query",
 				}: params.EventTypes,
@@ -7810,6 +7806,10 @@ func (s *Server) handleMailboxStreamEventsRequest(args [0]string, argsEscaped bo
 					Name: "Last-Event-ID",
 					In:   "header",
 				}: params.HeaderLastEventID,
+				{
+					Name: "mailbox_id",
+					In:   "query",
+				}: params.MailboxID,
 			},
 			Raw: r,
 		}

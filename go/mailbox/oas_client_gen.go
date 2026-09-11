@@ -8356,23 +8356,6 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "mailbox_id" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "mailbox_id",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.MailboxID.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
 		// Encode "event_types" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "event_types",
@@ -8434,6 +8417,23 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			if val, ok := params.CloseAfter.Get(); ok {
 				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
 			}
 			return nil
 		}); err != nil {

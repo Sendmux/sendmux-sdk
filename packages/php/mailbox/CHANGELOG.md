@@ -4,6 +4,7 @@
 
 - Add `WithAccessToken` factories for REST OAuth tokens and callable providers.
 - Require core 2.1 for OAuth authentication and retry handling.
+- Preserve the published positional arguments for all five mailbox streaming methods.
 
 ## 2.0.0 (2026-09-08)
 

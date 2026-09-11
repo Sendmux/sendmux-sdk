@@ -1317,16 +1317,16 @@ export type MailboxStreamEventsData = {
     path?: never;
     query?: {
         /**
-         * Select a granted mailbox when using an OAuth token with multiple mailboxes.
-         */
-        mailbox_id?: string;
-        /**
          * Comma-separated list: message.received, message.received.spam.
          */
         event_types?: string;
         last_event_id?: string;
         ping?: number;
         close_after?: number;
+        /**
+         * Select a granted mailbox when using an OAuth token with multiple mailboxes.
+         */
+        mailbox_id?: string;
     };
     url: '/mailbox/events';
 };

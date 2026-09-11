@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.5.0...go/v1.6.0) (2026-09-11)
+
+
+### Features
+
+* add REST OAuth clients and CLI token lifecycle ([cc4a3aa](https://github.com/Sendmux/sendmux-sdk/commit/cc4a3aa6110378641418a94455ed5b9a986e65ff))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.4.1...go/v1.5.0) (2026-09-08)
 
 

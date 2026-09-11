@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.5.0...ts-cli-v1.6.0) (2026-09-11)
+
+
+### Features
+
+* add REST OAuth clients and CLI token lifecycle ([cc4a3aa](https://github.com/Sendmux/sendmux-sdk/commit/cc4a3aa6110378641418a94455ed5b9a986e65ff))
+
+
+### Bug Fixes
+
+* **cli:** keep OAuth callback page self-contained ([f35101a](https://github.com/Sendmux/sendmux-sdk/commit/f35101a1a744734ff586684714b4fd965ff333eb))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.4.1...ts-cli-v1.5.0) (2026-09-08)
 
 

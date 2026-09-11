@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.6.0...go/v1.6.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **sdk:** preserve streaming arguments and prepare PHP OAuth release ([#207](https://github.com/Sendmux/sendmux-sdk/issues/207)) ([c534588](https://github.com/Sendmux/sendmux-sdk/commit/c53458875cef0bbd601c982308d84bc4e87c961c))
+
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.5.0...go/v1.6.0) (2026-09-11)
 
 

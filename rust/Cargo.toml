@@ -1,6 +1,6 @@
 [package]
 name = "sendmux"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 rust-version = "1.82"
 description = "Official async Rust SDK for the Sendmux Sending, Mailbox, and Management APIs."

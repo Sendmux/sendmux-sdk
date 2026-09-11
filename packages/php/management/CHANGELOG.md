@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0 (2026-09-11)
+
+- Add `WithAccessToken` factories for REST OAuth tokens and callable providers.
+- Require core 2.1 for OAuth authentication and retry handling.
+
 ## 2.0.0 (2026-09-08)
 
 - Add `managementGetConnection()` and the connection client factory.

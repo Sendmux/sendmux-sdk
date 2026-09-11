@@ -5,10 +5,10 @@
   "license": "MIT",
   "require": {
     "php": "^8.2",
-    "sendmux/core": "^2.0",
-    "sendmux/mailbox": "^2.0",
-    "sendmux/management": "^2.0",
-    "sendmux/sending": "^2.0"
+    "sendmux/core": "^2.1",
+    "sendmux/mailbox": "^2.1",
+    "sendmux/management": "^2.1",
+    "sendmux/sending": "^2.1"
   },
   "autoload": {
     "psr-4": {

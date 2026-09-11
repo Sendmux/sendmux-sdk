@@ -23,7 +23,7 @@ from sendmux_mcp.hosted_auth import HOSTED_MCP_DISCOVERY_SCOPES, HostedAuthConfi
 from sendmux_mcp.hosted_proxy import HostedProxyConfig, build_hosted_operation_manifest
 from sendmux_mcp.observability import init_posthog_from_env, posthog_exception_middleware
 from sendmux_mcp.permissions import tool_permission_auth_check
-from sendmux_mcp.security import BearerScopeChallengeMiddleware, OriginGuardMiddleware
+from sendmux_mcp.security import BearerScopeChallengeMiddleware, MCPHeaderGuardMiddleware, OriginGuardMiddleware
 from sendmux_mcp.server import create_server
 from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 
@@ -38,6 +38,8 @@ HOSTED_CORS_ALLOWED_HEADERS = (
     "Last-Event-ID",
     "Mcp-Session-Id",
     "MCP-Protocol-Version",
+    "Mcp-Method",
+    "Mcp-Name",
 )
 HOSTED_CORS_EXPOSE_HEADERS = ("Mcp-Session-Id", "MCP-Protocol-Version")
 HOSTED_CORS_ALLOWED_METHODS = ("GET", "POST", "DELETE", "OPTIONS")
@@ -112,11 +114,7 @@ def create_hosted_server(runtime: HostedServerRuntimeConfig | None = None) -> Fa
         child = create_server(
             surface_config,
             auth_provider=auth_provider,
-            hosted_proxy_config=HostedProxyConfig(
-                proxy_url=runtime.proxy_url,
-                upstream_base_url=surface_config.api_base_url,
-                internal_bearer_token=runtime.internal_bearer_token,
-            ),
+            hosted_proxy_config=hosted_mcp_proxy_config(runtime, surface_config),
         )
         parent.mount(child)
 
@@ -125,6 +123,19 @@ def create_hosted_server(runtime: HostedServerRuntimeConfig | None = None) -> Fa
         return JSONResponse({"status": "ok", "surfaces": list(HOSTED_SURFACES)})
 
     return parent
+
+
+def hosted_mcp_proxy_config(
+    runtime: HostedServerRuntimeConfig,
+    surface_config: ServerConfig,
+) -> HostedProxyConfig:
+    return HostedProxyConfig(
+        proxy_url=runtime.proxy_url,
+        upstream_base_url=surface_config.api_base_url,
+        internal_bearer_token=runtime.internal_bearer_token,
+        resource=f"{runtime.resource_base_url.rstrip('/')}{runtime.mcp_path}",
+        protocol="mcp",
+    )
 
 
 def run_hosted() -> None:
@@ -207,12 +218,13 @@ def hosted_http_middleware(
     return [
         posthog_exception_middleware(),
         Middleware(OriginGuardMiddleware, allowed_origins=origins),
+        Middleware(MCPHeaderGuardMiddleware, allowed_preflight_headers=HOSTED_CORS_ALLOWED_HEADERS),
         Middleware(BearerScopeChallengeMiddleware, scopes=challenge_scopes),
         Middleware(
             CORSMiddleware,
             allow_origins=list(origins),
             allow_methods=HOSTED_CORS_ALLOWED_METHODS,
-            allow_headers=HOSTED_CORS_ALLOWED_HEADERS,
+            allow_headers=["*"],
             expose_headers=HOSTED_CORS_EXPOSE_HEADERS,
             allow_credentials=False,
         )

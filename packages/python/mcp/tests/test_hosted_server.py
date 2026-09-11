@@ -11,6 +11,7 @@ from sendmux_mcp.hosted import (
     HOSTED_SURFACES,
     HostedServerRuntimeConfig,
     create_hosted_server,
+    hosted_mcp_proxy_config,
     hosted_http_middleware,
     hosted_runtime_config_from_env,
     hosted_surface_config,
@@ -49,6 +50,15 @@ def test_hosted_server_mounts_all_surfaces_without_process_api_key(monkeypatch: 
         assert unauthenticated_tools == []
 
     asyncio.run(run())
+
+
+def test_hosted_mcp_proxy_carries_exact_oauth_resource_context() -> None:
+    runtime = runtime_config()
+
+    config = hosted_mcp_proxy_config(runtime, hosted_surface_config("mailbox", runtime))
+
+    assert config.resource == "https://mcp.sendmux.ai/mcp"
+    assert config.protocol == "mcp"
 
 
 def test_hosted_server_rejects_localhost_browser_preflight_by_default() -> None:
@@ -95,6 +105,66 @@ def test_hosted_server_allows_browser_preflight_from_app_origin() -> None:
         assert "mcp-protocol-version" in response.headers["access-control-allow-headers"].lower()
         assert "post" in response.headers["access-control-allow-methods"].lower()
         assert "access-control-allow-credentials" not in response.headers
+
+    asyncio.run(run())
+
+
+def test_hosted_server_allows_bounded_modern_routing_headers() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.options(
+                "/mcp",
+                headers={
+                    "Origin": "https://app.sendmux.ai",
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "authorization,content-type,mcp-protocol-version,mcp-method,mcp-name,mcp-param-cursor",
+                },
+            )
+
+        assert response.status_code == 200
+        allowed = response.headers["access-control-allow-headers"].lower()
+        assert "mcp-param-cursor" in allowed
+
+    asyncio.run(run())
+
+
+def test_hosted_server_rejects_unknown_browser_preflight_header() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.options(
+                "/mcp",
+                headers={
+                    "Origin": "https://app.sendmux.ai",
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "authorization,x-arbitrary-header",
+                },
+            )
+
+        assert response.status_code == 400
+        assert response.json()["error"]["code"] == "invalid_mcp_header"
+
+    asyncio.run(run())
+
+
+def test_hosted_server_rejects_oversized_modern_parameter_header() -> None:
+    async def run() -> None:
+        server = create_hosted_server(runtime_config())
+        app = server.http_app(path="/mcp", middleware=hosted_http_middleware(), stateless_http=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+            response = await client.post("/mcp", headers={"Mcp-Param-Test": "x" * 1025})
+
+        assert response.status_code == 400
+        assert response.json()["error"]["code"] == "invalid_mcp_header"
 
     asyncio.run(run())
 

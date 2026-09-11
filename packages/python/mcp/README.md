@@ -162,15 +162,14 @@ When a message has attachments:
 
 Use `mailbox_upload_attachment` for outbound attachments over MCP. It accepts exactly one input mode:
 
-- `file_path` for local stdio MCP when the file is inside a client-declared filesystem root.
 - `presign_upload_url=true` for hosted MCP or shell-capable agents; upload the file to the returned URL with exact headers and no API key, then send with the returned `blob_id`.
-- `content_base64` only for tiny agent-authored files, capped at `32 KiB` decoded. If it is too large, switch to `file_path`, presigned upload, CLI `--attach`, or SDK file helpers.
+- `content_base64` only for tiny agent-authored files, capped at `32 KiB` decoded. If it is too large, switch to a presigned upload, CLI `--attach`, or SDK file helpers.
 
-`file_path` and presigned upload modes use the mailbox attachment cap, currently `7,500,000` bytes per attachment. Presigned uploads also pin the exact declared byte length and content type.
+Presigned uploads use the mailbox attachment cap, currently `7,500,000` bytes per attachment, and pin the exact declared byte length and content type.
 
 For mailbox sends, `mailbox_send_message` accepts either tiny inline base64 attachment objects (`content`, `filename`, `content_type`) or uploaded attachment references (`blob_id`, `filename`, `content_type`).
 
-For Sending API sends, call `sending_upload_attachment` with `file_path` on local stdio MCP, or call `sending_create_attachment_upload` and PUT bytes outside model context for hosted/shell-capable agents. Then pass `{"attachment_id": "att_..."}` in `sending_send_email.attachments[]`. Avoid Sending inline base64 except for tiny generated content.
+For Sending API sends, use `sending_upload_attachment` only for tiny inline content, or call `sending_create_attachment_upload` and PUT bytes outside model context. Then pass `{"attachment_id": "att_..."}` in `sending_send_email.attachments[]`.
 
 ## Console Scripts
 

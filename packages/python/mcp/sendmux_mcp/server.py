@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import copy
 import re
 from binascii import Error as Base64DecodeError
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Annotated, Any
-from urllib.parse import quote, unquote, urlparse
+from urllib.parse import quote
 
 import httpx
-from fastmcp import Context, FastMCP
+import httpx2
+from fastmcp import FastMCP
 from fastmcp.server.auth import AuthProvider
 from fastmcp.server.middleware import AuthMiddleware
 from mcp.types import ToolAnnotations
@@ -49,10 +50,29 @@ MCP_ATTACHMENT_TEXT_CONTENT_TYPES = {
 }
 CONTENT_RANGE_RE = re.compile(r"^bytes (\d+)-(\d+)/(\d+|\*)$")
 
-ANY_OBJECT_OUTPUT_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "additionalProperties": True,
-}
+JSON_SCHEMA_2020_12 = "https://json-schema.org/draft/2020-12/schema"
+
+
+class MCPHTTPTransport(httpx2.AsyncBaseTransport):
+    def __init__(self, client: httpx.AsyncClient) -> None:
+        self.client = client
+
+    async def handle_async_request(self, request: httpx2.Request) -> httpx2.Response:
+        async with self.client.stream(
+            request.method,
+            str(request.url),
+            headers=dict(request.headers),
+            content=await request.aread(),
+        ) as response:
+            return httpx2.Response(
+                response.status_code,
+                headers=response.headers,
+                content=await response.aread(),
+                request=request,
+            )
+
+    async def aclose(self) -> None:
+        await self.client.aclose()
 
 
 def create_server(
@@ -141,15 +161,16 @@ def create_surface_server(
 
     middleware = [AuthMiddleware(auth=tool_permission_auth_check)] if auth_provider else None
 
+    mcp_client = httpx2.AsyncClient(base_url=api_base_url, transport=MCPHTTPTransport(client))
     server = FastMCP.from_openapi(
         openapi_spec=spec,
-        client=client,
+        client=mcp_client,
         name=f"Sendmux {surface} MCP",
         route_maps=route_maps_for_surface(spec, surface),
         mcp_names=mcp_names_for_surface(surface),
         mcp_component_fn=customise_component,
         tags={"sendmux", surface},
-        validate_output=False,
+        validate_output=True,
         auth=auth_provider,
         middleware=middleware,
     )
@@ -158,6 +179,7 @@ def create_surface_server(
         add_mailbox_custom_tools(
             server,
             client,
+            spec=spec,
             hosted=hosted_proxy_config is not None,
             transport=config.transport,
         )
@@ -166,6 +188,7 @@ def create_surface_server(
         add_sending_custom_tools(
             server,
             client,
+            spec=spec,
             hosted=hosted_proxy_config is not None,
             transport=config.transport,
         )
@@ -199,9 +222,58 @@ def add_mailbox_custom_tools(
     server: FastMCP,
     client: httpx.AsyncClient,
     *,
+    spec: dict[str, Any],
     hosted: bool,
     transport: str,
 ) -> None:
+    attachment_schema = component_schema(spec, "MailboxAttachment")
+    read_attachment_schema = copy.deepcopy(attachment_schema)
+    read_attachment_schema["properties"].update(
+        {
+            "read_mode": {"enum": ["text", "resource_link"], "type": "string"},
+            "text": {"type": ["string", "null"]},
+            "truncated": {"type": "boolean"},
+            "bytes_read": {"minimum": 0, "type": "integer"},
+            "resource_link": {
+                "additionalProperties": False,
+                "properties": {
+                    "uri": {"type": "string"},
+                    "name": {"type": "string"},
+                    "mime_type": {"type": "string"},
+                    "size_bytes": {"type": ["integer", "null"]},
+                },
+                "required": ["uri", "name", "mime_type", "size_bytes"],
+                "type": "object",
+            },
+        }
+    )
+    upload_schema = {
+        "oneOf": [component_schema(spec, "MailboxAttachmentUploadResult"), component_schema(spec, "MailboxAttachmentUploadIntentResult")]
+    }
+    wait_schema = {
+        "additionalProperties": False,
+        "properties": {
+            "matched": {"type": "boolean"},
+            "message": {
+                "oneOf": [
+                    {
+                        "additionalProperties": False,
+                        "properties": {
+                            "attachments": {"items": attachment_schema, "type": "array"},
+                            "id": {"type": "string"},
+                            "received_at": {"type": ["string", "null"]},
+                        },
+                        "required": ["id", "received_at", "attachments"],
+                        "type": "object",
+                    },
+                    {"type": "null"},
+                ]
+            },
+            "next_after": {"type": "string"},
+        },
+        "required": ["matched", "message", "next_after"],
+        "type": "object",
+    }
     @server.tool(
         name="mailbox_get_attachment",
         title="Get Attachment Metadata",
@@ -211,12 +283,12 @@ def add_mailbox_custom_tools(
         ),
         tags={"sendmux", "mailbox"},
         annotations=ToolAnnotations(
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
-        output_schema=ANY_OBJECT_OUTPUT_SCHEMA,
+        output_schema=tool_envelope_schema(attachment_schema),
     )
     async def mailbox_get_attachment(
         message_id: Annotated[str, Field(description="Message ID containing the attachment.")],
@@ -243,12 +315,12 @@ def add_mailbox_custom_tools(
         ),
         tags={"sendmux", "mailbox"},
         annotations=ToolAnnotations(
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
-        output_schema=ANY_OBJECT_OUTPUT_SCHEMA,
+        output_schema=tool_envelope_schema(read_attachment_schema),
     )
     async def mailbox_read_attachment(
         message_id: Annotated[str, Field(description="Message ID containing the attachment.")],
@@ -335,37 +407,27 @@ def add_mailbox_custom_tools(
         name="mailbox_upload_attachment",
         title="Upload Attachment",
         description=(
-            "Use this before sending a mailbox attachment. Cheapest mode: file_path on local stdio MCP reads the "
-            "user-approved local file without putting bytes in model context. Hosted or shell-capable agents should "
-            "set presign_upload_url=true with filename, content_type, and size_bytes, then PUT the file to the returned "
+            "Use this before sending a mailbox attachment. For real files set presign_upload_url=true with filename, "
+            "content_type, and size_bytes, then PUT the file to the returned "
             "short-lived URL promptly and send the returned blob_id. Inline content_base64 is a last resort for tiny "
             "agent-authored files only and is capped at 32 KiB decoded."
         ),
         tags={"sendmux", "mailbox"},
         annotations=ToolAnnotations(
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
-        output_schema=ANY_OBJECT_OUTPUT_SCHEMA,
+        output_schema=tool_envelope_schema(upload_schema),
     )
     async def mailbox_upload_attachment(
         filename: Annotated[str, Field(description="Filename to use when sending the uploaded attachment.")],
-        ctx: Context,
         content_base64: Annotated[
             str | None,
             Field(
                 description=(
-                    "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use file_path or presign_upload_url for real files."
-                ),
-            ),
-        ] = None,
-        file_path: Annotated[
-            str | None,
-            Field(
-                description=(
-                    "Local file path for stdio MCP only. The path must be inside a client-declared MCP root; hosted MCP rejects it."
+                    "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use presign_upload_url for real files."
                 ),
             ),
         ] = None,
@@ -394,11 +456,11 @@ def add_mailbox_custom_tools(
             Field(description="Mailbox public ID when the credential can access more than one mailbox."),
         ] = None,
     ) -> dict[str, Any]:
-        mode_count = sum(1 for enabled in (bool(content_base64), bool(file_path), presign_upload_url) if enabled)
+        mode_count = sum(1 for enabled in (bool(content_base64), presign_upload_url) if enabled)
         if mode_count != 1:
             return local_tool_error(
                 "invalid_parameter",
-                "Provide exactly one attachment input mode: file_path, presign_upload_url, or content_base64.",
+                "Provide exactly one attachment input mode: presign_upload_url or content_base64.",
             )
 
         if presign_upload_url:
@@ -425,19 +487,9 @@ def add_mailbox_custom_tools(
             )
             return json_payload(response)
 
-        if file_path:
-            content = await read_local_attachment_file(
-                file_path=file_path,
-                ctx=ctx,
-                hosted=hosted,
-                transport=transport,
-            )
-            if isinstance(content, dict):
-                return content
-        else:
-            content = decode_base64_attachment(content_base64 or "")
-            if isinstance(content, dict):
-                return content
+        content = decode_base64_attachment(content_base64 or "")
+        if isinstance(content, dict):
+            return content
 
         params = optional_params(filename=filename, mailbox_id=mailbox_id)
         response = await client.post(
@@ -457,12 +509,12 @@ def add_mailbox_custom_tools(
         ),
         tags={"sendmux", "mailbox"},
         annotations=ToolAnnotations(
-            readOnlyHint=True,
-            destructiveHint=False,
-            idempotentHint=True,
-            openWorldHint=True,
+            read_only_hint=True,
+            destructive_hint=False,
+            idempotent_hint=True,
+            open_world_hint=True,
         ),
-        output_schema=ANY_OBJECT_OUTPUT_SCHEMA,
+        output_schema=tool_envelope_schema(wait_schema),
     )
     async def mailbox_wait_for_message(
         timeout_seconds: Annotated[
@@ -541,11 +593,20 @@ def add_mailbox_custom_tools(
             messages = payload.get("data")
             if isinstance(messages, list) and messages:
                 message = messages[0]
+                matched_message = (
+                    {
+                        "attachments": attachments_from_message(message),
+                        "id": message.get("id", ""),
+                        "received_at": message.get("received_at"),
+                    }
+                    if isinstance(message, dict)
+                    else {"attachments": [], "id": "", "received_at": None}
+                )
                 return {
                     "ok": True,
                     "data": {
                         "matched": True,
-                        "message": message,
+                        "message": matched_message,
                         "next_after": message.get("received_at") if isinstance(message, dict) else checkpoint,
                     },
                     "meta": last_meta,
@@ -569,6 +630,7 @@ def add_sending_custom_tools(
     server: FastMCP,
     client: httpx.AsyncClient,
     *,
+    spec: dict[str, Any],
     hosted: bool,
     transport: str,
 ) -> None:
@@ -576,36 +638,26 @@ def add_sending_custom_tools(
         name="sending_upload_attachment",
         title="Upload Attachment",
         description=(
-            "Use this before sending a Sending API attachment. Cheapest mode: file_path on local stdio MCP reads the "
-            "user-approved local file without putting bytes in model context. Hosted agents should use "
+            "Use this before sending a Sending API attachment. For real files use "
             "sending_create_attachment_upload and PUT the file outside model context. Inline content_base64 is a last "
             "resort for tiny agent-authored files only and is capped at 32 KiB decoded."
         ),
         tags={"sendmux", "sending"},
         annotations=ToolAnnotations(
-            readOnlyHint=False,
-            destructiveHint=False,
-            idempotentHint=False,
-            openWorldHint=True,
+            read_only_hint=False,
+            destructive_hint=False,
+            idempotent_hint=False,
+            open_world_hint=True,
         ),
-        output_schema=ANY_OBJECT_OUTPUT_SCHEMA,
+        output_schema=tool_envelope_schema(component_schema(spec, "AttachmentUploadData")),
     )
     async def sending_upload_attachment(
         filename: Annotated[str, Field(description="Filename to use when sending the uploaded attachment.")],
-        ctx: Context,
         content_base64: Annotated[
             str | None,
             Field(
                 description=(
-                    "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use file_path for real local files."
-                ),
-            ),
-        ] = None,
-        file_path: Annotated[
-            str | None,
-            Field(
-                description=(
-                    "Local file path for stdio MCP only. The path must be inside a client-declared MCP root; hosted MCP rejects it."
+                    "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use a presigned upload for real files."
                 ),
             ),
         ] = None,
@@ -618,31 +670,16 @@ def add_sending_custom_tools(
             Field(description="Optional Idempotency-Key for safely retrying the upload."),
         ] = None,
     ) -> dict[str, Any]:
-        mode_count = sum(1 for enabled in (bool(content_base64), bool(file_path)) if enabled)
-        if mode_count != 1:
+        if not content_base64:
             return local_tool_error(
                 "invalid_parameter",
-                "Provide exactly one attachment input mode: file_path or content_base64.",
+                "content_base64 is required.",
+                param="content_base64",
             )
 
-        if file_path:
-            content = await read_local_attachment_file(
-                file_path=file_path,
-                ctx=ctx,
-                hosted=hosted,
-                transport=transport,
-                max_bytes=MCP_SENDING_ATTACHMENT_FILE_UPLOAD_MAX_BYTES,
-                max_bytes_message="Attachment file exceeds the Sending upload cap of 18 MiB.",
-                unavailable_message=(
-                    "file_path is available only for local stdio MCP. Use sending_create_attachment_upload and PUT the file outside model context."
-                ),
-            )
-            if isinstance(content, dict):
-                return content
-        else:
-            content = decode_base64_attachment(content_base64 or "")
-            if isinstance(content, dict):
-                return content
+        content = decode_base64_attachment(content_base64)
+        if isinstance(content, dict):
+            return content
 
         headers = {"content-type": content_type[:255] or "application/octet-stream"}
         if idempotency_key:
@@ -658,6 +695,49 @@ def add_sending_custom_tools(
 
 def optional_params(**values: Any) -> dict[str, Any]:
     return {key: value for key, value in values.items() if value is not None}
+
+
+def component_schema(spec: dict[str, Any], name: str) -> dict[str, Any]:
+    schema = copy.deepcopy(spec["components"]["schemas"][name])
+    return rewrite_component_refs(schema, spec)
+
+
+def rewrite_component_refs(value: Any, spec: dict[str, Any]) -> Any:
+    if isinstance(value, list):
+        return [rewrite_component_refs(item, spec) for item in value]
+    if not isinstance(value, dict):
+        return value
+    reference = value.get("$ref")
+    prefix = "#/components/schemas/"
+    if isinstance(reference, str) and reference.startswith(prefix):
+        return component_schema(spec, reference.removeprefix(prefix))
+    return {key: rewrite_component_refs(child, spec) for key, child in value.items()}
+
+
+def tool_envelope_schema(data_schema: dict[str, Any]) -> dict[str, Any]:
+    meta_schema = {"additionalProperties": True, "type": "object"}
+    success = {
+        "additionalProperties": False,
+        "properties": {"ok": {"const": True}, "data": data_schema, "meta": meta_schema},
+        "required": ["ok", "data"],
+        "type": "object",
+    }
+    error = {
+        "additionalProperties": False,
+        "properties": {
+            "ok": {"const": False},
+            "error": {
+                "additionalProperties": True,
+                "properties": {"code": {"type": "string"}, "message": {"type": "string"}},
+                "required": ["code", "message"],
+                "type": "object",
+            },
+            "meta": meta_schema,
+        },
+        "required": ["ok", "error"],
+        "type": "object",
+    }
+    return {"$schema": JSON_SCHEMA_2020_12, "oneOf": [success, error], "type": "object"}
 
 
 def attachments_from_message(message: dict[str, Any]) -> list[dict[str, Any]]:
@@ -745,7 +825,7 @@ def decode_base64_attachment(content_base64: str) -> bytes | dict[str, Any]:
     if len(content_base64) > MCP_ATTACHMENT_INLINE_UPLOAD_MAX_BASE64_CHARS:
         return local_tool_error(
             "invalid_parameter",
-            "Inline base64 exceeds the MCP cap of 32 KiB decoded bytes. Use file_path on local stdio MCP, or presign_upload_url and PUT the file outside model context.",
+            "Inline base64 exceeds the MCP cap of 32 KiB decoded bytes. Use presign_upload_url and PUT the file outside model context.",
             param="content_base64",
         )
     try:
@@ -757,98 +837,10 @@ def decode_base64_attachment(content_base64: str) -> bytes | dict[str, Any]:
     if len(content) > MCP_ATTACHMENT_INLINE_UPLOAD_MAX_BYTES:
         return local_tool_error(
             "invalid_parameter",
-            "Inline base64 exceeds the MCP cap of 32 KiB decoded bytes. Use file_path on local stdio MCP, or presign_upload_url and PUT the file outside model context.",
+            "Inline base64 exceeds the MCP cap of 32 KiB decoded bytes. Use presign_upload_url and PUT the file outside model context.",
             param="content_base64",
         )
     return content
-
-
-async def read_local_attachment_file(
-    *,
-    file_path: str,
-    ctx: Context,
-    hosted: bool,
-    transport: str,
-    max_bytes: int = MCP_ATTACHMENT_FILE_UPLOAD_MAX_BYTES,
-    max_bytes_message: str = "Attachment file exceeds the mailbox upload cap of 7,500,000 bytes.",
-    unavailable_message: str = "file_path is available only for local stdio MCP. Use presign_upload_url and PUT the file outside model context.",
-) -> bytes | dict[str, Any]:
-    if hosted or transport != "stdio":
-        return local_tool_error(
-            "invalid_parameter",
-            unavailable_message,
-            param="file_path",
-        )
-
-    try:
-        roots = await ctx.list_roots()
-    except Exception:
-        return local_tool_error(
-            "invalid_parameter",
-            "file_path requires client-declared MCP roots. Use presign_upload_url if your client does not expose roots.",
-            param="file_path",
-        )
-
-    allowed_roots = [root for root in (root_uri_to_path(str(root.uri)) for root in roots) if root is not None]
-    if not allowed_roots:
-        return local_tool_error(
-            "invalid_parameter",
-            "file_path requires at least one file:// MCP root. Use presign_upload_url instead.",
-            param="file_path",
-        )
-
-    resolved = resolve_requested_file_path(file_path, allowed_roots)
-    if resolved is None:
-        return local_tool_error(
-            "invalid_parameter",
-            "file_path must point to a file inside a client-declared MCP root.",
-            param="file_path",
-        )
-    if not resolved.is_file():
-        return local_tool_error("invalid_parameter", "file_path must point to a regular file.", param="file_path")
-
-    size = resolved.stat().st_size
-    if size < 1:
-        return local_tool_error("invalid_parameter", "Attachment file is empty.", param="file_path")
-    if size > max_bytes:
-        return local_tool_error(
-            "invalid_parameter",
-            max_bytes_message,
-            param="file_path",
-        )
-
-    return await asyncio.to_thread(resolved.read_bytes)
-
-
-def root_uri_to_path(uri: str) -> Path | None:
-    parsed = urlparse(uri)
-    if parsed.scheme != "file" or not parsed.path:
-        return None
-    try:
-        return Path(unquote(parsed.path)).expanduser().resolve(strict=True)
-    except OSError:
-        return None
-
-
-def resolve_requested_file_path(file_path: str, allowed_roots: list[Path]) -> Path | None:
-    candidate = Path(file_path).expanduser()
-    candidates = [candidate] if candidate.is_absolute() else [root / candidate for root in allowed_roots]
-    for possible in candidates:
-        try:
-            resolved = possible.resolve(strict=True)
-        except OSError:
-            continue
-        if any(is_relative_to(resolved, root) for root in allowed_roots):
-            return resolved
-    return None
-
-
-def is_relative_to(path: Path, root: Path) -> bool:
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
 
 
 def json_payload(response: httpx.Response) -> dict[str, Any]:

@@ -46,21 +46,21 @@ def spec_source(config: ServerConfig, surface: str | None = None) -> str:
 
 
 def prepare_for_fastmcp(document: dict[str, Any], *, base_url: str) -> dict[str, Any]:
-    prepared = strip_unevaluated_properties(copy.deepcopy(document))
+    prepared = normalise_boolean_json_schemas(copy.deepcopy(document))
     prepared["servers"] = [{"url": base_url}]
     return prepared
 
 
-def strip_unevaluated_properties(value: Any) -> Any:
+def normalise_boolean_json_schemas(value: Any) -> Any:
     if isinstance(value, list):
-        return [strip_unevaluated_properties(item) for item in value]
+        return [normalise_boolean_json_schemas(item) for item in value]
     if not isinstance(value, dict):
         return value
-    return {
-        key: strip_unevaluated_properties(child)
-        for key, child in value.items()
-        if key != "unevaluatedProperties"
-    }
+    prepared = {key: normalise_boolean_json_schemas(child) for key, child in value.items()}
+    boolean_schema = prepared.get("unevaluatedProperties")
+    if isinstance(boolean_schema, bool):
+        prepared["unevaluatedProperties"] = {} if boolean_schema else {"not": {}}
+    return prepared
 
 
 def operation_routes(document: dict[str, Any]) -> dict[str, tuple[str, str]]:

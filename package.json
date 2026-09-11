@@ -7,7 +7,8 @@
     "build": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:release-state && pnpm test:openapi-canary && pnpm test:connections && pnpm test:ts-helpers && pnpm test:ts-ai-sdk && pnpm test:python-release-guardrails && pnpm test:mcp-registry-version && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:snap-workflow && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage && pnpm check:live-e2e && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp && pnpm test:connection-adapters",
     "build:go": "pnpm generate:go && node scripts/check-go.mjs && cd go && go test ./... && go vet ./... && go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.3.0 run",
     "build:live-e2e-surfaces": "pnpm drift:check && pnpm -r --if-present build && pnpm build:go && pnpm build:python && pnpm build:php && pnpm build:ruby && pnpm build:mcp",
-    "build:mcp": "pnpm generate:mcp && node scripts/check-mcp.mjs",
+    "build:mcp": "pnpm generate:mcp && node scripts/check-mcp.mjs && pnpm conformance:mcp",
+    "conformance:mcp": "node scripts/mcp-conformance.mjs",
     "build:php": "pnpm generate:php && node scripts/check-php.mjs && node scripts/check-php-splits.mjs",
     "build:python": "pnpm generate:python && node scripts/check-python.mjs",
     "build:python:dists": "node scripts/build-python-dists.mjs",
@@ -59,6 +60,7 @@
     "test:connection-adapters": "node --test scripts/test-connection-adapters.mjs"
   },
   "devDependencies": {
+    "@modelcontextprotocol/conformance": "0.2.0-alpha.11",
     "@apiture/openapi-down-convert": "0.14.2",
     "@hey-api/openapi-ts": "0.97.3",
     "@openapitools/openapi-generator-cli": "2.32.0",

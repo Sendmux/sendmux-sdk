@@ -51,6 +51,51 @@ class HttpBearerMiddleware:
         await self.app(scope, receive, send)
 
 
+class MCPHeaderGuardMiddleware:
+    def __init__(
+        self,
+        app: ASGIApp,
+        *,
+        allowed_preflight_headers: Sequence[str],
+        max_params: int = 16,
+        max_name_bytes: int = 64,
+        max_value_bytes: int = 1024,
+    ) -> None:
+        self.app = app
+        self.allowed_preflight_headers = {name.lower() for name in allowed_preflight_headers}
+        self.max_params = max_params
+        self.max_name_bytes = max_name_bytes
+        self.max_value_bytes = max_value_bytes
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        headers = Headers(scope=scope)
+        names = [name.strip().lower() for name in headers.get("access-control-request-headers", "").split(",")]
+        names = [name for name in names if name]
+        unknown_names = [
+            name for name in names if name not in self.allowed_preflight_headers and not name.startswith("mcp-param-")
+        ]
+        if unknown_names:
+            await invalid_mcp_header("Preflight requested an unsupported header.")(scope, receive, send)
+            return
+        parameter_names = [name for name in names if name.startswith("mcp-param-")]
+        parameter_headers = [(name, value) for name, value in headers.items() if name.startswith("mcp-param-")]
+        if len(parameter_names) > self.max_params or len(parameter_headers) > self.max_params:
+            await invalid_mcp_header("Too many Mcp-Param-* headers.")(scope, receive, send)
+            return
+        if any(len(name.encode()) > self.max_name_bytes for name in [*parameter_names, *(name for name, _ in parameter_headers)]):
+            await invalid_mcp_header("Mcp-Param-* header name is too long.")(scope, receive, send)
+            return
+        if any(len(value.encode()) > self.max_value_bytes for _, value in parameter_headers):
+            await invalid_mcp_header("Mcp-Param-* header value is too long.")(scope, receive, send)
+            return
+
+        await self.app(scope, receive, send)
+
+
 class BearerScopeChallengeMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, *, scopes: Sequence[str]) -> None:
         super().__init__(app)
@@ -78,6 +123,10 @@ def forbidden(message: str) -> ASGIResponse:
 
 def unauthorised(message: str) -> ASGIResponse:
     return JSONResponse({"ok": False, "error": {"code": "unauthorised", "message": message}}, status_code=401)
+
+
+def invalid_mcp_header(message: str) -> ASGIResponse:
+    return JSONResponse({"ok": False, "error": {"code": "invalid_mcp_header", "message": message}}, status_code=400)
 
 
 ASGIResponse = Callable[[Scope, Receive, Send], Awaitable[None]]

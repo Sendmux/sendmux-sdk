@@ -155,11 +155,11 @@ For outbound files, avoid manually placing base64 in prompts or source strings. 
 - CLI: `sendmux mailbox:send-message --attach ./report.pdf` or `sendmux sending:send --attach ./report.pdf`.
 - TypeScript: use `@sendmux/mailbox/node` `sendMailboxMessageWithFiles(...)` or `@sendmux/sending/node` `sendEmailWithFiles(...)`.
 - Python: use `sendmux_mailbox.send_mailbox_message_with_files(...)` or `sendmux_sending.send_email_with_files(...)`.
-- MCP: local stdio can use `mailbox_upload_attachment` with `file_path`; hosted and shell-capable agents can mint a presigned upload URL, `PUT` bytes to it without an API key, then send with the returned `blob_id`.
+- MCP: agents can mint a presigned upload URL, `PUT` bytes to it without an API key, then send with the returned `blob_id`.
 
 Mailbox direct uploads, presigned uploads, CLI `--attach`, and mailbox SDK file helpers share the mailbox attachment cap: currently `7,500,000` bytes per attachment. Sending API attachment helpers encode files into the send request body; the generated Sending API limit is max 10 attachments and a 25 MB request body.
 
-Small generated attachments can still use inline base64 where the API schema supports them. MCP inline base64 is capped at `32 KiB` decoded; the cheaper alternatives are `file_path`, presigned upload, CLI `--attach`, and SDK file helpers.
+Small generated attachments can still use inline base64 where the API schema supports them. MCP inline base64 is capped at `32 KiB` decoded; use presigned upload, CLI `--attach`, or SDK file helpers for real files.
 
 Live mailbox events are available through idiomatic lanes:
 

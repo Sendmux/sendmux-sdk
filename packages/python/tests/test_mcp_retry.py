@@ -48,7 +48,7 @@ def test_mcp_send_waits_for_server_delay_without_capping(
                 "meta": {"request_id": "req_test"},
             })
         return httpx.Response(200, json={
-            "ok": True, "data": {"id": "sub_test", "status": "queued"},
+            "ok": True, "data": {"message_id": "sub_test", "status": "queued"},
             "meta": {"request_id": "req_test"},
         })
 
@@ -109,7 +109,7 @@ def test_mcp_deadline_returns_original_error_without_early_retry(
             result = await client.call_tool_mcp("management_get_connection", {})
         assert len(requests) == 1
         assert delays == []
-        assert result.isError is True
+        assert result.is_error is True
         assert "rate_limited" in str(result.content)
         assert "req_deadline" in str(result.content)
 
@@ -139,7 +139,7 @@ def test_mcp_connection_does_not_retry_explicit_terminal_error(surface: Surface)
         async with Client(server) as client:
             result = await client.call_tool_mcp(f"{surface}_get_connection", {})
         assert len(requests) == 1
-        assert result.isError is True
+        assert result.is_error is True
         assert "rate_limited" in str(result.content)
         assert "req_original" in str(result.content)
 

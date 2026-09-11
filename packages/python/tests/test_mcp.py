@@ -3,12 +3,13 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
-from pathlib import Path
 from typing import Any
 
 import httpx
+import httpx2
 import pytest
 from fastmcp import Client
+from jsonschema import Draft202012Validator
 
 from sendmux_mcp.cli import parser, surfaces_from_args
 from sendmux_mcp.config import RetryConfig, ServerConfig, Surface
@@ -23,7 +24,7 @@ from sendmux_mcp.hosted_proxy import (
 )
 from sendmux_mcp.live_e2e import expected_api_error_exception
 from sendmux_mcp.security import middleware_for_config
-from sendmux_mcp.server import create_server
+from sendmux_mcp.server import MCPHTTPTransport, create_server
 from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 from sendmux_mcp.verification import structured_result
 
@@ -204,22 +205,107 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
                 tools.extend(await client.list_tools())
 
         assert len(tools) == 54
-        assert {tool.name for tool in tools if tool.outputSchema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
+        assert {tool.name for tool in tools if tool.output_schema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
 
         for tool in tools:
             annotations = tool.annotations
             assert annotations is not None, tool.name
-            assert annotations.readOnlyHint is (tool.name in READ_ONLY_TOOL_NAMES)
-            assert annotations.destructiveHint is (tool.name in DESTRUCTIVE_TOOL_NAMES)
-            assert annotations.idempotentHint is (
+            assert annotations.read_only_hint is (tool.name in READ_ONLY_TOOL_NAMES)
+            assert annotations.destructive_hint is (tool.name in DESTRUCTIVE_TOOL_NAMES)
+            assert annotations.idempotent_hint is (
                 tool.name in READ_ONLY_TOOL_NAMES or tool.name in IDEMPOTENT_WRITE_TOOL_NAMES
             )
-            assert annotations.openWorldHint is True
+            assert annotations.open_world_hint is True
+            if tool.output_schema is not None:
+                assert tool.output_schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+                assert tool.output_schema != {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "type": "object",
+                    "additionalProperties": True,
+                }
 
-            properties = (tool.inputSchema or {}).get("properties") or {}
+            properties = (tool.input_schema or {}).get("properties") or {}
             for property_name, schema in properties.items():
                 assert isinstance(schema, dict), f"{tool.name}.{property_name}"
                 assert str(schema.get("description") or "").strip(), f"{tool.name}.{property_name}"
+
+    asyncio.run(check())
+
+
+def test_prepare_for_fastmcp_preserves_json_schema_2020_12_constraints() -> None:
+    document = {
+        "openapi": "3.1.0",
+        "paths": {},
+        "components": {"schemas": {"Strict": {"type": "object", "unevaluatedProperties": False}}},
+    }
+
+    prepared = prepare_for_fastmcp(document, base_url="https://app.sendmux.ai/api/v1")
+
+    assert prepared["components"]["schemas"]["Strict"]["unevaluatedProperties"] == {"not": {}}
+    schema = prepared["components"]["schemas"]["Strict"]
+    assert not list(Draft202012Validator(schema).iter_errors({}))
+    assert list(Draft202012Validator(schema).iter_errors({"unexpected": True}))
+    assert "servers" not in document
+
+
+def test_prepare_for_fastmcp_preserves_nested_true_boolean_schema() -> None:
+    document = {
+        "openapi": "3.1.0",
+        "paths": {},
+        "components": {"schemas": {"Open": {"items": {"unevaluatedProperties": True}, "type": "array"}}},
+    }
+
+    prepared = prepare_for_fastmcp(document, base_url="https://app.sendmux.ai/api/v1")
+
+    assert prepared["components"]["schemas"]["Open"]["items"]["unevaluatedProperties"] == {}
+    schema = prepared["components"]["schemas"]["Open"]
+    assert not list(Draft202012Validator(schema).iter_errors([{"unexpected": True}]))
+
+
+def test_mcp_http_transport_closes_owned_httpx_client() -> None:
+    async def check() -> None:
+        client = httpx.AsyncClient(transport=httpx.MockTransport(lambda request: httpx.Response(200, request=request)))
+        transport = MCPHTTPTransport(client)
+
+        await transport.aclose()
+
+        assert client.is_closed
+
+    asyncio.run(check())
+
+
+def test_mcp_http_transport_propagates_upstream_errors() -> None:
+    async def handler(_request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("upstream unavailable")
+
+    async def check() -> None:
+        transport = MCPHTTPTransport(httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+        request = httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me")
+        with pytest.raises(httpx.ConnectError, match="upstream unavailable"):
+            await transport.handle_async_request(request)
+        await transport.aclose()
+
+    asyncio.run(check())
+
+
+def test_mcp_http_transport_propagates_cancellation() -> None:
+    started = asyncio.Event()
+
+    async def handler(_request: httpx.Request) -> httpx.Response:
+        started.set()
+        await asyncio.Event().wait()
+        raise AssertionError("unreachable")
+
+    async def check() -> None:
+        transport = MCPHTTPTransport(httpx.AsyncClient(transport=httpx.MockTransport(handler)))
+        task = asyncio.create_task(
+            transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+        )
+        await started.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        await transport.aclose()
 
     asyncio.run(check())
 
@@ -266,6 +352,55 @@ def test_selected_surface_composition_exposes_exact_curated_tools() -> None:
         assert "management_list_domains" in all_names
         assert "sending_send_email" in all_names
         assert len(all_names) == len(mailbox_sending_names) + len(management_names)
+
+    asyncio.run(check())
+
+
+def test_http_server_negotiates_modern_discovery_and_legacy_initialise() -> None:
+    async def check() -> None:
+        server = create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"), transport=ok_transport())
+        app = server.http_app(path="/mcp", stateless_http=True, json_response=True)
+        transport = httpx.ASGITransport(app=app)
+
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=transport, base_url="https://mcp.sendmux.ai") as client:
+                modern = await client.post(
+                    "/mcp",
+                    headers={"Content-Type": "application/json", "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": "server/discover"},
+                    json={
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "server/discover",
+                        "params": {"_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {}}},
+                    },
+                )
+                modern_tools = await client.post(
+                    "/mcp",
+                    headers={"Content-Type": "application/json", "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": "tools/list"},
+                    json={
+                        "jsonrpc": "2.0",
+                        "id": 3,
+                        "method": "tools/list",
+                        "params": {"_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {}}},
+                    },
+                )
+                legacy = await client.post(
+                    "/mcp",
+                    headers={"Content-Type": "application/json", "MCP-Protocol-Version": "2025-11-25"},
+                    json={"jsonrpc": "2.0", "id": 2, "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "test", "version": "1"}}},
+                )
+
+        assert modern.status_code == 200
+        assert modern.json()["result"]["supportedVersions"] == ["2026-07-28"]
+        assert modern.json()["result"]["ttlMs"] == 0
+        assert modern.json()["result"]["cacheScope"] == "private"
+        assert "mcp-session-id" not in modern.headers
+        assert modern_tools.status_code == 200
+        assert modern_tools.json()["result"]["ttlMs"] == 0
+        assert modern_tools.json()["result"]["cacheScope"] == "private"
+        assert "mcp-session-id" not in modern_tools.headers
+        assert legacy.status_code == 200
+        assert legacy.json()["result"]["protocolVersion"] == "2025-11-25"
 
     asyncio.run(check())
 
@@ -351,14 +486,14 @@ def test_connection_tool_lists_schema_and_calls_without_mailbox_selection(surfac
             tool_name = f"{surface}_get_connection"
             assert tool_name in tools
             tool = tools[tool_name]
-            assert tool.outputSchema is not None
-            assert "mailbox_id" not in tool.inputSchema.get("properties", {})
-            assert not tool.inputSchema.get("required")
+            assert tool.output_schema is not None
+            assert "mailbox_id" not in tool.input_schema.get("properties", {})
+            assert not tool.input_schema.get("required")
             assert tool.annotations is not None
-            assert tool.annotations.readOnlyHint is True
-            assert tool.annotations.destructiveHint is False
-            assert tool.annotations.idempotentHint is True
-            assert tool.annotations.openWorldHint is True
+            assert tool.annotations.read_only_hint is True
+            assert tool.annotations.destructive_hint is False
+            assert tool.annotations.idempotent_hint is True
+            assert tool.annotations.open_world_hint is True
             assert structured_result(await client.call_tool(tool_name, {})) == payload
 
     asyncio.run(check())
@@ -380,7 +515,7 @@ def test_mailbox_tool_call_injects_bearer_auth() -> None:
             json={
                 "ok": True,
                 "data": [],
-                "pagination": {"has_more": False, "next_cursor": None},
+                    "pagination": {"has_more": False},
                 "meta": {"request_id": "req_test"},
             },
         )
@@ -785,62 +920,18 @@ def test_mailbox_upload_attachment_mints_presigned_url() -> None:
     }
 
 
-def test_mailbox_upload_attachment_reads_file_path_from_client_roots(tmp_path: Path) -> None:
-    requests: list[httpx.Request] = []
-    attachment = tmp_path / "report.pdf"
-    attachment.write_bytes(b"pdf bytes")
+def test_mailbox_upload_attachment_omits_file_path_from_public_schema() -> None:
+    async def schema_check() -> None:
+        server = create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"), transport=ok_transport())
+        async with Client(server) as client:
+            tool = next(tool for tool in await client.list_tools() if tool.name == "mailbox_upload_attachment")
+        assert "file_path" not in tool.input_schema["properties"]
 
-    async def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        body = await request.aread()
-        return httpx.Response(
-            200,
-            json={
-                "ok": True,
-                "data": {
-                    "blob_id": "blob_file",
-                    "filename": request.url.params["filename"],
-                    "content_type": request.headers["content-type"],
-                    "size_bytes": len(body),
-                },
-                "meta": {"request_id": "req_test"},
-            },
-            request=request,
-        )
-
-    async def check() -> None:
-        server = create_server(
-            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
-            transport=httpx.MockTransport(handler),
-        )
-        async with Client(server, roots=[tmp_path.as_uri()]) as client:
-            result = structured_result(
-                await client.call_tool(
-                    "mailbox_upload_attachment",
-                    {
-                        "content_type": "application/pdf",
-                        "file_path": str(attachment),
-                        "filename": "report.pdf",
-                        "mailbox_id": "mbx_test",
-                    },
-                )
-            )
-
-        assert result["ok"] is True
-        assert result["data"]["blob_id"] == "blob_file"
-
-    asyncio.run(check())
-
-    assert len(requests) == 1
-    assert requests[0].url.path == "/api/v1/mailbox/attachments:upload"
-    assert requests[0].content == b"pdf bytes"
+    asyncio.run(schema_check())
 
 
-def test_mailbox_upload_attachment_rejects_hosted_file_path(tmp_path: Path) -> None:
-    attachment = tmp_path / "report.pdf"
-    attachment.write_bytes(b"pdf bytes")
-
-    async def check() -> None:
+def test_hosted_mailbox_upload_attachment_omits_file_path_from_public_schema() -> None:
+    async def schema_check() -> None:
         server = create_server(
             ServerConfig(surfaces=("mailbox",)),
             transport=ok_transport(),
@@ -849,24 +940,11 @@ def test_mailbox_upload_attachment_rejects_hosted_file_path(tmp_path: Path) -> N
                 upstream_base_url="https://app.sendmux.ai/api/v1",
             ),
         )
-        async with Client(server, roots=[tmp_path.as_uri()]) as client:
-            result = structured_result(
-                await client.call_tool(
-                    "mailbox_upload_attachment",
-                    {
-                        "content_type": "application/pdf",
-                        "file_path": str(attachment),
-                        "filename": "report.pdf",
-                    },
-                )
-            )
+        async with Client(server) as client:
+            tool = next(tool for tool in await client.list_tools() if tool.name == "mailbox_upload_attachment")
+        assert "file_path" not in tool.input_schema["properties"]
 
-        assert result["ok"] is False
-        assert result["error"]["code"] == "invalid_parameter"
-        assert result["error"]["param"] == "file_path"
-        assert "presign_upload_url" in result["error"]["message"]
-
-    asyncio.run(check())
+    asyncio.run(schema_check())
 
 
 def test_mailbox_upload_attachment_rejects_inline_base64_over_mcp_cap() -> None:
@@ -890,39 +968,21 @@ def test_mailbox_upload_attachment_rejects_inline_base64_over_mcp_cap() -> None:
         assert result["ok"] is False
         assert result["error"]["code"] == "invalid_parameter"
         assert result["error"]["param"] == "content_base64"
-        assert "file_path" in result["error"]["message"]
         assert "presign_upload_url" in result["error"]["message"]
 
     asyncio.run(check())
 
 
-def test_mailbox_upload_attachment_requires_exactly_one_input_mode(tmp_path: Path) -> None:
-    attachment = tmp_path / "report.pdf"
-    attachment.write_bytes(b"pdf bytes")
+def test_mailbox_upload_attachment_public_schema_has_only_safe_input_modes() -> None:
+    async def schema_check() -> None:
+        server = create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"), transport=ok_transport())
+        async with Client(server) as client:
+            tool = next(tool for tool in await client.list_tools() if tool.name == "mailbox_upload_attachment")
+        properties = tool.input_schema["properties"]
+        assert "file_path" not in properties
+        assert {"content_base64", "presign_upload_url"} <= properties.keys()
 
-    async def check() -> None:
-        server = create_server(
-            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
-            transport=ok_transport(),
-        )
-        async with Client(server, roots=[tmp_path.as_uri()]) as client:
-            result = structured_result(
-                await client.call_tool(
-                    "mailbox_upload_attachment",
-                    {
-                        "content_base64": base64.b64encode(b"inline").decode("ascii"),
-                        "content_type": "application/pdf",
-                        "file_path": str(attachment),
-                        "filename": "report.pdf",
-                    },
-                )
-            )
-
-        assert result["ok"] is False
-        assert result["error"]["code"] == "invalid_parameter"
-        assert result["error"]["message"].startswith("Provide exactly one")
-
-    asyncio.run(check())
+    asyncio.run(schema_check())
 
 
 def test_sending_upload_attachment_accepts_tiny_inline_content() -> None:
@@ -979,62 +1039,18 @@ def test_sending_upload_attachment_accepts_tiny_inline_content() -> None:
     assert requests[0].content == b"attachment bytes"
 
 
-def test_sending_upload_attachment_reads_file_path_from_client_roots(tmp_path: Path) -> None:
-    requests: list[httpx.Request] = []
-    attachment = tmp_path / "report.pdf"
-    attachment.write_bytes(b"pdf bytes")
+def test_sending_upload_attachment_omits_file_path_from_public_schema() -> None:
+    async def schema_check() -> None:
+        server = create_server(ServerConfig(surfaces=("sending",), api_key="smx_mbx_test"), transport=ok_transport())
+        async with Client(server) as client:
+            tool = next(tool for tool in await client.list_tools() if tool.name == "sending_upload_attachment")
+        assert "file_path" not in tool.input_schema["properties"]
 
-    async def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        body = await request.aread()
-        return httpx.Response(
-            201,
-            json={
-                "ok": True,
-                "data": {
-                    "attachment_id": "att_1234567890abcdefghijklmn",
-                    "filename": request.url.params["filename"],
-                    "content_type": request.headers["content-type"],
-                    "size_bytes": len(body),
-                    "expires_at": "2026-07-07T10:00:00.000Z",
-                },
-                "meta": {"request_id": "req_test"},
-            },
-            request=request,
-        )
-
-    async def check() -> None:
-        server = create_server(
-            ServerConfig(surfaces=("sending",), api_key="smx_mbx_test"),
-            transport=httpx.MockTransport(handler),
-        )
-        async with Client(server, roots=[tmp_path.as_uri()]) as client:
-            result = structured_result(
-                await client.call_tool(
-                    "sending_upload_attachment",
-                    {
-                        "content_type": "application/pdf",
-                        "file_path": str(attachment),
-                        "filename": "report.pdf",
-                    },
-                )
-            )
-
-        assert result["ok"] is True
-        assert result["data"]["attachment_id"] == "att_1234567890abcdefghijklmn"
-
-    asyncio.run(check())
-
-    assert len(requests) == 1
-    assert requests[0].url.path == "/api/v1/emails/attachments"
-    assert requests[0].content == b"pdf bytes"
+    asyncio.run(schema_check())
 
 
-def test_sending_upload_attachment_rejects_hosted_file_path(tmp_path: Path) -> None:
-    attachment = tmp_path / "report.pdf"
-    attachment.write_bytes(b"pdf bytes")
-
-    async def check() -> None:
+def test_hosted_sending_upload_attachment_omits_file_path_from_public_schema() -> None:
+    async def schema_check() -> None:
         server = create_server(
             ServerConfig(surfaces=("sending",)),
             transport=ok_transport(),
@@ -1043,24 +1059,11 @@ def test_sending_upload_attachment_rejects_hosted_file_path(tmp_path: Path) -> N
                 upstream_base_url="https://smtp.sendmux.ai/api/v1",
             ),
         )
-        async with Client(server, roots=[tmp_path.as_uri()]) as client:
-            result = structured_result(
-                await client.call_tool(
-                    "sending_upload_attachment",
-                    {
-                        "content_type": "application/pdf",
-                        "file_path": str(attachment),
-                        "filename": "report.pdf",
-                    },
-                )
-            )
+        async with Client(server) as client:
+            tool = next(tool for tool in await client.list_tools() if tool.name == "sending_upload_attachment")
+        assert "file_path" not in tool.input_schema["properties"]
 
-        assert result["ok"] is False
-        assert result["error"]["code"] == "invalid_parameter"
-        assert result["error"]["param"] == "file_path"
-        assert "sending_create_attachment_upload" in result["error"]["message"]
-
-    asyncio.run(check())
+    asyncio.run(schema_check())
 
 
 def test_mailbox_wait_for_message_returns_matching_message() -> None:
@@ -1142,7 +1145,11 @@ def test_retry_honours_retry_after_for_idempotent_mailbox_send() -> None:
             )
         return httpx.Response(
             200,
-            json={"ok": True, "data": {"id": "sub_test", "status": "queued"}, "meta": {"request_id": "req_test"}},
+            json={
+                "ok": True,
+                "data": {"message_id": "sub_test", "status": "queued"},
+                "meta": {"request_id": "req_test"},
+            },
         )
 
     async def check() -> None:

@@ -14,8 +14,10 @@ public `sendmux` snap.
   `npm-node-version` for bundling Node.js in the snap.
   - https://documentation.ubuntu.com/snapcraft/stable/common/craft-parts/reference/plugins/npm_plugin/
   - https://documentation.ubuntu.com/snapcraft/latest/how-to/integrations/craft-a-node-app/
-- The snap uses strict confinement with only `network` for API calls and `home`
-  for user-selected `--body-file` and attachment upload paths.
+- The snap uses strict confinement with `network` for API calls, `network-bind`
+  for the OAuth loopback callback, and `home` for user-selected `--body-file` and
+  attachment upload paths.
+  - https://snapcraft.io/docs/reference/interfaces/network-bind-interface/
 - Snapcraft metadata uses `title`, `summary`, `description`, `license`,
   `contact`, `issues`, `source-code`, `website`, and optional `icon`.
   - https://documentation.ubuntu.com/snapcraft/stable/how-to/crafting/configure-package-information/
@@ -60,8 +62,8 @@ Description:
 > and Sending API commands, and run Sendmux workflows with JSON output for scripts.
 >
 > The snap packages the published @sendmux/cli npm release with a bundled Node.js
-> runtime. API operations require your own Sendmux API key; no credentials are
-> included.
+> runtime. Authenticate API operations with OAuth or your own Sendmux API key;
+> no credentials are included.
 
 Links:
 

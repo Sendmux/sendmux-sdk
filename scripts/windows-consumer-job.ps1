@@ -34,6 +34,14 @@ public static class ConsumerJob {
     static extern bool SetInformationJobObject(IntPtr job, int kind, ref ExtendedLimits limits, uint size);
     [DllImport("kernel32.dll", SetLastError=true)]
     static extern bool QueryInformationJobObject(IntPtr job, int kind, out Accounting info, uint size, IntPtr returned);
+    [DllImport("kernel32.dll", EntryPoint="QueryInformationJobObject", SetLastError=true)]
+    static extern bool QueryProcessIds(IntPtr job, int kind, IntPtr info, uint size, IntPtr returned);
+    [DllImport("kernel32.dll", SetLastError=true)]
+    static extern IntPtr OpenProcess(uint access, bool inherit, uint pid);
+    [DllImport("kernel32.dll", SetLastError=true)]
+    static extern bool IsProcessInJob(IntPtr process, IntPtr job, out bool belongs);
+    [DllImport("kernel32.dll", SetLastError=true)]
+    static extern uint WaitForSingleObject(IntPtr handle, uint milliseconds);
     [DllImport("kernel32.dll", SetLastError=true)]
     static extern bool AssignProcessToJobObject(IntPtr job, IntPtr process);
     [DllImport("kernel32.dll", SetLastError=true)]
@@ -62,6 +70,51 @@ public static class ConsumerJob {
         Check(QueryInformationJobObject(job, 1, out info, (uint)Marshal.SizeOf(typeof(Accounting)), IntPtr.Zero));
         return info.ActiveProcesses;
     }
+    static uint[] ProcessIds(IntPtr job, DateTime deadline) {
+        uint capacity = Math.Max(Active(job), 1u);
+        while (DateTime.UtcNow < deadline) {
+            // JOBOBJECT_BASIC_PROCESS_ID_LIST: two DWORDs followed by ULONG_PTRs.
+            int size = checked(8 + checked((int)capacity) * IntPtr.Size);
+            IntPtr buffer = Marshal.AllocHGlobal(size);
+            try {
+                Marshal.WriteInt32(buffer, 0, 0);
+                Marshal.WriteInt32(buffer, 4, 0);
+                bool success = QueryProcessIds(job, 3, buffer, (uint)size, IntPtr.Zero);
+                int error = success ? 0 : Marshal.GetLastWin32Error();
+                if (!success && error != 234) throw new Win32Exception(error); // ERROR_MORE_DATA
+                uint assigned = (uint)Marshal.ReadInt32(buffer, 0);
+                uint listed = (uint)Marshal.ReadInt32(buffer, 4);
+                if (!success || listed < assigned) {
+                    capacity = Math.Max(assigned, checked(capacity * 2));
+                    continue;
+                }
+                if (listed > capacity) throw new InvalidOperationException("Invalid Windows Job process list");
+                uint[] ids = new uint[listed];
+                for (int index = 0; index < ids.Length; index++)
+                    ids[index] = checked((uint)Marshal.ReadIntPtr(buffer, 8 + index * IntPtr.Size).ToInt64());
+                return ids;
+            } finally { Marshal.FreeHGlobal(buffer); }
+        }
+        throw new TimeoutException("Windows Job membership unconfirmed");
+    }
+    public static bool HasLiveMembers(IntPtr job, DateTime deadline) {
+        foreach (uint pid in ProcessIds(job, deadline)) {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("Windows Job membership unconfirmed");
+            IntPtr process = OpenProcess(0x101000, false, pid); // SYNCHRONIZE | QUERY_LIMITED_INFORMATION
+            Check(process != IntPtr.Zero);
+            try {
+                bool belongs;
+                Check(IsProcessInJob(process, job, out belongs));
+                // A recycled numeric PID is not proof of ownership of this handle.
+                if (!belongs) throw new InvalidOperationException("Windows Job membership changed before confirmation");
+                uint state = WaitForSingleObject(process, 0);
+                if (state == 258) return true; // WAIT_TIMEOUT: still nonsignaled.
+                if (state == 0xffffffff) throw new Win32Exception(Marshal.GetLastWin32Error());
+                if (state != 0) throw new InvalidOperationException("Windows Job process wait unconfirmed");
+            } finally { Check(CloseHandle(process)); }
+        }
+        return false;
+    }
     public static void Terminate(IntPtr job) { Check(TerminateJobObject(job, 1)); }
 }
 '@
@@ -88,14 +141,15 @@ try {
     $bootstrap = [Diagnostics.Process]::Start($start)
     [Console]::Error.WriteLine(('{"child_pid":' + $bootstrap.Id + ',"command":"windows-job-bootstrap"}'))
     $interrupted = $false
-    while (!$bootstrap.HasExited) {
+    while (!($bootstrap.WaitForExit(0))) {
         if (Test-Path -LiteralPath $config.stop) { $interrupted = $true; break }
         Start-Sleep -Milliseconds 20
     }
-    $orphan = !$interrupted -and ([ConsumerJob]::Active($job) -gt 0)
-    if ($interrupted -or $orphan) { [ConsumerJob]::Terminate($job) }
     $deadline = [DateTime]::UtcNow.AddMilliseconds(2000)
-    while (([ConsumerJob]::Active($job) -gt 0) -or !$bootstrap.HasExited) {
+    # A transient accounting count is not a confirmed surviving process.
+    $orphan = !$interrupted -and ([ConsumerJob]::Active($job) -gt 0) -and [ConsumerJob]::HasLiveMembers($job, $deadline)
+    if ($interrupted -or $orphan) { [ConsumerJob]::Terminate($job) }
+    while (([ConsumerJob]::Active($job) -gt 0) -or !($bootstrap.WaitForExit(0))) {
         if ([DateTime]::UtcNow -ge $deadline) { throw 'Windows Job shutdown unconfirmed' }
         Start-Sleep -Milliseconds 20
     }

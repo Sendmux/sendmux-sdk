@@ -274,9 +274,6 @@ jobs:
       - name: Install diagnostic dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Observe retained Windows job accounting without changing decisions
-        run: node scripts/diagnose-windows-job-accounting.mjs .tmp/windows-job-accounting
-
       - name: Diagnose actual Windows consumer ownership
         run: node scripts/diagnose-windows-consumer-ownership.mjs .tmp/windows-consumer-ownership
 
@@ -288,8 +285,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows-consumer-ownership
-          path: |
-            .tmp/windows-consumer-ownership/results.json
-            .tmp/windows-job-accounting/
+          path: .tmp/windows-consumer-ownership/results.json
           if-no-files-found: error
           retention-days: 7

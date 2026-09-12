@@ -70,7 +70,7 @@ async function scenario(kind) {
     let args;
     if (kind === "node-leader-control") {
       const child = `require('node:fs').writeFileSync(${JSON.stringify(descendantReceipt)}, JSON.stringify({pid:process.pid}));setTimeout(()=>process.exit(0),45000);`;
-      const leader = `const fs=require('node:fs');const {spawn}=require('node:child_process');
+      const leader = `const fs=require('node:fs');const {spawn}=require('node:child_process');console.log('windows-command-output-control');
 fs.writeFileSync(${JSON.stringify(leaderReceipt)},JSON.stringify({leader:process.pid}));
 const child=spawn(process.execPath,['-e',${JSON.stringify(child)}],{stdio:'ignore',cwd:${JSON.stringify(fixture)}});
 fs.writeFileSync(${JSON.stringify(leaderReceipt)},JSON.stringify({leader:process.pid,descendant:child.pid}));
@@ -103,7 +103,8 @@ exit 0`;
     }
     invocation = workspace("windows-owned-command", async (cwd) => {
       directory = cwd;
-      await run(command, args, { cwd });
+      const output = await run(command, args, { cwd, captureOutput: kind === "node-leader-control" });
+      if (kind === "node-leader-control") assert(output.includes("windows-command-output-control"), "Captured command stdout must survive the Windows owner");
     }).then(() => { row.result = "success"; }, (error) => {
       row.result = "failure";
       row.error = error.message;
@@ -129,7 +130,11 @@ exit 0`;
     console.log(JSON.stringify(row));
     assert(row.leader_absent_before_recovery, "Consumer leader must stop before return");
     assert(row.descendant_absent_before_recovery, "Consumer returned while its owned Windows descendant was still alive");
+    assert(row.workspace_removed_before_recovery, "Confirmed Windows cleanup must remove the command workspace before test recovery");
     if (kind !== "node-leader-control") assert.equal(row.result, "failure", "An orphaned or timed-out consumer must not succeed");
+    else assert.equal(row.result, "success", "A healthy Node consumer must still succeed");
+    if (kind === "powershell-leader-exit") assert.match(row.error, /owned descendant/, "Orphan rejection must not be a startup or unconfirmed-shutdown failure");
+    if (kind === "powershell-deadline") assert.match(row.error, /interrupted=true/, "Deadline rejection must confirm the actual interrupted command");
     row.verdict = "passed";
   } catch (error) {
     row.verdict = "failed";

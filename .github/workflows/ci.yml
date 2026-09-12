@@ -123,6 +123,9 @@ jobs:
       - run: pnpm test:connections
       - run: pnpm test:windows-command-shims
       - run: pnpm check:cli
+      - name: Verify Windows consumer tree ownership
+        if: runner.os == 'Windows'
+        run: node scripts/diagnose-windows-consumer-ownership.mjs .tmp/windows-consumer-ownership
       - name: Install and import all six candidate tarballs
         run: node scripts/ci-consumers.mjs node
       - name: Twelve packed AI and Zod peer consumers

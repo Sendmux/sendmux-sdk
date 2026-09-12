@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
+import { startWindowsConsumer } from "./windows-consumer-owner.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const nativePackages = ["core", "sending", "mailbox", "management", "sdk"];
@@ -16,29 +17,18 @@ function processAbsent(pid) {
 }
 
 async function killOwnedTree(pid) {
-  if (process.platform !== "win32") {
-    try { process.kill(-pid, "SIGKILL"); }
-    catch (error) { if (error.code !== "ESRCH") throw error; }
-    return;
-  }
-  const killer = spawn("taskkill", ["/pid", String(pid), "/T", "/F"], { stdio: "inherit", timeout: 2000, killSignal: "SIGKILL" });
-  console.log(JSON.stringify({ child_pid: killer.pid, command: "taskkill" }));
-  const status = await new Promise((accept, reject) => {
-    killer.once("error", reject);
-    killer.once("close", accept);
-  });
-  assert.equal(status, 0, "Owned Windows tree termination failed");
-  assert(processAbsent(killer.pid));
-  console.log(JSON.stringify({ child_closed: killer.pid }));
+  try { process.kill(-pid, "SIGKILL"); }
+  catch (error) { if (error.code !== "ESRCH") throw error; }
 }
 
 // A CI command owns its process group. Unconfirmed shutdown retains its workspace.
 export async function run(command, args, { cwd = root, env = process.env, captureOutput = false } = {}) {
-  const launch = process.platform === "win32" ? (await import("cross-spawn")).default : spawn;
   const childEnv = { ...env };
   // Node's outer test runner marker must not suppress an independent child suite.
   delete childEnv.NODE_TEST_CONTEXT;
-  const child = launch(command, args, { cwd, env: childEnv, stdio: captureOutput ? ["ignore", "pipe", "inherit"] : "inherit", detached: process.platform !== "win32" });
+  const options = { cwd, env: childEnv, stdio: captureOutput ? ["ignore", "pipe", "inherit"] : "inherit", detached: process.platform !== "win32" };
+  const windows = process.platform === "win32" ? startWindowsConsumer(command, args, options) : undefined;
+  const child = windows?.child ?? spawn(command, args, options);
   let output = "";
   child.stdout?.on("data", (chunk) => { output += chunk; process.stdout.write(chunk); });
   console.log(JSON.stringify({ child_pid: child.pid, command, cwd }));
@@ -51,8 +41,13 @@ export async function run(command, args, { cwd = root, env = process.env, captur
   const shutdownFailed = new Promise((_, reject) => { rejectShutdown = reject; });
   const terminate = () => {
     timedOut = true;
-    termination ??= killOwnedTree(child.pid).catch((error) => { signalError = error; });
+    termination ??= Promise.resolve().then(() => windows ? windows.stop() : killOwnedTree(child.pid)).catch((error) => { signalError = error; });
     shutdownTimer ??= setTimeout(() => {
+      if (windows) {
+        // Kill-on-close is a final containment fallback, never completion proof.
+        try { child.kill("SIGKILL"); } catch (error) { signalError = error; }
+        child.stdout?.destroy();
+      }
       child.unref();
       rejectShutdown(new Error(`Owned process shutdown unconfirmed: ${child.pid}`));
     }, 2000);
@@ -76,16 +71,24 @@ export async function run(command, args, { cwd = root, env = process.env, captur
   if (child.pid) {
     await termination;
     if (signalError) throw signalError;
-    const handle = process.platform === "win32" ? child.pid : -child.pid;
-    const descendant = !processAbsent(handle);
-    if (descendant) await killOwnedTree(child.pid);
-    const deadline = Date.now() + 2000;
-    while (!processAbsent(handle) && Date.now() < deadline) await delay(20);
-    const absent = processAbsent(handle);
-    assert(absent, `Owned process shutdown unconfirmed: ${child.pid}`);
-    ownedChildren.delete(child.pid);
-    console.log(JSON.stringify({ child_closed: child.pid }));
-    assert(!descendant, "Command left an owned descendant; tree terminated");
+    if (windows) {
+      const result = windows.confirm();
+      assert(processAbsent(child.pid), "Windows Job controller has not closed");
+      ownedChildren.delete(child.pid);
+      console.log(JSON.stringify({ child_closed: child.pid }));
+      assert(!result.orphan, "Command left an owned descendant; Windows Job terminated");
+    } else {
+      const handle = -child.pid;
+      const descendant = !processAbsent(handle);
+      if (descendant) await killOwnedTree(child.pid);
+      const deadline = Date.now() + 2000;
+      while (!processAbsent(handle) && Date.now() < deadline) await delay(20);
+      const absent = processAbsent(handle);
+      assert(absent, `Owned process shutdown unconfirmed: ${child.pid}`);
+      ownedChildren.delete(child.pid);
+      console.log(JSON.stringify({ child_closed: child.pid }));
+      assert(!descendant, "Command left an owned descendant; tree terminated");
+    }
   }
   assert(!timedOut && status === 0, `${command} failed: exit ${status}, interrupted=${timedOut}`);
   return output;

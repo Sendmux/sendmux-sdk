@@ -277,6 +277,9 @@ jobs:
       - name: Diagnose actual Windows consumer ownership
         run: node scripts/diagnose-windows-consumer-ownership.mjs .tmp/windows-consumer-ownership
 
+      - name: Prove Windows command control sensitivity
+        run: node scripts/test-windows-consumer-sensitivity.mjs
+
       - name: Preserve exact diagnostic receipts
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

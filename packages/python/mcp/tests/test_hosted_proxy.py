@@ -16,10 +16,10 @@ from sendmux_mcp.hosted_proxy import (
     HostedProxyConfig,
     HostedProxyTransport,
     build_hosted_operation_manifest,
-    close_response,
 )
 from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider
 from sendmux_mcp.observability import DEFAULT_POSTHOG_HOST, HostedMcpPostHog, PostHogConfig
+from sendmux_mcp.response_ownership import close_response
 from sendmux_mcp.server import create_server
 from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
 
@@ -227,7 +227,7 @@ def test_proxy_transport_finishes_response_close_during_anyio_cancellation(
 
 def test_response_close_timeout_is_reported(monkeypatch: pytest.MonkeyPatch) -> None:
     async def run() -> None:
-        monkeypatch.setattr("sendmux_mcp.hosted_proxy.RESPONSE_CLOSE_TIMEOUT_SECONDS", 0.01)
+        monkeypatch.setattr("sendmux_mcp.response_ownership.RESPONSE_CLOSE_TIMEOUT_SECONDS", 0.01)
         response = httpx.Response(
             200,
             stream=HangingResponseStream(),

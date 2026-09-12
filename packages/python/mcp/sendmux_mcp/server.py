@@ -34,11 +34,10 @@ from sendmux_mcp.hosted_proxy import (
     HostedProxyConfig,
     HostedProxyTransport,
     build_hosted_operation_manifest,
-    close_response,
     decoded_response_headers,
-    shield_response_stream,
 )
 from sendmux_mcp.permissions import tool_permission_auth_check
+from sendmux_mcp.response_ownership import close_response, own_response
 from sendmux_mcp.retry import RetryingAsyncTransport
 from sendmux_mcp.security import middleware_for_config
 from sendmux_mcp.specs import load_spec, prepare_for_fastmcp
@@ -113,7 +112,7 @@ class MCPHTTPTransport(httpx2.AsyncBaseTransport):
             content=await request.aread(),
         )
         response = await self.client.send(upstream_request, stream=True)
-        shield_response_stream(response)
+        own_response(response)
         try:
             if response.is_stream_consumed:
                 response_body = response.content

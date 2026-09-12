@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterator
 from datetime import datetime, timezone
 from types import SimpleNamespace
 from typing import Any
 
+import anyio
 import httpx
+import httpx2
 import pytest
 from fastmcp import Client
 
@@ -13,8 +16,131 @@ import sendmux_mcp.retry as retry_module
 from sendmux_mcp.cli import config_from_args, parser
 from sendmux_mcp.config import RetryConfig, ServerConfig, Surface
 from sendmux_mcp.retry import RetryingAsyncTransport
-from sendmux_mcp.server import create_server
+from sendmux_mcp.server import MCPHTTPTransport, create_server
 from sendmux_mcp.verification import structured_result
+
+
+class CancellingRetryBodyStream(httpx.AsyncByteStream):
+    def __init__(self, cancel_scope: anyio.CancelScope) -> None:
+        self.cancel_scope = cancel_scope
+        self.close_started = False
+        self.close_finished = False
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        self.cancel_scope.cancel()
+        await anyio.sleep(0)
+        yield b'{"ok":false,"error":{"retryable":true}}'
+
+    async def aclose(self) -> None:
+        self.close_started = True
+        await anyio.sleep(0)
+        self.close_finished = True
+
+
+class FailingRetryBodyStream(httpx.AsyncByteStream):
+    def __init__(self) -> None:
+        self.close_started = False
+        self.close_finished = False
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        raise RuntimeError("retry body failed")
+        yield b""
+
+    async def aclose(self) -> None:
+        self.close_started = True
+        await anyio.sleep(0)
+        self.close_finished = True
+
+
+class HangingRetryBodyStream(httpx.AsyncByteStream):
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        yield b'{"ok":false,"error":{"retryable":true}}'
+
+    async def aclose(self) -> None:
+        await anyio.sleep_forever()
+
+
+def retry_chain(inner: httpx.AsyncBaseTransport) -> MCPHTTPTransport:
+    retrying = RetryingAsyncTransport(
+        retry=RetryConfig(max_attempts=2, base_delay_seconds=0, max_delay_seconds=0),
+        inner=inner,
+    )
+    return MCPHTTPTransport(httpx.AsyncClient(transport=retrying))
+
+
+def test_retry_chain_finishes_503_body_close_during_cancellation() -> None:
+    async def check() -> None:
+        attempts = 0
+        with anyio.CancelScope() as cancel_scope:
+            stream = CancellingRetryBodyStream(cancel_scope)
+
+            def handler(request: httpx.Request) -> httpx.Response:
+                nonlocal attempts
+                attempts += 1
+                return httpx.Response(
+                    503,
+                    headers={"Content-Type": "application/json"},
+                    stream=stream,
+                    request=request,
+                )
+
+            transport = retry_chain(httpx.MockTransport(handler))
+            await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+
+        close_finished_during_request = stream.close_finished
+        await transport.aclose()
+        assert attempts == 1
+        assert stream.close_started
+        assert close_finished_during_request
+
+    anyio.run(check)
+
+
+def test_retry_chain_closes_503_response_when_body_read_fails() -> None:
+    async def check() -> None:
+        stream = FailingRetryBodyStream()
+        transport = retry_chain(
+            httpx.MockTransport(
+                lambda request: httpx.Response(
+                    503,
+                    headers={"Content-Type": "application/json"},
+                    stream=stream,
+                    request=request,
+                )
+            )
+        )
+
+        with pytest.raises(RuntimeError, match="retry body failed"):
+            await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+
+        await transport.aclose()
+        assert stream.close_started
+        assert stream.close_finished
+
+    anyio.run(check)
+
+
+def test_retry_chain_reports_bounded_503_response_close_timeout(monkeypatch: Any) -> None:
+    async def check() -> None:
+        monkeypatch.setattr("sendmux_mcp.response_ownership.RESPONSE_CLOSE_TIMEOUT_SECONDS", 0.01)
+        transport = retry_chain(
+            httpx.MockTransport(
+                lambda request: httpx.Response(
+                    503,
+                    headers={"Content-Type": "application/json"},
+                    stream=HangingRetryBodyStream(),
+                    request=request,
+                )
+            )
+        )
+
+        with anyio.fail_after(0.2):
+            with pytest.raises(TimeoutError, match="Timed out while closing"):
+                await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+
+        await transport.aclose()
+
+    anyio.run(check)
 
 
 @pytest.mark.parametrize("headers", [

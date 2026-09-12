@@ -81,6 +81,14 @@ pub struct Response<T> {
     pub data: T,
     pub meta: ResponseMeta,
     pub status: StatusCode,
+    pub pagination: Option<CursorPagination>,
+}
+
+/// Cursor metadata returned by list operations.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct CursorPagination {
+    pub has_more: bool,
+    pub next_cursor: Option<String>,
 }
 
 impl<T> Response<T> {
@@ -177,6 +185,8 @@ pub enum Error {
     InvalidBaseUrl(#[from] url::ParseError),
     #[error("sendmux: base URL cannot be used for path segments")]
     CannotBeBaseUrl,
+    #[error("sendmux: request path must be relative to the configured origin")]
+    InvalidRequestPath,
     #[error("sendmux: invalid header value")]
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
     #[error("{0}")]
@@ -331,6 +341,22 @@ impl Transport {
             .await
     }
 
+    pub(crate) async fn get_page<T>(&self, path: &str, cursor: Option<&str>) -> Result<Response<T>>
+    where
+        T: DeserializeOwned,
+    {
+        let path = match cursor {
+            Some(cursor) => format!(
+                "{path}?{}",
+                url::form_urlencoded::Serializer::new(String::new())
+                    .append_pair("cursor", cursor)
+                    .finish()
+            ),
+            None => path.to_owned(),
+        };
+        self.get_json(&path).await
+    }
+
     pub(crate) async fn delete_json<T>(&self, path: &str) -> Result<Response<T>>
     where
         T: DeserializeOwned,
@@ -466,7 +492,14 @@ impl Transport {
     }
 
     fn url(&self, path: &str) -> Result<Url> {
-        Ok(self.base_url.join(path.trim_start_matches('/'))?)
+        if Url::parse(path).is_ok() || path.starts_with("//") || path.contains('\\') {
+            return Err(Error::InvalidRequestPath);
+        }
+        let url = self.base_url.join(path.trim_start_matches('/'))?;
+        if url.origin() != self.base_url.origin() {
+            return Err(Error::InvalidRequestPath);
+        }
+        Ok(url)
     }
 }
 
@@ -504,6 +537,7 @@ fn apply_options(
 struct SuccessEnvelope<T> {
     data: T,
     meta: ResponseMeta,
+    pagination: Option<CursorPagination>,
 }
 
 fn decode_enveloped_response<T>(
@@ -519,6 +553,7 @@ where
         data: envelope.data,
         meta: envelope.meta,
         status,
+        pagination: envelope.pagination,
     })
 }
 
@@ -536,6 +571,7 @@ where
             request_id: header_value(headers, "x-request-id").unwrap_or_default(),
         },
         status,
+        pagination: None,
     })
 }
 

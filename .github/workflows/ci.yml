@@ -12,6 +12,8 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -38,7 +40,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.23.x"
+          go-version: "1.27.x"
           cache-dependency-path: go/go.sum
 
       - name: Set up Ruby
@@ -50,31 +52,182 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: "8.4"
+          extensions: curl, json, mbstring
+          tools: composer:2.10.3
+          coverage: none
+        env:
+          fail-fast: true
+
       - name: Build and verify
         run: pnpm build
 
-  verify-rust:
+      - name: Runtime certification regression fixtures
+        run: pnpm test:runtime-contracts
+
+  rust-floor:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rust
+    timeout-minutes: 30
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Set up Rust
+      - run: rustup toolchain install 1.82.0 --profile minimal --no-self-update
+      - run: cargo +1.82.0 test --locked --all-targets --all-features --manifest-path rust/Cargo.toml
+      - run: cargo +1.82.0 test --locked --doc --all-features --manifest-path rust/Cargo.toml
+
+  rust-latest-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - run: rustup toolchain install stable 1.82.0 --profile minimal --no-self-update
+      - run: rustup component add --toolchain stable rustfmt clippy
+      - run: cargo +stable fmt --manifest-path rust/Cargo.toml --check
+      - name: Resolve latest, test, package, and consume on the floor
+        run: node scripts/ci-consumers.mjs rust
+
+  node-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [22, 24, 26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        with:
+          version: 10.22.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r --if-present build
+      - run: pnpm verify:ts-public-api
+      - run: pnpm verify:tree-shaking
+      - run: pnpm test:ts-helpers
+      - run: pnpm test:connections
+      - run: pnpm test:windows-command-shims
+      - run: pnpm check:cli
+      - name: Install and import all six candidate tarballs
+        run: node scripts/ci-consumers.mjs node
+      - name: Twelve packed AI and Zod peer consumers
+        if: runner.os == 'Linux'
+        run: node scripts/ci-consumers.mjs ai
+
+  python-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: node scripts/check-python.mjs
+      - run: node scripts/check-mcp.mjs
+      - run: node scripts/build-python-dists.mjs
+      - name: Installed wheel runtime and sdist consumers
+        run: node scripts/ci-consumers.mjs python
+
+  go-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ["1.23.4", "1.26.x", "1.27.x"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: ${{ matrix.go }}
+          cache-dependency-path: go/go.sum
+      - run: go test ./...
+        working-directory: go
+      - run: go vet ./...
+        working-directory: go
+      # The single verify build owns pinned Go lint on 1.27.
+      - run: node scripts/ci-consumers.mjs go
+
+  php-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.2", "8.3", "8.4", "8.5"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, json, mbstring
+          tools: composer:2.10.3
+          coverage: none
+        env:
+          fail-fast: true
+      - name: Verify PHP extensions and exact Composer executable
         run: |
-          rustup toolchain install stable --profile minimal
-          rustup default stable
+          php -r 'foreach (["curl", "json", "mbstring"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing PHP extension: $extension\n"); exit(1); } }'
+          composer --version --no-ansi | grep -F 'Composer version 2.10.3'
+          test "$(sha256sum "$(command -v composer)" | cut -d ' ' -f 1)" = '7a2d379d5b8ffdaa028580ef26494c36d2feef4b178d3dd1473a4dbc5e17c8d6'
+      - run: node scripts/check-php.mjs
+      - run: node scripts/check-php-splits.mjs
+      - name: Install each split and verify platform requirements
+        run: |
+          for package in core sending mailbox management sdk; do
+            composer --working-dir=".tmp/php-splits/sendmux-php-$package" install --no-interaction --no-progress --prefer-dist
+            composer --working-dir=".tmp/php-splits/sendmux-php-$package" check-platform-reqs
+          done
+          composer --working-dir=.tmp/php-split-consumer check-platform-reqs
 
-      - name: Check formatting
-        run: cargo fmt --check
-
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-      - name: Run tests
-        run: cargo test
-
-      - name: Verify crates.io package
-        run: cargo publish --dry-run --locked
+  ruby-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.1", "3.2", "3.3", "3.4.1", "4.0"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+      # The single verify build owns Bundler/static checks on Ruby 3.4.1.
+      - run: node scripts/build-ruby-gems.mjs
+      - run: find packages/ruby -name '*.rb' -exec ruby -c {} \;
+      - name: Five installed local gems and public runtime tests
+        run: node scripts/ci-consumers.mjs ruby

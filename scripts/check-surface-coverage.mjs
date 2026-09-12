@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 
 const specs = [
@@ -17,6 +18,7 @@ const operations = loadOperations(inputDir);
 const cliOperations = loadCliOperations();
 const curatedMcp = loadMcpCuration();
 const failures = [];
+const rustDecisions = loadRustDecisions();
 const rows = [];
 
 for (const operation of operations) {
@@ -51,6 +53,8 @@ for (const operation of operations) {
     mcpReason: mcp.reason ?? "",
     optionParity: cliParity.length === 0 ? "full" : `failed: ${cliParity.join("; ")}`,
     sdk: sdk ? "yes" : "no",
+    rust: rustDecisions.get(operation.operationId)?.decision ?? "missing",
+    rustReason: rustDecisions.get(operation.operationId)?.reason ?? "",
   });
 }
 
@@ -75,6 +79,40 @@ if (failures.length > 0) {
 }
 
 console.log(`Surface coverage checks passed for ${operations.length} OpenAPI operations.`);
+
+function loadRustDecisions() {
+  const manifest = readJson("rust/operation-decisions.json");
+  const provenance = readFileSync("rust/src/generated/mod.rs", "utf8");
+  for (const { file } of specs) {
+    const hash = createHash("sha256").update(readFileSync(join(inputDir, file))).digest("hex");
+    const surface = file === "openapi-app.json" ? "APP" : "SENDING";
+    const recorded = provenance.match(new RegExp(`${surface}_OPENAPI_SHA256: &str =\\s*"([^"]+)"`))?.[1];
+    if (manifest.sources?.[file] !== hash || recorded !== hash) failures.push(`Rust ${file} provenance hash drift`);
+  }
+  const entries = new Map();
+  const states = new Set(["named-complete", "named-partial", "raw-json-only", "unsupported-transport"]);
+  const constants = new Map([...provenance.matchAll(/Operation::new\(\s*"([^"]+)",\s*"([^"]+)",\s*"([^"]+)"\s*,?\s*\)/g)].map((m) => [m[1], { method: m[2], path: m[3] }]));
+  for (const entry of manifest.operations ?? []) {
+    if (entries.has(entry.operationId)) failures.push(`Rust duplicate decision ${entry.operationId}`);
+    entries.set(entry.operationId, entry);
+    const operation = operations.find((operation) => operation.operationId === entry.operationId);
+    if (!operation || entry.method !== operation.method.toUpperCase() || entry.path !== operation.path) failures.push(`Rust stale route decision ${entry.operationId}`);
+    if (!states.has(entry.decision) || typeof entry.reason !== "string" || !entry.reason.trim()) failures.push(`Rust invalid decision ${entry.operationId}`);
+    const named = entry.decision?.startsWith("named-");
+    if (!Array.isArray(entry.publicMethods) || !entry.publicMethods.every((method) => typeof method === "string") || named !== (entry.publicMethods.length > 0)) failures.push(`Rust invalid method decision ${entry.operationId}`);
+    if (named && (constants.get(entry.operationId)?.method !== entry.method || constants.get(entry.operationId)?.path !== entry.path)) failures.push(`Rust named provenance drift ${entry.operationId}`);
+    if (!named && constants.has(entry.operationId)) failures.push(`Rust unnamed operation advertised ${entry.operationId}`);
+  }
+  for (const operation of operations) if (!entries.has(operation.operationId)) failures.push(`Rust missing decision ${operation.operationId}`);
+  for (const operationId of constants.keys()) if (!entries.has(operationId)) failures.push(`Rust stale named provenance ${operationId}`);
+  for (const surface of ["sending", "mailbox", "management"]) {
+    const source = readFileSync(`rust/src/${surface}.rs`, "utf8");
+    const actual = [...source.matchAll(/pub async fn (\w+)/g)].map((match) => match[1]).filter((method) => !method.startsWith("raw_"));
+    const recorded = [...entries.values()].filter((entry) => entry.operationId.startsWith(surface)).flatMap((entry) => entry.publicMethods ?? []);
+    if (new Set(recorded).size !== recorded.length || stableJson([...actual].sort()) !== stableJson([...recorded].sort())) failures.push(`Rust ${surface} public method inventory drift`);
+  }
+  return entries;
+}
 
 function findDefaultInputDir() {
   for (const candidate of ["sendmux-docs", "../sendmux-docs"]) {
@@ -478,14 +516,15 @@ function renderMatrix(rows) {
     "- SDK coverage: every operation must be exported by its generated TypeScript surface package; non-TypeScript packages are regenerated from the same snapshots and covered by their language checks.",
     "- CLI coverage: every operation must have a generated command module and spec-derived path/query/header/body metadata.",
     `- MCP coverage: curated by design; ${included} operations are tools and every excluded operation has a recorded reason.`,
+    `- Rust coverage: curated; ${rows.filter((row) => row.rust.startsWith("named-")).length} named operations. Every operation has an explicit decision in rust/operation-decisions.json; raw JSON reachability is not named-operation certification.`,
     "",
     "## Matrix",
     "",
-    "| Surface | Operation | Method | Path | SDK | CLI | MCP | Options/filters | MCP decision |",
-    "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    "| Surface | Operation | Method | Path | SDK | CLI | MCP | Options/filters | MCP decision | Rust | Rust decision |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ...rows.map(
       (row) =>
-        `| ${row.surface} | \`${row.operationId}\` | ${row.method.toUpperCase()} | \`${row.path}\` | ${row.sdk} | ${escapeCell(row.cli)} | ${escapeCell(row.mcp)} | ${escapeCell(row.optionParity)} | ${escapeCell(row.mcpReason)} |`,
+        `| ${row.surface} | \`${row.operationId}\` | ${row.method.toUpperCase()} | \`${row.path}\` | ${row.sdk} | ${escapeCell(row.cli)} | ${escapeCell(row.mcp)} | ${escapeCell(row.optionParity)} | ${escapeCell(row.mcpReason)} | ${row.rust} | ${escapeCell(row.rustReason)} |`,
     ),
     "",
   ].join("\n");

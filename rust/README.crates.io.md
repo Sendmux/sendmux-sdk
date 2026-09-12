@@ -6,7 +6,7 @@ Sendmux provides programmable email sending, mailbox automation, and account
 management APIs. The `sendmux` crate exposes first-party Rust clients for all
 public Sendmux API surfaces. The Sending client includes typed request and
 response models; Mailbox and Management expose typed surface clients with raw
-JSON helpers while generated Rust model coverage expands:
+JSON helpers. Not every OpenAPI operation has a named Rust method:
 
 - `sendmux::sending` for Sending API requests with send-capable `smx_mbx_*` keys or owner-approved Sending-resource `smx_agent_*` tokens.
 - `sendmux::mailbox` for Mailbox API requests with `smx_mbx_*` keys or scoped `smx_agent_*` tokens.
@@ -178,6 +178,39 @@ async fn main() -> sendmux::Result<()> {
 ```
 
 ## OpenAPI Source
+
+The source checkout's `rust/operation-decisions.json` and
+`docs/surface-coverage.md` account for all 104 snapshot operations and 20 named
+operation IDs. Conditional GET/304/ETag handling, optional list filters and
+selectors, automatic retries, and missing named operations aren't implied by
+raw JSON access. `ApiError.retryable` reports the server/fallback classification;
+the Rust transport doesn't retry or wait on `Retry-After` automatically.
+
+### Unreleased Rust contract changes
+
+These changes describe the source candidate, not a package-publication receipt:
+
+- Raw Mailbox and Management paths must be relative to the configured API base.
+  Absolute URLs, authority paths, and backslash paths return
+  `Error::InvalidRequestPath` before credentials are resolved or HTTP starts.
+- `Response<T>` adds `pagination: Option<CursorPagination>`. The six list methods
+  have additive `*_with_cursor(Option<&str>)` variants. Pass the previous
+  response's `pagination.next_cursor.as_deref()` to advance; stop when
+  `has_more` is false. The original no-argument list methods still request the
+  first page.
+- `Attachment` changes from a struct to `Inline(InlineAttachment)` or
+  `Uploaded(UploadedAttachmentRef)`. Use `Attachment::base64(filename, content)`
+  for inline bytes or `Attachment::uploaded(attachment_id)` for an existing
+  Sending reference. `with_content_type` applies only to inline attachments;
+  it leaves uploaded references unchanged. Both forms work in single and batch
+  send requests. This doesn't add an attachment upload method.
+
+Code that constructs `Response` or `Attachment` with struct literals, or accesses
+old attachment fields directly, must migrate before adopting the candidate.
+Replace attachment literals with the constructors or match the enum variants;
+include pagination when constructing response fixtures. These source-breaking
+changes require an explicit release/SemVer decision; package versions aren't
+bumped by the runtime-certification change.
 
 This crate is aligned to the committed Sendmux OpenAPI snapshots in the
 `sendmux-sdk` repository:

@@ -57,6 +57,7 @@
     "publish:rubygems": "node scripts/publish-rubygems.mjs",
     "publish:npm:ts": "node scripts/publish-npm-ts.mjs",
     "test:connections": "node --test scripts/test-connections.mjs",
+    "test:runtime-contracts": "node --test scripts/ci-consumers.test.mjs scripts/ai-peer-consumer.test.mjs scripts/rust-surface-coverage.test.mjs",
     "test:connection-adapters": "node --test scripts/test-connection-adapters.mjs"
   },
   "devDependencies": {

@@ -13,7 +13,7 @@ pub const SENDING_OPENAPI_PATH: &str =
 
 /// SHA-256 of `SENDING_OPENAPI_PATH` at the time this crate surface was added.
 pub const SENDING_OPENAPI_SHA256: &str =
-    "881f0693f0dd6d49d4c594e452cd67d9ba739d91aba7ff2f8e2cd899ca552e90";
+    "f3caa5b45c7d9e0c8890d54964ffd7ed9a78073833b3d4959b40b714066d15e9";
 
 /// Repository-relative OpenAPI snapshot path used for Sendmux provenance.
 ///
@@ -23,7 +23,7 @@ pub const APP_OPENAPI_PATH: &str = "packages/python/mcp/sendmux_mcp/openapi/open
 
 /// SHA-256 of `APP_OPENAPI_PATH` at the time this crate surface was added.
 pub const APP_OPENAPI_SHA256: &str =
-    "1b8a3916266edeb6b6512520733cecab17636a9909d2f0e707ef2e6ef46afbec";
+    "7807ce9239527497bfe35d62dd931096e46200027aa34e414920f86176ee2990";
 
 /// Tags included from the Sending API snapshot.
 pub const SENDING_TAGS: &[&str] = &["Emails", "Meta"];
@@ -44,11 +44,36 @@ pub const MANAGEMENT_TAGS: &[&str] = &[
     "Webhooks",
 ];
 
-/// Sending operations exposed by the source OpenAPI snapshot.
+/// Named sending operations represented by this curated client.
 pub const SENDING_OPERATIONS: &[Operation] = &[
+    Operation::new("sendingGetConnection", "GET", "/me"),
+    Operation::new("sendingGetOpenApiSpec", "GET", "/openapi.json"),
     Operation::new("sendingSendEmail", "POST", "/emails/send"),
     Operation::new("sendingSendEmailBatch", "POST", "/emails/send/batch"),
-    Operation::new("sendingGetOpenApiSpec", "GET", "/openapi.json"),
+];
+
+/// Named mailbox operations represented by this curated client.
+pub const MAILBOX_OPERATIONS: &[Operation] = &[
+    Operation::new("mailboxGetConnection", "GET", "/mailbox/connection"),
+    Operation::new("mailboxGetMe", "GET", "/mailbox/me"),
+    Operation::new("mailboxGetMessage", "GET", "/mailbox/messages/{message_id}"),
+    Operation::new("mailboxListFolders", "GET", "/mailbox/folders"),
+    Operation::new("mailboxListMessages", "GET", "/mailbox/messages"),
+    Operation::new("mailboxSendMessage", "POST", "/mailbox/messages/send"),
+];
+
+/// Named management operations represented by this curated client.
+pub const MANAGEMENT_OPERATIONS: &[Operation] = &[
+    Operation::new("managementCreateDomain", "POST", "/domains"),
+    Operation::new("managementCreateMailbox", "POST", "/mailboxes"),
+    Operation::new("managementGetConnection", "GET", "/me"),
+    Operation::new("managementGetDomain", "GET", "/domains/{public_id}"),
+    Operation::new("managementGetMailbox", "GET", "/mailboxes/{public_id}"),
+    Operation::new("managementListBalance", "GET", "/billing/balance"),
+    Operation::new("managementListDomains", "GET", "/domains"),
+    Operation::new("managementListMailboxes", "GET", "/mailboxes"),
+    Operation::new("managementListProviders", "GET", "/providers"),
+    Operation::new("managementListWebhooks", "GET", "/webhooks"),
 ];
 
 /// Minimal OpenAPI operation provenance.

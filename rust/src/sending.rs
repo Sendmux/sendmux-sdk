@@ -120,7 +120,18 @@ impl Address {
 pub type Recipient = Address;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct Attachment {
+#[serde(untagged)]
+pub enum Attachment {
+    /// Inline base64 content included in the send request.
+    Inline(InlineAttachment),
+    /// A temporary reference returned by an attachment upload.
+    Uploaded(UploadedAttachmentRef),
+}
+
+/// Inline Sending attachment fields.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct InlineAttachment {
     pub filename: String,
     pub content: String,
     #[serde(default = "default_attachment_encoding")]
@@ -129,19 +140,35 @@ pub struct Attachment {
     pub content_type: Option<String>,
 }
 
+/// A temporary uploaded attachment reference, not a storage deletion receipt.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct UploadedAttachmentRef {
+    pub attachment_id: String,
+}
+
 impl Attachment {
     pub fn base64(filename: impl Into<String>, content: impl Into<String>) -> Self {
-        Self {
+        Self::Inline(InlineAttachment {
             filename: filename.into(),
             content: content.into(),
             encoding: default_attachment_encoding(),
             content_type: None,
-        }
+        })
     }
 
     pub fn with_content_type(mut self, content_type: impl Into<String>) -> Self {
-        self.content_type = Some(content_type.into());
+        if let Self::Inline(attachment) = &mut self {
+            attachment.content_type = Some(content_type.into());
+        }
         self
+    }
+
+    /// Creates a reference to an already uploaded attachment.
+    pub fn uploaded(attachment_id: impl Into<String>) -> Self {
+        Self::Uploaded(UploadedAttachmentRef {
+            attachment_id: attachment_id.into(),
+        })
     }
 }
 

@@ -1,0 +1,888 @@
+{
+  "sources": {
+    "openapi-app.json": "7807ce9239527497bfe35d62dd931096e46200027aa34e414920f86176ee2990",
+    "openapi-sending.json": "f3caa5b45c7d9e0c8890d54964ffd7ed9a78073833b3d4959b40b714066d15e9"
+  },
+  "operations": [
+    {
+      "operationId": "mailboxBatchDeleteMessages",
+      "method": "POST",
+      "path": "/mailbox/messages:batch-delete",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxBatchGetMessages",
+      "method": "POST",
+      "path": "/mailbox/messages:batch-get",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxBatchUpdateMessages",
+      "method": "POST",
+      "path": "/mailbox/messages:batch-update",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxCountMessages",
+      "method": "GET",
+      "path": "/mailbox/messages/count",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxCreateAttachmentUpload",
+      "method": "POST",
+      "path": "/mailbox/attachment-uploads",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxCreateFolder",
+      "method": "POST",
+      "path": "/mailbox/folders",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxDeleteFolder",
+      "method": "DELETE",
+      "path": "/mailbox/folders/{folder_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxDeleteMessage",
+      "method": "DELETE",
+      "path": "/mailbox/messages/{message_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetChanges",
+      "method": "GET",
+      "path": "/mailbox/changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetConnection",
+      "method": "GET",
+      "path": "/mailbox/connection",
+      "publicMethods": [
+        "get_connection"
+      ],
+      "decision": "named-partial",
+      "reason": "No conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "mailboxGetFolder",
+      "method": "GET",
+      "path": "/mailbox/folders/{folder_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetFolderChanges",
+      "method": "GET",
+      "path": "/mailbox/folders/changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetIdentity",
+      "method": "GET",
+      "path": "/mailbox/identity",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetMe",
+      "method": "GET",
+      "path": "/mailbox/me",
+      "publicMethods": [
+        "get_me"
+      ],
+      "decision": "named-partial",
+      "reason": "No mailbox selector or conditional GET/ETag/304 representation."
+    },
+    {
+      "operationId": "mailboxGetMessage",
+      "method": "GET",
+      "path": "/mailbox/messages/{message_id}",
+      "publicMethods": [
+        "get_message"
+      ],
+      "decision": "named-partial",
+      "reason": "No mailbox selector or conditional GET/ETag/304 representation."
+    },
+    {
+      "operationId": "mailboxGetMessageAttachment",
+      "method": "GET",
+      "path": "/mailbox/messages/{message_id}/attachments/{attachment_id}",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Binary download/range responses are not supported by the JSON transport."
+    },
+    {
+      "operationId": "mailboxGetQuotaChanges",
+      "method": "GET",
+      "path": "/mailbox/quotas/changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetSession",
+      "method": "GET",
+      "path": "/mailbox/session",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetSubmission",
+      "method": "GET",
+      "path": "/mailbox/submissions/{submission_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetSubmissionChanges",
+      "method": "GET",
+      "path": "/mailbox/submissions/changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetThread",
+      "method": "GET",
+      "path": "/mailbox/threads/{thread_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetThreadContent",
+      "method": "GET",
+      "path": "/mailbox/threads/{thread_id}/content",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListBody",
+      "method": "GET",
+      "path": "/mailbox/messages/{message_id}/body",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListContent",
+      "method": "GET",
+      "path": "/mailbox/messages/{message_id}/content",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListFolders",
+      "method": "GET",
+      "path": "/mailbox/folders",
+      "publicMethods": [
+        "list_folders",
+        "list_folders_with_cursor"
+      ],
+      "decision": "named-partial",
+      "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "mailboxListGrantedMailboxes",
+      "method": "GET",
+      "path": "/mailbox/mailboxes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListIdentities",
+      "method": "GET",
+      "path": "/mailbox/identities",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListMessages",
+      "method": "GET",
+      "path": "/mailbox/messages",
+      "publicMethods": [
+        "list_messages",
+        "list_messages_with_cursor"
+      ],
+      "decision": "named-partial",
+      "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "mailboxListQuotas",
+      "method": "GET",
+      "path": "/mailbox/quotas",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListSubmissions",
+      "method": "GET",
+      "path": "/mailbox/submissions",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListThreadMessages",
+      "method": "GET",
+      "path": "/mailbox/threads/{thread_id}/messages",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListThreads",
+      "method": "GET",
+      "path": "/mailbox/threads",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxListUsage",
+      "method": "GET",
+      "path": "/mailbox/usage",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxQueryFolderChanges",
+      "method": "GET",
+      "path": "/mailbox/folders/query-changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxQueryMessageChanges",
+      "method": "GET",
+      "path": "/mailbox/messages/query-changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxSearchMessageSnippets",
+      "method": "GET",
+      "path": "/mailbox/messages/search-snippets",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxSendMessage",
+      "method": "POST",
+      "path": "/mailbox/messages/send",
+      "publicMethods": [
+        "send_message"
+      ],
+      "decision": "named-partial",
+      "reason": "No named idempotency header or mailbox selector; raw JSON POST is an explicit escape hatch."
+    },
+    {
+      "operationId": "mailboxStreamEvents",
+      "method": "GET",
+      "path": "/mailbox/events",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Event-stream responses are not supported by the JSON transport."
+    },
+    {
+      "operationId": "mailboxUpdateFolder",
+      "method": "PATCH",
+      "path": "/mailbox/folders/{folder_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxUpdateIdentity",
+      "method": "PATCH",
+      "path": "/mailbox/identity",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxUpdateMessage",
+      "method": "PATCH",
+      "path": "/mailbox/messages/{message_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxUploadAttachment",
+      "method": "POST",
+      "path": "/mailbox/attachments:upload",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Attachment bytes require an octet-stream transport, which is not implemented."
+    },
+    {
+      "operationId": "managementActivateProvider",
+      "method": "POST",
+      "path": "/providers/{public_id}/activate",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementCancelSharedAmazonSesLimitRequest",
+      "method": "DELETE",
+      "path": "/providers/shared-amazon-ses-limit-request/{request_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementCheckMailboxAvailability",
+      "method": "GET",
+      "path": "/mailboxes/availability",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementCreateDomain",
+      "method": "POST",
+      "path": "/domains",
+      "publicMethods": [
+        "create_domain"
+      ],
+      "decision": "named-partial",
+      "reason": "No named idempotency header; raw JSON POST accepts RequestOptions."
+    },
+    {
+      "operationId": "managementCreateMailbox",
+      "method": "POST",
+      "path": "/mailboxes",
+      "publicMethods": [
+        "create_mailbox"
+      ],
+      "decision": "named-partial",
+      "reason": "No named idempotency header; raw JSON POST accepts RequestOptions."
+    },
+    {
+      "operationId": "managementCreateMailboxKey",
+      "method": "POST",
+      "path": "/mailboxes/{public_id}/keys",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementCreateProvider",
+      "method": "POST",
+      "path": "/providers",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementCreateSharedAmazonSesLimitRequest",
+      "method": "POST",
+      "path": "/providers/shared-amazon-ses-limit-request",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementCreateWebhook",
+      "method": "POST",
+      "path": "/webhooks",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementDeactivateProvider",
+      "method": "POST",
+      "path": "/providers/{public_id}/deactivate",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementDeleteDomain",
+      "method": "DELETE",
+      "path": "/domains/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementDeleteMailbox",
+      "method": "DELETE",
+      "path": "/mailboxes/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementDeleteMailboxKey",
+      "method": "DELETE",
+      "path": "/mailboxes/{public_id}/keys/{key_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementDeleteProvider",
+      "method": "DELETE",
+      "path": "/providers/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementDeleteWebhook",
+      "method": "DELETE",
+      "path": "/webhooks/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetConnection",
+      "method": "GET",
+      "path": "/me",
+      "publicMethods": [
+        "get_connection"
+      ],
+      "decision": "named-partial",
+      "reason": "No conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "managementGetDeliveryPayload",
+      "method": "GET",
+      "path": "/webhooks/{public_id}/deliveries/{delivery_id}/payload",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetDomain",
+      "method": "GET",
+      "path": "/domains/{public_id}",
+      "publicMethods": [
+        "get_domain"
+      ],
+      "decision": "named-partial",
+      "reason": "No conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "managementGetDomainFilters",
+      "method": "GET",
+      "path": "/domains/{public_id}/filters",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetDomainZoneFile",
+      "method": "GET",
+      "path": "/domains/{public_id}/zone-file",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Text/plain responses are not supported by the enveloped JSON transport."
+    },
+    {
+      "operationId": "managementGetEmailLog",
+      "method": "GET",
+      "path": "/emails/logs/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetEmailMetrics",
+      "method": "GET",
+      "path": "/emails/metrics",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetInboxLog",
+      "method": "GET",
+      "path": "/inboxes/logs/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetMailbox",
+      "method": "GET",
+      "path": "/mailboxes/{public_id}",
+      "publicMethods": [
+        "get_mailbox"
+      ],
+      "decision": "named-partial",
+      "reason": "No conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "managementGetMailboxFilters",
+      "method": "GET",
+      "path": "/mailboxes/{public_id}/filters",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetProvider",
+      "method": "GET",
+      "path": "/providers/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetProviderLimits",
+      "method": "GET",
+      "path": "/providers/limits",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetProviderStats",
+      "method": "GET",
+      "path": "/providers/stats",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetProviderUsage",
+      "method": "GET",
+      "path": "/providers/usage",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetSharedAmazonSesLimitRequest",
+      "method": "GET",
+      "path": "/providers/shared-amazon-ses-limit-request",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetSpendSummary",
+      "method": "GET",
+      "path": "/billing/summary",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetWebhook",
+      "method": "GET",
+      "path": "/webhooks/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementListBalance",
+      "method": "GET",
+      "path": "/billing/balance",
+      "publicMethods": [
+        "billing_balance"
+      ],
+      "decision": "named-complete",
+      "reason": "Current request fields and default JSON response are represented; no automatic retries."
+    },
+    {
+      "operationId": "managementListDelivery",
+      "method": "GET",
+      "path": "/webhooks/{public_id}/deliveries",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementListDomains",
+      "method": "GET",
+      "path": "/domains",
+      "publicMethods": [
+        "list_domains",
+        "list_domains_with_cursor"
+      ],
+      "decision": "named-partial",
+      "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "managementListEmailLogs",
+      "method": "GET",
+      "path": "/emails/logs",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementListInboxLogs",
+      "method": "GET",
+      "path": "/inboxes/logs",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementListMailboxes",
+      "method": "GET",
+      "path": "/mailboxes",
+      "publicMethods": [
+        "list_mailboxes",
+        "list_mailboxes_with_cursor"
+      ],
+      "decision": "named-partial",
+      "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "managementListProviders",
+      "method": "GET",
+      "path": "/providers",
+      "publicMethods": [
+        "list_sending_accounts",
+        "list_sending_accounts_with_cursor"
+      ],
+      "decision": "named-partial",
+      "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "managementListTransactions",
+      "method": "GET",
+      "path": "/billing/transactions",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementListWebhooks",
+      "method": "GET",
+      "path": "/webhooks",
+      "publicMethods": [
+        "list_webhooks",
+        "list_webhooks_with_cursor"
+      ],
+      "decision": "named-partial",
+      "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "managementRequestSendingAccountLimitIncrease",
+      "method": "POST",
+      "path": "/providers/limits/sending-accounts/request-increase",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementResumeMailbox",
+      "method": "POST",
+      "path": "/mailboxes/{public_id}/resume",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementRotateWebhookSecret",
+      "method": "POST",
+      "path": "/webhooks/{public_id}/rotate-secret",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementSetDomainFilters",
+      "method": "PUT",
+      "path": "/domains/{public_id}/filters",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementSetMailboxFilters",
+      "method": "PUT",
+      "path": "/mailboxes/{public_id}/filters",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementSuspendMailbox",
+      "method": "POST",
+      "path": "/mailboxes/{public_id}/suspend",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementTestProvider",
+      "method": "POST",
+      "path": "/providers/{public_id}/test",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementTestWebhook",
+      "method": "POST",
+      "path": "/webhooks/{public_id}/test",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementUpdateDomain",
+      "method": "PATCH",
+      "path": "/domains/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementUpdateMailbox",
+      "method": "PATCH",
+      "path": "/mailboxes/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementUpdateProvider",
+      "method": "PATCH",
+      "path": "/providers/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementUpdateWebhook",
+      "method": "PATCH",
+      "path": "/webhooks/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementVerifyDomain",
+      "method": "POST",
+      "path": "/domains/{public_id}/verify",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "sendingCompleteAttachmentUpload",
+      "method": "PUT",
+      "path": "/emails/attachment-uploads/{upload_id}",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Capability upload requires an octet-stream transport, which is not implemented."
+    },
+    {
+      "operationId": "sendingCreateAttachmentUpload",
+      "method": "POST",
+      "path": "/emails/attachment-uploads",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "No named attachment operation or Sending raw JSON helper."
+    },
+    {
+      "operationId": "sendingGetAttachment",
+      "method": "GET",
+      "path": "/emails/attachments/{attachment_id}",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "No named attachment operation or Sending raw JSON helper."
+    },
+    {
+      "operationId": "sendingGetConnection",
+      "method": "GET",
+      "path": "/me",
+      "publicMethods": [
+        "get_connection"
+      ],
+      "decision": "named-partial",
+      "reason": "No conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "sendingGetOpenApiSpec",
+      "method": "GET",
+      "path": "/openapi.json",
+      "publicMethods": [
+        "openapi"
+      ],
+      "decision": "named-partial",
+      "reason": "Requires a credential; no conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "sendingSendEmail",
+      "method": "POST",
+      "path": "/emails/send",
+      "publicMethods": [
+        "send_email",
+        "send_email_with_options"
+      ],
+      "decision": "named-complete",
+      "reason": "Current request fields and default JSON response are represented; no automatic retries."
+    },
+    {
+      "operationId": "sendingSendEmailBatch",
+      "method": "POST",
+      "path": "/emails/send/batch",
+      "publicMethods": [
+        "send_email_batch",
+        "send_email_batch_with_options"
+      ],
+      "decision": "named-complete",
+      "reason": "Current request fields and default JSON response are represented; no automatic retries."
+    },
+    {
+      "operationId": "sendingUploadAttachment",
+      "method": "POST",
+      "path": "/emails/attachments",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Attachment bytes require an octet-stream transport, which is not implemented."
+    }
+  ]
+}

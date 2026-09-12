@@ -203,7 +203,26 @@ Generation refreshes editable Python metadata before discovering tools without u
 
 Native release validation covers TypeScript, Python, Rust, Ruby, and Go's component/tag convention. Go has no in-module version field. PHP versions belong to split-repository tags, not `composer.version` or release-please; Composer identities and dependencies are checked without treating a local path-repository version as publication evidence. Exact published tags and versions remain release gates.
 
-### Package versions
+### Verify runtime compatibility from source
+
+Maintainers: the [CI workflow](.github/workflows/ci.yml) separates the generation/static build from language runtime checks. A configured cell is a required check, not a claim that an unreleased checkout has passed remotely. Compatibility floors aren't recommendations to deploy upstream-EOL runtimes.
+
+| Runtime | Required CI cells | Candidate package boundary |
+| --- | --- | --- |
+| Node | 22, 24, 26 on Ubuntu, macOS, Windows | Six explicitly installed tarballs and CLI |
+| Python | 3.10–3.14 on Ubuntu | Seven wheels with runtime tests; seven sdists with isolated installation |
+| Go | 1.23.4, 1.26, 1.27 on Ubuntu | External module with an explicit candidate replacement; no toolchain auto-upgrade |
+| PHP | 8.2–8.5 on Ubuntu | Five individual splits and an all-local umbrella consumer |
+| Ruby | 3.1, 3.2, 3.3, 3.4.1, 4.0 on Ubuntu | Five locally installed gems; development tooling only on 3.4.1 |
+| Rust | 1.82.0 and stable/latest on Ubuntu | Independent source locks, verified crate, separately locked floor consumer |
+
+After the corresponding source build, run `node scripts/ci-consumers.mjs node`, `python`, `go`, or `ruby` from the repository root to verify installed imports outside the checkout. Python's repository-only MCP contract/packaging tests remain in source checks; the wheel consumer runs runtime tests and installed `load_contract()` without source-path injection. PHP uses `node scripts/check-php-splits.mjs` for the all-local composition check; individual splits can resolve published sibling dependencies and aren't that proof.
+
+Linux Node cells additionally run `node scripts/ci-consumers.mjs ai` for the 12 exact AI/Zod pairs recorded in that helper. The candidate AI wrapper requires Zod 3.25.76 or newer and retains AI 5/6/7 coverage, including the historical AI 5.0.0/Zod 4.0.0 intersection. The published 0.4.0 wrapper still advertises the older Zod floor; this correction requires a later release.
+
+For Rust, run the locked all-target/all-feature and doc tests with `cargo +1.82.0`, then `node scripts/ci-consumers.mjs rust` with stable and 1.82.0 installed (stable needs Clippy). That helper resolves latest dependencies in a temporary copy, tests and verifies `cargo +stable package --locked`, and checks the unpacked crate using `rust/ci/floor-consumer/Cargo.lock`. It never substitutes the library's embedded lock for the consumer lock. [Surface coverage](docs/surface-coverage.md) and [Rust operation decisions](rust/operation-decisions.json) distinguish named methods from partial/raw/unsupported operations.
+
+### Package release boundaries
 
 SDK packages track the Sendmux public API contracts. Patch versions can differ between packages when a fix only affects one ecosystem or runtime.
 

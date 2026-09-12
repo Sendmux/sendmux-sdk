@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import test from "node:test";
 import * as sdk from "@sendmux/sdk";
 import { createFixtureRuntime, runAdapterStep, runLanguageSdkOperations, runMcpOperations, fetchWithTimeout, withAbortSignal, runChildHarness, selectOperations, buildOperationPlan, expectedCliErrorMatches, scenarios, operations, fixtures } from "./run-live-e2e.mjs";
-import { existsSync, mkdirSync, mkdtempSync as createTempDirectory, readFileSync, rmSync as removePath, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync as createTempDirectory, readFileSync, rmSync as removePath, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -437,6 +437,62 @@ test("a child-owned timeout bounds signal denial without an outer operation dead
       assertProcessGone(pid);
     }
     rmSync(dir, { recursive: true });
+  }
+});
+
+test("fatal CLI shutdown retains private configuration recovery until the exact child is gone", async () => {
+  for (const mode of ["confirmed", "denied"]) {
+    const dir = mkdtempSync(join(tmpdir(), "sendmux-cli-fatal-home-"));
+    const childPath = join(dir, "child.json");
+    let child;
+    try {
+      mkdirSync(join(dir, "packages/ts/cli/bin"), { recursive: true });
+      writeFileSync(join(dir, "packages/ts/cli/bin/run.js"), `const fs=require('node:fs');fs.writeFileSync(process.env.HOME+'/private-config','private-config-canary');fs.writeFileSync(${JSON.stringify(childPath)},JSON.stringify({pid:process.pid,directory:process.env.HOME}));${mode === "confirmed" ? "console.log(JSON.stringify({openapi:'3.1.0',info:{title:'fixture',version:'1'},paths:{}}));" : "setInterval(()=>{},1000);"}`);
+      const moduleUrl = pathToFileURL(join(process.cwd(), "scripts/run-live-e2e.mjs")).href;
+      const code = `import {runAdapterStep,createFixtureRuntime,operations,fixtures,finishLiveRun} from ${JSON.stringify(moduleUrl)};
+        import * as sdk from '@sendmux/sdk';import fs from 'node:fs';import {mock} from 'node:test';
+        process.chdir(${JSON.stringify(dir)});
+        const originalTimer=setTimeout,kill=process.kill;
+        process.kill=(pid,signal)=>{if(${JSON.stringify(mode)}==='denied'&&pid<0&&signal!==0&&fs.existsSync(${JSON.stringify(childPath)})&&-pid===JSON.parse(fs.readFileSync(${JSON.stringify(childPath)})).pid)throw Object.assign(new Error('private-signal-canary'),{code:'EPERM'});return kill(pid,signal);};
+        mock.method(globalThis,'setTimeout',(callback,ms,...args)=>{const timer=originalTimer(callback,ms,...args);if(ms===30000&&${JSON.stringify(mode)}==='denied'){const ready=()=>{if(fs.existsSync(${JSON.stringify(childPath)})){clearTimeout(timer);callback(...args);}else originalTimer(ready,10);};originalTimer(ready,10);}return timer;});
+        const runtime=createFixtureRuntime({credentials:{},fixtures,operations,runId:'cli-fatal-home',sdk,ledgerPath:${JSON.stringify(join(dir, "resources.json"))}});
+        const results=await runAdapterStep({adapter:'cli',credentials:{},fixtureRuntime:runtime,fixtures,operation:operations.find(item=>item.operationId==='sendingGetOpenApiSpec'),sdk});
+        await finishLiveRun({ok:results[0].status==='passed',results,run:{id:'cli-fatal-home',cleanup:{ok:true,...runtime.ledger}}},${JSON.stringify(dir)});
+        console.log('NEXT_OPERATION');`;
+      const result = await runChildHarness(process.execPath, ["--input-type=module", "-e", code], { env: process.env, timeout: 8000 });
+      assertProcessGone(result.pid);
+      child = JSON.parse(readFileSync(childPath, "utf8"));
+      assert.equal(result.timedOut, false);
+      assert.equal(result.status, mode === "denied" ? 1 : 0);
+      assert.equal(existsSync(child.directory), mode === "denied");
+      const report = readFileSync(join(dir, "result.json"), "utf8");
+      assert.doesNotMatch(report + result.stdout + result.stderr, /private-config-canary|private-signal-canary/);
+      if (mode === "denied") {
+        assert.doesNotThrow(() => process.kill(child.pid, 0));
+        assert.doesNotMatch(result.stdout, /NEXT_OPERATION/);
+        assert.equal(JSON.parse(report).run.cleanup.status, "blocked_active_work");
+        const recovery = JSON.parse(readFileSync(join(dir, "child-recovery.json"), "utf8"));
+        assert.equal(statSync(join(dir, "child-recovery.json")).mode & 0o777, 0o600);
+        assert.deepEqual(recovery, { status: "incomplete", children: [{ pid: child.pid, directory: child.directory, status: "unconfirmed" }] });
+        assert.equal(readFileSync(join(child.directory, "private-config"), "utf8"), "private-config-canary");
+        console.log(JSON.stringify({ resource: "retained_cli_home", ...child, state: "retained_until_child_stop" }));
+      } else {
+        assertProcessGone(child.pid);
+        assert.equal(existsSync(join(dir, "child-recovery.json")), false);
+      }
+    } finally {
+      child ??= existsSync(childPath) ? JSON.parse(readFileSync(childPath, "utf8")) : undefined;
+      if (child) {
+        try { process.kill(-child.pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+        for (let attempt = 0; attempt < 100; attempt++) {
+          try { process.kill(child.pid, 0); } catch (error) { if (error.code === "ESRCH") break; throw error; }
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        assertProcessGone(child.pid);
+        rmSync(child.directory, { force: true, recursive: true });
+      }
+      rmSync(dir, { recursive: true });
+    }
   }
 });
 

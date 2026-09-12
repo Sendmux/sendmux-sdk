@@ -241,6 +241,12 @@ export async function finishLiveRun(report, runDirectory) {
     mkdirSync(runDirectory, { recursive: true });
     writeFileSync(join(runDirectory, "resources.json"), `${JSON.stringify({ ...report.run.cleanup, runId: report.run.id, status: "incomplete" }, null, 2)}\n`, { mode: 0o600, flush: true });
     writeFileSync(join(runDirectory, "result.json"), `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600, flush: true });
+    const retainedChildren = [...activeChildren.values()]
+      .filter(child => child.recoveryDirectory)
+      .map(child => ({ pid: child.pid, directory: child.recoveryDirectory, status: "unconfirmed" }));
+    if (retainedChildren.length) {
+      writeFileSync(join(runDirectory, "child-recovery.json"), `${JSON.stringify({ status: "incomplete", children: retainedChildren }, null, 2)}\n`, { mode: 0o600, flush: true });
+    }
     report.errors ??= [];
     // The cancellation grace has expired; signal delivery is not proof of close.
     for (const child of activeChildren.values()) {
@@ -902,13 +908,16 @@ async function runCliOperation({ credentials, operation, prepared }) {
   } catch (error) {
     return failResult("cli", operation.operationId, error);
   } finally {
-    rmSync(tempHome, { force: true, recursive: true });
+    if (![...activeChildren.values()].some(child => child.recoveryDirectory === tempHome)) {
+      rmSync(tempHome, { force: true, recursive: true });
+    }
   }
 }
 
 function runCli(args, tempHome, timeoutMs = 30_000, envOverrides = {}) {
   return runChildHarness(process.execPath, [cliPath, ...args], {
       timeout: timeoutMs,
+      recoveryDirectory: tempHome,
       env: {
         ...process.env,
         HOME: tempHome,
@@ -3297,7 +3306,7 @@ function assertLivePlatform() {
   }
 }
 
-function runChildHarness(bin, args, { cwd, env, timeout, signal = cancellationScope.getStore() }) {
+function runChildHarness(bin, args, { cwd, env, timeout, recoveryDirectory, signal = cancellationScope.getStore() }) {
   return new Promise((resolve, reject) => {
     assertLivePlatform();
     signal?.throwIfAborted();
@@ -3379,7 +3388,7 @@ function runChildHarness(bin, args, { cwd, env, timeout, signal = cancellationSc
       }, shutdownGraceMs);
       checkCompletion();
     };
-    activeChildren.set(child, { terminate, forceTerminate, closed, pid: child.pid, signalErrors });
+    activeChildren.set(child, { terminate, forceTerminate, closed, pid: child.pid, recoveryDirectory, signalErrors });
     const onAbort = () => { aborted = true; terminate(); };
     signal?.addEventListener("abort", onAbort, { once: true });
 

@@ -2,22 +2,16 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import { spawn } from "node:child_process";
+import { isDeepStrictEqual } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const python = join(root, ".tmp", "python-venv", "bin", "python");
 const fixture = join(root, "packages", "python", "mcp", "tests", "conformance", "server.py");
 const conformancePackage = dirname(fileURLToPath(import.meta.resolve("@modelcontextprotocol/conformance/package.json")));
-const exactAllowedStatuses = {
-  INFO: new Set(["server-sse-streams-functional"]),
-  SKIPPED: new Map([
-    ["sep-2575-server-sends-subscription-ack", "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."],
-    ["sep-2575-server-tags-subscription-id", "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."],
-    ["sep-2575-server-honors-notification-filter", "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."],
-    ["sep-2575-server-sends-prompts-list-changed-on-subscription", "Server did not declare prompts.listChanged capability in server/discover"],
-    ["sep-2575-server-sends-tools-list-changed-on-subscription", "Server did not declare tools.listChanged capability in server/discover"],
-  ]),
-};
+const frozenRequiredChecks = JSON.parse(
+  readFileSync(join(root, "scripts", "mcp-conformance-required-checks.json"), "utf8"),
+).revisions;
 const expectedRequiredCounts = {
   "2025-11-25": { SUCCESS: 70, INFO: 0, SKIPPED: 0 },
   "2026-07-28": { SUCCESS: 114, INFO: 1, SKIPPED: 5 },
@@ -65,28 +59,26 @@ export function requiredServerScenarios(revision) {
 export function assertRequiredResults(revision, outputDir) {
   const directories = readdirSync(outputDir, { withFileTypes: true }).filter((entry) => entry.isDirectory());
   const counts = { SUCCESS: 0, INFO: 0, SKIPPED: 0 };
-  for (const scenario of requiredServerScenarios(revision)) {
+  const requiredScenarios = requiredServerScenarios(revision);
+  const expectedScenarios = frozenRequiredChecks[revision];
+  if (!expectedScenarios || !isDeepStrictEqual(Object.keys(expectedScenarios).sort(), [...requiredScenarios].sort())) {
+    throw new Error(`MCP ${revision} frozen required-check scenarios do not match the pinned runner requirements`);
+  }
+  for (const scenario of requiredScenarios) {
     const prefix = `server-${scenario}-`;
     const matches = directories.filter((entry) => entry.name.startsWith(prefix));
     if (matches.length !== 1) throw new Error(`MCP ${revision} required scenario ${scenario} produced ${matches.length} result directories`);
     const checks = JSON.parse(readFileSync(join(outputDir, matches[0].name, "checks.json"), "utf8"));
     if (!Array.isArray(checks) || checks.length === 0) throw new Error(`MCP ${revision} required scenario ${scenario} produced no checks`);
+    const actualChecks = checks.map(normalizeCheck).sort(compareChecks);
+    if (!isDeepStrictEqual(actualChecks, expectedScenarios[scenario])) {
+      throw new Error(`MCP ${revision} required scenario ${scenario} checks differ from the frozen pinned-runner multiset`);
+    }
     for (const check of checks) {
-      if (check.status === "SUCCESS") {
-        counts.SUCCESS += 1;
-        continue;
-      }
-      if (check.status === "INFO" && exactAllowedStatuses.INFO.has(check.id)) {
-        counts.INFO += 1;
-        continue;
-      }
-      if (check.status === "SKIPPED" && exactAllowedStatuses.SKIPPED.get(check.id) === check.details?.note) {
-        counts.SKIPPED += 1;
-        continue;
-      }
-      throw new Error(`MCP ${revision} required scenario ${scenario} has unacceptable check ${check.id}:${check.status}`);
+      counts[check.status] += 1;
     }
   }
+  if (revision === "2026-07-28") assertModernCapabilityExclusions(outputDir, directories);
   const expected = expectedRequiredCounts[revision];
   if (!expected) throw new Error(`MCP ${revision} has no frozen required-result count`);
   for (const status of Object.keys(counts)) {
@@ -95,6 +87,37 @@ export function assertRequiredResults(revision, outputDir) {
     }
   }
   return counts;
+}
+
+function normalizeCheck(check) {
+  const normalized = { id: check.id, name: check.name, status: check.status };
+  if (check.details?.fieldIssue !== undefined) normalized.fieldIssue = check.details.fieldIssue;
+  if (check.details?.note !== undefined) normalized.note = check.details.note;
+  return normalized;
+}
+
+function compareChecks(left, right) {
+  return JSON.stringify(left).localeCompare(JSON.stringify(right));
+}
+
+function assertModernCapabilityExclusions(outputDir, directories) {
+  const scenario = "server-stateless";
+  const match = directories.find((entry) => entry.name.startsWith(`server-${scenario}-`));
+  const checks = JSON.parse(readFileSync(join(outputDir, match.name, "checks.json"), "utf8"));
+  const discovery = checks.find((check) => check.id === "sep-2575-server-implements-discover");
+  const capabilities = discovery?.details?.result?.capabilities;
+  if (!capabilities || typeof capabilities !== "object") {
+    throw new Error("MCP 2026-07-28 server-stateless lacks discovery capability evidence for its skips");
+  }
+  const subscriptionDelivered = Boolean(
+    capabilities.tools?.listChanged
+      || capabilities.prompts?.listChanged
+      || capabilities.resources?.listChanged
+      || capabilities.resources?.subscribe,
+  );
+  if (subscriptionDelivered || capabilities.prompts?.listChanged !== false || capabilities.tools?.listChanged !== false) {
+    throw new Error("MCP 2026-07-28 server-stateless skip evidence conflicts with advertised capabilities");
+  }
 }
 
 function availablePort() {

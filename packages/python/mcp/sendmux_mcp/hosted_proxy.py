@@ -3,10 +3,12 @@ from __future__ import annotations
 import base64
 import json
 import re
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from time import monotonic
 from typing import Any, Literal, Mapping
 
+import anyio
 import httpx
 from fastmcp.server.dependencies import get_access_token
 
@@ -31,6 +33,22 @@ HOP_BY_HOP_HEADERS = {
     "proxy-authorization",
     "proxy-connection",
 }
+RESPONSE_CLOSE_TIMEOUT_SECONDS = 5
+
+
+class ShieldedResponseStream(httpx.AsyncByteStream):
+    def __init__(self, inner: httpx.AsyncByteStream) -> None:
+        self.inner = inner
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        async for chunk in self.inner:
+            yield chunk
+
+    async def aclose(self) -> None:
+        with anyio.move_on_after(RESPONSE_CLOSE_TIMEOUT_SECONDS, shield=True) as cancel_scope:
+            await self.inner.aclose()
+        if cancel_scope.cancel_called:
+            raise TimeoutError("Timed out while closing the upstream response stream.")
 
 
 @dataclass(frozen=True)
@@ -125,6 +143,7 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
                 mailbox_id=mailbox_id,
             )
             raise
+        shield_response_stream(proxy_response)
         try:
             if proxy_response.is_stream_consumed:
                 proxy_body = proxy_response.content
@@ -133,7 +152,7 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
                 proxy_body = b"".join([chunk async for chunk in proxy_response.aiter_raw()])
                 proxy_headers = proxy_response.headers
         finally:
-            await proxy_response.aclose()
+            await close_response(proxy_response)
         capture_proxy_attempt(
             method=request.method,
             route=route,
@@ -190,6 +209,18 @@ def decoded_response_headers(headers: httpx.Headers) -> httpx.Headers:
     decoded.pop("content-encoding", None)
     decoded.pop("content-length", None)
     return decoded
+
+
+async def close_response(response: httpx.Response) -> None:
+    with anyio.move_on_after(RESPONSE_CLOSE_TIMEOUT_SECONDS, shield=True) as cancel_scope:
+        await response.aclose()
+    if cancel_scope.cancel_called:
+        raise TimeoutError("Timed out while closing the upstream response.")
+
+
+def shield_response_stream(response: httpx.Response) -> None:
+    if isinstance(response.stream, httpx.AsyncByteStream) and not isinstance(response.stream, ShieldedResponseStream):
+        response.stream = ShieldedResponseStream(response.stream)
 
 
 def build_hosted_proxy_request(

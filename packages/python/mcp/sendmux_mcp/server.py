@@ -34,7 +34,9 @@ from sendmux_mcp.hosted_proxy import (
     HostedProxyConfig,
     HostedProxyTransport,
     build_hosted_operation_manifest,
+    close_response,
     decoded_response_headers,
+    shield_response_stream,
 )
 from sendmux_mcp.permissions import tool_permission_auth_check
 from sendmux_mcp.retry import RetryingAsyncTransport
@@ -104,12 +106,15 @@ class MCPHTTPTransport(httpx2.AsyncBaseTransport):
         self.client = client
 
     async def handle_async_request(self, request: httpx2.Request) -> httpx2.Response:
-        async with self.client.stream(
+        upstream_request = self.client.build_request(
             request.method,
             str(request.url),
             headers=dict(request.headers),
             content=await request.aread(),
-        ) as response:
+        )
+        response = await self.client.send(upstream_request, stream=True)
+        shield_response_stream(response)
+        try:
             if response.is_stream_consumed:
                 response_body = response.content
                 response_headers = decoded_response_headers(response.headers)
@@ -122,6 +127,8 @@ class MCPHTTPTransport(httpx2.AsyncBaseTransport):
                 content=response_body,
                 request=request,
             )
+        finally:
+            await close_response(response)
 
     async def aclose(self) -> None:
         await self.client.aclose()

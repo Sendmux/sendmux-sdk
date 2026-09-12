@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 import gzip
 import json
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
 from typing import Any
 
+import anyio
 import httpx
 import pytest
 from fastmcp.server.auth import AccessToken
@@ -15,6 +16,7 @@ from sendmux_mcp.hosted_proxy import (
     HostedProxyConfig,
     HostedProxyTransport,
     build_hosted_operation_manifest,
+    close_response,
 )
 from sendmux_mcp.hosted_auth import HostedAuthConfig, create_remote_auth_provider
 from sendmux_mcp.observability import DEFAULT_POSTHOG_HOST, HostedMcpPostHog, PostHogConfig
@@ -34,6 +36,31 @@ class FakePostHogClient:
 
     def shutdown(self) -> None:
         pass
+
+
+class CancellingProxyResponseStream(httpx.AsyncByteStream):
+    def __init__(self, cancel_scope: anyio.CancelScope) -> None:
+        self.cancel_scope = cancel_scope
+        self.close_started = False
+        self.close_finished = False
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        self.cancel_scope.cancel()
+        yield b'{"ok":true}'
+
+    async def aclose(self) -> None:
+        self.close_started = True
+        await anyio.sleep(0)
+        self.close_finished = True
+
+
+class HangingResponseStream(httpx.AsyncByteStream):
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        if False:
+            yield b""
+
+    async def aclose(self) -> None:
+        await anyio.sleep_forever()
 
 
 def test_operation_manifest_resolves_curated_route_to_operation_id() -> None:
@@ -163,6 +190,54 @@ def test_proxy_transport_preserves_encoded_response_bytes(
         await transport.aclose()
 
     asyncio.run(run())
+
+
+def test_proxy_transport_finishes_response_close_during_anyio_cancellation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def run() -> None:
+        monkeypatch.setattr(
+            "sendmux_mcp.hosted_proxy.get_access_token",
+            lambda: AccessToken(token="token", client_id="client", scopes=[], claims={"grant_id": "grant"}),
+        )
+        config = ServerConfig(surfaces=("management",), api_key="smx_root_test")
+        spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
+
+        with anyio.CancelScope() as cancel_scope:
+            stream = CancellingProxyResponseStream(cancel_scope)
+            transport = HostedProxyTransport(
+                HostedProxyConfig(
+                    proxy_url="https://app.sendmux.ai/api/internal/mcp/proxy",
+                    upstream_base_url=config.api_base_url,
+                ),
+                manifest=build_hosted_operation_manifest(spec, "management"),
+                inner=httpx.MockTransport(
+                    lambda request: httpx.Response(200, stream=stream, request=request)
+                ),
+            )
+            await transport.handle_async_request(httpx.Request("GET", f"{config.api_base_url}/domains"))
+
+        close_finished_during_request = stream.close_finished
+        await transport.aclose()
+        assert stream.close_started
+        assert close_finished_during_request
+
+    anyio.run(run)
+
+
+def test_response_close_timeout_is_reported(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def run() -> None:
+        monkeypatch.setattr("sendmux_mcp.hosted_proxy.RESPONSE_CLOSE_TIMEOUT_SECONDS", 0.01)
+        response = httpx.Response(
+            200,
+            stream=HangingResponseStream(),
+            request=httpx.Request("GET", "https://app.sendmux.ai/api/v1/domains"),
+        )
+
+        with pytest.raises(TimeoutError, match="Timed out while closing"):
+            await close_response(response)
+
+    anyio.run(run)
 
 
 def test_proxy_transport_sends_mailbox_id_for_mailbox_tools(monkeypatch: pytest.MonkeyPatch) -> None:

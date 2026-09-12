@@ -4,9 +4,11 @@ import asyncio
 import base64
 import gzip
 import json
+from collections.abc import AsyncIterator
 from importlib.metadata import version
 from typing import Any
 
+import anyio
 import httpx
 import httpx2
 import pytest
@@ -104,6 +106,23 @@ class TrackingTransport(httpx.AsyncBaseTransport):
 
     async def aclose(self) -> None:
         self.closed = True
+
+
+class CancellingResponseStream(httpx.AsyncByteStream):
+    def __init__(self, cancel_scope: anyio.CancelScope) -> None:
+        self.cancel_scope = cancel_scope
+        self.close_started = False
+        self.close_finished = False
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        self.cancel_scope.cancel()
+        yield b'{"ok":true}'
+
+    async def aclose(self) -> None:
+        self.close_started = True
+        await anyio.sleep(0)
+        self.close_finished = True
+
 
 READ_ONLY_TOOL_NAMES = {
     "mailbox_get_connection",
@@ -338,6 +357,26 @@ def test_mcp_http_transport_propagates_cancellation() -> None:
     asyncio.run(check())
 
 
+def test_mcp_http_transport_finishes_response_close_during_anyio_cancellation() -> None:
+    async def check() -> None:
+        with anyio.CancelScope() as cancel_scope:
+            stream = CancellingResponseStream(cancel_scope)
+            client = httpx.AsyncClient(
+                transport=httpx.MockTransport(
+                    lambda request: httpx.Response(200, stream=stream, request=request)
+                )
+            )
+            transport = MCPHTTPTransport(client)
+            await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+
+        close_finished_during_request = stream.close_finished
+        await transport.aclose()
+        assert stream.close_started
+        assert close_finished_during_request
+
+    anyio.run(check)
+
+
 @pytest.mark.parametrize("compressed", [False, True])
 def test_mcp_http_transport_preserves_encoded_response_bytes(compressed: bool) -> None:
     payload = b'{"ok":true}'
@@ -495,23 +534,6 @@ def test_http_lifespan_closes_surface_upstream_transport(surfaces: tuple[Surface
 
         async with app.router.lifespan_context(app):
             assert not upstream.closed
-
-        assert upstream.closed
-
-    asyncio.run(check())
-
-
-def test_http_lifespan_closes_upstream_transport_after_request_cancellation() -> None:
-    async def check() -> None:
-        upstream = TrackingTransport()
-        server = create_server(ServerConfig(surfaces=("management",), api_key="smx_root_test"), transport=upstream)
-        app = server.http_app(path="/mcp", stateless_http=True, json_response=True)
-
-        async with app.router.lifespan_context(app):
-            request_task = asyncio.create_task(asyncio.Event().wait())
-            request_task.cancel()
-            with pytest.raises(asyncio.CancelledError):
-                await request_task
 
         assert upstream.closed
 

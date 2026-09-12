@@ -1,0 +1,1104 @@
+{
+  "_provenance": "Frozen from @modelcontextprotocol/conformance@0.2.0-alpha.11 required server scenarios; inspected artifact 2026-09-11T23-46-01.074Z.",
+  "revisions": {
+    "2025-11-25": {
+      "server-initialize": [
+        {
+          "id": "server-initialize",
+          "name": "ServerInitialize",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "server-session-id-visible-ascii",
+          "name": "ServerSessionIdVisibleAscii",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "logging-set-level": [
+        {
+          "id": "logging-set-level",
+          "name": "LoggingSetLevel",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "ping": [
+        {
+          "id": "ping",
+          "name": "Ping",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "completion-complete": [
+        {
+          "id": "completion-complete",
+          "name": "CompletionComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-list": [
+        {
+          "id": "tools-list",
+          "name": "ToolsList",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "tools-name-format",
+          "name": "ToolsNameFormat",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-simple-text": [
+        {
+          "id": "tools-call-simple-text",
+          "name": "ToolsCallSimpleText",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-image": [
+        {
+          "id": "tools-call-image",
+          "name": "ToolsCallImage",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-audio": [
+        {
+          "id": "tools-call-audio",
+          "name": "ToolsCallAudio",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-embedded-resource": [
+        {
+          "id": "tools-call-embedded-resource",
+          "name": "ToolsCallEmbeddedResource",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-mixed-content": [
+        {
+          "id": "tools-call-mixed-content",
+          "name": "ToolsCallMixedContent",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-with-logging": [
+        {
+          "id": "tools-call-with-logging",
+          "name": "ToolsCallWithLogging",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-error": [
+        {
+          "id": "tools-call-error",
+          "name": "ToolsCallError",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-with-progress": [
+        {
+          "id": "tools-call-with-progress",
+          "name": "ToolsCallWithProgress",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-sampling": [
+        {
+          "id": "tools-call-sampling",
+          "name": "ToolsCallSampling",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-elicitation": [
+        {
+          "id": "tools-call-elicitation",
+          "name": "ToolsCallElicitation",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "elicitation-sep1034-defaults": [
+        {
+          "id": "elicitation-sep1034-boolean-default",
+          "name": "ElicitationSEP1034BooleanDefault",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1034-enum-default",
+          "name": "ElicitationSEP1034EnumDefault",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1034-integer-default",
+          "name": "ElicitationSEP1034IntegerDefault",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1034-number-default",
+          "name": "ElicitationSEP1034NumberDefault",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1034-string-default",
+          "name": "ElicitationSEP1034StringDefault",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "server-sse-multiple-streams": [
+        {
+          "id": "server-accepts-multiple-post-streams",
+          "name": "ServerAcceptsMultiplePostStreams",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "server-sse-streams-functional",
+          "name": "ServerSSEStreamsFunctional",
+          "status": "SUCCESS"
+        }
+      ],
+      "elicitation-sep1330-enums": [
+        {
+          "id": "elicitation-sep1330-legacy-enumnames",
+          "name": "ElicitationSEP1330LegacyEnumNames",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1330-titled-multi",
+          "name": "ElicitationSEP1330TitledMulti",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1330-titled-single",
+          "name": "ElicitationSEP1330TitledSingle",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1330-untitled-multi",
+          "name": "ElicitationSEP1330UntitledMulti",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "elicitation-sep1330-untitled-single",
+          "name": "ElicitationSEP1330UntitledSingle",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-list": [
+        {
+          "id": "resources-list",
+          "name": "ResourcesList",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-read-text": [
+        {
+          "id": "resources-read-text",
+          "name": "ResourcesReadText",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-read-binary": [
+        {
+          "id": "resources-read-binary",
+          "name": "ResourcesReadBinary",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-templates-read": [
+        {
+          "id": "resources-templates-read",
+          "name": "ResourcesTemplateRead",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-subscribe": [
+        {
+          "id": "resources-subscribe",
+          "name": "ResourcesSubscribe",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-unsubscribe": [
+        {
+          "id": "resources-unsubscribe",
+          "name": "ResourcesUnsubscribe",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-list": [
+        {
+          "id": "prompts-list",
+          "name": "PromptsList",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-simple": [
+        {
+          "id": "prompts-get-simple",
+          "name": "PromptsGetSimple",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-with-args": [
+        {
+          "id": "prompts-get-with-args",
+          "name": "PromptsGetWithArgs",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-embedded-resource": [
+        {
+          "id": "prompts-get-embedded-resource",
+          "name": "PromptsGetEmbeddedResource",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-with-image": [
+        {
+          "id": "prompts-get-with-image",
+          "name": "PromptsGetWithImage",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "dns-rebinding-protection": [
+        {
+          "id": "localhost-host-rebinding-rejected",
+          "name": "DNSRebindingRejected",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "localhost-host-valid-accepted",
+          "name": "LocalhostHostAccepted",
+          "status": "SUCCESS"
+        }
+      ]
+    },
+    "2026-07-28": {
+      "server-stateless": [
+        {
+          "id": "sep-2575-discover-capabilities-match-handlers",
+          "name": "DiscoverCapabilitiesMatchHandlers",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-error-jsonrpc-id",
+          "name": "HttpServerErrorJsonrpcId",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-header-mismatch-400",
+          "name": "HttpServerHeaderMismatch400",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-meta-invalid-400",
+          "name": "HttpServerMetaInvalid400",
+          "status": "SUCCESS",
+          "fieldIssue": "missing-client-capabilities"
+        },
+        {
+          "id": "sep-2575-http-server-meta-invalid-400",
+          "name": "HttpServerMetaInvalid400",
+          "status": "SUCCESS",
+          "fieldIssue": "missing-meta"
+        },
+        {
+          "id": "sep-2575-http-server-meta-invalid-400",
+          "name": "HttpServerMetaInvalid400",
+          "status": "SUCCESS",
+          "fieldIssue": "missing-protocol-version"
+        },
+        {
+          "id": "sep-2575-http-server-method-not-found-404-initialize",
+          "name": "HttpServerMethodNotFound404initialize",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-method-not-found-404-logging-setlevel",
+          "name": "HttpServerMethodNotFound404loggingsetLevel",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-method-not-found-404-ping",
+          "name": "HttpServerMethodNotFound404ping",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-method-not-found-404-resources-subscribe",
+          "name": "HttpServerMethodNotFound404resourcessubscribe",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-method-not-found-404-resources-unsubscribe",
+          "name": "HttpServerMethodNotFound404resourcesunsubscribe",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-method-not-found-404",
+          "name": "HttpServerMethodNotFound404",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-no-independent-requests-on-stream",
+          "name": "HttpServerNoIndependentRequestsOnStream",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-http-server-unsupported-version-400",
+          "name": "HttpServerUnsupportedVersion400",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-missing-capability-http-400",
+          "name": "MissingCapabilityHttp400",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-request-meta-client-info-optional",
+          "name": "RequestMetaClientInfoOptional",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-request-meta-invalid-missing-client-capabilities",
+          "name": "RequestMetaInvalid",
+          "status": "SUCCESS",
+          "fieldIssue": "missing-client-capabilities"
+        },
+        {
+          "id": "sep-2575-request-meta-invalid-missing-meta",
+          "name": "RequestMetaInvalid",
+          "status": "SUCCESS",
+          "fieldIssue": "missing-meta"
+        },
+        {
+          "id": "sep-2575-request-meta-invalid-missing-protocol-version",
+          "name": "RequestMetaInvalid",
+          "status": "SUCCESS",
+          "fieldIssue": "missing-protocol-version"
+        },
+        {
+          "id": "sep-2575-server-declares-prompts-in-discover",
+          "name": "ServerDeclaresPromptsInDiscover",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-server-honors-notification-filter",
+          "name": "ServerHonorsNotificationFilter",
+          "status": "SKIPPED",
+          "note": "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."
+        },
+        {
+          "id": "sep-2575-server-identifies-in-result-meta",
+          "name": "ServerIdentifiesInResultMeta",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-server-implements-discover",
+          "name": "ServerImplementsDiscover",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-server-no-log-without-loglevel",
+          "name": "ServerNoLogWithoutLogLevel",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-server-rejects-undeclared-capability",
+          "name": "ServerRejectsUndeclaredCapability",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2575-server-sends-prompts-list-changed-on-subscription",
+          "name": "ServerSendsPromptsListChangedOnSubscription",
+          "status": "SKIPPED",
+          "note": "Server did not declare prompts.listChanged capability in server/discover"
+        },
+        {
+          "id": "sep-2575-server-sends-subscription-ack",
+          "name": "ServerSendsSubscriptionAck",
+          "status": "SKIPPED",
+          "note": "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."
+        },
+        {
+          "id": "sep-2575-server-sends-tools-list-changed-on-subscription",
+          "name": "ServerSendsToolsListChangedOnSubscription",
+          "status": "SKIPPED",
+          "note": "Server did not declare tools.listChanged capability in server/discover"
+        },
+        {
+          "id": "sep-2575-server-tags-subscription-id",
+          "name": "ServerTagsSubscriptionId",
+          "status": "SKIPPED",
+          "note": "Server advertises no subscription-delivered capability; subscriptions/listen is not applicable."
+        },
+        {
+          "id": "sep-2575-server-unsupported-version-error",
+          "name": "ServerUnsupportedVersionError",
+          "status": "SUCCESS"
+        }
+      ],
+      "completion-complete": [
+        {
+          "id": "completion-complete",
+          "name": "CompletionComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-list": [
+        {
+          "id": "tools-list",
+          "name": "ToolsList",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "tools-name-format",
+          "name": "ToolsNameFormat",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-simple-text": [
+        {
+          "id": "tools-call-simple-text",
+          "name": "ToolsCallSimpleText",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-image": [
+        {
+          "id": "tools-call-image",
+          "name": "ToolsCallImage",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-audio": [
+        {
+          "id": "tools-call-audio",
+          "name": "ToolsCallAudio",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-embedded-resource": [
+        {
+          "id": "tools-call-embedded-resource",
+          "name": "ToolsCallEmbeddedResource",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-mixed-content": [
+        {
+          "id": "tools-call-mixed-content",
+          "name": "ToolsCallMixedContent",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-error": [
+        {
+          "id": "tools-call-error",
+          "name": "ToolsCallError",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "tools-call-with-progress": [
+        {
+          "id": "tools-call-with-progress",
+          "name": "ToolsCallWithProgress",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "server-sse-multiple-streams": [
+        {
+          "id": "server-accepts-multiple-post-streams",
+          "name": "ServerAcceptsMultiplePostStreams",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "server-sse-streams-functional",
+          "name": "ServerSSEStreamsFunctional",
+          "status": "INFO"
+        }
+      ],
+      "resources-list": [
+        {
+          "id": "resources-list",
+          "name": "ResourcesList",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-read-text": [
+        {
+          "id": "resources-read-text",
+          "name": "ResourcesReadText",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-read-binary": [
+        {
+          "id": "resources-read-binary",
+          "name": "ResourcesReadBinary",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "resources-templates-read": [
+        {
+          "id": "resources-templates-read",
+          "name": "ResourcesTemplateRead",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "sep-2164-resource-not-found": [
+        {
+          "id": "sep-2164-data-uri",
+          "name": "ResourcesNotFoundDataUri",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2164-error-code",
+          "name": "ResourcesNotFoundErrorCode",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2164-no-empty-contents",
+          "name": "ResourcesNotFoundNoEmptyContents",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-list": [
+        {
+          "id": "prompts-list",
+          "name": "PromptsList",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-simple": [
+        {
+          "id": "prompts-get-simple",
+          "name": "PromptsGetSimple",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-with-args": [
+        {
+          "id": "prompts-get-with-args",
+          "name": "PromptsGetWithArgs",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-embedded-resource": [
+        {
+          "id": "prompts-get-embedded-resource",
+          "name": "PromptsGetEmbeddedResource",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "prompts-get-with-image": [
+        {
+          "id": "prompts-get-with-image",
+          "name": "PromptsGetWithImage",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "dns-rebinding-protection": [
+        {
+          "id": "localhost-host-rebinding-rejected",
+          "name": "DNSRebindingRejected",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "localhost-host-valid-accepted",
+          "name": "LocalhostHostAccepted",
+          "status": "SUCCESS"
+        }
+      ],
+      "caching": [
+        {
+          "id": "sep-2549-cache-scope-valid",
+          "name": "CacheScopeValid",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2549-prompts-list-caching-hints",
+          "name": "PromptsListCachingHints",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2549-resources-list-caching-hints",
+          "name": "ResourcesListCachingHints",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2549-resources-read-caching-hints",
+          "name": "ResourcesReadCachingHints",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2549-resources-templates-list-caching-hints",
+          "name": "ResourcesTemplatesListCachingHints",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2549-tools-list-caching-hints",
+          "name": "ToolsListCachingHints",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2549-ttl-non-negative",
+          "name": "TtlNonNegative",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-basic-elicitation": [
+        {
+          "id": "sep-2322-elicitation-complete",
+          "name": "InputRequiredResultElicitationComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-elicitation-incomplete",
+          "name": "InputRequiredResultElicitationIncomplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-basic-sampling": [
+        {
+          "id": "sep-2322-sampling-complete",
+          "name": "InputRequiredResultSamplingComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-sampling-incomplete",
+          "name": "InputRequiredResultSamplingIncomplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-basic-list-roots": [
+        {
+          "id": "sep-2322-list-roots-complete",
+          "name": "InputRequiredResultListRootsComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-list-roots-incomplete",
+          "name": "InputRequiredResultListRootsIncomplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-request-state": [
+        {
+          "id": "sep-2322-request-state-complete",
+          "name": "InputRequiredResultRequestStateComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-request-state-incomplete",
+          "name": "InputRequiredResultRequestStateIncomplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-multiple-input-requests": [
+        {
+          "id": "sep-2322-multiple-inputs-complete",
+          "name": "InputRequiredResultMultipleInputsComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-multiple-inputs-incomplete",
+          "name": "InputRequiredResultMultipleInputsIncomplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-multi-round": [
+        {
+          "id": "sep-2322-multi-round-r1",
+          "name": "InputRequiredResultMultiRoundR1",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-multi-round-r2",
+          "name": "InputRequiredResultMultiRoundR2",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-multi-round-r3",
+          "name": "InputRequiredResultMultiRoundR3",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-missing-input-response": [
+        {
+          "id": "sep-2322-missing-response-rerequests",
+          "name": "InputRequiredResultMissingResponseRerequests",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-non-tool-request": [
+        {
+          "id": "sep-2322-non-tool-complete",
+          "name": "InputRequiredResultNonToolComplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-non-tool-incomplete",
+          "name": "InputRequiredResultNonToolIncomplete",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-result-type": [
+        {
+          "id": "sep-2322-result-type-included",
+          "name": "ResultTypeIncluded",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-unsupported-methods": [
+        {
+          "id": "sep-2322-not-on-unsupported-requests",
+          "name": "NotOnUnsupportedRequests",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-tampered-state": [
+        {
+          "id": "sep-2322-reject-tampered-state",
+          "name": "RejectTamperedState",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-capability-check": [
+        {
+          "id": "sep-2322-respect-client-capabilities",
+          "name": "RespectClientCapabilities",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-ignore-extra-params": [
+        {
+          "id": "sep-2322-ignore-unexpected-params",
+          "name": "IgnoreUnexpectedParams",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ],
+      "input-required-result-validate-input": [
+        {
+          "id": "sep-2322-error-on-protocol-error",
+          "name": "ErrorOnProtocolError",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "sep-2322-validate-input-responses",
+          "name": "ValidateInputResponses",
+          "status": "SUCCESS"
+        },
+        {
+          "id": "wire-schema-valid",
+          "name": "WireSchemaValid",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  }
+}

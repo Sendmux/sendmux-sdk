@@ -220,6 +220,38 @@ test("aborted child is closed and its exact PID is gone before returning", async
   for (const ownedPid of JSON.parse(tree.stdout)) assertProcessGone(ownedPid);
 });
 
+test("leader exit retains ownership until same-group descendants are gone", async () => {
+  const observed = [];
+  const clean = await runChildHarness(process.execPath, ["-e", "process.exit(0)"], { env: process.env, timeout: 1000 });
+  assert.equal(clean.status, 0);
+  assertProcessGone(clean.pid);
+  for (const mode of ["closed_stdio", "held_stdio", "term_resistant"]) {
+    let result;
+    let pids;
+    try {
+      const descendant = `${mode === "term_resistant" ? "process.on('SIGTERM',()=>{});" : ""} setInterval(()=>{},1000); setTimeout(()=>process.exit(0),10000); process.send('ready');`;
+      const code = `const {spawn}=require('node:child_process'); const child=spawn(process.execPath,['-e',${JSON.stringify(descendant)}],{stdio:['ignore',${JSON.stringify(mode === "held_stdio" ? "inherit" : "ignore")},'ignore','ipc']}); child.once('message',()=>{console.log(JSON.stringify([process.pid,child.pid]));child.disconnect();process.exit(0);});`;
+      result = await runChildHarness(process.execPath, ["-e", code], { env: process.env, timeout: 1000 });
+      pids = JSON.parse(result.stdout);
+      let descendantAlive = true;
+      try { process.kill(pids[1], 0); } catch (error) { if (error.code !== "ESRCH") throw error; descendantAlive = false; }
+      observed.push({ mode, descendantAlive, timedOut: result.timedOut });
+    } finally {
+      if (result?.pid) {
+        try { process.kill(-result.pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+        for (const pid of pids ?? [result.pid]) {
+          for (let attempt = 0; attempt < 100; attempt++) {
+            try { process.kill(pid, 0); } catch (error) { if (error.code === "ESRCH") break; throw error; }
+            await new Promise(resolve => setTimeout(resolve, 20));
+          }
+          assertProcessGone(pid);
+        }
+      }
+    }
+  }
+  assert.deepEqual(observed, ["closed_stdio", "held_stdio", "term_resistant"].map(mode => ({ mode, descendantAlive: false, timedOut: false })));
+});
+
 test("all-gates default selects custom MCP operations with mailbox credential requirements", async () => {
   await withEnv({ SENDMUX_STAGING_SEND: "1", SENDMUX_LIVE_E2E_MUTATIONS: "1", SENDMUX_LIVE_E2E_BINARY: "1", SENDMUX_LIVE_E2E_STREAM: "1" }, () => {
     const selected = selectOperations(buildOperationPlan(operations, scenarios, fixtures), []);
@@ -376,6 +408,38 @@ test("signal denial preserves a bounded fatal report with the exact unconfirmed 
   }
 });
 
+test("a child-owned timeout bounds signal denial without an outer operation deadline", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sendmux-own-timeout-"));
+  const pidPath = join(dir, "child.pid");
+  try {
+    const moduleUrl = pathToFileURL(join(process.cwd(), "scripts/run-live-e2e.mjs")).href;
+    const code = `import {runChildHarness,finishLiveRun} from ${JSON.stringify(moduleUrl)};
+      const kill=process.kill; process.kill=(pid,signal)=>{if(pid<0&&signal!==0)throw Object.assign(new Error('private detail'),{code:'EPERM'});return kill(pid,signal);};
+      console.log(process.pid);
+      try {await runChildHarness(process.execPath,['-e',${JSON.stringify(`require('node:fs').writeFileSync(${JSON.stringify(pidPath)},String(process.pid));setInterval(()=>{},1000);`)}],{env:process.env,timeout:100});console.log('NEXT_OPERATION');}
+      catch {await finishLiveRun({ok:true,run:{id:'child-deadline',cleanup:{ok:true,resources:[]}}},${JSON.stringify(dir)});console.log('CLEANUP');}`;
+    const result = await runChildHarness(process.execPath, ["--input-type=module", "-e", code], { env: process.env, timeout: 8000 });
+    assertProcessGone(Number(result.stdout.trim()));
+    assert.equal(result.timedOut, false);
+    assert.equal(result.status, 1);
+    assert.doesNotMatch(result.stdout, /NEXT_OPERATION|CLEANUP/);
+    const report = JSON.parse(readFileSync(join(dir, "result.json"), "utf8"));
+    assert.equal(report.run.cleanup.status, "blocked_active_work");
+    assert.ok(report.errors.some(error => error.includes("EPERM") && error.includes(readFileSync(pidPath, "utf8"))));
+  } finally {
+    if (existsSync(pidPath)) {
+      const pid = Number(readFileSync(pidPath, "utf8"));
+      try { process.kill(-pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+      for (let attempt = 0; attempt < 100; attempt++) {
+        try { process.kill(pid, 0); } catch (error) { if (error.code === "ESRCH") break; throw error; }
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      assertProcessGone(pid);
+    }
+    rmSync(dir, { recursive: true });
+  }
+});
+
 test("a timed-out child cannot certify success or an API negative by exiting zero", async context => {
   const originalDirectory = process.cwd();
   const observed = [];
@@ -426,6 +490,104 @@ test("a timed-out child cannot certify success or an API negative by exiting zer
     }
   }
   assert.deepEqual(observed, ["normal", "timeout"].flatMap(mode => ["python", "mcp", "cli", "cli_negative"].map(adapter => ({ mode, adapter, status: mode === "timeout" ? "failed" : adapter === "cli_negative" ? "expected_negative" : "passed" }))));
+});
+
+test("CLI interruption retains available created IDs without certifying output or leaking stderr", async context => {
+  const originalDirectory = process.cwd();
+  const observed = [];
+  for (const mode of ["normal", "interrupted", "malformed", "stderr"]) {
+    const dir = mkdtempSync(join(tmpdir(), "sendmux-cli-recovery-"));
+    const pidPath = join(dir, "child.pid");
+    const removed = new Set();
+    let pending;
+    let timerMock;
+    try {
+      await withApi(req => {
+        if (req.url.endsWith("/me") || req.url.endsWith("/connection")) return { body: connection() };
+        if (req.method === "POST") return { status: 201, body: envelope({ id: "folder_cli_owned", name: "private-body-canary smx_agent_canary https://uploads.example.test/signed", can_add_items: true, parent_id: null, role: null, sort_order: 0, total_messages: 0, unread_messages: 0 }) };
+        if (req.method === "DELETE") { removed.add(req.url.split("/").at(-1)); return { body: envelope({ deleted: true, id: "folder_cli_owned" }) }; }
+        return { status: 404, body: { ok: false, error: { code: "not_found", message: "absent", retryable: false }, meta: { request_id: "req_absent" } } };
+      }, async ({ runtime, baseUrl, requests }) => {
+        await runtime.preflight(expected);
+        mkdirSync(join(dir, "packages/ts/cli/bin"), { recursive: true });
+        const code = `const fs=require('node:fs'); (async()=>{
+          let output='not-json';
+          if(${JSON.stringify(mode)}==='normal'||${JSON.stringify(mode)}==='interrupted') output=await (await fetch(process.env.SENDMUX_BASE_URL+'/mailbox/folders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'fixture'})})).text();
+          const finish=()=>{if(${JSON.stringify(mode)}==='stderr'){console.error('private-stderr-canary: confidential fixture body');process.exit(17);}console.log(output);process.exit(0);};
+          process.on('SIGTERM',finish);fs.writeFileSync(${JSON.stringify(pidPath)},String(process.pid));
+          ${mode === "interrupted" ? "setInterval(()=>{},1000);" : "finish();"}
+        })();`;
+        writeFileSync(join(dir, "packages/ts/cli/bin/run.js"), code);
+        process.chdir(dir);
+        const originalSetTimeout = globalThis.setTimeout;
+        let triggerDeadline;
+        if (mode === "interrupted") timerMock = context.mock.method(globalThis, "setTimeout", (callback, milliseconds, ...args) => {
+          const timer = originalSetTimeout(callback, milliseconds, ...args);
+          if (milliseconds === 30_000) triggerDeadline = () => { clearTimeout(timer); callback(...args); };
+          return timer;
+        });
+        pending = runAdapterStep({ adapter: "cli", credentials: { mailboxApiKey: "smx_mbx_test", appBaseUrl: baseUrl }, fixtureRuntime: runtime, fixtures, operation: operations.find(item => item.operationId === "mailboxCreateFolder"), sdk });
+        const readyDeadline = Date.now() + 5000;
+        while (!existsSync(pidPath) && Date.now() < readyDeadline) await new Promise(resolve => originalSetTimeout(resolve, 10));
+        assert.equal(existsSync(pidPath), true);
+        if (mode === "interrupted") { assert.equal(typeof triggerDeadline, "function"); triggerDeadline(); }
+        const results = await pending;
+        const beforeCleanup = runtime.ledger;
+        if (mode === "interrupted") assert.equal(requests.filter(request => request.method === "DELETE").length, 0);
+        await runtime.teardown();
+        observed.push({ mode, status: results[0].status, knownId: beforeCleanup.resources[0]?.id ?? null, removed: [...removed], publicLeak: /private-body-canary|private-stderr-canary|smx_agent_canary|https:/.test(JSON.stringify({ results, ledger: runtime.ledger })) });
+      }, { ledgerPath: join(dir, "resources.json") });
+    } finally {
+      timerMock?.mock.restore();
+      process.chdir(originalDirectory);
+      if (existsSync(pidPath)) {
+        const pid = Number(readFileSync(pidPath, "utf8"));
+        try { process.kill(-pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+        await pending;
+        assertProcessGone(pid);
+      }
+      rmSync(dir, { recursive: true });
+    }
+  }
+  assert.deepEqual(observed, ["normal", "interrupted", "malformed", "stderr"].map(mode => ({ mode, status: mode === "normal" ? "passed" : "failed", knownId: ["normal", "interrupted"].includes(mode) ? "folder_cli_owned" : null, removed: ["normal", "interrupted"].includes(mode) ? ["folder_cli_owned"] : [], publicLeak: false })));
+});
+
+test("malformed CLI JSON fails without publishing its private parser excerpt", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sendmux-cli-malformed-"));
+  const originalDirectory = process.cwd();
+  try {
+    mkdirSync(join(dir, "packages/ts/cli/bin"), { recursive: true });
+    writeFileSync(join(dir, "packages/ts/cli/bin/run.js"), `require('node:fs').writeFileSync(${JSON.stringify(join(dir, "child.pid"))},String(process.pid));console.log('private-parser-canary confidential response');`);
+    process.chdir(dir);
+    const fixtureRuntime = createFixtureRuntime({ credentials: {}, fixtures, operations, runId: "parser-local", sdk, ledgerPath: join(dir, "resources.json") });
+    const result = await runAdapterStep({ adapter: "cli", credentials: {}, fixtureRuntime, fixtures, operation: operations.find(item => item.operationId === "sendingGetOpenApiSpec"), sdk });
+    assertProcessGone(Number(readFileSync(join(dir, "child.pid"), "utf8")));
+    assert.equal(result[0].status, "failed");
+    assert.doesNotMatch(JSON.stringify(result), /private-pa|confidential response/);
+  } finally { process.chdir(originalDirectory); rmSync(dir, { recursive: true }); }
+});
+
+test("unsupported live platforms fail before execution while plans remain available", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sendmux-platform-"));
+  try {
+    const moduleUrl = pathToFileURL(join(process.cwd(), "scripts/run-live-e2e.mjs")).href;
+    const code = `import {runLiveE2E,runChildHarness} from ${JSON.stringify(moduleUrl)};
+      Object.defineProperty(process,'platform',{value:'win32'});
+      await runLiveE2E(['--plan','--json']);
+      let liveError,childError;
+      try { await runLiveE2E([]); } catch(error) { liveError=error.message; }
+      try { await runChildHarness(process.execPath,['-e',${JSON.stringify(`require('node:fs').writeFileSync(${JSON.stringify(join(dir, "spawned"))},'unexpected')`)}],{env:process.env,timeout:1000}); } catch(error) {childError=error.message;}
+      console.log(JSON.stringify({liveError,childError}));`;
+    const result = await runChildHarness(process.execPath, ["--input-type=module", "-e", code], { env: { ...process.env, SENDMUX_LIVE_E2E: "1", SENDMUX_LIVE_E2E_ROOT_API_KEY: "", SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "" }, timeout: 5000 });
+    assertProcessGone(result.pid);
+    assert.equal(result.status, 0);
+    const lines = result.stdout.trim().split("\n");
+    const outcome = JSON.parse(lines.pop());
+    assert.ok(JSON.parse(lines.join("\n")).selectedOperationIds.length > 0);
+    assert.match(outcome.liveError ?? "", /requires Linux or macOS/);
+    assert.match(outcome.childError ?? "", /requires Linux or macOS/);
+    assert.equal(existsSync(join(dir, "spawned")), false);
+  } finally { rmSync(dir, { recursive: true }); }
 });
 
 test("failed submission polling retains sender and delivered self-message cleanup without deleting unrelated mail", async () => {

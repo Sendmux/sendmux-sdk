@@ -158,6 +158,7 @@ if (process.env[executionEnvName] !== "1") {
   throw new Error(`Live E2E execution is protected. Set ${executionEnvName}=1 or run with --plan.`);
 }
 
+assertLivePlatform();
 assertAdapters(adapters);
 assertAllScenariosExist(selectedOperations, scenarios);
 assertBuiltArtifacts(adapters);
@@ -881,15 +882,20 @@ async function runCliOperation({ credentials, operation, prepared }) {
       SENDMUX_API_KEY: apiKey,
       SENDMUX_BASE_URL: baseUrl,
     });
+    let recovered;
+    if (operation.responseKind === "json") {
+      try { recovered = JSON.parse(result.stdout); } catch { /* Incomplete output cannot establish ownership. */ }
+      if (recovered?.ok === true) prepared.observeResult?.(recovered);
+    }
     if (childProcessInterrupted(result)) throw new Error(childProcessFailureMessage(result));
     if (result.status !== 0) {
       if (expectedCliErrorMatches(result, prepared)) {
         return { ...passResult("cli", operation.operationId), status: "expected_negative" };
       }
-      throw new Error(`CLI exited ${result.status}: ${result.stderr}`);
+      throw new Error(childProcessFailureMessage(result));
     }
     const parsed = parseCliOutput(result.stdout, operation);
-    prepared.observeResult?.(parsed);
+    if (operation.responseKind !== "json" || recovered?.ok !== true) prepared.observeResult?.(parsed);
     assertPreparedResponse(parsed, operation, prepared);
     await prepared.afterResult?.(parsed);
     return { ...passResult("cli", operation.operationId), status: prepared.expectedErrorCodes?.length ? "expected_negative" : "passed" };
@@ -939,7 +945,8 @@ function parseCliOutput(stdout, operation) {
     }
   }
 
-  return JSON.parse(stdout);
+  try { return JSON.parse(stdout); }
+  catch { throw new Error("CLI returned malformed JSON; output withheld from public evidence"); }
 }
 
 async function requestOptionsFor({ adapter, fixtureRuntime, fixtures, operation }) {
@@ -3284,10 +3291,17 @@ function childProcessFailureMessage(result) {
   return `Child exited ${result.status}; output withheld from public evidence`;
 }
 
+function assertLivePlatform() {
+  if (!["linux", "darwin"].includes(process.platform)) {
+    throw new Error("Protected live E2E execution requires Linux or macOS process-group ownership; --plan remains available on other platforms");
+  }
+}
+
 function runChildHarness(bin, args, { cwd, env, timeout, signal = cancellationScope.getStore() }) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    assertLivePlatform();
     signal?.throwIfAborted();
-    const detached = process.platform !== "win32";
+    const detached = true;
     const child = spawn(bin, args, {
       cwd,
       detached,
@@ -3301,18 +3315,69 @@ function runChildHarness(bin, args, { cwd, env, timeout, signal = cancellationSc
     let settled = false;
     let aborted = false;
     let forceKill;
+    let shutdownTimer;
+    let pollTimer;
+    let shutdownStarted = false;
+    let leaderClosed = false;
+    let status;
+    let exitSignal;
     let childError;
     let resolveClosed;
     const closed = new Promise(resolve => { resolveClosed = resolve; });
     const signalErrors = [];
+    const recordSignalError = (signal, error) => {
+      const code = /^E[A-Z0-9]+$/.test(error.code) ? error.code : "UNKNOWN";
+      if (!signalErrors.some(failure => failure.signal === signal && failure.code === code)) signalErrors.push({ signal, code });
+    };
     const sendSignal = signal => {
       const error = killChildTree(child, signal, detached);
-      if (error) signalErrors.push({ signal, code: /^E[A-Z0-9]+$/.test(error.code) ? error.code : "UNKNOWN" });
+      if (error) recordSignalError(signal, error);
+    };
+    const groupAlive = () => {
+      if (!child.pid) return false;
+      try { process.kill(detached ? -child.pid : child.pid, 0); return true; }
+      catch (error) {
+        if (error.code === "ESRCH") return false;
+        recordSignalError("0", error);
+        return true;
+      }
+    };
+    const checkCompletion = () => {
+      if (settled) return;
+      if (leaderClosed && !groupAlive()) {
+        clearTimeout(timeoutTimer);
+        clearTimeout(forceKill);
+        clearTimeout(shutdownTimer);
+        clearTimeout(pollTimer);
+        settled = true;
+        signal?.removeEventListener("abort", onAbort);
+        activeChildren.delete(child);
+        resolveClosed();
+        reportProgress("child_closed", { pid: child.pid, status, signal: exitSignal });
+        resolve({ aborted, error: childError, pid: child.pid, signal: exitSignal, signalErrors, status, stderr, stdout, timedOut, timeout });
+      } else if (shutdownStarted && !pollTimer) {
+        pollTimer = setTimeout(() => { pollTimer = undefined; checkCompletion(); }, 25);
+      }
     };
     const forceTerminate = () => { if (!settled) sendSignal("SIGKILL"); };
     const terminate = () => {
+      if (settled || shutdownStarted) return;
+      shutdownStarted = true;
+      clearTimeout(timeoutTimer);
       sendSignal("SIGTERM");
-      forceKill ??= setTimeout(forceTerminate, shutdownGraceMs);
+      // Reserve part of the same grace for observing group absence after SIGKILL.
+      forceKill = setTimeout(forceTerminate, shutdownGraceMs / 2);
+      shutdownTimer = setTimeout(() => {
+        forceTerminate();
+        checkCompletion();
+        if (!settled) {
+          clearTimeout(pollTimer);
+          stopping = true;
+          unconfirmedActiveWork = true;
+          reject(new UnconfirmedCancellation(`Owned child group ${child.pid} shutdown unconfirmed after cancellation grace`));
+        }
+      }, shutdownGraceMs);
+      checkCompletion();
     };
     activeChildren.set(child, { terminate, forceTerminate, closed, pid: child.pid, signalErrors });
     const onAbort = () => { aborted = true; terminate(); };
@@ -3335,15 +3400,16 @@ function runChildHarness(bin, args, { cwd, env, timeout, signal = cancellationSc
     child.on("error", (error) => {
       childError = error;
     });
-    child.on("close", (status, exitSignal) => {
+    child.on("exit", () => {
       clearTimeout(timeoutTimer);
-      clearTimeout(forceKill);
-      settled = true;
-      signal?.removeEventListener("abort", onAbort);
-      activeChildren.delete(child);
-      resolveClosed();
-      reportProgress("child_closed", { pid: child.pid, status, signal: exitSignal });
-      resolve({ aborted, error: childError, pid: child.pid, signal: exitSignal, signalErrors, status, stderr, stdout, timedOut, timeout });
+      if (groupAlive()) terminate();
+    });
+    child.on("close", (code, signal) => {
+      status = code;
+      exitSignal = signal;
+      leaderClosed = true;
+      if (groupAlive()) terminate();
+      checkCompletion();
     });
   });
 }

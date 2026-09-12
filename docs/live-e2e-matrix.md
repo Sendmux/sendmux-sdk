@@ -8,6 +8,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 
 - Plan without secrets: `pnpm live:e2e:plan`.
 - Execute the default safe live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.
+- Protected live execution requires Linux or macOS for owned process-group shutdown. Unsupported platforms fail before credentials or subprocess execution; `--plan` and static inventory remain platform independent. Windows public SDK/CLI verification is a separate runtime gate, not certification by this harness.
 - The default executable slice runs GET `read` operations plus GET `read_fixture` operations whose inputs are declared in `test/live-e2e/fixtures.json`.
 - Read fixture setup requires its declared gates. Sending setup also requires `SENDMUX_STAGING_SEND=1` and the actual `SENDMUX_LIVE_E2E_FIXTURE_SEND_TO` recipient allowlist; setup permission alone never authorizes sending.
 - `sdk` selects the public TypeScript, Python, Go, PHP, and Ruby adapters. `cli` uses the built generated CLI. `mcp` calls curated tools; non-applicable pairs are `inapplicable`, never passed. Rust public-method certification is a separate curated slice, not this OpenAPI cross-product.
@@ -26,7 +27,8 @@ Fresh execution requires a clean source checkout. Each run records its ID, sourc
 
 The audit writer requires `--result`, `--run-id`, and matching source provenance; its default destination is that run's untracked `audit-manifest.json`, and it refuses overwrites. The committed schema-1 manifest is historical evidence, not a fallback for failed runner/build/writer execution. The protected workflow exposes each safety gate explicitly with mutation disabled by default.
 
-Timeouts abort owned requests and await body consumption or child close before cleanup. Signals cancel active work; the CLI owner writes the final report after teardown. Work that ignores cancellation beyond the existing shutdown grace causes nonzero termination with a durable incomplete ledger, no subsequent operation, and no claim that cleanup completed. The fatal owner attempts force termination without extending that grace; outstanding child PIDs and non-ESRCH signal failures remain explicit in the failed report, never a claim of confirmed process closure.
+Timeouts abort owned requests and await body consumption or child close plus process-group absence before cleanup. A leader exiting does not release descendant ownership; TERM-to-KILL escalation and absence confirmation share one shutdown grace. Signals cancel active work; the CLI owner writes the final report after teardown. Work that ignores cancellation beyond the existing shutdown grace causes nonzero termination with a durable incomplete ledger, no subsequent operation, and no claim that cleanup completed. The fatal owner attempts force termination without extending that grace; outstanding child PIDs and non-ESRCH signal failures remain explicit in the failed report, never a claim of confirmed process closure.
+Available successful CLI JSON records selective resource ownership even when interruption makes the operation fail. Malformed output cannot invent ownership. Failed child output and JSON-parser excerpts are withheld from public evidence; cleanup uses known IDs, not response bodies.
 
 ## Summary
 

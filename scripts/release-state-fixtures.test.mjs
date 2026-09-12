@@ -35,11 +35,22 @@ function check(root) {
   return child;
 }
 
+function mutateNativeVersion(root, file, pattern) {
+  const path = join(root, file);
+  const before = readFileSync(path, "utf8");
+  const match = before.match(pattern);
+  assert.ok(match, `${file} must contain a native version`);
+  const version = match[1];
+  const changed = before.replace(pattern, (field) => field.replace(version, version === "0.0.0" ? "0.0.1" : "0.0.0"));
+  assert.notEqual(changed, before, `${file} version mutation must change native bytes`);
+  writeFileSync(path, changed);
+}
+
 const mutations = {
   "typescript version": (root) => editJson(join(root, "packages/ts/core/package.json"), (p) => { p.version = "0.0.0"; }),
-  "python version": (root) => writeFileSync(join(root, "packages/python/core/pyproject.toml"), readFileSync(join(root, "packages/python/core/pyproject.toml"), "utf8").replace('version = "1.3.0"', 'version = "0.0.0"')),
-  "rust version": (root) => writeFileSync(join(root, "rust/Cargo.toml"), readFileSync(join(root, "rust/Cargo.toml"), "utf8").replace('version = "0.4.0"', 'version = "0.0.0"')),
-  "ruby version": (root) => writeFileSync(join(root, "packages/ruby/core/lib/sendmux/core/version.rb"), readFileSync(join(root, "packages/ruby/core/lib/sendmux/core/version.rb"), "utf8").replace("'1.3.0'", "'0.0.0'")),
+  "python version": (root) => mutateNativeVersion(root, "packages/python/core/pyproject.toml", /^version = "([^"]+)"$/m),
+  "rust version": (root) => mutateNativeVersion(root, "rust/Cargo.toml", /^version = "([^"]+)"$/m),
+  "ruby version": (root) => mutateNativeVersion(root, "packages/ruby/core/lib/sendmux/core/version.rb", /^\s*VERSION = '([^']+)'$/m),
   "ruby identity": (root) => writeFileSync(join(root, "packages/ruby/core/sendmux-core.gemspec"), readFileSync(join(root, "packages/ruby/core/sendmux-core.gemspec"), "utf8").replace("spec.name = 'sendmux-core'", "spec.name = 'wrong-core'")),
   "go identity": (root) => writeFileSync(join(root, "go/go.mod"), readFileSync(join(root, "go/go.mod"), "utf8").replace("module sendmux.ai/go", "module wrong.invalid/go")),
   "go tag convention": (root) => editJson(join(root, "release-please-config.json"), (c) => { c.packages.go["tag-separator"] = "-"; }),
@@ -65,3 +76,27 @@ test("native release gate accepts native versions without inventing Go or PHP fi
   const result = check(root);
   assert.equal(result.status, 0, result.stderr);
 }));
+
+for (const [language, owner, versionFile] of [
+  ["python", "packages/python/core", "packages/python/core/pyproject.toml"],
+  ["rust", "rust", "rust/Cargo.toml"],
+  ["ruby", "packages/ruby/core", "packages/ruby/core/lib/sendmux/core/version.rb"],
+]) {
+  test(`native release gate accepts synchronized future ${language} release and rejects its version mutation`, () => fixture((root) => {
+    const manifest = readJson(join(root, ".release-please-manifest.json"));
+    const current = manifest[owner];
+    const future = `${Number(current.split(".")[0]) + 1}.0.0`;
+    const path = join(root, versionFile);
+    const before = readFileSync(path, "utf8");
+    const advanced = before.replace(current, future);
+    assert.notEqual(advanced, before, `${language} future fixture must change native bytes`);
+    writeFileSync(path, advanced);
+    editJson(join(root, ".release-please-manifest.json"), (m) => { m[owner] = future; });
+    const healthy = check(root);
+    assert.equal(healthy.status, 0, healthy.stderr);
+    mutations[`${language} version`](root);
+    const mismatch = check(root);
+    assert.notEqual(mismatch.status, 0, `${language} future version drift was accepted: ${mismatch.stdout}`);
+    assert.notEqual(readFileSync(path, "utf8"), advanced, `${language} mutation must change native bytes`);
+  }));
+}

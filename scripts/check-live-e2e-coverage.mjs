@@ -61,7 +61,7 @@ const customMcpScenarios = {
       queryParams: [],
       resourceOwnership: "fixture",
     },
-    gates: ["SENDMUX_LIVE_E2E_BINARY=1", "E2E resource ownership registry"],
+    gates: ["SENDMUX_LIVE_E2E_BINARY=1", "E2E resource ownership registry", "SENDMUX_STAGING_SEND=1"],
     mode: "binary_fixture",
     risk: "binary",
   },
@@ -79,7 +79,7 @@ const customMcpScenarios = {
       queryParams: [],
       resourceOwnership: "fixture",
     },
-    gates: ["SENDMUX_LIVE_E2E_MUTATIONS=1", "SENDMUX_LIVE_E2E_BINARY=1", "E2E resource ownership registry"],
+    gates: ["SENDMUX_LIVE_E2E_MUTATIONS=1", "SENDMUX_LIVE_E2E_BINARY=1", "E2E resource ownership registry", "SENDMUX_STAGING_SEND=1"],
     mode: "mutation_fixture",
     risk: "mutation",
   },
@@ -363,7 +363,7 @@ function buildExpectedScenarios(operations, cliOperations, curatedMcp) {
       },
       assertions: assertionsFor(operation),
       fixture: fixtureFor(operation),
-      gates: gatesFor(classification),
+      gates: [...gatesFor(classification), ...(["mailboxBatchGetMessages", "mailboxBatchUpdateMessages", "mailboxBatchDeleteMessages", "mailboxUpdateMessage", "mailboxDeleteMessage", "mailboxGetMessageAttachment"].includes(operation.operationId) ? ["SENDMUX_STAGING_SEND=1"] : [])],
       mode: classification.mode,
       risk: classification.risk,
     };
@@ -382,7 +382,7 @@ function classifyScenario(operation) {
     return { mode: "binary_fixture", risk: "binary" };
   }
 
-  if (id.startsWith("sendingSend")) {
+  if (id.startsWith("sendingSend") || id === "mailboxSendMessage") {
     return { mode: "send", risk: "send" };
   }
 
@@ -451,7 +451,7 @@ function assertionsFor(operation) {
 
 function gatesFor(classification) {
   if (classification.risk === "send") {
-    return ["SENDMUX_STAGING_SEND=1", "SENDMUX_STAGING_SEND_TO allowlist"];
+    return ["SENDMUX_STAGING_SEND=1", "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"];
   }
   if (classification.risk === "mutation" || classification.risk === "destructive") {
     return ["SENDMUX_LIVE_E2E_MUTATIONS=1", "E2E resource ownership registry"];
@@ -649,9 +649,24 @@ function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
     "- Plan without secrets: `pnpm live:e2e:plan`.",
     "- Execute the default safe live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.",
     "- The default executable slice runs GET `read` operations plus GET `read_fixture` operations whose inputs are declared in `test/live-e2e/fixtures.json`.",
-    "- Read fixtures may declare setup gates. The runner only seeds those fixtures when the setup gate is enabled and the target recipient is allowlisted.",
-    "- `sdk` and `cli` adapters call the built public TypeScript SDK and generated CLI. `mcp` calls the curated FastMCP tools for operations that intentionally exist in MCP; non-curated operations are reported as skipped, not passed.",
+    "- Read fixture setup requires its declared gates. Sending setup also requires `SENDMUX_STAGING_SEND=1` and the actual `SENDMUX_LIVE_E2E_FIXTURE_SEND_TO` recipient allowlist; setup permission alone never authorizes sending.",
+    "- `sdk` selects the public TypeScript, Python, Go, PHP, and Ruby adapters. `cli` uses the built generated CLI. `mcp` calls curated tools; non-applicable pairs are `inapplicable`, never passed. Rust public-method certification is a separate curated slice, not this OpenAPI cross-product.",
     "- Mutation, send, binary, and stream operations remain blocked until explicit gates and ownership/cleanup proof are present.",
+    "- Before fixture discovery, configure `SENDMUX_LIVE_E2E_EXPECTED_TEAM_ID`; mailbox credentials also require `SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_ID` and `SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_EMAIL`. Public connection endpoints must match these identities.",
+    "- Identity mutation requires matching `SENDMUX_LIVE_E2E_DEDICATED_MAILBOX_ID`. Domain mutation requires `SENDMUX_LIVE_E2E_DOMAIN_ID` and `SENDMUX_LIVE_E2E_DOMAIN_NAME` with exact readback. Webhook mutation uses run-owned webhooks. Restore snapshots remain private and restoration requires readback.",
+    "- Fixture sends are run-labelled self-sends to the verified mailbox. The resource journal records IDs before subsequent assertions or polling; cleanup includes sender and received-message IDs. Failed delivery visibility or cleanup remains a failed certification.",
+    "- Quota/support actions exercise only safe negatives after the API explicitly reports `can_request_increase=false`. Missing or true requestability is an unmet precondition; this runner does not certify successful external support requests.",
+    "- Attachment byte scenarios remain `unmet_precondition` until trusted storage-retention verification is available. Their implementations remain present. Mailbox upload-intent expiry is URL expiry; Sending attachment expiry is reference expiry. Neither establishes physical byte deletion, and no public attachment DELETE is assumed.",
+    "",
+    "## Evidence And Cancellation",
+    "",
+    "Results distinguish `passed`, `expected_negative`, `unmet_precondition`, `inapplicable`, and `failed`. Expected errors do not certify create/delete success. All selected applicable pairs must be accounted for exactly once; an unmet prerequisite prevents a successful run.",
+    "",
+    "Fresh execution requires a clean source checkout. Each run records its ID, source SHA, start/end times, selections, sanitized fixture identity, and cleanup outcome under `.tmp/live-e2e/RUN_ID/`. API keys, signed URLs, and response bodies are excluded; URL configuration is fingerprinted. GET absence and exact mailbox-key revocation receipts are labelled separately.",
+    "",
+    "The audit writer requires `--result`, `--run-id`, and matching source provenance; its default destination is that run's untracked `audit-manifest.json`, and it refuses overwrites. The committed schema-1 manifest is historical evidence, not a fallback for failed runner/build/writer execution. The protected workflow exposes each safety gate explicitly with mutation disabled by default.",
+    "",
+    "Timeouts abort owned requests and await body consumption or child close before cleanup. Signals cancel active work; the CLI owner writes the final report after teardown. Work that ignores cancellation beyond the existing shutdown grace causes nonzero termination with a durable incomplete ledger, no subsequent operation, and no claim that cleanup completed. The fatal owner attempts force termination without extending that grace; outstanding child PIDs and non-ESRCH signal failures remain explicit in the failed report, never a claim of confirmed process closure.",
     "",
     "## Summary",
     "",
@@ -661,7 +676,7 @@ function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
     }, sending ${bySurface.sending ?? 0}.`,
     `- SDK adapters required per operation: ${sdkAdapters.join(", ")}.`,
     "- CLI adapters required per operation: generated command for every OpenAPI operation.",
-    `- MCP adapters required for curated tools: ${mcpCount}.`,
+    `- Applicable MCP operation pairs: ${mcpCount} (not a unique tool count).`,
     `- Default executable live operations: ${executable}.`,
     `- Blocked behind safety gates: ${operations.length - executable}.`,
     `- Fixture setup sources: ${

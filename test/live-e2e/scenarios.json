@@ -26,7 +26,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "mutation_fixture",
       "risk": "mutation"
@@ -57,7 +58,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "mutation_fixture",
       "risk": "mutation"
@@ -88,7 +90,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "mutation_fixture",
       "risk": "mutation"
@@ -248,7 +251,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "destructive_cleanup_only",
       "risk": "destructive"
@@ -492,7 +496,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_BINARY=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "binary_fixture",
       "risk": "binary"
@@ -1075,7 +1080,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_BINARY=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "binary_fixture",
       "risk": "binary"
@@ -1137,11 +1143,11 @@
         "resourceOwnership": "fixture"
       },
       "gates": [
-        "SENDMUX_LIVE_E2E_MUTATIONS=1",
-        "E2E resource ownership registry"
+        "SENDMUX_STAGING_SEND=1",
+        "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"
       ],
-      "mode": "mutation_fixture",
-      "risk": "mutation"
+      "mode": "send",
+      "risk": "send"
     },
     "mailboxStreamEvents": {
       "adapters": {
@@ -1271,7 +1277,8 @@
       },
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "update_restore",
       "risk": "mutation"
@@ -1331,7 +1338,8 @@
       "gates": [
         "SENDMUX_LIVE_E2E_MUTATIONS=1",
         "SENDMUX_LIVE_E2E_BINARY=1",
-        "E2E resource ownership registry"
+        "E2E resource ownership registry",
+        "SENDMUX_STAGING_SEND=1"
       ],
       "mode": "mutation_fixture",
       "risk": "mutation"
@@ -3243,7 +3251,7 @@
       },
       "gates": [
         "SENDMUX_STAGING_SEND=1",
-        "SENDMUX_STAGING_SEND_TO allowlist"
+        "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"
       ],
       "mode": "send",
       "risk": "send"
@@ -3276,7 +3284,7 @@
       },
       "gates": [
         "SENDMUX_STAGING_SEND=1",
-        "SENDMUX_STAGING_SEND_TO allowlist"
+        "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"
       ],
       "mode": "send",
       "risk": "send"

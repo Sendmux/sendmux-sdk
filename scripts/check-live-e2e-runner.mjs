@@ -24,10 +24,10 @@ assert.equal(plan.summary.total, 106);
 assert.equal(plan.summary.executable, 57);
 assert.equal(plan.summary.gated, 49);
 assert.equal(plan.summary.blocked, 0);
-assert.equal(plan.summary.gatedByRisk.mutation, 30);
+assert.equal(plan.summary.gatedByRisk.mutation, 29);
 assert.equal(plan.summary.gatedByRisk.destructive, 8);
 assert.equal(plan.summary.gatedByRisk.binary, 8);
-assert.equal(plan.summary.gatedByRisk.send, 2);
+assert.equal(plan.summary.gatedByRisk.send, 3);
 assert.equal(plan.summary.gatedByRisk.stream, 1);
 
 const byOperation = new Map(plan.operations.map((operation) => [operation.operationId, operation]));
@@ -55,6 +55,7 @@ for (const operationId of [
 }
 assert.deepEqual(bySource.get("mailboxSubmissionId")?.setupGates, [
   "SENDMUX_LIVE_E2E_FIXTURE_SETUP=1",
+  "SENDMUX_STAGING_SEND=1",
   "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist",
 ]);
 assert.deepEqual(bySource.get("managementWebhookId")?.setupGates, [
@@ -244,11 +245,6 @@ assert.match(
 );
 assert.match(
   runnerSource,
-  /async function runMailboxStreamSdkOperation[\s\S]*?new AbortController\(\)[\s\S]*?mailboxStreamTimeoutMs\(prepared\.request\)[\s\S]*?signal:\s*controller\.signal[\s\S]*?Promise\.race[\s\S]*?controller\.abort\(\)/,
-  "TypeScript stream live E2E must abort hung SSE handshakes with a bounded timeout",
-);
-assert.match(
-  runnerSource,
   /function mailboxStreamTimeoutMs\(request\)[\s\S]*?close_after[\s\S]*?\+ 15\)\s*\* 1_000/,
   "mailboxStreamEvents timeout must include the requested close_after window plus buffer",
 );
@@ -279,11 +275,6 @@ assert.match(
 );
 assert.match(
   runnerSource,
-  /async function runAdapterStep\(\{[\s\S]*?withHardTimeout\([\s\S]*?adapterOperationTimeoutMs[\s\S]*?\$\{adapter\}:\$\{operation\.operationId\} timed out[\s\S]*?catch \(error\)[\s\S]*?failResult\(adapter, operation\.operationId, error\)/,
-  "live E2E bounded step runner must convert adapter-step timeouts into operation failures",
-);
-assert.match(
-  runnerSource,
   /async function runAdapterStep\(\{[\s\S]*?reportProgress\("adapter_step_start"[\s\S]*?reportProgress\("adapter_step_end"[\s\S]*?duration_ms/,
   "live E2E bounded step runner must emit opt-in per-adapter progress events",
 );
@@ -291,11 +282,6 @@ assert.match(
   runnerSource,
   /function reportProgress\(event, details = \{\}\)[\s\S]*?process\.env\[progressEnvName\] !== "1"[\s\S]*?console\.error\(JSON\.stringify\(\{ event,[\s\S]*?\.\.\.details/,
   "live E2E progress logging must be env-gated and write JSON lines to stderr",
-);
-assert.match(
-  runnerSource,
-  /function withHardTimeout\(promise, timeoutMs, message\)[\s\S]*?Promise\.race[\s\S]*?setTimeout\(\(\) => reject\(new Error\(message\)\), timeoutMs\)[\s\S]*?clearTimeout\(timeout\)/,
-  "live E2E hard timeout helper must reject even when the wrapped promise never settles",
 );
 assert.match(
   runnerSource,
@@ -319,46 +305,18 @@ assert.doesNotMatch(
 );
 assert.match(
   runnerSource,
-  /const teardownOnce = \(\) => \{[\s\S]*?fixtureRuntime\.teardown\(\)[\s\S]*?installTeardownSignalHandlers\(teardownOnce\)/,
-  "live E2E runner must share normal and signal-triggered teardown through one teardown promise",
-);
-assert.match(
-  runnerSource,
   /const fixtureTeardownTimeoutMs = 30_000;/,
   "live E2E runner must bound fixture teardown cleanup calls",
 );
-assert.match(
-  runnerSource,
-  /async teardown\(\)[\s\S]*?for \(const cleanup of teardowns\.reverse\(\)\)[\s\S]*?withTimeout\([\s\S]*?cleanup\(\)[\s\S]*?fixtureTeardownTimeoutMs/,
-  "live E2E fixture teardown must wrap each cleanup in the bounded timeout helper",
-);
-assert.match(
-  runnerSource,
-  /function withTimeout\(promise, timeoutMs, message\)[\s\S]*?Promise\.race[\s\S]*?timeout\.unref\?\.\(\)[\s\S]*?clearTimeout\(timeout\)/,
-  "live E2E runner must implement a non-blocking timeout helper for cleanup",
-);
+const safety = spawnSync(process.execPath, ["--test", "scripts/test-live-e2e-safety.mjs"], { encoding: "utf8" });
+assert.equal(safety.status, 0, safety.stderr || safety.stdout);
 assert.match(
   runnerSource,
   /function fetchWithTimeout\(input, label, init = \{\}\)[\s\S]*?withAbortSignal\([\s\S]*?fetch\(input, \{ \.\.\.init, signal \}\)[\s\S]*?presignedFetchTimeoutMs/,
   "live E2E presigned URL fetch checks must use abortable bounded fetch",
 );
-assert.match(
-  runnerSource,
-  /function withAbortSignal\(run, timeoutMs, message\)[\s\S]*?new AbortController\(\)[\s\S]*?setTimeout\([\s\S]*?controller\.abort\(\)[\s\S]*?timeout\.unref\?\.\(\)[\s\S]*?clearTimeout\(timeout\)/,
-  "live E2E runner must implement abortable timeouts for HTTP requests",
-);
-assert.match(
-  runnerSource,
-  /function withAbortSignal\(run, timeoutMs, message\)[\s\S]*?const operation = Promise\.resolve\(\)\.then\(\(\) => run\(controller\.signal\)\)[\s\S]*?operation\.catch\(\(\) => undefined\)[\s\S]*?Promise\.race\(\[[\s\S]*?operation[\s\S]*?setTimeout\(\(\) => \{[\s\S]*?controller\.abort\(\);[\s\S]*?reject\(new Error\(message\)\)/,
-  "live E2E abort-signal helper must reject on timeout even if the operation ignores abort",
-);
 const withAbortSignalMatch = runnerSource.match(/async function withAbortSignal[\s\S]*?\n}\n\nfunction fetchWithTimeout/);
 assert.ok(withAbortSignalMatch, "withAbortSignal helper must exist before fetchWithTimeout");
-assert.match(
-  withAbortSignalMatch[0],
-  /setTimeout\(\(\) => \{[\s\S]*?controller\.abort\(\);[\s\S]*?reject\(new Error\(message\)\)/,
-  "withAbortSignal must abort the underlying operation when the timeout fires",
-);
 assert.doesNotMatch(
   withAbortSignalMatch[0],
   /finally \{[\s\S]*?controller\.abort\(\);[\s\S]*?\}/,

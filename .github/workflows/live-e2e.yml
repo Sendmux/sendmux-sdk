@@ -11,6 +11,26 @@ on:
         description: "Optional comma-separated operationIds. Empty runs the protected read-only slice."
         default: ""
         required: false
+      fixture_setup:
+        description: "Allow gated fixture setup"
+        type: boolean
+        default: false
+      mutations:
+        description: "Allow mutations of verified dedicated/run-owned fixtures"
+        type: boolean
+        default: false
+      binary:
+        description: "Allow attachment certification with retention evidence"
+        type: boolean
+        default: false
+      stream:
+        description: "Allow bounded mailbox stream certification"
+        type: boolean
+        default: false
+      send:
+        description: "Allow sends to the configured recipient allowlist"
+        type: boolean
+        default: false
 
 concurrency:
   group: sendmux-live-e2e
@@ -23,6 +43,9 @@ jobs:
   read-only:
     runs-on: ubuntu-latest
     environment: sendmux-live-e2e
+    timeout-minutes: 120
+    env:
+      SENDMUX_LIVE_E2E_RUN_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -62,7 +85,8 @@ jobs:
       - name: Build generated surfaces
         run: pnpm build:live-e2e-surfaces
 
-      - name: Run protected read-only live E2E
+      - name: Run protected live E2E and write this run's audit
+        id: certification
         env:
           SENDMUX_LIVE_E2E: "1"
           SENDMUX_LIVE_E2E_ADAPTERS: ${{ inputs.adapters }}
@@ -70,7 +94,17 @@ jobs:
           SENDMUX_LIVE_E2E_ALLOWED_APP_BASE_URLS: ${{ vars.SENDMUX_LIVE_E2E_ALLOWED_APP_BASE_URLS }}
           SENDMUX_LIVE_E2E_ALLOWED_SENDING_BASE_URLS: ${{ vars.SENDMUX_LIVE_E2E_ALLOWED_SENDING_BASE_URLS }}
           SENDMUX_LIVE_E2E_FIXTURE_SEND_TO: ${{ vars.SENDMUX_LIVE_E2E_FIXTURE_SEND_TO }}
-          SENDMUX_LIVE_E2E_FIXTURE_SETUP: ${{ vars.SENDMUX_LIVE_E2E_FIXTURE_SETUP }}
+          SENDMUX_LIVE_E2E_FIXTURE_SETUP: ${{ inputs.fixture_setup && '1' || '0' }}
+          SENDMUX_LIVE_E2E_MUTATIONS: ${{ inputs.mutations && '1' || '0' }}
+          SENDMUX_LIVE_E2E_BINARY: ${{ inputs.binary && '1' || '0' }}
+          SENDMUX_LIVE_E2E_STREAM: ${{ inputs.stream && '1' || '0' }}
+          SENDMUX_STAGING_SEND: ${{ inputs.send && '1' || '0' }}
+          SENDMUX_LIVE_E2E_EXPECTED_TEAM_ID: ${{ vars.SENDMUX_LIVE_E2E_EXPECTED_TEAM_ID }}
+          SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_ID: ${{ vars.SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_ID }}
+          SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_EMAIL: ${{ vars.SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_EMAIL }}
+          SENDMUX_LIVE_E2E_DEDICATED_MAILBOX_ID: ${{ vars.SENDMUX_LIVE_E2E_DEDICATED_MAILBOX_ID }}
+          SENDMUX_LIVE_E2E_DOMAIN_ID: ${{ vars.SENDMUX_LIVE_E2E_DOMAIN_ID }}
+          SENDMUX_LIVE_E2E_DOMAIN_NAME: ${{ vars.SENDMUX_LIVE_E2E_DOMAIN_NAME }}
           SENDMUX_LIVE_E2E_MAILBOX_API_KEY: ${{ secrets.SENDMUX_LIVE_E2E_MAILBOX_API_KEY }}
           SENDMUX_LIVE_E2E_OPERATIONS: ${{ inputs.operations }}
           SENDMUX_LIVE_E2E_ROOT_API_KEY: ${{ secrets.SENDMUX_LIVE_E2E_ROOT_API_KEY }}
@@ -78,35 +112,37 @@ jobs:
           SENDMUX_LIVE_E2E_WEBHOOK_URL: ${{ vars.SENDMUX_LIVE_E2E_WEBHOOK_URL }}
           SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST: ${{ vars.SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST }}
         run: |
-          mkdir -p .tmp/live-e2e
           args=(--adapter "${SENDMUX_LIVE_E2E_ADAPTERS}")
           if [ -n "${SENDMUX_LIVE_E2E_OPERATIONS}" ]; then
             args+=(--operation "${SENDMUX_LIVE_E2E_OPERATIONS}")
           fi
           set +e
-          node scripts/run-live-e2e.mjs "${args[@]}" | tee .tmp/live-e2e/result.json
-          status=${PIPESTATUS[0]}
+          node scripts/run-live-e2e.mjs "${args[@]}"
+          status=$?
           set -e
           node scripts/write-live-e2e-audit-manifest.mjs \
-            --result .tmp/live-e2e/result.json \
-            --out docs/live-e2e-audit-manifest.json \
+            --result ".tmp/live-e2e/${SENDMUX_LIVE_E2E_RUN_ID}/result.json" \
+            --out ".tmp/live-e2e/${SENDMUX_LIVE_E2E_RUN_ID}/audit-manifest.json" \
+            --run-id "$SENDMUX_LIVE_E2E_RUN_ID" \
             --commit "$GITHUB_SHA" \
             --source "github-actions:${GITHUB_RUN_ID}"
+          echo "manifest_written=true" >> "$GITHUB_OUTPUT"
           exit "$status"
 
       - name: Add live E2E audit manifest to summary
-        if: ${{ always() && hashFiles('docs/live-e2e-audit-manifest.json') != '' }}
+        if: ${{ always() && steps.certification.outputs.manifest_written == 'true' }}
         run: |
           echo "### Live E2E audit manifest" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "\`\`\`json" >> "$GITHUB_STEP_SUMMARY"
-          cat docs/live-e2e-audit-manifest.json >> "$GITHUB_STEP_SUMMARY"
+          cat ".tmp/live-e2e/${SENDMUX_LIVE_E2E_RUN_ID}/audit-manifest.json" >> "$GITHUB_STEP_SUMMARY"
           echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload live E2E audit manifest
-        if: ${{ always() && hashFiles('docs/live-e2e-audit-manifest.json') != '' }}
+        if: ${{ always() && steps.certification.outputs.manifest_written == 'true' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: live-e2e-audit-manifest
-          path: docs/live-e2e-audit-manifest.json
+          name: live-e2e-audit-${{ env.SENDMUX_LIVE_E2E_RUN_ID }}
+          path: .tmp/live-e2e/${{ env.SENDMUX_LIVE_E2E_RUN_ID }}/audit-manifest.json
+          if-no-files-found: error
           retention-days: 90

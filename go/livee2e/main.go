@@ -29,6 +29,9 @@ type operation struct {
 	OperationID        string   `json:"operationId"`
 	Request            request  `json:"request"`
 	ResponseKind       string   `json:"responseKind"`
+	ReturnResult       bool     `json:"returnResult"`
+	JournalPath        string   `json:"journalPath"`
+	JournalSelectors   []string `json:"journalSelectors"`
 	Risk               string   `json:"risk"`
 	Surface            string   `json:"surface"`
 }
@@ -46,6 +49,7 @@ type result struct {
 	Error       string         `json:"error,omitempty"`
 	OperationID string         `json:"operationId"`
 	Status      string         `json:"status"`
+	Result      any            `json:"result,omitempty"`
 }
 
 type apiErrorer interface {
@@ -68,7 +72,7 @@ func main() {
 		value, err := callOperation(clients[op.Surface], op)
 		if err != nil {
 			if code := apiErrorCode(err); code != "" && contains(op.ExpectedErrorCodes, code) {
-				results = append(results, result{Adapter: "go", OperationID: op.OperationID, Status: "passed"})
+				results = append(results, result{Adapter: "go", OperationID: op.OperationID, Status: "expected_negative"})
 				continue
 			}
 			results = append(results, result{Adapter: "go", Error: err.Error(), OperationID: op.OperationID, Status: "failed"})
@@ -76,7 +80,7 @@ func main() {
 		}
 
 		if code := apiErrorCode(value); code != "" && contains(op.ExpectedErrorCodes, code) {
-			results = append(results, result{Adapter: "go", OperationID: op.OperationID, Status: "passed"})
+			results = append(results, result{Adapter: "go", OperationID: op.OperationID, Status: "expected_negative"})
 			continue
 		}
 
@@ -85,12 +89,36 @@ func main() {
 			results = append(results, result{Adapter: "go", Error: err.Error(), OperationID: op.OperationID, Status: "failed"})
 			continue
 		}
+		if op.JournalPath != "" {
+			journalOp := op
+			journalOp.CleanupSelectors = op.JournalSelectors
+			if journalResult := cleanupResult(journalOp, normalised); len(journalResult) > 0 {
+				journal, err := os.OpenFile(op.JournalPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+				if err != nil {
+					failPlan(err)
+				}
+				err = json.NewEncoder(journal).Encode(map[string]any{"operationId": op.OperationID, "result": journalResult})
+				if err == nil {
+					err = journal.Sync()
+				}
+				closeErr := journal.Close()
+				if err != nil {
+					failPlan(err)
+				}
+				if closeErr != nil {
+					failPlan(closeErr)
+				}
+			}
+		}
 		if err := assertResponse(op, normalised); err != nil {
 			results = append(results, result{Adapter: "go", Error: err.Error(), OperationID: op.OperationID, Status: "failed"})
 			continue
 		}
 
 		entry := result{Adapter: "go", OperationID: op.OperationID, Status: "passed"}
+		if op.ReturnResult {
+			entry.Result = normalised
+		}
 		if cleanup := cleanupResult(op, normalised); len(cleanup) > 0 {
 			entry.Cleanup = cleanup
 		}
@@ -270,7 +298,7 @@ func normaliseResult(value any, op operation) (any, error) {
 		return "ok", nil
 	}
 
-	if err := apiError(value); err != nil {
+	if err := apiError(value); err != nil && err.RequestID != "" {
 		return map[string]any{
 			"ok": false,
 			"error": map[string]any{
@@ -364,7 +392,7 @@ func assertResponse(op operation, value any) error {
 		if !contains(op.ExpectedErrorCodes, code) {
 			return fmt.Errorf("%s returned unexpected error code %s", op.OperationID, code)
 		}
-		if _, ok := valueAtPath(envelope, "meta.request_id").(string); !ok {
+		if requestID, ok := valueAtPath(envelope, "meta.request_id").(string); !ok || requestID == "" {
 			return fmt.Errorf("%s did not return meta.request_id", op.OperationID)
 		}
 		return nil
@@ -420,7 +448,7 @@ func assertResponse(op operation, value any) error {
 func cleanupResult(op operation, value any) map[string]any {
 	out := map[string]any{}
 	for _, selector := range op.CleanupSelectors {
-		if selected := valueAtPath(value, selector); selected != nil {
+		if selected, ok := valueAtPath(value, selector).(string); ok {
 			setValueAtPath(out, selector, selected)
 		}
 	}
@@ -546,10 +574,10 @@ func intValue(raw any, fallback int) int {
 }
 
 func apiErrorCode(value any) string {
-	if err := apiError(value); err != nil {
+	if err := apiError(value); err != nil && err.RequestID != "" {
 		return err.Code
 	}
-	if err, ok := value.(*core.APIError); ok {
+	if err, ok := value.(*core.APIError); ok && err.RequestID != "" {
 		return err.Code
 	}
 	return ""

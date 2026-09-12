@@ -102,7 +102,7 @@ function writeFilteredSpec(surface) {
       }
 
       if ((operation.tags ?? []).some((tag) => allowed.has(tag))) {
-        nextPathItem[method] = markBodylessSuccessResponses(operation);
+        nextPathItem[method] = markMailboxChangesResponseUnion(markBodylessSuccessResponses(operation), surface);
       }
     }
 
@@ -114,6 +114,22 @@ function writeFilteredSpec(surface) {
   const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
   writeFileSync(outputPath, `${JSON.stringify(markTrailingSdkParams(pruneComponents({ ...source, paths })), null, 2)}\n`);
   return outputPath;
+}
+
+function markMailboxChangesResponseUnion(operation, surface) {
+  if (operation.operationId !== "mailboxGetChanges") return operation;
+  const variants = operation.responses["200"].content["application/json"].schema.anyOf;
+  const models = variants.map(item => item.$ref.split("/").at(-1));
+  if (models.join(",") !== "MailboxChangesResponse,MailboxTypedChangesResponse") throw new Error("Unexpected mailbox changes response union");
+  const type = models.map(model => `\\${surface.namespace}\\Model\\${model}`).join("|");
+  const errorModels = Object.entries(operation.responses).filter(([status]) => status !== "200").map(([, response]) => response.content?.["application/json"]?.schema?.$ref?.split("/").at(-1)).filter(Boolean);
+  const returnType = [type, ...new Set(errorModels.map(model => `\\${surface.namespace}\\Model\\${model}`))].join("|");
+  return {
+    ...operation,
+    "x-sendmux-response-union-type": type,
+    "x-sendmux-response-return-type": returnType,
+    responses: { ...operation.responses, "200": { ...operation.responses["200"], "x-sendmux-response-union-type": type } },
+  };
 }
 
 function prepareAttachmentUnion(document) {

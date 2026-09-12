@@ -170,6 +170,8 @@ Live mailbox events are available through idiomatic lanes:
 
 ## Repository structure
 
+Maintainers: use the [protected live E2E matrix](docs/live-e2e-matrix.md) for credential-free planning, explicit identity/send gates, cleanup evidence, and fresh-run audit rules. Static coverage and expected API negatives are not live capability certification. Attachment byte scenarios require trusted retention verification before live execution.
+
 | Path | Purpose |
 | --- | --- |
 | [`packages/ts`](packages/ts) | TypeScript SDK packages and the `sendmux` CLI. |

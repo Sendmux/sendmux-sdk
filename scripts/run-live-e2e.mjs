@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { AsyncLocalStorage } from "node:async_hooks";
+import { spawn, spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
+import { pathToFileURL } from "node:url";
+import { configurationFromEnv, expectedPairs, journalSelectors, validateResultPairs } from "./live-e2e-contract.mjs";
 
 const operationsPath = "packages/ts/cli/src/generated/operations.ts";
 const scenarioPath = "test/live-e2e/scenarios.json";
@@ -29,6 +32,14 @@ const sdkOperationTimeoutMs = 60_000;
 const adapterOperationTimeoutMs = 120_000;
 const presignedFetchTimeoutMs = 30_000;
 const fixtureTeardownTimeoutMs = 30_000;
+const cancellationScope = new AsyncLocalStorage();
+const activeOperations = new Map();
+const activeChildren = new Map();
+const shutdownGraceMs = 5_000;
+let stopping = false;
+let unconfirmedActiveWork = false;
+class UnmetPrecondition extends Error {}
+class UnconfirmedCancellation extends Error {}
 const managementMailboxIdSelectors = ["data.mailbox.id"];
 const managementMailboxKeyIdSelectors = ["data.credential.public_id"];
 const managementMailboxKeySecretSelectors = ["data.credential.secret"];
@@ -37,6 +48,7 @@ const customMcpOperations = [
   {
     bodyKind: "json",
     commandKeyKind: "mailbox",
+    requiredKeyKind: "mailbox",
     customMcpOnly: true,
     description: "Read a mailbox attachment through the curated MCP server.",
     headerParams: [],
@@ -52,6 +64,7 @@ const customMcpOperations = [
   {
     bodyKind: "json",
     commandKeyKind: "mailbox",
+    requiredKeyKind: "mailbox",
     customMcpOnly: true,
     description: "Wait briefly for a mailbox message through the curated MCP server.",
     headerParams: [],
@@ -117,24 +130,28 @@ const operationRequestFactories = {
   sendingUploadAttachment: prepareSendingUploadAttachment,
 };
 
-const args = parseArgs(process.argv.slice(2));
 const operations = [...loadOperations(), ...customMcpOperations].sort((left, right) =>
   left.operationId.localeCompare(right.operationId),
 );
 const scenarios = readJson(scenarioPath).scenarios ?? {};
 const fixtures = readJson(fixtureRegistryPath);
+
+export async function runLiveE2E(argv = process.argv.slice(2)) {
+stopping = false;
+unconfirmedActiveWork = false;
+const args = parseArgs(argv);
 const operationPlan = buildOperationPlan(operations, scenarios, fixtures);
-const selectedOperations = selectOperations(operationPlan, args.operations);
 const adapters = normaliseAdapters(args.adapters.length > 0 ? args.adapters : ["sdk", "cli", "mcp"]);
+const selectedOperations = selectOperations(operationPlan, args.operations, adapters);
 
 if (args.help) {
   printHelp();
-  process.exit(0);
+  return;
 }
 
 if (args.plan) {
   printPlan(operationPlan, selectedOperations, scenarios, adapters, args.json);
-  process.exit(0);
+  return;
 }
 
 if (process.env[executionEnvName] !== "1") {
@@ -147,18 +164,31 @@ assertBuiltArtifacts(adapters);
 
 const sdk = await import("@sendmux/sdk");
 const credentials = credentialsForRun(sdk, selectedOperations);
-const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId: randomUUID(), sdk });
+const sourceSha = spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim();
+assert.match(sourceSha, /^[0-9a-f]{40}$/);
+assert.equal(spawnSync("git", ["status", "--porcelain"], { encoding: "utf8" }).stdout.trim(), "", "Live certification requires a clean source checkout");
+const runId = process.env.SENDMUX_LIVE_E2E_RUN_ID || randomUUID();
+assert.match(runId, /^[a-zA-Z0-9_-]+$/, "Invalid run ID");
+const runDirectory = join(".tmp", "live-e2e", runId);
+mkdirSync(dirname(runDirectory), { recursive: true });
+mkdirSync(runDirectory);
+const startedAt = new Date().toISOString();
+const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId, sdk });
 const results = [];
+const errors = [];
+let cleanupOk = true;
 let teardownPromise;
 const teardownOnce = () => {
   teardownPromise ??= fixtureRuntime.teardown();
   return teardownPromise;
 };
-const removeSignalHandlers = installTeardownSignalHandlers(teardownOnce);
+const removeSignalHandlers = installTeardownSignalHandlers();
 
 try {
+  await fixtureRuntime.preflight();
   for (const operation of selectedOperations) {
     for (const adapter of adapters) {
+      if (stopping) throw new Error("Live E2E interrupted");
       results.push(
         ...(await runAdapterStep({
           adapter,
@@ -172,29 +202,70 @@ try {
     }
   }
 } catch (error) {
-  results.push(failResult("runner", "live-e2e", error));
+  errors.push(errorMessage(error));
 } finally {
-  removeSignalHandlers();
   try {
     await teardownOnce();
   } catch (error) {
-    results.push(failResult("runner", "teardown", error));
+    cleanupOk = false;
+    errors.push(errorMessage(error));
   }
 }
 
-const failed = results.filter((result) => result.status === "failed");
-console.log(JSON.stringify({ ok: failed.length === 0, results }, null, 2));
-
-if (failed.length > 0) {
-  throw new Error(`Live E2E failed for ${failed.length} adapter operation(s).`);
+const pairs = expectedPairs(selectedOperations.map(item => item.operationId), adapters, scenarios);
+for (const pair of pairs) {
+  if (!results.some(item => item.adapter === pair.adapter && item.operationId === pair.operationId)) results.push({ adapter: pair.adapter, operationId: pair.operationId, status: pair.applicable ? "unmet_precondition" : "inapplicable", reason: "Runner stopped before this pair" });
 }
+validateResultPairs(results, pairs);
+const failed = results.filter(result => ["failed", "unmet_precondition"].includes(result.status));
+const report = { ok: failed.length === 0 && cleanupOk && errors.length === 0, errors, results, run: {
+  id: runId, source_sha: sourceSha, started_at: startedAt, ended_at: new Date().toISOString(),
+  operation_ids: selectedOperations.map(item => item.operationId), adapters,
+  applicable_pairs: pairs.filter(pair => pair.applicable).map(({ applicable, ...pair }) => pair),
+  configuration: configurationFromEnv(process.env), fixture_proof: fixtureRuntime.proof ?? {},
+  cleanup: { ok: cleanupOk, ...fixtureRuntime.ledger },
+} };
+await finishLiveRun(report, runDirectory);
+removeSignalHandlers();
+console.log(JSON.stringify(report, null, 2));
+if (!report.ok && !process.exitCode) process.exitCode = 1;
+return report;
+}
+
+export async function finishLiveRun(report, runDirectory) {
+  if (unconfirmedActiveWork) {
+    report.ok = false;
+    report.run.cleanup.ok = false;
+    report.run.cleanup.status = "blocked_active_work";
+    mkdirSync(runDirectory, { recursive: true });
+    writeFileSync(join(runDirectory, "resources.json"), `${JSON.stringify({ ...report.run.cleanup, runId: report.run.id, status: "incomplete" }, null, 2)}\n`, { mode: 0o600, flush: true });
+    writeFileSync(join(runDirectory, "result.json"), `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600, flush: true });
+    report.errors ??= [];
+    // The cancellation grace has expired; signal delivery is not proof of close.
+    for (const child of activeChildren.values()) {
+      child.forceTerminate();
+      report.errors.push(`Owned child ${child.pid} shutdown unconfirmed after cancellation grace`);
+      for (const failure of child.signalErrors) report.errors.push(`Owned child ${child.pid} ${failure.signal} failed: ${failure.code}`);
+    }
+  }
+  writeFileSync(join(runDirectory, "result.json"), `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600, flush: true });
+  if (unconfirmedActiveWork) process.exit(1);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await runLiveE2E();
+}
+
+export { createFixtureRuntime, runAdapterStep, runLanguageSdkOperations, runMcpOperations,
+  runChildHarness, withAbortSignal, fetchWithTimeout, installTeardownSignalHandlers, expectedCliErrorMatches, selectOperations, buildOperationPlan,
+  operations, scenarios, fixtures };
 
 async function runAdapterStep({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }) {
   const startedAt = Date.now();
   reportProgress("adapter_step_start", { adapter, operationId: operation.operationId });
   try {
-    const stepResults = await withHardTimeout(
-      runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }),
+    const stepResults = await withAbortSignal(
+      () => runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtures, operation, sdk }),
       adapterOperationTimeoutMs,
       `${adapter}:${operation.operationId} timed out after ${adapterOperationTimeoutMs}ms`,
     );
@@ -224,7 +295,7 @@ async function runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtu
         adapter,
         operationId: operation.operationId,
         reason: "custom MCP-only operation",
-        status: "skipped",
+        status: "inapplicable",
       },
     ];
   }
@@ -237,6 +308,10 @@ async function runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtu
   if (!prepared.ok) {
     return [failResult(adapter, operation.operationId, prepared.error)];
   }
+  if (operation.responseKind === "json") prepared.value.observeResult = value => fixtureRuntime.observeResult(operation.operationId, prepared.value.request, value);
+  fixtureRuntime.beginOperation(operation.operationId, prepared.value.request);
+  prepared.value.journalPath = fixtureRuntime.journalPath(adapter, operation.operationId);
+  prepared.value.recoverJournal = () => fixtureRuntime.recoverJournal(prepared.value.journalPath, operation.operationId, prepared.value.request);
 
   if (adapter === typescriptSdkAdapter) {
     return [await runSdkOperation({ credentials, operation, prepared: prepared.value, sdk })];
@@ -303,22 +378,17 @@ function parseArgs(argv) {
   return parsed;
 }
 
-function installTeardownSignalHandlers(teardown) {
+function installTeardownSignalHandlers() {
   let isHandlingSignal = false;
-  const handleSignal = async (signal) => {
+  const handleSignal = (signal) => {
     if (isHandlingSignal) {
       return;
     }
     isHandlingSignal = true;
+    stopping = true;
     process.exitCode = signal === "SIGINT" ? 130 : 143;
-    try {
-      await teardown();
-    } catch (error) {
-      process.stderr.write(`Live E2E teardown failed after ${signal}: ${errorMessage(error)}\n`);
-      process.exitCode = 1;
-    } finally {
-      process.exit();
-    }
+    for (const controller of activeOperations.keys()) controller.abort(new Error(`Interrupted by ${signal}`));
+    for (const child of activeChildren.values()) child.terminate();
   };
 
   process.once("SIGINT", handleSignal);
@@ -464,9 +534,9 @@ function isValidFixtureRegistryEntry(operation, entry) {
   return true;
 }
 
-function selectOperations(plan, requestedIds) {
+function selectOperations(plan, requestedIds, adapters = normaliseAdapters(["sdk", "cli", "mcp"])) {
   const executable = plan
-    .filter((entry) => entry.status === "executable" && !entry.operation.customMcpOnly)
+    .filter((entry) => entry.status === "executable" && expectedPairs([entry.operation.operationId], adapters, scenarios).some(pair => pair.applicable))
     .map((entry) => entry.operation);
   if (requestedIds.length === 0) {
     return executable;
@@ -487,7 +557,7 @@ function selectOperations(plan, requestedIds) {
 
 function printPlan(plan, selectedOperations, scenarios, adapters, json) {
   if (json) {
-    console.log(JSON.stringify(jsonPlan(plan, adapters), null, 2));
+    console.log(JSON.stringify(jsonPlan(plan, selectedOperations, adapters), null, 2));
     return;
   }
 
@@ -526,7 +596,7 @@ function printPlan(plan, selectedOperations, scenarios, adapters, json) {
   }
 }
 
-function jsonPlan(plan, adapters) {
+function jsonPlan(plan, selectedOperations, adapters) {
   const blockedByRisk = {};
   const gatedByRisk = {};
   for (const entry of plan.filter((item) => item.status === "blocked")) {
@@ -541,6 +611,8 @@ function jsonPlan(plan, adapters) {
   return {
     ok: true,
     adapters,
+    selectedOperationIds: selectedOperations.map(operation => operation.operationId),
+    applicablePairs: expectedPairs(selectedOperations.map(operation => operation.operationId), adapters, scenarios).filter(pair => pair.applicable).map(({ applicable, ...pair }) => pair),
     summary: {
       blocked: plan.filter((entry) => entry.status === "blocked").length,
       blockedByRisk,
@@ -721,61 +793,47 @@ async function runSdkOperation({ credentials, operation, prepared, sdk }) {
       client,
       operation,
       request: prepared.request,
+      onResponse: response => prepared.observeResult?.(response.data),
       sdkOperation,
     });
     const value = response.data;
+    prepared.observeResult?.(value);
     assertPreparedResponse(value, operation, prepared);
     await prepared.afterResult?.(value);
 
-    return passResult(typescriptSdkAdapter, operation.operationId, response.response?.status);
+    return { ...passResult(typescriptSdkAdapter, operation.operationId, response.response?.status), status: prepared.expectedErrorCodes?.length ? "expected_negative" : "passed" };
   } catch (error) {
     if (expectedErrorMatches(error, prepared)) {
-      return passResult(typescriptSdkAdapter, operation.operationId);
+      return { ...passResult(typescriptSdkAdapter, operation.operationId), status: "expected_negative" };
     }
     return failResult(typescriptSdkAdapter, operation.operationId, error);
   }
 }
 
 async function runMailboxStreamSdkOperation({ client, prepared, sdkOperation }) {
-  const controller = new AbortController();
   const timeoutMs = mailboxStreamTimeoutMs(prepared.request);
-  let timeout;
-  const operationPromise = (async () => {
+  return withAbortSignal(async signal => {
     const response = await sdkOperation({
       client,
       ...prepared.request,
-      signal: controller.signal,
+      signal,
     });
-    return { response, value: await firstSseEvent(response, { controller }) };
-  })();
-  operationPromise.catch(() => undefined);
-
-  try {
-    return await Promise.race([
-      operationPromise,
-      new Promise((_, reject) => {
-        timeout = setTimeout(() => {
-          controller.abort();
-          reject(new Error(`mailboxStreamEvents timed out after ${timeoutMs}ms`));
-        }, timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    controller.abort();
-  }
+    return { response, value: await firstSseEvent(response) };
+  }, timeoutMs, `mailboxStreamEvents timed out after ${timeoutMs}ms`);
 }
 
-async function runBoundedSdkOperation({ client, operation, request = {}, sdkOperation }) {
+async function runBoundedSdkOperation({ client, operation, request = {}, sdkOperation, onResponse }) {
+  assertSendRequestAllowed(operation.operationId, request);
   return withAbortSignal(
-    (signal) =>
-      sdkOperation({
+    async (signal) => {
+      const response = await sdkOperation({
         client,
         ...request,
         signal,
-      }),
+      });
+      onResponse?.(response);
+      return response;
+    },
     sdkOperationTimeoutMs,
     `${operation.operationId} SDK call timed out after ${sdkOperationTimeoutMs}ms`,
   );
@@ -804,6 +862,7 @@ function sdkClientFor({ credentials, operation, sdk }) {
 }
 
 async function runCliOperation({ credentials, operation, prepared }) {
+  assertSendRequestAllowed(operation.operationId, prepared.request);
   const tempHome = mkdtempSync(join(tmpdir(), "sendmux-live-e2e-"));
   try {
     const apiKey =
@@ -822,16 +881,18 @@ async function runCliOperation({ credentials, operation, prepared }) {
       SENDMUX_API_KEY: apiKey,
       SENDMUX_BASE_URL: baseUrl,
     });
+    if (childProcessInterrupted(result)) throw new Error(childProcessFailureMessage(result));
     if (result.status !== 0) {
       if (expectedCliErrorMatches(result, prepared)) {
-        return passResult("cli", operation.operationId);
+        return { ...passResult("cli", operation.operationId), status: "expected_negative" };
       }
       throw new Error(`CLI exited ${result.status}: ${result.stderr}`);
     }
     const parsed = parseCliOutput(result.stdout, operation);
+    prepared.observeResult?.(parsed);
     assertPreparedResponse(parsed, operation, prepared);
     await prepared.afterResult?.(parsed);
-    return passResult("cli", operation.operationId);
+    return { ...passResult("cli", operation.operationId), status: prepared.expectedErrorCodes?.length ? "expected_negative" : "passed" };
   } catch (error) {
     return failResult("cli", operation.operationId, error);
   } finally {
@@ -840,8 +901,8 @@ async function runCliOperation({ credentials, operation, prepared }) {
 }
 
 function runCli(args, tempHome, timeoutMs = 30_000, envOverrides = {}) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [cliPath, ...args], {
+  return runChildHarness(process.execPath, [cliPath, ...args], {
+      timeout: timeoutMs,
       env: {
         ...process.env,
         HOME: tempHome,
@@ -851,31 +912,6 @@ function runCli(args, tempHome, timeoutMs = 30_000, envOverrides = {}) {
         XDG_CONFIG_HOME: join(tempHome, ".config"),
         ...envOverrides,
       },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    const timeout = setTimeout(() => {
-      child.kill("SIGTERM");
-      reject(new Error(`CLI command timed out: ${args[0]}`));
-    }, timeoutMs);
-    let stdout = "";
-    let stderr = "";
-
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk;
-    });
-    child.on("error", (error) => {
-      clearTimeout(timeout);
-      reject(error);
-    });
-    child.on("close", (status) => {
-      clearTimeout(timeout);
-      resolve({ status, stderr, stdout });
-    });
   });
 }
 
@@ -907,6 +943,9 @@ function parseCliOutput(stdout, operation) {
 }
 
 async function requestOptionsFor({ adapter, fixtureRuntime, fixtures, operation }) {
+  if (["mailboxUploadAttachment", "mailboxGetMessageAttachment", "mailboxReadAttachment", "mailboxWaitForMessage", "sendingUploadAttachment", "sendingCreateAttachmentUpload", "sendingCompleteAttachmentUpload", "sendingGetAttachment"].includes(operation.operationId) || (adapter === "cli" && ["mailboxSendMessage", "sendingSendEmail"].includes(operation.operationId))) {
+    throw new UnmetPrecondition("Attachment byte certification requires trusted storage-retention verification before upload; URL/reference expiry is not physical deletion and this public SDK runner cannot retrieve the backing storage policy");
+  }
   const factory = operationRequestFactories[operation.operationId];
   if (factory) {
     return factory({ adapter, fixtureRuntime, operation });
@@ -1002,31 +1041,18 @@ function cliRequestArgsFor(request, operation) {
   return args;
 }
 
-async function firstSseEvent(response, { controller } = {}) {
+async function firstSseEvent(response) {
   const stream = response?.stream;
   if (!stream || typeof stream[Symbol.asyncIterator] !== "function") {
     throw new Error("mailboxStreamEvents did not return an async stream");
   }
   const iterator = stream[Symbol.asyncIterator]();
-  let timeout;
   try {
-    const next = await Promise.race([
-      iterator.next(),
-      new Promise((_, reject) => {
-        timeout = setTimeout(() => {
-          controller?.abort();
-          reject(new Error("mailboxStreamEvents timed out waiting for an event"));
-        }, 20_000);
-      }),
-    ]);
+    const next = await iterator.next();
     if (!next.done) {
       return next.value;
     }
   } finally {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    controller?.abort();
     await closeAsyncIterator(iterator);
   }
   throw new Error("mailboxStreamEvents ended before yielding an event");
@@ -1036,7 +1062,7 @@ async function closeAsyncIterator(iterator) {
   if (typeof iterator.return !== "function") {
     return;
   }
-  await Promise.race([iterator.return(), sleep(1_000)]).catch(() => undefined);
+  await iterator.return();
 }
 
 function defaultQueryFor(operation) {
@@ -1085,8 +1111,9 @@ async function prepareOwnedMailboxUpdateFolder({ fixtureRuntime }) {
 }
 
 async function prepareMailboxUpdateIdentity({ fixtureRuntime }) {
+  fixtureRuntime.requireDedicatedMailbox();
   const original = identityRestoreBody(await fixtureRuntime.runOperation("mailboxGetIdentity"));
-  fixtureRuntime.addTeardown(() => restoreMailboxIdentity(fixtureRuntime, original));
+  fixtureRuntime.addRestore("mailboxIdentity", fixtureRuntime.proof.mailboxId, original, () => restoreMailboxIdentity(fixtureRuntime, original));
   return {
     request: {
       body: {
@@ -1118,7 +1145,8 @@ function filterStateBody(filterResponse, label) {
 }
 
 async function restoreMailboxIdentity(fixtureRuntime, body) {
-  await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxUpdateIdentity", { body }));
+  await fixtureRuntime.runOperation("mailboxUpdateIdentity", { body });
+  assert.deepEqual(identityRestoreBody(await fixtureRuntime.runOperation("mailboxGetIdentity")), body, "Mailbox identity restore readback mismatch");
 }
 
 async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
@@ -1177,12 +1205,11 @@ async function prepareMailboxCreateAttachmentUpload({ adapter, fixtureRuntime })
     };
   }
   return {
-    expectedErrorCodes: ["invalid_parameter", "payload_too_large"],
     request: {
       body: {
         content_type: "text/plain",
-        filename: `live-e2e-oversize-${fixtureRuntime.runId}.txt`,
-        size_bytes: 7_500_001,
+        filename: `live-e2e-presign-${fixtureRuntime.runId}.txt`,
+        size_bytes: 1,
       },
     },
   };
@@ -1202,8 +1229,7 @@ async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
         message_id: owned.messageId,
       },
     },
-    afterResult: async (value) => {
-      if (adapter !== "mcp") return;
+    afterResult: adapter === "mcp" ? async (value) => {
       const downloadUrl = selectFirstValue(value, ["data.download_url"]);
       assert.equal(typeof downloadUrl, "string", "mailbox_get_attachment did not return data.download_url");
       await assertPresignedAttachmentDownload({
@@ -1211,7 +1237,7 @@ async function prepareMailboxGetMessageAttachment({ adapter, fixtureRuntime }) {
         expectedContent: owned.attachmentContent,
       });
       await assertPresignedAttachmentRejectsTamper(downloadUrl);
-    },
+    } : undefined,
     returnResult: adapter === "mcp",
   };
 }
@@ -1503,7 +1529,7 @@ async function cleanupMailboxFolder(fixtureRuntime, folderId) {
 }
 
 async function cleanupMailboxMessage(fixtureRuntime, messageId) {
-  await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxDeleteMessage", { path: { message_id: messageId } }));
+  await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxDeleteMessage", { path: { message_id: messageId }, query: { permanent: true } }));
 }
 
 async function pollForMailboxMessageVisible({ fixtureRuntime, messageId }) {
@@ -1657,11 +1683,11 @@ async function prepareManagementCreateWebhook({ fixtureRuntime }) {
 }
 
 async function prepareOwnedWebhookUpdate({ fixtureRuntime }) {
-  const webhookId = await fixtureRuntime.resolveSource("managementWebhookId");
+  const webhookId = await createOwnedWebhook(fixtureRuntime, "update-webhook");
   const original = webhookRestoreBody(
     await fixtureRuntime.runOperation("managementGetWebhook", { path: { public_id: webhookId } }),
   );
-  fixtureRuntime.addTeardown(() => restoreWebhook(fixtureRuntime, webhookId, original));
+  fixtureRuntime.addRestore("webhook", webhookId, original, () => restoreWebhook(fixtureRuntime, webhookId, original));
   return {
     afterResult: async () => {
       await restoreWebhook(fixtureRuntime, webhookId, original);
@@ -1679,11 +1705,11 @@ async function prepareOwnedWebhookUpdate({ fixtureRuntime }) {
 }
 
 async function prepareOwnedWebhookTest({ fixtureRuntime }) {
-  const webhookId = await fixtureRuntime.resolveSource("managementWebhookId");
+  const webhookId = await createOwnedWebhook(fixtureRuntime, "test-webhook");
   const original = webhookRestoreBody(
     await fixtureRuntime.runOperation("managementGetWebhook", { path: { public_id: webhookId } }),
   );
-  fixtureRuntime.addTeardown(() => restoreWebhook(fixtureRuntime, webhookId, original));
+  fixtureRuntime.addRestore("webhook", webhookId, original, () => restoreWebhook(fixtureRuntime, webhookId, original));
   await fixtureRuntime.runOperation("managementUpdateWebhook", {
     body: {
       ...original,
@@ -1845,9 +1871,9 @@ async function prepareOwnedMailboxFilters({ fixtureRuntime }) {
 }
 
 async function prepareManagementCreateDomain({ fixtureRuntime }) {
-  const domain = await managementDomainName(fixtureRuntime);
+  await fixtureRuntime.requireDedicatedDomain();
+  const domain = ownedDomainName(fixtureRuntime, "create-domain");
   return {
-    expectedErrorCodes: ["conflict"],
     request: {
       body: { domain },
       headers: { "Idempotency-Key": fixtureRuntime.idempotencyKey("management-create-domain") },
@@ -1856,9 +1882,9 @@ async function prepareManagementCreateDomain({ fixtureRuntime }) {
 }
 
 async function prepareOwnedDomainDelete({ fixtureRuntime }) {
+  const domainId = await createOwnedDomain(fixtureRuntime, "delete-domain");
   return {
-    expectedErrorCodes: ["not_found"],
-    request: { path: { public_id: `mdom_live_e2e_missing_${fixtureRuntime.runId.replace(/-/g, "")}` } },
+    request: { path: { public_id: domainId } },
   };
 }
 
@@ -1876,10 +1902,10 @@ async function prepareOwnedDomainUpdate({ fixtureRuntime }) {
 }
 
 async function prepareOwnedDomainFilters({ fixtureRuntime }) {
-  const domainId = await fixtureRuntime.resolveSource("managementDomainId");
+  const domainId = await fixtureRuntime.requireDedicatedDomain();
   const original = await fixtureRuntime.runOperation("managementGetDomainFilters", { path: { public_id: domainId } });
   const restoreBody = filterStateBody(original, "managementGetDomainFilters");
-  fixtureRuntime.addTeardown(() => restoreDomainFilters(fixtureRuntime, domainId, restoreBody));
+  fixtureRuntime.addRestore("domainFilters", domainId, restoreBody, () => restoreDomainFilters(fixtureRuntime, domainId, restoreBody));
   return {
     request: {
       body: restoreBody,
@@ -1892,7 +1918,7 @@ async function prepareOwnedDomainFilters({ fixtureRuntime }) {
 }
 
 async function prepareOwnedDomainVerify({ fixtureRuntime }) {
-  const domainId = await fixtureRuntime.resolveSource("managementDomainId");
+  const domainId = await fixtureRuntime.requireDedicatedDomain();
   return { request: { path: { public_id: domainId } } };
 }
 
@@ -2088,7 +2114,9 @@ async function prepareOwnedSharedSesLimitRequestCancel({ fixtureRuntime }) {
 
 async function canCreateSharedSesLimitRequest(fixtureRuntime) {
   const response = await fixtureRuntime.runOperation("managementGetSharedAmazonSesLimitRequest");
-  return selectFirstValue(response, ["data.limit.can_request_increase"]) === true;
+  const canRequest = selectFirstValue(response, ["data.limit.can_request_increase"]);
+  if (canRequest !== false) throw new UnmetPrecondition("Shared SES safe-negative certification requires explicitly observed can_request_increase=false; external support requests are not certified by this run");
+  return false;
 }
 
 async function createSharedSesLimitRequest(fixtureRuntime, label) {
@@ -2155,6 +2183,7 @@ function liveWebhookUrl(label) {
 }
 
 async function createOwnedDomain(fixtureRuntime, label, opts = {}) {
+  await fixtureRuntime.requireDedicatedDomain();
   const response = await fixtureRuntime.runOperation("managementCreateDomain", {
     body: {
       domain: ownedDomainName(fixtureRuntime, label),
@@ -2198,7 +2227,7 @@ async function mailboxCreateBody(fixtureRuntime, label) {
 }
 
 async function managementDomainName(fixtureRuntime) {
-  const domainId = await fixtureRuntime.resolveSource("managementDomainId");
+  const domainId = await fixtureRuntime.requireDedicatedDomain();
   const response = await fixtureRuntime.runOperation("managementGetDomain", { path: { public_id: domainId } });
   const domain = requireSelectedValue(response, ["data.domain"], "management domain name");
   const expected = liveE2eDomainName();
@@ -2279,6 +2308,7 @@ async function completeSendingAttachmentUploadUrl({ attachment, fixtureRuntime, 
     method,
   });
   const payload = await response.json().catch(() => null);
+  fixtureRuntime.observeResult("sendingCompleteAttachmentUpload", {}, payload);
   assert.equal(response.status, 201, `${label} delegated upload returned HTTP ${response.status}`);
   assertSendingAttachmentMetadataValue({
     attachmentId: selectFirstValue(payload, ["data.attachment_id"]),
@@ -2330,8 +2360,8 @@ function assertSendingAttachmentMetadataValue({ attachmentId, contentType, label
 async function assertLimitRequestUnavailable({ fixtureRuntime, label, operationId, selectors }) {
   const response = await fixtureRuntime.runOperation(operationId);
   const canRequest = selectors.map((selector) => valueAtPath(response, selector)).find((value) => value !== undefined);
-  if (canRequest === true) {
-    throw new Error(`${label} would create a durable request in this environment; no cleanup path is available.`);
+  if (canRequest !== false) {
+    throw new UnmetPrecondition(`${label} requires explicitly observed can_request_increase=false; external quota requests are not certified by this run.`);
   }
 }
 
@@ -2344,7 +2374,8 @@ async function cleanupWebhook(fixtureRuntime, webhookId) {
 }
 
 async function restoreWebhook(fixtureRuntime, webhookId, body) {
-  await ignoreCleanupErrors(() => fixtureRuntime.runOperation("managementUpdateWebhook", { body, path: { public_id: webhookId } }));
+  await fixtureRuntime.runOperation("managementUpdateWebhook", { body, path: { public_id: webhookId } });
+  assert.deepEqual(webhookRestoreBody(await fixtureRuntime.runOperation("managementGetWebhook", { path: { public_id: webhookId } })), body, "Webhook restore readback mismatch");
 }
 
 function webhookRestoreBody(response) {
@@ -2389,15 +2420,20 @@ async function cleanupDomain(fixtureRuntime, domainId) {
 }
 
 async function restoreDomainFilters(fixtureRuntime, domainId, body) {
-  await ignoreCleanupErrors(() => fixtureRuntime.runOperation("managementSetDomainFilters", { body, path: { public_id: domainId } }));
+  await fixtureRuntime.runOperation("managementSetDomainFilters", { body, path: { public_id: domainId } });
+  assert.deepEqual(filterStateBody(await fixtureRuntime.runOperation("managementGetDomainFilters", { path: { public_id: domainId } }), "domain restore"), body, "Domain filter restore readback mismatch");
 }
 
 async function ignoreCleanupErrors(fn) {
   try {
-    await fn();
-  } catch {
-    // best-effort cleanup for resources that may have been deleted by the operation under test
+    return await fn();
+  } catch (error) {
+    if (!isAlreadyAbsent(error)) throw error;
   }
+}
+
+function isAlreadyAbsent(error) {
+  return error?.status === 404 && error?.body?.ok === false && error?.body?.error?.code === "not_found" && typeof error?.body?.meta?.request_id === "string" && error.body.meta.request_id.length > 0;
 }
 
 function requireSelectedValue(value, selectors, label) {
@@ -2408,15 +2444,196 @@ function requireSelectedValue(value, selectors, label) {
   return selected;
 }
 
-function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk }) {
+function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, ledgerPath = join(".tmp", "live-e2e", runId, "resources.json") }) {
   const idempotencyCounts = new Map();
   const resourceCounts = new Map();
   const runSlug = runId.replace(/[^a-z0-9]/gi, "").slice(0, 12).toLowerCase();
   const sourceCache = new Map();
   const teardowns = [];
+  const deliveries = new Map();
   const operationsById = new Map(operations.map((operation) => [operation.operationId, operation]));
+  let proof;
+  const ledger = { runId, resources: [] };
+  const persist = () => {
+    mkdirSync(dirname(ledgerPath), { recursive: true });
+    writeFileSync(`${ledgerPath}.tmp`, `${JSON.stringify(ledger, null, 2)}\n`, { mode: 0o600, flush: true });
+    renameSync(`${ledgerPath}.tmp`, ledgerPath);
+  };
 
   return {
+    async preflight(expected = {
+      teamId: process.env.SENDMUX_LIVE_E2E_EXPECTED_TEAM_ID,
+      mailboxId: process.env.SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_ID,
+      mailboxEmail: process.env.SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_EMAIL,
+    }) {
+      const needsMailbox = Boolean(credentials.mailboxApiKey);
+      assert.ok(expected.teamId && (!needsMailbox || (expected.mailboxId && expected.mailboxEmail)), "Missing expected connection identity (team and mailbox ID/email)");
+      const surfaces = [credentials.rootApiKey && "management", needsMailbox && "mailbox", needsMailbox && "sending"].filter(Boolean);
+      for (const surface of surfaces) {
+        const operation = { surface, operationId: `${surface}GetConnection` };
+        const client = sdkClientFor({ credentials, operation, sdk });
+        const response = await runBoundedSdkOperation({ client, operation, sdkOperation: sdk[surface][operation.operationId] });
+        assertLiveResponse(response.data, operation);
+        assert.equal(response.data.data?.team?.id, expected.teamId, `${surface} connection team identity mismatch`);
+        if (surface !== "management") {
+          const mailboxes = response.data.data?.mailboxes;
+          assert.ok(Array.isArray(mailboxes) && mailboxes.length === 1 && mailboxes[0].id === expected.mailboxId && mailboxes[0].email === expected.mailboxEmail, `${surface} connection mailbox identity mismatch`);
+        }
+      }
+      proof = { ...expected, surfaces };
+      if (needsMailbox) sourceCache.set("mailboxSelfEmail", expected.mailboxEmail);
+      return proof;
+    },
+    get proof() { return proof; },
+    get ledger() { return cloneJson(ledger); },
+    beginOperation(operationId, request) {
+      assertSendRequestAllowed(operationId, request);
+      if (!["mailboxSendMessage", "sendingSendEmail", "sendingSendEmailBatch"].includes(operationId)) return;
+      const messages = operationId === "sendingSendEmailBatch" ? request.body.messages : [request.body];
+      for (const message of messages) {
+        assert.ok(proof?.mailboxEmail, "Self-delivery cleanup requires a verified mailbox");
+        assert.ok(typeof message.subject === "string" && message.subject.includes(runId), "Self-delivery cleanup requires the exact run-labelled subject");
+        const recipients = [message.to, message.cc, message.bcc].flat().filter(Boolean);
+        assert.ok(recipients.every(item => (typeof item === "string" ? item : item.email) === proof.mailboxEmail), "Certification sends require the verified self mailbox for delivery cleanup");
+        let entry = deliveries.get(message.subject);
+        if (!entry) {
+          entry = { kind: "self_delivery", id: randomUUID(), subject: message.subject, expected_count: 0, received_ids: [], status: "pending_delivery" };
+          deliveries.set(message.subject, entry);
+          ledger.resources.push(entry);
+        }
+        entry.expected_count += 1;
+        persist();
+      }
+    },
+    async collectDeliveries() {
+      for (const entry of deliveries.values()) {
+        await withAbortSignal(async () => {
+          try {
+            const received = new Set();
+            while (received.size < entry.expected_count) {
+              let cursor;
+              const seenCursors = new Set();
+              do {
+                const result = await this.runOperation("mailboxListMessages", { query: { subject: entry.subject, from: proof.mailboxEmail, to: proof.mailboxEmail, limit: 100, ...(cursor ? { cursor } : {}) } });
+                assert.ok(Array.isArray(result.data), "Delivery search must return a message array");
+                for (const message of result.data) {
+                  if (message.subject !== entry.subject || message.from?.email !== proof.mailboxEmail || !message.to?.some(item => item.email === proof.mailboxEmail)) continue;
+                  const alreadySent = ledger.resources.some(item => item.operationId === "mailboxSendMessage" && item.id === message.id);
+                  if (!alreadySent) received.add(message.id);
+                  this.observeResult("mailboxSendMessage", {}, { data: { message_id: message.id } });
+                }
+                cursor = result.pagination?.next_cursor;
+                if (cursor) { assert.ok(!seenCursors.has(cursor), "Delivery search repeated a cursor"); seenCursors.add(cursor); }
+              } while (cursor);
+              entry.received_ids = [...received];
+              persist();
+              if (received.size < entry.expected_count) await sleep(1000);
+            }
+            entry.status = "captured";
+          } catch (error) { entry.status = "unverified_delivery"; throw error; }
+          finally { persist(); }
+        }, fixtureTeardownTimeoutMs, "Self-delivery visibility timed out before cleanup could be verified");
+      }
+    },
+    addRestore(kind, id, snapshot, restore) {
+      const entry = { kind, id, status: "pending" };
+      ledger.resources.push(entry);
+      persist();
+      writeFileSync(join(dirname(ledgerPath), `${kind}-${id}-restore.json`), `${JSON.stringify(snapshot)}\n`, { mode: 0o600, flush: true });
+      teardowns.push(async () => {
+        try { await restore(); entry.status = "restored"; }
+        catch (error) { entry.status = "failed"; throw error; }
+        finally { persist(); }
+      });
+    },
+    journalPath(adapter, operationId) {
+      mkdirSync(dirname(ledgerPath), { recursive: true });
+      return join(dirname(ledgerPath), `${adapter}-${operationId}-${randomUUID()}.jsonl`);
+    },
+    recoverJournal(path, operationId, request) {
+      if (!existsSync(path)) return;
+      for (const line of readFileSync(path, "utf8").split("\n").filter(Boolean)) {
+        const record = JSON.parse(line);
+        assert.equal(record.operationId, operationId, "Unexpected journal operation");
+        this.observeResult(operationId, request, record.result);
+      }
+    },
+    observeResult(operationId, request, value) {
+      const retention = {
+        mailboxCreateAttachmentUpload: ["data.upload_id", "url_expires_at", "upload_intent"],
+        mailboxUploadAttachment: ["data.blob_id", null, "mailbox_blob"],
+        sendingCreateAttachmentUpload: ["data.upload_id", "url_expires_at", "upload_intent"],
+        sendingUploadAttachment: ["data.attachment_id", "reference_expires_at", "sending_attachment"],
+        sendingCompleteAttachmentUpload: ["data.attachment_id", "reference_expires_at", "sending_attachment"],
+      }[operationId];
+      if (retention) {
+        const [selector, expiryField, kind] = retention;
+        const id = selectFirstValue(value, [selector]);
+        if (id && !ledger.resources.some(item => item.kind === kind && item.id === id)) {
+          assert.equal(typeof id, "string", "Resource ID must be a string");
+          const entry = { operationId, kind, id, status: kind === "upload_intent" ? "pending" : "unverified_retention", public_delete: false, storage_cleanup: kind === "upload_intent" ? "no_uploaded_bytes" : "unverified" };
+          ledger.resources.push(entry);
+          persist();
+          if (expiryField) {
+            const expiry = requireSelectedValue(value, ["data.expires_at"], "retention expiry");
+            assert.ok(typeof expiry === "string" && Number.isFinite(Date.parse(expiry)), "Invalid retention expiry");
+            entry[expiryField] = expiry.replace(/\+00:00$/, "Z");
+          }
+          if (kind === "upload_intent") entry.status = "expiry_only";
+          persist();
+        }
+        return;
+      }
+      const resources = {
+        mailboxCreateFolder: ["data.id", "mailboxDeleteFolder", "mailboxGetFolder", "folder_id"],
+        mailboxSendMessage: ["data.message_id", "mailboxDeleteMessage", "mailboxGetMessage", "message_id"],
+        managementCreateProvider: ["data.id", "managementDeleteProvider", "managementGetProvider", "public_id"],
+        managementCreateWebhook: ["data.id", "managementDeleteWebhook", "managementGetWebhook", "public_id"],
+        managementCreateDomain: ["data.id", "managementDeleteDomain", "managementGetDomain", "public_id"],
+        managementCreateMailbox: ["data.mailbox.id", "managementDeleteMailbox", "managementGetMailbox", "public_id"],
+        managementCreateMailboxKey: ["data.credential.public_id", "managementDeleteMailboxKey", null, "key_id"],
+      };
+      const spec = resources[operationId];
+      if (!spec) return;
+      const [selector, remove, read, parameter] = spec;
+      const id = selectFirstValue(value, [selector]);
+      if (!id || ledger.resources.some(item => item.operationId === operationId && item.id === id)) return;
+      const path = { ...(operationId === "managementCreateMailboxKey" ? request.path : {}), [parameter]: id };
+      assert.equal(typeof id, "string", "Resource ID must be a string");
+      const entry = { operationId, id, path, status: "pending" };
+      ledger.resources.push(entry);
+      persist();
+      teardowns.push(async () => {
+        try {
+          const receipt = await ignoreCleanupErrors(() => this.runOperation(remove, { path, ...(remove === "mailboxDeleteMessage" ? { query: { permanent: true } } : {}) }));
+          if (remove === "managementDeleteMailboxKey") {
+            if (receipt !== undefined) assert.ok(receipt.data?.deleted === true && receipt.data?.id === id, "Invalid exact mailbox key revocation receipt");
+            entry.verification = receipt === undefined ? "structured_not_found" : "exact_revocation_receipt";
+          } else {
+          try {
+            await this.runOperation(read, { path });
+            throw new Error(`Resource ${id} remains after cleanup`);
+          } catch (error) { if (!isAlreadyAbsent(error)) throw error; }
+            entry.verification = "get_not_found";
+          }
+          entry.status = "absent";
+        } catch (error) { entry.status = "failed"; throw error; }
+        finally { persist(); }
+      });
+    },
+    requireDedicatedMailbox() {
+      assert.ok(proof?.mailboxId && process.env.SENDMUX_LIVE_E2E_DEDICATED_MAILBOX_ID === proof.mailboxId, "Mailbox identity mutation requires the dedicated preflight-verified mailbox ID");
+      return proof.mailboxId;
+    },
+    async requireDedicatedDomain() {
+      const id = process.env.SENDMUX_LIVE_E2E_DOMAIN_ID;
+      const name = process.env.SENDMUX_LIVE_E2E_DOMAIN_NAME;
+      if (!id || !name) throw new UnmetPrecondition("Domain mutation requires explicit dedicated DOMAIN_ID and DOMAIN_NAME");
+      const response = await this.runOperation("managementGetDomain", { path: { public_id: id } });
+      assert.equal(response.data?.id, id, "Dedicated domain ID mismatch");
+      assert.equal(response.data?.domain, name, "Dedicated domain name mismatch");
+      return id;
+    },
     addTeardown(teardown) {
       teardowns.push(teardown);
     },
@@ -2438,6 +2655,8 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
     },
     runId,
     async runOperation(operationId, request = {}) {
+      assert.ok(proof, "Connection identity preflight must succeed before fixture operations");
+      this.beginOperation(operationId, request);
       const operation = operationsById.get(operationId);
       if (!operation) {
         throw new Error(`Unknown fixture setup operation ${operationId}`);
@@ -2445,7 +2664,8 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
       const client = sdkClientFor({ credentials, operation, sdk });
       const sdkOperation = sdk[operation.surface]?.[operation.operationId];
       assert.equal(typeof sdkOperation, "function", `${operation.operationId} is not exported by @sendmux/sdk`);
-      const response = await runBoundedSdkOperation({ client, operation, request, sdkOperation });
+      const response = await runBoundedSdkOperation({ client, operation, request, onResponse: response => this.observeResult(operationId, request, response.data), sdkOperation });
+      this.observeResult(operationId, request, response.data);
       assertLiveResponse(response.data, operation);
       return response.data;
     },
@@ -2476,23 +2696,30 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
       return value;
     },
     async teardown() {
+      if (unconfirmedActiveWork) throw new UnconfirmedCancellation("Cleanup prohibited: active work did not confirm cancellation");
       const errors = [];
+      try { await this.collectDeliveries(); }
+      catch (error) { errors.push(errorMessage(error)); }
       for (const cleanup of teardowns.reverse()) {
+        if (unconfirmedActiveWork) throw new UnconfirmedCancellation("Cleanup prohibited: active work did not confirm cancellation");
         try {
-          await withTimeout(
-            Promise.resolve().then(() => cleanup()),
+          await withAbortSignal(
+            () => cleanup(),
             fixtureTeardownTimeoutMs,
             `fixture cleanup timed out after ${fixtureTeardownTimeoutMs}ms`,
           );
         } catch (error) {
-          errors.push(error instanceof Error ? error.message : String(error));
+          errors.push(errorMessage(error));
         }
       }
       if (errors.length > 0) {
         throw new Error(`Live E2E fixture teardown failed: ${errors.join("; ")}`);
       }
+      if (ledger.resources.some(entry => entry.status === "unverified_retention")) throw new UnmetPrecondition("Attachment reference/URL expiry does not establish storage cleanup; retention verification remains unmet");
+      if (ledger.resources.some(entry => entry.status === "pending")) throw new UnmetPrecondition("Resource cleanup/retention verification remains unmet");
     },
     async resolveSource(sourceName) {
+      assert.ok(proof, "Connection identity preflight must succeed before fixture discovery");
       if (sourceCache.has(sourceName)) {
         return sourceCache.get(sourceName);
       }
@@ -2542,7 +2769,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk })
           sourceCache.set(sourceName, setupValue);
           return setupValue;
         }
-        throw new Error(
+        throw new UnmetPrecondition(
           `Fixture source ${sourceName} did not resolve a value from ${operation.operationId}. Set ${source.env ?? "a fixture env override"} or seed the controlled E2E environment.`,
         );
       }
@@ -2582,7 +2809,7 @@ async function setupFixtureSource({ credentials, operationsById, runId, runtime,
 
 function assertFixtureSetupEnabled({ source, sourceName }) {
   if (process.env[fixtureSetupEnvName] !== "1") {
-    throw new Error(
+    throw new UnmetPrecondition(
       `Fixture source ${sourceName} requires setup because ${source.operationId} returned no value. Set ${source.env ?? "a fixture env override"} or set ${fixtureSetupEnvName}=1 with the source setup gates.`,
     );
   }
@@ -2605,8 +2832,7 @@ async function setupMailboxSubmissionFixture({ credentials, operationsById, runI
 
   const client = sdkClientFor({ credentials, operation: sendOperation, sdk });
   const subjectPrefix = source.setup.subjectPrefix ?? "Sendmux live E2E fixture";
-  const response = await sdk.mailbox.mailboxSendMessage({
-    client,
+  const response = { data: await runtime.runOperation("mailboxSendMessage", {
     headers: {
       "Idempotency-Key": `live-e2e-${runId}-${sourceName}`,
     },
@@ -2615,7 +2841,7 @@ async function setupMailboxSubmissionFixture({ credentials, operationsById, runI
       text_body: `Automated Sendmux live E2E fixture ${runId}.`,
       to: [{ email: recipient, name: null }],
     },
-  });
+  }) };
   assertLiveResponse(response.data, "mailboxSendMessage");
 
   const messageId = selectFirstValue(response.data, ["data.message_id"]);
@@ -2623,7 +2849,7 @@ async function setupMailboxSubmissionFixture({ credentials, operationsById, runI
     throw new Error(`${sourceName} setup did not receive a message_id from mailboxSendMessage.`);
   }
 
-  return pollForMailboxSubmission({ credentials, messageId, operationsById, sdk, sourceName });
+  return pollForMailboxSubmission({ credentials, messageId, operationsById, sdk, sourceName, runtime });
 }
 
 async function setupManagementWebhookFixture({
@@ -2648,8 +2874,7 @@ async function setupManagementWebhookFixture({
 
   const client = sdkClientFor({ credentials, operation, sdk });
   const namePrefix = source.setup.namePrefix ?? "Sendmux live E2E webhook fixture";
-  const response = await sdk.management.managementCreateWebhook({
-    client,
+  const response = { data: await runtime.runOperation("managementCreateWebhook", {
     headers: {
       "Idempotency-Key": `live-e2e-${runId}-${sourceName}-create`,
     },
@@ -2659,7 +2884,7 @@ async function setupManagementWebhookFixture({
       name: `${namePrefix} ${runId}`,
       url: webhookUrl,
     },
-  });
+  }) };
   assertLiveResponse(response.data, "managementCreateWebhook");
   const webhookId = selectFirstValue(response.data, ["data.id"]);
   if (!webhookId) {
@@ -2667,10 +2892,9 @@ async function setupManagementWebhookFixture({
   }
 
   teardowns.push(async () => {
-    const deleteResponse = await sdk.management.managementDeleteWebhook({
-      client,
+    const deleteResponse = { data: await runtime.runOperation("managementDeleteWebhook", {
       path: { public_id: webhookId },
-    });
+    }) };
     assertLiveResponse(deleteResponse.data, "managementDeleteWebhook");
   });
 
@@ -2696,10 +2920,10 @@ async function setupManagementWebhookDeliveryFixture({
   sourceName,
 }) {
   assertFixtureSetupEnabled({ source, sourceName });
-  const webhookId = await resolveFixtureValue(runtime, source.setup.webhook);
+  const webhookId = await createOwnedWebhook(runtime, sourceName);
   assert.equal(typeof webhookId, "string", `${sourceName} setup webhook must resolve to a string`);
   const original = webhookRestoreBody(await runtime.runOperation("managementGetWebhook", { path: { public_id: webhookId } }));
-  runtime.addTeardown(() => restoreWebhook(runtime, webhookId, original));
+  runtime.addRestore("webhook", webhookId, original, () => restoreWebhook(runtime, webhookId, original));
   await runtime.runOperation("managementUpdateWebhook", {
     body: {
       ...original,
@@ -2716,13 +2940,12 @@ async function setupManagementWebhookDeliveryFixture({
   }
 
   const client = sdkClientFor({ credentials, operation, sdk });
-  const response = await sdk.management.managementTestWebhook({
-    client,
+  const response = { data: await runtime.runOperation("managementTestWebhook", {
     headers: {
       "Idempotency-Key": `live-e2e-${runId}-${sourceName}-test`,
     },
     path: { public_id: webhookId },
-  });
+  }) };
   assertLiveResponse(response.data, "managementTestWebhook");
 
   const eventId = selectFirstValue(response.data, ["data.event_id"]);
@@ -2730,12 +2953,13 @@ async function setupManagementWebhookDeliveryFixture({
     throw new Error(`${sourceName} setup did not receive an event_id from managementTestWebhook.`);
   }
 
-  const deliveryId = await pollForWebhookDelivery({ credentials, eventId, operationsById, sdk, sourceName, webhookId });
+  const deliveryId = await pollForWebhookDelivery({ credentials, eventId, operationsById, sdk, sourceName, webhookId, runtime });
   await restoreWebhook(runtime, webhookId, original);
   return deliveryId;
 }
 
 function assertFixtureRecipientAllowed({ recipient, sourceName }) {
+  assert.equal(process.env[sendGateEnvName], "1", `${sourceName} requires ${sendGateEnvName}=1`);
   const allowed = new Set(parseCsv(process.env[fixtureSendAllowlistEnvName] ?? ""));
   if (!allowed.has(recipient)) {
     throw new Error(
@@ -2744,7 +2968,18 @@ function assertFixtureRecipientAllowed({ recipient, sourceName }) {
   }
 }
 
-async function pollForMailboxSubmission({ credentials, messageId, operationsById, sdk, sourceName }) {
+function assertSendRequestAllowed(operationId, request) {
+  if (!["mailboxSendMessage", "sendingSendEmail", "sendingSendEmailBatch"].includes(operationId)) return;
+  const messages = operationId === "sendingSendEmailBatch" ? request.body?.messages : [request.body];
+  assert.ok(Array.isArray(messages) && messages.length > 0, "Send requires at least one message");
+  for (const message of messages) {
+    const recipients = [message?.to, message?.cc, message?.bcc].flat().filter(Boolean);
+    assert.ok(recipients.length > 0, "Send requires a recipient");
+    for (const recipient of recipients) assertFixtureRecipientAllowed({ recipient: typeof recipient === "string" ? recipient : recipient.email, sourceName: operationId });
+  }
+}
+
+async function pollForMailboxSubmission({ credentials, messageId, operationsById, sdk, sourceName, runtime }) {
   const operation = operationsById.get("mailboxListSubmissions");
   if (!operation) {
     throw new Error(`${sourceName} setup requires mailboxListSubmissions in the OpenAPI operation manifest.`);
@@ -2754,10 +2989,9 @@ async function pollForMailboxSubmission({ credentials, messageId, operationsById
   const deadline = Date.now() + 30_000;
   let lastRequestId = "unknown";
   while (Date.now() < deadline) {
-    const response = await sdk.mailbox.mailboxListSubmissions({
-      client,
+    const response = { data: await runtime.runOperation("mailboxListSubmissions", {
       query: { email_ids: messageId, limit: 1 },
-    });
+    }) };
     assertLiveResponse(response.data, "mailboxListSubmissions");
     lastRequestId = response.data?.meta?.request_id ?? lastRequestId;
     const submissionId = selectFirstValue(response.data, ["data.0.id"]);
@@ -2772,7 +3006,7 @@ async function pollForMailboxSubmission({ credentials, messageId, operationsById
   );
 }
 
-async function pollForWebhookDelivery({ credentials, eventId, operationsById, sdk, sourceName, webhookId }) {
+async function pollForWebhookDelivery({ credentials, eventId, operationsById, sdk, sourceName, webhookId, runtime }) {
   const operation = operationsById.get("managementListDelivery");
   if (!operation) {
     throw new Error(`${sourceName} setup requires managementListDelivery in the OpenAPI operation manifest.`);
@@ -2782,11 +3016,10 @@ async function pollForWebhookDelivery({ credentials, eventId, operationsById, sd
   const deadline = Date.now() + 60_000;
   let lastRequestId = "unknown";
   while (Date.now() < deadline) {
-    const response = await sdk.management.managementListDelivery({
-      client,
+    const response = { data: await runtime.runOperation("managementListDelivery", {
       path: { public_id: webhookId },
       query: { event_type: "sendmux.test", limit: 10 },
-    });
+    }) };
     assertLiveResponse(response.data, "managementListDelivery");
     lastRequestId = response.data?.meta?.request_id ?? lastRequestId;
     const delivery = (Array.isArray(response.data?.data) ? response.data.data : []).find(
@@ -2804,37 +3037,12 @@ async function pollForWebhookDelivery({ credentials, eventId, operationsById, sd
 }
 
 function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-function withTimeout(promise, timeoutMs, message) {
-  let timeout;
-  const guarded = Promise.resolve(promise);
-  guarded.catch(() => undefined);
-  return Promise.race([
-    guarded,
-    new Promise((_, reject) => {
-      timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
-      timeout.unref?.();
-    }),
-  ]).finally(() => {
-    if (timeout) clearTimeout(timeout);
-  });
-}
-
-function withHardTimeout(promise, timeoutMs, message) {
-  let timeout;
-  const guarded = Promise.resolve(promise);
-  guarded.catch(() => undefined);
-  return Promise.race([
-    guarded,
-    new Promise((_, reject) => {
-      timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
-    }),
-  ]).finally(() => {
-    if (timeout) clearTimeout(timeout);
+  const signal = cancellationScope.getStore();
+  return new Promise((resolve, reject) => {
+    signal?.throwIfAborted();
+    const timer = setTimeout(() => { signal?.removeEventListener("abort", abort); resolve(); }, ms);
+    const abort = () => { clearTimeout(timer); reject(signal.reason); };
+    signal?.addEventListener("abort", abort, { once: true });
   });
 }
 
@@ -2847,31 +3055,52 @@ function reportProgress(event, details = {}) {
 
 async function withAbortSignal(run, timeoutMs, message) {
   const controller = new AbortController();
-  let timeout;
-  const operation = Promise.resolve().then(() => run(controller.signal));
-  operation.catch(() => undefined);
-
+  const parent = cancellationScope.getStore();
+  const onAbort = () => controller.abort(parent.reason);
+  parent?.addEventListener("abort", onAbort, { once: true });
+  if (parent?.aborted) onAbort();
+  const timeout = setTimeout(() => controller.abort(new Error(message)), timeoutMs);
+  const operation = cancellationScope.run(controller.signal, async () => {
+    controller.signal.throwIfAborted();
+    return run(controller.signal);
+  });
+  activeOperations.set(controller, operation);
+  let shutdownTimer;
+  const onCancelled = () => {
+    shutdownTimer = setTimeout(() => {
+      stopping = true;
+      unconfirmedActiveWork = true;
+      rejectUnconfirmed(new UnconfirmedCancellation(`${message}; cancellation unconfirmed after shutdown grace`));
+    }, shutdownGraceMs);
+  };
+  let rejectUnconfirmed;
+  const shutdown = new Promise((_, reject) => { rejectUnconfirmed = reject; });
+  controller.signal.addEventListener("abort", onCancelled, { once: true });
+  if (controller.signal.aborted) onCancelled();
   try {
-    return await Promise.race([
-      operation,
-      new Promise((_, reject) => {
-        timeout = setTimeout(() => {
-          controller.abort();
-          reject(new Error(message));
-        }, timeoutMs);
-        timeout.unref?.();
-      }),
-    ]);
+    const value = await Promise.race([operation, shutdown]);
+    controller.signal.throwIfAborted();
+    return value;
+  } catch (error) {
+    if (error instanceof UnconfirmedCancellation) throw error;
+    if (controller.signal.aborted) throw controller.signal.reason;
+    throw error;
   } finally {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+    clearTimeout(timeout);
+    clearTimeout(shutdownTimer);
+    controller.signal.removeEventListener("abort", onCancelled);
+    parent?.removeEventListener("abort", onAbort);
+    activeOperations.delete(controller);
   }
 }
 
 function fetchWithTimeout(input, label, init = {}) {
   return withAbortSignal(
-    (signal) => fetch(input, { ...init, signal }),
+    async (signal) => {
+      const response = await fetch(input, { ...init, signal });
+      const body = await response.arrayBuffer();
+      return new Response([204, 205, 304].includes(response.status) ? null : body, { status: response.status, statusText: response.statusText, headers: response.headers });
+    },
     presignedFetchTimeoutMs,
     `${label} timed out after ${presignedFetchTimeoutMs}ms`,
   );
@@ -2908,13 +3137,16 @@ async function runMcpOperations({ credentials, operations, requests }) {
         return skippedMcpResult(operation);
       }
       const prepared = requests.get(operation.operationId) ?? { request: {} };
+      assertSendRequestAllowed(operation.operationId, prepared.request);
       return {
         args: toolArgsForRequest(prepared.request),
         cleanupSelectors: prepared.cleanupSelectors,
+        journalPath: prepared.journalPath,
+        journalSelectors,
         expectedErrorCodes: prepared.expectedErrorCodes,
         operationId: operation.operationId,
         responseKind: operation.responseKind,
-        returnResult: prepared.returnResult === true,
+        returnResult: prepared.returnResult === true || Boolean(prepared.afterResult || prepared.observeResult),
         surface: operation.surface,
         toolName: scenarios[operation.operationId].adapters.mcp,
       };
@@ -2938,7 +3170,8 @@ async function runMcpOperations({ credentials, operations, requests }) {
     },
     timeout: childHarnessTimeoutMs,
   });
-  if (result.status !== 0) {
+  for (const prepared of requests.values()) prepared.recoverJournal?.();
+  if (childProcessInterrupted(result) || result.status !== 0) {
     return [
       ...skipped,
       {
@@ -2951,36 +3184,38 @@ async function runMcpOperations({ credentials, operations, requests }) {
   }
 
   const parsed = JSON.parse(result.stdout);
-  const mcpResults = parsed.results ?? [];
+  const mcpResults = validateResultPairs(parsed.results, executable.map(item => ({ adapter: "mcp", operationId: item.operationId, expectedNegative: Boolean(item.expectedErrorCodes?.length) })));
   const preparedById = new Map([...requests.entries()]);
   for (const result of mcpResults) {
     if (result.status !== "passed") continue;
     const prepared = preparedById.get(result.operationId);
-    if (prepared?.afterResult) {
-      const value = result.result ?? result.cleanup;
-      if (value !== undefined) {
-        await prepared.afterResult(value);
-      }
+    if (prepared?.afterResult || prepared?.observeResult) {
+      assert.notEqual(result.result, undefined, `${result.operationId} missing assertion result`);
+      prepared.observeResult?.(result.result);
+      await prepared.afterResult?.(result.result);
     }
   }
-  return [...skipped, ...mcpResults.map(({ cleanup, result, ...item }) => item)];
+  return [...skipped, ...mcpResults.map(({ cleanup, result, error, ...item }) => ({ ...item, ...(error ? { error: "MCP operation failed; response details withheld" } : {}) }))];
 }
 
-async function runLanguageSdkOperations({ adapter, credentials, operations, requests }) {
+async function runLanguageSdkOperations({ adapter, credentials, operations, requests, command = languageCommand(adapter) }) {
   const executable = operations.map((operation) => {
     const prepared = requests.get(operation.operationId) ?? { request: {} };
+    assertSendRequestAllowed(operation.operationId, prepared.request);
     return {
       bodyKind: operation.bodyKind,
       cleanupSelectors: prepared.cleanupSelectors,
+      journalPath: prepared.journalPath,
+      journalSelectors,
       expectedErrorCodes: prepared.expectedErrorCodes,
       operationId: operation.operationId,
       request: prepared.request,
       responseKind: operation.responseKind,
+      returnResult: Boolean(prepared.afterResult || prepared.observeResult),
       risk: scenarios[operation.operationId]?.risk,
       surface: operation.surface,
     };
   });
-  const command = languageCommand(adapter);
   if (!command) {
     return operations.map((operation) => ({
       adapter,
@@ -3002,7 +3237,8 @@ async function runLanguageSdkOperations({ adapter, credentials, operations, requ
     },
     timeout: childHarnessTimeoutMs,
   });
-  if (result.status !== 0) {
+  for (const prepared of requests.values()) prepared.recoverJournal?.();
+  if (childProcessInterrupted(result) || result.status !== 0) {
     return [
       {
         adapter,
@@ -3014,34 +3250,43 @@ async function runLanguageSdkOperations({ adapter, credentials, operations, requ
   }
 
   const parsed = JSON.parse(result.stdout);
-  const languageResults = parsed.results ?? [];
+  const languageResults = validateResultPairs(parsed.results, executable.map(item => ({ adapter, operationId: item.operationId, expectedNegative: Boolean(item.expectedErrorCodes?.length) })));
   const preparedById = new Map([...requests.entries()]);
   for (const item of languageResults) {
     if (item.status !== "passed") continue;
     const prepared = preparedById.get(item.operationId);
-    if (prepared?.afterResult && item.cleanup) {
-      await prepared.afterResult(item.cleanup);
+    if (prepared?.afterResult || prepared?.observeResult) {
+      assert.notEqual(item.result, undefined, `${item.operationId} missing assertion result`);
+      prepared.observeResult?.(item.result);
+      await prepared.afterResult?.(item.result);
     }
   }
-  return languageResults.map(({ cleanup, ...item }) => item);
+  return languageResults.map(({ cleanup, result, error, ...item }) => ({ ...item, ...(error ? { error: "SDK operation failed; response details withheld" } : {}) }));
 }
 
 function planFailureOperationId(adapter, operations) {
   return operations.length === 1 ? operations[0].operationId : `${adapter}-plan`;
 }
 
+function childProcessInterrupted(result) {
+  return Boolean(result.error || result.timedOut || result.aborted || result.signalErrors?.length);
+}
+
 function childProcessFailureMessage(result) {
   if (result.error) {
-    return result.error instanceof Error ? result.error.message : String(result.error);
+    return `Child process error ${/^E[A-Z0-9]+$/.test(result.error.code) ? result.error.code : "UNKNOWN"}; details withheld`;
   }
   if (result.timedOut) {
     return `timed out after ${result.timeout}ms`;
   }
-  return result.stderr || result.stdout || `exit ${result.status}`;
+  if (result.aborted) return "Child operation aborted";
+  if (result.signalErrors?.length) return `Child signal delivery failed: ${result.signalErrors.map(failure => `${failure.signal}:${failure.code}`).join(", ")}`;
+  return `Child exited ${result.status}; output withheld from public evidence`;
 }
 
-function runChildHarness(bin, args, { cwd, env, timeout }) {
+function runChildHarness(bin, args, { cwd, env, timeout, signal = cancellationScope.getStore() }) {
   return new Promise((resolve) => {
+    signal?.throwIfAborted();
     const detached = process.platform !== "win32";
     const child = spawn(bin, args, {
       cwd,
@@ -3049,21 +3294,33 @@ function runChildHarness(bin, args, { cwd, env, timeout }) {
       env,
       stdio: ["ignore", "pipe", "pipe"],
     });
+    reportProgress("child_started", { pid: child.pid });
     let stdout = "";
     let stderr = "";
     let timedOut = false;
     let settled = false;
-
-    const forceKill = setTimeout(() => {
-      if (!settled && timedOut) {
-        killChildTree(child, "SIGKILL", detached);
-      }
-    }, timeout + 5_000);
-    forceKill.unref?.();
+    let aborted = false;
+    let forceKill;
+    let childError;
+    let resolveClosed;
+    const closed = new Promise(resolve => { resolveClosed = resolve; });
+    const signalErrors = [];
+    const sendSignal = signal => {
+      const error = killChildTree(child, signal, detached);
+      if (error) signalErrors.push({ signal, code: /^E[A-Z0-9]+$/.test(error.code) ? error.code : "UNKNOWN" });
+    };
+    const forceTerminate = () => { if (!settled) sendSignal("SIGKILL"); };
+    const terminate = () => {
+      sendSignal("SIGTERM");
+      forceKill ??= setTimeout(forceTerminate, shutdownGraceMs);
+    };
+    activeChildren.set(child, { terminate, forceTerminate, closed, pid: child.pid, signalErrors });
+    const onAbort = () => { aborted = true; terminate(); };
+    signal?.addEventListener("abort", onAbort, { once: true });
 
     const timeoutTimer = setTimeout(() => {
       timedOut = true;
-      killChildTree(child, "SIGTERM", detached);
+      terminate();
     }, timeout);
     timeoutTimer.unref?.();
 
@@ -3076,16 +3333,17 @@ function runChildHarness(bin, args, { cwd, env, timeout }) {
       stderr += chunk;
     });
     child.on("error", (error) => {
-      clearTimeout(timeoutTimer);
-      clearTimeout(forceKill);
-      settled = true;
-      resolve({ error, status: null, stderr, stdout, timedOut, timeout });
+      childError = error;
     });
-    child.on("close", (status, signal) => {
+    child.on("close", (status, exitSignal) => {
       clearTimeout(timeoutTimer);
       clearTimeout(forceKill);
       settled = true;
-      resolve({ signal, status, stderr, stdout, timedOut, timeout });
+      signal?.removeEventListener("abort", onAbort);
+      activeChildren.delete(child);
+      resolveClosed();
+      reportProgress("child_closed", { pid: child.pid, status, signal: exitSignal });
+      resolve({ aborted, error: childError, pid: child.pid, signal: exitSignal, signalErrors, status, stderr, stdout, timedOut, timeout });
     });
   });
 }
@@ -3096,8 +3354,8 @@ function killChildTree(child, signal, detached) {
   }
   try {
     process.kill(detached ? -child.pid : child.pid, signal);
-  } catch {
-    // The child may have exited between timeout and signal delivery.
+  } catch (error) {
+    if (error.code !== "ESRCH") return error;
   }
 }
 
@@ -3133,7 +3391,7 @@ function skippedMcpResult(operation) {
     adapter: "mcp",
     operationId: operation.operationId,
     reason: "operation is not part of the curated MCP set",
-    status: "skipped",
+    status: "inapplicable",
   };
 }
 
@@ -3233,6 +3491,7 @@ function assertPreparedResponse(value, operation, prepared) {
       `${operation.operationId} returned unexpected error code ${String(code)}`,
     );
     assert.equal(typeof value?.meta?.request_id, "string", `${operation.operationId} did not return meta.request_id`);
+    assert.ok(value.meta.request_id.length > 0, `${operation.operationId} returned empty meta.request_id`);
     return;
   }
 
@@ -3247,16 +3506,18 @@ function expectedErrorMatches(error, prepared) {
   return (
     body?.ok === false &&
     prepared.expectedErrorCodes.includes(body.error?.code) &&
-    typeof body.meta?.request_id === "string"
+    typeof body.meta?.request_id === "string" && body.meta.request_id.length > 0
   );
 }
 
 function expectedCliErrorMatches(result, prepared) {
-  if (!prepared.expectedErrorCodes?.length) {
+  if (childProcessInterrupted(result) || !prepared.expectedErrorCodes?.length) {
     return false;
   }
-  const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
-  return prepared.expectedErrorCodes.some((code) => combined.includes(code));
+  try {
+    const error = JSON.parse(result.stdout).error;
+    return error?.name === "SendmuxApiError" && Number.isInteger(error.status) && error.status >= 400 && error.status < 600 && error.body?.ok === false && prepared.expectedErrorCodes.includes(error.body?.error?.code) && error.code === error.body.error.code && typeof error.requestId === "string" && error.requestId.length > 0 && error.requestId === error.body.meta?.request_id;
+  } catch { return false; }
 }
 
 function passResult(adapter, operationId, statusCode) {
@@ -3271,17 +3532,18 @@ function passResult(adapter, operationId, statusCode) {
 function failResult(adapter, operationId, error) {
   return {
     adapter,
-    error: error instanceof Error ? error.message : String(error),
+    error: errorMessage(error),
     operationId,
-    status: "failed",
+    status: error instanceof UnmetPrecondition ? "unmet_precondition" : "failed",
   };
 }
 
 function errorMessage(error) {
-  if (error instanceof Error) {
-    return error.message;
+  if (error?.body?.error) {
+    return `API error ${String(error.code ?? "unknown").replace(/[^a-zA-Z0-9_]/g, "")} (HTTP ${Number(error.status) || "unknown"}); response details withheld`;
   }
-  return String(error);
+  const message = (error instanceof Error ? error.message : String(error)).split("\n")[0];
+  return message.replace(/https?:\/\/\S+/g, "[URL withheld]").replace(/smx_(?:root|mbx|agent)_\S+/g, "[credential withheld]");
 }
 
 function dropEmpty(value) {

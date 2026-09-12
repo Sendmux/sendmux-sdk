@@ -39,7 +39,7 @@
       },
       "selectors": ["data.0.id"],
       "setup": {
-        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"],
+        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_STAGING_SEND=1", "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"],
         "kind": "mailbox_send_message",
         "subjectPrefix": "Sendmux live E2E submission fixture",
         "to": {

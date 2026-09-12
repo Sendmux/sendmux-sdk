@@ -20,6 +20,8 @@ class PlannedOperation(TypedDict):
     expectedErrorCodes: list[str] | None
     operationId: str
     returnResult: bool | None
+    journalPath: str | None
+    journalSelectors: list[str] | None
     responseKind: Literal["binary", "json", "text"]
     surface: Surface
     toolName: str
@@ -51,21 +53,30 @@ async def main() -> None:
 
                 try:
                     call_result = await client.call_tool(operation["toolName"], operation["args"])
+                    result: str | dict[str, Any]
                     if operation.get("responseKind") == "text":
-                        assert_text_response(operation["operationId"], text_result(call_result))
+                        result = text_result(call_result)
+                        assert_text_response(operation["operationId"], result)
                         cleanup = None
                     else:
                         result = structured_result(call_result)
+                        if operation.get("journalPath"):
+                            journal = cleanup_result(result, operation.get("journalSelectors"))
+                            if journal:
+                                with open(str(operation["journalPath"]), "a", encoding="utf-8") as output:
+                                    output.write(json.dumps({"operationId": operation["operationId"], "result": journal}) + "\n")
+                                    output.flush()
+                                    os.fsync(output.fileno())
                         assert_live_response(operation["operationId"], result, operation.get("expectedErrorCodes"))
                         cleanup = cleanup_result(result, operation.get("cleanupSelectors"))
                     entry: dict[str, Any] = {
                         "adapter": "mcp",
                         "operationId": operation["operationId"],
-                        "status": "passed",
+                        "status": "expected_negative" if operation.get("expectedErrorCodes") else "passed",
                     }
                     if cleanup is not None:
                         entry["cleanup"] = cleanup
-                    if operation.get("returnResult") is True and operation.get("responseKind") != "text":
+                    if operation.get("returnResult") is True:
                         entry["result"] = result
                     results.append(entry)
                 except Exception as error:  # pragma: no cover - exercised by live runner
@@ -74,7 +85,7 @@ async def main() -> None:
                             {
                                 "adapter": "mcp",
                                 "operationId": operation["operationId"],
-                                "status": "passed",
+                                "status": "expected_negative",
                             }
                         )
                         continue
@@ -110,7 +121,7 @@ def assert_live_response(operation_id: str, value: dict[str, Any], expected_erro
         if not isinstance(error, dict) or error.get("code") not in expected_error_codes:
             raise AssertionError(f"{operation_id} returned unexpected error code")
         meta = value.get("meta")
-        if not isinstance(meta, dict) or not isinstance(meta.get("request_id"), str):
+        if not isinstance(meta, dict) or not isinstance(meta.get("request_id"), str) or not meta["request_id"]:
             raise AssertionError(f"{operation_id} did not return meta.request_id")
         return
 
@@ -151,6 +162,7 @@ def expected_api_error_exception(error: Exception, expected_error_codes: list[st
         and api_error.get("code") in expected_error_codes
         and isinstance(meta, dict)
         and isinstance(meta.get("request_id"), str)
+        and bool(meta["request_id"])
     )
 
 

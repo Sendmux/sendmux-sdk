@@ -9,9 +9,24 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 - Plan without secrets: `pnpm live:e2e:plan`.
 - Execute the default safe live slice: `SENDMUX_LIVE_E2E=1 pnpm live:e2e`.
 - The default executable slice runs GET `read` operations plus GET `read_fixture` operations whose inputs are declared in `test/live-e2e/fixtures.json`.
-- Read fixtures may declare setup gates. The runner only seeds those fixtures when the setup gate is enabled and the target recipient is allowlisted.
-- `sdk` and `cli` adapters call the built public TypeScript SDK and generated CLI. `mcp` calls the curated FastMCP tools for operations that intentionally exist in MCP; non-curated operations are reported as skipped, not passed.
+- Read fixture setup requires its declared gates. Sending setup also requires `SENDMUX_STAGING_SEND=1` and the actual `SENDMUX_LIVE_E2E_FIXTURE_SEND_TO` recipient allowlist; setup permission alone never authorizes sending.
+- `sdk` selects the public TypeScript, Python, Go, PHP, and Ruby adapters. `cli` uses the built generated CLI. `mcp` calls curated tools; non-applicable pairs are `inapplicable`, never passed. Rust public-method certification is a separate curated slice, not this OpenAPI cross-product.
 - Mutation, send, binary, and stream operations remain blocked until explicit gates and ownership/cleanup proof are present.
+- Before fixture discovery, configure `SENDMUX_LIVE_E2E_EXPECTED_TEAM_ID`; mailbox credentials also require `SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_ID` and `SENDMUX_LIVE_E2E_EXPECTED_MAILBOX_EMAIL`. Public connection endpoints must match these identities.
+- Identity mutation requires matching `SENDMUX_LIVE_E2E_DEDICATED_MAILBOX_ID`. Domain mutation requires `SENDMUX_LIVE_E2E_DOMAIN_ID` and `SENDMUX_LIVE_E2E_DOMAIN_NAME` with exact readback. Webhook mutation uses run-owned webhooks. Restore snapshots remain private and restoration requires readback.
+- Fixture sends are run-labelled self-sends to the verified mailbox. The resource journal records IDs before subsequent assertions or polling; cleanup includes sender and received-message IDs. Failed delivery visibility or cleanup remains a failed certification.
+- Quota/support actions exercise only safe negatives after the API explicitly reports `can_request_increase=false`. Missing or true requestability is an unmet precondition; this runner does not certify successful external support requests.
+- Attachment byte scenarios remain `unmet_precondition` until trusted storage-retention verification is available. Their implementations remain present. Mailbox upload-intent expiry is URL expiry; Sending attachment expiry is reference expiry. Neither establishes physical byte deletion, and no public attachment DELETE is assumed.
+
+## Evidence And Cancellation
+
+Results distinguish `passed`, `expected_negative`, `unmet_precondition`, `inapplicable`, and `failed`. Expected errors do not certify create/delete success. All selected applicable pairs must be accounted for exactly once; an unmet prerequisite prevents a successful run.
+
+Fresh execution requires a clean source checkout. Each run records its ID, source SHA, start/end times, selections, sanitized fixture identity, and cleanup outcome under `.tmp/live-e2e/RUN_ID/`. API keys, signed URLs, and response bodies are excluded; URL configuration is fingerprinted. GET absence and exact mailbox-key revocation receipts are labelled separately.
+
+The audit writer requires `--result`, `--run-id`, and matching source provenance; its default destination is that run's untracked `audit-manifest.json`, and it refuses overwrites. The committed schema-1 manifest is historical evidence, not a fallback for failed runner/build/writer execution. The protected workflow exposes each safety gate explicitly with mutation disabled by default.
+
+Timeouts abort owned requests and await body consumption or child close before cleanup. Signals cancel active work; the CLI owner writes the final report after teardown. Work that ignores cancellation beyond the existing shutdown grace causes nonzero termination with a durable incomplete ledger, no subsequent operation, and no claim that cleanup completed. The fatal owner attempts force termination without extending that grace; outstanding child PIDs and non-ESRCH signal failures remain explicit in the failed report, never a claim of confirmed process closure.
 
 ## Summary
 
@@ -19,25 +34,25 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 - OpenAPI operations by surface: management 54, mailbox 42, sending 8.
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
-- MCP adapters required for curated tools: 55.
+- Applicable MCP operation pairs: 55 (not a unique tool count).
 - Default executable live operations: 57.
 - Blocked behind safety gates: 49.
-- Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
-- Risks: binary 8, destructive 8, mutation 30, read 57, send 2, stream 1.
-- Modes: binary_fixture 8, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 15, read 36, read_fixture 21, send 2, stream 1, update_restore 8.
+- Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
+- Risks: binary 8, destructive 8, mutation 29, read 57, send 3, stream 1.
+- Modes: binary_fixture 8, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 14, read 36, read_fixture 21, send 3, stream 1, update_restore 8.
 
 ## Matrix
 
 | Surface | Operation | Method | Path | Mode | Risk | SDK | CLI | MCP | Gates | Fixture ownership |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| mailbox | `mailboxBatchDeleteMessages` | POST | `/mailbox/messages:batch-delete` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_delete_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
-| mailbox | `mailboxBatchGetMessages` | POST | `/mailbox/messages:batch-get` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_get_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
-| mailbox | `mailboxBatchUpdateMessages` | POST | `/mailbox/messages:batch-update` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_update_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
+| mailbox | `mailboxBatchDeleteMessages` | POST | `/mailbox/messages:batch-delete` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_delete_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
+| mailbox | `mailboxBatchGetMessages` | POST | `/mailbox/messages:batch-get` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_get_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
+| mailbox | `mailboxBatchUpdateMessages` | POST | `/mailbox/messages:batch-update` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_update_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxCountMessages` | GET | `/mailbox/messages/count` | read | read | typescript, python, go, php, ruby | yes | mailbox_count_messages | none | fixture |
 | mailbox | `mailboxCreateAttachmentUpload` | POST | `/mailbox/attachment-uploads` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_upload_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |
 | mailbox | `mailboxCreateFolder` | POST | `/mailbox/folders` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
 | mailbox | `mailboxDeleteFolder` | DELETE | `/mailbox/folders/{folder_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
-| mailbox | `mailboxDeleteMessage` | DELETE | `/mailbox/messages/{message_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
+| mailbox | `mailboxDeleteMessage` | DELETE | `/mailbox/messages/{message_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | e2e-owned |
 | mailbox | `mailboxGetChanges` | GET | `/mailbox/changes` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_changes | none | fixture |
 | mailbox | `mailboxGetConnection` | GET | `/mailbox/connection` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_connection | none | fixture |
 | mailbox | `mailboxGetFolder` | GET | `/mailbox/folders/{folder_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
@@ -45,7 +60,7 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | mailbox | `mailboxGetIdentity` | GET | `/mailbox/identity` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_identity | none | fixture |
 | mailbox | `mailboxGetMe` | GET | `/mailbox/me` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_me | none | fixture |
 | mailbox | `mailboxGetMessage` | GET | `/mailbox/messages/{message_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_get_message | none | fixture |
-| mailbox | `mailboxGetMessageAttachment` | GET | `/mailbox/messages/{message_id}/attachments/{attachment_id}` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_get_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | fixture |
+| mailbox | `mailboxGetMessageAttachment` | GET | `/mailbox/messages/{message_id}/attachments/{attachment_id}` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_get_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxGetQuotaChanges` | GET | `/mailbox/quotas/changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetSession` | GET | `/mailbox/session` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_session | none | fixture |
 | mailbox | `mailboxGetSubmission` | GET | `/mailbox/submissions/{submission_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
@@ -65,15 +80,15 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | mailbox | `mailboxListUsage` | GET | `/mailbox/usage` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxQueryFolderChanges` | GET | `/mailbox/folders/query-changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxQueryMessageChanges` | GET | `/mailbox/messages/query-changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
-| mailbox | `mailboxReadAttachment` | MCP | `mcp://mailbox_read_attachment` | binary_fixture | binary | n/a | n/a | mailbox_read_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | fixture |
+| mailbox | `mailboxReadAttachment` | MCP | `mcp://mailbox_read_attachment` | binary_fixture | binary | n/a | n/a | mailbox_read_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxSearchMessageSnippets` | GET | `/mailbox/messages/search-snippets` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_search_message_snippets | none | fixture |
-| mailbox | `mailboxSendMessage` | POST | `/mailbox/messages/send` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_send_message | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
+| mailbox | `mailboxSendMessage` | POST | `/mailbox/messages/send` | send | send | typescript, python, go, php, ruby | yes | mailbox_send_message | SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist | fixture |
 | mailbox | `mailboxStreamEvents` | GET | `/mailbox/events` | stream | stream | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_STREAM=1 | fixture |
 | mailbox | `mailboxUpdateFolder` | PATCH | `/mailbox/folders/{folder_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | mailbox | `mailboxUpdateIdentity` | PATCH | `/mailbox/identity` | update_restore | mutation | typescript, python, go, php, ruby | yes | mailbox_update_identity | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
-| mailbox | `mailboxUpdateMessage` | PATCH | `/mailbox/messages/{message_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
+| mailbox | `mailboxUpdateMessage` | PATCH | `/mailbox/messages/{message_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | restore-original |
 | mailbox | `mailboxUploadAttachment` | POST | `/mailbox/attachments:upload` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_upload_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |
-| mailbox | `mailboxWaitForMessage` | MCP | `mcp://mailbox_wait_for_message` | mutation_fixture | mutation | n/a | n/a | mailbox_wait_for_message | SENDMUX_LIVE_E2E_MUTATIONS=1; SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | fixture |
+| mailbox | `mailboxWaitForMessage` | MCP | `mcp://mailbox_wait_for_message` | mutation_fixture | mutation | n/a | n/a | mailbox_wait_for_message | SENDMUX_LIVE_E2E_MUTATIONS=1; SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | management | `managementActivateProvider` | POST | `/providers/{public_id}/activate` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | management | `managementCancelSharedAmazonSesLimitRequest` | DELETE | `/providers/shared-amazon-ses-limit-request/{request_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | management | `managementCheckMailboxAvailability` | GET | `/mailboxes/availability` | read_fixture | read | typescript, python, go, php, ruby | yes | management_check_mailbox_availability | none | fixture |
@@ -133,6 +148,6 @@ This matrix is a no-secret coverage contract. It proves every surfaced operation
 | sending | `sendingGetAttachment` | GET | `/emails/attachments/{attachment_id}` | binary_fixture | binary | typescript, python, go, php, ruby | yes | sending_get_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | fixture |
 | sending | `sendingGetConnection` | GET | `/me` | read | read | typescript, python, go, php, ruby | yes | sending_get_connection | none | fixture |
 | sending | `sendingGetOpenApiSpec` | GET | `/openapi.json` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
-| sending | `sendingSendEmail` | POST | `/emails/send` | send | send | typescript, python, go, php, ruby | yes | sending_send_email | SENDMUX_STAGING_SEND=1; SENDMUX_STAGING_SEND_TO allowlist | fixture |
-| sending | `sendingSendEmailBatch` | POST | `/emails/send/batch` | send | send | typescript, python, go, php, ruby | yes | sending_send_email_batch | SENDMUX_STAGING_SEND=1; SENDMUX_STAGING_SEND_TO allowlist | fixture |
+| sending | `sendingSendEmail` | POST | `/emails/send` | send | send | typescript, python, go, php, ruby | yes | sending_send_email | SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist | fixture |
+| sending | `sendingSendEmailBatch` | POST | `/emails/send/batch` | send | send | typescript, python, go, php, ruby | yes | sending_send_email_batch | SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist | fixture |
 | sending | `sendingUploadAttachment` | POST | `/emails/attachments` | binary_fixture | binary | typescript, python, go, php, ruby | yes | sending_upload_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |

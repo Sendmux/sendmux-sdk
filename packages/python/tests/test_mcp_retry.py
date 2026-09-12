@@ -96,6 +96,33 @@ def test_retry_chain_finishes_503_body_close_during_cancellation() -> None:
     anyio.run(check)
 
 
+def test_retry_chain_delivers_pending_cancellation_before_retrying_consumed_503() -> None:
+    async def check() -> None:
+        attempts = 0
+        returned_normally = False
+        with anyio.CancelScope() as cancel_scope:
+            def handler(request: httpx.Request) -> httpx.Response:
+                nonlocal attempts
+                attempts += 1
+                cancel_scope.cancel()
+                return httpx.Response(
+                    503,
+                    headers={"Content-Type": "application/json"},
+                    json={"ok": False, "error": {"retryable": True}},
+                    request=request,
+                )
+
+            transport = retry_chain(httpx.MockTransport(handler))
+            await transport.handle_async_request(httpx2.Request("GET", "https://app.sendmux.ai/api/v1/me"))
+            returned_normally = True
+
+        await transport.aclose()
+        assert attempts == 1
+        assert not returned_normally
+
+    anyio.run(check)
+
+
 def test_retry_chain_closes_503_response_when_body_read_fails() -> None:
     async def check() -> None:
         stream = FailingRetryBodyStream()

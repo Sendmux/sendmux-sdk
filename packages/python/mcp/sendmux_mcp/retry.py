@@ -8,6 +8,7 @@ from contextlib import suppress
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
+import anyio
 import httpx
 
 from sendmux_mcp.config import RetryConfig
@@ -40,6 +41,7 @@ class RetryingAsyncTransport(httpx.AsyncBaseTransport):
         last_error: httpx.TransportError | None = None
 
         for attempt in range(attempts):
+            await anyio.lowlevel.checkpoint_if_cancelled()
             next_request = clone_request(request, body)
             try:
                 response = await self.inner.handle_async_request(next_request)

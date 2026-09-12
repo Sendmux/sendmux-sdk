@@ -187,6 +187,24 @@ Maintainers: use the [protected live E2E matrix](docs/live-e2e-matrix.md) for cr
 
 ## Versioning and support
 
+### Maintain package contracts
+
+In a source checkout, maintainers can inspect the generated [MCP package contract](packages/python/mcp/sendmux_mcp/mcp-contract.json) for the actual tool catalogue, schemas, upload workflows, hosted resource, and frozen protocol revisions. It describes this checkout, not the version already available from a package registry. Source hashes and native distribution metadata bind the artifact to its inputs; local transports and upstream API origins are separate from the hosted OAuth resource.
+
+With the workspace dependencies installed and Python 3.10 or newer available, run these commands from the repository root:
+
+```sh
+pnpm generate:mcp
+pnpm test:release-state
+pnpm build:mcp
+```
+
+Generation refreshes editable Python metadata before discovering tools without upstream requests. The build checks wheel and source-distribution contents, an installed-wheel consumer outside the checkout, and the frozen conformance requirements. `pnpm drift:check` rejects generated changes that have not been staged or committed. Regenerate and review the contract when a release PR changes MCP's native version; do not reuse a contract from the previous version.
+
+Native release validation covers TypeScript, Python, Rust, Ruby, and Go's component/tag convention. Go has no in-module version field. PHP versions belong to split-repository tags, not `composer.version` or release-please; Composer identities and dependencies are checked without treating a local path-repository version as publication evidence. Exact published tags and versions remain release gates.
+
+### Package versions
+
 SDK packages track the Sendmux public API contracts. Patch versions can differ between packages when a fix only affects one ecosystem or runtime.
 
 Generated clients are built from committed OpenAPI snapshots. Any API contract change must update the snapshots and generated output in the same change.

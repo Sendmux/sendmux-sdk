@@ -11,12 +11,14 @@ rmSync(distDir, { force: true, recursive: true });
 mkdirSync(distDir, { recursive: true });
 
 run("node", ["scripts/check-python.mjs"]);
+run(python, ["-m", "sendmux_mcp.contract", "--check"]);
 
 for (const packageName of packages) {
   run(python, ["-m", "build", "--outdir", distDir, join("packages", "python", packageName)]);
 }
 
 run(python, ["-m", "twine", "check", `${distDir}/*`], { shell: true });
+run(python, ["scripts/check-mcp-artifacts.py", distDir]);
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {

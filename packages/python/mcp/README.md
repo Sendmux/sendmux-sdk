@@ -143,11 +143,30 @@ Packaged OpenAPI snapshots are the default so released tool names, schemas, and 
 
 ## Tool Surfaces
 
-- Mailbox: `26` tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
-- Management: `22` tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
-- Sending: `6` tools for attachment upload refs, single sends, and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
+- Mailbox: tools for granted mailboxes, profile/session discovery, messages, attachments, bounded message waits, threads, folders, search, counts, and mailbox sends. Requires an `smx_mbx_*` key or scoped `smx_agent_*` token. Agent tokens remain limited by server-side scopes; pre-claim self-registered agent tokens do not include `email.send`.
+- Management: tools for domains, mailboxes, logs, metrics, spend summary, and webhooks. Requires an `smx_root_*` key.
+- Sending: tools for attachment upload refs, single sends, and batch sends. Requires an `smx_mbx_*` key or owner-approved Sending-resource `smx_agent_*` token.
 
 The server rejects keys with the wrong prefix before starting.
+
+## Package Contract For Maintainers
+
+The source checkout includes `sendmux_mcp/mcp-contract.json`, generated from the actual server factory's public tool discovery. Use its `tools.by_surface` entries and `tools.count` instead of maintaining a separate catalogue. Each entry retains the tool's description, input/output schemas, and annotations. The contract also separates hosted resource, local transports, API origins, certified protocol revisions, and the runtime versions used during generation.
+
+After installing a build that contains the contract, read it without credentials or network requests:
+
+```python
+from sendmux_mcp.contract import load_contract
+
+contract = load_contract()
+print(contract["package"])
+```
+
+The result identifies the installed distribution and version. `load_contract()` raises `ValueError` for stale source/version evidence, a mismatched pinned FastMCP runtime, or unsupported certified revisions. The recorded transitive MCP version is provenance, not a narrower dependency constraint. Reading the artifact does not certify a newly resolved dependency version or prove a deployed service matches this build.
+
+`uploads` distinguishes the locally enforced inline and Mailbox byte caps from Sending's returned `max_size_bytes` authority. The Sending presign request schema does not impose a numeric maximum; use the upload intent response, not a historical source constant. URL expiry and physical attachment retention are not equivalent, and this artifact does not certify storage cleanup.
+
+From the repository root, `pnpm generate:mcp` refreshes native editable metadata and writes deterministic contract bytes. With that environment prepared, `pnpm exec .tmp/python-venv/bin/python -m sendmux_mcp.contract --check` checks freshness without rewriting. `pnpm build:mcp` verifies tests, wheel/sdist inclusion, installed consumption, and frozen conformance checks. Checkout changes are not available through `pip install` until their release is published.
 
 ## Attachment Workflow For Agents
 

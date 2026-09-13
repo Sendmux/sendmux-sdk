@@ -16,6 +16,8 @@ const sourcePaths = checkingSource
   ? [resolve(process.argv[3]), resolve(process.argv[4])]
   : [join(root, ".github/workflows/ci.yml"), join(root, ".github/workflows/chocolatey.yml")];
 const evidence = resolve(process.argv[2] ?? ".tmp/windows-workflow-native-exits");
+const parentCredentialSentinel = "sendmux-native-exit-parent-credential-sentinel";
+const parentEnvironment = { ...process.env, CHOCOLATEY_API_KEY: parentCredentialSentinel };
 const ci = readWorkflow(sourcePaths[0]);
 const chocolatey = readWorkflow(sourcePaths[1]);
 const windowsPowerShell = process.platform === "win32"
@@ -97,6 +99,15 @@ for (const candidate of candidates) {
   }
 }
 
+const nativeArguments = rows.flatMap((row) => row.commands ?? []).flatMap((command) => command.args);
+assert(
+  nativeArguments.every((argument) => !argument.includes(parentCredentialSentinel)),
+  "Synthetic parent Chocolatey credential reached native child arguments",
+);
+assert(
+  !readFileSync(resultsFile, "utf8").includes(parentCredentialSentinel),
+  "Synthetic parent Chocolatey credential reached retained test output",
+);
 assert(
   rows.every((row) => row.verdict === "passed" && !row.cleanup_error),
   "PowerShell workflow step masked a native command failure; see retained exact receipts",
@@ -209,7 +220,7 @@ export function finish(command, args) {
     server,
     stopped,
     env: {
-      ...process.env,
+      ...parentEnvironment,
       PATH: `${bin}${delimiter}${process.env.PATH}`,
       SENDMUX_CHOCOLATEY_VERSION: version,
       SENDMUX_NATIVE_COMMANDS: commands,

@@ -47,7 +47,7 @@
     "test:mcp-registry-version": "node --test scripts/mcp-registry-version.test.mjs",
     "test:openapi-canary": "node --test scripts/check-openapi-canary.test.mjs",
     "test:release-state": "node scripts/release-state.test.mjs && node --test scripts/release-state-fixtures.test.mjs scripts/mcp-contract.test.mjs",
-    "test:windows-command-shims": "node scripts/test-windows-command-shims.mjs",
+    "test:windows-command-shims": "node scripts/test-windows-command-shims.mjs && node scripts/test-windows-workflow-native-exits-wiring.mjs",
     "verify:codegen": "node scripts/verify-normalized-openapi.mjs",
     "verify:layout": "node scripts/verify-layout.mjs",
     "verify:sdk-staleness": "node scripts/verify-sdk-staleness.mjs",

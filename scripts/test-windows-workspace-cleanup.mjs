@@ -47,7 +47,7 @@ public static class DirectoryLock {
     public static extern bool CloseHandle(IntPtr handle);
 }
 '@
-$handle=[DirectoryLock]::CreateFile(${quoted(directory)},128,3,[IntPtr]::Zero,3,0x02000000,[IntPtr]::Zero)
+$handle=[DirectoryLock]::CreateFile(${quoted(directory)},1,3,[IntPtr]::Zero,3,0x02000000,[IntPtr]::Zero)
 if ($handle -eq [IntPtr](-1)) { throw 'Directory lock acquisition failed' }
 try {
     [IO.File]::WriteAllText(${quoted(ready)}, ('{"pid":' + $PID + '}'))

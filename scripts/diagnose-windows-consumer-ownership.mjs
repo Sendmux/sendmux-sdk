@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -152,9 +153,9 @@ exit 0`;
         await recover(handles.leader, row);
       }
       if (invocation) await invocation;
-      if (directory && existsSync(directory)) rmSync(directory, { recursive: true });
+      if (directory && existsSync(directory)) await rm(directory, { recursive: true, maxRetries: 3, retryDelay: 100 });
       assert(!directory || !existsSync(directory));
-      rmSync(fixture, { recursive: true });
+      await rm(fixture, { recursive: true, maxRetries: 3, retryDelay: 100 });
       assert(!existsSync(fixture));
       row.paths_absent = true;
     } catch (error) {

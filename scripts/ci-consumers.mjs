@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -72,7 +73,7 @@ export async function run(command, args, { cwd = root, env = process.env, captur
     await termination;
     if (signalError) throw signalError;
     if (windows) {
-      const result = windows.confirm();
+      const result = await windows.confirm();
       assert(processAbsent(child.pid), "Windows Job controller has not closed");
       ownedChildren.delete(child.pid);
       console.log(JSON.stringify({ child_closed: child.pid }));
@@ -111,7 +112,7 @@ export async function workspace(label, action) {
     if (ownedChildren.size) {
       console.error(JSON.stringify({ retained_workspace: directory, unconfirmed_children: [...ownedChildren] }));
     } else {
-      rmSync(directory, { recursive: true });
+      await rm(directory, { recursive: true, maxRetries: 3, retryDelay: 100 });
       assert(!existsSync(directory));
       console.log(JSON.stringify({ removed_workspace: directory }));
     }

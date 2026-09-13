@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,7 +25,7 @@ export function startWindowsConsumer(command, args, options) {
   return {
     child,
     stop() { writeFileSync(request.stop, "stop"); },
-    confirm() {
+    async confirm() {
       assert(existsSync(request.result), `Windows Job shutdown unconfirmed; retained ${directory}`);
       const result = JSON.parse(readFileSync(request.result, "utf8"));
       assert.equal(result.job, request.job);
@@ -32,7 +33,7 @@ export function startWindowsConsumer(command, args, options) {
       assert.equal(result.active_processes, 0);
       assert.equal(typeof result.orphan, "boolean");
       assert.equal(typeof result.interrupted, "boolean");
-      rmSync(directory, { recursive: true });
+      await rm(directory, { recursive: true, maxRetries: 3, retryDelay: 100 });
       assert(!existsSync(directory));
       console.log(JSON.stringify({ removed_workspace: directory, job_closed: request.job }));
       return result;

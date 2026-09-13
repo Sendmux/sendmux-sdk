@@ -2,6 +2,7 @@
 
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -10,11 +11,21 @@ import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "..");
+const checkingSource = process.argv[2] === "--check-source";
+const sourcePaths = checkingSource
+  ? [resolve(process.argv[3]), resolve(process.argv[4])]
+  : [join(root, ".github/workflows/ci.yml"), join(root, ".github/workflows/chocolatey.yml")];
 const evidence = resolve(process.argv[2] ?? ".tmp/windows-workflow-native-exits");
-const ci = readFileSync(join(root, ".github/workflows/ci.yml"), "utf8");
-const chocolatey = readFileSync(join(root, ".github/workflows/chocolatey.yml"), "utf8");
-const windowsPowerShell = join(process.env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+const ci = readWorkflow(sourcePaths[0]);
+const chocolatey = readWorkflow(sourcePaths[1]);
+const windowsPowerShell = process.platform === "win32"
+  ? join(process.env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
+  : "powershell.exe";
 const rows = [];
+
+function readWorkflow(file) {
+  return readFileSync(file, "utf8").replaceAll("\r\n", "\n");
+}
 
 const candidates = [
   {
@@ -60,7 +71,21 @@ const candidates = [
   },
 ];
 
-for (const candidate of candidates) assert(candidate.scripts().length > 0, `No workflow run block found for ${candidate.name}`);
+const extracted = candidates.map((candidate) => ({
+  name: candidate.name,
+  scripts: candidate.scripts(),
+}));
+for (const candidate of extracted) assert(candidate.scripts.length > 0, `No workflow run block found for ${candidate.name}`);
+if (checkingSource) {
+  console.log(JSON.stringify({
+    candidates: extracted.map((candidate) => ({
+      name: candidate.name,
+      blocks: candidate.scripts.length,
+      digest: createHash("sha256").update(JSON.stringify(candidate.scripts)).digest("hex"),
+    })),
+  }));
+  process.exit(0);
+}
 assert.equal(process.platform, "win32", "Workflow native-exit regression requires actual Windows PowerShell");
 assert(!existsSync(evidence), "Preserve prior workflow native-exit receipts");
 mkdirSync(evidence, { recursive: true });

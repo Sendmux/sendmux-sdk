@@ -27,7 +27,7 @@ const candidates = [
   },
   {
     name: "chocolatey-helper-validation",
-    shell: windowsPowerShell,
+    shell: "pwsh.exe",
     scripts: () => [stepScript(chocolatey, "Verify workflow helper scripts")],
     invalidEarlySyntax: true,
     finalFailure: 5,

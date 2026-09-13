@@ -17,6 +17,7 @@ const sourcePaths = checkingSource
   : [join(root, ".github/workflows/ci.yml"), join(root, ".github/workflows/chocolatey.yml")];
 const evidence = resolve(process.argv[2] ?? ".tmp/windows-workflow-native-exits");
 const parentCredentialSentinel = "sendmux-native-exit-parent-credential-sentinel";
+const fixtureCredential = "sendmux-native-exit-inert-credential";
 const parentEnvironment = { ...process.env, CHOCOLATEY_API_KEY: parentCredentialSentinel };
 const ci = readWorkflow(sourcePaths[0]);
 const chocolatey = readWorkflow(sourcePaths[1]);
@@ -221,6 +222,7 @@ export function finish(command, args) {
     stopped,
     env: {
       ...parentEnvironment,
+      CHOCOLATEY_API_KEY: fixtureCredential,
       PATH: `${bin}${delimiter}${process.env.PATH}`,
       SENDMUX_CHOCOLATEY_VERSION: version,
       SENDMUX_NATIVE_COMMANDS: commands,

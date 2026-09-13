@@ -131,6 +131,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           node scripts/test-windows-consumer-sensitivity.mjs
+      - name: Verify PowerShell workflow native exits
+        if: runner.os == 'Windows'
+        run: pnpm test:windows-workflow-native-exits
       - name: Install and import all six candidate tarballs
         run: node scripts/ci-consumers.mjs node
       - name: Twelve packed AI and Zod peer consumers

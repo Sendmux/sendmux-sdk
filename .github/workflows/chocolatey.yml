@@ -274,6 +274,9 @@ jobs:
       - name: Install diagnostic dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prove PowerShell native exit propagation
+        run: pnpm test:windows-workflow-native-exits
+
       - name: Verify real Windows directory-lock cleanup
         run: node scripts/test-windows-workspace-cleanup.mjs .tmp/windows-workspace-cleanup
 
@@ -289,6 +292,7 @@ jobs:
         with:
           name: windows-consumer-ownership
           path: |
+            .tmp/windows-workflow-native-exits/
             .tmp/windows-consumer-ownership/results.json
             .tmp/windows-workspace-cleanup/
           if-no-files-found: error

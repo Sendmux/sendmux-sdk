@@ -38,6 +38,7 @@
     "test:chocolatey-asset-tools": "node scripts/test-chocolatey-asset-tools.mjs",
     "test:chocolatey-package-files": "node scripts/test-chocolatey-package-files.mjs",
     "test:chocolatey-workflow-order": "node scripts/test-chocolatey-workflow-order.mjs",
+    "test:windows-workflow-native-exits": "node scripts/test-windows-workflow-native-exits.mjs",
     "test:snap-workflow": "node scripts/test-snap-workflow.mjs",
     "test:cli-tarball-tools": "node scripts/test-cli-tarball-tools.mjs",
     "test:ts-helpers": "node scripts/test-ts-helpers.mjs",

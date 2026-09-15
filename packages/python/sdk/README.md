@@ -104,11 +104,11 @@ The umbrella package lazy-loads:
 
 Use the per-surface packages directly when an integration only needs one API surface.
 
-## Version 2 migration candidate
+## Version 2.0.0 migration
 
-Version 2 is not published yet. The umbrella's `mailbox` module adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose optional typed `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose typed state metadata where applicable.
+The umbrella's `mailbox` module adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose optional typed `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose typed state metadata where applicable.
 
-When the release is available, update `sendmux-sdk`, `sendmux-mailbox`, the lockfile, and affected annotations or fixtures together. To roll back, restore the previous package requirements, lockfile, and call sites together.
+Update `sendmux-sdk`, `sendmux-mailbox`, the lockfile, and affected annotations or fixtures together. To roll back, restore the previous package requirements, lockfile, and call sites together.
 
 ## Support
 

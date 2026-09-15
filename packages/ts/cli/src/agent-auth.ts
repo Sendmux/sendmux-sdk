@@ -359,8 +359,12 @@ export async function waitForMailbox(
     }
     if (response.ok) return;
     const body = await responseJson(response);
+    const errorCode =
+      typeof body.error === "object" && body.error !== null && !Array.isArray(body.error) && "code" in body.error
+        ? body.error.code
+        : body.error;
     const provisioningUnavailable =
-      response.status === 503 && (body.error === "service_unavailable" || body.error === "temporarily_unavailable");
+      response.status === 503 && (errorCode === "service_unavailable" || errorCode === "temporarily_unavailable");
     if (!provisioningUnavailable) {
       throw new Error(agentAuthFailureMessage(response.status, body));
     }

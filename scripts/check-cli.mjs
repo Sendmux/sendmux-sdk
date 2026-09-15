@@ -57,6 +57,8 @@ if (oauthCheck.status !== 0) throw new Error("CLI OAuth verification failed");
 
 const serverState = {
   readinessAttempts: 0,
+  restReadinessAttempts: 0,
+  forbiddenReadinessAttempts: 0,
   crossProfileRegistrationRequests: 0,
   registrationIdempotencyKeys: [],
   registrations: 0,
@@ -64,6 +66,7 @@ const serverState = {
   tokenExchanges: 0,
 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
+console.log(JSON.stringify({ workspace: tempHome, owner_pid: process.pid }));
 const server = createServer(async (request, response) => {
   const chunks = [];
   for await (const chunk of request) {
@@ -172,6 +175,41 @@ const server = createServer(async (request, response) => {
       response.writeHead(401, { "Content-Type": "application/json" });
       response.end(JSON.stringify({ error: "wrong durable token" }));
       return;
+    }
+    if (authorization === `Bearer ${durableAgentKey}_forbidden-agent`) {
+      serverState.forbiddenReadinessAttempts += 1;
+      if (serverState.forbiddenReadinessAttempts === 1) {
+        response.writeHead(403, {
+          "Content-Type": "application/json", "Cache-Control": "no-store", "X-Request-Id": "req_cli_forbidden",
+        });
+        response.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: "insufficient_permissions", message: "This access token lacks the required permission: mailbox.read",
+            doc_url: "https://sendmux.ai/docs/api/errors#insufficient_permissions", retryable: false,
+          },
+          meta: { request_id: "req_cli_forbidden" },
+        }));
+        return;
+      }
+    }
+    if (authorization === `Bearer ${durableAgentKey}_rest-ready-agent`) {
+      serverState.restReadinessAttempts += 1;
+      if (serverState.restReadinessAttempts === 1) {
+        response.writeHead(503, {
+          "Content-Type": "application/json", "Cache-Control": "no-store",
+          "Retry-After": "1", "X-Request-Id": "req_cli_rest_readiness",
+        });
+        response.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: "service_unavailable", message: "Mailbox provisioning is still in progress. Please retry shortly.",
+            doc_url: "https://sendmux.ai/docs/api/errors#service_unavailable", retryable: true,
+          },
+          meta: { request_id: "req_cli_rest_readiness" },
+        }));
+        return;
+      }
     }
     if (authorization === `Bearer ${durableAgentKey}`) {
       serverState.readinessAttempts += 1;
@@ -306,6 +344,7 @@ const server = createServer(async (request, response) => {
 
 server.listen(0, "127.0.0.1");
 await once(server, "listening");
+console.log(JSON.stringify({ resource: "http_server", address: server.address(), state: "listening" }));
 
 try {
   assertCliPackageMetadata();
@@ -933,6 +972,28 @@ try {
     throw new Error("agent:register resume created a duplicate registration");
   }
 
+  const restRegistration = await runCli([
+    "agent:register", "rest-ready-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "rest-ready-agent", "--json",
+  ]);
+  assertCliSuccess(restRegistration, "agent:register nested REST readiness");
+  assertDeepEqual(JSON.parse(restRegistration.stdout).data.status, "active", "Nested REST readiness must reach active");
+  assertDeepEqual(serverState.restReadinessAttempts, 2, "Nested REST readiness must retry once before ready");
+  if (restRegistration.stdout.includes(durableAgentKey)) throw new Error("Nested REST registration leaked its access token");
+  console.log(JSON.stringify({ readiness: "nested-temporary", status: restRegistration.status, attempts: serverState.restReadinessAttempts }));
+
+  const forbiddenRegistration = await runCli([
+    "agent:register", "forbidden-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "forbidden-agent", "--json",
+  ]);
+  console.log(JSON.stringify({ readiness: "nested-forbidden", status: forbiddenRegistration.status, attempts: serverState.forbiddenReadinessAttempts }));
+  assertDeepEqual(forbiddenRegistration.status, 1, "Forbidden REST readiness must fail registration");
+  assertDeepEqual(serverState.forbiddenReadinessAttempts, 1, "Forbidden REST readiness must not retry");
+  if (!JSON.parse(forbiddenRegistration.stdout).error.message.includes("HTTP 403")) {
+    throw new Error("Forbidden REST readiness must report its HTTP status");
+  }
+  if (forbiddenRegistration.stdout.includes(durableAgentKey)) throw new Error("Forbidden REST registration leaked its access token");
+
   const concurrentResults = await Promise.all([
     runCli([
       "agent:register",
@@ -1112,8 +1173,13 @@ try {
 
   console.log("CLI gate checks passed.");
 } finally {
-  server.close();
+  const address = server.address();
+  server.closeAllConnections();
+  await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  console.log(JSON.stringify({ resource: "http_server", address, state: "closed" }));
   rmSync(tempHome, { force: true, recursive: true });
+  assertDeepEqual(existsSync(tempHome), false, "CLI fixture must be removed after verification");
+  console.log(JSON.stringify({ removed_workspace: tempHome }));
 }
 
 function ensureCliBuilt() {
@@ -1144,6 +1210,7 @@ function runCli(args, env = {}) {
       },
       stdio: ["ignore", "pipe", "pipe"],
     });
+    console.log(JSON.stringify({ child_pid: child.pid, command: args[0] }));
     const timeout = setTimeout(() => {
       child.kill("SIGTERM");
       reject(new Error(`CLI command timed out: ${args.join(" ")}`));
@@ -1165,6 +1232,7 @@ function runCli(args, env = {}) {
     });
     child.on("close", (status) => {
       clearTimeout(timeout);
+      console.log(JSON.stringify({ child_closed: child.pid }));
       resolve({
         status,
         stderr,
@@ -1329,6 +1397,7 @@ async function expectMailboxTimeout(run) {
 
 async function assertCliArrayParameterSupport() {
   const fixtureDir = mkdtempSync(join(tmpdir(), "sendmux-cli-array-spec-"));
+  console.log(JSON.stringify({ workspace: fixtureDir, owner_pid: process.pid }));
   try {
     writeFileSync(
       join(fixtureDir, "openapi-app.json"),
@@ -1433,6 +1502,8 @@ async function assertCliArrayParameterSupport() {
     assertDeepEqual(parsed.query?.event_types, ["message.received", "sync_required"], "Repeated array query flags must append instead of overwrite");
   } finally {
     rmSync(fixtureDir, { force: true, recursive: true });
+    assertDeepEqual(existsSync(fixtureDir), false, "CLI array fixture must be removed after verification");
+    console.log(JSON.stringify({ removed_workspace: fixtureDir }));
   }
 }
 

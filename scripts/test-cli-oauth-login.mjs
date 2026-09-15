@@ -4,8 +4,11 @@ import { createHash } from "node:crypto";
 import { once } from "node:events";
 import {
   access,
+  lstat,
+  mkdir,
   mkdtemp,
   readFile,
+  rename,
   rm,
   stat,
   writeFile,
@@ -20,6 +23,29 @@ import { pathToFileURL } from "node:url";
 const windowsPowerShellEnv = Object.fromEntries(
   Object.entries(process.env).filter(([name]) => name.toUpperCase() !== "PSMODULEPATH"),
 );
+
+async function claimDirectory(path) {
+  await mkdir(path);
+  const descriptor = await lstat(path);
+  assert.ok(descriptor.isDirectory() && !descriptor.isSymbolicLink());
+  return { path, dev: descriptor.dev, ino: descriptor.ino };
+}
+
+async function removeClaimedDirectory(claim) {
+  const descriptor = await lstat(claim.path).catch((error) => {
+    throw new Error(`Claimed directory identity is uncertain: ${error.code}`, {
+      cause: error,
+    });
+  });
+  assert.ok(
+    descriptor.isDirectory() &&
+      !descriptor.isSymbolicLink() &&
+      descriptor.dev === claim.dev &&
+      descriptor.ino === claim.ino,
+    "Claimed directory identity changed; retaining it",
+  );
+  await rm(claim.path, { recursive: true, force: true });
+}
 
 async function assertPrivatePath(path, mode) {
   if (process.platform !== "win32") {
@@ -64,10 +90,11 @@ async function assertPrivatePath(path, mode) {
 }
 
 async function fixture(t, defaultConfigDir) {
-  const directory = await mkdtemp(join(tmpdir(), "sendmux-native-oauth-"));
-  console.log(JSON.stringify({ resource: "temp_directory", state: "created", path: directory }));
+  const defaultConfigClaim = defaultConfigDir
+    ? await claimDirectory(defaultConfigDir)
+    : null;
   const state = {
-    directory,
+    directory: null,
     defaultConfigDir,
     children: new Set(),
     requests: [],
@@ -79,11 +106,39 @@ async function fixture(t, defaultConfigDir) {
     authorizationLifetime: 900,
     refreshDelay: 0,
   };
+  let server;
+  t.after(async () => {
+    for (const record of state.children) {
+      if (record.child.exitCode === null && record.child.signalCode === null)
+        record.child.kill("SIGTERM");
+    }
+    await Promise.all([...state.children].map((record) => record.closed));
+    assert.equal(state.children.size, 0, "CLI shutdown unconfirmed; retaining credential fixture");
+    if (server) {
+      server.closeAllConnections();
+      await new Promise((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+      assert.equal(server.listening, false);
+    }
+    if (defaultConfigClaim) {
+      await removeClaimedDirectory(defaultConfigClaim);
+      await assert.rejects(access(defaultConfigDir), { code: "ENOENT" });
+      console.log(JSON.stringify({ resource: "default_config_directory", state: "removed", path: defaultConfigDir }));
+    }
+    if (state.directory) {
+      await rm(state.directory, { recursive: true, force: true });
+      await assert.rejects(access(state.directory), { code: "ENOENT" });
+      console.log(JSON.stringify({ resource: "temp_directory", state: "removed", path: state.directory }));
+    }
+  });
+  state.directory = await mkdtemp(join(tmpdir(), "sendmux-native-oauth-"));
+  console.log(JSON.stringify({ resource: "temp_directory", state: "created", path: state.directory }));
   state.configPath = join(
-    defaultConfigDir ?? join(directory, ".config", "sendmux"),
+    defaultConfigDir ?? join(state.directory, ".config", "sendmux"),
     "config.json",
   );
-  const server = createServer(async (req, res) => {
+  server = createServer(async (req, res) => {
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
     const raw = Buffer.concat(chunks).toString();
@@ -196,22 +251,6 @@ async function fixture(t, defaultConfigDir) {
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   state.issuer = `http://127.0.0.1:${server.address().port}`;
-  t.after(async () => {
-    server.closeAllConnections();
-    await new Promise((resolve, reject) =>
-      server.close((error) => (error ? reject(error) : resolve())),
-    );
-    assert.equal(server.listening, false);
-    assert.equal(state.children.size, 0, "CLI shutdown unconfirmed; retaining credential fixture");
-    if (defaultConfigDir) {
-      await rm(defaultConfigDir, { recursive: true, force: true });
-      await assert.rejects(access(defaultConfigDir), { code: "ENOENT" });
-      console.log(JSON.stringify({ resource: "default_config_directory", state: "removed", path: defaultConfigDir }));
-    }
-    await rm(directory, { recursive: true, force: true });
-    await assert.rejects(access(directory), { code: "ENOENT" });
-    console.log(JSON.stringify({ resource: "temp_directory", state: "removed", path: directory }));
-  });
   return state;
 }
 
@@ -239,7 +278,21 @@ async function cli(t, state, args, authorize = false) {
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
-  if (child.pid) state.children.add(child.pid);
+  let resolveClosed;
+  const closed = new Promise((resolve) => {
+    resolveClosed = resolve;
+  });
+  const record = { child, closed };
+  state.children.add(record);
+  child.once("error", (error) => {
+    record.spawnError = error;
+  });
+  child.once("close", (code, signal) => {
+    state.children.delete(record);
+    console.log(JSON.stringify({ resource: "cli_child", state: "closed", pid: child.pid, code, signal }));
+    resolveUrl?.(null);
+    resolveClosed([code, signal]);
+  });
   console.log(JSON.stringify({ resource: "cli_child", state: "spawned", pid: child.pid }));
   let stdout = "",
     stderr = "",
@@ -257,17 +310,6 @@ async function cli(t, state, args, authorize = false) {
       /http:\/\/127\.0\.0\.1:\d+\/oauth\/authorize\?[^\s]+/,
     )?.[0];
     if (url) resolveUrl(url);
-  });
-  const closed = once(child, "close");
-  closed.then(([code]) => {
-    state.children.delete(child.pid);
-    console.log(JSON.stringify({ resource: "cli_child", state: "closed", pid: child.pid, code }));
-    resolveUrl(null);
-  });
-  t.after(async () => {
-    if (child.exitCode === null && child.signalCode === null)
-      child.kill("SIGTERM");
-    await closed;
   });
   if (authorize) {
     const url = await authorizationUrl;
@@ -357,11 +399,6 @@ test("native login uses S256, validates the callback and saves a protected profi
       "Windows default-path proof requires LOCALAPPDATA",
     );
     defaultConfigDir = join(process.env.LOCALAPPDATA, "sendmux");
-    await assert.rejects(
-      access(defaultConfigDir),
-      { code: "ENOENT" },
-      "Preserve any pre-existing Sendmux profile directory",
-    );
     console.log(JSON.stringify({
       windows_default_config: defaultConfigDir,
       node: process.version,
@@ -466,6 +503,31 @@ test("native login uses S256, validates the callback and saves a protected profi
     JSON.parse(await readFile(state.configPath, "utf8")).profiles.native.type,
     "oauth",
   );
+});
+
+test("fixture cleanup retains a directory whose identity changed after ownership was claimed", async (t) => {
+  const parent = await mkdtemp(join(tmpdir(), "sendmux-ownership-replaced-"));
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const target = join(parent, "sendmux");
+  const displaced = join(parent, "owned-original");
+  const claim = await claimDirectory(target);
+  await rename(target, displaced);
+  await mkdir(target);
+  await writeFile(join(target, "unrelated.txt"), "retain\n");
+
+  await assert.rejects(removeClaimedDirectory(claim), /identity changed/);
+  assert.equal(await readFile(join(target, "unrelated.txt"), "utf8"), "retain\n");
+});
+
+test("fixture ownership rejects and retains a pre-existing directory", async (t) => {
+  const parent = await mkdtemp(join(tmpdir(), "sendmux-ownership-existing-"));
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const target = join(parent, "sendmux");
+  await mkdir(target);
+  await writeFile(join(target, "existing.txt"), "retain\n");
+
+  await assert.rejects(claimDirectory(target), { code: "EEXIST" });
+  assert.equal(await readFile(join(target, "existing.txt"), "utf8"), "retain\n");
 });
 
 test("expired profiles rotate once across concurrent CLI requests", async (t) => {

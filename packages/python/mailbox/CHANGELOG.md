@@ -1,17 +1,19 @@
 # Changelog
 
-## Unreleased 2.0 migration
-
-- Thread-message lists use `MailboxThreadMessageSummaryCursorListResponse`, with required `meta.thread_id` and typed optional `meta.sync_state`; ordinary message lists remain thread-independent.
-- Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
-- Upgrade the distribution, lockfile, and affected annotations or fixtures together; restore all three together to roll back.
-
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.5.1...python-mailbox-v2.0.0) (2026-09-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Thread-message lists now return `MailboxThreadMessageSummaryCursorListResponse` instead of the ordinary message-list response type, with required `meta.thread_id` and typed optional `meta.sync_state`; ordinary message lists remain thread-independent.
+* Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
+* Upgrade the distribution, lockfile, and affected annotations or fixtures together; restore all three together to roll back.
 
 
 ### Bug Fixes
 
 * prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+* **mailbox:** preserve core error propagation with a `sendmux-core` minimum of `1.3.1`
 
 ## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.5.0...python-mailbox-v1.5.1) (2026-09-11)
 

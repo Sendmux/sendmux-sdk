@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.6.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.6.0...ts-cli-v1.6.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **cli:** bound agent authentication request lifetimes ([b3f0129](https://github.com/Sendmux/sendmux-sdk/commit/b3f0129b542190773f9346dfba535c1a711ee73e))
+* **cli:** bound agent authentication response bodies ([0972d2e](https://github.com/Sendmux/sendmux-sdk/commit/0972d2e1ef18891deaaba0513a1572544eebc9e0))
+* **cli:** recognise REST readiness error envelopes ([691ed25](https://github.com/Sendmux/sendmux-sdk/commit/691ed2589a95e681f08ed9ea7f804a312c7e975d))
+* **cli:** reject agent authentication redirects ([34461a0](https://github.com/Sendmux/sendmux-sdk/commit/34461a02debd65a2bd93f9cca5b28bfa796ff1b9))
+* **cli:** retain readiness response ownership through completion ([e482b37](https://github.com/Sendmux/sendmux-sdk/commit/e482b37633eb9ac4c422dcdf5c53a00ebf67102a))
+* **cli:** retry Windows profile filesystem contention ([8e4a570](https://github.com/Sendmux/sendmux-sdk/commit/8e4a5702c0561b86db5558fb332a126d577be78a))
+* preserve attachment idempotency across composite sends ([5549549](https://github.com/Sendmux/sendmux-sdk/commit/554954947126eb2bdf56e1bf675ebc2b908a8216))
+* **sending:** bound attachment file reads before upload ([83cb780](https://github.com/Sendmux/sendmux-sdk/commit/83cb7802a0e35d0779dad2f2c7d69e21c6d3d8d3))
+* **sending:** reject excess files before attachment uploads ([3a1deca](https://github.com/Sendmux/sendmux-sdk/commit/3a1deca72f3fac51bb3843fce175ba2cd367e7c7))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/sdk bumped to 2.0.0
+
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.5.0...ts-cli-v1.6.0) (2026-09-11)
 
 

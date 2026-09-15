@@ -28,7 +28,7 @@
     "generate:ruby": "node scripts/generate-ruby.mjs",
     "generate:ts": "openapi-ts",
     "hooks:install": "git config core.hooksPath .githooks",
-    "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && redocly lint --extends=spec .codegen/*.json",
+    "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && node scripts/test-redocly-merge-budget.mjs && redocly lint --extends=spec .codegen/*.json",
     "normalize:codegen": "node scripts/normalize-openapi-for-codegen.mjs",
     "smoke:mcp-staging": "node scripts/smoke-mcp-staging.mjs",
     "smoke:ts-staging": "node scripts/smoke-ts-staging.mjs",
@@ -62,11 +62,11 @@
     "test:connection-adapters": "node --test scripts/test-connection-adapters.mjs"
   },
   "devDependencies": {
-    "@modelcontextprotocol/conformance": "0.2.0-alpha.11",
     "@apiture/openapi-down-convert": "0.14.2",
     "@hey-api/openapi-ts": "0.97.3",
+    "@modelcontextprotocol/conformance": "0.2.0-alpha.11",
     "@openapitools/openapi-generator-cli": "2.32.0",
-    "@redocly/cli": "2.51.2",
+    "@redocly/cli": "2.53.0",
     "@sendmux/sdk": "workspace:*",
     "cross-spawn": "7.0.6",
     "esbuild": "0.28.1",
@@ -84,7 +84,8 @@
       "undici": "6.28.0"
     },
     "patchedDependencies": {
-      "@hey-api/openapi-ts@0.97.3": "patches/@hey-api__openapi-ts@0.97.3.patch"
+      "@hey-api/openapi-ts@0.97.3": "patches/@hey-api__openapi-ts@0.97.3.patch",
+      "@redocly/cli@2.53.0": "patches/@redocly__cli@2.53.0.patch"
     }
   }
 }

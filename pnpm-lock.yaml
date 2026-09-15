@@ -18,6 +18,9 @@ patchedDependencies:
   '@hey-api/openapi-ts@0.97.3':
     hash: 07847db1d946c3674909a4553717ae029683c136787d2fc300b00a29418981b9
     path: patches/@hey-api__openapi-ts@0.97.3.patch
+  '@redocly/cli@2.53.0':
+    hash: c75c4bbfba7baa15e64ca506e019be092e3da817a16b356d92f970de73d2002f
+    path: patches/@redocly__cli@2.53.0.patch
 
 importers:
 
@@ -36,8 +39,8 @@ importers:
         specifier: 2.32.0
         version: 2.32.0
       '@redocly/cli':
-        specifier: 2.51.2
-        version: 2.51.2
+        specifier: 2.53.0
+        version: 2.53.0(patch_hash=c75c4bbfba7baa15e64ca506e019be092e3da817a16b356d92f970de73d2002f)
       '@sendmux/sdk':
         specifier: workspace:*
         version: link:packages/ts/sdk
@@ -755,8 +758,8 @@ packages:
     resolution: {integrity: sha512-//0sR/cow/s4ICQaYoAobOl4aU8cjU6x/V24V7XkKotb9+O+3zySIYp146vpaobYHnxa4pZX8NkV54Z5AwbDKA==}
     engines: {node: '>=12'}
 
-  '@redocly/cli@2.51.2':
-    resolution: {integrity: sha512-pviW1gfsjCAuIVutmQcihlhlgoivfNzisBIR61EwSSREHGZ08Sbtjp/h/HPDkVavWwdzR/gs2wgHrdXLd6qU1A==}
+  '@redocly/cli@2.53.0':
+    resolution: {integrity: sha512-lMtzH4YF2RFW5+pV9oSlkoj2MkvTSAceV6/Qgn7l56PwzEWM1To62qWjlCWaZcMr9AxOpvWuS0XoE942Mzug3A==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
     hasBin: true
 
@@ -2972,7 +2975,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@redocly/cli@2.51.2': {}
+  '@redocly/cli@2.53.0(patch_hash=c75c4bbfba7baa15e64ca506e019be092e3da817a16b356d92f970de73d2002f)': {}
 
   '@sindresorhus/is@5.6.0': {}
 

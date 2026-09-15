@@ -6,6 +6,15 @@
 
 * add Node file attachment helper for Sending API email sends
 
+## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-sending-v1.5.0...ts-sending-v1.5.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* preserve attachment idempotency across composite sends ([5549549](https://github.com/Sendmux/sendmux-sdk/commit/554954947126eb2bdf56e1bf675ebc2b908a8216))
+* **sending:** bound attachment file reads before upload ([83cb780](https://github.com/Sendmux/sendmux-sdk/commit/83cb7802a0e35d0779dad2f2c7d69e21c6d3d8d3))
+* **sending:** reject excess files before attachment uploads ([3a1deca](https://github.com/Sendmux/sendmux-sdk/commit/3a1deca72f3fac51bb3843fce175ba2cd367e7c7))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sending-v1.4.0...ts-sending-v1.5.0) (2026-09-10)
 
 

@@ -6,6 +6,13 @@
 
 * Require `sendmux-core>=1.3.1,<2.0.0` to preserve API errors during context-manager cleanup.
 
+## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.4.0...python-management-v1.4.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **python:** enforce Management and LangChain dependency floors ([#226](https://github.com/Sendmux/sendmux-sdk/issues/226)) ([aea3b55](https://github.com/Sendmux/sendmux-sdk/commit/aea3b5599e92f6a7156bc79e70f26376103c2cb5))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.3.0...python-management-v1.4.0) (2026-09-10)
 
 

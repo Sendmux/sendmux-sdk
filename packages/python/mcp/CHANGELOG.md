@@ -8,7 +8,7 @@
 * **mcp:** remove local file_path attachment inputs and require bounded inline or delegated uploads.
   MCP attachment tools no longer accept local paths or roots. Use presigned
   uploads for files, or inline base64 for content within the tool's limit. See
-  [the 2.0.0 upgrade and rollback guidance](README.md#2000-upgrade).
+  [the 2.0.0 upgrade and rollback guidance](README.md#200-upgrade).
 
 ### Features
 

@@ -186,6 +186,13 @@ try {
   );
 
   for (const surface of ["sending", "mailbox", "management"]) {
+    const surfaceErrorPattern = new RegExp(
+      `${surface}[\\\\/]pyproject\\.toml must require sendmux-core`,
+    );
+    assert.match(
+      `C:\\repo\\packages\\python\\${surface}\\pyproject.toml must require sendmux-core`,
+      surfaceErrorPattern,
+    );
     writeFixture({
       manifest: {
         "packages/python/core": "1.3.1",
@@ -202,7 +209,7 @@ try {
     });
     assert.throws(
       () => checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface]) }),
-      new RegExp(`${surface}/pyproject\\.toml must require sendmux-core >= 1\\.3\\.1,<2\\.0\\.0`),
+      new RegExp(`${surfaceErrorPattern.source} >= 1\\.3\\.1,<2\\.0\\.0`),
     );
     assert.doesNotThrow(() =>
       checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface === "sending" ? "mailbox" : "sending"]) }),
@@ -242,7 +249,7 @@ try {
       });
       assert.throws(
         () => checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface]) }),
-        new RegExp(`${surface}/pyproject\\.toml must require sendmux-core with an explicit >= floor and <2\\.0\\.0 upper bound`),
+        new RegExp(`${surfaceErrorPattern.source} with an explicit >= floor and <2\\.0\\.0 upper bound`),
       );
     }
   }

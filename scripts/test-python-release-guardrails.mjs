@@ -83,6 +83,72 @@ try {
   writeFixture({
     manifest: {
       "packages/python/core": "1.2.0",
+      "packages/python/mailbox": "2.0.0",
+      "packages/python/management": "1.0.4",
+      "packages/python/sending": "1.2.0",
+    },
+    sdkDependencies: [
+      '"sendmux-core>=1.2.0,<2.0.0"',
+      '"sendmux-mailbox>=2.0.0,<3.0.0"',
+      '"sendmux-management>=1.0.4,<2.0.0"',
+      '"sendmux-sending>=1.2.0,<2.0.0"',
+    ],
+    mcpDependencies: ['"sendmux-core>=1.2.0,<2.0.0"'],
+  });
+
+  assert.doesNotThrow(() => checkPythonSdkDependencyFloors({ root, changedPackages: new Set(["sdk"]) }));
+
+  for (const invalidMailboxRange of [
+    '"sendmux-mailbox>=2.0.0"',
+    '"sendmux-mailbox>=2.0.0,<4.0.0"',
+    '"sendmux-mailbox>=2.0.0,<2.0.0"',
+  ]) {
+    writeFixture({
+      manifest: {
+        "packages/python/core": "1.2.0",
+        "packages/python/mailbox": "2.0.0",
+        "packages/python/management": "1.0.4",
+        "packages/python/sending": "1.2.0",
+      },
+      sdkDependencies: [
+        '"sendmux-core>=1.2.0,<2.0.0"',
+        invalidMailboxRange,
+        '"sendmux-management>=1.0.4,<2.0.0"',
+        '"sendmux-sending>=1.2.0,<2.0.0"',
+      ],
+      mcpDependencies: ['"sendmux-core>=1.2.0,<2.0.0"'],
+    });
+    assert.throws(
+      () => checkPythonSdkDependencyFloors({ root, changedPackages: new Set(["sdk"]) }),
+      /sendmux-mailbox with an explicit >= floor and <3\.0\.0 upper bound.*>=2\.0\.0,<3\.0\.0/,
+    );
+  }
+
+  writeFixture({
+    manifest: {
+      "packages/python/core": "1.2.0",
+      "packages/python/mailbox": "2.0.0",
+      "packages/python/management": "1.0.4",
+      "packages/python/sending": "1.2.0",
+    },
+    sdkDependencies: [
+      '"sendmux-core>=1.2.0,<2.0.0"',
+      '"sendmux-mailbox>=1.1.0,<2.0.0"',
+      '"sendmux-management>=1.0.4,<2.0.0"',
+      '"sendmux-sending>=1.2.0,<2.0.0"',
+    ],
+    mcpDependencies: ['"sendmux-core>=1.2.0,<2.0.0"'],
+  });
+
+  assert.doesNotThrow(() => checkPythonSdkDependencyFloors({ root, changedPackages: new Set(["mailbox"]) }));
+  assert.throws(
+    () => checkPythonSdkDependencyFloors({ root, changedPackages: new Set(["sdk"]) }),
+    /sendmux-mailbox >= 2\.0\.0,<3\.0\.0; found >= 1\.1\.0,<2\.0\.0/,
+  );
+
+  writeFixture({
+    manifest: {
+      "packages/python/core": "1.2.0",
       "packages/python/mailbox": "1.1.0",
       "packages/python/management": "1.0.4",
       "packages/python/sending": "1.2.0",

@@ -544,6 +544,27 @@ def test_sending_file_retry_returns_original_result(sending_replay: Any, tmp_pat
     assert requests[-1]["body"] == first_body
 
 
+def test_sending_distinct_outer_keys_namespace_upload_key(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Attachment namespace\n")
+    body = {
+        "from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"},
+        "subject": "Namespace", "html_body": "<p>Attached</p>",
+    }
+    first = sending_attachments.send_email_with_files(
+        client, body=body, files=[report], idempotency_key="attachment-namespace-a"
+    )
+    second = sending_attachments.send_email_with_files(
+        client, body=body, files=[report], idempotency_key="attachment-namespace-b"
+    )
+    uploaded = [request for request in requests if request["upload"]]
+    assert first.data.status == "queued"
+    assert second.data.status == "queued"
+    assert len(uploaded) == 2
+    assert uploaded[0]["key"] != uploaded[1]["key"]
+
+
 @pytest.mark.parametrize("explicit", [False, True], ids=["derived-keys", "explicit-per-file-key"])
 def test_sending_two_file_retry_preserves_upload_keys(sending_replay: Any, tmp_path: Path, explicit: bool) -> None:
     client, requests = sending_replay

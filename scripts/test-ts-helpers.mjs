@@ -1013,6 +1013,16 @@ try {
       assert.deepEqual(second, first);
       assert.deepEqual(requests.at(-1).body, firstBody);
     });
+    await t.test("distinct outer keys namespace the upload key at the same file ordinal", async () => {
+      const start = requests.length;
+      const first = await sendEmailWithFiles({ ...options, headers: { "Idempotency-Key": "attachment-namespace-a" } });
+      const second = await sendEmailWithFiles({ ...options, headers: { "Idempotency-Key": "attachment-namespace-b" } });
+      const uploaded = requests.slice(start).filter((request) => request.upload);
+      assert.equal(first.data.status, "queued");
+      assert.equal(second.data.status, "queued");
+      assert.equal(uploaded.length, 2);
+      assert.notEqual(uploaded[0].key, uploaded[1].key);
+    });
     await t.test("two files use distinct bounded keys and replay their IDs", async () => {
       const secondPath = join(tempDir, "second.txt");
       await writeFile(secondPath, "Second attachment\n");

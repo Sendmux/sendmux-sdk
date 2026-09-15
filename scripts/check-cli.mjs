@@ -947,6 +947,17 @@ try {
   assertDeepEqual(latestRequest().body.toString("utf8"), replayFirstBody.toString("utf8"), "Attachment replay must preserve the outer body");
   assertDeepEqual(JSON.parse(replaySecond.stdout), JSON.parse(replayFirst.stdout), "Attachment replay must return the original send result");
 
+  const namespaceStart = serverState.requests.length;
+  const firstNamespaceSend = await runCli(replayArgs.map((value) => value === "attachment-replay" ? "attachment-namespace-a" : value), { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(firstNamespaceSend, "sending attachment under first outer key");
+  const secondNamespaceSend = await runCli(replayArgs.map((value) => value === "attachment-replay" ? "attachment-namespace-b" : value), { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(secondNamespaceSend, "sending attachment under second outer key");
+  const namespaceUploads = serverState.requests.slice(namespaceStart).filter((request) => request.url.startsWith("/emails/attachments"));
+  assertDeepEqual(namespaceUploads.length, 2, "Distinct outer sends must each upload their attachment");
+  if (namespaceUploads[0].headers["idempotency-key"] === namespaceUploads[1].headers["idempotency-key"]) {
+    throw new Error("Distinct outer send keys must namespace the upload key at the same file ordinal");
+  }
+
   const secondAttachmentPath = join(tempHome, "second.txt");
   writeFileSync(secondAttachmentPath, "A different attachment\n");
   const manyArgs = replayArgs.map((value) => value === "attachment-replay" ? "m".repeat(255) : value);

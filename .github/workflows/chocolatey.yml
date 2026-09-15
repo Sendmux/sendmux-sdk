@@ -407,6 +407,9 @@ jobs:
       - name: Build CLI OAuth diagnostic
         run: pnpm -r --if-present build
 
+      - name: Prove OAuth ownership regression sensitivity
+        run: node scripts/diagnose-profile-fs-ownership.mjs
+
       - name: Verify native OAuth credential paths
         run: node --test scripts/test-cli-oauth-login.mjs
 
@@ -419,5 +422,6 @@ jobs:
             .tmp/windows-workflow-native-exits/
             .tmp/windows-consumer-ownership/results.json
             .tmp/windows-workspace-cleanup/
+            .tmp/profile-fs-ownership/
           if-no-files-found: error
           retention-days: 7

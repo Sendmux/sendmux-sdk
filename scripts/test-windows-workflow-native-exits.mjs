@@ -33,6 +33,23 @@ const originalChocolateyConfig = Buffer.from([
 const parentEnvironment = { ...process.env, CHOCOLATEY_API_KEY: parentCredentialSentinel };
 const ci = readWorkflow(sourcePaths[0]);
 const chocolatey = readWorkflow(sourcePaths[1]);
+const oauthBuildStep = chocolatey.indexOf("      - name: Build CLI OAuth diagnostic\n");
+const ownershipSensitivityStep = chocolatey.indexOf("      - name: Prove OAuth ownership regression sensitivity\n");
+const oauthVerificationStep = chocolatey.indexOf("      - name: Verify native OAuth credential paths\n");
+assert(
+  oauthBuildStep < ownershipSensitivityStep && ownershipSensitivityStep < oauthVerificationStep,
+  "OAuth ownership sensitivity must run after the CLI build and before the unchanged-runtime OAuth suite",
+);
+assert.match(
+  chocolatey,
+  /^        run: node scripts\/diagnose-profile-fs-ownership\.mjs$/m,
+  "OAuth ownership sensitivity must invoke its bounded Windows runner",
+);
+assert.match(
+  chocolatey,
+  /^            \.tmp\/profile-fs-ownership\/$/m,
+  "OAuth ownership sensitivity receipts must be included in the always-uploaded diagnostic artifact",
+);
 const publisherScript = stepScript(chocolatey, "Push to Chocolatey");
 const credentialTransaction = powerShellFunction(publisherScript, "Invoke-ChocolateyCredentialTransaction");
 const windowsPowerShell = process.platform === "win32"

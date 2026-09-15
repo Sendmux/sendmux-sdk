@@ -9,6 +9,9 @@ if (specification) {
   if (typeof original !== "function") {
     throw new Error(`Unsupported profile filesystem fault operation: ${specification.operation}`);
   }
+  if (specification.operation === "open" && specification.openFlags !== "wx") {
+    throw new Error("Profile filesystem open faults must select the exclusive wx boundary");
+  }
 
   const receipt = {
     code: specification.code,
@@ -18,6 +21,7 @@ if (specification) {
     native_errors: 0,
     operation: specification.operation,
     pid: process.pid,
+    exclusive_open_succeeded: 0,
     succeeded: 0,
   };
   const persistReceipt = () => {
@@ -47,6 +51,9 @@ if (specification) {
     try {
       const result = await original(...args);
       receipt.succeeded += 1;
+      if (specification.operation === "open" && args[1] === specification.openFlags) {
+        receipt.exclusive_open_succeeded += 1;
+      }
       persistReceipt();
       return result;
     } catch (error) {
@@ -64,6 +71,10 @@ if (specification) {
       specification.operation === "rename" ? args[1] : args[0],
     );
     if (selectedPath !== specification.path) return false;
+    if (
+      specification.operation === "open" &&
+      args[1] !== specification.openFlags
+    ) return false;
     if (!specification.candidate) return true;
 
     try {

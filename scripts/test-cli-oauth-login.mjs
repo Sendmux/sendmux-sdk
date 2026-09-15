@@ -135,6 +135,8 @@ async function fixture(t, defaultConfigDir) {
     mode: "normal",
     authorizationLifetime: 900,
     refreshDelay: 0,
+    oauthRefreshOwnershipFault: null,
+    oauthRefreshOwnershipSnapshot: null,
   };
   let server;
   t.after(async () => {
@@ -236,6 +238,12 @@ async function fixture(t, defaultConfigDir) {
           return;
         }
       } else {
+        if (state.oauthRefreshOwnershipFault) {
+          state.oauthRefreshOwnershipSnapshot = await snapshotFaultReceipt(
+            state.oauthRefreshOwnershipFault,
+            "oauth_refresh",
+          );
+        }
         if (form.get("refresh_token") !== `native_refresh_${state.refreshes}`) {
           res.statusCode = 400;
           res.end("{}");
@@ -475,11 +483,29 @@ function profileFilesystemFault(state, label, specification) {
 }
 
 async function readFaultReceipt(fault) {
-  const receipt = JSON.parse(await readFile(fault.receiptPath, "utf8"));
+  const receipt = await loadFaultReceipt(fault);
   console.log(JSON.stringify({
     resource: "profile_filesystem_fault",
     receipt,
     receipt_path: fault.receiptPath,
+  }));
+  return receipt;
+}
+
+async function loadFaultReceipt(fault) {
+  return JSON.parse(await readFile(fault.receiptPath, "utf8"));
+}
+
+async function snapshotFaultReceipt(fault, boundary) {
+  const receipt = await loadFaultReceipt(fault).catch((error) => {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  });
+  console.log(JSON.stringify({
+    boundary,
+    receipt,
+    request_observed: true,
+    resource: "profile_filesystem_ownership_boundary",
   }));
   return receipt;
 }
@@ -498,6 +524,12 @@ async function assertRecoveredFault(fault) {
   assert.equal(receipt.injected, 1, "selected filesystem denial did not occur");
   assert.ok(receipt.matched >= 2, "filesystem boundary was not retried");
   assert.ok(receipt.succeeded >= 1, "filesystem boundary never succeeded after denial");
+  if (receipt.operation === "open") {
+    assert.ok(
+      receipt.exclusive_open_succeeded >= 1,
+      "exclusive filesystem open never succeeded after denial",
+    );
+  }
 }
 
 for (const [name, authorize, exitCode] of [
@@ -802,15 +834,21 @@ if (process.platform === "win32") {
     await seedExpiredOAuthProfile(t, state);
     const filesystemFault = profileFilesystemFault(state, "oauth-config-lock", {
       code: "EBUSY",
+      openFlags: "wx",
       operation: "open",
       path: `${state.configPath}.lock`,
     });
+    state.oauthRefreshOwnershipFault = filesystemFault;
     const result = await cli(
       t,
       state,
       ["management:get-connection", "--profile", "native", "--json"],
       false,
       { filesystemFault },
+    );
+    assert.ok(
+      state.oauthRefreshOwnershipSnapshot?.exclusive_open_succeeded >= 1,
+      "OAuth refresh request began before successful exclusive config lock ownership",
     );
     await assertRecoveredFault(filesystemFault);
     assert.equal(result.code, 0, result.stderr);
@@ -839,6 +877,7 @@ if (process.platform === "win32") {
     const faults = [1, 2].map((index) =>
       profileFilesystemFault(state, `agent-intent-lock-${index}`, {
         code: "EPERM",
+        openFlags: "wx",
         operation: "open",
         path: intentLockPath,
       }),

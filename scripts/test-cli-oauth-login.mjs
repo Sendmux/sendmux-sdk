@@ -16,6 +16,11 @@ import { join } from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 
+// Windows PowerShell must rebuild its module paths when launched through Node.
+const windowsPowerShellEnv = Object.fromEntries(
+  Object.entries(process.env).filter(([name]) => name.toUpperCase() !== "PSMODULEPATH"),
+);
+
 async function assertPrivatePath(path, mode) {
   if (process.platform !== "win32") {
     assert.equal((await stat(path)).mode & 0o777, mode);
@@ -41,7 +46,7 @@ async function assertPrivatePath(path, mode) {
       ],
       {
         encoding: "utf8",
-        env: { ...process.env, SENDMUX_TEST_ACL_PATH: path },
+        env: { ...windowsPowerShellEnv, SENDMUX_TEST_ACL_PATH: path },
       },
     ),
   );
@@ -385,6 +390,46 @@ test("native login uses S256, validates the callback and saves a protected profi
     defaultConfigDir ?? join(state.directory, ".config", "sendmux"),
     0o700,
   );
+  if (defaultConfigDir) {
+    const canary = join(state.directory, "acl-sensitivity.txt");
+    await writeFile(canary, "Inert ACL sensitivity probe\n", { flag: "wx", mode: 0o600 });
+    await assertPrivatePath(canary, 0o600);
+    const aclEnv = { ...windowsPowerShellEnv, SENDMUX_TEST_ACL_PATH: canary };
+    const canaryAcl = (script) => execFileSync(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", `$ErrorActionPreference = 'Stop'; ${script}`],
+      { encoding: "utf8", env: aclEnv },
+    ).trim();
+    aclEnv.SENDMUX_TEST_ORIGINAL_ACL = canaryAcl(
+      "(Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH).Sddl",
+    );
+    try {
+      canaryAcl(`
+        $acl = Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH
+        $everyone = [System.Security.Principal.SecurityIdentifier]::new('S-1-1-0')
+        $rule = [System.Security.AccessControl.FileSystemAccessRule]::new($everyone, 'Read', 'Allow')
+        $acl.AddAccessRule($rule)
+        Set-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH -AclObject $acl
+      `);
+      await assert.rejects(assertPrivatePath(canary, 0o600), {
+        code: "ERR_ASSERTION",
+        message: /Credential path grants access outside its owner, SYSTEM and Administrators/,
+      });
+      console.log(JSON.stringify({ resource: "acl_sensitivity", state: "public_read_rejected", path: canary }));
+    } finally {
+      canaryAcl(`
+        $acl = Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH
+        $acl.SetSecurityDescriptorSddlForm($env:SENDMUX_TEST_ORIGINAL_ACL, [System.Security.AccessControl.AccessControlSections]::Access)
+        Set-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH -AclObject $acl
+      `);
+    }
+    assert.equal(
+      canaryAcl("(Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH).Sddl"),
+      aclEnv.SENDMUX_TEST_ORIGINAL_ACL,
+    );
+    await assertPrivatePath(canary, 0o600);
+    console.log(JSON.stringify({ resource: "acl_sensitivity", state: "restored", path: canary }));
+  }
   assert.equal(state.registrations[0].application_type, "native");
   assert.equal(state.registrations[0].token_endpoint_auth_method, "none");
   assert.equal(state.registrations[0].resource, "https://sendmux.ai/api");

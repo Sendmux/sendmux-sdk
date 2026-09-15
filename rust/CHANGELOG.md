@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Breaking:** `Attachment` is an enum for inline content or uploaded
+  references. Replace struct literals and direct field access with the
+  constructors or enum variants described in [the Rust upgrade notes](README.crates.io.md#unreleased-rust-contract-changes).
+- **Breaking:** `Response<T>` includes `pagination`. Add `pagination: None`
+  to response fixtures without cursor metadata. See [the Rust upgrade notes](README.crates.io.md#unreleased-rust-contract-changes).
+
+### Added
+
+- Six list methods accept cursors through their `*_with_cursor` variants.
+  Pass `pagination.next_cursor` to advance when `has_more` is true.
+- Single and batch sends accept `Attachment::uploaded(attachment_id)` for
+  existing Sending attachment references.
+
+### Security
+
+- Raw Mailbox and Management requests reject absolute URLs, authority paths,
+  and backslash paths before resolving credentials or sending HTTP requests.
+  Supply paths relative to the configured API base.
+
 ## [0.4.0](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.3.0...rust-v0.4.0) (2026-09-11)
 
 

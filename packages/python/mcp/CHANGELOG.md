@@ -2,10 +2,16 @@
 
 ## Unreleased
 
+### Changed
+
+- **Breaking:** MCP attachment tools no longer accept local paths or roots.
+  Use presigned uploads for files, or inline base64 for content within the
+  tool's limit. See [the attachment workflow](README.md#attachment-workflow-for-agents).
+  This contract change is prepared for package version `2.0.0`.
+
 ### Features
 
 * negotiate MCP 2026-07-28 stateless discovery while retaining 2025-11-25 clients
-* remove local-path and roots attachment inputs from the public MCP tool surface
 * add an OAuth-protected A2A 1.0 HTTP+JSON endpoint with full hosted-operation parity
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 

@@ -48,6 +48,7 @@
     "packages/ts/ai-sdk": {
       "component": "ts-ai-sdk",
       "package-name": "@sendmux/ai-sdk",
+      "release-as": "0.5.0",
       "initial-version": "0.1.0"
     },
     "packages/python/langchain": {
@@ -90,6 +91,7 @@
       "component": "python-mcp",
       "package-name": "sendmux-mcp",
       "release-type": "python",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0",
       "extra-files": [
         {
@@ -117,6 +119,7 @@
       "component": "rust",
       "package-name": "sendmux",
       "release-type": "rust",
+      "release-as": "0.5.0",
       "initial-version": "0.1.0"
     },
     "packages/ruby/core": {

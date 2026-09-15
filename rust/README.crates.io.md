@@ -188,7 +188,8 @@ the Rust transport doesn't retry or wait on `Retry-After` automatically.
 
 ### Unreleased Rust contract changes
 
-These changes describe the source candidate, not a package-publication receipt:
+These changes are prepared for `0.5.0`, an incompatible upgrade from `0.4.x`.
+They describe the source candidate, not a package-publication receipt:
 
 - Raw Mailbox and Management paths must be relative to the configured API base.
   Absolute URLs, authority paths, and backslash paths return
@@ -208,9 +209,11 @@ These changes describe the source candidate, not a package-publication receipt:
 Code that constructs `Response` or `Attachment` with struct literals, or accesses
 old attachment fields directly, must migrate before adopting the candidate.
 Replace attachment literals with the constructors or match the enum variants;
-include pagination when constructing response fixtures. These source-breaking
-changes require an explicit release/SemVer decision; package versions aren't
-bumped by the runtime-certification change.
+include `pagination: None` when constructing response fixtures without cursor
+metadata. Rebuild and run your application's tests before deploying the upgrade.
+To roll back, restore your previous `Cargo.toml`, `Cargo.lock`, and corresponding
+call-site changes together. Package versions remain unchanged until the release
+automation prepares the `0.5.0` release PR.
 
 This crate is aligned to the committed Sendmux OpenAPI snapshots in the
 `sendmux-sdk` repository:

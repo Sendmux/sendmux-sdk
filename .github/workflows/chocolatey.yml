@@ -266,6 +266,7 @@ jobs:
             $nativeExitCode = 1
 
             try {
+              Add-Type -AssemblyName System.Security
               $apiKey = $env:CHOCOLATEY_API_KEY
               if ([string]::IsNullOrWhiteSpace($apiKey)) {
                 throw 'CHOCOLATEY_API_KEY is required for Chocolatey publication.'

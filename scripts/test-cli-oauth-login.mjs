@@ -50,6 +50,7 @@ async function assertPrivatePath(path, mode) {
     "Credential path must have an explicit access list",
   );
   const allowed = new Set([descriptor.user, "S-1-5-18", "S-1-5-32-544"]);
+  console.log(JSON.stringify({ resource: "credential_acl", path, ...descriptor }));
   assert.deepEqual(
     descriptor.rules.filter((sid) => !allowed.has(sid)),
     [],
@@ -57,11 +58,13 @@ async function assertPrivatePath(path, mode) {
   );
 }
 
-async function fixture(t) {
+async function fixture(t, defaultConfigDir) {
   const directory = await mkdtemp(join(tmpdir(), "sendmux-native-oauth-"));
   console.log(JSON.stringify({ resource: "temp_directory", state: "created", path: directory }));
   const state = {
     directory,
+    defaultConfigDir,
+    children: new Set(),
     requests: [],
     registrations: [],
     authorization: null,
@@ -71,7 +74,10 @@ async function fixture(t) {
     authorizationLifetime: 900,
     refreshDelay: 0,
   };
-  state.configPath = join(directory, ".config", "sendmux", "config.json");
+  state.configPath = join(
+    defaultConfigDir ?? join(directory, ".config", "sendmux"),
+    "config.json",
+  );
   const server = createServer(async (req, res) => {
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
@@ -191,6 +197,12 @@ async function fixture(t) {
       server.close((error) => (error ? reject(error) : resolve())),
     );
     assert.equal(server.listening, false);
+    assert.equal(state.children.size, 0, "CLI shutdown unconfirmed; retaining credential fixture");
+    if (defaultConfigDir) {
+      await rm(defaultConfigDir, { recursive: true, force: true });
+      await assert.rejects(access(defaultConfigDir), { code: "ENOENT" });
+      console.log(JSON.stringify({ resource: "default_config_directory", state: "removed", path: defaultConfigDir }));
+    }
     await rm(directory, { recursive: true, force: true });
     await assert.rejects(access(directory), { code: "ENOENT" });
     console.log(JSON.stringify({ resource: "temp_directory", state: "removed", path: directory }));
@@ -199,6 +211,17 @@ async function fixture(t) {
 }
 
 async function cli(t, state, args, authorize = false) {
+  const env = {
+    ...process.env,
+    HOME: state.directory,
+    XDG_CONFIG_HOME: join(state.directory, ".config"),
+    SENDMUX_API_KEY: "",
+    SENDMUX_ACCESS_TOKEN: "",
+    SENDMUX_PROFILE: "",
+    SENDMUX_BASE_URL: `${state.issuer}/api/v1`,
+  };
+  delete env.SENDMUX_CONFIG_DIR;
+  if (state.defaultConfigDir) delete env.XDG_CONFIG_HOME;
   const child = spawn(
     process.execPath,
     [
@@ -207,18 +230,11 @@ async function cli(t, state, args, authorize = false) {
       ...args,
     ],
     {
-      env: {
-        ...process.env,
-        HOME: state.directory,
-        XDG_CONFIG_HOME: join(state.directory, ".config"),
-        SENDMUX_API_KEY: "",
-        SENDMUX_ACCESS_TOKEN: "",
-        SENDMUX_PROFILE: "",
-        SENDMUX_BASE_URL: `${state.issuer}/api/v1`,
-      },
+      env,
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
+  if (child.pid) state.children.add(child.pid);
   console.log(JSON.stringify({ resource: "cli_child", state: "spawned", pid: child.pid }));
   let stdout = "",
     stderr = "",
@@ -238,7 +254,11 @@ async function cli(t, state, args, authorize = false) {
     if (url) resolveUrl(url);
   });
   const closed = once(child, "close");
-  closed.then(() => resolveUrl(null));
+  closed.then(([code]) => {
+    state.children.delete(child.pid);
+    console.log(JSON.stringify({ resource: "cli_child", state: "closed", pid: child.pid, code }));
+    resolveUrl(null);
+  });
   t.after(async () => {
     if (child.exitCode === null && child.signalCode === null)
       child.kill("SIGTERM");
@@ -273,7 +293,6 @@ async function cli(t, state, args, authorize = false) {
     }
   }
   const [code] = await closed;
-  console.log(JSON.stringify({ resource: "cli_child", state: "closed", pid: child.pid, code }));
   return { code, stdout, stderr, callbackResponse };
 }
 
@@ -344,7 +363,7 @@ test("native login uses S256, validates the callback and saves a protected profi
       platform: process.platform,
     }));
   }
-  const state = await fixture(t);
+  const state = await fixture(t, defaultConfigDir);
   const result = await login(t, state, async (callback) => {
     const wrong = new URL(callback);
     wrong.searchParams.set("state", "wrong");

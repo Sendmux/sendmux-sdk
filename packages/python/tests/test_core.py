@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import json
+from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any, AsyncIterator, Iterator, cast
 
 import pytest
 
@@ -140,6 +142,56 @@ def test_error_mapping_from_json_body() -> None:
     assert mapped.message == "Slow down."
     assert mapped.retryable is True
     assert mapped.request_id == "req_body"
+
+
+def test_api_error_survives_context_manager_cleanup() -> None:
+    cleaned = []
+
+    @contextmanager
+    def managed_operation() -> Iterator[None]:
+        try:
+            yield
+        finally:
+            cleaned.append(True)
+
+    error = SendmuxApiError(
+        status_code=409, code="idempotency_conflict", message="Different body for the same key",
+        retryable=False, request_id="req_context", headers={},
+    )
+    with pytest.raises(SendmuxApiError) as caught:
+        with managed_operation():
+            raise error
+
+    assert caught.value is error
+    assert str(caught.value) == "409 idempotency_conflict: Different body for the same key"
+    assert cleaned == [True]
+
+
+def test_api_error_survives_async_context_manager_cleanup() -> None:
+    cleaned = []
+
+    @asynccontextmanager
+    async def managed_operation() -> AsyncIterator[None]:
+        try:
+            yield
+        finally:
+            cleaned.append(True)
+
+    error = SendmuxApiError(
+        status_code=409, code="idempotency_conflict", message="Different body for the same key",
+        retryable=False, request_id="req_async_context", headers={},
+    )
+
+    async def operation() -> None:
+        async with managed_operation():
+            raise error
+
+    with pytest.raises(SendmuxApiError) as caught:
+        asyncio.run(operation())
+
+    assert caught.value is error
+    assert str(caught.value) == "409 idempotency_conflict: Different body for the same key"
+    assert cleaned == [True]
 
 
 def test_retry_honours_retry_after_for_idempotent_post() -> None:

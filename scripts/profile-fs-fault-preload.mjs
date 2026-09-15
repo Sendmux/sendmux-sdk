@@ -5,6 +5,12 @@ import { syncBuiltinESMExports } from "node:module";
 const specification = JSON.parse(process.env.SENDMUX_TEST_PROFILE_FS_FAULT ?? "null");
 
 if (specification) {
+  if (
+    specification.codes &&
+    (!Array.isArray(specification.codes) || specification.codes.length === 0)
+  ) {
+    throw new Error("Profile filesystem fault codes must be a non-empty array");
+  }
   const original = filesystem[specification.operation];
   if (typeof original !== "function") {
     throw new Error(`Unsupported profile filesystem fault operation: ${specification.operation}`);
@@ -14,9 +20,11 @@ if (specification) {
   }
 
   const receipt = {
-    code: specification.code,
+    code: specification.code ?? null,
+    codes: specification.codes ?? null,
     first_injected_at_ms: null,
     injected: 0,
+    injected_by_code: {},
     matched: 0,
     native_errors: 0,
     operation: specification.operation,
@@ -35,13 +43,17 @@ if (specification) {
 
     receipt.matched += 1;
     if (receipt.injected < specification.failures) {
+      const code = specification.codes
+        ? specification.codes[receipt.injected % specification.codes.length]
+        : specification.code;
       receipt.injected += 1;
+      receipt.injected_by_code[code] = (receipt.injected_by_code[code] ?? 0) + 1;
       receipt.first_injected_at_ms ??= Date.now();
       persistReceipt();
       const error = new Error(
-        `${specification.code}: injected ${specification.operation} denial at the profile filesystem boundary`,
+        `${code}: injected ${specification.operation} denial at the profile filesystem boundary`,
       );
-      error.code = specification.code;
+      error.code = code;
       error.syscall = specification.operation;
       error.path = String(args[0]);
       if (specification.operation === "rename") error.dest = String(args[1]);

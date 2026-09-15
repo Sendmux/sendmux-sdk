@@ -443,8 +443,24 @@ async function cli(t, state, args, authorize = false, options = {}) {
       };
     }
   }
+  let timedOut = false;
+  const timeout = options.timeoutMs
+    ? setTimeout(() => {
+        if (child.exitCode !== null || child.signalCode !== null) return;
+        timedOut = true;
+        child.kill("SIGTERM");
+      }, options.timeoutMs)
+    : null;
   const [code] = await closed;
-  return { code, stdout, stderr, callbackResponse, closedAtMs: Date.now() };
+  if (timeout) clearTimeout(timeout);
+  return {
+    code,
+    stdout,
+    stderr,
+    callbackResponse,
+    closedAtMs: Date.now(),
+    timedOut,
+  };
 }
 
 const login = (t, state, authorize = true) =>
@@ -477,7 +493,7 @@ async function seedExpiredOAuthProfile(t, state) {
 function profileFilesystemFault(state, label, specification) {
   return {
     ...specification,
-    failures: 1,
+    failures: specification.failures ?? 1,
     receiptPath: join(state.directory, `profile-fs-${label}.json`),
   };
 }
@@ -917,7 +933,229 @@ if (process.platform === "win32") {
     assert.equal(config.profiles[profileName].idempotencyKey, keys[0]);
     assert.equal(config.profiles.other.apiKey, "smx_mbx_other");
   });
+
+  test("Windows bounds persistent OAuth reservation replacement denial before HTTP", {
+    timeout: 20_000,
+  }, async (t) => {
+    const state = await fixture(t);
+    const originalConfig = await seedExpiredOAuthProfile(t, state);
+    const requestsBefore = state.requests.length;
+    const filesystemFault = profileFilesystemFault(state, "oauth-reservation-persistent", {
+      candidate: {
+        accessToken: "native_access_0",
+        profileName: "native",
+        state: "refreshing",
+      },
+      code: "EPERM",
+      failures: 1_000,
+      operation: "rename",
+      path: state.configPath,
+    });
+    const result = await cli(
+      t,
+      state,
+      ["management:get-connection", "--profile", "native", "--json"],
+      false,
+      { filesystemFault, timeoutMs: 15_000 },
+    );
+    const receipt = await readFaultReceipt(filesystemFault);
+    const boundaryElapsedMs = result.closedAtMs - receipt.first_injected_at_ms;
+
+    assert.notEqual(result.code, 0, "persistent reservation denial unexpectedly succeeded");
+    assert.equal(result.timedOut, false, "reservation denial exceeded the CLI test deadline");
+    assert.ok(receipt.injected > 1, "persistent reservation denial was not retried");
+    assert.equal(
+      receipt.succeeded,
+      0,
+      "persistent reservation denial unexpectedly replaced config",
+    );
+    assert.equal(state.requests.length, requestsBefore, "reservation denial reached the network");
+    assert.equal(await readFile(state.configPath, "utf8"), originalConfig);
+    assert.ok(
+      boundaryElapsedMs >= 0 && boundaryElapsedMs < 5_000,
+      `persistent reservation denial escaped its replacement budget: ${boundaryElapsedMs}ms`,
+    );
+  });
+
+  test("Windows denies agent registration when intent-lock access stays obstructed", {
+    timeout: 20_000,
+  }, async (t) => {
+    const state = await fixture(t);
+    await mkdir(dirname(state.configPath), { mode: 0o700, recursive: true });
+    const originalConfig = `${JSON.stringify({
+      defaultProfile: "other",
+      profiles: { other: { apiKey: "smx_mbx_other", type: "api_key" } },
+    }, null, 2)}\n`;
+    await writeFile(state.configPath, originalConfig);
+    const profileName = "profile-fs-agent-denied";
+    const intentLockPath = join(
+      dirname(state.configPath),
+      `agent-registration-${createHash("sha256").update(profileName).digest("hex")}.json.lock`,
+    );
+    const filesystemFault = profileFilesystemFault(state, "agent-intent-lock-persistent", {
+      code: "EPERM",
+      failures: 1_000,
+      openFlags: "wx",
+      operation: "open",
+      path: intentLockPath,
+    });
+    const result = await cli(
+      t,
+      state,
+      [
+        "agent:register",
+        profileName,
+        "--base-url",
+        state.issuer,
+        "--mailbox-local-part",
+        profileName,
+        "--json",
+      ],
+      false,
+      { filesystemFault, timeoutMs: 15_000 },
+    );
+    const receipt = await readFaultReceipt(filesystemFault);
+    const boundaryElapsedMs = result.closedAtMs - receipt.first_injected_at_ms;
+
+    assert.notEqual(result.code, 0, "persistent intent-lock denial unexpectedly succeeded");
+    assert.equal(result.timedOut, false, "intent-lock denial exceeded the CLI test deadline");
+    assert.ok(receipt.injected > 1, "persistent intent-lock denial was not retried");
+    assert.equal(
+      receipt.exclusive_open_succeeded,
+      0,
+      "intent-lock ownership was granted after persistent denial",
+    );
+    assert.equal(
+      state.agentRegistrations.length,
+      0,
+      "registration POST occurred without intent-lock ownership",
+    );
+    assert.equal(await readFile(state.configPath, "utf8"), originalConfig);
+    await assert.rejects(access(intentLockPath), { code: "ENOENT" });
+    assert.ok(
+      boundaryElapsedMs >= 8_000 && boundaryElapsedMs < 15_000,
+      `persistent intent-lock denial escaped its acquisition budget: ${boundaryElapsedMs}ms`,
+    );
+  });
+
+  test("Windows never replays a spent OAuth token after persistent post-token replacement denial", {
+    timeout: 20_000,
+  }, async (t) => {
+    const state = await fixture(t);
+    await seedExpiredOAuthProfile(t, state);
+    const filesystemFault = profileFilesystemFault(state, "oauth-rotated-persistence-persistent", {
+      candidate: {
+        accessToken: "native_access_1",
+        profileName: "native",
+        state: "active",
+      },
+      code: "EACCES",
+      failures: 1_000,
+      operation: "rename",
+      path: state.configPath,
+    });
+    const first = await cli(
+      t,
+      state,
+      ["management:get-connection", "--profile", "native", "--json"],
+      false,
+      { filesystemFault, timeoutMs: 15_000 },
+    );
+    const receipt = await readFaultReceipt(filesystemFault);
+    const second = await cli(
+      t,
+      state,
+      ["management:get-connection", "--profile", "native", "--json"],
+      false,
+      { timeoutMs: 15_000 },
+    );
+
+    assert.notEqual(first.code, 0, "persistent post-token denial unexpectedly succeeded");
+    assert.equal(first.timedOut, false, "post-token denial exceeded the CLI test deadline");
+    assert.notEqual(second.code, 0, "a spent refresh token remained eligible for replay");
+    assert.equal(second.timedOut, false, "post-denial invocation exceeded the CLI test deadline");
+    assert.ok(receipt.injected > 1, "persistent post-token denial was not retried");
+    assert.equal(
+      receipt.succeeded,
+      0,
+      "persistent post-token denial unexpectedly persisted rotated tokens",
+    );
+    assert.equal(state.refreshes, 1, "the spent refresh token was replayed");
+    assert.equal(
+      state.requests.filter(
+        (request) => request.path === "/oauth/token" && request.body.includes("grant_type=refresh_token"),
+      ).length,
+      1,
+    );
+    assert.equal(
+      state.requests.filter((request) => request.path === "/api/v1/me").length,
+      0,
+    );
+    assert.equal(
+      JSON.parse(await readFile(state.configPath, "utf8")).profiles.native.state,
+      "reauthorize",
+    );
+  });
 }
+
+test("profile lock acquisition applies one deadline across missing names and Windows access denial", {
+  timeout: 20_000,
+}, async (t) => {
+  const state = await fixture(t);
+  await mkdir(dirname(state.configPath), { mode: 0o700, recursive: true });
+  const originalConfig = `${JSON.stringify({
+    defaultProfile: "other",
+    profiles: { other: { apiKey: "smx_mbx_other", type: "api_key" } },
+  }, null, 2)}\n`;
+  await writeFile(state.configPath, originalConfig);
+  const profileName = "profile-fs-agent-alternating";
+  const intentLockPath = join(
+    dirname(state.configPath),
+    `agent-registration-${createHash("sha256").update(profileName).digest("hex")}.json.lock`,
+  );
+  const filesystemFault = profileFilesystemFault(state, "agent-intent-lock-deadline", {
+    codes: process.platform === "win32" ? ["EEXIST", "EACCES"] : ["EEXIST"],
+    failures: Number.MAX_SAFE_INTEGER,
+    openFlags: "wx",
+    operation: "open",
+    path: intentLockPath,
+  });
+  const result = await cli(
+    t,
+    state,
+    [
+      "agent:register",
+      profileName,
+      "--base-url",
+      state.issuer,
+      "--mailbox-local-part",
+      profileName,
+      "--json",
+    ],
+    false,
+    { filesystemFault, timeoutMs: 15_000 },
+  );
+  const receipt = await readFaultReceipt(filesystemFault);
+  const boundaryElapsedMs = result.closedAtMs - receipt.first_injected_at_ms;
+
+  assert.notEqual(result.code, 0, "lock failures unexpectedly granted ownership");
+  assert.equal(result.timedOut, false, "lock failures bypassed the runtime deadline");
+  assert.ok(receipt.injected_by_code.EEXIST > 0, "contention was not injected");
+  if (process.platform === "win32") {
+    assert.ok(receipt.injected_by_code.EACCES > 0, "access denial was not injected");
+  }
+  assert.ok(
+    receipt.injected < filesystemFault.failures,
+    "lock failures exhausted before the deadline",
+  );
+  assert.equal(receipt.exclusive_open_succeeded, 0, "lock failures granted ownership");
+  assert.equal(state.agentRegistrations.length, 0, "lock failures reached registration POST");
+  assert.equal(await readFile(state.configPath, "utf8"), originalConfig);
+  assert.ok(
+    boundaryElapsedMs >= 8_000 && boundaryElapsedMs < 15_000,
+    `lock failures escaped the shared acquisition deadline: ${boundaryElapsedMs}ms`,
+  );
+});
 
 test("non-retry profile filesystem errors fail at the selected boundary without network progress", async (t) => {
   const state = await fixture(t);

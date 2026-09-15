@@ -43,7 +43,7 @@
       "a2a.py": "5418b21a2756e3ca3a52220388da8ade3ca8f016ca05a6b2ee22216393eeb761",
       "cli.py": "ed2b48ed6ee9a081ac40a1e8c5c29d032bb356eaee1f0a31713092a0558f1539",
       "config.py": "28f9fe9f396d707562fb119a75f3a92a27db78ade735cf3bf2f5d3039c6583df",
-      "contract.py": "81a39a52cffaa63bc520908a537cf826d4d6498a44de1d31bd56db931f2a45ee",
+      "contract.py": "8be5dcf207fd771774beddf433cad3734a9250284a26e57d9d3f607c670395c3",
       "curation.py": "9cd5abde6e0fc8abf97bde91c05f8954fef925be2df841776eddf7997608bb20",
       "hosted.py": "583dcdb11926208ab5a94914e092b0dcc6ce7ffe047979ef3818ff3bce1e024e",
       "hosted_auth.py": "a85c5c2e10dff2a5b92cb3e3713a3c95c53d04f6ed0e647ca88a7f059e9a8e25",
@@ -57,7 +57,7 @@
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
       "retry.py": "e1454a54ffe1b5b558c820b6e9cff2d2c0f8c1ea501f63051dc9716bf1f67191",
       "security.py": "45f59d632995254dc8dc5acec41b6f0f5c583a7db3f9c50a143a8c48dffa4016",
-      "server.py": "100ea4a60762c61c09f8bef0dab1833f2a3a9b7d48842799071ee12764de8c4a",
+      "server.py": "663c4802ca6483c524b3012bd6472234bc192baa769e8048fc865aae8a4305a8",
       "smoke.py": "d0934a705e67a244d394d5fc0c1695666532ec09a33f950181ebd75556ea83ce",
       "specs.py": "eeb718452325856c15a860e11e5c434f9cce101e536029424e2d485e2a77cb95",
       "verification.py": "ad4bfb529cba60695a2c66efe045a67271f104f775a927f8bb901d9e38e987f1"

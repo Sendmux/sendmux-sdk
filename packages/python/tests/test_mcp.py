@@ -17,6 +17,7 @@ from jsonschema import Draft202012Validator
 
 from sendmux_mcp.cli import parser, surfaces_from_args
 from sendmux_mcp.config import RetryConfig, ServerConfig, Surface
+from sendmux_mcp.contract import load_contract
 from sendmux_mcp.curation import TOOLS_BY_SURFACE
 from sendmux_mcp.hosted_proxy import (
     HostedOperationManifest,
@@ -287,6 +288,82 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
         assert not list(wait_validator.iter_errors(wait_result))
         assert list(wait_validator.iter_errors({**wait_result, "meta": {**wait_meta, "unexpected": True}}))
         assert list(wait_validator.iter_errors({**wait_result, "meta": {"sync_state": "state_test"}}))
+
+    asyncio.run(check())
+
+
+def test_optional_custom_tool_fields_keep_public_metadata_and_defaults() -> None:
+    expected_optional_fields = {
+        "mailbox_get_attachment": {"mailbox_id"},
+        "mailbox_read_attachment": {"mailbox_id"},
+        "mailbox_upload_attachment": {"content_base64", "mailbox_id", "size_bytes"},
+        "mailbox_wait_for_message": {
+            "after",
+            "folder_id",
+            "from_email",
+            "has_attachment",
+            "keyword",
+            "mailbox_id",
+            "q",
+            "subject",
+        },
+        "sending_upload_attachment": {"content_base64", "idempotency_key"},
+    }
+
+    async def check() -> None:
+        contract_tools = {
+            tool["name"]: tool
+            for tools in load_contract()["tools"]["by_surface"].values()
+            for tool in tools
+        }
+        tools_by_name = {}
+        for surface in ("mailbox", "sending"):
+            server = create_server(
+                ServerConfig(surfaces=(surface,), api_key="smx_mbx_test"),
+                transport=ok_transport(),
+            )
+            async with Client(server) as client:
+                tools_by_name.update({tool.name: tool for tool in await client.list_tools()})
+
+        for tool_name, field_names in expected_optional_fields.items():
+            schema = tools_by_name[tool_name].input_schema
+            required = set(schema.get("required", []))
+            for field_name in field_names:
+                field_schema = schema["properties"][field_name]
+                assert field_schema.get("description"), f"{tool_name}.{field_name}"
+                assert "default" in field_schema, f"{tool_name}.{field_name}"
+                assert field_schema["default"] is None, f"{tool_name}.{field_name}"
+                assert field_name not in required, f"{tool_name}.{field_name}"
+                assert field_schema == contract_tools[tool_name]["input_schema"]["properties"][field_name]
+
+        mailbox_server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=ok_transport(),
+        )
+        async with Client(mailbox_server) as client:
+            upload_result = structured_result(
+                await client.call_tool(
+                    "mailbox_upload_attachment",
+                    {"filename": "report.pdf", "presign_upload_url": True},
+                )
+            )
+        assert upload_result["error"]["code"] == "missing_parameter"
+        assert upload_result["error"]["param"] == "size_bytes"
+
+        sending_server = create_server(
+            ServerConfig(surfaces=("sending",), api_key="smx_mbx_test"),
+            transport=ok_transport(),
+        )
+        async with Client(sending_server) as client:
+            sending_result = structured_result(
+                await client.call_tool(
+                    "sending_upload_attachment",
+                    {"filename": "x.txt"},
+                )
+            )
+
+        assert sending_result["error"]["code"] == "invalid_parameter"
+        assert sending_result["error"]["param"] == "content_base64"
 
     asyncio.run(check())
 

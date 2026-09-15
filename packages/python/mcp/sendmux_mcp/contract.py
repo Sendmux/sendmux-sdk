@@ -24,7 +24,6 @@ from sendmux_mcp.server import (
 
 
 PACKAGE_DIR = Path(__file__).resolve().parent
-REPOSITORY_ROOT = PACKAGE_DIR.parents[3]
 CONTRACT_PATH = PACKAGE_DIR / "mcp-contract.json"
 
 
@@ -58,6 +57,7 @@ async def collect_tools() -> dict[str, list[dict[str, Any]]]:
 
 
 def build_contract() -> dict[str, Any]:
+    repository_root = PACKAGE_DIR.parents[3]
     project_version = read_project_version()
     if SENDMUX_MCP_VERSION != project_version:
         raise RuntimeError(
@@ -86,7 +86,7 @@ def build_contract() -> dict[str, Any]:
         raise ValueError("Sending upload intent must declare its returned byte limit")
 
     protocols = sorted(
-        json.loads((REPOSITORY_ROOT / "scripts" / "mcp-conformance-required-checks.json").read_text())["revisions"]
+        json.loads((repository_root / "scripts" / "mcp-conformance-required-checks.json").read_text())["revisions"]
     )
     runtime_protocols = sorted(set(HANDSHAKE_PROTOCOL_VERSIONS) | set(MODERN_PROTOCOL_VERSIONS))
     if not set(protocols) <= set(runtime_protocols):
@@ -98,7 +98,7 @@ def build_contract() -> dict[str, Any]:
                 "sources": source_hashes(),
                 "build_inputs": {
                     "pyproject.toml": hashlib.sha256((PACKAGE_DIR.parent / "pyproject.toml").read_bytes()).hexdigest(),
-                    "scripts/mcp-conformance-required-checks.json": hashlib.sha256((REPOSITORY_ROOT / "scripts/mcp-conformance-required-checks.json").read_bytes()).hexdigest(),
+                    "scripts/mcp-conformance-required-checks.json": hashlib.sha256((repository_root / "scripts/mcp-conformance-required-checks.json").read_bytes()).hexdigest(),
                 },
                 "runtime": {name: version(name) for name in ("fastmcp", "mcp")},
                 "certified_protocols": "scripts/mcp-conformance-required-checks.json",

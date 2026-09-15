@@ -379,10 +379,10 @@ def add_mailbox_custom_tools(
     async def mailbox_get_attachment(
         message_id: Annotated[str, Field(description="Message ID containing the attachment.")],
         attachment_id: Annotated[str, Field(description="Attachment ID from message metadata.")],
-        mailbox_id: Annotated[
-            str | None,
-            Field(description="Mailbox public ID when the credential can access more than one mailbox."),
-        ] = None,
+        mailbox_id: str | None = Field(
+            default=None,
+            description="Mailbox public ID when the credential can access more than one mailbox.",
+        ),
     ) -> dict[str, Any]:
         return await fetch_mailbox_attachment_metadata(
             client=client,
@@ -411,10 +411,10 @@ def add_mailbox_custom_tools(
     async def mailbox_read_attachment(
         message_id: Annotated[str, Field(description="Message ID containing the attachment.")],
         attachment_id: Annotated[str, Field(description="Attachment ID from message metadata.")],
-        mailbox_id: Annotated[
-            str | None,
-            Field(description="Mailbox public ID when the credential can access more than one mailbox."),
-        ] = None,
+        mailbox_id: str | None = Field(
+            default=None,
+            description="Mailbox public ID when the credential can access more than one mailbox.",
+        ),
         mode: Annotated[
             str,
             Field(description="Read mode: auto, metadata, text, or resource_link. auto inlines small text attachments."),
@@ -509,14 +509,12 @@ def add_mailbox_custom_tools(
     )
     async def mailbox_upload_attachment(
         filename: Annotated[str, Field(description="Filename to use when sending the uploaded attachment.")],
-        content_base64: Annotated[
-            str | None,
-            Field(
-                description=(
-                    "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use presign_upload_url for real files."
-                ),
+        content_base64: str | None = Field(
+            default=None,
+            description=(
+                "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use presign_upload_url for real files."
             ),
-        ] = None,
+        ),
         presign_upload_url: Annotated[
             bool,
             Field(
@@ -525,22 +523,20 @@ def add_mailbox_custom_tools(
                 ),
             ),
         ] = False,
-        size_bytes: Annotated[
-            int | None,
-            Field(
-                description="Exact byte size required when presign_upload_url=true.",
-                ge=1,
-                le=MCP_ATTACHMENT_FILE_UPLOAD_MAX_BYTES,
-            ),
-        ] = None,
+        size_bytes: int | None = Field(
+            default=None,
+            description="Exact byte size required when presign_upload_url=true.",
+            ge=1,
+            le=MCP_ATTACHMENT_FILE_UPLOAD_MAX_BYTES,
+        ),
         content_type: Annotated[
             str,
             Field(description="MIME type to store with the upload, for example application/pdf."),
         ] = "application/octet-stream",
-        mailbox_id: Annotated[
-            str | None,
-            Field(description="Mailbox public ID when the credential can access more than one mailbox."),
-        ] = None,
+        mailbox_id: str | None = Field(
+            default=None,
+            description="Mailbox public ID when the credential can access more than one mailbox.",
+        ),
     ) -> dict[str, Any]:
         mode_count = sum(1 for enabled in (bool(content_base64), presign_upload_url) if enabled)
         if mode_count != 1:
@@ -614,38 +610,29 @@ def add_mailbox_custom_tools(
                 le=MCP_WAIT_FOR_MESSAGE_MAX_TIMEOUT_SECONDS,
             ),
         ] = MCP_WAIT_FOR_MESSAGE_DEFAULT_TIMEOUT_SECONDS,
-        mailbox_id: Annotated[
-            str | None,
-            Field(description="Mailbox public ID when the credential can access more than one mailbox."),
-        ] = None,
-        after: Annotated[
-            str | None,
-            Field(description="ISO 8601 lower bound for received_at. Omit to wait for messages received after this call starts."),
-        ] = None,
-        q: Annotated[
-            str | None,
-            Field(description="Optional full-text query to match."),
-        ] = None,
-        from_email: Annotated[
-            str | None,
-            Field(description="Optional sender email address or display-name filter."),
-        ] = None,
-        subject: Annotated[
-            str | None,
-            Field(description="Optional subject text filter."),
-        ] = None,
-        folder_id: Annotated[
-            str | None,
-            Field(description="Optional folder ID filter."),
-        ] = None,
-        keyword: Annotated[
-            str | None,
-            Field(description="Optional keyword/label that the message must have, such as $seen."),
-        ] = None,
-        has_attachment: Annotated[
-            bool | None,
-            Field(description="When true, wait only for messages with attachments."),
-        ] = None,
+        mailbox_id: str | None = Field(
+            default=None,
+            description="Mailbox public ID when the credential can access more than one mailbox.",
+        ),
+        after: str | None = Field(
+            default=None,
+            description="ISO 8601 lower bound for received_at. Omit to wait for messages received after this call starts.",
+        ),
+        q: str | None = Field(default=None, description="Optional full-text query to match."),
+        from_email: str | None = Field(
+            default=None,
+            description="Optional sender email address or display-name filter.",
+        ),
+        subject: str | None = Field(default=None, description="Optional subject text filter."),
+        folder_id: str | None = Field(default=None, description="Optional folder ID filter."),
+        keyword: str | None = Field(
+            default=None,
+            description="Optional keyword/label that the message must have, such as $seen.",
+        ),
+        has_attachment: bool | None = Field(
+            default=None,
+            description="When true, wait only for messages with attachments.",
+        ),
     ) -> dict[str, Any]:
         deadline = asyncio.get_running_loop().time() + min(
             max(timeout_seconds, 1),
@@ -742,22 +729,20 @@ def add_sending_custom_tools(
     )
     async def sending_upload_attachment(
         filename: Annotated[str, Field(description="Filename to use when sending the uploaded attachment.")],
-        content_base64: Annotated[
-            str | None,
-            Field(
-                description=(
-                    "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use a presigned upload for real files."
-                ),
+        content_base64: str | None = Field(
+            default=None,
+            description=(
+                "Last-resort inline base64 for tiny agent-authored files only. Decoded content must be at most 32 KiB; use a presigned upload for real files."
             ),
-        ] = None,
+        ),
         content_type: Annotated[
             str,
             Field(description="MIME type to store with the upload, for example application/pdf."),
         ] = "application/octet-stream",
-        idempotency_key: Annotated[
-            str | None,
-            Field(description="Optional Idempotency-Key for safely retrying the upload."),
-        ] = None,
+        idempotency_key: str | None = Field(
+            default=None,
+            description="Optional Idempotency-Key for safely retrying the upload.",
+        ),
     ) -> dict[str, Any]:
         if not content_base64:
             return local_tool_error(

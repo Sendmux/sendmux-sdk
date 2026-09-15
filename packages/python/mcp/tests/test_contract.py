@@ -129,6 +129,31 @@ def test_installed_reader_respects_supported_runtime_range(change: str) -> None:
     print(f"runtime reader child {child.pid} ESRCH; fixture {root} absent")
 
 
+def test_installed_reader_loads_from_shallow_package_root() -> None:
+    with tempfile.TemporaryDirectory(prefix="sendmux-contract-shallow-") as temporary:
+        root = Path(temporary)
+        shutil.copytree(PACKAGE_DIR / "sendmux_mcp", root / "sendmux_mcp")
+        child = subprocess.Popen(
+            [sys.executable, "-c", "from sendmux_mcp.contract import load_contract; load_contract()"],
+            cwd=root,
+            env={**os.environ, "PYTHONPATH": str(root)},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        print(f"shallow reader child {child.pid}, fixture {root}")
+        try:
+            stdout, stderr = child.communicate(timeout=45)
+        finally:
+            if child.poll() is None:
+                child.kill()
+                child.communicate(timeout=5)
+        with pytest.raises(ProcessLookupError):
+            os.kill(child.pid, 0)
+        assert child.returncode == 0, stderr
+    assert not root.exists()
+    print(f"shallow reader child {child.pid} ESRCH; fixture {root} absent")
+
+
 @pytest.mark.parametrize("drift", ["source", "native_version", "dependency_version", "missing_source"])
 def test_installed_reader_rejects_stale_provenance(drift: str) -> None:
     with tempfile.TemporaryDirectory(prefix="sendmux-contract-reader-") as temporary:

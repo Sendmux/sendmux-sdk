@@ -13137,7 +13137,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return \Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError
+     * @return \Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError
      */
     public function mailboxListThreadMessages(
         string $thread_id,
@@ -13146,7 +13146,7 @@ class MailboxAPIApi
         ?string $sort = null,
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
-    ): \Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
+    ): \Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError {
         list($response) = $this->mailboxListThreadMessagesWithHttpInfo(
             $thread_id,
             $cursor,
@@ -13172,7 +13172,7 @@ class MailboxAPIApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function mailboxListThreadMessagesWithHttpInfo(
         string $thread_id,
@@ -13216,7 +13216,7 @@ class MailboxAPIApi
             switch ($statusCode) {
                 case 200:
                     return $this->handleResponseWithDataType(
-                        '\Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse',
+                        '\Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse',
                         $request,
                         $response,
                     );
@@ -13249,7 +13249,7 @@ class MailboxAPIApi
             }
 
             return $this->handleResponseWithDataType(
-                '\Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse',
+                '\Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse',
                 $request,
                 $response,
             );
@@ -13258,7 +13258,7 @@ class MailboxAPIApi
                 case 200:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
-                        '\Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse',
+                        '\Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse',
                         $e->getResponseHeaders()
                     );
                     $e->setResponseObject($data);
@@ -13346,7 +13346,7 @@ class MailboxAPIApi
         ?string $mailbox_id = null,
         string $contentType = self::contentTypes['mailboxListThreadMessages'][0]
     ): PromiseInterface {
-        $returnType = '\Sendmux\Mailbox\Model\MailboxMessageSummaryCursorListResponse';
+        $returnType = '\Sendmux\Mailbox\Model\MailboxThreadMessageSummaryCursorListResponse';
         $request = $this->mailboxListThreadMessagesRequest(
             $thread_id,
             $cursor,

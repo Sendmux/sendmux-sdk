@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxMessageSummaryCursorListResponse
+ * MailboxThreadMessageSummaryCursorListResponse
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * MailboxMessageSummaryCursorListResponse Class Doc Comment
+ * MailboxThreadMessageSummaryCursorListResponse Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxThreadMessageSummaryCursorListResponse implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxMessageSummaryCursorListResponse';
+    protected static string $openAPIModelName = 'MailboxThreadMessageSummaryCursorListResponse';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,7 +59,7 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'meta' => '\Sendmux\Mailbox\Model\MailboxSyncMeta',
+        'meta' => '\Sendmux\Mailbox\Model\MailboxThreadMessagesMeta',
         'ok' => 'bool',
         'data' => '\Sendmux\Mailbox\Model\MailboxMessageSummary[]',
         'pagination' => '\Sendmux\Mailbox\Model\CursorPagination'
@@ -300,9 +300,9 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
     /**
      * Gets meta
      *
-     * @return \Sendmux\Mailbox\Model\MailboxSyncMeta
+     * @return \Sendmux\Mailbox\Model\MailboxThreadMessagesMeta
      */
-    public function getMeta(): \Sendmux\Mailbox\Model\MailboxSyncMeta
+    public function getMeta(): \Sendmux\Mailbox\Model\MailboxThreadMessagesMeta
     {
         return $this->container['meta'];
     }
@@ -310,11 +310,11 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
     /**
      * Sets meta
      *
-     * @param \Sendmux\Mailbox\Model\MailboxSyncMeta $meta meta
+     * @param \Sendmux\Mailbox\Model\MailboxThreadMessagesMeta $meta meta
      *
      * @return $this
      */
-    public function setMeta(\Sendmux\Mailbox\Model\MailboxSyncMeta $meta): static
+    public function setMeta(\Sendmux\Mailbox\Model\MailboxThreadMessagesMeta $meta): static
     {
         if (is_null($meta)) {
             throw new InvalidArgumentException('non-nullable meta cannot be null');

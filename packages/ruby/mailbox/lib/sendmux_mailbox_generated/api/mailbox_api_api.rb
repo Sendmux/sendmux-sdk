@@ -2472,7 +2472,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Integer] :limit
     # @option opts [String] :sort
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
-    # @return [MailboxMessageSummaryCursorListResponse]
+    # @return [MailboxThreadMessageSummaryCursorListResponse]
     def mailbox_list_thread_messages(thread_id, opts = {})
       data, _status_code, _headers = mailbox_list_thread_messages_with_http_info(thread_id, opts)
       data
@@ -2486,7 +2486,7 @@ module Sendmux::Mailbox::Generated
     # @option opts [Integer] :limit
     # @option opts [String] :sort
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
-    # @return [Array<(MailboxMessageSummaryCursorListResponse, Integer, Hash)>] MailboxMessageSummaryCursorListResponse data, response status code and response headers
+    # @return [Array<(MailboxThreadMessageSummaryCursorListResponse, Integer, Hash)>] MailboxThreadMessageSummaryCursorListResponse data, response status code and response headers
     def mailbox_list_thread_messages_with_http_info(thread_id, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_list_thread_messages ...'
@@ -2529,7 +2529,7 @@ module Sendmux::Mailbox::Generated
       post_body = opts[:debug_body]
 
       # return_type
-      return_type = opts[:debug_return_type] || 'MailboxMessageSummaryCursorListResponse'
+      return_type = opts[:debug_return_type] || 'MailboxThreadMessageSummaryCursorListResponse'
 
       # auth_names
       auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']

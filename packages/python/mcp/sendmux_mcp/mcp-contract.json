@@ -51,13 +51,13 @@
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "7807ce9239527497bfe35d62dd931096e46200027aa34e414920f86176ee2990",
+      "openapi/openapi-app.json": "86e7afbe39ff9847c2f0c2d9f63deb91326a426f1d52db90dba787251ea0be6f",
       "openapi/openapi-sending.json": "f3caa5b45c7d9e0c8890d54964ffd7ed9a78073833b3d4959b40b714066d15e9",
       "permissions.py": "fe8f3ec91814552098fe8fa5c052b2ab0c73aea0db6b338a47cc41adcb6b7119",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
       "retry.py": "e1454a54ffe1b5b558c820b6e9cff2d2c0f8c1ea501f63051dc9716bf1f67191",
       "security.py": "45f59d632995254dc8dc5acec41b6f0f5c583a7db3f9c50a143a8c48dffa4016",
-      "server.py": "1db8829114c3c73db9e3892aecd6544dbc3baf1960e66b0a9d3f6ffaaeb38365",
+      "server.py": "100ea4a60762c61c09f8bef0dab1833f2a3a9b7d48842799071ee12764de8c4a",
       "smoke.py": "d0934a705e67a244d394d5fc0c1695666532ec09a33f950181ebd75556ea83ce",
       "specs.py": "eeb718452325856c15a860e11e5c434f9cce101e536029424e2d485e2a77cb95",
       "verification.py": "ad4bfb529cba60695a2c66efe045a67271f104f775a927f8bb901d9e38e987f1"
@@ -5623,8 +5623,10 @@
                       "meta": {
                         "additionalProperties": false,
                         "properties": {
+                          "identity_state": {
+                            "type": "string"
+                          },
                           "request_id": {
-                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
                             "type": "string"
                           }
                         },
@@ -6105,7 +6107,9 @@
                         "additionalProperties": false,
                         "properties": {
                           "request_id": {
-                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          },
+                          "sync_state": {
                             "type": "string"
                           }
                         },
@@ -6502,12 +6506,18 @@
                         "additionalProperties": false,
                         "properties": {
                           "request_id": {
-                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          },
+                          "sync_state": {
+                            "type": "string"
+                          },
+                          "thread_id": {
                             "type": "string"
                           }
                         },
                         "required": [
-                          "request_id"
+                          "request_id",
+                          "thread_id"
                         ],
                         "type": "object"
                       },
@@ -6537,7 +6547,7 @@
                 "unevaluatedProperties": {
                   "not": {}
                 },
-                "x-fastmcp-top-level-schema": "MailboxMessageSummaryCursorListResponse"
+                "x-fastmcp-top-level-schema": "MailboxThreadMessageSummaryCursorListResponse"
               }
             },
             "required": [
@@ -7019,8 +7029,10 @@
                       "meta": {
                         "additionalProperties": false,
                         "properties": {
+                          "query_state": {
+                            "type": "string"
+                          },
                           "request_id": {
-                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
                             "type": "string"
                           }
                         },
@@ -8647,8 +8659,14 @@
                     "properties": {
                       "request_id": {
                         "type": "string"
+                      },
+                      "sync_state": {
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "request_id"
+                    ],
                     "type": "object"
                   },
                   "ok": {
@@ -8717,8 +8735,14 @@
                     "properties": {
                       "request_id": {
                         "type": "string"
+                      },
+                      "sync_state": {
+                        "type": "string"
                       }
                     },
+                    "required": [
+                      "request_id"
+                    ],
                     "type": "object"
                   },
                   "ok": {

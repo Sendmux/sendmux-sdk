@@ -17,24 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictBool
-from typing import Any, ClassVar, Dict, List
-from sendmux_mailbox.models.cursor_pagination import CursorPagination
-from sendmux_mailbox.models.mailbox_query_meta import MailboxQueryMeta
-from sendmux_mailbox.models.mailbox_thread_summary import MailboxThreadSummary
+from pydantic import BaseModel, ConfigDict, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxThreadSummaryCursorListResponse(BaseModel):
+class MailboxSyncMeta(BaseModel):
     """
-    MailboxThreadSummaryCursorListResponse
+    MailboxSyncMeta
     """ # noqa: E501
-    meta: MailboxQueryMeta
-    ok: StrictBool
-    data: List[MailboxThreadSummary]
-    pagination: CursorPagination
-    __properties: ClassVar[List[str]] = ["meta", "ok", "data", "pagination"]
+    request_id: StrictStr
+    sync_state: Optional[StrictStr] = None
+    __properties: ClassVar[List[str]] = ["request_id", "sync_state"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -54,7 +49,7 @@ class MailboxThreadSummaryCursorListResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxThreadSummaryCursorListResponse from a JSON string"""
+        """Create an instance of MailboxSyncMeta from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,24 +70,11 @@ class MailboxThreadSummaryCursorListResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of meta
-        if self.meta:
-            _dict['meta'] = self.meta.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
-        _items = []
-        if self.data:
-            for _item_data in self.data:
-                if _item_data:
-                    _items.append(_item_data.to_dict())
-            _dict['data'] = _items
-        # override the default output from pydantic by calling `to_dict()` of pagination
-        if self.pagination:
-            _dict['pagination'] = self.pagination.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxThreadSummaryCursorListResponse from a dict"""
+        """Create an instance of MailboxSyncMeta from a dict"""
         if obj is None:
             return None
 
@@ -100,9 +82,7 @@ class MailboxThreadSummaryCursorListResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "meta": MailboxQueryMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
-            "ok": obj.get("ok"),
-            "data": [MailboxThreadSummary.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
-            "pagination": CursorPagination.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
+            "request_id": obj.get("request_id"),
+            "sync_state": obj.get("sync_state")
         })
         return _obj

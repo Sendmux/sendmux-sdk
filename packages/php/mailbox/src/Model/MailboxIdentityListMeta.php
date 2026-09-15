@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxMessageSummaryCursorListResponse
+ * MailboxIdentityListMeta
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * MailboxMessageSummaryCursorListResponse Class Doc Comment
+ * MailboxIdentityListMeta Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxIdentityListMeta implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxMessageSummaryCursorListResponse';
+    protected static string $openAPIModelName = 'MailboxIdentityListMeta';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,10 +59,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'meta' => '\Sendmux\Mailbox\Model\MailboxSyncMeta',
-        'ok' => 'bool',
-        'data' => '\Sendmux\Mailbox\Model\MailboxMessageSummary[]',
-        'pagination' => '\Sendmux\Mailbox\Model\CursorPagination'
+        'identity_state' => 'string',
+        'request_id' => 'string'
     ];
 
     /**
@@ -71,10 +69,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'meta' => null,
-        'ok' => null,
-        'data' => null,
-        'pagination' => null
+        'identity_state' => null,
+        'request_id' => null
     ];
 
     /**
@@ -83,10 +79,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'meta' => false,
-        'ok' => false,
-        'data' => false,
-        'pagination' => false
+        'identity_state' => false,
+        'request_id' => false
     ];
 
     /**
@@ -165,10 +159,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'meta' => 'meta',
-        'ok' => 'ok',
-        'data' => 'data',
-        'pagination' => 'pagination'
+        'identity_state' => 'identity_state',
+        'request_id' => 'request_id'
     ];
 
     /**
@@ -177,10 +169,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string>
      */
     protected static array $setters = [
-        'meta' => 'setMeta',
-        'ok' => 'setOk',
-        'data' => 'setData',
-        'pagination' => 'setPagination'
+        'identity_state' => 'setIdentityState',
+        'request_id' => 'setRequestId'
     ];
 
     /**
@@ -189,10 +179,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string>
      */
     protected static array $getters = [
-        'meta' => 'getMeta',
-        'ok' => 'getOk',
-        'data' => 'getData',
-        'pagination' => 'getPagination'
+        'identity_state' => 'getIdentityState',
+        'request_id' => 'getRequestId'
     ];
 
     /**
@@ -242,10 +230,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('meta', $data ?? [], null);
-        $this->setIfExists('ok', $data ?? [], null);
-        $this->setIfExists('data', $data ?? [], null);
-        $this->setIfExists('pagination', $data ?? [], null);
+        $this->setIfExists('identity_state', $data ?? [], null);
+        $this->setIfExists('request_id', $data ?? [], null);
     }
 
     /**
@@ -273,17 +259,8 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
     {
         $invalidProperties = [];
 
-        if ($this->container['meta'] === null) {
-            $invalidProperties[] = "'meta' can't be null";
-        }
-        if ($this->container['ok'] === null) {
-            $invalidProperties[] = "'ok' can't be null";
-        }
-        if ($this->container['data'] === null) {
-            $invalidProperties[] = "'data' can't be null";
-        }
-        if ($this->container['pagination'] === null) {
-            $invalidProperties[] = "'pagination' can't be null";
+        if ($this->container['request_id'] === null) {
+            $invalidProperties[] = "'request_id' can't be null";
         }
         return $invalidProperties;
     }
@@ -298,109 +275,55 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
 
 
     /**
-     * Gets meta
+     * Gets identity_state
      *
-     * @return \Sendmux\Mailbox\Model\MailboxSyncMeta
+     * @return string|null
      */
-    public function getMeta(): \Sendmux\Mailbox\Model\MailboxSyncMeta
+    public function getIdentityState(): ?string
     {
-        return $this->container['meta'];
+        return $this->container['identity_state'];
     }
 
     /**
-     * Sets meta
+     * Sets identity_state
      *
-     * @param \Sendmux\Mailbox\Model\MailboxSyncMeta $meta meta
+     * @param string|null $identity_state identity_state
      *
      * @return $this
      */
-    public function setMeta(\Sendmux\Mailbox\Model\MailboxSyncMeta $meta): static
+    public function setIdentityState(?string $identity_state): static
     {
-        if (is_null($meta)) {
-            throw new InvalidArgumentException('non-nullable meta cannot be null');
+        if (is_null($identity_state)) {
+            throw new InvalidArgumentException('non-nullable identity_state cannot be null');
         }
-        $this->container['meta'] = $meta;
+        $this->container['identity_state'] = $identity_state;
 
         return $this;
     }
 
     /**
-     * Gets ok
+     * Gets request_id
      *
-     * @return bool
+     * @return string
      */
-    public function getOk(): bool
+    public function getRequestId(): string
     {
-        return $this->container['ok'];
+        return $this->container['request_id'];
     }
 
     /**
-     * Sets ok
+     * Sets request_id
      *
-     * @param bool $ok ok
+     * @param string $request_id request_id
      *
      * @return $this
      */
-    public function setOk(bool $ok): static
+    public function setRequestId(string $request_id): static
     {
-        if (is_null($ok)) {
-            throw new InvalidArgumentException('non-nullable ok cannot be null');
+        if (is_null($request_id)) {
+            throw new InvalidArgumentException('non-nullable request_id cannot be null');
         }
-        $this->container['ok'] = $ok;
-
-        return $this;
-    }
-
-    /**
-     * Gets data
-     *
-     * @return \Sendmux\Mailbox\Model\MailboxMessageSummary[]
-     */
-    public function getData(): array
-    {
-        return $this->container['data'];
-    }
-
-    /**
-     * Sets data
-     *
-     * @param \Sendmux\Mailbox\Model\MailboxMessageSummary[] $data data
-     *
-     * @return $this
-     */
-    public function setData(array $data): static
-    {
-        if (is_null($data)) {
-            throw new InvalidArgumentException('non-nullable data cannot be null');
-        }
-        $this->container['data'] = $data;
-
-        return $this;
-    }
-
-    /**
-     * Gets pagination
-     *
-     * @return \Sendmux\Mailbox\Model\CursorPagination
-     */
-    public function getPagination(): \Sendmux\Mailbox\Model\CursorPagination
-    {
-        return $this->container['pagination'];
-    }
-
-    /**
-     * Sets pagination
-     *
-     * @param \Sendmux\Mailbox\Model\CursorPagination $pagination pagination
-     *
-     * @return $this
-     */
-    public function setPagination(\Sendmux\Mailbox\Model\CursorPagination $pagination): static
-    {
-        if (is_null($pagination)) {
-            throw new InvalidArgumentException('non-nullable pagination cannot be null');
-        }
-        $this->container['pagination'] = $pagination;
+        $this->container['request_id'] = $request_id;
 
         return $this;
     }

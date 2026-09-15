@@ -845,7 +845,7 @@ test("workflow runner or writer failure cannot authorize a historical audit uplo
     mkdirSync(join(dir, "docs"));
     const historical = join(dir, "docs", "live-e2e-audit-manifest.json");
     writeFileSync(historical, "historical evidence");
-    writeFileSync(join(dir, "bin", "node"), "#!/bin/sh\ncase \"$1\" in\n  *run-live-e2e.mjs) mkdir -p .tmp/live-e2e/fresh-run; printf '%s\\n' '{\"runId\":\"fresh-run\",\"resources\":[{\"id\":\"folder_owned\",\"status\":\"failed\"}]}' > .tmp/live-e2e/fresh-run/resources.json; exit 19 ;;\n  *) exit 27 ;;\nesac\n", { mode: 0o700 });
+    writeFileSync(join(dir, "bin", "node"), "#!/bin/sh\ncase \"$1\" in\n  *run-live-e2e.mjs) mkdir -p .tmp/live-e2e/fresh-run; printf '%s\\n' '{\"runId\":\"fresh-run\",\"resources\":[{\"id\":\"folder_owned\",\"status\":\"failed\"}]}' > .tmp/live-e2e/fresh-run/resources.json; exit \"${RUNNER_STATUS:-19}\" ;;\n  *) exit \"${WRITER_STATUS:-27}\" ;;\nesac\n", { mode: 0o700 });
     const output = join(dir, "output");
     writeFileSync(output, "");
     const result = spawnSync("bash", ["-e", "-c", certification.run], { cwd: dir, encoding: "utf8", env: { ...process.env, PATH: `${join(dir, "bin")}:${process.env.PATH}`, SENDMUX_LIVE_E2E_ADAPTERS: "sdk", SENDMUX_LIVE_E2E_OPERATIONS: "", SENDMUX_LIVE_E2E_RUN_ID: "fresh-run", GITHUB_OUTPUT: output, GITHUB_SHA: "a".repeat(40), GITHUB_RUN_ID: "fixture" } });
@@ -853,6 +853,14 @@ test("workflow runner or writer failure cannot authorize a historical audit uplo
     assert.equal(readFileSync(output, "utf8"), "");
     assert.equal(readFileSync(historical, "utf8"), "historical evidence");
     assert.equal(existsSync(join(dir, ".tmp", "live-e2e", "fresh-run", "audit-manifest.json")), false);
+    writeFileSync(output, "");
+    const writerFailure = spawnSync("bash", ["-e", "-c", certification.run], { cwd: dir, encoding: "utf8", env: { ...process.env, PATH: `${join(dir, "bin")}:${process.env.PATH}`, SENDMUX_LIVE_E2E_ADAPTERS: "sdk", SENDMUX_LIVE_E2E_OPERATIONS: "", SENDMUX_LIVE_E2E_RUN_ID: "fresh-run", GITHUB_OUTPUT: output, GITHUB_SHA: "a".repeat(40), GITHUB_RUN_ID: "fixture", RUNNER_STATUS: "0", WRITER_STATUS: "27" } });
+    assert.equal(writerFailure.status, 27);
+    assert.equal(readFileSync(output, "utf8"), "");
+    writeFileSync(output, "");
+    const runnerFailure = spawnSync("bash", ["-e", "-c", certification.run], { cwd: dir, encoding: "utf8", env: { ...process.env, PATH: `${join(dir, "bin")}:${process.env.PATH}`, SENDMUX_LIVE_E2E_ADAPTERS: "sdk", SENDMUX_LIVE_E2E_OPERATIONS: "", SENDMUX_LIVE_E2E_RUN_ID: "fresh-run", GITHUB_OUTPUT: output, GITHUB_SHA: "a".repeat(40), GITHUB_RUN_ID: "fixture", RUNNER_STATUS: "19", WRITER_STATUS: "0" } });
+    assert.equal(runnerFailure.status, 19);
+    assert.equal(readFileSync(output, "utf8"), "manifest_written=true\n");
     const uploads = steps.filter(step => step.uses?.startsWith("actions/upload-artifact@"));
     const auditUpload = uploads.find(step => step.with.name.startsWith("live-e2e-audit-"));
     assert.equal(auditUpload.if, "${{ always() && steps.certification.outputs.manifest_written == 'true' }}");

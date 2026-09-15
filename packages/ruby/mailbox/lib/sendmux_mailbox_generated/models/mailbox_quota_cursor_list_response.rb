@@ -46,7 +46,7 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'meta' => :'ResponseMeta',
+        :'meta' => :'MailboxQueryMeta',
         :'ok' => :'Boolean',
         :'data' => :'Array<MailboxQuota>',
         :'pagination' => :'CursorPagination'

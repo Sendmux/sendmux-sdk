@@ -600,7 +600,10 @@ def add_mailbox_custom_tools(
             idempotent_hint=True,
             open_world_hint=True,
         ),
-        output_schema=tool_envelope_schema(wait_schema),
+        output_schema=tool_envelope_schema(
+            wait_schema,
+            meta_schema=component_schema(spec, "MailboxSyncMeta"),
+        ),
     )
     async def mailbox_wait_for_message(
         timeout_seconds: Annotated[
@@ -812,15 +815,19 @@ def rewrite_component_refs(value: Any, spec: dict[str, Any]) -> Any:
     return {key: rewrite_component_refs(child, spec) for key, child in value.items()}
 
 
-def tool_envelope_schema(data_schema: dict[str, Any]) -> dict[str, Any]:
-    meta_schema = {
+def tool_envelope_schema(
+    data_schema: dict[str, Any],
+    *,
+    meta_schema: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    resolved_meta_schema = copy.deepcopy(meta_schema) if meta_schema is not None else {
         "additionalProperties": False,
         "properties": {"request_id": {"type": "string"}},
         "type": "object",
     }
     success = {
         "additionalProperties": False,
-        "properties": {"ok": {"const": True}, "data": data_schema, "meta": meta_schema},
+        "properties": {"ok": {"const": True}, "data": data_schema, "meta": resolved_meta_schema},
         "required": ["ok", "data"],
         "type": "object",
     }
@@ -853,7 +860,7 @@ def tool_envelope_schema(data_schema: dict[str, Any]) -> dict[str, Any]:
                 "required": ["code", "message"],
                 "type": "object",
             },
-            "meta": meta_schema,
+            "meta": resolved_meta_schema,
         },
         "required": ["ok", "error"],
         "type": "object",

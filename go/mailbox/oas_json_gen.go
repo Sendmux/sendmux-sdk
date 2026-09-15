@@ -12036,6 +12036,12 @@ func (s *MailboxIdentityCursorListResponseMeta) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxIdentityCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	{
+		if s.IdentityState.Set {
+			e.FieldStart("identity_state")
+			s.IdentityState.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("request_id")
 		e.Str(s.RequestID)
 	}
@@ -12048,8 +12054,9 @@ func (s *MailboxIdentityCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxIdentityCursorListResponseMeta = [1]string{
-	0: "request_id",
+var jsonFieldsNameOfMailboxIdentityCursorListResponseMeta = [2]string{
+	0: "identity_state",
+	1: "request_id",
 }
 
 // Decode decodes MailboxIdentityCursorListResponseMeta from json.
@@ -12062,8 +12069,18 @@ func (s *MailboxIdentityCursorListResponseMeta) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
+		case "identity_state":
+			if err := func() error {
+				s.IdentityState.Reset()
+				if err := s.IdentityState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"identity_state\"")
+			}
 		case "request_id":
-			requiredBitSet[0] |= 1 << 0
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.RequestID = string(v)
@@ -12095,7 +12112,7 @@ func (s *MailboxIdentityCursorListResponseMeta) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -19109,6 +19126,12 @@ func (s *MailboxMessageSummaryCursorListResponseMeta) encodeFields(e *jx.Encoder
 		e.FieldStart("request_id")
 		e.Str(s.RequestID)
 	}
+	{
+		if s.SyncState.Set {
+			e.FieldStart("sync_state")
+			s.SyncState.Encode(e)
+		}
+	}
 	for k, elem := range s.AdditionalProps {
 		e.FieldStart(k)
 
@@ -19118,8 +19141,9 @@ func (s *MailboxMessageSummaryCursorListResponseMeta) encodeFields(e *jx.Encoder
 	}
 }
 
-var jsonFieldsNameOfMailboxMessageSummaryCursorListResponseMeta = [1]string{
+var jsonFieldsNameOfMailboxMessageSummaryCursorListResponseMeta = [2]string{
 	0: "request_id",
+	1: "sync_state",
 }
 
 // Decode decodes MailboxMessageSummaryCursorListResponseMeta from json.
@@ -19143,6 +19167,16 @@ func (s *MailboxMessageSummaryCursorListResponseMeta) Decode(d *jx.Decoder) erro
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"request_id\"")
+			}
+		case "sync_state":
+			if err := func() error {
+				s.SyncState.Reset()
+				if err := s.SyncState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sync_state\"")
 			}
 		default:
 			var elem jx.Raw
@@ -19718,6 +19752,12 @@ func (s *MailboxQuotaCursorListResponseMeta) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxQuotaCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	{
+		if s.QueryState.Set {
+			e.FieldStart("query_state")
+			s.QueryState.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("request_id")
 		e.Str(s.RequestID)
 	}
@@ -19730,8 +19770,9 @@ func (s *MailboxQuotaCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxQuotaCursorListResponseMeta = [1]string{
-	0: "request_id",
+var jsonFieldsNameOfMailboxQuotaCursorListResponseMeta = [2]string{
+	0: "query_state",
+	1: "request_id",
 }
 
 // Decode decodes MailboxQuotaCursorListResponseMeta from json.
@@ -19744,8 +19785,18 @@ func (s *MailboxQuotaCursorListResponseMeta) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
+		case "query_state":
+			if err := func() error {
+				s.QueryState.Reset()
+				if err := s.QueryState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"query_state\"")
+			}
 		case "request_id":
-			requiredBitSet[0] |= 1 << 0
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.RequestID = string(v)
@@ -19777,7 +19828,7 @@ func (s *MailboxQuotaCursorListResponseMeta) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -26482,6 +26533,12 @@ func (s *MailboxSubmissionCursorListResponseMeta) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxSubmissionCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	{
+		if s.QueryState.Set {
+			e.FieldStart("query_state")
+			s.QueryState.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("request_id")
 		e.Str(s.RequestID)
 	}
@@ -26494,8 +26551,9 @@ func (s *MailboxSubmissionCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxSubmissionCursorListResponseMeta = [1]string{
-	0: "request_id",
+var jsonFieldsNameOfMailboxSubmissionCursorListResponseMeta = [2]string{
+	0: "query_state",
+	1: "request_id",
 }
 
 // Decode decodes MailboxSubmissionCursorListResponseMeta from json.
@@ -26508,8 +26566,18 @@ func (s *MailboxSubmissionCursorListResponseMeta) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
+		case "query_state":
+			if err := func() error {
+				s.QueryState.Reset()
+				if err := s.QueryState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"query_state\"")
+			}
 		case "request_id":
-			requiredBitSet[0] |= 1 << 0
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.RequestID = string(v)
@@ -26541,7 +26609,7 @@ func (s *MailboxSubmissionCursorListResponseMeta) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -29657,6 +29725,396 @@ func (s *MailboxThreadDetailResponseOk) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxThreadMessageSummaryCursorListResponse) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("meta")
+		s.Meta.Encode(e)
+	}
+	{
+		e.FieldStart("ok")
+		s.Ok.Encode(e)
+	}
+	{
+		e.FieldStart("data")
+		e.ArrStart()
+		for _, elem := range s.Data {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+	{
+		e.FieldStart("pagination")
+		s.Pagination.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfMailboxThreadMessageSummaryCursorListResponse = [4]string{
+	0: "meta",
+	1: "ok",
+	2: "data",
+	3: "pagination",
+}
+
+// Decode decodes MailboxThreadMessageSummaryCursorListResponse from json.
+func (s *MailboxThreadMessageSummaryCursorListResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxThreadMessageSummaryCursorListResponse to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "meta":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Meta.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"meta\"")
+			}
+		case "ok":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Ok.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ok\"")
+			}
+		case "data":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				s.Data = make([]MailboxMessageSummary, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem MailboxMessageSummary
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Data = append(s.Data, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"data\"")
+			}
+		case "pagination":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				if err := s.Pagination.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pagination\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxThreadMessageSummaryCursorListResponse")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00001111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxThreadMessageSummaryCursorListResponse) {
+					name = jsonFieldsNameOfMailboxThreadMessageSummaryCursorListResponse[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("request_id")
+		e.Str(s.RequestID)
+	}
+	{
+		if s.SyncState.Set {
+			e.FieldStart("sync_state")
+			s.SyncState.Encode(e)
+		}
+	}
+	{
+		e.FieldStart("thread_id")
+		e.Str(s.ThreadID)
+	}
+	for k, elem := range s.AdditionalProps {
+		e.FieldStart(k)
+
+		if len(elem) != 0 {
+			e.Raw(elem)
+		}
+	}
+}
+
+var jsonFieldsNameOfMailboxThreadMessageSummaryCursorListResponseMeta = [3]string{
+	0: "request_id",
+	1: "sync_state",
+	2: "thread_id",
+}
+
+// Decode decodes MailboxThreadMessageSummaryCursorListResponseMeta from json.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxThreadMessageSummaryCursorListResponseMeta to nil")
+	}
+	var requiredBitSet [1]uint8
+	s.AdditionalProps = map[string]jx.Raw{}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "request_id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.RequestID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"request_id\"")
+			}
+		case "sync_state":
+			if err := func() error {
+				s.SyncState.Reset()
+				if err := s.SyncState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"sync_state\"")
+			}
+		case "thread_id":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.ThreadID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"thread_id\"")
+			}
+		default:
+			var elem jx.Raw
+			if err := func() error {
+				v, err := d.RawAppend(nil)
+				elem = jx.Raw(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrapf(err, "decode field %q", k)
+			}
+			s.AdditionalProps[string(k)] = elem
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxThreadMessageSummaryCursorListResponseMeta")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000101,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxThreadMessageSummaryCursorListResponseMeta) {
+					name = jsonFieldsNameOfMailboxThreadMessageSummaryCursorListResponseMeta[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s MailboxThreadMessageSummaryCursorListResponseMetaAdditional) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields implements json.Marshaler.
+func (s MailboxThreadMessageSummaryCursorListResponseMetaAdditional) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
+
+		if len(elem) != 0 {
+			e.Raw(elem)
+		}
+	}
+}
+
+// Decode decodes MailboxThreadMessageSummaryCursorListResponseMetaAdditional from json.
+func (s *MailboxThreadMessageSummaryCursorListResponseMetaAdditional) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxThreadMessageSummaryCursorListResponseMetaAdditional to nil")
+	}
+	m := s.init()
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		var elem jx.Raw
+		if err := func() error {
+			v, err := d.RawAppend(nil)
+			elem = jx.Raw(v)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
+		}
+		m[string(k)] = elem
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxThreadMessageSummaryCursorListResponseMetaAdditional")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MailboxThreadMessageSummaryCursorListResponseMetaAdditional) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponseMetaAdditional) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxThreadMessageSummaryCursorListResponseOk as json.
+func (s MailboxThreadMessageSummaryCursorListResponseOk) Encode(e *jx.Encoder) {
+	e.Bool(bool(s))
+}
+
+// Decode decodes MailboxThreadMessageSummaryCursorListResponseOk from json.
+func (s *MailboxThreadMessageSummaryCursorListResponseOk) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxThreadMessageSummaryCursorListResponseOk to nil")
+	}
+	v, err := d.Bool()
+	if err != nil {
+		return err
+	}
+	*s = MailboxThreadMessageSummaryCursorListResponseOk(v)
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MailboxThreadMessageSummaryCursorListResponseOk) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxThreadMessageSummaryCursorListResponseOk) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *MailboxThreadStates) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -30175,6 +30633,12 @@ func (s *MailboxThreadSummaryCursorListResponseMeta) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *MailboxThreadSummaryCursorListResponseMeta) encodeFields(e *jx.Encoder) {
 	{
+		if s.QueryState.Set {
+			e.FieldStart("query_state")
+			s.QueryState.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("request_id")
 		e.Str(s.RequestID)
 	}
@@ -30187,8 +30651,9 @@ func (s *MailboxThreadSummaryCursorListResponseMeta) encodeFields(e *jx.Encoder)
 	}
 }
 
-var jsonFieldsNameOfMailboxThreadSummaryCursorListResponseMeta = [1]string{
-	0: "request_id",
+var jsonFieldsNameOfMailboxThreadSummaryCursorListResponseMeta = [2]string{
+	0: "query_state",
+	1: "request_id",
 }
 
 // Decode decodes MailboxThreadSummaryCursorListResponseMeta from json.
@@ -30201,8 +30666,18 @@ func (s *MailboxThreadSummaryCursorListResponseMeta) Decode(d *jx.Decoder) error
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
+		case "query_state":
+			if err := func() error {
+				s.QueryState.Reset()
+				if err := s.QueryState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"query_state\"")
+			}
 		case "request_id":
-			requiredBitSet[0] |= 1 << 0
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.RequestID = string(v)
@@ -30234,7 +30709,7 @@ func (s *MailboxThreadSummaryCursorListResponseMeta) Decode(d *jx.Decoder) error
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

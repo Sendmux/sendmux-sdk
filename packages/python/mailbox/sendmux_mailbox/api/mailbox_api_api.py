@@ -55,6 +55,7 @@ from sendmux_mailbox.models.mailbox_submission_cursor_list_response import Mailb
 from sendmux_mailbox.models.mailbox_submission_response import MailboxSubmissionResponse
 from sendmux_mailbox.models.mailbox_thread_content_response import MailboxThreadContentResponse
 from sendmux_mailbox.models.mailbox_thread_detail_response import MailboxThreadDetailResponse
+from sendmux_mailbox.models.mailbox_thread_message_summary_cursor_list_response import MailboxThreadMessageSummaryCursorListResponse
 from sendmux_mailbox.models.mailbox_thread_summary_cursor_list_response import MailboxThreadSummaryCursorListResponse
 from sendmux_mailbox.models.mailbox_usage_response import MailboxUsageResponse
 from sendmux_mailbox.models.patch_mailbox_folder_body import PatchMailboxFolderBody
@@ -10481,7 +10482,7 @@ class MailboxAPIApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> MailboxMessageSummaryCursorListResponse:
+    ) -> MailboxThreadMessageSummaryCursorListResponse:
         """List thread messages
 
         Returns cursor-paginated message summaries for one thread. Use the thread content endpoint when you need cleaned bodies.
@@ -10531,7 +10532,7 @@ class MailboxAPIApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "MailboxMessageSummaryCursorListResponse",
+            '200': "MailboxThreadMessageSummaryCursorListResponse",
             '400': "ApiError",
             '404': "ApiError",
         }
@@ -10566,7 +10567,7 @@ class MailboxAPIApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[MailboxMessageSummaryCursorListResponse]:
+    ) -> ApiResponse[MailboxThreadMessageSummaryCursorListResponse]:
         """List thread messages
 
         Returns cursor-paginated message summaries for one thread. Use the thread content endpoint when you need cleaned bodies.
@@ -10616,7 +10617,7 @@ class MailboxAPIApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "MailboxMessageSummaryCursorListResponse",
+            '200': "MailboxThreadMessageSummaryCursorListResponse",
             '400': "ApiError",
             '404': "ApiError",
         }
@@ -10701,7 +10702,7 @@ class MailboxAPIApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "MailboxMessageSummaryCursorListResponse",
+            '200': "MailboxThreadMessageSummaryCursorListResponse",
             '400': "ApiError",
             '404': "ApiError",
         }

@@ -276,6 +276,17 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
         assert list(validator.iter_errors({"ok": True, "data": {**attachment, "read_mode": "text"}}))
         assert list(validator.iter_errors({"ok": True, "data": {**attachment, "read_mode": "resource_link", "text": None}}))
 
+        wait = next(tool for tool in tools if tool.name == "mailbox_wait_for_message")
+        wait_validator = Draft202012Validator(wait.output_schema)
+        wait_result = {
+            "ok": True,
+            "data": {"matched": False, "message": None, "next_after": "2026-07-02T15:59:00Z"},
+            "meta": {"request_id": "req_test", "sync_state": "state_test"},
+        }
+        assert not list(wait_validator.iter_errors(wait_result))
+        assert list(wait_validator.iter_errors({**wait_result, "meta": {**wait_result["meta"], "unexpected": True}}))
+        assert list(wait_validator.iter_errors({**wait_result, "meta": {"sync_state": "state_test"}}))
+
     asyncio.run(check())
 
 
@@ -698,8 +709,8 @@ def test_mailbox_tool_call_injects_bearer_auth() -> None:
             json={
                 "ok": True,
                 "data": [],
-                    "pagination": {"has_more": False},
-                "meta": {"request_id": "req_test"},
+                "pagination": {"has_more": False},
+                "meta": {"request_id": "req_test", "sync_state": "state_test"},
             },
         )
 
@@ -712,6 +723,7 @@ def test_mailbox_tool_call_injects_bearer_auth() -> None:
             result = structured_result(await client.call_tool("mailbox_list_messages", {"limit": 1}))
 
         assert result["ok"] is True
+        assert result["meta"] == {"request_id": "req_test", "sync_state": "state_test"}
 
     asyncio.run(check())
 
@@ -1275,7 +1287,7 @@ def test_mailbox_wait_for_message_returns_matching_message() -> None:
                         ],
                     }
                 ],
-                "meta": {"request_id": "req_test"},
+                "meta": {"request_id": "req_test", "sync_state": "state_test"},
             },
             request=request,
         )
@@ -1301,6 +1313,7 @@ def test_mailbox_wait_for_message_returns_matching_message() -> None:
 
         assert result["ok"] is True
         assert result["data"]["matched"] is True
+        assert result["meta"] == {"request_id": "req_test", "sync_state": "state_test"}
         assert result["data"]["message"]["attachments"][0]["download_url"].endswith("download_token=token")
 
     asyncio.run(check())
@@ -1313,6 +1326,36 @@ def test_mailbox_wait_for_message_returns_matching_message() -> None:
     assert requests[0].url.params["include_attachments"] == "metadata"
     assert requests[0].url.params["mailbox_id"] == "mbx_test"
     assert requests[0].url.params["limit"] == "1"
+
+
+def test_mailbox_wait_for_message_returns_empty_with_sync_state() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={"ok": True, "data": [], "meta": {"request_id": "req_empty", "sync_state": "state_empty"}},
+            request=request,
+        )
+
+    async def check() -> None:
+        server = create_server(
+            ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"),
+            transport=httpx.MockTransport(handler),
+        )
+        async with Client(server) as client:
+            result = structured_result(
+                await client.call_tool(
+                    "mailbox_wait_for_message",
+                    {"after": "2026-07-02T15:59:00Z", "timeout_seconds": 1},
+                )
+            )
+
+        assert result == {
+            "ok": True,
+            "data": {"matched": False, "message": None, "next_after": "2026-07-02T15:59:00Z"},
+            "meta": {"request_id": "req_empty", "sync_state": "state_empty"},
+        }
+
+    asyncio.run(check())
 
 
 def test_retry_honours_retry_after_for_idempotent_mailbox_send() -> None:

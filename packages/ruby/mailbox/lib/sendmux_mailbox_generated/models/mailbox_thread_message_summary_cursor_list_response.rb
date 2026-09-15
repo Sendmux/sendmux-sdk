@@ -14,7 +14,7 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxThreadSummaryCursorListResponse < ApiModelBase
+  class MailboxThreadMessageSummaryCursorListResponse < ApiModelBase
     attr_accessor :meta
 
     attr_accessor :ok
@@ -46,9 +46,9 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'meta' => :'MailboxQueryMeta',
+        :'meta' => :'MailboxThreadMessagesMeta',
         :'ok' => :'Boolean',
-        :'data' => :'Array<MailboxThreadSummary>',
+        :'data' => :'Array<MailboxMessageSummary>',
         :'pagination' => :'CursorPagination'
       }
     end
@@ -70,14 +70,14 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxThreadSummaryCursorListResponse` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxThreadMessageSummaryCursorListResponse` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxThreadSummaryCursorListResponse`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxThreadMessageSummaryCursorListResponse`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }

@@ -2973,7 +2973,7 @@
                 "type": "array"
               },
               "meta": {
-                "$ref": "#/components/schemas/ResponseMeta"
+                "$ref": "#/components/schemas/MailboxIdentityListMeta"
               },
               "pagination": {
                 "$ref": "#/components/schemas/CursorPagination"
@@ -2987,6 +2987,21 @@
           }
         ],
         "unevaluatedProperties": false
+      },
+      "MailboxIdentityListMeta": {
+        "additionalProperties": false,
+        "properties": {
+          "identity_state": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
       },
       "MailboxIdentityResponse": {
         "allOf": [
@@ -3742,7 +3757,7 @@
                 "type": "array"
               },
               "meta": {
-                "$ref": "#/components/schemas/ResponseMeta"
+                "$ref": "#/components/schemas/MailboxSyncMeta"
               },
               "pagination": {
                 "$ref": "#/components/schemas/CursorPagination"
@@ -3756,6 +3771,21 @@
           }
         ],
         "unevaluatedProperties": false
+      },
+      "MailboxQueryMeta": {
+        "additionalProperties": false,
+        "properties": {
+          "query_state": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
       },
       "MailboxQuota": {
         "additionalProperties": false,
@@ -3834,7 +3864,7 @@
                 "type": "array"
               },
               "meta": {
-                "$ref": "#/components/schemas/ResponseMeta"
+                "$ref": "#/components/schemas/MailboxQueryMeta"
               },
               "pagination": {
                 "$ref": "#/components/schemas/CursorPagination"
@@ -4872,7 +4902,7 @@
                 "type": "array"
               },
               "meta": {
-                "$ref": "#/components/schemas/ResponseMeta"
+                "$ref": "#/components/schemas/MailboxQueryMeta"
               },
               "pagination": {
                 "$ref": "#/components/schemas/CursorPagination"
@@ -5000,6 +5030,21 @@
           }
         ],
         "unevaluatedProperties": false
+      },
+      "MailboxSyncMeta": {
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "sync_state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
       },
       "MailboxThread": {
         "allOf": [
@@ -5131,6 +5176,54 @@
         ],
         "unevaluatedProperties": false
       },
+      "MailboxThreadMessagesMeta": {
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "sync_state": {
+            "type": "string"
+          },
+          "thread_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "thread_id"
+        ],
+        "type": "object"
+      },
+      "MailboxThreadMessageSummaryCursorListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "items": {
+                  "$ref": "#/components/schemas/MailboxMessageSummary"
+                },
+                "type": "array"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/MailboxThreadMessagesMeta"
+              },
+              "pagination": {
+                "$ref": "#/components/schemas/CursorPagination"
+              }
+            },
+            "required": [
+              "data",
+              "pagination"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
       "MailboxThreadSummary": {
         "additionalProperties": false,
         "properties": {
@@ -5228,7 +5321,7 @@
                 "type": "array"
               },
               "meta": {
-                "$ref": "#/components/schemas/ResponseMeta"
+                "$ref": "#/components/schemas/MailboxQueryMeta"
               },
               "pagination": {
                 "$ref": "#/components/schemas/CursorPagination"
@@ -14542,7 +14635,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MailboxMessageSummaryCursorListResponse"
+                  "$ref": "#/components/schemas/MailboxThreadMessageSummaryCursorListResponse"
                 }
               }
             },

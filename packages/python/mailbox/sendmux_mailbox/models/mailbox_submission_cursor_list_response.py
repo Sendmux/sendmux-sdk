@@ -20,8 +20,8 @@ import json
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
 from sendmux_mailbox.models.cursor_pagination import CursorPagination
+from sendmux_mailbox.models.mailbox_query_meta import MailboxQueryMeta
 from sendmux_mailbox.models.mailbox_submission import MailboxSubmission
-from sendmux_mailbox.models.response_meta import ResponseMeta
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,7 +30,7 @@ class MailboxSubmissionCursorListResponse(BaseModel):
     """
     MailboxSubmissionCursorListResponse
     """ # noqa: E501
-    meta: ResponseMeta
+    meta: MailboxQueryMeta
     ok: StrictBool
     data: List[MailboxSubmission]
     pagination: CursorPagination
@@ -100,7 +100,7 @@ class MailboxSubmissionCursorListResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "meta": ResponseMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
+            "meta": MailboxQueryMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
             "ok": obj.get("ok"),
             "data": [MailboxSubmission.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
             "pagination": CursorPagination.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None

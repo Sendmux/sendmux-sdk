@@ -14,22 +14,16 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxThreadSummaryCursorListResponse < ApiModelBase
-    attr_accessor :meta
+  class MailboxIdentityListMeta < ApiModelBase
+    attr_accessor :identity_state
 
-    attr_accessor :ok
-
-    attr_accessor :data
-
-    attr_accessor :pagination
+    attr_accessor :request_id
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'meta' => :'meta',
-        :'ok' => :'ok',
-        :'data' => :'data',
-        :'pagination' => :'pagination'
+        :'identity_state' => :'identity_state',
+        :'request_id' => :'request_id'
       }
     end
 
@@ -46,10 +40,8 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'meta' => :'MailboxQueryMeta',
-        :'ok' => :'Boolean',
-        :'data' => :'Array<MailboxThreadSummary>',
-        :'pagination' => :'CursorPagination'
+        :'identity_state' => :'String',
+        :'request_id' => :'String'
       }
     end
 
@@ -59,53 +51,30 @@ module Sendmux::Mailbox::Generated
       ])
     end
 
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'SuccessEnvelope'
-      ]
-    end
-
     # Initializes the object
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxThreadSummaryCursorListResponse` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxIdentityListMeta` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxThreadSummaryCursorListResponse`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxIdentityListMeta`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
 
-      if attributes.key?(:'meta')
-        self.meta = attributes[:'meta']
-      else
-        self.meta = nil
+      if attributes.key?(:'identity_state')
+        self.identity_state = attributes[:'identity_state']
       end
 
-      if attributes.key?(:'ok')
-        self.ok = attributes[:'ok']
+      if attributes.key?(:'request_id')
+        self.request_id = attributes[:'request_id']
       else
-        self.ok = nil
-      end
-
-      if attributes.key?(:'data')
-        if (value = attributes[:'data']).is_a?(Array)
-          self.data = value
-        end
-      else
-        self.data = nil
-      end
-
-      if attributes.key?(:'pagination')
-        self.pagination = attributes[:'pagination']
-      else
-        self.pagination = nil
+        self.request_id = nil
       end
     end
 
@@ -114,20 +83,8 @@ module Sendmux::Mailbox::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @meta.nil?
-        invalid_properties.push('invalid value for "meta", meta cannot be nil.')
-      end
-
-      if @ok.nil?
-        invalid_properties.push('invalid value for "ok", ok cannot be nil.')
-      end
-
-      if @data.nil?
-        invalid_properties.push('invalid value for "data", data cannot be nil.')
-      end
-
-      if @pagination.nil?
-        invalid_properties.push('invalid value for "pagination", pagination cannot be nil.')
+      if @request_id.nil?
+        invalid_properties.push('invalid value for "request_id", request_id cannot be nil.')
       end
 
       invalid_properties
@@ -137,51 +94,18 @@ module Sendmux::Mailbox::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @meta.nil?
-      return false if @ok.nil?
-      return false if @data.nil?
-      return false if @pagination.nil?
+      return false if @request_id.nil?
       true
     end
 
     # Custom attribute writer method with validation
-    # @param [Object] meta Value to be assigned
-    def meta=(meta)
-      if meta.nil?
-        fail ArgumentError, 'meta cannot be nil'
+    # @param [Object] request_id Value to be assigned
+    def request_id=(request_id)
+      if request_id.nil?
+        fail ArgumentError, 'request_id cannot be nil'
       end
 
-      @meta = meta
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] ok Value to be assigned
-    def ok=(ok)
-      if ok.nil?
-        fail ArgumentError, 'ok cannot be nil'
-      end
-
-      @ok = ok
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] data Value to be assigned
-    def data=(data)
-      if data.nil?
-        fail ArgumentError, 'data cannot be nil'
-      end
-
-      @data = data
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] pagination Value to be assigned
-    def pagination=(pagination)
-      if pagination.nil?
-        fail ArgumentError, 'pagination cannot be nil'
-      end
-
-      @pagination = pagination
+      @request_id = request_id
     end
 
     # Checks equality by comparing each attribute.
@@ -189,10 +113,8 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          meta == o.meta &&
-          ok == o.ok &&
-          data == o.data &&
-          pagination == o.pagination
+          identity_state == o.identity_state &&
+          request_id == o.request_id
     end
 
     # @see the `==` method
@@ -204,7 +126,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [meta, ok, data, pagination].hash
+      [identity_state, request_id].hash
     end
 
     # Builds the object from hash

@@ -16,6 +16,10 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 
 ## Installation
 
+Run this command only after
+[Packagist lists `sendmux/mailbox` version 3.0.0](https://packagist.org/packages/sendmux/mailbox).
+Until then, retain your existing Composer constraint.
+
 ```bash
 composer require sendmux/mailbox:^3.0
 ```

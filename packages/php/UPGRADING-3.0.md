@@ -14,6 +14,14 @@ constraints for maintained HTTP security fixes. They remain on 2.x.
 - Use PHP 8.2 or newer and Composer.
 - Commit your application, `composer.json`, and `composer.lock` so you can
   restore them together if you need to roll back.
+- Before updating, confirm that Packagist lists
+  [`sendmux/mailbox` version 3.0.0](https://packagist.org/packages/sendmux/mailbox)
+  or [`sendmux/sdk` version 3.0.0](https://packagist.org/packages/sendmux/sdk),
+  as applicable, and the required [`sendmux/core`](https://packagist.org/packages/sendmux/core),
+  [`sendmux/sending`](https://packagist.org/packages/sendmux/sending), and
+  [`sendmux/management`](https://packagist.org/packages/sendmux/management)
+  dependencies at version 2.1.1. Until Packagist lists every required version,
+  retain your existing Composer constraints.
 - If you use 1.x, apply the [PHP 2.0 migration guide](UPGRADING.md) first.
 - If your custom Guzzle client uses `FileCookieJar` or `SessionCookieJar`,
   back up its state and re-authenticate into a fresh jar when upgrading.

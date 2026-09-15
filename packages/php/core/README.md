@@ -15,6 +15,10 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 
 ## Installation
 
+Run this command only after
+[Packagist lists `sendmux/core` version 2.1.1](https://packagist.org/packages/sendmux/core).
+Until then, retain your existing Composer constraint.
+
 ```bash
 composer require sendmux/core:^2.1.1
 ```

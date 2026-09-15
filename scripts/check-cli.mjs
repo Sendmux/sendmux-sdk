@@ -7,6 +7,7 @@ import { createServer } from "node:http";
 import { once } from "node:events";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { pathToFileURL } from "node:url";
 import { spawnCommandSync } from "./windows-command-shims.mjs";
 
 const cliPath = "packages/ts/cli/bin/run.js";
@@ -22,6 +23,8 @@ const rootKey = "smx_root_testkey1234567890";
 const sendingAttachmentLimit = JSON.parse(readFileSync(
   new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
 )).components.schemas.EmailSendRequest.properties.attachments.maxItems;
+// Sending's absolute ceiling: smtp-proxy/app/http-api/v1/lib/attachment-validation.js.
+const sendingAttachmentByteLimit = 18 * 1024 * 1024;
 const envelope = {
   ok: true,
   data: {
@@ -280,6 +283,22 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === "POST" && requestUrl.startsWith("/emails/attachments")) {
+    if (body.byteLength === 0) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({
+        ok: false, error: { code: "invalid_parameter", message: "Content-Length must be a positive integer.", param: "Content-Length", retryable: false },
+        meta: { request_id: "req_cli_empty" },
+      }));
+      return;
+    }
+    if (body.byteLength > sendingAttachmentByteLimit) {
+      response.writeHead(413, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({
+        ok: false, error: { code: "payload_too_large", message: "Attachment exceeds the maximum allowed size.", retryable: false },
+        meta: { request_id: "req_cli_size" },
+      }));
+      return;
+    }
     const url = new URL(requestUrl, "http://127.0.0.1");
     const filename = url.searchParams.get("filename") ?? "attachment.bin";
     const contentType = url.searchParams.get("content_type") ?? request.headers["content-type"] ?? "application/octet-stream";
@@ -818,6 +837,57 @@ try {
       .map((request) => ({ attachment_id: request.responseBody.data.attachment_id })),
   ], "At-limit send must preserve existing and uploaded references");
   assertDeepEqual(boundaryAttachments.length, sendingAttachmentLimit, "At-limit send must keep every attachment");
+  const oversizedPath = join(tempHome, "oversized.txt");
+  writeFileSync(oversizedPath, Buffer.alloc(sendingAttachmentByteLimit + 1, "x"));
+  const oversizedStart = serverState.requests.length;
+  const oversizedResult = await runCli([
+    ...countArgs, "--body", JSON.stringify(countBody), "--attach", oversizedPath,
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertDeepEqual(serverState.requests.length, oversizedStart, "Oversized files must not be uploaded");
+  assertDeepEqual(oversizedResult.status, 1, "Oversized files must fail in JSON mode");
+  assertDeepEqual(JSON.parse(oversizedResult.stdout).error.oclif.exit, 2, "Oversized files must be a local usage error");
+  const growingPath = join(tempHome, "growing.txt");
+  writeFileSync(growingPath, "Before metadata check\n");
+  const growthHook = join(tempHome, "grow-after-stat.mjs");
+  writeFileSync(growthHook, [
+    'import filesystem from "node:fs/promises";',
+    'import { syncBuiltinESMExports } from "node:module";',
+    'const originalStat = filesystem.stat;',
+    'filesystem.stat = async (...args) => {',
+    '  const info = await originalStat(...args);',
+    '  if (args[0] === process.env.SENDMUX_TEST_GROWING_FILE) {',
+    '    await filesystem.writeFile(args[0], Buffer.alloc(Number(process.env.SENDMUX_TEST_GROWING_BYTES), "x"));',
+    '  }',
+    '  return info;',
+    '};',
+    'syncBuiltinESMExports();',
+  ].join("\n"));
+  for (const size of [sendingAttachmentByteLimit + 1, 0]) {
+    writeFileSync(growingPath, "Before metadata check\n");
+    const growthStart = serverState.requests.length;
+    const growthResult = await runCli([
+      ...countArgs, "--body", JSON.stringify(countBody), "--attach", growingPath,
+    ], {
+      SENDMUX_API_KEY: mailboxKey,
+      NODE_OPTIONS: `--import=${pathToFileURL(growthHook).href}`,
+      SENDMUX_TEST_GROWING_FILE: growingPath,
+      SENDMUX_TEST_GROWING_BYTES: String(size),
+    });
+    assertDeepEqual(serverState.requests.length, growthStart, "An invalidated file must not be uploaded, including a truncated prefix");
+    assertDeepEqual(growthResult.status, 1, "Invalidated files must fail in JSON mode");
+    assertDeepEqual(JSON.parse(growthResult.stdout).error.oclif.exit, 2, "Invalidated files must be a local usage error");
+  }
+  const atByteLimitPath = join(tempHome, "at-byte-limit.txt");
+  const atByteLimitBytes = Buffer.alloc(sendingAttachmentByteLimit, "x");
+  writeFileSync(atByteLimitPath, atByteLimitBytes);
+  const byteBoundaryStart = serverState.requests.length;
+  const byteBoundaryResult = await runCli([
+    ...countArgs, "--body", JSON.stringify(countBody), "--attach", atByteLimitPath,
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(byteBoundaryResult, "File at the byte ceiling must send unchanged");
+  const byteBoundaryUpload = serverState.requests.slice(byteBoundaryStart).find((request) => request.url.startsWith("/emails/attachments"));
+  assertDeepEqual(byteBoundaryUpload.body.byteLength, sendingAttachmentByteLimit, "At-limit file must not be truncated");
+  assertDeepEqual(createHash("sha256").update(byteBoundaryUpload.body).digest("hex"), createHash("sha256").update(atByteLimitBytes).digest("hex"), "At-limit upload must preserve its bytes");
 
   const replayArgs = [
     "sending:send", "--base-url", baseUrl,

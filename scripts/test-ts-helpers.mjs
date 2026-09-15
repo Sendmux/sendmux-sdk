@@ -4,13 +4,16 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { setImmediate as nextTurn } from "node:timers/promises";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import filesystem, { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { syncBuiltinESMExports } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const sendingAttachmentLimit = JSON.parse(await readFile(
   new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
 )).components.schemas.EmailSendRequest.properties.attachments.maxItems;
+// Sending's absolute ceiling: smtp-proxy/app/http-api/v1/lib/attachment-validation.js.
+const sendingAttachmentByteLimit = 18 * 1024 * 1024;
 
 const {
   SendmuxApiError,
@@ -908,9 +911,17 @@ try {
         const previous = key && key.length <= 255 ? cache.get(key) : undefined;
         const conflict = previous && previous.fingerprint !== fingerprint;
         const invalidCount = !upload && body.attachments.length > sendingAttachmentLimit;
+        const invalidSize = upload && body.size_bytes > sendingAttachmentByteLimit;
+        const empty = upload && body.size_bytes === 0;
         const payload = invalidCount ? {
           ok: false, error: { code: "validation_error", message: "Too many attachments", retryable: false },
           meta: { request_id: "req_ts_count" },
+        } : invalidSize ? {
+          ok: false, error: { code: "payload_too_large", message: "Attachment exceeds the maximum allowed size.", retryable: false },
+          meta: { request_id: "req_ts_size" },
+        } : empty ? {
+          ok: false, error: { code: "invalid_parameter", message: "Content-Length must be a positive integer.", param: "Content-Length", retryable: false },
+          meta: { request_id: "req_ts_empty" },
         } : conflict ? {
           ok: false, error: { code: "idempotency_conflict", message: "Different body for the same key", retryable: false },
           meta: { request_id: "req_ts_conflict" },
@@ -923,15 +934,53 @@ try {
           } : { message_id: `eml_${String(++nextMessage).padStart(24, "0")}`, status: "queued" },
           meta: { request_id: "req_ts_replay" },
         };
-        if (key && key.length <= 255 && !previous && !invalidCount) cache.set(key, { fingerprint, payload });
+        if (key && key.length <= 255 && !previous && !invalidCount && !invalidSize && !empty) cache.set(key, { fingerprint, payload });
         requests.push({ upload, key, body, payload });
-        return Response.json(payload, { status: invalidCount ? 400 : conflict ? 409 : upload ? 201 : 200 });
+        return Response.json(payload, { status: invalidCount || empty ? 400 : invalidSize ? 413 : conflict ? 409 : upload ? 201 : 200 });
       },
     });
     const options = {
       client, files: [reportPath], headers: { "Idempotency-Key": "attachment-replay" },
       body: { from: { email: "from@example.com" }, to: { email: "agent@example.com" }, subject: "Replay", html_body: "<p>Attached</p>" },
     };
+    await t.test("oversized local file is rejected before upload", async () => {
+      const filePath = join(tempDir, "oversized.txt");
+      await writeFile(filePath, Buffer.alloc(sendingAttachmentByteLimit + 1, "x"));
+      const start = requests.length;
+      await assert.rejects(uploadAttachmentFromFile({ client, filePath }));
+      assert.equal(requests.length, start, "Oversized files must not be uploaded");
+    });
+    for (const [change, size] of [["grown", sendingAttachmentByteLimit + 1], ["emptied", 0]]) {
+      await t.test(`${change} file after metadata validation cannot be uploaded`, async (t) => {
+        const filePath = join(tempDir, "growing.txt");
+        await writeFile(filePath, "Before metadata check\n");
+        const originalStat = filesystem.stat;
+        // Change a real file after the real stat, at the filesystem boundary.
+        const statMock = t.mock.method(filesystem, "stat", async (...args) => {
+          const info = await originalStat(...args);
+          if (args[0] === filePath) await writeFile(filePath, Buffer.alloc(size, "x"));
+          return info;
+        });
+        syncBuiltinESMExports();
+        const start = requests.length;
+        try {
+          await assert.rejects(uploadAttachmentFromFile({ client, filePath }));
+          assert.equal(requests.length, start, "An invalidated file must not be uploaded, including a truncated prefix");
+        } finally {
+          statMock.mock.restore();
+          syncBuiltinESMExports();
+        }
+      });
+    }
+    await t.test("inline attachment at the byte ceiling preserves its content", async () => {
+      const filePath = join(tempDir, "at-limit.txt");
+      const bytes = Buffer.alloc(sendingAttachmentByteLimit, "x");
+      await writeFile(filePath, bytes);
+      const result = await attachmentFromFile(filePath);
+      const decoded = Buffer.from(result.content, "base64");
+      assert.equal(decoded.length, sendingAttachmentByteLimit);
+      assert.equal(createHash("sha256").update(decoded).digest("hex"), createHash("sha256").update(bytes).digest("hex"));
+    });
     await t.test("excess local attachments fail before any HTTP request", async () => {
       const start = requests.length;
       await assert.rejects(sendEmailWithFiles({ ...options, files: Array(sendingAttachmentLimit + 1).fill(reportPath) }));

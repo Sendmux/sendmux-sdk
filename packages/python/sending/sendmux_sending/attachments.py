@@ -18,6 +18,8 @@ from sendmux_sending.models.send_success_response import SendSuccessResponse
 PathInput = str | PathLike[str]
 FileInput = PathInput | dict[str, Any]
 _MAX_SENDING_ATTACHMENTS = 10
+# Absolute Sending service ceiling; deployment policy may impose a lower limit.
+_MAX_SENDING_ATTACHMENT_BYTES = 18 * 1024 * 1024
 
 
 def attachment_from_file(
@@ -122,7 +124,13 @@ def _read_attachment_file(
     path = Path(file_path)
     if not path.is_file():
         raise ValueError(f"Attachment path is not a regular file: {path}")
-    data = path.read_bytes()
+    if path.stat().st_size > _MAX_SENDING_ATTACHMENT_BYTES:
+        raise ValueError(f"Attachment file exceeds {_MAX_SENDING_ATTACHMENT_BYTES} bytes: {path}")
+    # Include one excess byte so growth is rejected instead of truncated and uploaded.
+    with path.open("rb") as stream:
+        data = stream.read(_MAX_SENDING_ATTACHMENT_BYTES + 1)
+    if len(data) > _MAX_SENDING_ATTACHMENT_BYTES:
+        raise ValueError(f"Attachment file exceeds {_MAX_SENDING_ATTACHMENT_BYTES} bytes: {path}")
     if not data:
         raise ValueError(f"Attachment file is empty: {path}")
 

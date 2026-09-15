@@ -1,5 +1,6 @@
 import * as sdk from "@sendmux/sdk";
 import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
@@ -17,6 +18,8 @@ type MailboxClient = ReturnType<typeof sdk.mailbox.createMailboxClient>;
 type SendingClient = ReturnType<typeof sdk.sending.createSendingClient>;
 
 const MAX_SENDING_ATTACHMENTS = 10;
+// Absolute Sending service ceiling; deployment policy may impose a lower limit.
+const MAX_SENDING_ATTACHMENT_BYTES = 18 * 1024 * 1024;
 
 const surfaceModules = {
   mailbox: sdk.mailbox,
@@ -228,8 +231,9 @@ async function withAttachedFiles(
     command.error(`Sending email supports at most ${MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.`, { exit: 2 });
   }
   const files = [];
+  const maxBytes = operation.operationId === "sendingSendEmail" ? MAX_SENDING_ATTACHMENT_BYTES : undefined;
   for (const path of flags.attach ?? []) {
-    files.push(await readAttachmentFile(command, path, flags["content-type"]));
+    files.push(await readAttachmentFile(command, path, flags["content-type"], maxBytes));
   }
 
   if (operation.operationId === "mailboxSendMessage") {
@@ -329,6 +333,7 @@ async function readAttachmentFile(
   command: SendmuxCommand,
   filePath: string,
   contentTypeOverride: string | undefined,
+  maxBytes?: number,
 ): Promise<AttachmentFile> {
   const info = await stat(filePath).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
@@ -342,8 +347,25 @@ async function readAttachmentFile(
   if (info.size === 0) {
     command.error(`Attachment file is empty: ${filePath}`, { exit: 2 });
   }
+  if (maxBytes !== undefined && info.size > maxBytes) {
+    command.error(`Attachment file exceeds ${maxBytes} bytes: ${filePath}`, { exit: 2 });
+  }
 
-  const bytes = await readFile(filePath);
+  let bytes: Buffer;
+  if (maxBytes === undefined) {
+    bytes = await readFile(filePath);
+  } else {
+    const chunks: Buffer[] = [];
+    // Include one excess byte so a growing file is rejected instead of truncated and uploaded.
+    for await (const chunk of createReadStream(filePath, { end: maxBytes })) chunks.push(chunk);
+    bytes = Buffer.concat(chunks);
+    if (bytes.length > maxBytes) {
+      command.error(`Attachment file exceeds ${maxBytes} bytes: ${filePath}`, { exit: 2 });
+    }
+  }
+  if (bytes.length === 0) {
+    command.error(`Attachment file is empty: ${filePath}`, { exit: 2 });
+  }
   return {
     bytes,
     contentType: contentTypeOverride ?? inferContentType(filePath),

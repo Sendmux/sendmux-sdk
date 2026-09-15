@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from base64 import b64decode
 from hashlib import sha256
 from email.message import EmailMessage
 from pathlib import Path
@@ -28,6 +29,8 @@ from sendmux_sending.models.send_success_response import SendSuccessResponse
 SENDING_ATTACHMENT_LIMIT = json.loads(
     (Path(__file__).resolve().parents[1] / "mcp/sendmux_mcp/openapi/openapi-sending.json").read_text()
 )["components"]["schemas"]["EmailSendRequest"]["properties"]["attachments"]["maxItems"]
+# Sending's absolute ceiling: smtp-proxy/app/http-api/v1/lib/attachment-validation.js.
+SENDING_ATTACHMENT_BYTE_LIMIT = 18 * 1024 * 1024
 
 
 class FakeSendingAttachmentUploadData:
@@ -400,8 +403,22 @@ def sending_replay(monkeypatch: Any) -> tuple[SendingApiClient, list[dict[str, A
         fingerprint = json.dumps(body, sort_keys=True)
         previous = cache.get((parsed.path, key)) if key and len(key) <= 255 else None
         conflict = previous is not None and previous[0] != fingerprint
+        invalid_size = upload and body["size_bytes"] > SENDING_ATTACHMENT_BYTE_LIMIT
+        empty = upload and body["size_bytes"] == 0
         payload: dict[str, Any]
-        if conflict:
+        if invalid_size:
+            payload = {
+                "ok": False,
+                "error": {"code": "payload_too_large", "message": "Attachment exceeds the maximum allowed size.", "retryable": False},
+                "meta": {"request_id": "req_py_size"},
+            }
+        elif empty:
+            payload = {
+                "ok": False,
+                "error": {"code": "invalid_parameter", "message": "Content-Length must be a positive integer.", "param": "Content-Length", "retryable": False},
+                "meta": {"request_id": "req_py_empty"},
+            }
+        elif conflict:
             payload = {
                 "ok": False,
                 "error": {"code": "idempotency_conflict", "message": "Different body for the same key", "retryable": False},
@@ -416,16 +433,60 @@ def sending_replay(monkeypatch: Any) -> tuple[SendingApiClient, list[dict[str, A
                 "size_bytes": body["size_bytes"], "expires_at": "2026-07-07T10:00:00.000Z",
             } if upload else {"message_id": f"eml_{len(requests) + 1:024d}", "status": "queued"}
             payload = {"ok": True, "data": data, "meta": {"request_id": "req_py_replay"}}
-        if key and len(key) <= 255 and previous is None:
+        if key and len(key) <= 255 and previous is None and not invalid_size and not empty:
             cache[(parsed.path, key)] = (fingerprint, payload)
         requests.append({"upload": upload, "key": key, "body": body, "payload": payload})
         return urllib3.HTTPResponse(
-            status=409 if conflict else 201 if upload else 200,
+            status=413 if invalid_size else 400 if empty else 409 if conflict else 201 if upload else 200,
             body=json.dumps(payload).encode(), headers={"Content-Type": "application/json"},
         )
 
     monkeypatch.setattr(urllib3.PoolManager, "request", request)
     return create_sending_client(api_key="smx_mbx_test_attachment_replay", base_url="https://sending-replay.test"), requests
+
+
+def test_sending_oversized_file_fails_before_upload(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "oversized.txt"
+    report.write_bytes(b"x" * (SENDING_ATTACHMENT_BYTE_LIMIT + 1))
+    with pytest.raises((ValueError, SendmuxApiError)):
+        sending_attachments.upload_attachment_from_file(client, file_path=report)
+    assert requests == [], "Oversized files must not be uploaded"
+
+
+def test_sending_file_growth_cannot_be_uploaded(sending_replay: Any, tmp_path: Path, monkeypatch: Any) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "growing.txt"
+    report.write_bytes(b"Before metadata check\n")
+    original_open = Path.open
+
+    def grow_before_open(path: Path, *args: Any, **kwargs: Any) -> Any:
+        if path == report and (args[0] if args else kwargs.get("mode", "r")) == "rb":
+            with original_open(path, "wb") as output:
+                output.write(b"x" * (SENDING_ATTACHMENT_BYTE_LIMIT + 1))
+        return original_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", grow_before_open)
+    with pytest.raises((ValueError, SendmuxApiError)):
+        sending_attachments.upload_attachment_from_file(client, file_path=report)
+    assert requests == [], "An invalidated file must not be uploaded, including a truncated prefix"
+
+
+def test_sending_inline_empty_file_is_rejected(tmp_path: Path) -> None:
+    report = tmp_path / "empty.txt"
+    report.write_bytes(b"")
+    with pytest.raises(ValueError, match="Attachment file is empty"):
+        sending_attachments.attachment_from_file(report)
+
+
+def test_sending_inline_file_at_byte_ceiling_preserves_content(tmp_path: Path) -> None:
+    report = tmp_path / "at-limit.txt"
+    content = b"x" * SENDING_ATTACHMENT_BYTE_LIMIT
+    report.write_bytes(content)
+    result = sending_attachments.attachment_from_file(report)
+    decoded = b64decode(result["content"], validate=True)
+    assert len(decoded) == SENDING_ATTACHMENT_BYTE_LIMIT
+    assert sha256(decoded).digest() == sha256(content).digest()
 
 
 def test_sending_excess_files_fail_before_upload(sending_replay: Any, tmp_path: Path) -> None:

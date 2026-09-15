@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFile, stat } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
 import { sendingSendEmail, sendingUploadAttachment } from "./generated/sdk.gen.js";
@@ -12,6 +13,8 @@ import type {
 } from "./generated/types.gen.js";
 
 const MAX_SENDING_ATTACHMENTS = 10;
+// Absolute Sending service ceiling; deployment policy may impose a lower limit.
+const MAX_SENDING_ATTACHMENT_BYTES = 18 * 1024 * 1024;
 
 export interface NodeFileAttachment {
   contentType?: string;
@@ -138,9 +141,23 @@ async function readAttachmentFile(input: NodeFileAttachmentInput): Promise<ReadA
   if (info.size === 0) {
     throw new Error(`Attachment file is empty: ${file.path}`);
   }
+  if (info.size > MAX_SENDING_ATTACHMENT_BYTES) {
+    throw new Error(`Attachment file exceeds ${MAX_SENDING_ATTACHMENT_BYTES} bytes: ${file.path}`);
+  }
+
+  const chunks: Buffer[] = [];
+  // Read one excess byte to detect growth without loading or uploading an unbounded file.
+  for await (const chunk of createReadStream(file.path, { end: MAX_SENDING_ATTACHMENT_BYTES })) chunks.push(chunk);
+  const bytes = Buffer.concat(chunks);
+  if (bytes.length === 0) {
+    throw new Error(`Attachment file is empty: ${file.path}`);
+  }
+  if (bytes.length > MAX_SENDING_ATTACHMENT_BYTES) {
+    throw new Error(`Attachment file exceeds ${MAX_SENDING_ATTACHMENT_BYTES} bytes: ${file.path}`);
+  }
 
   return {
-    bytes: await readFile(file.path),
+    bytes,
     contentType: file.contentType ?? inferContentType(file.path),
     filename: file.filename ?? basename(file.path),
   };

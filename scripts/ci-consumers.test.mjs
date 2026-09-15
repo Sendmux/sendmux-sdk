@@ -4,7 +4,93 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameS
 import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
-import { nodeProvenance, nodeTests, run, workspace } from "./ci-consumers.mjs";
+import { nodeProvenance, nodeTests, pythonArtifactConsumers, run, workspace } from "./ci-consumers.mjs";
+
+test("Python artifact consumers isolate sequential releases and reject missing or changed targets", async () => {
+  await workspace("python-cohort-fixture", async (directory) => {
+    const candidates = join(directory, "candidates");
+    const dependencies = join(directory, "dependencies");
+    const consumers = join(directory, "consumers");
+    mkdirSync(candidates);
+    mkdirSync(dependencies);
+    mkdirSync(consumers);
+    const fixtureSource = String.raw`
+import csv, pathlib, sys, zipfile
+
+candidate_dir, dependency_dir = map(pathlib.Path, sys.argv[1:])
+packages = [
+    ("sendmux-core", "sendmux_core", "1.0.0", [], candidate_dir),
+    ("sendmux-sending", "sendmux_sending", "1.0.0", ["sendmux-core>=1,<2"], candidate_dir),
+    ("sendmux-mailbox", "sendmux_mailbox", "2.0.0", ["sendmux-core>=1,<2"], candidate_dir),
+    ("sendmux-management", "sendmux_management", "1.0.0", ["sendmux-core>=1,<2"], candidate_dir),
+    ("sendmux-mcp", "sendmux_mcp", "2.0.0", ["sendmux-core>=1,<2"], candidate_dir),
+    ("sendmux-sdk", "sendmux_sdk", "2.0.0", ["sendmux-core>=1,<2", "sendmux-mailbox>=2,<3", "sendmux-management>=1,<2", "sendmux-sending>=1,<2"], candidate_dir),
+    ("langchain-sendmux", "langchain_sendmux", "0.3.0", ["sendmux-mailbox>=1,<2", "sendmux-sending>=1,<2"], candidate_dir),
+    ("sendmux-mailbox", "sendmux_mailbox", "1.5.1", ["sendmux-core>=1,<2"], dependency_dir),
+]
+
+for distribution, module, version, requirements, output in packages:
+    wheel_name = f"{distribution.replace('-', '_')}-{version}-py3-none-any.whl"
+    dist_info = f"{distribution.replace('-', '_')}-{version}.dist-info"
+    files = {
+        f"{module}/__init__.py": f"__version__ = {version!r}\n",
+        f"{dist_info}/WHEEL": "Wheel-Version: 1.0\nGenerator: sendmux-test\nRoot-Is-Purelib: true\nTag: py3-none-any\n",
+        f"{dist_info}/METADATA": "Metadata-Version: 2.1\n" + f"Name: {distribution}\nVersion: {version}\n" + "".join(f"Requires-Dist: {item}\n" for item in requirements),
+    }
+    if module == "sendmux_sdk":
+        files[f"{module}/__init__.py"] = "from importlib import import_module\n_MODULES={'core':'sendmux_core','mailbox':'sendmux_mailbox','management':'sendmux_management','sending':'sendmux_sending'}\ndef __getattr__(name):\n module=import_module(_MODULES[name]); globals()[name]=module; return module\n"
+    if module == "sendmux_mcp":
+        files[f"{module}/contract.py"] = "def load_contract(): return {'package': {'identity': 'sendmux-mcp'}}\n"
+    record = f"{dist_info}/RECORD"
+    files[record] = "".join(f"{name},,\n" for name in [*files, record])
+    with zipfile.ZipFile(output / wheel_name, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, payload in files.items():
+            archive.writestr(name, payload)
+`;
+    await run("python3", ["-c", fixtureSource, candidates, dependencies], { cwd: directory });
+    const options = {
+      directory: consumers,
+      distributions: candidates,
+      artifactKinds: [["wheel", ".whl"]],
+      runWheelTests: false,
+      env: {
+        ...process.env,
+        PIP_FIND_LINKS: `${candidates} ${dependencies}`,
+        PIP_NO_INDEX: "1",
+      },
+    };
+    await pythonArtifactConsumers(options);
+
+    const sdkWheel = "sendmux_sdk-2.0.0-py3-none-any.whl";
+    const sdkArchive = join(candidates, sdkWheel);
+    const retainedArchive = join(directory, sdkWheel);
+    renameSync(sdkArchive, retainedArchive);
+    try {
+      await assert.rejects(
+        pythonArtifactConsumers({ ...options, directory: join(directory, "missing-target") }),
+        /Expected seven wheel candidates/,
+      );
+    } finally {
+      renameSync(retainedArchive, sdkArchive);
+    }
+
+    // A package that changes its own installed bytes must not earn certification.
+    await run("python3", ["-c", String.raw`
+import pathlib, sys, zipfile
+archive = pathlib.Path(sys.argv[1])
+with zipfile.ZipFile(archive) as source:
+    members = {name: source.read(name) for name in source.namelist()}
+members['sendmux_sdk/__init__.py'] += b"\nfrom pathlib import Path\nPath(__file__).write_text('# changed after installation\\n')\n"
+with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as target:
+    for name, payload in members.items():
+        target.writestr(name, payload)
+`, sdkArchive], { cwd: directory });
+    await assert.rejects(
+      pythonArtifactConsumers({ ...options, directory: join(directory, "changed-target") }),
+      /exit 1/,
+    );
+  });
+});
 
 test("a failed completed consumer command removes its exact workspace", async () => {
   let directory;

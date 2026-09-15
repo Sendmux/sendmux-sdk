@@ -10,6 +10,20 @@ import { startWindowsConsumer } from "./windows-consumer-owner.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const nativePackages = ["core", "sending", "mailbox", "management", "sdk"];
+export const pythonPackages = [
+  { name: "core", distribution: "sendmux-core", module: "sendmux_core" },
+  { name: "sending", distribution: "sendmux-sending", module: "sendmux_sending" },
+  { name: "mailbox", distribution: "sendmux-mailbox", module: "sendmux_mailbox" },
+  { name: "management", distribution: "sendmux-management", module: "sendmux_management" },
+  { name: "sdk", distribution: "sendmux-sdk", module: "sendmux_sdk" },
+  { name: "mcp", distribution: "sendmux-mcp", module: "sendmux_mcp" },
+  { name: "langchain", distribution: "langchain-sendmux", module: "langchain_sendmux" },
+];
+export const pythonVerificationCohorts = [
+  { name: "native", packages: pythonPackages.filter(({ name }) => ["core", "sending", "mailbox", "management", "mcp"].includes(name)) },
+  { name: "sdk", packages: pythonPackages.filter(({ name }) => name === "sdk") },
+  { name: "langchain", packages: pythonPackages.filter(({ name }) => name === "langchain") },
+];
 const ownedChildren = new Set();
 
 function processAbsent(pid) {
@@ -205,38 +219,81 @@ console.log('Packed peer contract rejects 3.24.0 and accepts selected exact pair
   });
 }
 
-async function pythonProvenance(python, directory) {
-  writeFileSync(join(directory, "provenance.py"), `import importlib, importlib.metadata, json, pathlib, sys
-names = ['langchain_sendmux', 'sendmux_core', 'sendmux_mailbox', 'sendmux_management', 'sendmux_mcp', 'sendmux_sdk', 'sendmux_sending']
-for name in names:
-    location = pathlib.Path(importlib.import_module(name).__file__).resolve()
-    assert pathlib.Path(sys.prefix).resolve() in location.parents, (name, str(location))
-    print(json.dumps({'installed_package': name, 'location': str(location)}))
-from sendmux_mcp.contract import load_contract
-assert load_contract()['package']['identity'] == 'sendmux-mcp'
-assert pathlib.Path(sys.prefix).resolve() in pathlib.Path(importlib.metadata.distribution('sendmux-mcp').locate_file('')).resolve().parents
-`);
-  await run(python, ["provenance.py"], { cwd: directory, env: { ...process.env, PYTHONPATH: "", PYTHONNOUSERSITE: "1" } });
+async function pythonProvenance(python, directory, packages, archives, env) {
+  const targets = packages.map((packageInfo, index) => ({ ...packageInfo, archive: archives[index] }));
+  writeFileSync(join(directory, "provenance.py"), `import email.parser, importlib, importlib.metadata, json, pathlib, re, sys, tarfile, zipfile
+
+targets = json.loads(sys.argv[1])
+prefix = pathlib.Path(sys.prefix).resolve()
+
+def archive_payload(archive_path, module):
+    archive = pathlib.Path(archive_path)
+    if archive.suffix == '.whl':
+        with zipfile.ZipFile(archive) as source:
+            members = {name: source.read(name) for name in source.namelist() if name.startswith(module + '/') and not name.endswith('/')}
+            metadata_name = next(name for name in source.namelist() if name.endswith('.dist-info/METADATA'))
+            metadata = email.parser.Parser().parsestr(source.read(metadata_name).decode())
+    else:
+        with tarfile.open(archive, 'r:gz') as source:
+            files = [member for member in source.getmembers() if member.isfile()]
+            members = {}
+            for member in files:
+                marker = '/' + module + '/'
+                if marker in member.name:
+                    name = module + '/' + member.name.split(marker, 1)[1]
+                    members[name] = source.extractfile(member).read()
+            metadata_member = next(member for member in files if member.name.endswith('/PKG-INFO'))
+            metadata = email.parser.Parser().parsestr(source.extractfile(metadata_member).read().decode())
+    assert members, (archive_path, module)
+    return members, metadata
+
+for target in targets:
+    imported = importlib.import_module(target['module'])
+    location = pathlib.Path(imported.__file__).resolve()
+    assert prefix in location.parents, (target['module'], str(location))
+    distribution = importlib.metadata.distribution(target['distribution'])
+    distribution_root = pathlib.Path(distribution.locate_file('')).resolve()
+    assert prefix in distribution_root.parents, (target['distribution'], str(distribution_root))
+    members, metadata = archive_payload(target['archive'], target['module'])
+    assert distribution.version == metadata['Version'], (target['distribution'], distribution.version, metadata['Version'])
+    module_root = location.parent
+    for name, expected in members.items():
+        relative = pathlib.PurePosixPath(name).relative_to(target['module'])
+        installed = module_root.joinpath(*relative.parts)
+        assert installed.read_bytes() == expected, (target['distribution'], str(installed), target['archive'])
+    print(json.dumps({'target_distribution': target['distribution'], 'version': distribution.version, 'module': target['module'], 'location': str(location), 'archive': target['archive'], 'matched_files': len(members)}))
+    for requirement_text in distribution.requires or []:
+        if ';' in requirement_text:
+            continue
+        requirement_name = re.match(r'^[A-Za-z0-9_.-]+', requirement_text).group(0)
+        dependency = importlib.metadata.distribution(requirement_name)
+        dependency_root = pathlib.Path(dependency.locate_file('')).resolve()
+        assert prefix in dependency_root.parents, (requirement_name, str(dependency_root))
+        print(json.dumps({'dependency_distribution': requirement_name, 'version': dependency.version, 'location': str(dependency_root)}))
+
+target_names = {target['name'] for target in targets}
+if 'sdk' in target_names:
+    from sendmux_sdk import core, mailbox, management, sending
+    assert all(module.__name__.startswith('sendmux_') for module in [core, mailbox, management, sending])
+if 'mcp' in target_names:
+    from sendmux_mcp.contract import load_contract
+    assert load_contract()['package']['identity'] == 'sendmux-mcp'
+`, "utf8");
+  await run(python, ["provenance.py", JSON.stringify(targets)], { cwd: directory, env });
 }
 
-export async function pythonConsumers() {
-  await workspace("python-consumers", async (directory) => {
-    const distributions = join(root, ".tmp/python-dist");
-    const env = { ...process.env, PYTHONPATH: "", PYTHONNOUSERSITE: "1" };
-    for (const [kind, suffix] of [["wheel", ".whl"], ["sdist", ".tar.gz"]]) {
-      const archives = readdirSync(distributions).filter((name) => name.endsWith(suffix));
-      assert.equal(archives.length, 7, `Expected seven ${kind} candidates`);
-      const consumer = join(directory, kind);
-      await run("python3", ["-m", "venv", consumer]);
-      const python = join(consumer, "bin/python");
-      await run(python, ["-m", "pip", "install", "--upgrade", "pip"], { cwd: consumer, env });
-      await run(python, ["-m", "pip", "install", ...archives.map((name) => join(distributions, name)), ...(kind === "wheel" ? ["pytest==8.4.1"] : [])], { cwd: consumer, env });
-      await run(python, ["-m", "pip", "check"], { cwd: consumer, env });
-      await pythonProvenance(python, consumer);
-      if (kind === "wheel") {
-        const mcpTests = join(root, "packages/python/mcp/tests");
-        const runtimeTests = readdirSync(mcpTests).filter((name) => name.startsWith("test_") && name.endsWith(".py") && !["test_contract.py", "test_contract_packaging.py"].includes(name));
-        writeFileSync(join(consumer, "runtime_tests.py"), `import pytest, sys
+function selectPythonArchives(archives, packages, distributions) {
+  return packages.map((packageInfo) => {
+    const prefix = `${packageInfo.distribution.replaceAll("-", "_")}-`;
+    const matches = archives.filter((archive) => archive.startsWith(prefix));
+    assert.equal(matches.length, 1, `Expected one ${packageInfo.distribution} candidate in ${distributions}`);
+    return join(distributions, matches[0]);
+  });
+}
+
+async function runPythonWheelTests(python, consumer, cohort, env) {
+  if (cohort.name === "sdk") return;
+  writeFileSync(join(consumer, "runtime_tests.py"), `import pytest, sys
 class NoSkippedTests:
     def pytest_sessionfinish(self, session):
         reporter = session.config.pluginmanager.get_plugin('terminalreporter')
@@ -244,9 +301,47 @@ class NoSkippedTests:
             session.exitstatus = 1
 sys.exit(pytest.main(sys.argv[1:], plugins=[NoSkippedTests()]))
 `);
-        await run(python, ["runtime_tests.py", "--import-mode=importlib", join(root, "packages/python/tests"), ...runtimeTests.map((name) => join(mcpTests, name))], { cwd: consumer, env });
+  if (cohort.name === "langchain") {
+    await run(python, ["runtime_tests.py", "--import-mode=importlib", join(root, "packages/python/tests/test_langchain.py")], { cwd: consumer, env });
+    return;
+  }
+  const mcpTests = join(root, "packages/python/mcp/tests");
+  const runtimeTests = readdirSync(mcpTests).filter((name) => name.startsWith("test_") && name.endsWith(".py") && !["test_contract.py", "test_contract_packaging.py"].includes(name));
+  await run(python, ["runtime_tests.py", "--import-mode=importlib", join(root, "packages/python/tests"), `--ignore=${join(root, "packages/python/tests/test_langchain.py")}`, ...runtimeTests.map((name) => join(mcpTests, name))], { cwd: consumer, env });
+}
+
+export async function pythonArtifactConsumers({
+  directory,
+  distributions = join(root, ".tmp/python-dist"),
+  env = process.env,
+  artifactKinds = [["wheel", ".whl"], ["sdist", ".tar.gz"]],
+  runWheelTests = true,
+}) {
+    const consumerEnv = { ...env, PYTHONPATH: "", PYTHONHOME: "", PYTHONNOUSERSITE: "1" };
+    for (const name of Object.keys(consumerEnv)) {
+      if (name.startsWith("SENDMUX_")) delete consumerEnv[name];
+    }
+    for (const [kind, suffix] of artifactKinds) {
+      const archives = readdirSync(distributions).filter((name) => name.endsWith(suffix));
+      assert.equal(archives.length, 7, `Expected seven ${kind} candidates`);
+      for (const cohort of pythonVerificationCohorts) {
+        const cohortArchives = selectPythonArchives(archives, cohort.packages, distributions);
+        const consumer = join(directory, `${kind}-${cohort.name}`);
+        await run("python3", ["-m", "venv", consumer]);
+        const python = join(consumer, "bin/python");
+        await run(python, ["-m", "pip", "install", "--upgrade", "pip"], { cwd: consumer, env: consumerEnv });
+        const testDependencies = kind === "wheel" && runWheelTests && cohort.name !== "sdk" ? ["pytest==8.4.1"] : [];
+        await run(python, ["-m", "pip", "install", ...cohortArchives, ...testDependencies], { cwd: consumer, env: consumerEnv });
+        await run(python, ["-m", "pip", "check"], { cwd: consumer, env: consumerEnv });
+        await pythonProvenance(python, consumer, cohort.packages, cohortArchives, consumerEnv);
+        if (kind === "wheel" && runWheelTests) await runPythonWheelTests(python, consumer, cohort, consumerEnv);
       }
     }
+}
+
+export async function pythonConsumers() {
+  await workspace("python-consumers", async (directory) => {
+    await pythonArtifactConsumers({ directory });
   });
 }
 

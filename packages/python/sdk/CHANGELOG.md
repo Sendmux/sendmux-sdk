@@ -1,17 +1,19 @@
 # Changelog
 
-## Unreleased 2.0 migration
-
-- The Mailbox module adopts the thread-specific list response, including required thread identity and typed state metadata; ordinary message lists remain thread-independent.
-- Upgrade `sendmux-sdk`, `sendmux-mailbox`, the lockfile, and affected call sites together; restore them together to roll back.
-
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.2.0...python-sdk-v2.0.0) (2026-09-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `mailbox` module's thread-message lists return `MailboxThreadMessageSummaryCursorListResponse` instead of the ordinary message-list response type, with required `meta.thread_id` and optional typed `meta.sync_state`; ordinary message lists remain thread-independent.
+* Upgrade `sendmux-sdk`, `sendmux-mailbox`, the lockfile, and affected call sites together; restore them together to roll back. See [Version 2.0.0 migration](README.md#version-200-migration).
 
 
 ### Bug Fixes
 
 * align Python SDK mailbox floor ([57c43c4](https://github.com/Sendmux/sendmux-sdk/commit/57c43c47f9adc1d5c16bdc6904b5681794b8ab1f))
 * prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+* **python-sdk:** require `sendmux-core>=1.3.1,<2.0.0`, `sendmux-mailbox>=2.0.0,<3.0.0`, and `sendmux-sending>=1.5.1,<2.0.0` to adopt the Mailbox 2 response contract and propagate the core exception-mapping fix
 
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.1.1...python-sdk-v1.2.0) (2026-09-10)
 

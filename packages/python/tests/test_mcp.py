@@ -278,13 +278,14 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
 
         wait = next(tool for tool in tools if tool.name == "mailbox_wait_for_message")
         wait_validator = Draft202012Validator(wait.output_schema)
+        wait_meta = {"request_id": "req_test", "sync_state": "state_test"}
         wait_result = {
             "ok": True,
             "data": {"matched": False, "message": None, "next_after": "2026-07-02T15:59:00Z"},
-            "meta": {"request_id": "req_test", "sync_state": "state_test"},
+            "meta": wait_meta,
         }
         assert not list(wait_validator.iter_errors(wait_result))
-        assert list(wait_validator.iter_errors({**wait_result, "meta": {**wait_result["meta"], "unexpected": True}}))
+        assert list(wait_validator.iter_errors({**wait_result, "meta": {**wait_meta, "unexpected": True}}))
         assert list(wait_validator.iter_errors({**wait_result, "meta": {"sync_state": "state_test"}}))
 
     asyncio.run(check())

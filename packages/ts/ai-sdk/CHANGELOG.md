@@ -8,6 +8,21 @@
   `3.24` before adopting this release, and retain compatibility with your
   installed `ai` version. See [the 0.5.0 upgrade notes](README.md#unreleased-050-upgrade).
 
+## [0.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.4.0...ts-ai-sdk-v0.5.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **sdk:** verify Rust contracts and installed runtime consumers ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 2.0.0
+    * @sendmux/sending bumped to 1.5.1
+
 ## [0.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.3.3...ts-ai-sdk-v0.4.0) (2026-09-10)
 
 

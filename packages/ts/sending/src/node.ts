@@ -11,6 +11,8 @@ import type {
   SendSuccessResponse,
 } from "./generated/types.gen.js";
 
+const MAX_SENDING_ATTACHMENTS = 10;
+
 export interface NodeFileAttachment {
   contentType?: string;
   filename?: string;
@@ -86,6 +88,9 @@ export async function sendEmailWithFiles({
   files,
   headers,
 }: SendEmailWithFilesOptions): Promise<SendSuccessResponse> {
+  if ((body.attachments?.length ?? 0) + files.length > MAX_SENDING_ATTACHMENTS) {
+    throw new Error(`Sending email supports at most ${MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.`);
+  }
   const attachments: Attachment[] = [];
   const idempotencyKey = headers?.["Idempotency-Key"]?.trim();
   for (const [index, file] of files.entries()) {

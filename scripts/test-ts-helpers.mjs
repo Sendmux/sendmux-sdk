@@ -4,9 +4,13 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { setImmediate as nextTurn } from "node:timers/promises";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+const sendingAttachmentLimit = JSON.parse(await readFile(
+  new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
+)).components.schemas.EmailSendRequest.properties.attachments.maxItems;
 
 const {
   SendmuxApiError,
@@ -878,7 +882,7 @@ try {
     { attachment_id: "att_1234567890abcdefghijklmn" },
   ]);
 
-  await test("Sending file helper preserves composite replay", async (t) => {
+  await test("Sending file helper upload safety", async (t) => {
     const requests = [];
     const uploads = new Map();
     const sends = new Map();
@@ -903,7 +907,11 @@ try {
         const cache = upload ? uploads : sends;
         const previous = key && key.length <= 255 ? cache.get(key) : undefined;
         const conflict = previous && previous.fingerprint !== fingerprint;
-        const payload = conflict ? {
+        const invalidCount = !upload && body.attachments.length > sendingAttachmentLimit;
+        const payload = invalidCount ? {
+          ok: false, error: { code: "validation_error", message: "Too many attachments", retryable: false },
+          meta: { request_id: "req_ts_count" },
+        } : conflict ? {
           ok: false, error: { code: "idempotency_conflict", message: "Different body for the same key", retryable: false },
           meta: { request_id: "req_ts_conflict" },
         } : previous?.payload ?? {
@@ -915,15 +923,40 @@ try {
           } : { message_id: `eml_${String(++nextMessage).padStart(24, "0")}`, status: "queued" },
           meta: { request_id: "req_ts_replay" },
         };
-        if (key && key.length <= 255 && !previous) cache.set(key, { fingerprint, payload });
+        if (key && key.length <= 255 && !previous && !invalidCount) cache.set(key, { fingerprint, payload });
         requests.push({ upload, key, body, payload });
-        return Response.json(payload, { status: conflict ? 409 : upload ? 201 : 200 });
+        return Response.json(payload, { status: invalidCount ? 400 : conflict ? 409 : upload ? 201 : 200 });
       },
     });
     const options = {
       client, files: [reportPath], headers: { "Idempotency-Key": "attachment-replay" },
       body: { from: { email: "from@example.com" }, to: { email: "agent@example.com" }, subject: "Replay", html_body: "<p>Attached</p>" },
     };
+    await t.test("excess local attachments fail before any HTTP request", async () => {
+      const start = requests.length;
+      await assert.rejects(sendEmailWithFiles({ ...options, files: Array(sendingAttachmentLimit + 1).fill(reportPath) }));
+      assert.equal(requests.length, start, "Excess attachments must not upload files or send email");
+    });
+    await t.test("existing attachments count toward the pre-upload limit", async () => {
+      const start = requests.length;
+      const attachments = Array(sendingAttachmentLimit).fill({ attachment_id: "att_1234567890abcdefghijklmn" });
+      await assert.rejects(sendEmailWithFiles({ ...options, body: { ...options.body, attachments } }));
+      assert.equal(requests.length, start, "Existing references must count before uploading more files");
+    });
+    await t.test("exactly the attachment limit preserves existing references", async () => {
+      const existing = { attachment_id: "att_1234567890abcdefghijklmn" };
+      const start = requests.length;
+      const result = await sendEmailWithFiles({
+        ...options, headers: undefined, files: Array(sendingAttachmentLimit - 1).fill(reportPath),
+        body: { ...options.body, attachments: [existing] },
+      });
+      assert.equal(result.data.status, "queued");
+      assert.deepEqual(requests.at(-1).body.attachments, [
+        existing, ...requests.slice(start).filter(({ upload }) => upload)
+          .map(({ payload }) => ({ attachment_id: payload.data.attachment_id })),
+      ]);
+      assert.equal(requests.at(-1).body.attachments.length, sendingAttachmentLimit);
+    });
     await t.test("identical single-file retry returns the original result", async () => {
       const first = await sendEmailWithFiles(options);
       const firstBody = requests.at(-1).body;

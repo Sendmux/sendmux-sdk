@@ -25,6 +25,10 @@ from sendmux_sending.api_client import ApiClient as SendingApiClient
 from sendmux_sending import create_sending_client
 from sendmux_sending.models.send_success_response import SendSuccessResponse
 
+SENDING_ATTACHMENT_LIMIT = json.loads(
+    (Path(__file__).resolve().parents[1] / "mcp/sendmux_mcp/openapi/openapi-sending.json").read_text()
+)["components"]["schemas"]["EmailSendRequest"]["properties"]["attachments"]["maxItems"]
+
 
 class FakeSendingAttachmentUploadData:
     attachment_id = "att_1234567890abcdefghijklmn"
@@ -422,6 +426,46 @@ def sending_replay(monkeypatch: Any) -> tuple[SendingApiClient, list[dict[str, A
 
     monkeypatch.setattr(urllib3.PoolManager, "request", request)
     return create_sending_client(api_key="smx_mbx_test_attachment_replay", base_url="https://sending-replay.test"), requests
+
+
+def test_sending_excess_files_fail_before_upload(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Attachment limit\n")
+    body = {"from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Limit", "html_body": "<p>Attached</p>"}
+    with pytest.raises(ValueError):
+        sending_attachments.send_email_with_files(client, body=body, files=[report] * (SENDING_ATTACHMENT_LIMIT + 1))
+    assert requests == [], "Excess attachments must not upload files or send email"
+
+
+def test_sending_existing_attachments_count_before_upload(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Attachment limit\n")
+    body = {
+        "from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Limit", "html_body": "<p>Attached</p>",
+        "attachments": [{"attachment_id": "att_1234567890abcdefghijklmn"}] * SENDING_ATTACHMENT_LIMIT,
+    }
+    with pytest.raises(ValueError):
+        sending_attachments.send_email_with_files(client, body=body, files=[report])
+    assert requests == [], "Existing references must count before uploading more files"
+
+
+def test_sending_attachment_limit_preserves_existing_references(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Attachment limit\n")
+    existing = {"attachment_id": "att_1234567890abcdefghijklmn"}
+    body = {
+        "from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Limit", "html_body": "<p>Attached</p>",
+        "attachments": [existing],
+    }
+    result = sending_attachments.send_email_with_files(client, body=body, files=[report] * (SENDING_ATTACHMENT_LIMIT - 1))
+    assert result.data.status == "queued"
+    assert requests[-1]["body"]["attachments"] == [existing] + [
+        {"attachment_id": request["payload"]["data"]["attachment_id"]} for request in requests if request["upload"]
+    ]
+    assert len(requests[-1]["body"]["attachments"]) == SENDING_ATTACHMENT_LIMIT
 
 
 def test_sending_file_retry_returns_original_result(sending_replay: Any, tmp_path: Path) -> None:

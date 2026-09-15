@@ -16,6 +16,8 @@ type ClientFactory = (config: sdk.core.SurfaceClientConfig) => unknown;
 type MailboxClient = ReturnType<typeof sdk.mailbox.createMailboxClient>;
 type SendingClient = ReturnType<typeof sdk.sending.createSendingClient>;
 
+const MAX_SENDING_ATTACHMENTS = 10;
+
 const surfaceModules = {
   mailbox: sdk.mailbox,
   management: sdk.management,
@@ -221,6 +223,10 @@ async function withAttachedFiles(
 ): Promise<ParsedOperationOptions> {
   const body = jsonObjectBody(command, operationOptions.body);
   const existingAttachments = attachmentArray(command, body.attachments);
+  if (operation.operationId === "sendingSendEmail"
+    && existingAttachments.length + (flags.attach?.length ?? 0) > MAX_SENDING_ATTACHMENTS) {
+    command.error(`Sending email supports at most ${MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.`, { exit: 2 });
+  }
   const files = [];
   for (const path of flags.attach ?? []) {
     files.push(await readAttachmentFile(command, path, flags["content-type"]));

@@ -769,6 +769,7 @@ from ${packageName}.models.send_success_response import SendSuccessResponse
 
 PathInput = str | PathLike[str]
 FileInput = PathInput | dict[str, Any]
+_MAX_SENDING_ATTACHMENTS = 10
 
 
 def attachment_from_file(
@@ -822,7 +823,10 @@ def send_email_with_files(
 ) -> SendSuccessResponse:
     """Upload local files, attach their attachment IDs, and send one email."""
 
-    attachments = list(body.get("attachments") or [])
+    existing_attachments = body.get("attachments") or []
+    if len(existing_attachments) + len(files) > _MAX_SENDING_ATTACHMENTS:
+        raise ValueError(f"Sending email supports at most {_MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.")
+    attachments = list(existing_attachments)
     outer_key = idempotency_key.strip() if idempotency_key else None
     for index, file_input in enumerate(files):
         file = _file_input(file_input)

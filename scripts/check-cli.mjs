@@ -19,6 +19,9 @@ const agentKey = "smx_agent_testkey1234567890";
 const durableAgentKey = "smx_agent_durable_read_testkey1234567890";
 const delegatedAgentSendKey = "smx_agent_delegated_send_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
+const sendingAttachmentLimit = JSON.parse(readFileSync(
+  new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
+)).components.schemas.EmailSendRequest.properties.attachments.maxItems;
 const envelope = {
   ok: true,
   data: {
@@ -297,6 +300,14 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === "POST" && requestUrl === "/emails/send" && body.length && JSON.parse(body).attachments?.length) {
+    if (JSON.parse(body).attachments.length > sendingAttachmentLimit) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({
+        ok: false, error: { code: "validation_error", message: "Too many attachments", retryable: false },
+        meta: { request_id: "req_cli_count" },
+      }));
+      return;
+    }
     const canonicalBody = JSON.stringify(JSON.parse(body), (_key, value) => value && typeof value === "object" && !Array.isArray(value)
       ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]])) : value);
     respondToSendingMutation(request, response, serverState.sendingSends, createHash("sha256").update(canonicalBody).digest("hex"), 200, () => ({
@@ -771,6 +782,42 @@ try {
   if (latestRequest().body.equals(sendingAttachSendRequest.body)) {
     throw new Error("Unkeyed repeated upload must create a fresh attachment");
   }
+
+  const countBody = {
+    from: { email: "from@example.com" }, to: { email: "agent@example.com" },
+    subject: "Attachment limit", html_body: "<p>Attached</p>",
+  };
+  const countArgs = ["sending:send", "--base-url", baseUrl, "--json"];
+  const excessStart = serverState.requests.length;
+  const excessAttachments = await runCli([
+    ...countArgs, "--body", JSON.stringify(countBody),
+    ...Array(sendingAttachmentLimit + 1).fill(textAttachmentPath).flatMap((file) => ["--attach", file]),
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertDeepEqual(serverState.requests.length, excessStart, "Excess attachments must not upload files or send email");
+  // Oclif's JSON catch uses exitCode (default 1), while preserving oclif.exit in the error payload.
+  assertDeepEqual(excessAttachments.status, 1, "Excess attachments must fail in JSON mode");
+  assertDeepEqual(JSON.parse(excessAttachments.stdout).error.oclif.exit, 2, "Excess attachments must be a local usage error");
+  const existingAttachment = { attachment_id: "att_1234567890abcdefghijklmn" };
+  const existingStart = serverState.requests.length;
+  const existingLimit = await runCli([
+    ...countArgs, "--body", JSON.stringify({ ...countBody, attachments: Array(sendingAttachmentLimit).fill(existingAttachment) }),
+    "--attach", textAttachmentPath,
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertDeepEqual(serverState.requests.length, existingStart, "Existing references must count before uploading more files");
+  assertDeepEqual(existingLimit.status, 1, "Existing attachments over the limit must fail in JSON mode");
+  assertDeepEqual(JSON.parse(existingLimit.stdout).error.oclif.exit, 2, "Existing attachments over the limit must be a local usage error");
+  const boundaryStart = serverState.requests.length;
+  const attachmentBoundary = await runCli([
+    ...countArgs, "--body", JSON.stringify({ ...countBody, attachments: [existingAttachment] }),
+    ...Array(sendingAttachmentLimit - 1).fill(textAttachmentPath).flatMap((file) => ["--attach", file]),
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(attachmentBoundary, "Exactly the attachment limit must succeed");
+  const boundaryAttachments = JSON.parse(latestRequest().body).attachments;
+  assertDeepEqual(boundaryAttachments, [existingAttachment,
+    ...serverState.requests.slice(boundaryStart).filter((request) => request.url.startsWith("/emails/attachments"))
+      .map((request) => ({ attachment_id: request.responseBody.data.attachment_id })),
+  ], "At-limit send must preserve existing and uploaded references");
+  assertDeepEqual(boundaryAttachments.length, sendingAttachmentLimit, "At-limit send must keep every attachment");
 
   const replayArgs = [
     "sending:send", "--base-url", baseUrl,

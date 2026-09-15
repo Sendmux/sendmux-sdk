@@ -14,7 +14,7 @@
     "sendmux/management": "2.1.0",
     "sendmux/sdk": "3.0.0",
     "sendmux/sending": "2.1.0",
-    "squizlabs/php_codesniffer": "^3.11"
+    "squizlabs/php_codesniffer": "^3.13.6"
   },
   "autoload-dev": {
     "psr-4": {

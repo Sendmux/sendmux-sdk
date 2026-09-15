@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
+  checkPythonLangchainDependencyFloors,
   checkPythonMcpDependencyFloors,
   checkPythonSdkDependencyFloors,
   checkPythonSurfaceDependencyFloors,
@@ -12,6 +13,15 @@ import {
 const root = mkdtempSync(join(tmpdir(), "sendmux-python-release-"));
 
 try {
+  assert.deepEqual(
+    [...readChangedPythonPackages({ env: { PYTHON_PATHS_RELEASED: '["packages/python/langchain"]' } })],
+    ["langchain"],
+  );
+  assert.deepEqual(
+    [...readChangedPythonPackages({ env: { PYTHON_CHANGED_PACKAGES: "langchain" } })],
+    ["langchain"],
+  );
+
   writeFixture({
     manifest: {
       "packages/python/core": "1.2.0",
@@ -254,14 +264,71 @@ try {
     }
   }
 
+  writeFixture({
+    manifest: {
+      "packages/python/sending": "1.5.1",
+      "packages/python/mailbox": "2.0.0",
+    },
+    langchainDependencies: [
+      '"sendmux-sending>=1.5.1,<2.0.0"',
+      '"sendmux-mailbox>=2.0.0,<3.0.0"',
+    ],
+  });
+  assert.doesNotThrow(() =>
+    checkPythonLangchainDependencyFloors({ root, changedPackages: new Set(["langchain"]) }),
+  );
+
+  writeFixture({
+    manifest: {
+      "packages/python/sending": "1.5.1",
+      "packages/python/mailbox": "2.0.0",
+    },
+    langchainDependencies: [
+      '"sendmux-sending>=1.5.0,<2.0.0"',
+      '"sendmux-mailbox>=2.0.0,<3.0.0"',
+    ],
+  });
+  assert.throws(
+    () => checkPythonLangchainDependencyFloors({
+      root,
+      changedPackages: readChangedPythonPackages({ env: { PYTHON_CHANGED_PACKAGES: "langchain" } }),
+    }),
+    /sendmux-sending >= 1\.5\.1,<2\.0\.0; found >= 1\.5\.0,<2\.0\.0/,
+  );
+
+  writeFixture({
+    manifest: {
+      "packages/python/sending": "1.5.1",
+      "packages/python/mailbox": "2.0.0",
+    },
+    langchainDependencies: [
+      '"sendmux-sending>=1.5.1,<2.0.0"',
+      '"sendmux-mailbox>=1.5.0,<2.0.0"',
+    ],
+  });
+  assert.throws(
+    () => checkPythonLangchainDependencyFloors({
+      root,
+      changedPackages: readChangedPythonPackages({
+        env: { PYTHON_PATHS_RELEASED: '["packages/python/langchain"]' },
+      }),
+    }),
+    /sendmux-mailbox >= 2\.0\.0,<3\.0\.0; found >= 1\.5\.0,<2\.0\.0/,
+  );
+
+  assert.doesNotThrow(() =>
+    checkPythonLangchainDependencyFloors({ root, changedPackages: new Set(["mailbox"]) }),
+  );
+
   console.log("Python release guardrail tests passed.");
 } finally {
   rmSync(root, { force: true, recursive: true });
 }
 
-function writeFixture({ manifest, sdkDependencies = [], mcpDependencies = [], surfaceCoreDependencies = {} }) {
+function writeFixture({ manifest, sdkDependencies = [], mcpDependencies = [], surfaceCoreDependencies = {}, langchainDependencies = [] }) {
   mkdirSync(join(root, "packages", "python", "sdk"), { recursive: true });
   mkdirSync(join(root, "packages", "python", "mcp"), { recursive: true });
+  mkdirSync(join(root, "packages", "python", "langchain"), { recursive: true });
   for (const surface of ["sending", "mailbox", "management"]) {
     mkdirSync(join(root, "packages", "python", surface), { recursive: true });
     writeFileSync(
@@ -277,5 +344,9 @@ function writeFixture({ manifest, sdkDependencies = [], mcpDependencies = [], su
   writeFileSync(
     join(root, "packages", "python", "mcp", "pyproject.toml"),
     `dependencies = [\n  ${mcpDependencies.join(",\n  ")}\n]\n`,
+  );
+  writeFileSync(
+    join(root, "packages", "python", "langchain", "pyproject.toml"),
+    `dependencies = [\n  ${langchainDependencies.join(",\n  ")}\n]\n`,
   );
 }

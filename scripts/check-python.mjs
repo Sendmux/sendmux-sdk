@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from "node:path";
 import { pythonVerificationCohorts, run, workspace } from "./ci-consumers.mjs";
 import {
+  checkPythonLangchainDependencyFloors,
   checkPythonMcpDependencyFloors,
   checkPythonSdkDependencyFloors,
   checkPythonSurfaceDependencyFloors,
@@ -36,6 +37,7 @@ checkPythonPackageMetadata();
 checkPythonSurfaceDependencyFloors({ root });
 checkPythonSdkDependencyFloors({ root });
 checkPythonMcpDependencyFloors({ root });
+checkPythonLangchainDependencyFloors({ root });
 
 if (!existsSync(python)) {
   mkdirSync(join(root, ".tmp"), { recursive: true });

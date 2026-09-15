@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* Require `sendmux-sending>=1.5.1,<2.0.0` and `sendmux-mailbox>=2.0.0,<3.0.0` so toolkit installations include the core error-propagation and mailbox response-metadata fixes.
+
 ## [0.3.0](https://github.com/Sendmux/sendmux-sdk/compare/python-langchain-v0.2.1...python-langchain-v0.3.0) (2026-09-10)
 
 

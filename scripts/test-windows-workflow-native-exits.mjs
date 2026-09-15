@@ -111,7 +111,11 @@ mkdirSync(evidence, { recursive: true });
 const resultsFile = join(evidence, "results.json");
 
 for (const candidate of candidates) {
-  for (const scenario of ["healthy", "early", "final"]) {
+  // Escape: the fixed two-second sleep let package commands run before the local asset server was ready.
+  const scenarios = candidate.serverCleanup
+    ? ["healthy", "early", "final", "delayed-ready", "server-exits-before-ready"]
+    : ["healthy", "early", "final"];
+  for (const scenario of scenarios) {
     await runCase(candidate, scenario);
   }
 }
@@ -361,8 +365,13 @@ async function runCase(candidate, scenario) {
     row.commands = readJsonLines(fixture.commands);
     if (candidate.serverCleanup) await assertServerCleanup(row, fixture);
     if (candidate.name === "chocolatey-push") assertPublisherTransaction(row, fixture);
-    if (scenario !== "early") assert.equal(row.commands.length, candidate.commandCount, "Workflow block must execute every expected native command");
-    if (scenario === "healthy") assert.equal(row.status, 0, "Healthy workflow step must succeed");
+    if (scenario === "server-exits-before-ready") {
+      assert.equal(row.commands.length, 0, "A server that exits before readiness must fail before the first package command");
+      assert.notEqual(row.status, 0, "A server that exits before readiness must fail its workflow step");
+    } else if (scenario !== "early") {
+      assert.equal(row.commands.length, candidate.commandCount, "Workflow block must execute every expected native command");
+    }
+    if (scenario === "healthy" || scenario === "delayed-ready") assert.equal(row.status, 0, "Ready workflow step must succeed");
     else if (candidate.failureStatus) assert.equal(row.status, candidate.failureStatus, `${scenario} native failure must survive publisher cleanup`);
     else assert.notEqual(row.status, 0, `${scenario} native failure must fail its workflow step`);
     row.verdict = "passed";
@@ -425,6 +434,7 @@ function prepareFixture(directory, candidate, scenario) {
   const scripts = join(directory, "scripts");
   const commands = join(directory, "commands.jsonl");
   const server = join(directory, "server.json");
+  const serverReady = join(directory, "server-ready.txt");
   const stopped = join(directory, "stopped.txt");
   const isChocolateyPublisher = candidate.name === "chocolatey-push";
   const chocolateyInstall = join(directory, "chocolatey");
@@ -448,14 +458,17 @@ export function finish(command, args) {
   const file = process.env.SENDMUX_NATIVE_COMMANDS;
   const index = existsSync(file) ? readFileSync(file, "utf8").trim().split(/\\n/).filter(Boolean).length + 1 : 1;
   const config = inspectChocolateyConfig(command);
+  const serverReady = !process.env.SENDMUX_NATIVE_SERVER_READY || existsSync(process.env.SENDMUX_NATIVE_SERVER_READY);
   appendFileSync(file, JSON.stringify({
     pid: process.pid,
     command,
     args,
     index,
     credential_environment_present: Boolean(process.env.CHOCOLATEY_API_KEY),
+    server_ready: serverReady,
     ...config,
   }) + "\\n");
+  if (!serverReady) return 86;
   return index === Number(process.env.SENDMUX_NATIVE_FAIL_AT) ? 7 : 0;
 }
 function inspectChocolateyConfig(command) {
@@ -477,14 +490,20 @@ function inspectChocolateyConfig(command) {
   writeFileSync(join(scripts, "diagnose-windows-consumer-ownership.mjs"), nodeFixture);
   writeFileSync(join(scripts, "test-windows-consumer-sensitivity.mjs"), nodeFixture);
   const invalidSyntax = candidate.invalidEarlySyntax && scenario === "early";
+  const serverStartup = scenario === "server-exits-before-ready"
+    ? "setTimeout(()=>process.exit(9),250);setInterval(()=>{},1000);"
+    : `await new Promise(resolve=>setTimeout(resolve,${scenario === "delayed-ready" ? 3000 : 0}));const server=createServer((request,response)=>{response.writeHead(200,{"Content-Length":"7"});if(request.method==="HEAD")response.end();else response.end("fixture");});server.listen(8765,"127.0.0.1",()=>appendFileSync(process.env.SENDMUX_NATIVE_SERVER_READY,"ready\\n"));`;
   writeFileSync(join(scripts, "serve-static.mjs"), invalidSyntax
     ? "this is deliberately invalid syntax {"
-    : `import {appendFileSync} from "node:fs";appendFileSync(process.env.SENDMUX_NATIVE_SERVER,JSON.stringify({pid:process.pid})+"\\n");setTimeout(()=>process.exit(9),30000);setInterval(()=>{},1000);`);
+    : `import {appendFileSync} from "node:fs";import {createServer} from "node:http";appendFileSync(process.env.SENDMUX_NATIVE_SERVER,JSON.stringify({pid:process.pid})+"\\n");${serverStartup}`);
   const version = "1.2.3";
   const packages = join(directory, ".tmp/chocolatey/pkg");
   mkdirSync(packages, { recursive: true });
   writeFileSync(join(packages, `sendmux.portable.${version}.nupkg`), "fixture");
   writeFileSync(join(packages, `sendmux.${version}.nupkg`), "fixture");
+  const assetDirectory = join(directory, "packages/ts/cli/dist");
+  mkdirSync(assetDirectory, { recursive: true });
+  writeFileSync(join(assetDirectory, `sendmux-v${version}-win32-x64.zip`), "fixture");
   const failAt = scenario === "early" ? (candidate.earlyFailure ?? 0) : scenario === "final" ? candidate.finalFailure : 0;
   return {
     commands,
@@ -502,10 +521,12 @@ function inspectChocolateyConfig(command) {
       } : {}),
       PATH: `${bin}${delimiter}${process.env.PATH}`,
       SENDMUX_CHOCOLATEY_VERSION: version,
+      SENDMUX_CHOCOLATEY_DOWNLOAD_URL: `http://127.0.0.1:8765/sendmux-v${version}-win32-x64.zip`,
       SENDMUX_NATIVE_COMMANDS: commands,
       SENDMUX_NATIVE_FAIL_AT: String(failAt),
       SENDMUX_NATIVE_NODE: process.execPath,
       SENDMUX_NATIVE_SERVER: server,
+      ...(candidate.serverCleanup ? { SENDMUX_NATIVE_SERVER_READY: serverReady } : {}),
       SENDMUX_NATIVE_SHIM: shim,
       SENDMUX_NATIVE_STOPPED: stopped,
     },
@@ -592,10 +613,10 @@ function powerShellFunction(source, name) {
 
 async function assertServerCleanup(row, fixture) {
   const servers = readJsonLines(fixture.server);
-  assert.equal(servers.length, 1, "Package test must start one exact fixture server");
   const stopped = existsSync(fixture.stopped) ? readFileSync(fixture.stopped, "utf8").trim().split(/\r?\n/).filter(Boolean).map(Number) : [];
-  row.server_pid = servers[0].pid;
   row.server_stopped = stopped;
+  assert.equal(servers.length, 1, "Package test must start one exact fixture server");
+  row.server_pid = servers[0].pid;
   await waitFor(() => absent(row.server_pid), "Package-test finally block did not stop its exact fixture server");
   assert(stopped.includes(row.server_pid), "Package-test finally cleanup must target its exact fixture server");
 }

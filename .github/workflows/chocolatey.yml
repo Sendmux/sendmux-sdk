@@ -242,6 +242,101 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
+          function Invoke-ChocolateyCredentialTransaction {
+            [CmdletBinding()]
+            param(
+              [Parameter(Mandatory = $true)][string]$Source,
+              [Parameter(Mandatory = $true)][scriptblock]$Operation
+            )
+
+            if ([string]::IsNullOrWhiteSpace($env:ChocolateyInstall)) {
+              throw 'ChocolateyInstall is required for the publisher credential transaction.'
+            }
+            $configPath = Join-Path $env:ChocolateyInstall 'config/chocolatey.config'
+            if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
+              throw "Chocolatey config was not found: $configPath"
+            }
+
+            $originalConfigBytes = [IO.File]::ReadAllBytes($configPath)
+            $originalConfigHash = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash
+            $stagingPath = Join-Path (Split-Path -Parent $configPath) ".sendmux-publish-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT.tmp"
+            $apiKeyBytes = $null
+            $encryptedApiKeyBytes = $null
+            $entropyBytes = $null
+            $nativeExitCode = 1
+
+            try {
+              $apiKey = $env:CHOCOLATEY_API_KEY
+              if ([string]::IsNullOrWhiteSpace($apiKey)) {
+                throw 'CHOCOLATEY_API_KEY is required for Chocolatey publication.'
+              }
+
+              $apiKeyBytes = [Text.Encoding]::UTF8.GetBytes($apiKey)
+              $entropyBytes = [Text.Encoding]::UTF8.GetBytes('Chocolatey')
+              $encryptedApiKeyBytes = [Security.Cryptography.ProtectedData]::Protect(
+                $apiKeyBytes,
+                $entropyBytes,
+                [Security.Cryptography.DataProtectionScope]::LocalMachine
+              )
+              $encryptedApiKey = [Convert]::ToBase64String($encryptedApiKeyBytes)
+
+              $configXml = [xml]([Text.Encoding]::UTF8.GetString($originalConfigBytes))
+              $apiKeysNode = $configXml.SelectSingleNode('/chocolatey/apiKeys')
+              if ($null -eq $apiKeysNode) {
+                $apiKeysNode = $configXml.CreateElement('apiKeys')
+                [void]$configXml.DocumentElement.AppendChild($apiKeysNode)
+              }
+              foreach ($existingEntry in @($apiKeysNode.SelectNodes('apiKeys'))) {
+                if ([string]::Equals($existingEntry.GetAttribute('source'), $Source, [StringComparison]::OrdinalIgnoreCase)) {
+                  [void]$apiKeysNode.RemoveChild($existingEntry)
+                }
+              }
+              $credentialEntry = $configXml.CreateElement('apiKeys')
+              $credentialEntry.SetAttribute('source', $Source)
+              $credentialEntry.SetAttribute('key', $encryptedApiKey)
+              [void]$apiKeysNode.AppendChild($credentialEntry)
+              $configXml.Save($stagingPath)
+              [IO.File]::Replace($stagingPath, $configPath, $null)
+
+              $env:CHOCOLATEY_API_KEY = $null
+              [Array]::Clear($apiKeyBytes, 0, $apiKeyBytes.Length)
+              $apiKeyBytes = $null
+              $apiKey = $null
+              $encryptedApiKey = $null
+              $configXml = $null
+
+              & $Operation $Source
+              $nativeExitCode = $LASTEXITCODE
+            } finally {
+              $env:CHOCOLATEY_API_KEY = $null
+              if ($null -ne $apiKeyBytes) {
+                [Array]::Clear($apiKeyBytes, 0, $apiKeyBytes.Length)
+              }
+              if ($null -ne $encryptedApiKeyBytes) {
+                [Array]::Clear($encryptedApiKeyBytes, 0, $encryptedApiKeyBytes.Length)
+              }
+              if ($null -ne $entropyBytes) {
+                [Array]::Clear($entropyBytes, 0, $entropyBytes.Length)
+              }
+              try {
+                [IO.File]::WriteAllBytes($configPath, $originalConfigBytes)
+                $restoredConfigHash = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash
+              } finally {
+                if (Test-Path -LiteralPath $stagingPath) {
+                  Remove-Item -LiteralPath $stagingPath -Force
+                }
+                if (Test-Path -LiteralPath $stagingPath) {
+                  throw "Chocolatey credential staging file remains after cleanup: $stagingPath"
+                }
+              }
+              if ($restoredConfigHash -ne $originalConfigHash) {
+                throw 'Chocolatey config restoration did not preserve the original SHA-256.'
+              }
+            }
+
+            exit $nativeExitCode
+          }
+
           $version = $env:SENDMUX_CHOCOLATEY_VERSION
           if ([string]::IsNullOrWhiteSpace($version)) {
             $version = (Get-Content packages/ts/cli/package.json | ConvertFrom-Json).version
@@ -250,14 +345,17 @@ jobs:
             ".tmp/chocolatey/pkg/sendmux.portable.$version.nupkg",
             ".tmp/chocolatey/pkg/sendmux.$version.nupkg"
           )
-          choco apikey --key "$env:CHOCOLATEY_API_KEY" --source https://push.chocolatey.org/
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           foreach ($package in $packages) {
             if (-not (Test-Path $package)) {
               throw "Expected Chocolatey package was not created: $package"
             }
-            choco push $package --source https://push.chocolatey.org/ --api-key "$env:CHOCOLATEY_API_KEY" --no-progress
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          Invoke-ChocolateyCredentialTransaction -Source 'https://push.chocolatey.org/' -Operation {
+            param($configuredSource)
+            foreach ($package in $packages) {
+              choco push $package --source $configuredSource --no-progress
+              if ($LASTEXITCODE -ne 0) { break }
+            }
           }
 
       - name: Skip Chocolatey push notice

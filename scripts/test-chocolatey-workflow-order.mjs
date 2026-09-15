@@ -97,7 +97,8 @@ assert(
 const tryStart = pushScript.search(/^\s*try\s*\{/m);
 const finallyStart = pushScript.search(/^\s*\}\s*finally\s*\{/m);
 const restoration = pushScript.search(/\[IO\.File\]::WriteAllBytes\(\$configPath,\s*\$originalConfigBytes\)/);
-const restorationHash = pushScript.search(/Get-FileHash\s+-LiteralPath\s+\$configPath\s+-Algorithm\s+SHA256/);
+const restorationHashOffset = pushScript.slice(restoration).search(/Get-FileHash\s+-LiteralPath\s+\$configPath\s+-Algorithm\s+SHA256/);
+const restorationHash = restorationHashOffset === -1 ? -1 : restoration + restorationHashOffset;
 const stagingCleanup = pushScript.search(/Remove-Item\s+-LiteralPath\s+\$stagingPath\s+-Force/);
 const nativeExitCapture = pushScript.search(/^\s*\$nativeExitCode\s*=\s*\$LASTEXITCODE\s*$/m);
 const nativeExitReturn = pushScript.search(/^\s*exit\s+\$nativeExitCode\s*$/m);

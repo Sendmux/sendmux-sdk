@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
+import { startWindowsConsumer } from "./windows-consumer-owner.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const checkingSource = process.argv[2] === "--check-source";
@@ -18,6 +19,7 @@ const sourcePaths = checkingSource
 const evidence = resolve(process.argv[2] ?? ".tmp/windows-workflow-native-exits");
 const parentCredentialSentinel = "sendmux-native-exit-parent-credential-sentinel";
 const fixtureCredential = "sendmux-native-exit-inert-credential";
+const credentialSentinels = [parentCredentialSentinel, fixtureCredential];
 const chocolateyPushSource = "https://push.chocolatey.org/";
 const fixtureRunId = "424242";
 const fixtureRunAttempt = "3";
@@ -31,6 +33,8 @@ const originalChocolateyConfig = Buffer.from([
 const parentEnvironment = { ...process.env, CHOCOLATEY_API_KEY: parentCredentialSentinel };
 const ci = readWorkflow(sourcePaths[0]);
 const chocolatey = readWorkflow(sourcePaths[1]);
+const publisherScript = stepScript(chocolatey, "Push to Chocolatey");
+const credentialTransaction = powerShellFunction(publisherScript, "Invoke-ChocolateyCredentialTransaction");
 const windowsPowerShell = process.platform === "win32"
   ? join(process.env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
   : "powershell.exe";
@@ -77,7 +81,7 @@ const candidates = [
   {
     name: "chocolatey-push",
     shell: windowsPowerShell,
-    scripts: () => [stepScript(chocolatey, "Push to Chocolatey")],
+    scripts: () => [publisherScript],
     earlyFailure: 1,
     finalFailure: 2,
     commandCount: 2,
@@ -97,6 +101,7 @@ if (checkingSource) {
       blocks: candidate.scripts.length,
       digest: createHash("sha256").update(JSON.stringify(candidate.scripts)).digest("hex"),
     })),
+    credential_transaction_digest: sha256(credentialTransaction),
   }));
   process.exit(0);
 }
@@ -110,8 +115,8 @@ for (const candidate of candidates) {
     await runCase(candidate, scenario);
   }
 }
+await runInstalledChocolateyProbe();
 
-const credentialSentinels = [parentCredentialSentinel, fixtureCredential];
 const nativeArguments = rows.flatMap((row) => row.commands ?? []).flatMap((command) => command.args);
 assert(
   nativeArguments.every((argument) => credentialSentinels.every((sentinel) => !argument.includes(sentinel))),
@@ -125,6 +130,213 @@ assert(
   rows.every((row) => row.verdict === "passed" && !row.cleanup_error),
   "PowerShell workflow step masked a native command failure; see retained exact receipts",
 );
+
+async function runInstalledChocolateyProbe() {
+  const probe = {
+    runner: {
+      image_os: process.env.ImageOS ?? null,
+      image_version: process.env.ImageVersion ?? null,
+    },
+    verdict: "failed",
+  };
+  let failure;
+
+  const chocolateyInstall = process.env.ChocolateyInstall;
+  assert(chocolateyInstall, "Installed Chocolatey probe requires ChocolateyInstall");
+  const chocolateyExecutable = join(chocolateyInstall, "bin", "choco.exe");
+  const configPath = join(chocolateyInstall, "config", "chocolatey.config");
+  assert(existsSync(chocolateyExecutable), `Installed Chocolatey executable was not found: ${chocolateyExecutable}`);
+  assert(existsSync(configPath), `Installed Chocolatey config was not found: ${configPath}`);
+  assert(probe.runner.image_os, "Installed Chocolatey probe requires the exact runner ImageOS receipt");
+  assert(probe.runner.image_version, "Installed Chocolatey probe requires the exact runner ImageVersion receipt");
+
+  const originalConfig = readFileSync(configPath);
+  const probeRunId = `${process.env.GITHUB_RUN_ID ?? process.pid}-installed-probe`;
+  const probeRunAttempt = process.env.GITHUB_RUN_ATTEMPT ?? "1";
+  const stagingPath = join(
+    chocolateyInstall,
+    "config",
+    `.sendmux-publish-${probeRunId}-${probeRunAttempt}.tmp`,
+  );
+  const probeSource = `https://sendmux.invalid/chocolatey-auth-probe-${process.pid}-${Date.now()}/`;
+  const scriptPath = join(evidence, "installed-chocolatey-probe.ps1");
+  const versionEnvironment = { ...process.env };
+  delete versionEnvironment.CHOCOLATEY_API_KEY;
+  assert(!existsSync(stagingPath), "Installed Chocolatey probe staging path must be absent before use");
+
+  try {
+    probe.version_process = await runCapturedProcess({
+      command: chocolateyExecutable,
+      args: ["--version"],
+      env: versionEnvironment,
+      label: "installed-chocolatey-version",
+    });
+    assert.equal(probe.version_process.status, 0, "Installed Chocolatey version command must succeed");
+    assert(!probe.version_process.timed_out, "Installed Chocolatey version command exceeded its bound");
+    assert(probe.version_process.absent, "Installed Chocolatey version process must be absent after close");
+    probe.chocolatey_version = probe.version_process.stdout.trim();
+    assert(probe.chocolatey_version, "Installed Chocolatey version receipt must not be empty");
+
+    writeFileSync(scriptPath, installedProbeScript(probeSource));
+    probe.transaction = await runCapturedProcess({
+      command: windowsPowerShell,
+      args: ["-NoProfile", "-NonInteractive", "-File", scriptPath],
+      env: {
+        ...process.env,
+        CHOCOLATEY_API_KEY: fixtureCredential,
+        GITHUB_RUN_ATTEMPT: probeRunAttempt,
+        GITHUB_RUN_ID: probeRunId,
+        SENDMUX_INSTALLED_CHOCO_PATH: chocolateyExecutable,
+      },
+      label: "installed-chocolatey-transaction",
+    });
+    assert.equal(probe.transaction.status, 0, "Installed Chocolatey config transaction must succeed");
+    assert(!probe.transaction.timed_out, "Installed Chocolatey config transaction exceeded its bound");
+    assert(probe.transaction.absent, "Installed Chocolatey transaction shell must be absent after close");
+    assert(
+      credentialSentinels.every((sentinel) => !`${probe.transaction.stdout}\n${probe.transaction.stderr}`.includes(sentinel)),
+      "A synthetic Chocolatey credential reached installed-probe output",
+    );
+
+    const receiptLine = probe.transaction.stdout
+      .split(/\r?\n/)
+      .find((line) => line.startsWith("SENDMUX_CHOCO_PROBE_RECEIPT="));
+    assert(receiptLine, "Installed Chocolatey probe did not emit its structured child receipt");
+    probe.child = JSON.parse(receiptLine.slice("SENDMUX_CHOCO_PROBE_RECEIPT=".length));
+    assert.deepEqual(
+      probe.child.argv,
+      ["apikey", "list", "--source", probeSource, "--limit-output"],
+      "Installed Chocolatey probe must use the source-specific no-network argv",
+    );
+    assert.equal(probe.child.credential_environment_present, false, "Installed Chocolatey child environment must not contain the credential");
+    assert.equal(probe.child.exit_code, 0, "Installed Chocolatey source-specific config readback must succeed");
+    assert(probe.child.stdout.includes(probeSource), "Installed Chocolatey readback must identify the synthetic source");
+    assert.match(probe.child.stdout, /Authenticated/i, "Installed Chocolatey readback must report the synthetic source as authenticated");
+    assert(
+      credentialSentinels.every((sentinel) => !JSON.stringify(probe.child).includes(sentinel)),
+      "A synthetic Chocolatey credential reached the installed child argv or retained output",
+    );
+    probe.child.absent = absent(probe.child.pid);
+    assert(probe.child.absent, "Installed Chocolatey child process must be absent after the transaction returns");
+
+    const restoredConfig = readFileSync(configPath);
+    probe.config_before_sha256 = sha256(originalConfig);
+    probe.config_after_sha256 = sha256(restoredConfig);
+    probe.config_restored = restoredConfig.equals(originalConfig);
+    probe.staging_path = stagingPath;
+    probe.staging_path_absent = !existsSync(stagingPath);
+    assert(probe.config_restored, "Installed Chocolatey transaction must restore the exact config bytes");
+    assert.equal(probe.config_after_sha256, probe.config_before_sha256, "Installed Chocolatey transaction must restore the original SHA-256");
+    assert(probe.staging_path_absent, "Installed Chocolatey transaction must remove its exact staging path");
+    probe.verdict = "passed";
+  } catch (error) {
+    probe.assertion = error.message;
+    failure = error;
+  } finally {
+    const currentConfig = existsSync(configPath) ? readFileSync(configPath) : null;
+    if (!currentConfig?.equals(originalConfig)) {
+      writeFileSync(configPath, originalConfig);
+      probe.emergency_config_restore = true;
+    }
+    if (existsSync(stagingPath)) {
+      await rm(stagingPath, { force: true });
+      probe.emergency_staging_cleanup = true;
+    }
+    probe.final_config_restored = readFileSync(configPath).equals(originalConfig);
+    probe.final_staging_path_absent = !existsSync(stagingPath);
+    writeFileSync(join(evidence, "installed-chocolatey-probe.json"), JSON.stringify(probe, null, 2));
+  }
+
+  assert(probe.final_config_restored, "Installed Chocolatey probe recovery must leave exact original config bytes");
+  assert(probe.final_staging_path_absent, "Installed Chocolatey probe recovery must leave no staging path");
+  if (failure) throw failure;
+  return probe;
+}
+
+function installedProbeScript(probeSource) {
+  return `$ErrorActionPreference = 'Stop'
+${credentialTransaction}
+$probeSource = ${powerShellLiteral(probeSource)}
+Invoke-ChocolateyCredentialTransaction -Source $probeSource -Operation {
+  param($configuredSource)
+  $probeArguments = @('apikey', 'list', '--source', $configuredSource, '--limit-output')
+  $startInfo = New-Object Diagnostics.ProcessStartInfo
+  $startInfo.FileName = $env:SENDMUX_INSTALLED_CHOCO_PATH
+  $startInfo.Arguments = 'apikey list --source "' + $configuredSource + '" --limit-output'
+  $startInfo.UseShellExecute = $false
+  $startInfo.CreateNoWindow = $true
+  $startInfo.RedirectStandardOutput = $true
+  $startInfo.RedirectStandardError = $true
+  $credentialEnvironmentPresent = $startInfo.EnvironmentVariables.ContainsKey('CHOCOLATEY_API_KEY')
+  $process = New-Object Diagnostics.Process
+  $process.StartInfo = $startInfo
+  if (-not $process.Start()) { throw 'Installed Chocolatey probe process did not start.' }
+  $probePid = $process.Id
+  [Console]::Out.WriteLine("SENDMUX_CHOCO_PROBE_PID=$probePid")
+  [Console]::Out.Flush()
+  $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+  $stderrTask = $process.StandardError.ReadToEndAsync()
+  $process.WaitForExit()
+  $probeExitCode = $process.ExitCode
+  $receipt = [ordered]@{
+    pid = $probePid
+    argv = $probeArguments
+    credential_environment_present = $credentialEnvironmentPresent
+    stdout = $stdoutTask.GetAwaiter().GetResult()
+    stderr = $stderrTask.GetAwaiter().GetResult()
+    exit_code = $probeExitCode
+  }
+  $process.Dispose()
+  Write-Output ('SENDMUX_CHOCO_PROBE_RECEIPT=' + ($receipt | ConvertTo-Json -Compress))
+  Set-Variable -Name LASTEXITCODE -Value $probeExitCode -Scope 1
+}
+`;
+}
+
+async function runCapturedProcess({ command, args, env, label }) {
+  const owner = startWindowsConsumer(command, args, { cwd: root, env, stdio: ["ignore", "pipe", "pipe"] });
+  const child = owner.child;
+  const receipt = { pid: child.pid, command, args, label, stdout: "", stderr: "" };
+  console.log(JSON.stringify({ child_pid: child.pid, command, label }));
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => { receipt.stdout += chunk; });
+  child.stderr.on("data", (chunk) => { receipt.stderr += chunk; });
+  let timedOut = false;
+  let shutdownTimer;
+  let rejectShutdown;
+  const shutdownFailed = new Promise((_, reject) => { rejectShutdown = reject; });
+  const timer = setTimeout(() => {
+    timedOut = true;
+    try { owner.stop(); } catch (error) { receipt.stop_error = error.message; }
+    shutdownTimer = setTimeout(() => {
+      try { child.kill("SIGKILL"); } catch (error) { receipt.kill_error = error.message; }
+      child.stdout.destroy();
+      child.stderr.destroy();
+      child.unref();
+      rejectShutdown(new Error(`Installed Chocolatey probe shutdown unconfirmed: ${child.pid}`));
+    }, 2000);
+  }, 20000);
+  const closed = new Promise((accept, reject) => {
+    child.once("error", reject);
+    child.once("close", accept);
+  });
+  receipt.status = await Promise.race([closed, shutdownFailed]).finally(() => {
+    clearTimeout(timer);
+    clearTimeout(shutdownTimer);
+  });
+  receipt.timed_out = timedOut;
+  receipt.job = await owner.confirm();
+  receipt.absent = absent(child.pid);
+  assert(!receipt.job.orphan, "Installed Chocolatey command must not leave an owned descendant");
+  assert(!receipt.stop_error && !receipt.kill_error, "Installed Chocolatey command shutdown must be confirmed");
+  console.log(JSON.stringify({ child_closed: child.pid, label, status: receipt.status, timed_out: timedOut }));
+  return receipt;
+}
+
+function powerShellLiteral(value) {
+  return `'${value.replaceAll("'", "''")}'`;
+}
 
 async function runCase(candidate, scenario) {
   const directory = mkdtempSync(join(tmpdir(), "sendmux-windows-native-exit-"));
@@ -349,6 +561,20 @@ function stepScript(workflow, name) {
   const run = block.indexOf(marker);
   assert.notEqual(run, -1, `Workflow step must expose an actual multiline run block: ${name}`);
   return block.slice(run + marker.length).split("\n").map((line) => line.startsWith("          ") ? line.slice(10) : line).join("\n").trimEnd();
+}
+
+function powerShellFunction(source, name) {
+  const declaration = `function ${name} {`;
+  const start = source.indexOf(declaration);
+  assert.notEqual(start, -1, `Missing PowerShell function in extracted publisher: ${name}`);
+  let depth = 0;
+  for (let index = source.indexOf("{", start); index < source.length; index += 1) {
+    if (source[index] === "{") depth += 1;
+    if (source[index] !== "}") continue;
+    depth -= 1;
+    if (depth === 0) return source.slice(start, index + 1);
+  }
+  assert.fail(`Unterminated PowerShell function in extracted publisher: ${name}`);
 }
 
 async function assertServerCleanup(row, fixture) {

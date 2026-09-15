@@ -24,6 +24,185 @@ const windowsPowerShellEnv = Object.fromEntries(
   Object.entries(process.env).filter(([name]) => name.toUpperCase() !== "PSMODULEPATH"),
 );
 
+const OAUTH_REFRESH_BOUNDARY_PRELOAD = String.raw`
+import fs from "node:fs";
+import path from "node:path";
+import { syncBuiltinESMExports } from "node:module";
+
+const RESOURCE = "oauth_refresh_boundary";
+const VERSION = 1;
+const startedAt = process.hrtime.bigint();
+let sequence = 0;
+
+const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+if (!xdgConfigHome) throw new Error("XDG_CONFIG_HOME is required for OAuth refresh diagnostics.");
+
+const configDirectory = normalizePath(path.resolve(xdgConfigHome, "sendmux"));
+const configPath = normalizePath(path.join(configDirectory, "config.json"));
+const lockPath = normalizePath(path.join(configDirectory, "config.json.lock"));
+
+function normalizePath(value) {
+  const resolved = path.resolve(value);
+  return process.platform === "win32" ? resolved.toLowerCase() : resolved;
+}
+
+function classifyPath(value) {
+  if (typeof value !== "string") return null;
+  const normalized = normalizePath(value);
+  if (normalized === configDirectory) return "config_dir";
+  if (normalized === configPath) return "config";
+  if (normalized === lockPath) return "config_lock";
+  if (
+    normalizePath(path.dirname(normalized)) === configDirectory &&
+    /^config\.json\.\d+\.tmp$/.test(path.basename(normalized))
+  )
+    return "config_temp";
+  return null;
+}
+
+function elapsedMilliseconds() {
+  return Number((process.hrtime.bigint() - startedAt) / 1_000_000n);
+}
+
+function addErrorFields(event, error, includeCause = false) {
+  if (typeof error?.name === "string") event.error_name = error.name;
+  if (typeof error?.code === "string") event.error_code = error.code;
+  if (includeCause && typeof error?.cause?.name === "string")
+    event.cause_name = error.cause.name;
+  if (includeCause && typeof error?.cause?.code === "string")
+    event.cause_code = error.cause.code;
+}
+
+function emit(event) {
+  try {
+    process.stderr.write(
+      JSON.stringify({
+        resource: RESOURCE,
+        version: VERSION,
+        pid: process.pid,
+        seq: ++sequence,
+        elapsed_ms: elapsedMilliseconds(),
+        ...event,
+      }) + "\n",
+    );
+  } catch {}
+}
+
+async function observeFilesystem(operation, target, details, call) {
+  try {
+    const result = await call();
+    emit({ boundary: "fs", operation, target, ...details, outcome: "success" });
+    return result;
+  } catch (error) {
+    const event = { boundary: "fs", operation, target, ...details, outcome: "error" };
+    addErrorFields(event, error);
+    emit(event);
+    throw error;
+  }
+}
+
+function wrapLockHandle(handle) {
+  const originalClose = handle.close;
+  handle.close = function (...args) {
+    return observeFilesystem("close", "config_lock", {}, () =>
+      Reflect.apply(originalClose, this, args),
+    );
+  };
+  return handle;
+}
+
+function patchFilesystem(
+  operation,
+  classify,
+  transform = (value) => value,
+  details = () => ({}),
+) {
+  const original = fs.promises[operation];
+  fs.promises[operation] = function (...args) {
+    const target = classify(args);
+    if (!target) return Reflect.apply(original, this, args);
+    return observeFilesystem(operation, target, details(args), () =>
+      Promise.resolve(Reflect.apply(original, this, args)).then(transform),
+    );
+  };
+}
+
+patchFilesystem("mkdir", ([value]) =>
+  classifyPath(value) === "config_dir" ? "config_dir" : null,
+);
+patchFilesystem(
+  "open",
+  ([value]) => (classifyPath(value) === "config_lock" ? "config_lock" : null),
+  wrapLockHandle,
+  ([, flags]) => (flags === "wx" ? { exclusive: true } : {}),
+);
+for (const operation of ["stat", "unlink"])
+  patchFilesystem(operation, ([value]) =>
+    classifyPath(value) === "config_lock" ? "config_lock" : null,
+  );
+patchFilesystem("readFile", ([value]) =>
+  classifyPath(value) === "config" ? "config" : null,
+);
+for (const operation of ["writeFile", "chmod"])
+  patchFilesystem(operation, ([value]) => {
+    const target = classifyPath(value);
+    return target === "config" || target === "config_temp" ? target : null;
+  });
+patchFilesystem("rename", ([source, destination]) =>
+  classifyPath(source) === "config_temp" && classifyPath(destination) === "config"
+    ? "config_temp_to_config"
+    : null,
+);
+syncBuiltinESMExports();
+
+function classifyFetchTarget(input) {
+  try {
+    const value = typeof Request !== "undefined" && input instanceof Request ? input.url : input;
+    const pathname = new URL(value).pathname;
+    if (pathname === "/oauth/token") return "oauth_token";
+    if (pathname === "/api/v1/me") return "management_api";
+  } catch {}
+  return "other";
+}
+
+function classifyFetchMethod(input, init) {
+  const value = init?.method ??
+    (typeof Request !== "undefined" && input instanceof Request ? input.method : "GET");
+  const method = typeof value === "string" ? value.toUpperCase() : "OTHER";
+  return method === "GET" || method === "POST" ? method : "OTHER";
+}
+
+const originalFetch = globalThis.fetch;
+globalThis.fetch = async function (...args) {
+  const target = classifyFetchTarget(args[0]);
+  const method = classifyFetchMethod(args[0], args[1]);
+  try {
+    const response = await Reflect.apply(originalFetch, this, args);
+    emit({
+      boundary: "fetch",
+      operation: "fetch",
+      target,
+      method,
+      outcome: "response",
+      status: response.status,
+      ok: response.ok,
+    });
+    return response;
+  } catch (error) {
+    const event = {
+      boundary: "fetch",
+      operation: "fetch",
+      target,
+      method,
+      outcome: "error",
+    };
+    addErrorFields(event, error, true);
+    emit(event);
+    throw error;
+  }
+};
+`;
+
 async function claimDirectory(path) {
   await mkdir(path);
   const descriptor = await lstat(path);
@@ -340,7 +519,130 @@ async function cli(t, state, args, authorize = false) {
     }
   }
   const [code] = await closed;
-  return { code, stdout, stderr, callbackResponse };
+  return { pid: child.pid, code, stdout, stderr, callbackResponse };
+}
+
+function projectOAuthRefreshBoundaryEvents(stderr) {
+  const operations = {
+    mkdir: new Set(["config_dir"]),
+    open: new Set(["config_lock"]),
+    close: new Set(["config_lock"]),
+    stat: new Set(["config_lock"]),
+    unlink: new Set(["config_lock"]),
+    readFile: new Set(["config"]),
+    writeFile: new Set(["config", "config_temp"]),
+    chmod: new Set(["config", "config_temp"]),
+    rename: new Set(["config_temp_to_config"]),
+  };
+  const projected = [];
+  for (const line of stderr.split(/\r?\n/)) {
+    let event;
+    try {
+      event = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    if (
+      event?.resource !== "oauth_refresh_boundary" ||
+      event.version !== 1 ||
+      !Number.isInteger(event.pid) ||
+      !Number.isInteger(event.seq) ||
+      !Number.isInteger(event.elapsed_ms) ||
+      !["success", "error", "response"].includes(event.outcome)
+    )
+      continue;
+    const safe = {
+      resource: "oauth_refresh_boundary",
+      version: 1,
+      pid: event.pid,
+      seq: event.seq,
+      elapsed_ms: event.elapsed_ms,
+      boundary: event.boundary,
+      operation: event.operation,
+      target: event.target,
+      outcome: event.outcome,
+    };
+    if (
+      event.boundary === "fs" &&
+      operations[event.operation]?.has(event.target) &&
+      (event.outcome === "success" || event.outcome === "error")
+    ) {
+      if (event.operation === "open" && event.exclusive === true) safe.exclusive = true;
+      if (typeof event.error_name === "string") safe.error_name = event.error_name;
+      if (typeof event.error_code === "string") safe.error_code = event.error_code;
+      projected.push(safe);
+    } else if (
+      event.boundary === "fetch" &&
+      event.operation === "fetch" &&
+      ["oauth_token", "management_api", "other"].includes(event.target) &&
+      ["GET", "POST", "OTHER"].includes(event.method) &&
+      (event.outcome === "response" || event.outcome === "error")
+    ) {
+      safe.method = event.method;
+      if (event.outcome === "response") {
+        if (!Number.isInteger(event.status) || typeof event.ok !== "boolean") continue;
+        safe.status = event.status;
+        safe.ok = event.ok;
+      } else {
+        for (const name of ["error_name", "error_code", "cause_name", "cause_code"])
+          if (typeof event[name] === "string") safe[name] = event[name];
+      }
+      projected.push(safe);
+    }
+  }
+  return projected;
+}
+
+function projectOAuthRefreshConcurrencyReceipt(
+  results,
+  refreshCount,
+  requests,
+  finalProfile,
+) {
+  return {
+    resource: "oauth_refresh_concurrency_receipt",
+    version: 1,
+    children: results.map(({ pid, code }) => ({
+      pid: Number.isInteger(pid) ? pid : null,
+      code: Number.isInteger(code) ? code : null,
+    })),
+    refresh_count: refreshCount,
+    request_counts: {
+      oauth_token: requests.filter((request) => request.path === "/oauth/token").length,
+      management_api: requests.filter((request) => request.path === "/api/v1/me")
+        .length,
+    },
+    final_profile: finalProfile,
+  };
+}
+
+async function observeFinalOAuthProfile(configPath) {
+  try {
+    const config = JSON.parse(await readFile(configPath, "utf8"));
+    const profile = config?.profiles?.native;
+    const states = new Set([
+      "active",
+      "refreshing",
+      "reauthorize",
+      "revoking",
+      "authorizing",
+    ]);
+    return {
+      read: "ok",
+      type: profile === undefined ? "missing" : profile?.type === "oauth" ? "oauth" : "other",
+      state:
+        profile?.state === undefined
+          ? "missing"
+          : states.has(profile.state)
+            ? profile.state
+            : "other",
+    };
+  } catch (error) {
+    const result = { read: error?.code === "ENOENT" ? "missing" : "error" };
+    if (typeof error?.name === "string") result.error_name = error.name;
+    if (typeof error?.code === "string") result.error_code = error.code;
+    return result;
+  }
 }
 
 const login = (t, state, authorize = true) =>
@@ -535,6 +837,9 @@ test("expired profiles rotate once across concurrent CLI requests", async (t) =>
   state.authorizationLifetime = 1;
   state.refreshDelay = 150;
   assert.equal((await login(t, state)).code, 0);
+  state.preload = join(state.directory, "oauth-refresh-boundaries.mjs");
+  await writeFile(state.preload, OAUTH_REFRESH_BOUNDARY_PRELOAD);
+  const requestStartIndex = state.requests.length;
   const results = await Promise.all(
     [1, 2].map(() =>
       cli(t, state, [
@@ -543,6 +848,20 @@ test("expired profiles rotate once across concurrent CLI requests", async (t) =>
         "native",
         "--json",
       ]),
+    ),
+  );
+  const finalProfile = await observeFinalOAuthProfile(state.configPath);
+  for (const result of results)
+    for (const event of projectOAuthRefreshBoundaryEvents(result.stderr))
+      console.log(JSON.stringify(event));
+  console.log(
+    JSON.stringify(
+      projectOAuthRefreshConcurrencyReceipt(
+        results,
+        state.refreshes,
+        state.requests.slice(requestStartIndex),
+        finalProfile,
+      ),
     ),
   );
   for (const result of results) assert.equal(result.code, 0, result.stderr);

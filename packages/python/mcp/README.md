@@ -26,7 +26,9 @@ This package is the Sendmux MCP. Keep it separate from any documentation-search 
 - A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox tools.
 - A root `smx_root_*` key for Management tools.
 
-## Unreleased 2.0.0 upgrade
+<a id="unreleased-200-upgrade"></a>
+
+## 2.0.0 upgrade
 
 Version 2.0.0 removes local `file_path` and roots inputs from MCP attachment
 tools. Before upgrading a self-managed package or server, retain the prior

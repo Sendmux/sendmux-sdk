@@ -1,32 +1,22 @@
 # Changelog
 
-## Unreleased
-
-### Changed
-
-- **Breaking:** MCP attachment tools no longer accept local paths or roots.
-  Use presigned uploads for files, or inline base64 for content within the
-  tool's limit. See
-  [the 2.0.0 upgrade and rollback guidance](README.md#unreleased-200-upgrade).
-  This contract change is prepared for package version `2.0.0`.
-
-### Features
-
-* negotiate MCP 2026-07-28 stateless discovery while retaining 2025-11-25 clients
-* add an OAuth-protected A2A 1.0 HTTP+JSON endpoint with full hosted-operation parity
-* add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
-
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.8.0...python-mcp-v2.0.0) (2026-09-15)
 
 
 ### ⚠ BREAKING CHANGES
 
 * **mcp:** remove local file_path attachment inputs and require bounded inline or delegated uploads.
+  MCP attachment tools no longer accept local paths or roots. Use presigned
+  uploads for files, or inline base64 for content within the tool's limit. See
+  [the 2.0.0 upgrade and rollback guidance](README.md#2000-upgrade).
 
 ### Features
 
 * **mcp:** generate package contract and verify native release state ([a3ae281](https://github.com/Sendmux/sendmux-sdk/commit/a3ae281122d2c7a77dce0842ca3a2c7ce489afe0))
 * **mcp:** modernize protocol and FastMCP runtime ([5fdab35](https://github.com/Sendmux/sendmux-sdk/commit/5fdab35b95b66de971fdcb1eb15c38f6c47d4730))
+* negotiate MCP 2026-07-28 stateless discovery while retaining 2025-11-25 clients
+* add an OAuth-protected A2A 1.0 HTTP+JSON endpoint with full hosted-operation parity
+* add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
 
 
 ### Bug Fixes

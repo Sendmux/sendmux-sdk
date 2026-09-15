@@ -349,19 +349,24 @@ export async function waitForMailbox(
     const remainingBeforeFetch = deadline - Date.now();
     if (remainingBeforeFetch <= 0) throw mailboxReadinessTimeoutError();
 
+    const signal = AbortSignal.timeout(remainingBeforeFetch);
     let response: Response;
+    let body: Record<string, unknown>;
     try {
       response = await fetch(`${profile.appApiBaseUrl}/mailbox/me`, {
         headers: { Authorization: `Bearer ${profile.accessToken}` },
         redirect: "error",
-        signal: AbortSignal.timeout(remainingBeforeFetch),
+        signal,
       });
+      if (response.ok) {
+        await response.body?.cancel();
+        return;
+      }
+      body = await responseJson(response);
     } catch (error) {
-      if (isAbortError(error) || Date.now() >= deadline) throw mailboxReadinessTimeoutError();
+      if (signal.aborted || isAbortError(error) || Date.now() >= deadline) throw mailboxReadinessTimeoutError();
       throw error;
     }
-    if (response.ok) return;
-    const body = await responseJson(response);
     const errorCode =
       typeof body.error === "object" && body.error !== null && !Array.isArray(body.error) && "code" in body.error
         ? body.error.code

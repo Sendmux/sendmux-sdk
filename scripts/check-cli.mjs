@@ -1696,6 +1696,22 @@ async function assertAgentAuthNetworkBoundaries() {
     if (Date.now() - retryStartedAt > 500) {
       throw new Error("agent mailbox Retry-After exceeded the remaining timeout budget");
     }
+
+    let readinessBodyCancelled = false;
+    globalThis.fetch = async () => new Response(new ReadableStream({
+      cancel() { readinessBodyCancelled = true; },
+    }), { status: 200 });
+    await waitForMailbox(profile, 50);
+    if (!readinessBodyCancelled) {
+      throw new Error("Successful mailbox readiness must cancel its unused response body");
+    }
+
+    globalThis.fetch = async (_url, options) => new Response(new ReadableStream({
+      start(controller) {
+        options.signal.addEventListener("abort", () => controller.error(options.signal.reason), { once: true });
+      },
+    }), { status: 503 });
+    await expectMailboxTimeout(() => waitForMailbox(profile, 50));
   } finally {
     globalThis.fetch = originalFetch;
   }

@@ -52,11 +52,13 @@ final class CoreTest extends TestCase
     public function testCursorIteration(): void
     {
         $pages = [
-            null => new CursorResponse([1, 2], new CursorPagination(true, 'next')),
+            '<initial>' => new CursorResponse([1, 2], new CursorPagination(true, 'next')),
             'next' => new CursorResponse([3], new CursorPagination(false, null)),
         ];
 
-        $items = iterator_to_array(Pagination::iterate(static fn (?string $cursor): object => $pages[$cursor]));
+        $items = iterator_to_array(
+            Pagination::iterate(static fn (?string $cursor): object => $pages[$cursor ?? '<initial>'])
+        );
 
         self::assertSame([1, 2, 3], $items);
     }

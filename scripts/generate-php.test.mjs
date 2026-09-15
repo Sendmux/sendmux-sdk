@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { cpSync, mkdirSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -118,5 +118,60 @@ echo json_encode($versions, JSON_THROW_ON_ERROR);
 `], { cwd: directory, captureOutput: true }));
     assert.deepEqual(installed, versions);
     console.log(JSON.stringify({ independent_split_versions: installed }));
+  });
+});
+
+await test("PHP split verification installs every candidate against synthetic sibling versions", async () => {
+  await workspace("php-split-independent-installs", async (directory) => {
+    const versions = {
+      core: "91.2.3",
+      sending: "92.3.4",
+      mailbox: "93.4.5",
+      management: "94.5.6",
+      sdk: "95.6.7",
+    };
+    let checker = readFileSync(join(root, "scripts/check-php-splits.mjs"), "utf8");
+
+    for (const [name, version] of Object.entries(versions)) {
+      const packageRoot = join(directory, "packages", "php", name);
+      cpSync(join(root, "packages", "php", name), packageRoot, { recursive: true });
+      const manifestPath = join(packageRoot, "composer.json");
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      for (const dependency of Object.keys(manifest.require)) {
+        const sibling = dependency.match(/^sendmux\/(.+)$/)?.[1];
+        if (sibling) manifest.require[dependency] = `^${versions[sibling]}`;
+      }
+      writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      checker = checker.replace(new RegExp(`(\\{ name: "${name}",[^}]+)(})`), (_, fields, end) =>
+        fields.replace(/, fixtureVersion: "[^"]+"/, "").trimEnd() + `, fixtureVersion: "${version}" ` + end);
+    }
+
+    writeFileSync(join(directory, "check-php-splits.mjs"), checker);
+    await run(process.execPath, ["check-php-splits.mjs"], { cwd: directory });
+
+    const internalDependencies = {
+      core: [],
+      sending: ["core"],
+      mailbox: ["core"],
+      management: ["core"],
+      sdk: ["core", "sending", "mailbox", "management"],
+    };
+    for (const [name, dependencies] of Object.entries(internalDependencies)) {
+      const splitRoot = join(directory, ".tmp", "php-splits", `sendmux-php-${name}`);
+      assert(existsSync(join(splitRoot, "vendor", "autoload.php")), `${name} split was not installed independently`);
+      const installed = JSON.parse(await run("php", ["-r", String.raw`
+require 'vendor/autoload.php';
+$versions = [];
+foreach (${JSON.stringify(dependencies)} as $name) {
+    $versions[$name] = ltrim(Composer\InstalledVersions::getPrettyVersion('sendmux/' . $name), 'v');
+}
+echo json_encode($versions, JSON_THROW_ON_ERROR);
+`], { cwd: splitRoot, captureOutput: true }));
+      const expected = dependencies.length
+        ? Object.fromEntries(dependencies.map(dependency => [dependency, versions[dependency]]))
+        : [];
+      assert.deepEqual(installed, expected);
+      console.log(JSON.stringify({ split: name, installed }));
+    }
   });
 });

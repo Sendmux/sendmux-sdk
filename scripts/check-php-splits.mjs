@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -31,6 +31,21 @@ for (const pkg of packages) {
       throw new Error(`${pkg.repo} split is missing ${requiredFile}`);
     }
   }
+  const manifestPath = join(target, "composer.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.repositories = packages
+    .filter((candidate) => manifest.require?.[candidate.composer])
+    .map((candidate) => ({
+      type: "path",
+      url: `../${candidate.repo}`,
+      options: {
+        symlink: false,
+        versions: {
+          [candidate.composer]: candidate.fixtureVersion,
+        },
+      },
+    }));
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   run("composer", ["validate", "--strict", "composer.json"], { cwd: target });
 }
 
@@ -63,6 +78,12 @@ writeFileSync(
 );
 
 run("composer", ["install", "--no-interaction", "--no-progress"], { cwd: consumerRoot });
+for (const pkg of packages) {
+  const target = join(splitRoot, pkg.repo);
+  run("composer", ["install", "--no-interaction", "--no-progress", "--prefer-dist"], { cwd: target });
+  run("composer", ["check-platform-reqs"], { cwd: target });
+}
+run("composer", ["check-platform-reqs"], { cwd: consumerRoot });
 console.log(`PHP split dry-run verified in ${splitRoot}`);
 
 function run(command, args, options = {}) {

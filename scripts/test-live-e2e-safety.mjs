@@ -3,12 +3,12 @@ import { createServer } from "node:http";
 import test from "node:test";
 import * as sdk from "@sendmux/sdk";
 import { createFixtureRuntime, runAdapterStep, runLanguageSdkOperations, runMcpOperations, fetchWithTimeout, withAbortSignal, runChildHarness, selectOperations, buildOperationPlan, expectedCliErrorMatches, scenarios, operations, fixtures } from "./run-live-e2e.mjs";
-import { existsSync, mkdirSync, mkdtempSync as createTempDirectory, readFileSync, rmSync as removePath, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync as createTempDirectory, readFileSync, rmSync as removePath, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { configurationFromEnv, expectedPairs, validateRun } from "./live-e2e-contract.mjs";
+import { configurationFromEnv, expectedPairs, validateRecoveryLedger, validateRun } from "./live-e2e-contract.mjs";
 
 function mkdtempSync(prefix) {
   const path = createTempDirectory(prefix);
@@ -845,18 +845,52 @@ test("workflow runner or writer failure cannot authorize a historical audit uplo
     mkdirSync(join(dir, "docs"));
     const historical = join(dir, "docs", "live-e2e-audit-manifest.json");
     writeFileSync(historical, "historical evidence");
-    writeFileSync(join(dir, "bin", "node"), "#!/bin/sh\nexit 27\n", { mode: 0o700 });
+    writeFileSync(join(dir, "bin", "node"), "#!/bin/sh\ncase \"$1\" in\n  *run-live-e2e.mjs) mkdir -p .tmp/live-e2e/fresh-run; printf '%s\\n' '{\"runId\":\"fresh-run\",\"resources\":[{\"id\":\"folder_owned\",\"status\":\"failed\"}]}' > .tmp/live-e2e/fresh-run/resources.json; exit 19 ;;\n  *) exit 27 ;;\nesac\n", { mode: 0o700 });
     const output = join(dir, "output");
     writeFileSync(output, "");
     const result = spawnSync("bash", ["-e", "-c", certification.run], { cwd: dir, encoding: "utf8", env: { ...process.env, PATH: `${join(dir, "bin")}:${process.env.PATH}`, SENDMUX_LIVE_E2E_ADAPTERS: "sdk", SENDMUX_LIVE_E2E_OPERATIONS: "", SENDMUX_LIVE_E2E_RUN_ID: "fresh-run", GITHUB_OUTPUT: output, GITHUB_SHA: "a".repeat(40), GITHUB_RUN_ID: "fixture" } });
-    assert.equal(result.status, 27);
+    assert.equal(result.status, 19);
     assert.equal(readFileSync(output, "utf8"), "");
     assert.equal(readFileSync(historical, "utf8"), "historical evidence");
     assert.equal(existsSync(join(dir, ".tmp", "live-e2e", "fresh-run", "audit-manifest.json")), false);
-    const upload = steps.find(step => step.uses?.startsWith("actions/upload-artifact@"));
-    assert.equal(upload.if, "${{ always() && steps.certification.outputs.manifest_written == 'true' }}");
-    assert.equal(upload.with.path, ".tmp/live-e2e/${{ env.SENDMUX_LIVE_E2E_RUN_ID }}/audit-manifest.json");
+    const uploads = steps.filter(step => step.uses?.startsWith("actions/upload-artifact@"));
+    const auditUpload = uploads.find(step => step.with.name.startsWith("live-e2e-audit-"));
+    assert.equal(auditUpload.if, "${{ always() && steps.certification.outputs.manifest_written == 'true' }}");
+    assert.equal(auditUpload.with.path, ".tmp/live-e2e/${{ env.SENDMUX_LIVE_E2E_RUN_ID }}/audit-manifest.json");
+    assert.equal(auditUpload.with["include-hidden-files"], true);
+    const recovery = steps.find(step => step.id === "recovery");
+    const recoveryUpload = uploads.find(step => step.with.name.startsWith("live-e2e-recovery-"));
+    assert.equal(recovery.if, "${{ always() }}");
+    assert.equal(recoveryUpload.if, "${{ always() && steps.recovery.outputs.recovery_written == 'true' }}");
+    assert.equal(recoveryUpload.with.path, ".tmp/live-e2e/${{ env.SENDMUX_LIVE_E2E_RUN_ID }}/resources.json");
+    assert.equal(recoveryUpload.with["include-hidden-files"], true);
+    assert.equal(recoveryUpload.with["if-no-files-found"], "error");
+    mkdirSync(join(dir, "scripts"));
+    copyFileSync(join(process.cwd(), "scripts", "live-e2e-contract.mjs"), join(dir, "scripts", "live-e2e-contract.mjs"));
+    writeFileSync(output, "");
+    const recoveryEnv = { ...process.env, SENDMUX_LIVE_E2E_RUN_ID: "empty-run", GITHUB_OUTPUT: output };
+    assert.equal(spawnSync("bash", ["-e", "-c", recovery.run], { cwd: dir, encoding: "utf8", env: recoveryEnv }).status, 0);
+    assert.equal(readFileSync(output, "utf8"), "");
+    const ledgerPath = join(dir, ".tmp", "live-e2e", "fresh-run", "resources.json");
+    const currentRunRecoveryEnv = { ...recoveryEnv, SENDMUX_LIVE_E2E_RUN_ID: "fresh-run" };
+    assert.equal(spawnSync("bash", ["-e", "-c", recovery.run], { cwd: dir, encoding: "utf8", env: currentRunRecoveryEnv }).status, 0);
+    assert.equal(readFileSync(output, "utf8"), "recovery_written=true\n");
+    writeFileSync(output, "");
+    writeFileSync(ledgerPath, JSON.stringify({ runId: "fresh-run", resources: [{ id: "smx_mbx_private", status: "failed" }] }));
+    assert.notEqual(spawnSync("bash", ["-e", "-c", recovery.run], { cwd: dir, encoding: "utf8", env: currentRunRecoveryEnv }).status, 0);
+    assert.equal(readFileSync(output, "utf8"), "");
   } finally { rmSync(dir, { recursive: true }); }
+});
+
+test("recovery validation retains only the current run's sanitized unresolved ownership", () => {
+  const valid = { runId: "fresh-run", resources: [{ operationId: "mailboxCreateFolder", id: "folder_owned", path: { folder_id: "folder_owned" }, status: "failed" }] };
+  assert.equal(validateRecoveryLedger(valid, { runId: "fresh-run" }), valid);
+  for (const invalid of [
+    { ...valid, runId: "old-run" },
+    { ...valid, resources: [{ ...valid.resources[0], upload_url: "https://example.test/private" }] },
+    { ...valid, resources: [{ ...valid.resources[0], id: "smx_mbx_private" }] },
+    { ...valid, resources: [{ ...valid.resources[0], status: "invented" }] },
+  ]) assert.throws(() => validateRecoveryLedger(invalid, { runId: "fresh-run" }));
 });
 
 test("audit writer defaults to a fresh run path and refuses overwrites", () => {

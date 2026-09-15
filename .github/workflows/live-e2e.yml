@@ -119,15 +119,36 @@ jobs:
           set +e
           node scripts/run-live-e2e.mjs "${args[@]}"
           status=$?
-          set -e
           node scripts/write-live-e2e-audit-manifest.mjs \
             --result ".tmp/live-e2e/${SENDMUX_LIVE_E2E_RUN_ID}/result.json" \
             --out ".tmp/live-e2e/${SENDMUX_LIVE_E2E_RUN_ID}/audit-manifest.json" \
             --run-id "$SENDMUX_LIVE_E2E_RUN_ID" \
             --commit "$GITHUB_SHA" \
             --source "github-actions:${GITHUB_RUN_ID}"
-          echo "manifest_written=true" >> "$GITHUB_OUTPUT"
-          exit "$status"
+          writer_status=$?
+          set -e
+          if [ "$writer_status" -eq 0 ]; then
+            echo "manifest_written=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
+          exit "$writer_status"
+
+      - name: Validate this run's recovery ledger
+        id: recovery
+        if: ${{ always() }}
+        run: |
+          ledger_path=".tmp/live-e2e/${SENDMUX_LIVE_E2E_RUN_ID}/resources.json"
+          if [ ! -f "$ledger_path" ]; then
+            exit 0
+          fi
+          node --input-type=module - "$ledger_path" "$SENDMUX_LIVE_E2E_RUN_ID" <<'NODE'
+          import { readFileSync } from "node:fs";
+          import { validateRecoveryLedger } from "./scripts/live-e2e-contract.mjs";
+          validateRecoveryLedger(JSON.parse(readFileSync(process.argv[2], "utf8")), { runId: process.argv[3] });
+          NODE
+          echo "recovery_written=true" >> "$GITHUB_OUTPUT"
 
       - name: Add live E2E audit manifest to summary
         if: ${{ always() && steps.certification.outputs.manifest_written == 'true' }}
@@ -145,4 +166,15 @@ jobs:
           name: live-e2e-audit-${{ env.SENDMUX_LIVE_E2E_RUN_ID }}
           path: .tmp/live-e2e/${{ env.SENDMUX_LIVE_E2E_RUN_ID }}/audit-manifest.json
           if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 90
+
+      - name: Upload live E2E recovery ledger
+        if: ${{ always() && steps.recovery.outputs.recovery_written == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-e2e-recovery-${{ env.SENDMUX_LIVE_E2E_RUN_ID }}
+          path: .tmp/live-e2e/${{ env.SENDMUX_LIVE_E2E_RUN_ID }}/resources.json
+          if-no-files-found: error
+          include-hidden-files: true
           retention-days: 90

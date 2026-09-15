@@ -43,23 +43,13 @@ export function validateRun(result, { runId, sourceSha, scenarios }) {
   assertKnownFields(run.fixture_proof, ["teamId", "mailboxId", "mailboxEmail", "surfaces"]);
   for (const field of ["teamId", "mailboxId", "mailboxEmail"]) if (run.fixture_proof[field] !== undefined) assert.ok(typeof run.fixture_proof[field] === "string", "Invalid fixture identity field");
   if (run.fixture_proof.surfaces !== undefined) assert.ok(Array.isArray(run.fixture_proof.surfaces) && run.fixture_proof.surfaces.every(value => ["management", "mailbox", "sending"].includes(value)), "Invalid fixture surfaces");
-  assert.ok(run.cleanup && typeof run.cleanup.ok === "boolean" && Array.isArray(run.cleanup.resources), "Missing cleanup outcome");
-  assertKnownFields(run.cleanup, ["ok", "runId", "resources", "status"]);
+  assert.ok(run.cleanup && typeof run.cleanup.ok === "boolean", "Missing cleanup outcome");
+  validateRecoveryLedger({ ...run.cleanup, runId: run.cleanup.runId ?? runId }, { runId });
+  assert.ok(!/https?:\/\//.test(JSON.stringify(run.fixture_proof)), "Public fixture evidence contains a URL");
   for (const resource of run.cleanup.resources) {
-    assertKnownFields(resource, ["operationId", "kind", "id", "path", "status", "verification", "public_delete", "storage_cleanup", "url_expires_at", "reference_expires_at", "subject", "expected_count", "received_ids"]);
-    assert.ok(typeof resource.id === "string" && resource.id.length > 0 && typeof resource.status === "string", "Invalid resource identity/status");
-    for (const field of ["operationId", "kind", "verification", "storage_cleanup", "url_expires_at", "reference_expires_at", "subject"]) if (resource[field] !== undefined) assert.ok(typeof resource[field] === "string", "Invalid resource metadata field");
-    if (resource.public_delete !== undefined) assert.ok(resource.public_delete === false, "Invalid public deletion claim");
-    if (resource.expected_count !== undefined) assert.ok(Number.isInteger(resource.expected_count) && resource.expected_count > 0, "Invalid delivery count");
-    if (resource.received_ids !== undefined) assert.ok(Array.isArray(resource.received_ids) && resource.received_ids.every(id => typeof id === "string" && id.length > 0), "Invalid received-message IDs");
     if (resource.status === "captured") assert.ok(resource.kind === "self_delivery" && Array.isArray(resource.received_ids) && Number.isInteger(resource.expected_count), "Captured is only delivery evidence, not resource cleanup");
     if (resource.status === "expiry_only") assert.ok(resource.kind === "upload_intent" && resource.public_delete === false && resource.storage_cleanup === "no_uploaded_bytes" && typeof resource.url_expires_at === "string", "Expiry-only intent evidence must not claim uploaded-byte cleanup");
-    if (resource.path) {
-      assertKnownFields(resource.path, ["public_id", "key_id", "folder_id", "message_id"]);
-      assert.ok(Object.values(resource.path).every(value => typeof value === "string"), "Invalid resource path");
-    }
   }
-  assert.ok(!/https?:\/\//.test(JSON.stringify({ proof: run.fixture_proof, resources: run.cleanup.resources })), "Public fixture evidence contains a URL");
   if (run.cleanup.ok) {
     assert.ok(run.cleanup.resources.every(item => ["absent", "restored", "expiry_only", "captured"].includes(item.status)), "Cleanup success has unresolved resources");
     for (const delivery of run.cleanup.resources.filter(item => item.kind === "self_delivery")) {
@@ -78,6 +68,32 @@ export function validateRun(result, { runId, sourceSha, scenarios }) {
   validateResultPairs(result.results, pairs);
   assert.equal(result.ok, !result.results.some(item => ["failed", "unmet_precondition"].includes(item.status)) && run.cleanup.ok && !(result.errors?.length), "Incorrect run success claim");
   return result;
+}
+
+export function validateRecoveryLedger(ledger, { runId }) {
+  assert.ok(runId, "Expected run ID is required");
+  assert.match(runId, /^[a-zA-Z0-9_-]+$/, "Invalid expected run ID");
+  assertKnownFields(ledger, ["ok", "runId", "resources", "status"]);
+  assert.equal(ledger.runId, runId, "Run ID provenance mismatch");
+  assert.ok(Array.isArray(ledger.resources), "Missing recovery resources");
+  if (ledger.ok !== undefined) assert.equal(typeof ledger.ok, "boolean", "Invalid cleanup outcome");
+  if (ledger.status !== undefined) assert.ok(["incomplete", "blocked_active_work"].includes(ledger.status), "Invalid recovery status");
+  assert.ok(!/smx_(?:root|mbx|agent)_/.test(JSON.stringify(ledger)), "Recovery evidence contains a credential");
+  assert.ok(!/https?:\/\//.test(JSON.stringify(ledger)), "Recovery evidence contains a URL");
+  for (const resource of ledger.resources) {
+    assertKnownFields(resource, ["operationId", "kind", "id", "path", "status", "verification", "public_delete", "storage_cleanup", "url_expires_at", "reference_expires_at", "subject", "expected_count", "received_ids"]);
+    assert.ok(typeof resource.id === "string" && resource.id.length > 0 && typeof resource.status === "string", "Invalid resource identity/status");
+    assert.ok(["pending", "pending_delivery", "unverified_delivery", "unverified_retention", "failed", "absent", "restored", "expiry_only", "captured"].includes(resource.status), "Invalid resource status");
+    for (const field of ["operationId", "kind", "verification", "storage_cleanup", "url_expires_at", "reference_expires_at", "subject"]) if (resource[field] !== undefined) assert.ok(typeof resource[field] === "string", "Invalid resource metadata field");
+    if (resource.public_delete !== undefined) assert.ok(resource.public_delete === false, "Invalid public deletion claim");
+    if (resource.expected_count !== undefined) assert.ok(Number.isInteger(resource.expected_count) && resource.expected_count > 0, "Invalid delivery count");
+    if (resource.received_ids !== undefined) assert.ok(Array.isArray(resource.received_ids) && resource.received_ids.every(id => typeof id === "string" && id.length > 0), "Invalid received-message IDs");
+    if (resource.path) {
+      assertKnownFields(resource.path, ["public_id", "key_id", "folder_id", "message_id"]);
+      assert.ok(Object.values(resource.path).every(value => typeof value === "string"), "Invalid resource path");
+    }
+  }
+  return ledger;
 }
 
 function assertKnownFields(value, fields) {

@@ -66,7 +66,7 @@
     "@apiture/openapi-down-convert": "0.14.2",
     "@hey-api/openapi-ts": "0.97.3",
     "@openapitools/openapi-generator-cli": "2.32.0",
-    "@redocly/cli": "2.31.5",
+    "@redocly/cli": "2.51.2",
     "@sendmux/sdk": "workspace:*",
     "cross-spawn": "7.0.6",
     "esbuild": "0.28.1",
@@ -76,8 +76,9 @@
     "overrides": {
       "@opentelemetry/core": "2.8.0",
       "dompurify": "3.4.14",
+      "fast-uri": "3.1.7",
       "form-data": "4.0.6",
-      "js-yaml": "4.3.1",
+      "js-yaml": "4.3.2",
       "protobufjs": "7.6.5",
       "shell-quote": "1.9.0",
       "undici": "6.28.0"

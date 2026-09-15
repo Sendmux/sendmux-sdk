@@ -281,7 +281,8 @@ jobs:
               )
               $encryptedApiKey = [Convert]::ToBase64String($encryptedApiKeyBytes)
 
-              $configXml = [xml]([Text.Encoding]::UTF8.GetString($originalConfigBytes))
+              $configXml = New-Object Xml.XmlDocument
+              $configXml.Load($configPath)
               $apiKeysNode = $configXml.SelectSingleNode('/chocolatey/apiKeys')
               if ($null -eq $apiKeysNode) {
                 $apiKeysNode = $configXml.CreateElement('apiKeys')
@@ -297,7 +298,7 @@ jobs:
               $credentialEntry.SetAttribute('key', $encryptedApiKey)
               [void]$apiKeysNode.AppendChild($credentialEntry)
               $configXml.Save($stagingPath)
-              [IO.File]::Replace($stagingPath, $configPath, $null)
+              [IO.File]::Replace($stagingPath, $configPath, [System.Management.Automation.Language.NullString]::Value)
 
               $env:CHOCOLATEY_API_KEY = $null
               [Array]::Clear($apiKeyBytes, 0, $apiKeyBytes.Length)

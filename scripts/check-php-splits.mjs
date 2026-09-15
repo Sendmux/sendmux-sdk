@@ -9,9 +9,9 @@ const consumerRoot = join(root, ".tmp", "php-split-consumer");
 const packages = [
   { name: "core", composer: "sendmux/core", repo: "sendmux-php-core", fixtureVersion: "2.1.0" },
   { name: "sending", composer: "sendmux/sending", repo: "sendmux-php-sending", fixtureVersion: "2.1.0" },
-  { name: "mailbox", composer: "sendmux/mailbox", repo: "sendmux-php-mailbox", fixtureVersion: "2.1.0" },
+  { name: "mailbox", composer: "sendmux/mailbox", repo: "sendmux-php-mailbox", fixtureVersion: "3.0.0" },
   { name: "management", composer: "sendmux/management", repo: "sendmux-php-management", fixtureVersion: "2.1.0" },
-  { name: "sdk", composer: "sendmux/sdk", repo: "sendmux-php-sdk", fixtureVersion: "2.1.0" },
+  { name: "sdk", composer: "sendmux/sdk", repo: "sendmux-php-sdk", fixtureVersion: "3.0.0" },
 ];
 
 rmSync(splitRoot, { force: true, recursive: true });

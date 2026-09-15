@@ -17,10 +17,10 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 ## Installation
 
 ```bash
-composer require sendmux/sdk:^2.1
+composer require sendmux/sdk:^3.0
 ```
 
-Upgrading from 1.x? Read the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) before changing your Composer constraint.
+Before upgrading from 2.x, read the [Mailbox and SDK 3.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING-3.0.md). SDK 3.0 requires Mailbox 3.x; core, Sending, and Management remain on 2.x. If you use 1.x, apply the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) first.
 
 ## Usage
 

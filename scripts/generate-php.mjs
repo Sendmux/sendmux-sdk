@@ -21,7 +21,7 @@ const surfaces = [
   },
   {
     name: "mailbox",
-    artifactVersion: "2.1.0",
+    artifactVersion: "3.0.0",
     composerName: "sendmux/mailbox",
     namespace: "Sendmux\\Mailbox",
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",

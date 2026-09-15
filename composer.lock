@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "578d216e1618ce97ede6d06bd63ff587",
+    "content-hash": "0fd30f50e7cb4e528ea199b33ca1467b",
     "packages": [],
     "packages-dev": [
         {
@@ -2311,11 +2311,11 @@
         },
         {
             "name": "sendmux/mailbox",
-            "version": "2.1.0",
+            "version": "3.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/mailbox",
-                "reference": "5eb6a26e0f177f66df310a1b32d93b2f78f51c31"
+                "reference": "139ff283ab43bba4f44c9114194e06b41012a96b"
             },
             "require": {
                 "ext-curl": "*",
@@ -2375,16 +2375,16 @@
         },
         {
             "name": "sendmux/sdk",
-            "version": "2.1.0",
+            "version": "3.0.0",
             "dist": {
                 "type": "path",
                 "url": "packages/php/sdk",
-                "reference": "b06727aff6edf0e616f98da0829c6e87428986de"
+                "reference": "dd743246aa936d1a11e287fb918b1028208dc355"
             },
             "require": {
                 "php": "^8.2",
                 "sendmux/core": "^2.1",
-                "sendmux/mailbox": "^2.1",
+                "sendmux/mailbox": "^3.0",
                 "sendmux/management": "^2.1",
                 "sendmux/sending": "^2.1"
             },

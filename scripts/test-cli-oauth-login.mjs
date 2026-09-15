@@ -90,9 +90,7 @@ async function assertPrivatePath(path, mode) {
 }
 
 async function fixture(t, defaultConfigDir) {
-  const defaultConfigClaim = defaultConfigDir
-    ? await claimDirectory(defaultConfigDir)
-    : null;
+  let defaultConfigClaim = null;
   const state = {
     directory: null,
     defaultConfigDir,
@@ -132,6 +130,8 @@ async function fixture(t, defaultConfigDir) {
       console.log(JSON.stringify({ resource: "temp_directory", state: "removed", path: state.directory }));
     }
   });
+  if (defaultConfigDir)
+    defaultConfigClaim = await claimDirectory(defaultConfigDir);
   state.directory = await mkdtemp(join(tmpdir(), "sendmux-native-oauth-"));
   console.log(JSON.stringify({ resource: "temp_directory", state: "created", path: state.directory }));
   state.configPath = join(

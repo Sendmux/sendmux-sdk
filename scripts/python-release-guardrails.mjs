@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-export const pythonPackages = ["core", "sending", "mailbox", "management", "sdk", "mcp"];
+export const pythonPackages = ["core", "sending", "mailbox", "management", "sdk", "mcp", "langchain"];
 
 export function checkPythonSurfaceDependencyFloors({ root, changedPackages = readChangedPythonPackages({ root }) }) {
   const manifest = readManifest(root);
@@ -47,6 +47,22 @@ export function checkPythonMcpDependencyFloors({ root, changedPackages = readCha
     sourcePath: pyprojectPath,
     dependencies: [["sendmux-core", manifest["packages/python/core"]]],
     enforceManifestFloor: changedPackages.has("mcp"),
+  });
+}
+
+export function checkPythonLangchainDependencyFloors({ root, changedPackages = readChangedPythonPackages({ root }) }) {
+  const manifest = readManifest(root);
+  const pyprojectPath = join(root, "packages", "python", "langchain", "pyproject.toml");
+  const pyproject = readFileSync(pyprojectPath, "utf8");
+
+  checkDependencyFloors({
+    source: pyproject,
+    sourcePath: pyprojectPath,
+    dependencies: [
+      ["sendmux-sending", manifest["packages/python/sending"]],
+      ["sendmux-mailbox", manifest["packages/python/mailbox"]],
+    ],
+    enforceManifestFloor: changedPackages.has("langchain"),
   });
 }
 

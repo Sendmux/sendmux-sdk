@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* Require `sendmux-core>=1.3.1,<2.0.0` to preserve API errors during context-manager cleanup.
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.3.0...python-management-v1.4.0) (2026-09-10)
 
 

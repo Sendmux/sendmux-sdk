@@ -15,6 +15,19 @@ function main(): void
             $surface = $operation['surface'];
             $apis[$surface] ??= createApis($surface);
             $value = callOperation($apis[$surface], $operation);
+            if (!empty($operation['journalPath'])) {
+                $journalResult = cleanupResult(['cleanupSelectors' => $operation['journalSelectors']], $value);
+                if ($journalResult !== null) {
+                    $journal = fopen($operation['journalPath'], 'ab');
+                    if ($journal === false) throw new RuntimeException('Cannot open resource journal');
+                    try {
+                        $record = json_encode(['operationId' => $operation['operationId'], 'result' => $journalResult], JSON_THROW_ON_ERROR) . "\n";
+                        if (fwrite($journal, $record) !== strlen($record) || !fflush($journal) || !fsync($journal)) {
+                            throw new RuntimeException('Cannot persist resource journal');
+                        }
+                    } finally { fclose($journal); }
+                }
+            }
             assertResponse($operation, $value);
             $entry = [
                 'adapter' => 'php',
@@ -22,6 +35,9 @@ function main(): void
                 'status' => 'passed',
             ];
             $cleanup = cleanupResult($operation, $value);
+            if ($operation['returnResult'] ?? false) {
+                $entry['result'] = $value;
+            }
             if ($cleanup !== null) {
                 $entry['cleanup'] = $cleanup;
             }
@@ -32,7 +48,7 @@ function main(): void
                 $results[] = [
                     'adapter' => 'php',
                     'operationId' => $operation['operationId'],
-                    'status' => 'passed',
+                    'status' => 'expected_negative',
                 ];
                 continue;
             }
@@ -85,9 +101,6 @@ function callOperation(array $apis, array $operation): mixed
     if (($operation['responseKind'] ?? '') === 'binary' || $operation['operationId'] === 'mailboxGetMessageAttachment') {
         return callRawOperation($apis, $operation);
     }
-    if ($operation['operationId'] === 'mailboxGetChanges') {
-        return callRawJsonOperation($apis, $operation);
-    }
 
     $method = $operation['operationId'];
     foreach ($apis as $api) {
@@ -104,15 +117,6 @@ function callOperation(array $apis, array $operation): mixed
 function callStreamOperation(array $apis, array $operation): array
 {
     return firstSseEvent(callRawOperation($apis, $operation));
-}
-
-function callRawJsonOperation(array $apis, array $operation): array
-{
-    $decoded = json_decode(callRawOperation($apis, $operation), true, flags: JSON_THROW_ON_ERROR);
-    if (!is_array($decoded)) {
-        throw new RuntimeException("{$operation['operationId']} did not return a JSON object");
-    }
-    return $decoded;
 }
 
 function callRawOperation(array $apis, array $operation): string
@@ -288,7 +292,7 @@ function cleanupResult(array $operation, mixed $value): ?array
     $cleanup = [];
     foreach ($selectors as $selector) {
         $selected = valueAtPath($value, $selector);
-        if ($selected !== null) {
+        if (is_string($selected)) {
             setValueAtPath($cleanup, $selector, $selected);
         }
     }
@@ -353,7 +357,7 @@ function apiErrorCode(Throwable $error): ?string
         return null;
     }
     $decoded = json_decode($body, true);
-    return is_array($decoded) ? ($decoded['error']['code'] ?? null) : null;
+    return is_array($decoded) && ($decoded['ok'] ?? null) === false && is_string($decoded['meta']['request_id'] ?? null) && $decoded['meta']['request_id'] !== '' ? ($decoded['error']['code'] ?? null) : null;
 }
 
 function parameterName(string $source, string $value): string

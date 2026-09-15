@@ -1,24 +1,26 @@
 # Sendmux Go SDK
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go.svg)](https://pkg.go.dev/sendmux.ai/go)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2.svg)](https://pkg.go.dev/sendmux.ai/go/v2)
 
 Official Sendmux Go module for the Sending, Mailbox, and Management APIs.
 
 ## Install
 
+This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
+
 ```sh
-go get sendmux.ai/go@latest
+go get sendmux.ai/go/v2@v2.0.0
 ```
 
 ## Packages
 
 | Package | Import path | API key |
 | --- | --- | --- |
-| Core helpers | `sendmux.ai/go/core` | n/a |
-| Sending client | `sendmux.ai/go/sending` | `smx_mbx_*` or owner-approved `smx_agent_*` |
-| Mailbox client | `sendmux.ai/go/mailbox` | `smx_mbx_*` or `smx_agent_*` |
-| Management client | `sendmux.ai/go/management` | `smx_root_*` |
-| Module anchor | `sendmux.ai/go/sdk` | n/a |
+| Core helpers | `sendmux.ai/go/v2/core` | n/a |
+| Sending client | `sendmux.ai/go/v2/sending` | `smx_mbx_*` or owner-approved `smx_agent_*` |
+| Mailbox client | `sendmux.ai/go/v2/mailbox` | `smx_mbx_*` or `smx_agent_*` |
+| Management client | `sendmux.ai/go/v2/management` | `smx_root_*` |
+| Module anchor | `sendmux.ai/go/v2/sdk` | n/a |
 
 ## Connection checks
 
@@ -32,7 +34,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/management"
+	"sendmux.ai/go/v2/management"
 )
 
 func main() {
@@ -67,7 +69,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/sending"
+	"sendmux.ai/go/v2/sending"
 )
 
 func main() {
@@ -116,7 +118,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/mailbox"
+	"sendmux.ai/go/v2/mailbox"
 )
 
 func main() {
@@ -155,7 +157,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/management"
+	"sendmux.ai/go/v2/management"
 )
 
 func main() {
@@ -189,6 +191,14 @@ func main() {
 All three surface packages expose `NewWithAccessToken(token, opts...)` and `NewWithTokenProvider(provider, opts...)`. The provider has signature `func(context.Context) (string, error)` and runs for each authenticated request with its request context. Your application owns token storage, expiry checks and refresh coordination.
 
 Use a bare REST access token with the operation's required scopes and mailbox access. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth). Existing `New` constructors retain API-key prefix validation.
+
+## Version 2 migration candidate
+
+Version 2 is not published yet. When `go/v2.0.0` is available, change the module requirement and every Sendmux import from `sendmux.ai/go/...` to `sendmux.ai/go/v2/...` together.
+
+Thread-message list calls return `*mailbox.MailboxThreadMessageSummaryCursorListResponse`. Its metadata requires `ThreadID` and exposes optional `SyncState`; constructed thread results must provide the thread-specific `Meta` and `Ok` types. Ordinary message lists remain `*mailbox.MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose optional `SyncState` in their own metadata type. Other mailbox list metadata now exposes typed `IdentityState` or `QueryState` where the API supplies it.
+
+To roll back, restore the previous module requirement, imports, constructed response types, and lock or vendor state together. Do not mix v1 imports with v2 response fixtures.
 
 ## Runtime behaviour
 

@@ -121,7 +121,7 @@ OPENAPI_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         operation_id="mailboxSendMessage",
         name="mailbox_send_message",
         title="Send Mailbox Message",
-        description="Use this to send a message from the authenticated mailbox. For attachments, call mailbox_upload_attachment first using file_path, presign_upload_url, or tiny content_base64, then pass the returned blob_id. Include an Idempotency-Key for retries.",
+        description="Use this to send a message from the authenticated mailbox. For attachments, call mailbox_upload_attachment first using presign_upload_url or tiny content_base64, then pass the returned blob_id. Include an Idempotency-Key for retries.",
     ),
     ToolSpec(
         operation_id="mailboxListThreads",
@@ -173,7 +173,7 @@ MAILBOX_UPLOAD_ATTACHMENT_TOOL = ToolSpec(
     operation_id="mailboxUploadAttachment",
     name="mailbox_upload_attachment",
     title="Upload Attachment",
-    description="Use this before sending a mailbox attachment. Cheapest local mode is file_path on stdio MCP, guarded by client-declared roots and using no model-context bytes. Hosted or shell-capable agents should set presign_upload_url=true, then PUT the file to the short-lived URL and send the returned blob_id. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded.",
+    description="Use this before sending a mailbox attachment. For real files set presign_upload_url=true, then PUT the file to the short-lived URL and send the returned blob_id. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded.",
 )
 
 MAILBOX_CREATE_ATTACHMENT_UPLOAD_BACKING_TOOL = ToolSpec(
@@ -371,7 +371,7 @@ SENDING_UPLOAD_ATTACHMENT_TOOL = ToolSpec(
     operation_id="sendingUploadAttachment",
     name="sending_upload_attachment",
     title="Upload Attachment",
-    description="Use this before sending a Sending API attachment. Cheapest local mode is file_path on stdio MCP, guarded by client-declared roots and using no model-context bytes. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded. The returned attachment_id goes in sending_send_email attachments[].",
+    description="Use this before sending a Sending API attachment. Use content_base64 only for tiny agent-authored files; it is capped at 32 KiB decoded. For real files use sending_create_attachment_upload and PUT outside model context. The returned attachment_id goes in sending_send_email attachments[].",
 )
 
 SENDING_UPLOAD_ATTACHMENT_BACKING_TOOL = ToolSpec(
@@ -515,15 +515,17 @@ def customise_component(route: Any, component: Any) -> None:
     ensure_parameter_descriptions(component)
     if has_text_response(route):
         component.output_schema = None
+    elif isinstance(component.output_schema, dict):
+        component.output_schema.setdefault("$schema", "https://json-schema.org/draft/2020-12/schema")
 
 
 def tool_annotations(tool: ToolSpec) -> ToolAnnotations:
     read_only = tool.operation_id in READ_ONLY_OPERATION_IDS
     return ToolAnnotations(
-        readOnlyHint=read_only,
-        destructiveHint=tool.operation_id in DESTRUCTIVE_OPERATION_IDS,
-        idempotentHint=read_only or tool.operation_id in IDEMPOTENT_WRITE_OPERATION_IDS,
-        openWorldHint=True,
+        read_only_hint=read_only,
+        destructive_hint=tool.operation_id in DESTRUCTIVE_OPERATION_IDS,
+        idempotent_hint=read_only or tool.operation_id in IDEMPOTENT_WRITE_OPERATION_IDS,
+        open_world_hint=True,
     )
 
 

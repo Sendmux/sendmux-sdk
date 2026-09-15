@@ -6,6 +6,7 @@ import json
 import os
 import pkgutil
 import re
+from datetime import date, datetime
 from typing import Any
 
 from sendmux_core.errors import SendmuxApiError
@@ -30,6 +31,7 @@ def main() -> None:
                 apis[surface] = api_objects
 
             value = call_operation(api_objects, operation)
+            journal_result(operation, value)
             assert_response(operation, value)
             results.append(
                 cleanup_entry(
@@ -43,12 +45,12 @@ def main() -> None:
                 )
             )
         except SendmuxApiError as error:
-            if error.code in (operation.get("expectedErrorCodes") or []):
+            if error.request_id and error.code in (operation.get("expectedErrorCodes") or []):
                 results.append(
                     {
                         "adapter": "python",
                         "operationId": operation["operationId"],
-                        "status": "passed",
+                        "status": "expected_negative",
                     }
                 )
             else:
@@ -93,8 +95,6 @@ def call_operation(api_objects: list[Any], operation: dict[str, Any]) -> Any:
         method_name = f"{method_name}_without_preload_content"
     if operation["operationId"] == "mailboxGetMessageAttachment" or operation.get("responseKind") == "binary":
         method_name = f"{method_name}_without_preload_content"
-    if operation["operationId"] == "mailboxGetChanges":
-        method_name = f"{method_name}_without_preload_content"
     for api in api_objects:
         method = getattr(api, method_name, None)
         if callable(method):
@@ -104,8 +104,6 @@ def call_operation(api_objects: list[Any], operation: dict[str, Any]) -> Any:
                 return first_sse_event(value)
             if operation["operationId"] == "mailboxGetMessageAttachment" or operation.get("responseKind") == "binary":
                 return raw_binary_response(value)
-            if operation["operationId"] == "mailboxGetChanges":
-                return raw_json_response(value)
             return normalise(value)
     raise ValueError(f"Python SDK operation {operation['operationId']} is not exported")
 
@@ -158,15 +156,6 @@ def first_sse_event(response: Any) -> dict[str, Any]:
     raise AssertionError("mailboxStreamEvents did not yield an SSE data event")
 
 
-def raw_json_response(response: Any) -> dict[str, Any]:
-    chunk = response.read(decode_content=True)
-    text = chunk.decode("utf-8", errors="replace") if isinstance(chunk, bytes) else str(chunk)
-    decoded = json.loads(text)
-    if not isinstance(decoded, dict):
-        raise AssertionError("raw JSON response was not an object")
-    return decoded
-
-
 def raw_binary_response(response: Any) -> bytes:
     chunk = response.read(decode_content=True)
     if isinstance(chunk, bytes):
@@ -203,6 +192,8 @@ def assert_response(operation: dict[str, Any], value: Any) -> None:
 
 
 def cleanup_entry(entry: dict[str, Any], operation: dict[str, Any], value: Any) -> dict[str, Any]:
+    if operation.get("returnResult"):
+        entry["result"] = value
     selectors = operation.get("cleanupSelectors") or []
     cleanup: dict[str, Any] = {}
     for selector in selectors:
@@ -214,13 +205,34 @@ def cleanup_entry(entry: dict[str, Any], operation: dict[str, Any], value: Any) 
     return entry
 
 
+def journal_result(operation: dict[str, Any], value: Any) -> None:
+    if not operation.get("journalPath"):
+        return
+    result: dict[str, Any] = {}
+    for selector in operation.get("journalSelectors") or []:
+        selected = value_at_path(value, selector)
+        if isinstance(selected, str):
+            set_value_at_path(result, selector, selected)
+    if result:
+        with open(operation["journalPath"], "a", encoding="utf-8") as journal:
+            journal.write(json.dumps({"operationId": operation["operationId"], "result": result}) + "\n")
+            journal.flush()
+            os.fsync(journal.fileno())
+
+
 def normalise(value: Any) -> Any:
+    if isinstance(value, (date, datetime)):
+        return value.isoformat().replace("+00:00", "Z")
+    if isinstance(value, dict):
+        return {key: normalise(child) for key, child in value.items()}
+    if isinstance(value, list):
+        return [normalise(child) for child in value]
     if isinstance(value, (bytes, bytearray, str)):
         return value
-    if hasattr(value, "model_dump"):
-        return value.model_dump(mode="json")
     if hasattr(value, "to_dict"):
-        return value.to_dict()
+        return normalise(value.to_dict())
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json", by_alias=True)
     if hasattr(value, "data"):
         return normalise(value.data)
     return value

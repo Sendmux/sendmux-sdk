@@ -107,6 +107,12 @@ pager.each { |mailbox| puts mailbox.id }
 
 Generated API errors are mapped to `Sendmux::Core::ApiError`.
 
+## Version 2 migration candidate
+
+Version 2 is not published yet. The umbrella Mailbox client adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose optional typed `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose typed state metadata where applicable.
+
+When the release is available, update `sendmux-sdk`, `sendmux-mailbox`, the bundle lock, and affected call sites or fixtures together. To roll back, restore the previous gem requirements, lock, and call sites together.
+
 ## Support
 
 - Documentation: https://sendmux.ai/docs

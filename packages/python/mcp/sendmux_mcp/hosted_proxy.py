@@ -14,6 +14,7 @@ from sendmux_mcp.config import Surface
 from sendmux_mcp.curation import HOSTED_BACKING_TOOLS_BY_SURFACE, OPENAPI_TOOLS_BY_SURFACE
 from sendmux_mcp.observability import get_posthog_observability
 from sendmux_mcp.permissions import permissions_for_tool
+from sendmux_mcp.response_ownership import close_response, own_response
 from sendmux_mcp.specs import operation_routes
 
 HOP_BY_HOP_HEADERS = {
@@ -31,7 +32,6 @@ HOP_BY_HOP_HEADERS = {
     "proxy-authorization",
     "proxy-connection",
 }
-
 @dataclass(frozen=True)
 class HostedProxyConfig:
     proxy_url: str
@@ -124,7 +124,16 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
                 mailbox_id=mailbox_id,
             )
             raise
-        proxy_body = await proxy_response.aread()
+        own_response(proxy_response)
+        try:
+            if proxy_response.is_stream_consumed:
+                proxy_body = proxy_response.content
+                proxy_headers = decoded_response_headers(proxy_response.headers)
+            else:
+                proxy_body = b"".join([chunk async for chunk in proxy_response.aiter_raw()])
+                proxy_headers = proxy_response.headers
+        finally:
+            await close_response(proxy_response)
         capture_proxy_attempt(
             method=request.method,
             route=route,
@@ -138,7 +147,7 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
 
         return httpx.Response(
             status_code=proxy_response.status_code,
-            headers=proxy_response.headers,
+            headers=proxy_headers,
             content=proxy_body,
             extensions=proxy_response.extensions,
             request=request,
@@ -174,6 +183,13 @@ class HostedProxyTransport(httpx.AsyncBaseTransport):
             body=body,
             mailbox_id=mailbox_id,
         )
+
+
+def decoded_response_headers(headers: httpx.Headers) -> httpx.Headers:
+    decoded = headers.copy()
+    decoded.pop("content-encoding", None)
+    decoded.pop("content-length", None)
+    return decoded
 
 
 def build_hosted_proxy_request(

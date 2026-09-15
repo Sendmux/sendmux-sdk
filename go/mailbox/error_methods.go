@@ -1,6 +1,6 @@
 package mailbox
 
-import "sendmux.ai/go/core"
+import "sendmux.ai/go/v2/core"
 
 // APIError maps MailboxBatchDeleteMessagesBadRequest into the shared typed API error.
 func (r *MailboxBatchDeleteMessagesBadRequest) APIError() *core.APIError {

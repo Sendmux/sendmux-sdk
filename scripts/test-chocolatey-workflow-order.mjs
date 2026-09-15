@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const workflow = readFileSync(".github/workflows/chocolatey.yml", "utf8");
+const workflow = readFileSync(".github/workflows/chocolatey.yml", "utf8").replaceAll("\r\n", "\n");
 
 const zipUpload = stepBlock("Attach CLI ZIP assets to release");
 const generatePackages = stepBlock("Generate Chocolatey packages");
@@ -12,6 +12,7 @@ const packageUpload = stepBlock("Attach Chocolatey package artefacts to release"
 const pushPackages = stepBlock("Push to Chocolatey");
 const skipPushNotice = stepBlock("Skip Chocolatey push notice");
 const packageJobHeader = workflow.slice(workflow.indexOf("  package:"), workflow.indexOf("    steps:"));
+const pushScript = runScript(pushPackages.text);
 
 assert(
   zipUpload.start < testPackages.start,
@@ -33,9 +34,14 @@ assert.doesNotMatch(
   "Package upload must not duplicate the pre-test CLI ZIP upload.",
 );
 assert.match(
+  packageJobHeader,
+  /^\s+USE_LOCAL_CHOCOLATEY_ASSET: \$\{\{ github\.event_name == 'pull_request' \|\| \(github\.event_name == 'workflow_dispatch' && inputs\.push != true\) \}\}$/m,
+  "PRs and non-publishing workflow dispatches must share the local-asset decision.",
+);
+assert.match(
   generatePackages.text,
-  /github\.event_name.*pull_request/s,
-  "PR Chocolatey package generation must override the download URL.",
+  /if \[ "\$USE_LOCAL_CHOCOLATEY_ASSET" = "true" \]; then/,
+  "Non-publishing workflow dispatch package generation must use the local-asset decision.",
 );
 assert.match(
   generatePackages.text,
@@ -45,12 +51,17 @@ assert.match(
 assert.match(
   testPackages.text,
   /scripts\/serve-static\.mjs/,
-  "PR Chocolatey package tests must serve the just-built ZIP locally.",
+  "Local-asset Chocolatey package tests must serve the just-built ZIP locally.",
+);
+assert.match(
+  testPackages.text,
+  /if \(\$env:USE_LOCAL_CHOCOLATEY_ASSET -eq 'true'\)/,
+  "Non-publishing workflow dispatch package tests must use the local-asset decision.",
 );
 assert.match(
   testPackages.text,
   /Stop-Process/,
-  "PR Chocolatey package tests must stop the local ZIP server.",
+  "Local-asset Chocolatey package tests must stop the local ZIP server.",
 );
 assert.doesNotMatch(
   packageJobHeader,
@@ -76,6 +87,12 @@ assert.match(
   skipPushNotice.text,
   /env\.HAS_CHOCOLATEY_API_KEY != 'true'/,
   "The skipped-push notice must use the non-secret availability flag.",
+);
+assert.doesNotMatch(pushScript, /^\s*choco\s+apikey\b/im, "Chocolatey key provisioning must not expose the key in argv.");
+assert.doesNotMatch(
+  pushScript,
+  /(?:^|\s)(?:-k|--key|--apikey|--api-key)(?=\s|=|$)/im,
+  "Chocolatey publisher commands must not use a key-bearing option.",
 );
 
 for (const upload of [zipUpload, packageUpload]) {

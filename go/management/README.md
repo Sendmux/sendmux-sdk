@@ -1,19 +1,21 @@
 # Sendmux Go management client
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/management.svg)](https://pkg.go.dev/sendmux.ai/go/management)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2/management.svg)](https://pkg.go.dev/sendmux.ai/go/v2/management)
 
 Go client for managing domains, mailboxes, sending accounts, billing, logs, and webhooks.
 
 ## Install
 
+This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
+
 ```sh
-go get sendmux.ai/go@latest
+go get sendmux.ai/go/v2@v2.0.0
 ```
 
 ## Import
 
 ```go
-import "sendmux.ai/go/management"
+import "sendmux.ai/go/v2/management"
 ```
 
 ## Authentication
@@ -42,7 +44,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/management"
+	"sendmux.ai/go/v2/management"
 )
 
 func main() {
@@ -84,4 +86,6 @@ func main() {
 
 - Management API: <https://sendmux.ai/docs/api/introduction>
 - Domain guide: <https://sendmux.ai/docs/guides/domain-management>
-- Go reference: <https://pkg.go.dev/sendmux.ai/go/management>
+- Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/management>
+
+The v2 module and reference page are release candidates until tag `go/v2.0.0` is published.

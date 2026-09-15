@@ -1,6 +1,6 @@
 package sending
 
-import "sendmux.ai/go/core"
+import "sendmux.ai/go/v2/core"
 
 // APIError maps SendingCompleteAttachmentUploadBadRequest into the shared typed API error.
 func (r *SendingCompleteAttachmentUploadBadRequest) APIError() *core.APIError {

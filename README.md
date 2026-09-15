@@ -155,11 +155,11 @@ For outbound files, avoid manually placing base64 in prompts or source strings. 
 - CLI: `sendmux mailbox:send-message --attach ./report.pdf` or `sendmux sending:send --attach ./report.pdf`.
 - TypeScript: use `@sendmux/mailbox/node` `sendMailboxMessageWithFiles(...)` or `@sendmux/sending/node` `sendEmailWithFiles(...)`.
 - Python: use `sendmux_mailbox.send_mailbox_message_with_files(...)` or `sendmux_sending.send_email_with_files(...)`.
-- MCP: local stdio can use `mailbox_upload_attachment` with `file_path`; hosted and shell-capable agents can mint a presigned upload URL, `PUT` bytes to it without an API key, then send with the returned `blob_id`.
+- MCP: agents can mint a presigned upload URL, `PUT` bytes to it without an API key, then send with the returned `blob_id`.
 
-Mailbox direct uploads, presigned uploads, CLI `--attach`, and mailbox SDK file helpers share the mailbox attachment cap: currently `7,500,000` bytes per attachment. Sending API attachment helpers encode files into the send request body; the generated Sending API limit is max 10 attachments and a 25 MB request body.
+Mailbox direct uploads, presigned uploads, CLI `--attach`, and mailbox SDK file helpers share the mailbox attachment cap: currently `7,500,000` bytes per attachment. Sending API attachment helpers upload file bytes and send attachment references; the generated Sending API limit is max 10 attachments and a 25 MB request body.
 
-Small generated attachments can still use inline base64 where the API schema supports them. MCP inline base64 is capped at `32 KiB` decoded; the cheaper alternatives are `file_path`, presigned upload, CLI `--attach`, and SDK file helpers.
+Small generated attachments can still use inline base64 where the API schema supports them. MCP inline base64 is capped at `32 KiB` decoded; use presigned upload, CLI `--attach`, or SDK file helpers for real files.
 
 Live mailbox events are available through idiomatic lanes:
 
@@ -169,6 +169,8 @@ Live mailbox events are available through idiomatic lanes:
 - MCP: use `mailbox_wait_for_message` for bounded waits inside agent tool calls, then `mailbox_get_attachment` to renew attachment metadata and fetch `download_url`.
 
 ## Repository structure
+
+Maintainers: use the [protected live E2E matrix](docs/live-e2e-matrix.md) for credential-free planning, explicit identity/send gates, cleanup evidence, and fresh-run audit rules. Static coverage and expected API negatives are not live capability certification. Attachment byte scenarios require trusted retention verification before live execution.
 
 | Path | Purpose |
 | --- | --- |
@@ -184,6 +186,43 @@ Live mailbox events are available through idiomatic lanes:
 | [`.github/workflows`](.github/workflows) | CI, canary, live E2E, and release workflows. |
 
 ## Versioning and support
+
+### Maintain package contracts
+
+In a source checkout, maintainers can inspect the generated [MCP package contract](packages/python/mcp/sendmux_mcp/mcp-contract.json) for the actual tool catalogue, schemas, upload workflows, hosted resource, and frozen protocol revisions. It describes this checkout, not the version already available from a package registry. Source hashes and native distribution metadata bind the artifact to its inputs; local transports and upstream API origins are separate from the hosted OAuth resource.
+
+With the workspace dependencies installed and Python 3.10 or newer available, run these commands from the repository root:
+
+```sh
+pnpm generate:mcp
+pnpm test:release-state
+pnpm build:mcp
+```
+
+Generation refreshes editable Python metadata before discovering tools without upstream requests. The build checks wheel and source-distribution contents, an installed-wheel consumer outside the checkout, and the frozen conformance requirements. `pnpm drift:check` rejects generated changes that have not been staged or committed. Regenerate and review the contract when a release PR changes MCP's native version; do not reuse a contract from the previous version.
+
+Native release validation covers TypeScript, Python, Rust, Ruby, and Go's component/tag convention. Go has no in-module version field. PHP versions belong to split-repository tags, not `composer.version` or release-please; Composer identities and dependencies are checked without treating a local path-repository version as publication evidence. Exact published tags and versions remain release gates.
+
+### Verify runtime compatibility from source
+
+Maintainers: the [CI workflow](.github/workflows/ci.yml) separates the generation/static build from language runtime checks. A configured cell is a required check, not a claim that an unreleased checkout has passed remotely. Compatibility floors aren't recommendations to deploy upstream-EOL runtimes.
+
+| Runtime | Required CI cells | Candidate package boundary |
+| --- | --- | --- |
+| Node | 22, 24, 26 on Ubuntu, macOS, Windows | Six explicitly installed tarballs and CLI |
+| Python | 3.10–3.14 on Ubuntu | Seven wheels with runtime tests; seven sdists with isolated installation |
+| Go | 1.23.4, 1.26, 1.27 on Ubuntu | External module with an explicit candidate replacement; no toolchain auto-upgrade |
+| PHP | 8.2–8.5 on Ubuntu | Five individual splits and an all-local umbrella consumer |
+| Ruby | 3.1, 3.2, 3.3, 3.4.1, 4.0 on Ubuntu | Five locally installed gems; development tooling only on 3.4.1 |
+| Rust | 1.82.0 and stable/latest on Ubuntu | Independent source locks, verified crate, separately locked floor consumer |
+
+After the corresponding source build, run `node scripts/ci-consumers.mjs node`, `python`, `go`, or `ruby` from the repository root to verify installed imports outside the checkout. Python's repository-only MCP contract/packaging tests remain in source checks; the wheel consumer runs runtime tests and installed `load_contract()` without source-path injection. PHP uses `node scripts/check-php-splits.mjs` for the all-local composition check; individual splits can resolve published sibling dependencies and aren't that proof.
+
+Linux Node cells additionally run `node scripts/ci-consumers.mjs ai` for the 12 exact AI/Zod pairs recorded in that helper. The candidate AI wrapper requires Zod 3.25.76 or newer and retains AI 5/6/7 coverage, including the historical AI 5.0.0/Zod 4.0.0 intersection. The published 0.4.0 wrapper still advertises the older Zod floor; this correction requires a later release.
+
+For Rust, run the locked all-target/all-feature and doc tests with `cargo +1.82.0`, then `node scripts/ci-consumers.mjs rust` with stable and 1.82.0 installed (stable needs Clippy). That helper resolves latest dependencies in a temporary copy, tests and verifies `cargo +stable package --locked`, and checks the unpacked crate using `rust/ci/floor-consumer/Cargo.lock`. It never substitutes the library's embedded lock for the consumer lock. [Surface coverage](docs/surface-coverage.md) and [Rust operation decisions](rust/operation-decisions.json) distinguish named methods from partial/raw/unsupported operations.
+
+### Package release boundaries
 
 SDK packages track the Sendmux public API contracts. Patch versions can differ between packages when a fix only affects one ecosystem or runtime.
 

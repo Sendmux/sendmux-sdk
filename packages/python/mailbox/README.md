@@ -172,6 +172,12 @@ for message in iter_cursor_pages(lambda cursor: api.mailbox_list_messages(cursor
     print(message.id)
 ```
 
+## Version 2 migration candidate
+
+Version 2 is not published yet. Thread-message list calls return `MailboxThreadMessageSummaryCursorListResponse`; its metadata requires `thread_id` and exposes optional typed `sync_state`. Constructed thread results must use the thread-specific response and metadata models. Ordinary message-list calls remain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose their own typed sync state. Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
+
+When the release is available, update `sendmux-mailbox`, its lockfile, and affected annotations or fixtures together. To roll back, restore the previous package requirement, lockfile, and call sites together.
+
 ## Support
 
 Open an issue in [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk/issues) with the package name, version, and request ID from any API error.

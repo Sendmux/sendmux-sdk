@@ -16,11 +16,17 @@ Read the PHP SDK guide at [sendmux.ai/docs/sdks/php](https://sendmux.ai/docs/sdk
 
 ## Installation
 
+Run this command only after
+[Packagist lists `sendmux/mailbox` version 3.0.0](https://packagist.org/packages/sendmux/mailbox).
+Until then, retain your existing Composer constraint.
+
 ```bash
-composer require sendmux/mailbox:^2.1
+composer require sendmux/mailbox:^3.0
 ```
 
-Upgrading from 1.x? Read the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) before changing your Composer constraint.
+Before upgrading from 2.x, read the [Mailbox 3.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING-3.0.md) for the changes-response return types. If you use 1.x, apply the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) first.
+
+If your custom Guzzle client uses `FileCookieJar` or `SessionCookieJar`, back up its state and re-authenticate into a fresh jar when upgrading. Guzzle rejects old records without a boolean `HostOnly`; do not guess that value. Default Sendmux API clients do not enable cookies. See the [upstream migration warning](https://github.com/guzzle/guzzle/security/advisories/GHSA-wm3w-8rrp-j577).
 
 ## Usage
 

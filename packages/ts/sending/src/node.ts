@@ -1,4 +1,6 @@
-import { readFile, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
 import { sendingSendEmail, sendingUploadAttachment } from "./generated/sdk.gen.js";
@@ -9,6 +11,10 @@ import type {
   EmailSendRequest,
   SendSuccessResponse,
 } from "./generated/types.gen.js";
+
+const MAX_SENDING_ATTACHMENTS = 10;
+// Absolute Sending service ceiling; deployment policy may impose a lower limit.
+const MAX_SENDING_ATTACHMENT_BYTES = 18 * 1024 * 1024;
 
 export interface NodeFileAttachment {
   contentType?: string;
@@ -85,10 +91,22 @@ export async function sendEmailWithFiles({
   files,
   headers,
 }: SendEmailWithFilesOptions): Promise<SendSuccessResponse> {
+  if ((body.attachments?.length ?? 0) + files.length > MAX_SENDING_ATTACHMENTS) {
+    throw new Error(`Sending email supports at most ${MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.`);
+  }
   const attachments: Attachment[] = [];
-  for (const file of files) {
+  const idempotencyKey = headers?.["Idempotency-Key"]?.trim();
+  for (const [index, file] of files.entries()) {
     const upload = await uploadAttachmentFromFile({
       client,
+      ...(idempotencyKey ? {
+        headers: {
+          // Match CLI/Python derivation; changed bytes must retain the key and conflict at upload.
+          "Idempotency-Key": createHash("sha256")
+            .update(`sendmux:sending:attachment:${index}:${idempotencyKey}`)
+            .digest("hex"),
+        },
+      } : {}),
       ...(typeof file === "string"
         ? { filePath: file }
         : attachmentOptions({ contentType: file.contentType, filePath: file.path, filename: file.filename })),
@@ -123,9 +141,23 @@ async function readAttachmentFile(input: NodeFileAttachmentInput): Promise<ReadA
   if (info.size === 0) {
     throw new Error(`Attachment file is empty: ${file.path}`);
   }
+  if (info.size > MAX_SENDING_ATTACHMENT_BYTES) {
+    throw new Error(`Attachment file exceeds ${MAX_SENDING_ATTACHMENT_BYTES} bytes: ${file.path}`);
+  }
+
+  const chunks: Buffer[] = [];
+  // Read one excess byte to detect growth without loading or uploading an unbounded file.
+  for await (const chunk of createReadStream(file.path, { end: MAX_SENDING_ATTACHMENT_BYTES })) chunks.push(chunk);
+  const bytes = Buffer.concat(chunks);
+  if (bytes.length === 0) {
+    throw new Error(`Attachment file is empty: ${file.path}`);
+  }
+  if (bytes.length > MAX_SENDING_ATTACHMENT_BYTES) {
+    throw new Error(`Attachment file exceeds ${MAX_SENDING_ATTACHMENT_BYTES} bytes: ${file.path}`);
+  }
 
   return {
-    bytes: await readFile(file.path),
+    bytes,
     contentType: file.contentType ?? inferContentType(file.path),
     filename: file.filename ?? basename(file.path),
   };

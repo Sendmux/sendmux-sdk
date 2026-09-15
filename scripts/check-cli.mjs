@@ -7,6 +7,7 @@ import { createServer } from "node:http";
 import { once } from "node:events";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { pathToFileURL } from "node:url";
 import { spawnCommandSync } from "./windows-command-shims.mjs";
 
 const cliPath = "packages/ts/cli/bin/run.js";
@@ -19,6 +20,13 @@ const agentKey = "smx_agent_testkey1234567890";
 const durableAgentKey = "smx_agent_durable_read_testkey1234567890";
 const delegatedAgentSendKey = "smx_agent_delegated_send_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
+// Same authentication response budget as the existing oauth-http.ts transport.
+const oauthResponseByteLimit = 256 * 1024;
+const sendingAttachmentLimit = JSON.parse(readFileSync(
+  new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
+)).components.schemas.EmailSendRequest.properties.attachments.maxItems;
+// Sending's absolute ceiling: smtp-proxy/app/http-api/v1/lib/attachment-validation.js.
+const sendingAttachmentByteLimit = 18 * 1024 * 1024;
 const envelope = {
   ok: true,
   data: {
@@ -57,13 +65,24 @@ if (oauthCheck.status !== 0) throw new Error("CLI OAuth verification failed");
 
 const serverState = {
   readinessAttempts: 0,
+  restReadinessAttempts: 0,
+  forbiddenReadinessAttempts: 0,
   crossProfileRegistrationRequests: 0,
   registrationIdempotencyKeys: [],
   registrations: 0,
   requests: [],
+  sendingUploads: new Map(),
+  sendingSends: new Map(),
+  nextAttachment: 0,
+  nextMessage: 0,
   tokenExchanges: 0,
+  authStreamClosed: undefined,
+  authRedirectPath: undefined,
+  authStall: undefined,
+  authPending: undefined,
 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
+console.log(JSON.stringify({ workspace: tempHome, owner_pid: process.pid }));
 const server = createServer(async (request, response) => {
   const chunks = [];
   for await (const chunk of request) {
@@ -108,6 +127,24 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = request.url ?? "";
+  if (requestUrl === serverState.authStall?.path) {
+    serverState.authStall.closed = once(response, "close");
+    if (serverState.authStall.stage === "body") {
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.write("{");
+    }
+    return;
+  }
+  if (requestUrl === serverState.authRedirectPath) {
+    response.writeHead(307, { Location: "/redirected-agent-auth" });
+    response.end();
+    return;
+  }
+  if (requestUrl === "/redirected-agent-auth") {
+    response.writeHead(200, { "Content-Type": "application/json" });
+    response.end("{}");
+    return;
+  }
   if (request.method === "GET" && ["/me", "/mailbox/connection"].includes(requestUrl)) {
     response.setHeader("Content-Type", "application/json");
     response.end(JSON.stringify(connectionEnvelope));
@@ -151,15 +188,33 @@ const server = createServer(async (request, response) => {
     }
     const accessToken = profileName === "durable-agent" ? durableAgentKey : `${durableAgentKey}_${profileName}`;
     const registrationId = profileName === "durable-agent" ? "areg_cli_durable" : `areg_cli_${profileName}`;
-    response.writeHead(201, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({
+    const registrationBody = JSON.stringify({
       access_token: accessToken,
       mailbox: { email: `${profileName}@myagent.mx`, status: "provisioning" },
       registration_id: registrationId,
       registration_type: "anonymous",
       scope: "mailbox.read email.receive",
       token_type: "Bearer",
-    }));
+    });
+    const responseBody = profileName === "oversized-auth-agent"
+      ? registrationBody.padEnd(oauthResponseByteLimit + 1, " ")
+      : profileName === "at-limit-auth-agent" ? registrationBody.padEnd(oauthResponseByteLimit, " ") : registrationBody;
+    const responseHeaders = { "Content-Type": "application/json" };
+    if (["oversized-auth-agent", "at-limit-auth-agent"].includes(profileName)) {
+      responseHeaders["Content-Length"] = Buffer.byteLength(responseBody);
+    }
+    if (profileName === "truncated-auth-agent") {
+      responseHeaders["Content-Length"] = Buffer.byteLength(responseBody) + 1;
+      responseHeaders.Connection = "close";
+    }
+    response.writeHead(201, responseHeaders);
+    if (profileName === "streamed-auth-agent") {
+      serverState.authStreamClosed = once(response, "close");
+      response.write(registrationBody.padEnd(oauthResponseByteLimit + 1, " "));
+      // Intentionally no end or Content-Length: the client must cancel after its byte budget.
+      return;
+    }
+    response.end(responseBody);
     return;
   }
 
@@ -172,6 +227,41 @@ const server = createServer(async (request, response) => {
       response.writeHead(401, { "Content-Type": "application/json" });
       response.end(JSON.stringify({ error: "wrong durable token" }));
       return;
+    }
+    if (authorization === `Bearer ${durableAgentKey}_forbidden-agent`) {
+      serverState.forbiddenReadinessAttempts += 1;
+      if (serverState.forbiddenReadinessAttempts === 1) {
+        response.writeHead(403, {
+          "Content-Type": "application/json", "Cache-Control": "no-store", "X-Request-Id": "req_cli_forbidden",
+        });
+        response.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: "insufficient_permissions", message: "This access token lacks the required permission: mailbox.read",
+            doc_url: "https://sendmux.ai/docs/api/errors#insufficient_permissions", retryable: false,
+          },
+          meta: { request_id: "req_cli_forbidden" },
+        }));
+        return;
+      }
+    }
+    if (authorization === `Bearer ${durableAgentKey}_rest-ready-agent`) {
+      serverState.restReadinessAttempts += 1;
+      if (serverState.restReadinessAttempts === 1) {
+        response.writeHead(503, {
+          "Content-Type": "application/json", "Cache-Control": "no-store",
+          "Retry-After": "1", "X-Request-Id": "req_cli_rest_readiness",
+        });
+        response.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: "service_unavailable", message: "Mailbox provisioning is still in progress. Please retry shortly.",
+            doc_url: "https://sendmux.ai/docs/api/errors#service_unavailable", retryable: true,
+          },
+          meta: { request_id: "req_cli_rest_readiness" },
+        }));
+        return;
+      }
     }
     if (authorization === `Bearer ${durableAgentKey}`) {
       serverState.readinessAttempts += 1;
@@ -235,22 +325,56 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === "POST" && requestUrl.startsWith("/emails/attachments")) {
+    if (body.byteLength === 0) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({
+        ok: false, error: { code: "invalid_parameter", message: "Content-Length must be a positive integer.", param: "Content-Length", retryable: false },
+        meta: { request_id: "req_cli_empty" },
+      }));
+      return;
+    }
+    if (body.byteLength > sendingAttachmentByteLimit) {
+      response.writeHead(413, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({
+        ok: false, error: { code: "payload_too_large", message: "Attachment exceeds the maximum allowed size.", retryable: false },
+        meta: { request_id: "req_cli_size" },
+      }));
+      return;
+    }
     const url = new URL(requestUrl, "http://127.0.0.1");
     const filename = url.searchParams.get("filename") ?? "attachment.bin";
-    response.writeHead(201, {
-      "Content-Type": "application/json",
-      Location: `/emails/attachments/att_cli_${filename}`,
-    });
-    response.end(JSON.stringify({
+    const contentType = url.searchParams.get("content_type") ?? request.headers["content-type"] ?? "application/octet-stream";
+    // Production fingerprints filename/type/size/bytes, not just the upload body.
+    const fingerprint = JSON.stringify([filename, contentType, body.byteLength, createHash("sha256").update(body).digest("hex")]);
+    respondToSendingMutation(request, response, serverState.sendingUploads, fingerprint, 201, () => ({
       ok: true,
       data: {
-        attachment_id: "att_1234567890abcdefghijklmn",
-        content_type: request.headers["content-type"] ?? "application/octet-stream",
+        attachment_id: `att_${String(++serverState.nextAttachment).padStart(24, "0")}`,
+        content_type: contentType,
         expires_at: "2026-07-07T10:00:00.000Z",
         filename,
         size_bytes: body.byteLength,
       },
       meta: { request_id: "req_cli_sending_upload" },
+    }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/emails/send" && body.length && JSON.parse(body).attachments?.length) {
+    if (JSON.parse(body).attachments.length > sendingAttachmentLimit) {
+      response.writeHead(400, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({
+        ok: false, error: { code: "validation_error", message: "Too many attachments", retryable: false },
+        meta: { request_id: "req_cli_count" },
+      }));
+      return;
+    }
+    const canonicalBody = JSON.stringify(JSON.parse(body), (_key, value) => value && typeof value === "object" && !Array.isArray(value)
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]])) : value);
+    respondToSendingMutation(request, response, serverState.sendingSends, createHash("sha256").update(canonicalBody).digest("hex"), 200, () => ({
+      ok: true,
+      data: { message_id: `eml_${String(++serverState.nextMessage).padStart(24, "0")}`, status: "queued" },
+      meta: { request_id: "req_cli_sending_send" },
     }));
     return;
   }
@@ -306,6 +430,7 @@ const server = createServer(async (request, response) => {
 
 server.listen(0, "127.0.0.1");
 await once(server, "listening");
+console.log(JSON.stringify({ resource: "http_server", address: server.address(), state: "listening" }));
 
 try {
   assertCliPackageMetadata();
@@ -666,7 +791,7 @@ try {
     },
   ], "mailbox:send-message --attach must inject uploaded blob references");
 
-  const sendingAttachResult = await runCli([
+  const sendingAttachArgs = [
     "sending:send",
     "--api-key",
     mailboxKey,
@@ -682,7 +807,9 @@ try {
     "--attach",
     textAttachmentPath,
     "--json",
-  ]);
+  ];
+
+  const sendingAttachResult = await runCli(sendingAttachArgs);
 
   assertCliSuccess(sendingAttachResult, "sending:send --attach");
 
@@ -704,9 +831,161 @@ try {
   const sendingAttachBody = JSON.parse(sendingAttachSendRequest.body.toString("utf8"));
   assertDeepEqual(sendingAttachBody.attachments, [
     {
-      attachment_id: "att_1234567890abcdefghijklmn",
+      attachment_id: sendingAttachUploadRequest.responseBody.data.attachment_id,
     },
   ], "sending:send --attach must inject uploaded attachment references");
+  assertDeepEqual(sendingAttachUploadRequest.headers["idempotency-key"], undefined, "Unkeyed attachment upload must stay unkeyed");
+  const unkeyedRetry = await runCli(sendingAttachArgs);
+  assertCliSuccess(unkeyedRetry, "sending attachment unkeyed repeat");
+  if (JSON.parse(unkeyedRetry.stdout).data.message_id === JSON.parse(sendingAttachResult.stdout).data.message_id) {
+    throw new Error("Unkeyed repeated send must remain a new send");
+  }
+  if (latestRequest().body.equals(sendingAttachSendRequest.body)) {
+    throw new Error("Unkeyed repeated upload must create a fresh attachment");
+  }
+
+  const countBody = {
+    from: { email: "from@example.com" }, to: { email: "agent@example.com" },
+    subject: "Attachment limit", html_body: "<p>Attached</p>",
+  };
+  const countArgs = ["sending:send", "--base-url", baseUrl, "--json"];
+  const excessStart = serverState.requests.length;
+  const excessAttachments = await runCli([
+    ...countArgs, "--body", JSON.stringify(countBody),
+    ...Array(sendingAttachmentLimit + 1).fill(textAttachmentPath).flatMap((file) => ["--attach", file]),
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertDeepEqual(serverState.requests.length, excessStart, "Excess attachments must not upload files or send email");
+  // Oclif's JSON catch uses exitCode (default 1), while preserving oclif.exit in the error payload.
+  assertDeepEqual(excessAttachments.status, 1, "Excess attachments must fail in JSON mode");
+  assertDeepEqual(JSON.parse(excessAttachments.stdout).error.oclif.exit, 2, "Excess attachments must be a local usage error");
+  const existingAttachment = { attachment_id: "att_1234567890abcdefghijklmn" };
+  const existingStart = serverState.requests.length;
+  const existingLimit = await runCli([
+    ...countArgs, "--body", JSON.stringify({ ...countBody, attachments: Array(sendingAttachmentLimit).fill(existingAttachment) }),
+    "--attach", textAttachmentPath,
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertDeepEqual(serverState.requests.length, existingStart, "Existing references must count before uploading more files");
+  assertDeepEqual(existingLimit.status, 1, "Existing attachments over the limit must fail in JSON mode");
+  assertDeepEqual(JSON.parse(existingLimit.stdout).error.oclif.exit, 2, "Existing attachments over the limit must be a local usage error");
+  const boundaryStart = serverState.requests.length;
+  const attachmentBoundary = await runCli([
+    ...countArgs, "--body", JSON.stringify({ ...countBody, attachments: [existingAttachment] }),
+    ...Array(sendingAttachmentLimit - 1).fill(textAttachmentPath).flatMap((file) => ["--attach", file]),
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(attachmentBoundary, "Exactly the attachment limit must succeed");
+  const boundaryAttachments = JSON.parse(latestRequest().body).attachments;
+  assertDeepEqual(boundaryAttachments, [existingAttachment,
+    ...serverState.requests.slice(boundaryStart).filter((request) => request.url.startsWith("/emails/attachments"))
+      .map((request) => ({ attachment_id: request.responseBody.data.attachment_id })),
+  ], "At-limit send must preserve existing and uploaded references");
+  assertDeepEqual(boundaryAttachments.length, sendingAttachmentLimit, "At-limit send must keep every attachment");
+  const oversizedPath = join(tempHome, "oversized.txt");
+  writeFileSync(oversizedPath, Buffer.alloc(sendingAttachmentByteLimit + 1, "x"));
+  const oversizedStart = serverState.requests.length;
+  const oversizedResult = await runCli([
+    ...countArgs, "--body", JSON.stringify(countBody), "--attach", oversizedPath,
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertDeepEqual(serverState.requests.length, oversizedStart, "Oversized files must not be uploaded");
+  assertDeepEqual(oversizedResult.status, 1, "Oversized files must fail in JSON mode");
+  assertDeepEqual(JSON.parse(oversizedResult.stdout).error.oclif.exit, 2, "Oversized files must be a local usage error");
+  const growingPath = join(tempHome, "growing.txt");
+  writeFileSync(growingPath, "Before metadata check\n");
+  const growthHook = join(tempHome, "grow-after-stat.mjs");
+  writeFileSync(growthHook, [
+    'import filesystem from "node:fs/promises";',
+    'import { syncBuiltinESMExports } from "node:module";',
+    'const originalStat = filesystem.stat;',
+    'filesystem.stat = async (...args) => {',
+    '  const info = await originalStat(...args);',
+    '  if (args[0] === process.env.SENDMUX_TEST_GROWING_FILE) {',
+    '    await filesystem.writeFile(args[0], Buffer.alloc(Number(process.env.SENDMUX_TEST_GROWING_BYTES), "x"));',
+    '  }',
+    '  return info;',
+    '};',
+    'syncBuiltinESMExports();',
+  ].join("\n"));
+  for (const size of [sendingAttachmentByteLimit + 1, 0]) {
+    writeFileSync(growingPath, "Before metadata check\n");
+    const growthStart = serverState.requests.length;
+    const growthResult = await runCli([
+      ...countArgs, "--body", JSON.stringify(countBody), "--attach", growingPath,
+    ], {
+      SENDMUX_API_KEY: mailboxKey,
+      NODE_OPTIONS: `--import=${pathToFileURL(growthHook).href}`,
+      SENDMUX_TEST_GROWING_FILE: growingPath,
+      SENDMUX_TEST_GROWING_BYTES: String(size),
+    });
+    assertDeepEqual(serverState.requests.length, growthStart, "An invalidated file must not be uploaded, including a truncated prefix");
+    assertDeepEqual(growthResult.status, 1, "Invalidated files must fail in JSON mode");
+    assertDeepEqual(JSON.parse(growthResult.stdout).error.oclif.exit, 2, "Invalidated files must be a local usage error");
+  }
+  const atByteLimitPath = join(tempHome, "at-byte-limit.txt");
+  const atByteLimitBytes = Buffer.alloc(sendingAttachmentByteLimit, "x");
+  writeFileSync(atByteLimitPath, atByteLimitBytes);
+  const byteBoundaryStart = serverState.requests.length;
+  const byteBoundaryResult = await runCli([
+    ...countArgs, "--body", JSON.stringify(countBody), "--attach", atByteLimitPath,
+  ], { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(byteBoundaryResult, "File at the byte ceiling must send unchanged");
+  const byteBoundaryUpload = serverState.requests.slice(byteBoundaryStart).find((request) => request.url.startsWith("/emails/attachments"));
+  assertDeepEqual(byteBoundaryUpload.body.byteLength, sendingAttachmentByteLimit, "At-limit file must not be truncated");
+  assertDeepEqual(createHash("sha256").update(byteBoundaryUpload.body).digest("hex"), createHash("sha256").update(atByteLimitBytes).digest("hex"), "At-limit upload must preserve its bytes");
+
+  const replayArgs = [
+    "sending:send", "--base-url", baseUrl,
+    "--body", JSON.stringify({
+      from: { email: "from@example.com" }, to: { email: "agent@example.com" },
+      subject: "Attachment replay", html_body: "<p>Attached</p>",
+    }),
+    "--idempotency-key", "attachment-replay", "--attach", textAttachmentPath, "--json",
+  ];
+  const replayFirst = await runCli(replayArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(replayFirst, "sending attachment initial keyed send");
+  const replayFirstBody = latestRequest().body;
+  const replaySecond = await runCli(replayArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(replaySecond, "sending attachment identical retry");
+  assertDeepEqual(latestRequest().body.toString("utf8"), replayFirstBody.toString("utf8"), "Attachment replay must preserve the outer body");
+  assertDeepEqual(JSON.parse(replaySecond.stdout), JSON.parse(replayFirst.stdout), "Attachment replay must return the original send result");
+
+  const namespaceStart = serverState.requests.length;
+  const firstNamespaceSend = await runCli(replayArgs.map((value) => value === "attachment-replay" ? "attachment-namespace-a" : value), { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(firstNamespaceSend, "sending attachment under first outer key");
+  const secondNamespaceSend = await runCli(replayArgs.map((value) => value === "attachment-replay" ? "attachment-namespace-b" : value), { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(secondNamespaceSend, "sending attachment under second outer key");
+  const namespaceUploads = serverState.requests.slice(namespaceStart).filter((request) => request.url.startsWith("/emails/attachments"));
+  assertDeepEqual(namespaceUploads.length, 2, "Distinct outer sends must each upload their attachment");
+  if (namespaceUploads[0].headers["idempotency-key"] === namespaceUploads[1].headers["idempotency-key"]) {
+    throw new Error("Distinct outer send keys must namespace the upload key at the same file ordinal");
+  }
+
+  const secondAttachmentPath = join(tempHome, "second.txt");
+  writeFileSync(secondAttachmentPath, "A different attachment\n");
+  const manyArgs = replayArgs.map((value) => value === "attachment-replay" ? "m".repeat(255) : value);
+  manyArgs.push("--attach", secondAttachmentPath);
+  const manyStart = serverState.requests.length;
+  const manyFirst = await runCli(manyArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(manyFirst, "sending two distinct attachments");
+  const manySecond = await runCli(manyArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(manySecond, "sending two-attachment retry");
+  const manyUploads = serverState.requests.slice(manyStart).filter((request) => request.url.startsWith("/emails/attachments"));
+  const manyKeys = manyUploads.map((request) => request.headers["idempotency-key"]);
+  if (manyKeys.some((key) => typeof key !== "string" || !key.length || key.length > 255) || manyKeys[0] === manyKeys[1]) {
+    throw new Error("Each attachment needs a distinct, bounded upload key");
+  }
+  assertDeepEqual(manyKeys.slice(2), manyKeys.slice(0, 2), "Corresponding upload keys must survive retry");
+  assertDeepEqual(manyUploads.slice(2).map((request) => request.responseBody), manyUploads.slice(0, 2).map((request) => request.responseBody), "Corresponding uploads must replay their original IDs");
+  assertDeepEqual(JSON.parse(manySecond.stdout), JSON.parse(manyFirst.stdout), "Two-attachment send must replay the original result");
+
+  const sendsBeforeChangedFile = serverState.requests.filter((request) => request.url === "/emails/send").length;
+  writeFileSync(textAttachmentPath, "Changed bytes under the original key\n");
+  try {
+    const changedFile = await runCli(replayArgs, { SENDMUX_API_KEY: mailboxKey });
+    assertDeepEqual(changedFile.status, 1, "Changed file under the same key must fail");
+    assertDeepEqual(latestRequest().responseBody.error.code, "idempotency_conflict", "Changed file must conflict at upload");
+    assertDeepEqual(serverState.requests.filter((request) => request.url === "/emails/send").length, sendsBeforeChangedFile, "Upload conflict must stop before another outer send");
+  } finally {
+    writeFileSync(textAttachmentPath, textAttachmentBytes);
+  }
 
   const streamResult = await runCli([
     "mailbox:stream-events",
@@ -933,6 +1212,28 @@ try {
     throw new Error("agent:register resume created a duplicate registration");
   }
 
+  const restRegistration = await runCli([
+    "agent:register", "rest-ready-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "rest-ready-agent", "--json",
+  ]);
+  assertCliSuccess(restRegistration, "agent:register nested REST readiness");
+  assertDeepEqual(JSON.parse(restRegistration.stdout).data.status, "active", "Nested REST readiness must reach active");
+  assertDeepEqual(serverState.restReadinessAttempts, 2, "Nested REST readiness must retry once before ready");
+  if (restRegistration.stdout.includes(durableAgentKey)) throw new Error("Nested REST registration leaked its access token");
+  console.log(JSON.stringify({ readiness: "nested-temporary", status: restRegistration.status, attempts: serverState.restReadinessAttempts }));
+
+  const forbiddenRegistration = await runCli([
+    "agent:register", "forbidden-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "forbidden-agent", "--json",
+  ]);
+  console.log(JSON.stringify({ readiness: "nested-forbidden", status: forbiddenRegistration.status, attempts: serverState.forbiddenReadinessAttempts }));
+  assertDeepEqual(forbiddenRegistration.status, 1, "Forbidden REST readiness must fail registration");
+  assertDeepEqual(serverState.forbiddenReadinessAttempts, 1, "Forbidden REST readiness must not retry");
+  if (!JSON.parse(forbiddenRegistration.stdout).error.message.includes("HTTP 403")) {
+    throw new Error("Forbidden REST readiness must report its HTTP status");
+  }
+  if (forbiddenRegistration.stdout.includes(durableAgentKey)) throw new Error("Forbidden REST registration leaked its access token");
+
   const concurrentResults = await Promise.all([
     runCli([
       "agent:register",
@@ -1110,10 +1411,168 @@ try {
 
   assertCliSuccess(rootResult, "management:domains:list with root key");
 
+  const oversizedAuthStart = serverState.requests.length;
+  const oversizedAuthResult = await runCli([
+    "agent:register", "oversized-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "oversized-auth-agent", "--json",
+  ]);
+  assertDeepEqual(oversizedAuthResult.status, 1, "Oversized authentication response must reject registration");
+  assertDeepEqual(serverState.requests.slice(oversizedAuthStart).map((request) => request.url),
+    ["/agent-auth/agent/identity"], "Oversized authentication response must not activate the profile and poll readiness");
+
+  const atLimitAuthResult = await runCli([
+    "agent:register", "at-limit-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "at-limit-auth-agent", "--json",
+  ]);
+  assertCliSuccess(atLimitAuthResult, "Authentication response at the byte limit must remain valid");
+  assertDeepEqual(JSON.parse(atLimitAuthResult.stdout).data.status, "active", "At-limit authentication must activate the profile");
+
+  const streamedAuthStart = serverState.requests.length;
+  const streamedAuthResult = await runCli([
+    "agent:register", "streamed-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "streamed-auth-agent", "--json",
+  ]);
+  assertDeepEqual(streamedAuthResult.status, 1, "Unfinished oversized authentication stream must reject registration");
+  assertDeepEqual(serverState.requests.slice(streamedAuthStart).map((request) => request.url),
+    ["/agent-auth/agent/identity"], "Unfinished oversized authentication stream must not reach readiness");
+  await serverState.authStreamClosed;
+
+  const truncatedAuthResult = await runCli([
+    "agent:register", "truncated-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "truncated-auth-agent", "--json",
+  ]);
+  assertDeepEqual(truncatedAuthResult.status, 1, "Truncated authentication response must reject registration");
+  assertDeepEqual(JSON.parse(truncatedAuthResult.stdout).error.message,
+    "Sendmux agent authentication returned HTTP 201 without a JSON object.",
+    "Truncated authentication response must preserve the safe HTTP error");
+
+  assertCliSuccess(await runCli([
+    "agent:register", "redirect-token-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "redirect-token-agent", "--json",
+  ]), "Register a fresh profile for token-exchange redirect verification");
+  serverState.authRedirectPath = "/agent-auth/oauth2/token";
+  const redirectExchangeStart = serverState.requests.length;
+  const redirectExchangeResult = await runCli([
+    "sending:send", "--profile", "redirect-token-agent", "--body", "{}", "--json",
+  ]);
+  assertDeepEqual(redirectExchangeResult.status, 1, "Redirected token exchange must fail");
+  assertDeepEqual(serverState.requests.slice(redirectExchangeStart).map((request) => request.url),
+    ["/agent-auth/oauth2/token"], "Token exchange must not forward the subject token to a redirect target");
+  serverState.authRedirectPath = undefined;
+
+  serverState.authRedirectPath = "/agent-auth/agent/identity";
+  const redirectRegistrationStart = serverState.requests.length;
+  const redirectRegistrationResult = await runCli([
+    "agent:register", "redirect-registration-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "redirect-registration-agent", "--json",
+  ]);
+  assertDeepEqual(redirectRegistrationResult.status, 1, "Redirected registration must fail");
+  assertDeepEqual(serverState.requests.slice(redirectRegistrationStart).map((request) => request.url),
+    ["/agent-auth/agent/identity"], "Registration must not follow redirects or poll readiness");
+  serverState.authRedirectPath = undefined;
+
+  serverState.authRedirectPath = "/agent-auth/agent/identity/invite";
+  const redirectInviteStart = serverState.requests.length;
+  const redirectInviteResult = await runCli([
+    "agent:invite-owner", "redirect-owner@example.com", "--profile", "durable-agent", "--json",
+  ]);
+  assertDeepEqual(redirectInviteResult.status, 1, "Redirected owner invitation must fail");
+  assertDeepEqual(serverState.requests.slice(redirectInviteStart).map((request) => request.url),
+    ["/agent-auth/agent/identity/invite"], "Owner invitation must not forward credentials to a redirect target");
+  serverState.authRedirectPath = undefined;
+
+  serverState.authRedirectPath = "/api/v1/mailbox/me";
+  const redirectReadinessStart = serverState.requests.length;
+  const redirectReadinessResult = await runCli([
+    "agent:register", "redirect-readiness-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "redirect-readiness-agent", "--json",
+  ]);
+  assertDeepEqual(redirectReadinessResult.status, 1, "Redirected mailbox readiness must fail");
+  assertDeepEqual(serverState.requests.slice(redirectReadinessStart).map((request) => request.url),
+    ["/agent-auth/agent/identity", "/api/v1/mailbox/me"], "Readiness must not accept a redirect target as the mailbox");
+  serverState.authRedirectPath = undefined;
+
+  const { registerAgent, resolveAgentSendingToken } = await import("../packages/ts/cli/dist/agent-auth.js");
+  serverState.authStall = { path: "/agent-auth/agent/identity" };
+  await assertAgentRequestDeadline(() => registerAgent({
+    appOrigin: baseUrl,
+    configDir: agentConfigDir,
+    makeDefault: false,
+    mailboxLocalPart: "deadline-agent",
+    profileName: "deadline-agent",
+  }), "Agent registration stalled before response headers");
+  serverState.authStall = undefined;
+
+  await registerAgent({
+    appOrigin: baseUrl,
+    configDir: agentConfigDir,
+    makeDefault: false,
+    mailboxLocalPart: "deadline-exchange-agent",
+    profileName: "deadline-exchange-agent",
+  });
+  const { readCliConfig } = await import("../packages/ts/cli/dist/profiles.js");
+  const deadlineConfig = await readCliConfig(agentConfigDir);
+  serverState.authStall = { path: "/agent-auth/oauth2/token", stage: "body" };
+  await assertAgentRequestDeadline(() => resolveAgentSendingToken({
+    config: deadlineConfig,
+    configDir: agentConfigDir,
+    profile: deadlineConfig.profiles["deadline-exchange-agent"],
+    profileName: "deadline-exchange-agent",
+  }), "Agent token exchange stalled during response body");
+  serverState.authStall = undefined;
+
   console.log("CLI gate checks passed.");
 } finally {
-  server.close();
+  const address = server.address();
+  server.closeAllConnections();
+  await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  console.log(JSON.stringify({ resource: "http_server", address, state: "closed" }));
+  await serverState.authPending?.catch(() => {});
   rmSync(tempHome, { force: true, recursive: true });
+  assertDeepEqual(existsSync(tempHome), false, "CLI fixture must be removed after verification");
+  console.log(JSON.stringify({ removed_workspace: tempHome }));
+}
+
+async function assertAgentRequestDeadline(operation, label) {
+  const startedAt = Date.now();
+  const requestStart = serverState.requests.length;
+  serverState.authPending = operation();
+  const finished = serverState.authPending.then(
+    () => { throw new Error(`${label} unexpectedly succeeded`); },
+    async (error) => {
+      await serverState.authStall.closed;
+      return error;
+    },
+  );
+  let timer;
+  try {
+    const outcome = await Promise.race([
+      finished,
+      new Promise((resolve) => { timer = setTimeout(() => resolve(undefined), 20_000); }),
+    ]);
+    if (!(outcome instanceof Error)) throw new Error(`${label} exceeded its request deadline`);
+    assertDeepEqual(serverState.requests.slice(requestStart).map((request) => request.url),
+      [serverState.authStall.path], `${label} must not proceed or retry after timeout`);
+    console.log(JSON.stringify({ auth_deadline: label, elapsed_ms: Date.now() - startedAt, response_closed: true }));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function respondToSendingMutation(request, response, cache, fingerprint, status, createPayload) {
+  const rawKey = request.headers["idempotency-key"]?.trim();
+  const key = rawKey && rawKey.length <= 255 ? rawKey : undefined;
+  const previous = key ? cache.get(key) : undefined;
+  const conflict = previous && previous.fingerprint !== fingerprint;
+  const payload = conflict ? {
+    ok: false,
+    error: { code: "idempotency_conflict", message: "Idempotency-Key was reused with a different request body.", retryable: false },
+    meta: { request_id: "req_cli_conflict" },
+  } : previous?.payload ?? createPayload();
+  if (key && !previous) cache.set(key, { fingerprint, payload });
+  serverState.requests.at(-1).responseBody = payload;
+  response.writeHead(conflict ? 409 : status, { "Content-Type": "application/json" });
+  response.end(JSON.stringify(payload));
 }
 
 function ensureCliBuilt() {
@@ -1144,6 +1603,7 @@ function runCli(args, env = {}) {
       },
       stdio: ["ignore", "pipe", "pipe"],
     });
+    console.log(JSON.stringify({ child_pid: child.pid, command: args[0] }));
     const timeout = setTimeout(() => {
       child.kill("SIGTERM");
       reject(new Error(`CLI command timed out: ${args.join(" ")}`));
@@ -1165,6 +1625,7 @@ function runCli(args, env = {}) {
     });
     child.on("close", (status) => {
       clearTimeout(timeout);
+      console.log(JSON.stringify({ child_closed: child.pid }));
       resolve({
         status,
         stderr,
@@ -1312,6 +1773,22 @@ async function assertAgentAuthNetworkBoundaries() {
     if (Date.now() - retryStartedAt > 500) {
       throw new Error("agent mailbox Retry-After exceeded the remaining timeout budget");
     }
+
+    let readinessBodyCancelled = false;
+    globalThis.fetch = async () => new Response(new ReadableStream({
+      cancel() { readinessBodyCancelled = true; },
+    }), { status: 200 });
+    await waitForMailbox(profile, 50);
+    if (!readinessBodyCancelled) {
+      throw new Error("Successful mailbox readiness must cancel its unused response body");
+    }
+
+    globalThis.fetch = async (_url, options) => new Response(new ReadableStream({
+      start(controller) {
+        options.signal.addEventListener("abort", () => controller.error(options.signal.reason), { once: true });
+      },
+    }), { status: 503 });
+    await expectMailboxTimeout(() => waitForMailbox(profile, 50));
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -1329,6 +1806,7 @@ async function expectMailboxTimeout(run) {
 
 async function assertCliArrayParameterSupport() {
   const fixtureDir = mkdtempSync(join(tmpdir(), "sendmux-cli-array-spec-"));
+  console.log(JSON.stringify({ workspace: fixtureDir, owner_pid: process.pid }));
   try {
     writeFileSync(
       join(fixtureDir, "openapi-app.json"),
@@ -1433,6 +1911,8 @@ async function assertCliArrayParameterSupport() {
     assertDeepEqual(parsed.query?.event_types, ["message.received", "sync_required"], "Repeated array query flags must append instead of overwrite");
   } finally {
     rmSync(fixtureDir, { force: true, recursive: true });
+    assertDeepEqual(existsSync(fixtureDir), false, "CLI array fixture must be removed after verification");
+    console.log(JSON.stringify({ removed_workspace: fixtureDir }));
   }
 }
 

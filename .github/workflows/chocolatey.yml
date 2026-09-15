@@ -34,6 +34,11 @@ on:
         default: false
         required: true
         type: boolean
+      ownership_diagnostic:
+        description: "Run only the Windows consumer ownership diagnostic; never package or publish."
+        default: false
+        required: true
+        type: boolean
 
 permissions:
   contents: write
@@ -44,11 +49,12 @@ concurrency:
 
 jobs:
   package:
-    if: ${{ github.event_name != 'release' || startsWith(github.event.release.tag_name, 'ts-cli-v') }}
+    if: ${{ inputs.ownership_diagnostic != true && (github.event_name != 'release' || startsWith(github.event.release.tag_name, 'ts-cli-v')) }}
     runs-on: windows-latest
     env:
       GH_TOKEN: ${{ github.token }}
       HAS_CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY != '' }}
+      USE_LOCAL_CHOCOLATEY_ASSET: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.push != true) }}
       SENDMUX_CHOCOLATEY_VERSION: ${{ inputs.version }}
     steps:
       - name: Check out SDK
@@ -79,11 +85,17 @@ jobs:
       - name: Verify workflow helper scripts
         run: |
           node --check scripts/serve-static.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pnpm test:windows-command-shims
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pnpm test:chocolatey-asset-tools
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pnpm test:chocolatey-package-files
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pnpm test:chocolatey-workflow-order
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           pnpm test:cli-tarball-tools
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Install Windows packaging tools
         shell: powershell
@@ -116,10 +128,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "$USE_LOCAL_CHOCOLATEY_ASSET" = "true" ]; then
             asset="$(find packages/ts/cli/dist -maxdepth 1 -type f -name "sendmux-v*-win32-x64.zip" | sort | tail -n 1)"
             if [ -z "$asset" ]; then
-              echo "No local Windows ZIP asset found for PR Chocolatey install test."
+              echo "No local Windows ZIP asset found for Chocolatey install test."
               exit 1
             fi
             local_url="http://127.0.0.1:8765/$(basename "$asset")"
@@ -134,7 +146,9 @@ jobs:
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .tmp/chocolatey/pkg | Out-Null
           choco pack .tmp/chocolatey/sendmux.portable/sendmux.portable.nuspec --output-directory .tmp/chocolatey/pkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           choco pack .tmp/chocolatey/sendmux/sendmux.nuspec --output-directory .tmp/chocolatey/pkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Attach CLI ZIP assets to release
         if: ${{ github.event_name == 'release' || inputs.push == true }}
@@ -164,20 +178,27 @@ jobs:
           $source = Resolve-Path .tmp/chocolatey/pkg
           $server = $null
 
-          if ('${{ github.event_name }}' -eq 'pull_request') {
+          if ($env:USE_LOCAL_CHOCOLATEY_ASSET -eq 'true') {
             $server = Start-Process -FilePath node -ArgumentList @('scripts/serve-static.mjs', 'packages/ts/cli/dist', '8765') -PassThru
             Start-Sleep -Seconds 2
           }
 
           try {
             choco install sendmux.portable --source "$source" -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             sendmux --help
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             choco uninstall sendmux.portable -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
             choco install sendmux --source "$source" -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             sendmux --help
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             choco uninstall sendmux -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             choco uninstall sendmux.portable -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           } finally {
             if ($server) {
               Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
@@ -222,6 +243,103 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
+          function Invoke-ChocolateyCredentialTransaction {
+            [CmdletBinding()]
+            param(
+              [Parameter(Mandatory = $true)][string]$Source,
+              [Parameter(Mandatory = $true)][scriptblock]$Operation
+            )
+
+            if ([string]::IsNullOrWhiteSpace($env:ChocolateyInstall)) {
+              throw 'ChocolateyInstall is required for the publisher credential transaction.'
+            }
+            $configPath = Join-Path $env:ChocolateyInstall 'config/chocolatey.config'
+            if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
+              throw "Chocolatey config was not found: $configPath"
+            }
+
+            $originalConfigBytes = [IO.File]::ReadAllBytes($configPath)
+            $originalConfigHash = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash
+            $stagingPath = Join-Path (Split-Path -Parent $configPath) ".sendmux-publish-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT.tmp"
+            $apiKeyBytes = $null
+            $encryptedApiKeyBytes = $null
+            $entropyBytes = $null
+            $nativeExitCode = 1
+
+            try {
+              Add-Type -AssemblyName System.Security
+              $apiKey = $env:CHOCOLATEY_API_KEY
+              if ([string]::IsNullOrWhiteSpace($apiKey)) {
+                throw 'CHOCOLATEY_API_KEY is required for Chocolatey publication.'
+              }
+
+              $apiKeyBytes = [Text.Encoding]::UTF8.GetBytes($apiKey)
+              $entropyBytes = [Text.Encoding]::UTF8.GetBytes('Chocolatey')
+              $encryptedApiKeyBytes = [Security.Cryptography.ProtectedData]::Protect(
+                $apiKeyBytes,
+                $entropyBytes,
+                [Security.Cryptography.DataProtectionScope]::LocalMachine
+              )
+              $encryptedApiKey = [Convert]::ToBase64String($encryptedApiKeyBytes)
+
+              $configXml = New-Object Xml.XmlDocument
+              $configXml.Load($configPath)
+              $apiKeysNode = $configXml.SelectSingleNode('/chocolatey/apiKeys')
+              if ($null -eq $apiKeysNode) {
+                $apiKeysNode = $configXml.CreateElement('apiKeys')
+                [void]$configXml.DocumentElement.AppendChild($apiKeysNode)
+              }
+              foreach ($existingEntry in @($apiKeysNode.SelectNodes('apiKeys'))) {
+                if ([string]::Equals($existingEntry.GetAttribute('source'), $Source, [StringComparison]::OrdinalIgnoreCase)) {
+                  [void]$apiKeysNode.RemoveChild($existingEntry)
+                }
+              }
+              $credentialEntry = $configXml.CreateElement('apiKeys')
+              $credentialEntry.SetAttribute('source', $Source)
+              $credentialEntry.SetAttribute('key', $encryptedApiKey)
+              [void]$apiKeysNode.AppendChild($credentialEntry)
+              $configXml.Save($stagingPath)
+              [IO.File]::Replace($stagingPath, $configPath, [System.Management.Automation.Language.NullString]::Value)
+
+              $env:CHOCOLATEY_API_KEY = $null
+              [Array]::Clear($apiKeyBytes, 0, $apiKeyBytes.Length)
+              $apiKeyBytes = $null
+              $apiKey = $null
+              $encryptedApiKey = $null
+              $configXml = $null
+
+              & $Operation $Source
+              $nativeExitCode = $LASTEXITCODE
+            } finally {
+              $env:CHOCOLATEY_API_KEY = $null
+              if ($null -ne $apiKeyBytes) {
+                [Array]::Clear($apiKeyBytes, 0, $apiKeyBytes.Length)
+              }
+              if ($null -ne $encryptedApiKeyBytes) {
+                [Array]::Clear($encryptedApiKeyBytes, 0, $encryptedApiKeyBytes.Length)
+              }
+              if ($null -ne $entropyBytes) {
+                [Array]::Clear($entropyBytes, 0, $entropyBytes.Length)
+              }
+              try {
+                [IO.File]::WriteAllBytes($configPath, $originalConfigBytes)
+                $restoredConfigHash = (Get-FileHash -LiteralPath $configPath -Algorithm SHA256).Hash
+              } finally {
+                if (Test-Path -LiteralPath $stagingPath) {
+                  Remove-Item -LiteralPath $stagingPath -Force
+                }
+                if (Test-Path -LiteralPath $stagingPath) {
+                  throw "Chocolatey credential staging file remains after cleanup: $stagingPath"
+                }
+              }
+              if ($restoredConfigHash -ne $originalConfigHash) {
+                throw 'Chocolatey config restoration did not preserve the original SHA-256.'
+              }
+            }
+
+            exit $nativeExitCode
+          }
+
           $version = $env:SENDMUX_CHOCOLATEY_VERSION
           if ([string]::IsNullOrWhiteSpace($version)) {
             $version = (Get-Content packages/ts/cli/package.json | ConvertFrom-Json).version
@@ -230,15 +348,76 @@ jobs:
             ".tmp/chocolatey/pkg/sendmux.portable.$version.nupkg",
             ".tmp/chocolatey/pkg/sendmux.$version.nupkg"
           )
-          choco apikey --key "$env:CHOCOLATEY_API_KEY" --source https://push.chocolatey.org/
           foreach ($package in $packages) {
             if (-not (Test-Path $package)) {
               throw "Expected Chocolatey package was not created: $package"
             }
-            choco push $package --source https://push.chocolatey.org/ --api-key "$env:CHOCOLATEY_API_KEY" --no-progress
+          }
+          Invoke-ChocolateyCredentialTransaction -Source 'https://push.chocolatey.org/' -Operation {
+            param($configuredSource)
+            foreach ($package in $packages) {
+              choco push $package --source $configuredSource --no-progress
+              if ($LASTEXITCODE -ne 0) { break }
+            }
           }
 
       - name: Skip Chocolatey push notice
         if: ${{ (github.event_name == 'release' || inputs.push == true) && env.HAS_CHOCOLATEY_API_KEY != 'true' }}
         shell: powershell
         run: Write-Host 'Skipping Chocolatey push because CHOCOLATEY_API_KEY is not configured.'
+
+  ownership-diagnostic:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.ownership_diagnostic == true && inputs.push != true }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out diagnostic source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        with:
+          version: 10.22.0
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install diagnostic dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prove PowerShell native exit propagation
+        run: pnpm test:windows-workflow-native-exits
+
+      - name: Verify real Windows directory-lock cleanup
+        run: node scripts/test-windows-workspace-cleanup.mjs .tmp/windows-workspace-cleanup
+
+      - name: Diagnose actual Windows consumer ownership
+        run: node scripts/diagnose-windows-consumer-ownership.mjs .tmp/windows-consumer-ownership
+
+      - name: Prove Windows command control sensitivity
+        run: node scripts/test-windows-consumer-sensitivity.mjs
+
+      - name: Build CLI OAuth diagnostic
+        run: pnpm -r --if-present build
+
+      - name: Verify native OAuth credential paths
+        run: node --test scripts/test-cli-oauth-login.mjs
+
+      - name: Preserve exact diagnostic receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-consumer-ownership
+          path: |
+            .tmp/windows-workflow-native-exits/
+            .tmp/windows-consumer-ownership/results.json
+            .tmp/windows-workspace-cleanup/
+          if-no-files-found: error
+          retention-days: 7

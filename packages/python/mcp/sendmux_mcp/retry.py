@@ -4,12 +4,15 @@ import asyncio
 import random
 import time
 from collections.abc import Awaitable, Callable
+from contextlib import suppress
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
+import anyio
 import httpx
 
 from sendmux_mcp.config import RetryConfig
+from sendmux_mcp.response_ownership import close_response, own_response
 
 RETRY_STATUSES = {408, 425, 429, 500, 502, 503, 504}
 IDEMPOTENT_METHODS = {"GET", "HEAD", "OPTIONS", "PUT", "DELETE"}
@@ -38,6 +41,7 @@ class RetryingAsyncTransport(httpx.AsyncBaseTransport):
         last_error: httpx.TransportError | None = None
 
         for attempt in range(attempts):
+            await anyio.lowlevel.checkpoint_if_cancelled()
             next_request = clone_request(request, body)
             try:
                 response = await self.inner.handle_async_request(next_request)
@@ -49,12 +53,18 @@ class RetryingAsyncTransport(httpx.AsyncBaseTransport):
                     raise
                 continue
 
-            if attempt + 1 >= attempts or not await should_retry_response(request, response):
-                return response
+            own_response(response)
+            try:
+                if attempt + 1 >= attempts or not await should_retry_response(request, response):
+                    return response
 
-            delay = retry_delay(response, attempt, self.retry)
-            await response.aread()
-            await response.aclose()
+                delay = retry_delay(response, attempt, self.retry)
+                await response.aread()
+                await close_response(response)
+            except BaseException:
+                with suppress(TimeoutError):
+                    await close_response(response)
+                raise
             if not await self._wait_for_retry(delay, deadline):
                 return response
 

@@ -4590,7 +4590,7 @@ func decodeMailboxListThreadMessagesResponse(resp *http.Response) (res MailboxLi
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response MailboxMessageSummaryCursorListResponse
+			var response MailboxThreadMessageSummaryCursorListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

@@ -3,24 +3,14 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { booleanGates, stringConfiguration, validateRun, resultStatuses } from "./live-e2e-contract.mjs";
 
 const defaultManifestPath = "docs/live-e2e-audit-manifest.json";
 const operationsPath = "packages/ts/cli/src/generated/operations.ts";
 const scenarioPath = "test/live-e2e/scenarios.json";
 const sdkAdapters = ["typescript", "python", "go", "php", "ruby"];
 const groupedSurfaces = ["sdk", "cli", "mcp"];
-const gateEnvNames = [
-  "SENDMUX_LIVE_E2E",
-  "SENDMUX_LIVE_E2E_FIXTURE_SETUP",
-  "SENDMUX_LIVE_E2E_MUTATIONS",
-  "SENDMUX_LIVE_E2E_BINARY",
-  "SENDMUX_LIVE_E2E_STREAM",
-  "SENDMUX_STAGING_SEND",
-  "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO",
-  "SENDMUX_LIVE_E2E_WEBHOOK_URL",
-  "SENDMUX_LIVE_E2E_WEBHOOK_URL_ALLOWLIST",
-];
 const customMcpOperations = [
   {
     operationId: "mailboxReadAttachment",
@@ -37,7 +27,7 @@ const args = parseArgs(process.argv.slice(2));
 if (args.check) {
   const manifest = readJson(args.check);
   validateManifest(manifest);
-  console.log(`Live E2E audit manifest is valid: ${args.check}`);
+  console.log(`${manifest.schema_version === 1 ? "Historical schema-1 audit shape is valid (not fresh certification)" : "Live E2E audit manifest is valid"}: ${args.check}`);
   process.exit(0);
 }
 
@@ -49,12 +39,15 @@ const manifest = buildManifest({
   commitSha: args.commit || gitSha(),
   generatedAt: args.generatedAt || new Date().toISOString(),
   result: readJson(args.result),
+  runId: args.runId,
   source: args.source || "protected-live-e2e",
 });
 
 validateManifest(manifest);
+args.out ||= join(".tmp", "live-e2e", manifest.run.id, "audit-manifest.json");
+assert.notEqual(resolve(args.out), resolve(defaultManifestPath), "Fresh audits must not overwrite the committed historical manifest");
 mkdirSync(dirname(args.out), { recursive: true });
-writeFileSync(args.out, `${JSON.stringify(manifest, null, 2)}\n`);
+writeFileSync(args.out, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx", mode: 0o600, flush: true });
 console.log(`Wrote live E2E audit manifest to ${args.out}`);
 
 function parseArgs(argv) {
@@ -62,13 +55,19 @@ function parseArgs(argv) {
     check: "",
     commit: "",
     generatedAt: "",
-    out: defaultManifestPath,
+    out: "",
     result: "",
+    runId: "",
     source: "",
   };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+    if (arg === "--run-id") {
+      parsed.runId = requireArgValue(argv, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--check") {
       parsed.check = requireArgValue(argv, index, arg);
       index += 1;
@@ -113,22 +112,23 @@ function requireArgValue(argv, index, name) {
   return value;
 }
 
-function buildManifest({ commitSha, generatedAt, result, source }) {
+function buildManifest({ commitSha, generatedAt, result, source, runId }) {
   const operations = loadOperations();
   const scenarios = readJson(scenarioPath).scenarios ?? {};
   const operationById = new Map(operations.map((operation) => [operation.operationId, operation]));
-  const gates = gateStateFromEnv(process.env);
+  validateRun(result, { runId, sourceSha: commitSha, scenarios });
+  const gates = result.run.configuration;
   const plan = livePlanForGates(gates);
   const results = result.results ?? [];
 
-  assert.equal(result.ok, !results.some((item) => item.status === "failed"));
   assert.ok(results.length > 0, "Live E2E result has no adapter results.");
 
   return {
-    schema_version: 1,
+    schema_version: 2,
     kind: "sendmux-live-e2e-audit-manifest",
     note: "Sanitized audit record only: no API keys, bearer tokens, base URLs, request bodies, or response bodies.",
     run: {
+      ...result.run,
       commit_sha: commitSha,
       generated_at: generatedAt,
       source,
@@ -139,6 +139,9 @@ function buildManifest({ commitSha, generatedAt, result, source }) {
       artifact_name: "live-e2e-audit-manifest",
     },
     gates: gates,
+    ok: result.ok,
+    errors: (result.errors ?? []).map(() => "Runner failure; inspect private run evidence"),
+    results: results.map(({ adapter, operationId, status }) => ({ adapter, operationId, status })),
     operation_counts: {
       total: plan.summary.total,
       executable: plan.summary.executable,
@@ -181,6 +184,7 @@ function summariseResults(results, operationById, scenarios) {
 }
 
 function statusName(status) {
+  if (resultStatuses.includes(status)) return status;
   if (status === "passed") return "passed";
   if (status === "skipped") return "skipped";
   if (status === "failed") return "failed";
@@ -195,7 +199,7 @@ function surfaceForAdapter(adapter) {
 }
 
 function emptyCounts() {
-  return { failed: 0, passed: 0, skipped: 0 };
+  return { failed: 0, passed: 0, skipped: 0, expected_negative: 0, unmet_precondition: 0, inapplicable: 0 };
 }
 
 function increment(counts, status) {
@@ -203,7 +207,7 @@ function increment(counts, status) {
 }
 
 function validateManifest(manifest) {
-  assert.equal(manifest.schema_version, 1);
+  assert.ok([1, 2].includes(manifest.schema_version));
   assert.equal(manifest.kind, "sendmux-live-e2e-audit-manifest");
   assert.match(manifest.run.commit_sha, /^[0-9a-f]{40}$/);
   assert.match(
@@ -212,16 +216,17 @@ function validateManifest(manifest) {
   );
   assert.ok(Number.isFinite(Date.parse(manifest.run.generated_at)));
   assert.ok(typeof manifest.run.source === "string" && manifest.run.source.length > 0);
-  assert.doesNotMatch(JSON.stringify(manifest), /smx_(root|mbx)_/);
+  assert.ok(!/smx_(?:root|mbx|agent)_/.test(JSON.stringify(manifest)), "Audit contains a credential");
 
-  const plan = livePlanForGates(manifest.gates);
-  assert.deepEqual(manifest.operation_counts, {
-    total: plan.summary.total,
-    executable: plan.summary.executable,
-    gated: plan.summary.gated,
-    blocked: plan.summary.blocked,
-    gated_by_risk: sortObject(plan.summary.gatedByRisk ?? {}),
-  });
+  if (manifest.schema_version === 2) {
+    validateRun(manifest, { runId: manifest.run.id, sourceSha: manifest.run.commit_sha, scenarios: readJson(scenarioPath).scenarios });
+    const plan = livePlanForGates(manifest.gates);
+    assert.deepEqual(manifest.operation_counts, {
+      total: plan.summary.total, executable: plan.summary.executable, gated: plan.summary.gated,
+      blocked: plan.summary.blocked, gated_by_risk: sortObject(plan.summary.gatedByRisk ?? {}),
+    });
+    assert.deepEqual(manifest.result_summary, summariseResults(manifest.results, new Map(loadOperations().map(item => [item.operationId, item])), readJson(scenarioPath).scenarios));
+  }
 
   const surfaceTotal = sumCounts(Object.values(manifest.result_summary.surfaces));
   assert.deepEqual(surfaceTotal, manifest.result_summary.total);
@@ -247,25 +252,15 @@ function livePlanForGates(gates) {
   return JSON.parse(result.stdout);
 }
 
-function gateStateFromEnv(env) {
-  return Object.fromEntries(gateEnvNames.map((name) => [name, isEnabled(env[name])]));
-}
-
 function envFromGates(gates) {
-  return Object.fromEntries(gateEnvNames.map((name) => [name, gates[name] ? "1" : ""]));
-}
-
-function isEnabled(value) {
-  return value === "1" || value === "true" || value === "yes";
+  return { ...Object.fromEntries(booleanGates.map(name => [name, gates[name] ? "1" : ""])), ...Object.fromEntries(stringConfiguration.map(name => [name, typeof gates[name] === "string" ? gates[name] : ""])) };
 }
 
 function sumCounts(items) {
   return items.reduce((total, item) => {
-    total.failed += item.failed;
-    total.passed += item.passed;
-    total.skipped += item.skipped;
+    for (const [key, count] of Object.entries(item)) total[key] = (total[key] ?? 0) + count;
     return total;
-  }, emptyCounts());
+  }, {});
 }
 
 function sortObject(value) {

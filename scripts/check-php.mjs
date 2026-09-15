@@ -11,6 +11,7 @@ checkGeneratedMailboxBodyParamOrder();
 checkGeneratedSendingBinaryUploadContentLength();
 
 runShell(`${composer} install --no-interaction --no-progress`);
+runShell(`${composer} audit --locked`);
 
 for (const name of packages) {
   runShell(`${composer} validate --strict packages/php/${name}/composer.json`);

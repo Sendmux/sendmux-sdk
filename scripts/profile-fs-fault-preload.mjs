@@ -1,0 +1,102 @@
+import filesystem from "node:fs/promises";
+import { writeFileSync } from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
+
+const specification = JSON.parse(process.env.SENDMUX_TEST_PROFILE_FS_FAULT ?? "null");
+
+if (specification) {
+  if (
+    specification.codes &&
+    (!Array.isArray(specification.codes) || specification.codes.length === 0)
+  ) {
+    throw new Error("Profile filesystem fault codes must be a non-empty array");
+  }
+  const original = filesystem[specification.operation];
+  if (typeof original !== "function") {
+    throw new Error(`Unsupported profile filesystem fault operation: ${specification.operation}`);
+  }
+  if (specification.operation === "open" && specification.openFlags !== "wx") {
+    throw new Error("Profile filesystem open faults must select the exclusive wx boundary");
+  }
+
+  const receipt = {
+    code: specification.code ?? null,
+    codes: specification.codes ?? null,
+    first_injected_at_ms: null,
+    injected: 0,
+    injected_by_code: {},
+    matched: 0,
+    native_errors: 0,
+    operation: specification.operation,
+    pid: process.pid,
+    exclusive_open_succeeded: 0,
+    succeeded: 0,
+  };
+  const persistReceipt = () => {
+    writeFileSync(specification.receiptPath, `${JSON.stringify(receipt, null, 2)}\n`, {
+      mode: 0o600,
+    });
+  };
+
+  filesystem[specification.operation] = async (...args) => {
+    if (!(await matches(args))) return original(...args);
+
+    receipt.matched += 1;
+    if (receipt.injected < specification.failures) {
+      const code = specification.codes
+        ? specification.codes[receipt.injected % specification.codes.length]
+        : specification.code;
+      receipt.injected += 1;
+      receipt.injected_by_code[code] = (receipt.injected_by_code[code] ?? 0) + 1;
+      receipt.first_injected_at_ms ??= Date.now();
+      persistReceipt();
+      const error = new Error(
+        `${code}: injected ${specification.operation} denial at the profile filesystem boundary`,
+      );
+      error.code = code;
+      error.syscall = specification.operation;
+      error.path = String(args[0]);
+      if (specification.operation === "rename") error.dest = String(args[1]);
+      throw error;
+    }
+
+    try {
+      const result = await original(...args);
+      receipt.succeeded += 1;
+      if (specification.operation === "open" && args[1] === specification.openFlags) {
+        receipt.exclusive_open_succeeded += 1;
+      }
+      persistReceipt();
+      return result;
+    } catch (error) {
+      receipt.native_errors += 1;
+      receipt.last_native_error_code = error?.code ?? null;
+      persistReceipt();
+      throw error;
+    }
+  };
+
+  syncBuiltinESMExports();
+
+  async function matches(args) {
+    const selectedPath = String(
+      specification.operation === "rename" ? args[1] : args[0],
+    );
+    if (selectedPath !== specification.path) return false;
+    if (
+      specification.operation === "open" &&
+      args[1] !== specification.openFlags
+    ) return false;
+    if (!specification.candidate) return true;
+
+    try {
+      const candidate = JSON.parse(await filesystem.readFile(args[0], "utf8"));
+      const profile = candidate.profiles?.[specification.candidate.profileName];
+      return Object.entries(specification.candidate).every(([key, value]) =>
+        key === "profileName" ? true : profile?.[key] === value,
+      );
+    } catch {
+      return false;
+    }
+  }
+}

@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 
-@dataclass(frozen=True)
+# Exception traceback/context fields must remain writable during propagation.
+@dataclass
 class SendmuxApiError(Exception):
     status_code: int | None
     code: str

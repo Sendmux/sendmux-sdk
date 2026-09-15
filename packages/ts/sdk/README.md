@@ -74,6 +74,12 @@ The umbrella package re-exports:
 
 Use the per-surface packages directly when an integration only needs one API surface.
 
+## Version 2 migration candidate
+
+Version 2 is not published yet. The umbrella's Mailbox namespace adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose typed optional `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose their state through typed metadata.
+
+When the release is available, update `@sendmux/sdk`, `@sendmux/mailbox`, the lockfile, and affected result annotations or fixtures together. To roll back, restore the previous package versions, lockfile, and call sites together.
+
 ## Support
 
 Open an issue in [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk/issues) with the package name, version, and request ID from any API error.

@@ -59,7 +59,7 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'meta' => '\Sendmux\Mailbox\Model\ResponseMeta',
+        'meta' => '\Sendmux\Mailbox\Model\MailboxSyncMeta',
         'ok' => 'bool',
         'data' => '\Sendmux\Mailbox\Model\MailboxMessageSummary[]',
         'pagination' => '\Sendmux\Mailbox\Model\CursorPagination'
@@ -300,9 +300,9 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
     /**
      * Gets meta
      *
-     * @return \Sendmux\Mailbox\Model\ResponseMeta
+     * @return \Sendmux\Mailbox\Model\MailboxSyncMeta
      */
-    public function getMeta(): \Sendmux\Mailbox\Model\ResponseMeta
+    public function getMeta(): \Sendmux\Mailbox\Model\MailboxSyncMeta
     {
         return $this->container['meta'];
     }
@@ -310,11 +310,11 @@ class MailboxMessageSummaryCursorListResponse implements ModelInterface, ArrayAc
     /**
      * Sets meta
      *
-     * @param \Sendmux\Mailbox\Model\ResponseMeta $meta meta
+     * @param \Sendmux\Mailbox\Model\MailboxSyncMeta $meta meta
      *
      * @return $this
      */
-    public function setMeta(\Sendmux\Mailbox\Model\ResponseMeta $meta): static
+    public function setMeta(\Sendmux\Mailbox\Model\MailboxSyncMeta $meta): static
     {
         if (is_null($meta)) {
             throw new InvalidArgumentException('non-nullable meta cannot be null');

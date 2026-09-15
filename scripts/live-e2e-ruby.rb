@@ -28,6 +28,16 @@ def main
       surface = operation.fetch('surface')
       api_sets[surface] ||= create_apis(surface)
       value = call_operation(api_sets.fetch(surface), operation)
+      if operation['journalPath']
+        journal_result = cleanup_result({'cleanupSelectors' => operation['journalSelectors']}, value)
+        unless journal_result.nil?
+          File.open(operation['journalPath'], 'a') do |journal|
+            journal.puts(JSON.generate({'operationId' => operation['operationId'], 'result' => journal_result}))
+            journal.flush
+            journal.fsync
+          end
+        end
+      end
       assert_response(operation, value)
       entry = {
         'adapter' => 'ruby',
@@ -35,15 +45,16 @@ def main
         'status' => 'passed'
       }
       cleanup = cleanup_result(operation, value)
+      entry['result'] = value if operation['returnResult']
       entry['cleanup'] = cleanup unless cleanup.nil?
       results << entry
     rescue StandardError => e
       code = api_error_code(e)
-      if !code.nil? && Array(operation['expectedErrorCodes']).include?(code)
+      if !code.nil? && e.respond_to?(:request_id) && !e.request_id.to_s.empty? && Array(operation['expectedErrorCodes']).include?(code)
         results << {
           'adapter' => 'ruby',
           'operationId' => operation.fetch('operationId'),
-          'status' => 'passed'
+          'status' => 'expected_negative'
         }
         next
       end
@@ -236,13 +247,15 @@ def cleanup_result(operation, value)
   cleanup = {}
   Array(operation['cleanupSelectors']).each do |selector|
     selected = value_at_path(value, selector)
-    set_value_at_path(cleanup, selector, selected) unless selected.nil?
+    set_value_at_path(cleanup, selector, selected) if selected.is_a?(String)
   end
   cleanup.empty? ? nil : cleanup
 end
 
 def normalise(value)
   case value
+  when Date, Time
+    value.iso8601.sub(/\+00:00\z/, 'Z')
   when Hash
     value.each_with_object({}) { |(key, child), out| out[key.to_s] = normalise(child) }
   when Array

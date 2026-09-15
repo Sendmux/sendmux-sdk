@@ -1,4 +1,4 @@
-module sendmux.ai/go
+module sendmux.ai/go/v2
 
 go 1.23.0
 

@@ -1,4 +1,6 @@
 import * as sdk from "@sendmux/sdk";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
@@ -14,6 +16,10 @@ type SdkOperation = (options: Record<string, unknown>) => Promise<unknown>;
 type ClientFactory = (config: sdk.core.SurfaceClientConfig) => unknown;
 type MailboxClient = ReturnType<typeof sdk.mailbox.createMailboxClient>;
 type SendingClient = ReturnType<typeof sdk.sending.createSendingClient>;
+
+const MAX_SENDING_ATTACHMENTS = 10;
+// Absolute Sending service ceiling; deployment policy may impose a lower limit.
+const MAX_SENDING_ATTACHMENT_BYTES = 18 * 1024 * 1024;
 
 const surfaceModules = {
   mailbox: sdk.mailbox,
@@ -220,9 +226,14 @@ async function withAttachedFiles(
 ): Promise<ParsedOperationOptions> {
   const body = jsonObjectBody(command, operationOptions.body);
   const existingAttachments = attachmentArray(command, body.attachments);
+  if (operation.operationId === "sendingSendEmail"
+    && existingAttachments.length + (flags.attach?.length ?? 0) > MAX_SENDING_ATTACHMENTS) {
+    command.error(`Sending email supports at most ${MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.`, { exit: 2 });
+  }
   const files = [];
+  const maxBytes = operation.operationId === "sendingSendEmail" ? MAX_SENDING_ATTACHMENT_BYTES : undefined;
   for (const path of flags.attach ?? []) {
-    files.push(await readAttachmentFile(command, path, flags["content-type"]));
+    files.push(await readAttachmentFile(command, path, flags["content-type"], maxBytes));
   }
 
   if (operation.operationId === "mailboxSendMessage") {
@@ -258,11 +269,19 @@ async function withAttachedFiles(
 
   if (operation.operationId === "sendingSendEmail") {
     const uploaded = [];
-    for (const file of files) {
+    const outerKey = operationOptions.headers?.["Idempotency-Key"];
+    const idempotencyKey = typeof outerKey === "string" ? outerKey.trim() : undefined;
+    for (const [index, file] of files.entries()) {
       const uploadResponse = await sdk.sending.sendingUploadAttachment({
         client: client as SendingClient,
         body: blobFor(file),
         headers: {
+          ...(idempotencyKey ? {
+            // Match the TS/Python helpers; content must not change the key and evade conflict detection.
+            "Idempotency-Key": createHash("sha256")
+              .update(`sendmux:sending:attachment:${index}:${idempotencyKey}`)
+              .digest("hex"),
+          } : {}),
           "Content-Length": file.sizeBytes,
           "Content-Type": file.contentType,
         },
@@ -314,6 +333,7 @@ async function readAttachmentFile(
   command: SendmuxCommand,
   filePath: string,
   contentTypeOverride: string | undefined,
+  maxBytes?: number,
 ): Promise<AttachmentFile> {
   const info = await stat(filePath).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
@@ -327,8 +347,25 @@ async function readAttachmentFile(
   if (info.size === 0) {
     command.error(`Attachment file is empty: ${filePath}`, { exit: 2 });
   }
+  if (maxBytes !== undefined && info.size > maxBytes) {
+    command.error(`Attachment file exceeds ${maxBytes} bytes: ${filePath}`, { exit: 2 });
+  }
 
-  const bytes = await readFile(filePath);
+  let bytes: Buffer;
+  if (maxBytes === undefined) {
+    bytes = await readFile(filePath);
+  } else {
+    const chunks: Buffer[] = [];
+    // Include one excess byte so a growing file is rejected instead of truncated and uploaded.
+    for await (const chunk of createReadStream(filePath, { end: maxBytes })) chunks.push(chunk);
+    bytes = Buffer.concat(chunks);
+    if (bytes.length > maxBytes) {
+      command.error(`Attachment file exceeds ${maxBytes} bytes: ${filePath}`, { exit: 2 });
+    }
+  }
+  if (bytes.length === 0) {
+    command.error(`Attachment file is empty: ${filePath}`, { exit: 2 });
+  }
   return {
     bytes,
     contentType: contentTypeOverride ?? inferContentType(filePath),

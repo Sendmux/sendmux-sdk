@@ -79,6 +79,7 @@ __all__ = [
     "MailboxGetChanges200Response",
     "MailboxIdentity",
     "MailboxIdentityCursorListResponse",
+    "MailboxIdentityListMeta",
     "MailboxIdentityResponse",
     "MailboxMe",
     "MailboxMeItemResponse",
@@ -99,6 +100,7 @@ __all__ = [
     "MailboxMessageQueryChangesResponse",
     "MailboxMessageSummary",
     "MailboxMessageSummaryCursorListResponse",
+    "MailboxQueryMeta",
     "MailboxQuota",
     "MailboxQuotaCursorListResponse",
     "MailboxRawBody",
@@ -136,12 +138,15 @@ __all__ = [
     "MailboxSubmissionEnvelopeAddress",
     "MailboxSubmissionEnvelopeRcptToInner",
     "MailboxSubmissionResponse",
+    "MailboxSyncMeta",
     "MailboxThread",
     "MailboxThreadContentMeta",
     "MailboxThreadContentMetaStates",
     "MailboxThreadContentResponse",
     "MailboxThreadContentResponseAllOfData",
     "MailboxThreadDetailResponse",
+    "MailboxThreadMessageSummaryCursorListResponse",
+    "MailboxThreadMessagesMeta",
     "MailboxThreadSummary",
     "MailboxThreadSummaryCursorListResponse",
     "MailboxThreadSummaryStates",
@@ -230,6 +235,7 @@ from sendmux_mailbox.models.mailbox_folder_response import MailboxFolderResponse
 from sendmux_mailbox.models.mailbox_get_changes200_response import MailboxGetChanges200Response as MailboxGetChanges200Response
 from sendmux_mailbox.models.mailbox_identity import MailboxIdentity as MailboxIdentity
 from sendmux_mailbox.models.mailbox_identity_cursor_list_response import MailboxIdentityCursorListResponse as MailboxIdentityCursorListResponse
+from sendmux_mailbox.models.mailbox_identity_list_meta import MailboxIdentityListMeta as MailboxIdentityListMeta
 from sendmux_mailbox.models.mailbox_identity_response import MailboxIdentityResponse as MailboxIdentityResponse
 from sendmux_mailbox.models.mailbox_me import MailboxMe as MailboxMe
 from sendmux_mailbox.models.mailbox_me_item_response import MailboxMeItemResponse as MailboxMeItemResponse
@@ -250,6 +256,7 @@ from sendmux_mailbox.models.mailbox_message_query_changes import MailboxMessageQ
 from sendmux_mailbox.models.mailbox_message_query_changes_response import MailboxMessageQueryChangesResponse as MailboxMessageQueryChangesResponse
 from sendmux_mailbox.models.mailbox_message_summary import MailboxMessageSummary as MailboxMessageSummary
 from sendmux_mailbox.models.mailbox_message_summary_cursor_list_response import MailboxMessageSummaryCursorListResponse as MailboxMessageSummaryCursorListResponse
+from sendmux_mailbox.models.mailbox_query_meta import MailboxQueryMeta as MailboxQueryMeta
 from sendmux_mailbox.models.mailbox_quota import MailboxQuota as MailboxQuota
 from sendmux_mailbox.models.mailbox_quota_cursor_list_response import MailboxQuotaCursorListResponse as MailboxQuotaCursorListResponse
 from sendmux_mailbox.models.mailbox_raw_body import MailboxRawBody as MailboxRawBody
@@ -287,12 +294,15 @@ from sendmux_mailbox.models.mailbox_submission_envelope import MailboxSubmission
 from sendmux_mailbox.models.mailbox_submission_envelope_address import MailboxSubmissionEnvelopeAddress as MailboxSubmissionEnvelopeAddress
 from sendmux_mailbox.models.mailbox_submission_envelope_rcpt_to_inner import MailboxSubmissionEnvelopeRcptToInner as MailboxSubmissionEnvelopeRcptToInner
 from sendmux_mailbox.models.mailbox_submission_response import MailboxSubmissionResponse as MailboxSubmissionResponse
+from sendmux_mailbox.models.mailbox_sync_meta import MailboxSyncMeta as MailboxSyncMeta
 from sendmux_mailbox.models.mailbox_thread import MailboxThread as MailboxThread
 from sendmux_mailbox.models.mailbox_thread_content_meta import MailboxThreadContentMeta as MailboxThreadContentMeta
 from sendmux_mailbox.models.mailbox_thread_content_meta_states import MailboxThreadContentMetaStates as MailboxThreadContentMetaStates
 from sendmux_mailbox.models.mailbox_thread_content_response import MailboxThreadContentResponse as MailboxThreadContentResponse
 from sendmux_mailbox.models.mailbox_thread_content_response_all_of_data import MailboxThreadContentResponseAllOfData as MailboxThreadContentResponseAllOfData
 from sendmux_mailbox.models.mailbox_thread_detail_response import MailboxThreadDetailResponse as MailboxThreadDetailResponse
+from sendmux_mailbox.models.mailbox_thread_message_summary_cursor_list_response import MailboxThreadMessageSummaryCursorListResponse as MailboxThreadMessageSummaryCursorListResponse
+from sendmux_mailbox.models.mailbox_thread_messages_meta import MailboxThreadMessagesMeta as MailboxThreadMessagesMeta
 from sendmux_mailbox.models.mailbox_thread_summary import MailboxThreadSummary as MailboxThreadSummary
 from sendmux_mailbox.models.mailbox_thread_summary_cursor_list_response import MailboxThreadSummaryCursorListResponse as MailboxThreadSummaryCursorListResponse
 from sendmux_mailbox.models.mailbox_thread_summary_states import MailboxThreadSummaryStates as MailboxThreadSummaryStates

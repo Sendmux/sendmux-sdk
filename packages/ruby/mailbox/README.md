@@ -112,6 +112,12 @@ rescue Sendmux::Core::ApiError => error
 end
 ```
 
+## Version 2 migration candidate
+
+Version 2 is not published yet. Thread-message list calls return `MailboxThreadMessageSummaryCursorListResponse`; its metadata requires `thread_id` and exposes optional typed `sync_state`. Constructed thread results must use the thread-specific response and metadata models. Ordinary message-list calls remain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose their own typed sync state. Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
+
+When the release is available, update `sendmux-mailbox`, the bundle lock, and affected call sites or fixtures together. To roll back, restore the previous gem requirement, lock, and call sites together.
+
 ## Support
 
 - Documentation: https://sendmux.ai/docs

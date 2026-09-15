@@ -74,14 +74,21 @@ function checkDependencyFloors({ source, sourcePath, dependencies, enforceManife
       throw new Error(`Could not read release manifest version for ${packageName}`);
     }
 
-    const dependencyPattern = new RegExp(`"${escapeRegExp(packageName)}>=([^,"]+),<2\\.0\\.0"`);
-    const actualVersion = source.match(dependencyPattern)?.[1];
-    if (!actualVersion) {
-      throw new Error(`${sourcePath} must require ${packageName} with an explicit >= floor and <2.0.0 upper bound`);
+    const floorPattern = new RegExp(`"${escapeRegExp(packageName)}>=([^,"]+)`);
+    const declaredFloor = source.match(floorPattern)?.[1] ?? minimumVersion;
+    const expectedUpperBound = nextMajorUpperBound(declaredFloor);
+    const dependencyPattern = new RegExp(`"${escapeRegExp(packageName)}>=([^,"]+),<([^"]+)"`);
+    const range = source.match(dependencyPattern);
+    const actualVersion = range?.[1];
+    if (!actualVersion || range[2] !== expectedUpperBound) {
+      throw new Error(
+        `${sourcePath} must require ${packageName} with an explicit >= floor and <${expectedUpperBound} upper bound (requested >=${declaredFloor},<${expectedUpperBound})`,
+      );
     }
     if (enforceManifestFloor && compareSemver(actualVersion, minimumVersion) !== 0) {
+      const manifestUpperBound = nextMajorUpperBound(minimumVersion);
       throw new Error(
-        `${sourcePath} must require ${packageName} >= ${minimumVersion},<2.0.0; found >= ${actualVersion},<2.0.0`,
+        `${sourcePath} must require ${packageName} >= ${minimumVersion},<${manifestUpperBound}; found >= ${actualVersion},<${range[2]}`,
       );
     }
   }
@@ -170,6 +177,11 @@ function parseSemver(version) {
     throw new Error(`Unsupported Python dependency version: ${version}`);
   }
   return match.slice(1).map(Number);
+}
+
+function nextMajorUpperBound(version) {
+  const [major] = parseSemver(version);
+  return `${major + 1}.0.0`;
 }
 
 function escapeRegExp(value) {

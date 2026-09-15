@@ -12,6 +12,7 @@ const generatedPackageDirs = [
   "packages/python/mailbox/sendmux_mailbox",
   "packages/python/management/sendmux_management",
   "packages/python/mcp/sendmux_mcp/openapi",
+  "packages/python/mcp/sendmux_mcp/mcp-contract.json",
   "packages/python/sending/sendmux_sending",
   "packages/ruby/mailbox/lib/sendmux_mailbox_generated",
   "packages/ruby/mailbox/lib/sendmux_mailbox_generated.rb",

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Security
+
+- Require Guzzle `^7.15.5` and its maintained PSR7 dependency for HTTP security fixes. If you use a custom persistent cookie jar, follow the [upgrade warning](README.md#installation) before updating.
+
 ## 2.1.0 (2026-09-11)
 
 - Add REST OAuth access tokens and callable token providers with validation before authenticated requests.

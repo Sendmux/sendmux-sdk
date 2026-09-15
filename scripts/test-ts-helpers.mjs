@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import { setImmediate as nextTurn } from "node:timers/promises";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import filesystem, { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { syncBuiltinESMExports } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+const sendingAttachmentLimit = JSON.parse(await readFile(
+  new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
+)).components.schemas.EmailSendRequest.properties.attachments.maxItems;
+// Sending's absolute ceiling: smtp-proxy/app/http-api/v1/lib/attachment-validation.js.
+const sendingAttachmentByteLimit = 18 * 1024 * 1024;
 
 const {
   SendmuxApiError,
@@ -598,6 +606,7 @@ assert.equal(mailboxStreamUrl.searchParams.get("close_after"), "30");
 assert.equal(mailboxStreamUrl.searchParams.get("event_types"), "message.received");
 
 const tempDir = await mkdtemp(join(tmpdir(), "sendmux-ts-helpers-"));
+console.log(JSON.stringify({ workspace: tempDir, owner_pid: process.pid }));
 try {
   const reportPath = join(tempDir, "report.txt");
   const reportBytes = Buffer.from("typed helper attachment\n", "utf8");
@@ -875,8 +884,186 @@ try {
   assert.deepEqual(JSON.parse(seenSendingFileRequests[2].body.toString("utf8")).attachments, [
     { attachment_id: "att_1234567890abcdefghijklmn" },
   ]);
+
+  await test("Sending file helper upload safety", async (t) => {
+    const requests = [];
+    const uploads = new Map();
+    const sends = new Map();
+    let nextAttachment = 0;
+    let nextMessage = 0;
+    const client = createSendingClient({
+      apiKey: "smx_mbx_test_attachment_replay",
+      baseUrl: "https://sending-replay.test",
+      fetch: async (request) => {
+        const url = new URL(request.url);
+        const upload = url.pathname === "/emails/attachments";
+        assert(upload || url.pathname === "/emails/send");
+        const bytes = Buffer.from(await request.arrayBuffer());
+        const key = request.headers.get("Idempotency-Key");
+        const body = upload ? {
+          filename: url.searchParams.get("filename"),
+          content_type: url.searchParams.get("content_type") ?? request.headers.get("Content-Type"),
+          size_bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex"),
+        } : JSON.parse(bytes);
+        const fingerprint = JSON.stringify(body, (_key, value) => value && typeof value === "object" && !Array.isArray(value)
+          ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]])) : value);
+        const cache = upload ? uploads : sends;
+        const previous = key && key.length <= 255 ? cache.get(key) : undefined;
+        const conflict = previous && previous.fingerprint !== fingerprint;
+        const invalidCount = !upload && body.attachments.length > sendingAttachmentLimit;
+        const invalidSize = upload && body.size_bytes > sendingAttachmentByteLimit;
+        const empty = upload && body.size_bytes === 0;
+        const payload = invalidCount ? {
+          ok: false, error: { code: "validation_error", message: "Too many attachments", retryable: false },
+          meta: { request_id: "req_ts_count" },
+        } : invalidSize ? {
+          ok: false, error: { code: "payload_too_large", message: "Attachment exceeds the maximum allowed size.", retryable: false },
+          meta: { request_id: "req_ts_size" },
+        } : empty ? {
+          ok: false, error: { code: "invalid_parameter", message: "Content-Length must be a positive integer.", param: "Content-Length", retryable: false },
+          meta: { request_id: "req_ts_empty" },
+        } : conflict ? {
+          ok: false, error: { code: "idempotency_conflict", message: "Different body for the same key", retryable: false },
+          meta: { request_id: "req_ts_conflict" },
+        } : previous?.payload ?? {
+          ok: true,
+          data: upload ? {
+            attachment_id: `att_${String(++nextAttachment).padStart(24, "0")}`,
+            filename: body.filename, content_type: body.content_type, size_bytes: body.size_bytes,
+            expires_at: "2026-07-07T10:00:00.000Z",
+          } : { message_id: `eml_${String(++nextMessage).padStart(24, "0")}`, status: "queued" },
+          meta: { request_id: "req_ts_replay" },
+        };
+        if (key && key.length <= 255 && !previous && !invalidCount && !invalidSize && !empty) cache.set(key, { fingerprint, payload });
+        requests.push({ upload, key, body, payload });
+        return Response.json(payload, { status: invalidCount || empty ? 400 : invalidSize ? 413 : conflict ? 409 : upload ? 201 : 200 });
+      },
+    });
+    const options = {
+      client, files: [reportPath], headers: { "Idempotency-Key": "attachment-replay" },
+      body: { from: { email: "from@example.com" }, to: { email: "agent@example.com" }, subject: "Replay", html_body: "<p>Attached</p>" },
+    };
+    await t.test("oversized local file is rejected before upload", async () => {
+      const filePath = join(tempDir, "oversized.txt");
+      await writeFile(filePath, Buffer.alloc(sendingAttachmentByteLimit + 1, "x"));
+      const start = requests.length;
+      await assert.rejects(uploadAttachmentFromFile({ client, filePath }));
+      assert.equal(requests.length, start, "Oversized files must not be uploaded");
+    });
+    for (const [change, size] of [["grown", sendingAttachmentByteLimit + 1], ["emptied", 0]]) {
+      await t.test(`${change} file after metadata validation cannot be uploaded`, async (t) => {
+        const filePath = join(tempDir, "growing.txt");
+        await writeFile(filePath, "Before metadata check\n");
+        const originalStat = filesystem.stat;
+        // Change a real file after the real stat, at the filesystem boundary.
+        const statMock = t.mock.method(filesystem, "stat", async (...args) => {
+          const info = await originalStat(...args);
+          if (args[0] === filePath) await writeFile(filePath, Buffer.alloc(size, "x"));
+          return info;
+        });
+        syncBuiltinESMExports();
+        const start = requests.length;
+        try {
+          await assert.rejects(uploadAttachmentFromFile({ client, filePath }));
+          assert.equal(requests.length, start, "An invalidated file must not be uploaded, including a truncated prefix");
+        } finally {
+          statMock.mock.restore();
+          syncBuiltinESMExports();
+        }
+      });
+    }
+    await t.test("inline attachment at the byte ceiling preserves its content", async () => {
+      const filePath = join(tempDir, "at-limit.txt");
+      const bytes = Buffer.alloc(sendingAttachmentByteLimit, "x");
+      await writeFile(filePath, bytes);
+      const result = await attachmentFromFile(filePath);
+      const decoded = Buffer.from(result.content, "base64");
+      assert.equal(decoded.length, sendingAttachmentByteLimit);
+      assert.equal(createHash("sha256").update(decoded).digest("hex"), createHash("sha256").update(bytes).digest("hex"));
+    });
+    await t.test("excess local attachments fail before any HTTP request", async () => {
+      const start = requests.length;
+      await assert.rejects(sendEmailWithFiles({ ...options, files: Array(sendingAttachmentLimit + 1).fill(reportPath) }));
+      assert.equal(requests.length, start, "Excess attachments must not upload files or send email");
+    });
+    await t.test("existing attachments count toward the pre-upload limit", async () => {
+      const start = requests.length;
+      const attachments = Array(sendingAttachmentLimit).fill({ attachment_id: "att_1234567890abcdefghijklmn" });
+      await assert.rejects(sendEmailWithFiles({ ...options, body: { ...options.body, attachments } }));
+      assert.equal(requests.length, start, "Existing references must count before uploading more files");
+    });
+    await t.test("exactly the attachment limit preserves existing references", async () => {
+      const existing = { attachment_id: "att_1234567890abcdefghijklmn" };
+      const start = requests.length;
+      const result = await sendEmailWithFiles({
+        ...options, headers: undefined, files: Array(sendingAttachmentLimit - 1).fill(reportPath),
+        body: { ...options.body, attachments: [existing] },
+      });
+      assert.equal(result.data.status, "queued");
+      assert.deepEqual(requests.at(-1).body.attachments, [
+        existing, ...requests.slice(start).filter(({ upload }) => upload)
+          .map(({ payload }) => ({ attachment_id: payload.data.attachment_id })),
+      ]);
+      assert.equal(requests.at(-1).body.attachments.length, sendingAttachmentLimit);
+    });
+    await t.test("identical single-file retry returns the original result", async () => {
+      const first = await sendEmailWithFiles(options);
+      const firstBody = requests.at(-1).body;
+      const second = await sendEmailWithFiles(options);
+      assert.deepEqual(second, first);
+      assert.deepEqual(requests.at(-1).body, firstBody);
+    });
+    await t.test("distinct outer keys namespace the upload key at the same file ordinal", async () => {
+      const start = requests.length;
+      const first = await sendEmailWithFiles({ ...options, headers: { "Idempotency-Key": "attachment-namespace-a" } });
+      const second = await sendEmailWithFiles({ ...options, headers: { "Idempotency-Key": "attachment-namespace-b" } });
+      const uploaded = requests.slice(start).filter((request) => request.upload);
+      assert.equal(first.data.status, "queued");
+      assert.equal(second.data.status, "queued");
+      assert.equal(uploaded.length, 2);
+      assert.notEqual(uploaded[0].key, uploaded[1].key);
+    });
+    await t.test("two files use distinct bounded keys and replay their IDs", async () => {
+      const secondPath = join(tempDir, "second.txt");
+      await writeFile(secondPath, "Second attachment\n");
+      const many = { ...options, files: [reportPath, secondPath], headers: { "Idempotency-Key": "m".repeat(255) } };
+      const start = requests.length;
+      const first = await sendEmailWithFiles(many);
+      const second = await sendEmailWithFiles(many);
+      const uploaded = requests.slice(start).filter((request) => request.upload);
+      assert.equal(uploaded.length, 4);
+      assert(uploaded.every(({ key }) => key?.length > 0 && key.length <= 255));
+      assert.notEqual(uploaded[0].key, uploaded[1].key);
+      assert.deepEqual(uploaded.slice(2), uploaded.slice(0, 2));
+      assert.deepEqual(second, first);
+    });
+    await t.test("changed bytes conflict at upload before another send", async () => {
+      const changedOptions = { ...options, headers: { "Idempotency-Key": "changed-file-replay" } };
+      await sendEmailWithFiles(changedOptions);
+      const before = requests.filter((request) => !request.upload).length;
+      await writeFile(reportPath, "Changed bytes\n");
+      try {
+        await assert.rejects(sendEmailWithFiles(changedOptions), { code: "idempotency_conflict", status: 409 });
+        assert.equal(requests.at(-1).upload, true);
+        assert.equal(requests.filter((request) => !request.upload).length, before);
+      } finally {
+        await writeFile(reportPath, reportBytes);
+      }
+    });
+    await t.test("no outer key leaves both uploads and sends unkeyed", async () => {
+      const start = requests.length;
+      const unkeyed = { ...options, headers: undefined };
+      const first = await sendEmailWithFiles(unkeyed);
+      const firstBody = requests.at(-1).body;
+      const second = await sendEmailWithFiles(unkeyed);
+      assert(requests.slice(start).every(({ key }) => key === null));
+      assert.notEqual(second.data.message_id, first.data.message_id);
+      assert.notDeepEqual(requests.at(-1).body.attachments, firstBody.attachments);
+    });
+  });
 } finally {
   await rm(tempDir, { force: true, recursive: true });
+  console.log(JSON.stringify({ removed_workspace: tempDir }));
 }
 
 console.log("TypeScript core helper tests passed.");

@@ -57,7 +57,15 @@ impl ManagementClient {
     }
 
     pub async fn list_domains(&self) -> Result<Response<serde_json::Value>> {
-        self.raw_get("/domains").await
+        self.list_domains_with_cursor(None).await
+    }
+
+    /// Lists a page using the preceding response's next_cursor, or the first page with None.
+    pub async fn list_domains_with_cursor(
+        &self,
+        cursor: Option<&str>,
+    ) -> Result<Response<serde_json::Value>> {
+        self.transport.get_page("/domains", cursor).await
     }
 
     pub async fn get_domain(&self, public_id: &str) -> Result<Response<serde_json::Value>> {
@@ -65,7 +73,15 @@ impl ManagementClient {
     }
 
     pub async fn list_mailboxes(&self) -> Result<Response<serde_json::Value>> {
-        self.raw_get("/mailboxes").await
+        self.list_mailboxes_with_cursor(None).await
+    }
+
+    /// Lists a page using the preceding response's next_cursor, or the first page with None.
+    pub async fn list_mailboxes_with_cursor(
+        &self,
+        cursor: Option<&str>,
+    ) -> Result<Response<serde_json::Value>> {
+        self.transport.get_page("/mailboxes", cursor).await
     }
 
     pub async fn get_mailbox(&self, public_id: &str) -> Result<Response<serde_json::Value>> {
@@ -73,11 +89,27 @@ impl ManagementClient {
     }
 
     pub async fn list_webhooks(&self) -> Result<Response<serde_json::Value>> {
-        self.raw_get("/webhooks").await
+        self.list_webhooks_with_cursor(None).await
+    }
+
+    /// Lists a page using the preceding response's next_cursor, or the first page with None.
+    pub async fn list_webhooks_with_cursor(
+        &self,
+        cursor: Option<&str>,
+    ) -> Result<Response<serde_json::Value>> {
+        self.transport.get_page("/webhooks", cursor).await
     }
 
     pub async fn list_sending_accounts(&self) -> Result<Response<serde_json::Value>> {
-        self.raw_get("/providers").await
+        self.list_sending_accounts_with_cursor(None).await
+    }
+
+    /// Lists a page using the preceding response's next_cursor, or the first page with None.
+    pub async fn list_sending_accounts_with_cursor(
+        &self,
+        cursor: Option<&str>,
+    ) -> Result<Response<serde_json::Value>> {
+        self.transport.get_page("/providers", cursor).await
     }
 
     pub async fn billing_balance(&self) -> Result<Response<serde_json::Value>> {

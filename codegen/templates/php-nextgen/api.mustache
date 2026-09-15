@@ -167,7 +167,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return {{{exts.x-php-doc-return-type}}}
+     * @return {{#vendorExtensions.x-sendmux-response-return-type}}{{{.}}}{{/vendorExtensions.x-sendmux-response-return-type}}{{^vendorExtensions.x-sendmux-response-return-type}}{{{exts.x-php-doc-return-type}}}{{/vendorExtensions.x-sendmux-response-return-type}}
     {{#isDeprecated}}
      * @deprecated
     {{/isDeprecated}}
@@ -186,7 +186,7 @@ use {{invokerPackage}}\ObjectSerializer;
     {{#exts.x-group-parameters}}
         array $associative_array
     {{/exts.x-group-parameters}}
-    ): {{{exts.x-php-return-type}}}
+    ): {{#vendorExtensions.x-sendmux-response-return-type}}{{{.}}}{{/vendorExtensions.x-sendmux-response-return-type}}{{^vendorExtensions.x-sendmux-response-return-type}}{{{exts.x-php-return-type}}}{{/vendorExtensions.x-sendmux-response-return-type}}
     {
         {{^exts.x-php-return-type-is-void}}list($response) = {{/exts.x-php-return-type-is-void}}$this->{{operationId}}WithHttpInfo({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{>sendmux_appended_param_args}}{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});{{^exts.x-php-return-type-is-void}}
         return $response;{{/exts.x-php-return-type-is-void}}
@@ -239,7 +239,7 @@ use {{invokerPackage}}\ObjectSerializer;
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of {{#returnType}}{{#responses}}{{#dataType}}{{^-first}}|{{/-first}}{{/dataType}}{{{dataType}}}{{/responses}}{{/returnType}}{{^returnType}}null{{/returnType}}, HTTP status code, HTTP response headers (array of strings)
+     * @return array of {{#vendorExtensions.x-sendmux-response-return-type}}{{{.}}}{{/vendorExtensions.x-sendmux-response-return-type}}{{^vendorExtensions.x-sendmux-response-return-type}}{{#returnType}}{{#responses}}{{#dataType}}{{^-first}}|{{/-first}}{{/dataType}}{{{dataType}}}{{/responses}}{{/returnType}}{{^returnType}}null{{/returnType}}{{/vendorExtensions.x-sendmux-response-return-type}}, HTTP status code, HTTP response headers (array of strings)
     {{#isDeprecated}}
      * @deprecated
     {{/isDeprecated}}
@@ -296,7 +296,7 @@ use {{invokerPackage}}\ObjectSerializer;
             {{#dataType}}
                 {{^isRange}}{{^isWildcard}}case {{code}}:{{/isWildcard}}{{#isWildcard}}default:{{/isWildcard}}
                     return $this->handleResponseWithDataType(
-                        '{{{dataType}}}',
+                        '{{#vendorExtensions.x-sendmux-response-union-type}}{{{.}}}{{/vendorExtensions.x-sendmux-response-union-type}}{{^vendorExtensions.x-sendmux-response-union-type}}{{{dataType}}}{{/vendorExtensions.x-sendmux-response-union-type}}',
                         $request,
                         $response,
                     );{{/isRange}}
@@ -328,7 +328,7 @@ use {{invokerPackage}}\ObjectSerializer;
             }
 
             return $this->handleResponseWithDataType(
-                '{{{returnType}}}',
+                '{{#vendorExtensions.x-sendmux-response-union-type}}{{{.}}}{{/vendorExtensions.x-sendmux-response-union-type}}{{^vendorExtensions.x-sendmux-response-union-type}}{{{returnType}}}{{/vendorExtensions.x-sendmux-response-union-type}}',
                 $request,
                 $response,
             );
@@ -508,7 +508,7 @@ use {{invokerPackage}}\ObjectSerializer;
     {{/exts.x-group-parameters}}
     ): PromiseInterface
     {
-        $returnType = '{{{returnType}}}';
+        $returnType = '{{#vendorExtensions.x-sendmux-response-union-type}}{{{.}}}{{/vendorExtensions.x-sendmux-response-union-type}}{{^vendorExtensions.x-sendmux-response-union-type}}{{{returnType}}}{{/vendorExtensions.x-sendmux-response-union-type}}';
         $request = $this->{{operationId}}Request({{^exts.x-group-parameters}}{{>sendmux_param_args}}{{#servers}}{{#-first}}$hostIndex, $variables, {{/-first}}{{/servers}}$contentType{{>sendmux_appended_param_args}}{{/exts.x-group-parameters}}{{#exts.x-group-parameters}}$associative_array{{/exts.x-group-parameters}});
 
         return $this->client
@@ -941,6 +941,24 @@ use {{invokerPackage}}\ObjectSerializer;
             }
         }
 
+        {{#operation}}
+        {{#vendorExtensions.x-sendmux-response-union-type}}
+        if ($dataType === '{{{.}}}') {
+            foreach (explode('|', $dataType) as $variant) {
+                try {
+                    $value = ObjectSerializer::deserialize($content, $variant, []);
+                    if ($value->valid() && $value->getData()->valid()) {
+                        return [$value, $response->getStatusCode(), $response->getHeaders()];
+                    }
+                } catch (\InvalidArgumentException|\TypeError $error) {
+                    // Try the next declared response model, never raw JSON.
+                }
+            }
+            throw new \UnexpectedValueException('mailboxGetChanges response matches neither declared model');
+        }
+
+        {{/vendorExtensions.x-sendmux-response-union-type}}
+        {{/operation}}
         return [
             ObjectSerializer::deserialize($content, $dataType, []),
             $response->getStatusCode(),

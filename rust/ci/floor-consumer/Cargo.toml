@@ -1,0 +1,9 @@
+[package]
+name = "sendmux-floor-consumer"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.82"
+publish = false
+
+[dependencies]
+sendmux = { path = "../package" }

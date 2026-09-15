@@ -61,11 +61,27 @@ impl MailboxClient {
     }
 
     pub async fn list_folders(&self) -> Result<Response<serde_json::Value>> {
-        self.raw_get("/mailbox/folders").await
+        self.list_folders_with_cursor(None).await
+    }
+
+    /// Lists a page using the preceding response's next_cursor, or the first page with None.
+    pub async fn list_folders_with_cursor(
+        &self,
+        cursor: Option<&str>,
+    ) -> Result<Response<serde_json::Value>> {
+        self.transport.get_page("/mailbox/folders", cursor).await
     }
 
     pub async fn list_messages(&self) -> Result<Response<serde_json::Value>> {
-        self.raw_get("/mailbox/messages").await
+        self.list_messages_with_cursor(None).await
+    }
+
+    /// Lists a page using the preceding response's next_cursor, or the first page with None.
+    pub async fn list_messages_with_cursor(
+        &self,
+        cursor: Option<&str>,
+    ) -> Result<Response<serde_json::Value>> {
+        self.transport.get_page("/mailbox/messages", cursor).await
     }
 
     pub async fn get_message(&self, message_id: &str) -> Result<Response<serde_json::Value>> {

@@ -176,8 +176,13 @@ export type MailboxTypedChanges = {
 
 export type MailboxThreadSummaryCursorListResponse = SuccessEnvelope & {
     data: Array<MailboxThreadSummary>;
-    meta?: ResponseMeta;
+    meta?: MailboxQueryMeta;
     pagination: CursorPagination;
+};
+
+export type MailboxQueryMeta = {
+    query_state?: string;
+    request_id: string;
 };
 
 export type MailboxMessageFlags = {
@@ -250,6 +255,18 @@ export type MailboxThreadSummary = {
     };
     subject: string | null;
     unread_count: number;
+};
+
+export type MailboxThreadMessageSummaryCursorListResponse = SuccessEnvelope & {
+    data: Array<MailboxMessageSummary>;
+    meta?: MailboxThreadMessagesMeta;
+    pagination: CursorPagination;
+};
+
+export type MailboxThreadMessagesMeta = {
+    request_id: string;
+    sync_state?: string;
+    thread_id: string;
 };
 
 export type MailboxThreadDetailResponse = SuccessEnvelope & {
@@ -336,6 +353,11 @@ export type MailboxMessageContent = {
     thread_id: string | null;
 } | null;
 
+export type MailboxSyncMeta = {
+    request_id: string;
+    sync_state?: string;
+};
+
 export type MailboxSubmissionResponse = SuccessEnvelope & {
     data: MailboxSubmission;
     meta?: ResponseMeta;
@@ -380,7 +402,7 @@ export type MailboxSubmission = {
 
 export type MailboxSubmissionCursorListResponse = SuccessEnvelope & {
     data: Array<MailboxSubmission>;
-    meta?: ResponseMeta;
+    meta?: MailboxQueryMeta;
     pagination: CursorPagination;
 };
 
@@ -606,7 +628,7 @@ export type MailboxRawBody = {
 
 export type MailboxQuotaCursorListResponse = SuccessEnvelope & {
     data: Array<MailboxQuota>;
-    meta?: ResponseMeta;
+    meta?: MailboxQueryMeta;
     pagination: CursorPagination;
 };
 
@@ -628,7 +650,7 @@ export type MailboxQuota = {
 
 export type MailboxMessageSummaryCursorListResponse = SuccessEnvelope & {
     data: Array<MailboxMessageSummary>;
-    meta?: ResponseMeta;
+    meta?: MailboxSyncMeta;
     pagination: CursorPagination;
 };
 
@@ -747,9 +769,14 @@ export type MailboxIdentity = {
     text_signature: string;
 };
 
+export type MailboxIdentityListMeta = {
+    identity_state?: string;
+    request_id: string;
+};
+
 export type MailboxIdentityCursorListResponse = SuccessEnvelope & {
     data: Array<MailboxIdentity>;
-    meta?: ResponseMeta;
+    meta?: MailboxIdentityListMeta;
     pagination: CursorPagination;
 };
 
@@ -3229,7 +3256,7 @@ export type MailboxListThreadMessagesResponses = {
     /**
      * Thread messages
      */
-    200: MailboxMessageSummaryCursorListResponse;
+    200: MailboxThreadMessageSummaryCursorListResponse;
 };
 
 export type MailboxListThreadMessagesResponse = MailboxListThreadMessagesResponses[keyof MailboxListThreadMessagesResponses];

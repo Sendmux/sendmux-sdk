@@ -82,6 +82,8 @@ const CONFIG_FILE = "config.json";
 const CONFIG_LOCK_RETRY_MS = 25;
 const CONFIG_LOCK_STALE_MS = 5_000;
 const CONFIG_LOCK_TIMEOUT_MS = 10_000;
+const CONFIG_REPLACE_TIMEOUT_MS = CONFIG_LOCK_STALE_MS / 2;
+const CONFIG_REPLACE_MAX_WAITS = CONFIG_REPLACE_TIMEOUT_MS / CONFIG_LOCK_RETRY_MS;
 
 export async function readCliConfig(configDir: string): Promise<CliConfig> {
   const path = configPath(configDir);
@@ -108,10 +110,11 @@ export async function updateCliConfig<T>(
 ): Promise<T> {
   await mkdir(configDir, { mode: 0o700, recursive: true });
   const releaseLock = await acquireConfigWriteLock(configDir);
+  const replaceDeadline = Date.now() + CONFIG_REPLACE_TIMEOUT_MS;
   try {
     const config = await readCliConfig(configDir);
     const result = update(config);
-    await writeCliConfigFile(configDir, config);
+    await writeCliConfigFile(configDir, config, replaceDeadline);
     return result;
   } finally {
     await releaseLock();
@@ -173,12 +176,33 @@ export function configPath(configDir: string): string {
   return join(configDir, CONFIG_FILE);
 }
 
-async function writeCliConfigFile(configDir: string, config: CliConfig): Promise<void> {
+async function writeCliConfigFile(
+  configDir: string,
+  config: CliConfig,
+  replaceDeadline: number,
+): Promise<void> {
   const path = configPath(configDir);
   const tempPath = `${path}.${process.pid}.tmp`;
   await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
   await chmod(tempPath, 0o600);
-  await rename(tempPath, path);
+  let waits = 0;
+  while (true) {
+    try {
+      await rename(tempPath, path);
+      break;
+    } catch (error) {
+      if (!isRetryableWindowsProfileFsError(error)) throw error;
+      if (
+        waits >= CONFIG_REPLACE_MAX_WAITS ||
+        Date.now() + CONFIG_LOCK_RETRY_MS > replaceDeadline
+      ) {
+        throw error;
+      }
+      waits += 1;
+      await new Promise((resolve) => setTimeout(resolve, CONFIG_LOCK_RETRY_MS));
+      if (Date.now() >= replaceDeadline) throw error;
+    }
+  }
   await chmod(path, 0o600);
 }
 
@@ -191,8 +215,16 @@ async function acquireConfigWriteLock(configDir: string): Promise<() => Promise<
 
 async function acquireFileLock(lockPath: string, timeoutMessage: string): Promise<() => Promise<void>> {
   const deadline = Date.now() + CONFIG_LOCK_TIMEOUT_MS;
+  let lastOpenError: NodeJS.ErrnoException | undefined;
 
   while (true) {
+    if (Date.now() >= deadline) {
+      if (lastOpenError && isRetryableWindowsProfileFsError(lastOpenError)) {
+        throw lastOpenError;
+      }
+      throw new Error(timeoutMessage);
+    }
+
     try {
       const handle = await open(lockPath, "wx", 0o600);
       return async () => {
@@ -207,7 +239,16 @@ async function acquireFileLock(lockPath: string, timeoutMessage: string): Promis
         }
       };
     } catch (error) {
-      if (!isNodeError(error) || error.code !== "EEXIST") throw error;
+      if (isNodeError(error) && error.code === "EEXIST") {
+        lastOpenError = error;
+      } else if (isRetryableWindowsProfileFsError(error)) {
+        lastOpenError = error;
+        if (Date.now() + CONFIG_LOCK_RETRY_MS > deadline) throw error;
+        await new Promise((resolve) => setTimeout(resolve, CONFIG_LOCK_RETRY_MS));
+        continue;
+      } else {
+        throw error;
+      }
     }
 
     try {
@@ -226,9 +267,7 @@ async function acquireFileLock(lockPath: string, timeoutMessage: string): Promis
       throw error;
     }
 
-    if (Date.now() >= deadline) {
-      throw new Error(timeoutMessage);
-    }
+    if (Date.now() + CONFIG_LOCK_RETRY_MS > deadline) throw new Error(timeoutMessage);
     await new Promise((resolve) => setTimeout(resolve, CONFIG_LOCK_RETRY_MS));
   }
 }
@@ -271,4 +310,12 @@ export function isActiveAgentProfile(profile: CliProfile): profile is ActiveAgen
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return Boolean(error && typeof error === "object" && "code" in error);
+}
+
+function isRetryableWindowsProfileFsError(error: unknown): error is NodeJS.ErrnoException {
+  return (
+    process.platform === "win32" &&
+    isNodeError(error) &&
+    (error.code === "EPERM" || error.code === "EACCES" || error.code === "EBUSY")
+  );
 }

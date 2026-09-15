@@ -755,6 +755,7 @@ function writeSendingAttachmentHelpers(packageName, packageDir) {
 import base64
 import mimetypes
 
+from hashlib import sha256
 from os import PathLike
 from pathlib import Path
 from typing import Any
@@ -768,6 +769,9 @@ from ${packageName}.models.send_success_response import SendSuccessResponse
 
 PathInput = str | PathLike[str]
 FileInput = PathInput | dict[str, Any]
+_MAX_SENDING_ATTACHMENTS = 10
+# Absolute Sending service ceiling; deployment policy may impose a lower limit.
+_MAX_SENDING_ATTACHMENT_BYTES = 18 * 1024 * 1024
 
 
 def attachment_from_file(
@@ -821,15 +825,23 @@ def send_email_with_files(
 ) -> SendSuccessResponse:
     """Upload local files, attach their attachment IDs, and send one email."""
 
-    attachments = list(body.get("attachments") or [])
-    for file_input in files:
+    existing_attachments = body.get("attachments") or []
+    if len(existing_attachments) + len(files) > _MAX_SENDING_ATTACHMENTS:
+        raise ValueError(f"Sending email supports at most {_MAX_SENDING_ATTACHMENTS} attachments, including existing attachments and files.")
+    attachments = list(existing_attachments)
+    outer_key = idempotency_key.strip() if idempotency_key else None
+    for index, file_input in enumerate(files):
         file = _file_input(file_input)
+        upload_key = file.get("idempotency_key")
+        if upload_key is None and outer_key:
+            # Match CLI/TypeScript derivation; changed bytes must conflict under the original key.
+            upload_key = sha256(f"sendmux:sending:attachment:{index}:{outer_key}".encode("utf-8")).hexdigest()
         uploaded = upload_attachment_from_file(
             api_client,
             file_path=file["path"],
             filename=file.get("filename"),
             content_type=file.get("content_type"),
-            idempotency_key=file.get("idempotency_key"),
+            idempotency_key=upload_key,
             request_timeout=request_timeout,
         )
         attachments.append({"attachment_id": uploaded.data.attachment_id})
@@ -864,7 +876,13 @@ def _read_attachment_file(
     path = Path(file_path)
     if not path.is_file():
         raise ValueError(f"Attachment path is not a regular file: {path}")
-    data = path.read_bytes()
+    if path.stat().st_size > _MAX_SENDING_ATTACHMENT_BYTES:
+        raise ValueError(f"Attachment file exceeds {_MAX_SENDING_ATTACHMENT_BYTES} bytes: {path}")
+    # Include one excess byte so growth is rejected instead of truncated and uploaded.
+    with path.open("rb") as stream:
+        data = stream.read(_MAX_SENDING_ATTACHMENT_BYTES + 1)
+    if len(data) > _MAX_SENDING_ATTACHMENT_BYTES:
+        raise ValueError(f"Attachment file exceeds {_MAX_SENDING_ATTACHMENT_BYTES} bytes: {path}")
     if not data:
         raise ValueError(f"Attachment file is empty: {path}")
 

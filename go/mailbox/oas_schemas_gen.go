@@ -4229,8 +4229,14 @@ func (*MailboxIdentityCursorListResponse) mailboxListIdentitiesRes() {}
 
 // Merged schema.
 type MailboxIdentityCursorListResponseMeta struct {
-	RequestID       string `json:"request_id"`
+	IdentityState   OptString `json:"identity_state"`
+	RequestID       string    `json:"request_id"`
 	AdditionalProps MailboxIdentityCursorListResponseMetaAdditional
+}
+
+// GetIdentityState returns the value of IdentityState.
+func (s *MailboxIdentityCursorListResponseMeta) GetIdentityState() OptString {
+	return s.IdentityState
 }
 
 // GetRequestID returns the value of RequestID.
@@ -4241,6 +4247,11 @@ func (s *MailboxIdentityCursorListResponseMeta) GetRequestID() string {
 // GetAdditionalProps returns the value of AdditionalProps.
 func (s *MailboxIdentityCursorListResponseMeta) GetAdditionalProps() MailboxIdentityCursorListResponseMetaAdditional {
 	return s.AdditionalProps
+}
+
+// SetIdentityState sets the value of IdentityState.
+func (s *MailboxIdentityCursorListResponseMeta) SetIdentityState(val OptString) {
+	s.IdentityState = val
 }
 
 // SetRequestID sets the value of RequestID.
@@ -7245,18 +7256,23 @@ func (s *MailboxMessageSummaryCursorListResponse) SetPagination(val CursorPagina
 	s.Pagination = val
 }
 
-func (*MailboxMessageSummaryCursorListResponse) mailboxListMessagesRes()       {}
-func (*MailboxMessageSummaryCursorListResponse) mailboxListThreadMessagesRes() {}
+func (*MailboxMessageSummaryCursorListResponse) mailboxListMessagesRes() {}
 
 // Merged schema.
 type MailboxMessageSummaryCursorListResponseMeta struct {
-	RequestID       string `json:"request_id"`
+	RequestID       string    `json:"request_id"`
+	SyncState       OptString `json:"sync_state"`
 	AdditionalProps MailboxMessageSummaryCursorListResponseMetaAdditional
 }
 
 // GetRequestID returns the value of RequestID.
 func (s *MailboxMessageSummaryCursorListResponseMeta) GetRequestID() string {
 	return s.RequestID
+}
+
+// GetSyncState returns the value of SyncState.
+func (s *MailboxMessageSummaryCursorListResponseMeta) GetSyncState() OptString {
+	return s.SyncState
 }
 
 // GetAdditionalProps returns the value of AdditionalProps.
@@ -7267,6 +7283,11 @@ func (s *MailboxMessageSummaryCursorListResponseMeta) GetAdditionalProps() Mailb
 // SetRequestID sets the value of RequestID.
 func (s *MailboxMessageSummaryCursorListResponseMeta) SetRequestID(val string) {
 	s.RequestID = val
+}
+
+// SetSyncState sets the value of SyncState.
+func (s *MailboxMessageSummaryCursorListResponseMeta) SetSyncState(val OptString) {
+	s.SyncState = val
 }
 
 // SetAdditionalProps sets the value of AdditionalProps.
@@ -7577,8 +7598,14 @@ func (*MailboxQuotaCursorListResponse) mailboxListQuotasRes() {}
 
 // Merged schema.
 type MailboxQuotaCursorListResponseMeta struct {
-	RequestID       string `json:"request_id"`
+	QueryState      OptString `json:"query_state"`
+	RequestID       string    `json:"request_id"`
 	AdditionalProps MailboxQuotaCursorListResponseMetaAdditional
+}
+
+// GetQueryState returns the value of QueryState.
+func (s *MailboxQuotaCursorListResponseMeta) GetQueryState() OptString {
+	return s.QueryState
 }
 
 // GetRequestID returns the value of RequestID.
@@ -7589,6 +7616,11 @@ func (s *MailboxQuotaCursorListResponseMeta) GetRequestID() string {
 // GetAdditionalProps returns the value of AdditionalProps.
 func (s *MailboxQuotaCursorListResponseMeta) GetAdditionalProps() MailboxQuotaCursorListResponseMetaAdditional {
 	return s.AdditionalProps
+}
+
+// SetQueryState sets the value of QueryState.
+func (s *MailboxQuotaCursorListResponseMeta) SetQueryState(val OptString) {
+	s.QueryState = val
 }
 
 // SetRequestID sets the value of RequestID.
@@ -10026,8 +10058,14 @@ func (*MailboxSubmissionCursorListResponse) mailboxListSubmissionsRes() {}
 
 // Merged schema.
 type MailboxSubmissionCursorListResponseMeta struct {
-	RequestID       string `json:"request_id"`
+	QueryState      OptString `json:"query_state"`
+	RequestID       string    `json:"request_id"`
 	AdditionalProps MailboxSubmissionCursorListResponseMetaAdditional
+}
+
+// GetQueryState returns the value of QueryState.
+func (s *MailboxSubmissionCursorListResponseMeta) GetQueryState() OptString {
+	return s.QueryState
 }
 
 // GetRequestID returns the value of RequestID.
@@ -10038,6 +10076,11 @@ func (s *MailboxSubmissionCursorListResponseMeta) GetRequestID() string {
 // GetAdditionalProps returns the value of AdditionalProps.
 func (s *MailboxSubmissionCursorListResponseMeta) GetAdditionalProps() MailboxSubmissionCursorListResponseMetaAdditional {
 	return s.AdditionalProps
+}
+
+// SetQueryState sets the value of QueryState.
+func (s *MailboxSubmissionCursorListResponseMeta) SetQueryState(val OptString) {
+	s.QueryState = val
 }
 
 // SetRequestID sets the value of RequestID.
@@ -11037,6 +11080,130 @@ func (MailboxThreadDetailResponseOk) AllValues() []MailboxThreadDetailResponseOk
 	}
 }
 
+// Merged schema.
+// Ref: #/components/schemas/MailboxThreadMessageSummaryCursorListResponse
+type MailboxThreadMessageSummaryCursorListResponse struct {
+	// Merged property.
+	Meta       MailboxThreadMessageSummaryCursorListResponseMeta `json:"meta"`
+	Ok         MailboxThreadMessageSummaryCursorListResponseOk   `json:"ok"`
+	Data       []MailboxMessageSummary                           `json:"data"`
+	Pagination CursorPagination                                  `json:"pagination"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxThreadMessageSummaryCursorListResponse) GetMeta() MailboxThreadMessageSummaryCursorListResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxThreadMessageSummaryCursorListResponse) GetOk() MailboxThreadMessageSummaryCursorListResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxThreadMessageSummaryCursorListResponse) GetData() []MailboxMessageSummary {
+	return s.Data
+}
+
+// GetPagination returns the value of Pagination.
+func (s *MailboxThreadMessageSummaryCursorListResponse) GetPagination() CursorPagination {
+	return s.Pagination
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxThreadMessageSummaryCursorListResponse) SetMeta(val MailboxThreadMessageSummaryCursorListResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxThreadMessageSummaryCursorListResponse) SetOk(val MailboxThreadMessageSummaryCursorListResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxThreadMessageSummaryCursorListResponse) SetData(val []MailboxMessageSummary) {
+	s.Data = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *MailboxThreadMessageSummaryCursorListResponse) SetPagination(val CursorPagination) {
+	s.Pagination = val
+}
+
+func (*MailboxThreadMessageSummaryCursorListResponse) mailboxListThreadMessagesRes() {}
+
+// Merged schema.
+type MailboxThreadMessageSummaryCursorListResponseMeta struct {
+	RequestID       string    `json:"request_id"`
+	SyncState       OptString `json:"sync_state"`
+	ThreadID        string    `json:"thread_id"`
+	AdditionalProps MailboxThreadMessageSummaryCursorListResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetSyncState returns the value of SyncState.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) GetSyncState() OptString {
+	return s.SyncState
+}
+
+// GetThreadID returns the value of ThreadID.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) GetThreadID() string {
+	return s.ThreadID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) GetAdditionalProps() MailboxThreadMessageSummaryCursorListResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetSyncState sets the value of SyncState.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) SetSyncState(val OptString) {
+	s.SyncState = val
+}
+
+// SetThreadID sets the value of ThreadID.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) SetThreadID(val string) {
+	s.ThreadID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxThreadMessageSummaryCursorListResponseMeta) SetAdditionalProps(val MailboxThreadMessageSummaryCursorListResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxThreadMessageSummaryCursorListResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxThreadMessageSummaryCursorListResponseMetaAdditional) init() MailboxThreadMessageSummaryCursorListResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxThreadMessageSummaryCursorListResponseOk bool
+
+const (
+	MailboxThreadMessageSummaryCursorListResponseOkTrue MailboxThreadMessageSummaryCursorListResponseOk = true
+)
+
+// AllValues returns all MailboxThreadMessageSummaryCursorListResponseOk values.
+func (MailboxThreadMessageSummaryCursorListResponseOk) AllValues() []MailboxThreadMessageSummaryCursorListResponseOk {
+	return []MailboxThreadMessageSummaryCursorListResponseOk{
+		MailboxThreadMessageSummaryCursorListResponseOkTrue,
+	}
+}
+
 type MailboxThreadStates struct {
 	EmailState  NilString `json:"email_state"`
 	ThreadState NilString `json:"thread_state"`
@@ -11220,8 +11387,14 @@ func (*MailboxThreadSummaryCursorListResponse) mailboxListThreadsRes() {}
 
 // Merged schema.
 type MailboxThreadSummaryCursorListResponseMeta struct {
-	RequestID       string `json:"request_id"`
+	QueryState      OptString `json:"query_state"`
+	RequestID       string    `json:"request_id"`
 	AdditionalProps MailboxThreadSummaryCursorListResponseMetaAdditional
+}
+
+// GetQueryState returns the value of QueryState.
+func (s *MailboxThreadSummaryCursorListResponseMeta) GetQueryState() OptString {
+	return s.QueryState
 }
 
 // GetRequestID returns the value of RequestID.
@@ -11232,6 +11405,11 @@ func (s *MailboxThreadSummaryCursorListResponseMeta) GetRequestID() string {
 // GetAdditionalProps returns the value of AdditionalProps.
 func (s *MailboxThreadSummaryCursorListResponseMeta) GetAdditionalProps() MailboxThreadSummaryCursorListResponseMetaAdditional {
 	return s.AdditionalProps
+}
+
+// SetQueryState sets the value of QueryState.
+func (s *MailboxThreadSummaryCursorListResponseMeta) SetQueryState(val OptString) {
+	s.QueryState = val
 }
 
 // SetRequestID sets the value of RequestID.

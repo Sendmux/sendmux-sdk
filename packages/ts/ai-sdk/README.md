@@ -7,7 +7,22 @@ Gives an agent its own mailbox: it can send email, read what arrives, and reply 
 ## Requirements
 
 - A Node.js version supported by your installed `ai` version (`ai` v7 requires Node.js 22 or newer)
-- `ai` v5 or newer and a compatible `zod` version (peer dependencies — you already install `ai` to call `generateText`)
+- `ai` v5 or newer and `zod` v3.25.76 or newer, within the peer range accepted by your installed `ai` version (peer dependencies — you already install `ai` to call `generateText`)
+
+### Unreleased 0.5.0 upgrade
+
+The source candidate raises the `zod` peer dependency minimum to `3.25.76`.
+If you use Zod `3.24`, upgrade Zod before adopting this wrapper release; do not
+disable peer-dependency checks. Keep both `ai` and `zod` within their compatible
+peer ranges and use the Node.js version required by `ai`. The release is not
+available through the installation command until it is published.
+
+Before upgrading, retain the prior known-working package manifest, lockfile,
+and corresponding caller changes, including the compatible intersection of
+the Sendmux wrapper, `ai`, and `zod`. To roll back, restore those files together
+and reinstall dependencies with your project's existing lockfile workflow.
+Run your tool integration checks before resuming agents. Keep peer-dependency
+checks enabled rather than forcing an unsupported combination.
 
 ## Installation
 

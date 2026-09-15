@@ -1,19 +1,21 @@
 # Sendmux Go mailbox client
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/mailbox.svg)](https://pkg.go.dev/sendmux.ai/go/mailbox)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2/mailbox.svg)](https://pkg.go.dev/sendmux.ai/go/v2/mailbox)
 
 Go client for reading and managing granted mailbox data.
 
 ## Install
 
+This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
+
 ```sh
-go get sendmux.ai/go@latest
+go get sendmux.ai/go/v2@v2.0.0
 ```
 
 ## Import
 
 ```go
-import "sendmux.ai/go/mailbox"
+import "sendmux.ai/go/v2/mailbox"
 ```
 
 ## Authentication
@@ -42,7 +44,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/mailbox"
+	"sendmux.ai/go/v2/mailbox"
 )
 
 func main() {
@@ -82,6 +84,14 @@ params := mailbox.MailboxListMessagesParams{
 }
 ```
 
+## Version 2 migration candidate
+
+Version 2 is not published yet. After tag `go/v2.0.0` is available, update the module requirement and imports together.
+
+`MailboxListThreadMessages` returns `*MailboxThreadMessageSummaryCursorListResponse`; its thread-specific metadata requires `ThreadID` and exposes optional `SyncState`. Constructed thread results must use `MailboxThreadMessageSummaryCursorListResponseMeta` and `MailboxThreadMessageSummaryCursorListResponseOk`. `MailboxListMessages` remains `*MailboxMessageSummaryCursorListResponse`, with optional `SyncState` and no thread identity. Identity, submission, quota, and thread list responses expose their API state through typed metadata fields rather than additional properties.
+
+To roll back, restore the previous module requirement, imports, response fixtures, and lock or vendor state together.
+
 ## Attachments And Events
 
 Message and event attachment metadata includes `download_url`, a short-lived presigned URL for that single attachment. Fetch it promptly with a plain HTTP client and no `Authorization` header. If it expires, re-fetch the message or attachment metadata to receive a fresh URL.
@@ -102,4 +112,6 @@ Use `MailboxUploadAttachment` to upload bytes and pass the returned `blob_id` in
 
 - Mailbox guide: <https://sendmux.ai/docs/guides/mailboxes>
 - Mailbox API: <https://sendmux.ai/docs/mailbox-api/introduction>
-- Go reference: <https://pkg.go.dev/sendmux.ai/go/mailbox>
+- Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/mailbox>
+
+The v2 reference page is a release candidate until tag `go/v2.0.0` is published.

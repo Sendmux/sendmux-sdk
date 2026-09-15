@@ -28,6 +28,7 @@
     "packages/ts/mailbox": {
       "component": "ts-mailbox",
       "package-name": "@sendmux/mailbox",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ts/management": {
@@ -38,6 +39,7 @@
     "packages/ts/sdk": {
       "component": "ts-sdk",
       "package-name": "@sendmux/sdk",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ts/cli": {
@@ -48,6 +50,7 @@
     "packages/ts/ai-sdk": {
       "component": "ts-ai-sdk",
       "package-name": "@sendmux/ai-sdk",
+      "release-as": "0.5.0",
       "initial-version": "0.1.0"
     },
     "packages/python/langchain": {
@@ -72,6 +75,7 @@
       "component": "python-mailbox",
       "package-name": "sendmux-mailbox",
       "release-type": "python",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/python/management": {
@@ -84,12 +88,14 @@
       "component": "python-sdk",
       "package-name": "sendmux-sdk",
       "release-type": "python",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/python/mcp": {
       "component": "python-mcp",
       "package-name": "sendmux-mcp",
       "release-type": "python",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0",
       "extra-files": [
         {
@@ -106,8 +112,9 @@
     },
     "go": {
       "component": "go",
-      "package-name": "sendmux.ai/go",
+      "package-name": "sendmux.ai/go/v2",
       "release-type": "go",
+      "release-as": "2.0.0",
       "include-component-in-tag": true,
       "include-v-in-tag": true,
       "tag-separator": "/",
@@ -117,6 +124,7 @@
       "component": "rust",
       "package-name": "sendmux",
       "release-type": "rust",
+      "release-as": "0.5.0",
       "initial-version": "0.1.0"
     },
     "packages/ruby/core": {
@@ -138,6 +146,7 @@
       "package-name": "sendmux-mailbox",
       "release-type": "ruby",
       "version-file": "lib/sendmux/mailbox/version.rb",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ruby/management": {
@@ -152,6 +161,7 @@
       "package-name": "sendmux-sdk",
       "release-type": "ruby",
       "version-file": "lib/sendmux/sdk/version.rb",
+      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     }
   }

@@ -19,6 +19,8 @@ const SENDING_API_RESOURCE = "https://smtp.sendmux.ai/api/v1";
 const TOKEN_EXCHANGE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:token-exchange";
 const ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
 const READINESS_TIMEOUT_MS = 10 * 60 * 1_000;
+const AUTH_REQUEST_TIMEOUT_MS = 15_000;
+const MAX_AUTH_RESPONSE_BYTES = 256 * 1024;
 const SENDING_TOKEN_SKEW_MS = 60 * 1_000;
 
 interface RegisterAgentInput {
@@ -224,6 +226,8 @@ export async function resolveAgentSendingToken({
     }),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     method: "POST",
+    redirect: "error",
+    signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT_MS),
   });
   const body = await responseJson(response);
   if (!response.ok) {
@@ -347,20 +351,30 @@ export async function waitForMailbox(
     const remainingBeforeFetch = deadline - Date.now();
     if (remainingBeforeFetch <= 0) throw mailboxReadinessTimeoutError();
 
+    const signal = AbortSignal.timeout(remainingBeforeFetch);
     let response: Response;
+    let body: Record<string, unknown>;
     try {
       response = await fetch(`${profile.appApiBaseUrl}/mailbox/me`, {
         headers: { Authorization: `Bearer ${profile.accessToken}` },
-        signal: AbortSignal.timeout(remainingBeforeFetch),
+        redirect: "error",
+        signal,
       });
+      if (response.ok) {
+        await response.body?.cancel();
+        return;
+      }
+      body = await responseJson(response);
     } catch (error) {
-      if (isAbortError(error) || Date.now() >= deadline) throw mailboxReadinessTimeoutError();
+      if (signal.aborted || isAbortError(error) || Date.now() >= deadline) throw mailboxReadinessTimeoutError();
       throw error;
     }
-    if (response.ok) return;
-    const body = await responseJson(response);
+    const errorCode =
+      typeof body.error === "object" && body.error !== null && !Array.isArray(body.error) && "code" in body.error
+        ? body.error.code
+        : body.error;
     const provisioningUnavailable =
-      response.status === 503 && (body.error === "service_unavailable" || body.error === "temporarily_unavailable");
+      response.status === 503 && (errorCode === "service_unavailable" || errorCode === "temporarily_unavailable");
     if (!provisioningUnavailable) {
       throw new Error(agentAuthFailureMessage(response.status, body));
     }
@@ -403,6 +417,8 @@ async function postJson<T = Record<string, unknown>>(
     body: JSON.stringify(options.body),
     headers: { "Content-Type": "application/json", ...options.headers },
     method: "POST",
+    redirect: "error",
+    signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT_MS),
   });
   const body = await responseJson(response);
   if (!options.expectedStatuses.includes(response.status)) {
@@ -412,7 +428,33 @@ async function postJson<T = Record<string, unknown>>(
 }
 
 async function responseJson(response: Response): Promise<Record<string, unknown>> {
-  const body = await response.json().catch(() => null);
+  let bytes = 0;
+  let body: unknown;
+  try {
+    const reader = response.body?.getReader();
+    const chunks: Uint8Array[] = [];
+    if (reader) {
+      try {
+        while (true) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          bytes += chunk.value.byteLength;
+          if (bytes > MAX_AUTH_RESPONSE_BYTES) break;
+          chunks.push(chunk.value);
+        }
+      } finally {
+        await reader.cancel();
+      }
+    }
+    if (bytes <= MAX_AUTH_RESPONSE_BYTES) {
+      body = JSON.parse(new TextDecoder().decode(Buffer.concat(chunks)));
+    }
+  } catch {
+    body = null;
+  }
+  if (bytes > MAX_AUTH_RESPONSE_BYTES) {
+    throw new Error("Sendmux agent authentication response exceeds the size limit.");
+  }
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new Error(`Sendmux agent authentication returned HTTP ${response.status} without a JSON object.`);
   }

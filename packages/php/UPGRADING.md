@@ -1,5 +1,7 @@
 # Upgrading the PHP SDK to 2.0
 
+For the subsequent Mailbox and umbrella SDK release, see [Migrate from 2.x to 3.0](UPGRADING-3.0.md).
+
 Version 2.0 adds connection checks for all three API surfaces and updates the generated models to the current API schemas. Some existing PHP return and parameter types change, so this is a major release. Composer constraints such as `^1.0` will continue to select 1.x.
 
 ## Update Composer constraints

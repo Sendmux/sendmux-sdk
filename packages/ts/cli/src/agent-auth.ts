@@ -225,6 +225,7 @@ export async function resolveAgentSendingToken({
     }),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     method: "POST",
+    redirect: "error",
   });
   const body = await responseJson(response);
   if (!response.ok) {
@@ -352,6 +353,7 @@ export async function waitForMailbox(
     try {
       response = await fetch(`${profile.appApiBaseUrl}/mailbox/me`, {
         headers: { Authorization: `Bearer ${profile.accessToken}` },
+        redirect: "error",
         signal: AbortSignal.timeout(remainingBeforeFetch),
       });
     } catch (error) {
@@ -408,6 +410,7 @@ async function postJson<T = Record<string, unknown>>(
     body: JSON.stringify(options.body),
     headers: { "Content-Type": "application/json", ...options.headers },
     method: "POST",
+    redirect: "error",
   });
   const body = await responseJson(response);
   if (!options.expectedStatuses.includes(response.status)) {

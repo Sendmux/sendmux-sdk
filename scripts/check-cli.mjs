@@ -77,6 +77,7 @@ const serverState = {
   nextMessage: 0,
   tokenExchanges: 0,
   authStreamClosed: undefined,
+  authRedirectPath: undefined,
 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 console.log(JSON.stringify({ workspace: tempHome, owner_pid: process.pid }));
@@ -124,6 +125,16 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = request.url ?? "";
+  if (requestUrl === serverState.authRedirectPath) {
+    response.writeHead(307, { Location: "/redirected-agent-auth" });
+    response.end();
+    return;
+  }
+  if (requestUrl === "/redirected-agent-auth") {
+    response.writeHead(200, { "Content-Type": "application/json" });
+    response.end("{}");
+    return;
+  }
   if (request.method === "GET" && ["/me", "/mailbox/connection"].includes(requestUrl)) {
     response.setHeader("Content-Type", "application/json");
     response.end(JSON.stringify(connectionEnvelope));
@@ -1413,6 +1424,52 @@ try {
   assertDeepEqual(JSON.parse(truncatedAuthResult.stdout).error.message,
     "Sendmux agent authentication returned HTTP 201 without a JSON object.",
     "Truncated authentication response must preserve the safe HTTP error");
+
+  assertCliSuccess(await runCli([
+    "agent:register", "redirect-token-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "redirect-token-agent", "--json",
+  ]), "Register a fresh profile for token-exchange redirect verification");
+  serverState.authRedirectPath = "/agent-auth/oauth2/token";
+  const redirectExchangeStart = serverState.requests.length;
+  const redirectExchangeResult = await runCli([
+    "sending:send", "--profile", "redirect-token-agent", "--body", "{}", "--json",
+  ]);
+  assertDeepEqual(redirectExchangeResult.status, 1, "Redirected token exchange must fail");
+  assertDeepEqual(serverState.requests.slice(redirectExchangeStart).map((request) => request.url),
+    ["/agent-auth/oauth2/token"], "Token exchange must not forward the subject token to a redirect target");
+  serverState.authRedirectPath = undefined;
+
+  serverState.authRedirectPath = "/agent-auth/agent/identity";
+  const redirectRegistrationStart = serverState.requests.length;
+  const redirectRegistrationResult = await runCli([
+    "agent:register", "redirect-registration-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "redirect-registration-agent", "--json",
+  ]);
+  assertDeepEqual(redirectRegistrationResult.status, 1, "Redirected registration must fail");
+  assertDeepEqual(serverState.requests.slice(redirectRegistrationStart).map((request) => request.url),
+    ["/agent-auth/agent/identity"], "Registration must not follow redirects or poll readiness");
+  serverState.authRedirectPath = undefined;
+
+  serverState.authRedirectPath = "/agent-auth/agent/identity/invite";
+  const redirectInviteStart = serverState.requests.length;
+  const redirectInviteResult = await runCli([
+    "agent:invite-owner", "redirect-owner@example.com", "--profile", "durable-agent", "--json",
+  ]);
+  assertDeepEqual(redirectInviteResult.status, 1, "Redirected owner invitation must fail");
+  assertDeepEqual(serverState.requests.slice(redirectInviteStart).map((request) => request.url),
+    ["/agent-auth/agent/identity/invite"], "Owner invitation must not forward credentials to a redirect target");
+  serverState.authRedirectPath = undefined;
+
+  serverState.authRedirectPath = "/api/v1/mailbox/me";
+  const redirectReadinessStart = serverState.requests.length;
+  const redirectReadinessResult = await runCli([
+    "agent:register", "redirect-readiness-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "redirect-readiness-agent", "--json",
+  ]);
+  assertDeepEqual(redirectReadinessResult.status, 1, "Redirected mailbox readiness must fail");
+  assertDeepEqual(serverState.requests.slice(redirectReadinessStart).map((request) => request.url),
+    ["/agent-auth/agent/identity", "/api/v1/mailbox/me"], "Readiness must not accept a redirect target as the mailbox");
+  serverState.authRedirectPath = undefined;
 
   console.log("CLI gate checks passed.");
 } finally {

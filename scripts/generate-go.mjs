@@ -427,7 +427,7 @@ import (
 \t"errors"
 \t"net/http"
 
-\t"sendmux.ai/go/core"
+\t"sendmux.ai/go/v2/core"
 )
 
 type securitySource struct {
@@ -952,7 +952,7 @@ func (r *${typeName}) APIError() *core.APIError {
 
   return `package ${packageName}
 
-import "sendmux.ai/go/core"
+import "sendmux.ai/go/v2/core"
 
 ${methods}`;
 }

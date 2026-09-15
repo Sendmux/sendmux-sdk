@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"sendmux.ai/go/core"
-	"sendmux.ai/go/mailbox"
-	"sendmux.ai/go/sending"
+	"sendmux.ai/go/v2/core"
+	"sendmux.ai/go/v2/mailbox"
+	"sendmux.ai/go/v2/sending"
 )
 
 func TestConnectionAdditionPreservesExistingErrorLiterals(t *testing.T) {

@@ -250,11 +250,11 @@ export async function goConsumer() {
   await workspace("go-consumer", async (directory) => {
     const env = { ...process.env, GOTOOLCHAIN: "local" };
     await run("go", ["mod", "init", "example.invalid/sendmux-runtime-ci"], { cwd: directory, env });
-    await run("go", ["mod", "edit", `-replace=sendmux.ai/go=${join(root, "go")}`], { cwd: directory, env });
-    await run("go", ["get", ...nativePackages.map((name) => `sendmux.ai/go/${name}@v0.0.0`)], { cwd: directory, env });
-    await run("go", ["list", "-deps", ...nativePackages.map((name) => `sendmux.ai/go/${name}`)], { cwd: directory, env });
-    await run("go", ["list", "-m", "-json", "sendmux.ai/go"], { cwd: directory, env });
-    assert(readFileSync(join(directory, "go.mod"), "utf8").includes(`replace sendmux.ai/go => ${join(root, "go")}`));
+    await run("go", ["mod", "edit", `-replace=sendmux.ai/go/v2=${join(root, "go")}`], { cwd: directory, env });
+    await run("go", ["get", ...nativePackages.map((name) => `sendmux.ai/go/v2/${name}@v2.0.0`)], { cwd: directory, env });
+    await run("go", ["list", "-deps", ...nativePackages.map((name) => `sendmux.ai/go/v2/${name}`)], { cwd: directory, env });
+    await run("go", ["list", "-m", "-json", "sendmux.ai/go/v2"], { cwd: directory, env });
+    assert(readFileSync(join(directory, "go.mod"), "utf8").includes(`replace sendmux.ai/go/v2 => ${join(root, "go")}`));
   });
 }
 

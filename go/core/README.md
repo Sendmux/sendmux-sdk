@@ -1,19 +1,21 @@
 # Sendmux Go core helpers
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/core.svg)](https://pkg.go.dev/sendmux.ai/go/core)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2/core.svg)](https://pkg.go.dev/sendmux.ai/go/v2/core)
 
 Shared runtime helpers used by the Sendmux Go surface packages.
 
 ## Install
 
+This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
+
 ```sh
-go get sendmux.ai/go@latest
+go get sendmux.ai/go/v2@v2.0.0
 ```
 
 ## Import
 
 ```go
-import "sendmux.ai/go/core"
+import "sendmux.ai/go/v2/core"
 ```
 
 ## What it provides
@@ -34,7 +36,7 @@ import (
 	"os"
 	"time"
 
-	"sendmux.ai/go/core"
+	"sendmux.ai/go/v2/core"
 )
 
 func newHTTPClient() *http.Client {
@@ -52,9 +54,11 @@ func newHTTPClient() *http.Client {
 
 Use `KeySurfaceSending` for send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens, `KeySurfaceMailbox` for `smx_mbx_` keys or scoped `smx_agent_` tokens, and `KeySurfaceRoot` for `smx_root_` keys.
 
-Most applications should import `sendmux.ai/go/sending`, `sendmux.ai/go/mailbox`, or `sendmux.ai/go/management` directly. Those packages apply the core helpers for you.
+Most applications should import `sendmux.ai/go/v2/sending`, `sendmux.ai/go/v2/mailbox`, or `sendmux.ai/go/v2/management` directly. Those packages apply the core helpers for you.
 
 ## Documentation
 
 - Guides: <https://sendmux.ai/docs>
-- Go reference: <https://pkg.go.dev/sendmux.ai/go/core>
+- Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/core>
+
+The v2 module and reference pages are release candidates until tag `go/v2.0.0` is published.

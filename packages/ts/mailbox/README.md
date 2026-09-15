@@ -186,6 +186,12 @@ for await (const message of paginate(async (cursor) => {
 }
 ```
 
+## Version 2 migration candidate
+
+Version 2 is not published yet. It changes thread-message list results to `MailboxThreadMessageSummaryCursorListResponse`, whose `meta.thread_id` is required and whose optional `meta.sync_state` is typed. Constructed thread results must provide that thread identity. Ordinary `mailboxListMessages` results remain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose their own typed sync state. Identity, submission, quota, and thread list responses likewise expose their API state as typed metadata.
+
+When the release is available, update `@sendmux/mailbox`, its lockfile, and affected result annotations or fixtures together. To roll back, restore those package, lockfile, and call-site changes together.
+
 ## Support
 
 Open an issue in [Sendmux/sendmux-sdk](https://github.com/Sendmux/sendmux-sdk/issues) with the package name, version, and request ID from any API error.

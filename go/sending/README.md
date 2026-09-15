@@ -1,19 +1,21 @@
 # Sendmux Go sending client
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/sending.svg)](https://pkg.go.dev/sendmux.ai/go/sending)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2/sending.svg)](https://pkg.go.dev/sendmux.ai/go/v2/sending)
 
 Go client for Sendmux email sending.
 
 ## Install
 
+This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
+
 ```sh
-go get sendmux.ai/go@latest
+go get sendmux.ai/go/v2@v2.0.0
 ```
 
 ## Import
 
 ```go
-import "sendmux.ai/go/sending"
+import "sendmux.ai/go/v2/sending"
 ```
 
 ## Authentication
@@ -42,7 +44,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/sending"
+	"sendmux.ai/go/v2/sending"
 )
 
 func main() {
@@ -93,4 +95,6 @@ func main() {
 
 - Sending guide: <https://sendmux.ai/docs/guides/sending-via-http>
 - Sending API: <https://sendmux.ai/docs/sending-api/introduction>
-- Go reference: <https://pkg.go.dev/sendmux.ai/go/sending>
+- Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/sending>
+
+The v2 module and reference page are release candidates until tag `go/v2.0.0` is published.

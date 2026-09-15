@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"sendmux.ai/go/mailbox"
-	"sendmux.ai/go/management"
-	"sendmux.ai/go/sending"
+	"sendmux.ai/go/v2/mailbox"
+	"sendmux.ai/go/v2/management"
+	"sendmux.ai/go/v2/sending"
 )
 
 const oauthConnection = `{"ok":true,"data":{"team":{"id":"team_test","name":"Test"},"credential":{"id":"grant_test","type":"oauth","name":null},"label":"Test","permissions":[],"mailboxes":[]},"meta":{"request_id":"req_test"}}`

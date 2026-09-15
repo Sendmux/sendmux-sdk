@@ -19,6 +19,7 @@ const SENDING_API_RESOURCE = "https://smtp.sendmux.ai/api/v1";
 const TOKEN_EXCHANGE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:token-exchange";
 const ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
 const READINESS_TIMEOUT_MS = 10 * 60 * 1_000;
+const AUTH_REQUEST_TIMEOUT_MS = 15_000;
 const MAX_AUTH_RESPONSE_BYTES = 256 * 1024;
 const SENDING_TOKEN_SKEW_MS = 60 * 1_000;
 
@@ -226,6 +227,7 @@ export async function resolveAgentSendingToken({
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     method: "POST",
     redirect: "error",
+    signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT_MS),
   });
   const body = await responseJson(response);
   if (!response.ok) {
@@ -416,6 +418,7 @@ async function postJson<T = Record<string, unknown>>(
     headers: { "Content-Type": "application/json", ...options.headers },
     method: "POST",
     redirect: "error",
+    signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT_MS),
   });
   const body = await responseJson(response);
   if (!options.expectedStatuses.includes(response.status)) {

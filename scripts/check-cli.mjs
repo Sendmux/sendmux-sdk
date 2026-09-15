@@ -78,6 +78,8 @@ const serverState = {
   tokenExchanges: 0,
   authStreamClosed: undefined,
   authRedirectPath: undefined,
+  authStall: undefined,
+  authPending: undefined,
 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 console.log(JSON.stringify({ workspace: tempHome, owner_pid: process.pid }));
@@ -125,6 +127,14 @@ const server = createServer(async (request, response) => {
   }
 
   const requestUrl = request.url ?? "";
+  if (requestUrl === serverState.authStall?.path) {
+    serverState.authStall.closed = once(response, "close");
+    if (serverState.authStall.stage === "body") {
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.write("{");
+    }
+    return;
+  }
   if (requestUrl === serverState.authRedirectPath) {
     response.writeHead(307, { Location: "/redirected-agent-auth" });
     response.end();
@@ -1471,15 +1481,71 @@ try {
     ["/agent-auth/agent/identity", "/api/v1/mailbox/me"], "Readiness must not accept a redirect target as the mailbox");
   serverState.authRedirectPath = undefined;
 
+  const { registerAgent, resolveAgentSendingToken } = await import("../packages/ts/cli/dist/agent-auth.js");
+  serverState.authStall = { path: "/agent-auth/agent/identity" };
+  await assertAgentRequestDeadline(() => registerAgent({
+    appOrigin: baseUrl,
+    configDir: agentConfigDir,
+    makeDefault: false,
+    mailboxLocalPart: "deadline-agent",
+    profileName: "deadline-agent",
+  }), "Agent registration stalled before response headers");
+  serverState.authStall = undefined;
+
+  await registerAgent({
+    appOrigin: baseUrl,
+    configDir: agentConfigDir,
+    makeDefault: false,
+    mailboxLocalPart: "deadline-exchange-agent",
+    profileName: "deadline-exchange-agent",
+  });
+  const { readCliConfig } = await import("../packages/ts/cli/dist/profiles.js");
+  const deadlineConfig = await readCliConfig(agentConfigDir);
+  serverState.authStall = { path: "/agent-auth/oauth2/token", stage: "body" };
+  await assertAgentRequestDeadline(() => resolveAgentSendingToken({
+    config: deadlineConfig,
+    configDir: agentConfigDir,
+    profile: deadlineConfig.profiles["deadline-exchange-agent"],
+    profileName: "deadline-exchange-agent",
+  }), "Agent token exchange stalled during response body");
+  serverState.authStall = undefined;
+
   console.log("CLI gate checks passed.");
 } finally {
   const address = server.address();
   server.closeAllConnections();
   await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   console.log(JSON.stringify({ resource: "http_server", address, state: "closed" }));
+  await serverState.authPending?.catch(() => {});
   rmSync(tempHome, { force: true, recursive: true });
   assertDeepEqual(existsSync(tempHome), false, "CLI fixture must be removed after verification");
   console.log(JSON.stringify({ removed_workspace: tempHome }));
+}
+
+async function assertAgentRequestDeadline(operation, label) {
+  const startedAt = Date.now();
+  const requestStart = serverState.requests.length;
+  serverState.authPending = operation();
+  const finished = serverState.authPending.then(
+    () => { throw new Error(`${label} unexpectedly succeeded`); },
+    async (error) => {
+      await serverState.authStall.closed;
+      return error;
+    },
+  );
+  let timer;
+  try {
+    const outcome = await Promise.race([
+      finished,
+      new Promise((resolve) => { timer = setTimeout(() => resolve(undefined), 20_000); }),
+    ]);
+    if (!(outcome instanceof Error)) throw new Error(`${label} exceeded its request deadline`);
+    assertDeepEqual(serverState.requests.slice(requestStart).map((request) => request.url),
+      [serverState.authStall.path], `${label} must not proceed or retry after timeout`);
+    console.log(JSON.stringify({ auth_deadline: label, elapsed_ms: Date.now() - startedAt, response_closed: true }));
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function respondToSendingMutation(request, response, cache, fingerprint, status, createPayload) {

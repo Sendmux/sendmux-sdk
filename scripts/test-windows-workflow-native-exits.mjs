@@ -485,6 +485,7 @@ function inspectChocolateyConfig(command) {
     stopped,
     env: {
       ...parentEnvironment,
+      USE_LOCAL_CHOCOLATEY_ASSET: "true",
       CHOCOLATEY_API_KEY: fixtureCredential,
       ...(isChocolateyPublisher ? {
         ChocolateyInstall: chocolateyInstall,

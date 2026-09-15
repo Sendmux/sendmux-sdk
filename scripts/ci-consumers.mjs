@@ -14,7 +14,11 @@ const ownedChildren = new Set();
 
 function processAbsent(pid) {
   try { process.kill(pid, 0); return false; }
-  catch (error) { if (error.code === "ESRCH") return true; throw error; }
+  catch (error) {
+    if (error.code === "ESRCH") return true;
+    if (pid < 0 && error.code === "EPERM") return false;
+    throw error;
+  }
 }
 
 async function killOwnedTree(pid) {

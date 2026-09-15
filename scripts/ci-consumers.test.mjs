@@ -60,18 +60,34 @@ test("installed package checks reject missing artifact bytes without falling bac
 });
 
 test("a consumer command cannot leave an owned descendant after its leader exits", async () => {
+  const childSource = `const {spawn}=require('node:child_process'); const fs=require('node:fs');
+const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});
+fs.writeFileSync(process.argv[1],JSON.stringify({leader:process.pid,descendant:child.pid,cwd:process.cwd()}));process.exit(0);`;
   await workspace("owned-descendant", async (directory) => {
     const receipt = join(directory, "owned.json");
-    const childSource = `const {spawn}=require('node:child_process'); const fs=require('node:fs');
-const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});
-fs.writeFileSync(process.argv[1],JSON.stringify({leader:process.pid,descendant:child.pid}));process.exit(0);`;
     let handles;
+    const signal = process.kill;
+    let killedGroup;
+    let injectedZombieProbe = false;
+    process.kill = (pid, name) => {
+      if (pid < 0 && name === "SIGKILL") {
+        killedGroup = pid;
+        return signal.call(process, pid, name);
+      }
+      if (pid === killedGroup && name === 0 && !injectedZombieProbe) {
+        injectedZombieProbe = true;
+        throw Object.assign(new Error("injected transient zombie-only process group"), { code: "EPERM" });
+      }
+      return signal.call(process, pid, name);
+    };
     try {
-      await assert.rejects(run(process.execPath, ["-e", childSource, receipt], { cwd: directory }), /(?:shutdown|descendant)/);
+      await assert.rejects(run(process.execPath, ["-e", childSource, receipt], { cwd: directory }), /Command left an owned descendant/);
+      assert.equal(injectedZombieProbe, true);
       handles = JSON.parse(readFileSync(receipt, "utf8"));
       console.log(JSON.stringify(handles));
       assert.throws(() => process.kill(handles.descendant, 0), { code: "ESRCH" });
     } finally {
+      process.kill = signal;
       handles ??= JSON.parse(readFileSync(receipt, "utf8"));
       console.log(JSON.stringify(handles));
       try { process.kill(-handles.leader, "SIGKILL"); }
@@ -128,6 +144,51 @@ await workspace('denied-shutdown-child',async cwd => {
         assert.throws(() => process.kill(child.pid, 0), { code: "ESRCH" });
         rmSync(child.cwd, { recursive: true });
         assert(!existsSync(child.cwd));
+      }
+      assert.throws(() => process.kill(owner.pid, 0), { code: "ESRCH" });
+    }
+  });
+});
+
+test("a persistent group-probe denial cannot prove owned shutdown", async () => {
+  const childSource = `const {spawn}=require('node:child_process'); const fs=require('node:fs');
+const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});
+fs.writeFileSync(process.argv[1],JSON.stringify({leader:process.pid,descendant:child.pid,cwd:process.cwd()}));process.exit(0);`;
+  await workspace("denied-group-probe-owner", async (directory) => {
+    const receipt = join(directory, "owned.json");
+    const ownerFile = join(directory, "owner.mjs");
+    writeFileSync(ownerFile, `import assert from 'node:assert/strict'; import {existsSync} from 'node:fs';
+import {run,workspace} from ${JSON.stringify(new URL("./ci-consumers.mjs", import.meta.url).href)};
+const signal = process.kill; process.kill = (pid, name) => {
+  if(pid < 0 && name === 0) throw Object.assign(new Error('injected persistent zombie-only process group'), {code:'EPERM'});
+  return signal.call(process,pid,name);
+};
+let retained;
+await assert.rejects(workspace('denied-group-probe-child',async cwd => {
+  retained=cwd;
+  await run(process.execPath,['-e',${JSON.stringify(childSource)},${JSON.stringify(receipt)}],{cwd});
+}),/Owned process shutdown unconfirmed/);
+assert(existsSync(retained), 'unconfirmed group workspace must be retained');`);
+    const owner = spawn(process.execPath, [ownerFile], { cwd: directory, stdio: "inherit", detached: true });
+    console.log(JSON.stringify({ owner_pid: owner.pid, cwd: directory }));
+    let handles;
+    try {
+      const code = await new Promise((accept, reject) => { owner.once("error", reject); owner.once("close", accept); });
+      assert.equal(code, 0);
+      handles = JSON.parse(readFileSync(receipt, "utf8"));
+      console.log(JSON.stringify(handles));
+      assert(existsSync(handles.cwd), "unconfirmed group workspace must be retained");
+    } finally {
+      if (existsSync(receipt)) {
+        handles ??= JSON.parse(readFileSync(receipt, "utf8"));
+        try { process.kill(-handles.leader, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+        for (let i = 0; i < 100; i++) {
+          try { process.kill(handles.descendant, 0); } catch (error) { if (error.code === "ESRCH") break; throw error; }
+          await delay(20);
+        }
+        assert.throws(() => process.kill(handles.descendant, 0), { code: "ESRCH" });
+        if (existsSync(handles.cwd)) rmSync(handles.cwd, { recursive: true });
+        assert(!existsSync(handles.cwd));
       }
       assert.throws(() => process.kill(owner.pid, 0), { code: "ESRCH" });
     }

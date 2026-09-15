@@ -18,6 +18,16 @@ const sourcePaths = checkingSource
 const evidence = resolve(process.argv[2] ?? ".tmp/windows-workflow-native-exits");
 const parentCredentialSentinel = "sendmux-native-exit-parent-credential-sentinel";
 const fixtureCredential = "sendmux-native-exit-inert-credential";
+const chocolateyPushSource = "https://push.chocolatey.org/";
+const fixtureRunId = "424242";
+const fixtureRunAttempt = "3";
+const originalChocolateyConfig = Buffer.from([
+  '<?xml version="1.0" encoding="utf-8"?>\r\n',
+  "<chocolatey>\r\n",
+  '  <config><add key="cacheLocation" value="C:\\fixture-cache" description="original café" /></config>\r\n',
+  "  <apiKeys />\r\n",
+  "</chocolatey>\r\n",
+].join(""), "utf8");
 const parentEnvironment = { ...process.env, CHOCOLATEY_API_KEY: parentCredentialSentinel };
 const ci = readWorkflow(sourcePaths[0]);
 const chocolatey = readWorkflow(sourcePaths[1]);
@@ -69,8 +79,9 @@ const candidates = [
     shell: windowsPowerShell,
     scripts: () => [stepScript(chocolatey, "Push to Chocolatey")],
     earlyFailure: 1,
-    finalFailure: 3,
-    commandCount: 3,
+    finalFailure: 2,
+    commandCount: 2,
+    failureStatus: 7,
   },
 ];
 
@@ -100,14 +111,15 @@ for (const candidate of candidates) {
   }
 }
 
+const credentialSentinels = [parentCredentialSentinel, fixtureCredential];
 const nativeArguments = rows.flatMap((row) => row.commands ?? []).flatMap((command) => command.args);
 assert(
-  nativeArguments.every((argument) => !argument.includes(parentCredentialSentinel)),
-  "Synthetic parent Chocolatey credential reached native child arguments",
+  nativeArguments.every((argument) => credentialSentinels.every((sentinel) => !argument.includes(sentinel))),
+  "A synthetic Chocolatey credential reached native child arguments",
 );
 assert(
-  !readFileSync(resultsFile, "utf8").includes(parentCredentialSentinel),
-  "Synthetic parent Chocolatey credential reached retained test output",
+  credentialSentinels.every((sentinel) => !readFileSync(resultsFile, "utf8").includes(sentinel)),
+  "A synthetic Chocolatey credential reached retained test output",
 );
 assert(
   rows.every((row) => row.verdict === "passed" && !row.cleanup_error),
@@ -124,8 +136,10 @@ async function runCase(candidate, scenario) {
     row.status = await runWorkflowScripts(candidate, directory, fixture.env, row);
     row.commands = readJsonLines(fixture.commands);
     if (candidate.serverCleanup) await assertServerCleanup(row, fixture);
+    if (candidate.name === "chocolatey-push") assertPublisherTransaction(row, fixture);
     if (scenario !== "early") assert.equal(row.commands.length, candidate.commandCount, "Workflow block must execute every expected native command");
     if (scenario === "healthy") assert.equal(row.status, 0, "Healthy workflow step must succeed");
+    else if (candidate.failureStatus) assert.equal(row.status, candidate.failureStatus, `${scenario} native failure must survive publisher cleanup`);
     else assert.notEqual(row.status, 0, `${scenario} native failure must fail its workflow step`);
     row.verdict = "passed";
   } catch (error) {
@@ -188,15 +202,47 @@ function prepareFixture(directory, candidate, scenario) {
   const commands = join(directory, "commands.jsonl");
   const server = join(directory, "server.json");
   const stopped = join(directory, "stopped.txt");
+  const isChocolateyPublisher = candidate.name === "chocolatey-push";
+  const chocolateyInstall = join(directory, "chocolatey");
+  const chocolateyConfigDirectory = join(chocolateyInstall, "config");
+  const chocolateyConfig = join(chocolateyConfigDirectory, "chocolatey.config");
+  const chocolateyStaging = join(
+    chocolateyConfigDirectory,
+    `.sendmux-publish-${fixtureRunId}-${fixtureRunAttempt}.tmp`,
+  );
   mkdirSync(bin);
   mkdirSync(scripts);
+  if (isChocolateyPublisher) {
+    mkdirSync(chocolateyConfigDirectory, { recursive: true });
+    writeFileSync(chocolateyConfig, originalChocolateyConfig);
+  }
   const nativeCommand = join(directory, "native-command.mjs");
   writeFileSync(nativeCommand, `import { appendFileSync, existsSync, readFileSync } from "node:fs";
+const fixtureCredential = ${JSON.stringify(fixtureCredential)};
+const chocolateyPushSource = ${JSON.stringify(chocolateyPushSource)};
 export function finish(command, args) {
   const file = process.env.SENDMUX_NATIVE_COMMANDS;
   const index = existsSync(file) ? readFileSync(file, "utf8").trim().split(/\\n/).filter(Boolean).length + 1 : 1;
-  appendFileSync(file, JSON.stringify({ pid: process.pid, command, args, index }) + "\\n");
+  const config = inspectChocolateyConfig(command);
+  appendFileSync(file, JSON.stringify({
+    pid: process.pid,
+    command,
+    args,
+    index,
+    credential_environment_present: Boolean(process.env.CHOCOLATEY_API_KEY),
+    ...config,
+  }) + "\\n");
   return index === Number(process.env.SENDMUX_NATIVE_FAIL_AT) ? 7 : 0;
+}
+function inspectChocolateyConfig(command) {
+  const file = process.env.SENDMUX_CHOCOLATEY_CONFIG;
+  if (command !== "choco" || !file) return {};
+  const text = readFileSync(file, "utf8");
+  const apiKeyEntries = text.match(/<apiKeys\\s+[^>]*>/g) ?? [];
+  return {
+    config_has_push_source: apiKeyEntries.some((entry) => entry.includes(\`source="\${chocolateyPushSource}"\`)),
+    config_contains_fixture_plaintext: text.includes(fixtureCredential),
+  };
 }`);
   const shim = join(directory, "native-shim.mjs");
   writeFileSync(shim, `import {finish} from ${JSON.stringify(pathToFileURL(nativeCommand).href)};const [command,...args]=process.argv.slice(2);process.exitCode=finish(command,args);`);
@@ -223,6 +269,12 @@ export function finish(command, args) {
     env: {
       ...parentEnvironment,
       CHOCOLATEY_API_KEY: fixtureCredential,
+      ...(isChocolateyPublisher ? {
+        ChocolateyInstall: chocolateyInstall,
+        GITHUB_RUN_ATTEMPT: fixtureRunAttempt,
+        GITHUB_RUN_ID: fixtureRunId,
+        SENDMUX_CHOCOLATEY_CONFIG: chocolateyConfig,
+      } : {}),
       PATH: `${bin}${delimiter}${process.env.PATH}`,
       SENDMUX_CHOCOLATEY_VERSION: version,
       SENDMUX_NATIVE_COMMANDS: commands,
@@ -232,7 +284,34 @@ export function finish(command, args) {
       SENDMUX_NATIVE_SHIM: shim,
       SENDMUX_NATIVE_STOPPED: stopped,
     },
+    chocolateyConfig,
+    chocolateyStaging,
+    originalChocolateyConfig,
   };
+}
+
+function assertPublisherTransaction(row, fixture) {
+  const restoredConfig = readFileSync(fixture.chocolateyConfig);
+  row.config_before_sha256 = sha256(fixture.originalChocolateyConfig);
+  row.config_after_sha256 = sha256(restoredConfig);
+  row.config_restored = restoredConfig.equals(fixture.originalChocolateyConfig);
+  row.staging_path = fixture.chocolateyStaging;
+  row.staging_path_absent = !existsSync(fixture.chocolateyStaging);
+
+  assert(row.config_restored, "Chocolatey publisher must restore the exact original config bytes");
+  assert.equal(row.config_after_sha256, row.config_before_sha256, "Chocolatey publisher must restore the original config SHA-256");
+  assert(row.staging_path_absent, "Chocolatey publisher must remove its exact owned staging path");
+  for (const command of row.commands) {
+    assert.equal(command.command, "choco", "Chocolatey publisher must invoke only Chocolatey children");
+    assert.equal(command.args[0], "push", "Chocolatey publisher must invoke only its two package pushes");
+    assert.equal(command.credential_environment_present, false, "Chocolatey publisher must clear the credential from child environments");
+    assert.equal(command.config_has_push_source, true, "Chocolatey publisher child must observe the exact-source encrypted config entry");
+    assert.equal(command.config_contains_fixture_plaintext, false, "Chocolatey config must not contain the fixture credential plaintext");
+  }
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
 }
 
 function githubPowerShellScript(source, instrumentCleanup) {

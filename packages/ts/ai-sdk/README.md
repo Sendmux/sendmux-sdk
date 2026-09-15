@@ -17,6 +17,13 @@ disable peer-dependency checks. Keep both `ai` and `zod` within their compatible
 peer ranges and use the Node.js version required by `ai`. The release is not
 available through the installation command until it is published.
 
+Before upgrading, retain the prior known-working package manifest, lockfile,
+and corresponding caller changes, including the compatible intersection of
+the Sendmux wrapper, `ai`, and `zod`. To roll back, restore those files together
+and reinstall dependencies with your project's existing lockfile workflow.
+Run your tool integration checks before resuming agents. Keep peer-dependency
+checks enabled rather than forcing an unsupported combination.
+
 ## Installation
 
 ```sh

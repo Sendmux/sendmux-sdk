@@ -6,7 +6,8 @@
 
 - **Breaking:** MCP attachment tools no longer accept local paths or roots.
   Use presigned uploads for files, or inline base64 for content within the
-  tool's limit. See [the attachment workflow](README.md#attachment-workflow-for-agents).
+  tool's limit. See
+  [the 2.0.0 upgrade and rollback guidance](README.md#unreleased-200-upgrade).
   This contract change is prepared for package version `2.0.0`.
 
 ### Features

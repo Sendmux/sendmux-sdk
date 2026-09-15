@@ -26,6 +26,26 @@ This package is the Sendmux MCP. Keep it separate from any documentation-search 
 - A mailbox-scoped `smx_mbx_*` key or scoped `smx_agent_*` token for Mailbox tools.
 - A root `smx_root_*` key for Management tools.
 
+## Unreleased 2.0.0 upgrade
+
+Version 2.0.0 removes local `file_path` and roots inputs from MCP attachment
+tools. Before upgrading a self-managed package or server, retain the prior
+known-working package environment, dependency state, and MCP client and tool
+configuration. Update attachment callers to use the
+[attachment workflow for agents](#attachment-workflow-for-agents), then verify
+tool discovery and each attachment workflow your agents use.
+
+To roll back a self-managed installation, restore the retained package
+environment, dependency state, and MCP client and tool configuration together.
+Verify tool discovery and the relevant attachment workflow before resuming
+agents. A package rollback doesn't reverse uploads or sends that have already
+completed.
+
+For clients that use Sendmux's hosted endpoint, changing a local `pip`
+environment doesn't change the deployed server version. A hosted deployment
+rollback is a separate operator release action and must be verified against the
+hosted endpoint.
+
 ## Installation
 
 ```sh

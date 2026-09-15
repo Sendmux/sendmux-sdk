@@ -6,6 +6,13 @@
 - Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
 - Upgrade the distribution, lockfile, and affected annotations or fixtures together; restore all three together to roll back.
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.5.1...python-mailbox-v2.0.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+
 ## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.5.0...python-mailbox-v1.5.1) (2026-09-11)
 
 

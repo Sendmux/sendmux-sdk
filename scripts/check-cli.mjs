@@ -63,6 +63,10 @@ const serverState = {
   registrationIdempotencyKeys: [],
   registrations: 0,
   requests: [],
+  sendingUploads: new Map(),
+  sendingSends: new Map(),
+  nextAttachment: 0,
+  nextMessage: 0,
   tokenExchanges: 0,
 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
@@ -275,20 +279,30 @@ const server = createServer(async (request, response) => {
   if (request.method === "POST" && requestUrl.startsWith("/emails/attachments")) {
     const url = new URL(requestUrl, "http://127.0.0.1");
     const filename = url.searchParams.get("filename") ?? "attachment.bin";
-    response.writeHead(201, {
-      "Content-Type": "application/json",
-      Location: `/emails/attachments/att_cli_${filename}`,
-    });
-    response.end(JSON.stringify({
+    const contentType = url.searchParams.get("content_type") ?? request.headers["content-type"] ?? "application/octet-stream";
+    // Production fingerprints filename/type/size/bytes, not just the upload body.
+    const fingerprint = JSON.stringify([filename, contentType, body.byteLength, createHash("sha256").update(body).digest("hex")]);
+    respondToSendingMutation(request, response, serverState.sendingUploads, fingerprint, 201, () => ({
       ok: true,
       data: {
-        attachment_id: "att_1234567890abcdefghijklmn",
-        content_type: request.headers["content-type"] ?? "application/octet-stream",
+        attachment_id: `att_${String(++serverState.nextAttachment).padStart(24, "0")}`,
+        content_type: contentType,
         expires_at: "2026-07-07T10:00:00.000Z",
         filename,
         size_bytes: body.byteLength,
       },
       meta: { request_id: "req_cli_sending_upload" },
+    }));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/emails/send" && body.length && JSON.parse(body).attachments?.length) {
+    const canonicalBody = JSON.stringify(JSON.parse(body), (_key, value) => value && typeof value === "object" && !Array.isArray(value)
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]])) : value);
+    respondToSendingMutation(request, response, serverState.sendingSends, createHash("sha256").update(canonicalBody).digest("hex"), 200, () => ({
+      ok: true,
+      data: { message_id: `eml_${String(++serverState.nextMessage).padStart(24, "0")}`, status: "queued" },
+      meta: { request_id: "req_cli_sending_send" },
     }));
     return;
   }
@@ -705,7 +719,7 @@ try {
     },
   ], "mailbox:send-message --attach must inject uploaded blob references");
 
-  const sendingAttachResult = await runCli([
+  const sendingAttachArgs = [
     "sending:send",
     "--api-key",
     mailboxKey,
@@ -721,7 +735,9 @@ try {
     "--attach",
     textAttachmentPath,
     "--json",
-  ]);
+  ];
+
+  const sendingAttachResult = await runCli(sendingAttachArgs);
 
   assertCliSuccess(sendingAttachResult, "sending:send --attach");
 
@@ -743,9 +759,63 @@ try {
   const sendingAttachBody = JSON.parse(sendingAttachSendRequest.body.toString("utf8"));
   assertDeepEqual(sendingAttachBody.attachments, [
     {
-      attachment_id: "att_1234567890abcdefghijklmn",
+      attachment_id: sendingAttachUploadRequest.responseBody.data.attachment_id,
     },
   ], "sending:send --attach must inject uploaded attachment references");
+  assertDeepEqual(sendingAttachUploadRequest.headers["idempotency-key"], undefined, "Unkeyed attachment upload must stay unkeyed");
+  const unkeyedRetry = await runCli(sendingAttachArgs);
+  assertCliSuccess(unkeyedRetry, "sending attachment unkeyed repeat");
+  if (JSON.parse(unkeyedRetry.stdout).data.message_id === JSON.parse(sendingAttachResult.stdout).data.message_id) {
+    throw new Error("Unkeyed repeated send must remain a new send");
+  }
+  if (latestRequest().body.equals(sendingAttachSendRequest.body)) {
+    throw new Error("Unkeyed repeated upload must create a fresh attachment");
+  }
+
+  const replayArgs = [
+    "sending:send", "--base-url", baseUrl,
+    "--body", JSON.stringify({
+      from: { email: "from@example.com" }, to: { email: "agent@example.com" },
+      subject: "Attachment replay", html_body: "<p>Attached</p>",
+    }),
+    "--idempotency-key", "attachment-replay", "--attach", textAttachmentPath, "--json",
+  ];
+  const replayFirst = await runCli(replayArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(replayFirst, "sending attachment initial keyed send");
+  const replayFirstBody = latestRequest().body;
+  const replaySecond = await runCli(replayArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(replaySecond, "sending attachment identical retry");
+  assertDeepEqual(latestRequest().body.toString("utf8"), replayFirstBody.toString("utf8"), "Attachment replay must preserve the outer body");
+  assertDeepEqual(JSON.parse(replaySecond.stdout), JSON.parse(replayFirst.stdout), "Attachment replay must return the original send result");
+
+  const secondAttachmentPath = join(tempHome, "second.txt");
+  writeFileSync(secondAttachmentPath, "A different attachment\n");
+  const manyArgs = replayArgs.map((value) => value === "attachment-replay" ? "m".repeat(255) : value);
+  manyArgs.push("--attach", secondAttachmentPath);
+  const manyStart = serverState.requests.length;
+  const manyFirst = await runCli(manyArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(manyFirst, "sending two distinct attachments");
+  const manySecond = await runCli(manyArgs, { SENDMUX_API_KEY: mailboxKey });
+  assertCliSuccess(manySecond, "sending two-attachment retry");
+  const manyUploads = serverState.requests.slice(manyStart).filter((request) => request.url.startsWith("/emails/attachments"));
+  const manyKeys = manyUploads.map((request) => request.headers["idempotency-key"]);
+  if (manyKeys.some((key) => typeof key !== "string" || !key.length || key.length > 255) || manyKeys[0] === manyKeys[1]) {
+    throw new Error("Each attachment needs a distinct, bounded upload key");
+  }
+  assertDeepEqual(manyKeys.slice(2), manyKeys.slice(0, 2), "Corresponding upload keys must survive retry");
+  assertDeepEqual(manyUploads.slice(2).map((request) => request.responseBody), manyUploads.slice(0, 2).map((request) => request.responseBody), "Corresponding uploads must replay their original IDs");
+  assertDeepEqual(JSON.parse(manySecond.stdout), JSON.parse(manyFirst.stdout), "Two-attachment send must replay the original result");
+
+  const sendsBeforeChangedFile = serverState.requests.filter((request) => request.url === "/emails/send").length;
+  writeFileSync(textAttachmentPath, "Changed bytes under the original key\n");
+  try {
+    const changedFile = await runCli(replayArgs, { SENDMUX_API_KEY: mailboxKey });
+    assertDeepEqual(changedFile.status, 1, "Changed file under the same key must fail");
+    assertDeepEqual(latestRequest().responseBody.error.code, "idempotency_conflict", "Changed file must conflict at upload");
+    assertDeepEqual(serverState.requests.filter((request) => request.url === "/emails/send").length, sendsBeforeChangedFile, "Upload conflict must stop before another outer send");
+  } finally {
+    writeFileSync(textAttachmentPath, textAttachmentBytes);
+  }
 
   const streamResult = await runCli([
     "mailbox:stream-events",
@@ -1180,6 +1250,22 @@ try {
   rmSync(tempHome, { force: true, recursive: true });
   assertDeepEqual(existsSync(tempHome), false, "CLI fixture must be removed after verification");
   console.log(JSON.stringify({ removed_workspace: tempHome }));
+}
+
+function respondToSendingMutation(request, response, cache, fingerprint, status, createPayload) {
+  const rawKey = request.headers["idempotency-key"]?.trim();
+  const key = rawKey && rawKey.length <= 255 ? rawKey : undefined;
+  const previous = key ? cache.get(key) : undefined;
+  const conflict = previous && previous.fingerprint !== fingerprint;
+  const payload = conflict ? {
+    ok: false,
+    error: { code: "idempotency_conflict", message: "Idempotency-Key was reused with a different request body.", retryable: false },
+    meta: { request_id: "req_cli_conflict" },
+  } : previous?.payload ?? createPayload();
+  if (key && !previous) cache.set(key, { fingerprint, payload });
+  serverState.requests.at(-1).responseBody = payload;
+  response.writeHead(conflict ? 409 : status, { "Content-Type": "application/json" });
+  response.end(JSON.stringify(payload));
 }
 
 function ensureCliBuilt() {

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import { setImmediate as nextTurn } from "node:timers/promises";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -598,6 +599,7 @@ assert.equal(mailboxStreamUrl.searchParams.get("close_after"), "30");
 assert.equal(mailboxStreamUrl.searchParams.get("event_types"), "message.received");
 
 const tempDir = await mkdtemp(join(tmpdir(), "sendmux-ts-helpers-"));
+console.log(JSON.stringify({ workspace: tempDir, owner_pid: process.pid }));
 try {
   const reportPath = join(tempDir, "report.txt");
   const reportBytes = Buffer.from("typed helper attachment\n", "utf8");
@@ -875,8 +877,101 @@ try {
   assert.deepEqual(JSON.parse(seenSendingFileRequests[2].body.toString("utf8")).attachments, [
     { attachment_id: "att_1234567890abcdefghijklmn" },
   ]);
+
+  await test("Sending file helper preserves composite replay", async (t) => {
+    const requests = [];
+    const uploads = new Map();
+    const sends = new Map();
+    let nextAttachment = 0;
+    let nextMessage = 0;
+    const client = createSendingClient({
+      apiKey: "smx_mbx_test_attachment_replay",
+      baseUrl: "https://sending-replay.test",
+      fetch: async (request) => {
+        const url = new URL(request.url);
+        const upload = url.pathname === "/emails/attachments";
+        assert(upload || url.pathname === "/emails/send");
+        const bytes = Buffer.from(await request.arrayBuffer());
+        const key = request.headers.get("Idempotency-Key");
+        const body = upload ? {
+          filename: url.searchParams.get("filename"),
+          content_type: url.searchParams.get("content_type") ?? request.headers.get("Content-Type"),
+          size_bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex"),
+        } : JSON.parse(bytes);
+        const fingerprint = JSON.stringify(body, (_key, value) => value && typeof value === "object" && !Array.isArray(value)
+          ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]])) : value);
+        const cache = upload ? uploads : sends;
+        const previous = key && key.length <= 255 ? cache.get(key) : undefined;
+        const conflict = previous && previous.fingerprint !== fingerprint;
+        const payload = conflict ? {
+          ok: false, error: { code: "idempotency_conflict", message: "Different body for the same key", retryable: false },
+          meta: { request_id: "req_ts_conflict" },
+        } : previous?.payload ?? {
+          ok: true,
+          data: upload ? {
+            attachment_id: `att_${String(++nextAttachment).padStart(24, "0")}`,
+            filename: body.filename, content_type: body.content_type, size_bytes: body.size_bytes,
+            expires_at: "2026-07-07T10:00:00.000Z",
+          } : { message_id: `eml_${String(++nextMessage).padStart(24, "0")}`, status: "queued" },
+          meta: { request_id: "req_ts_replay" },
+        };
+        if (key && key.length <= 255 && !previous) cache.set(key, { fingerprint, payload });
+        requests.push({ upload, key, body, payload });
+        return Response.json(payload, { status: conflict ? 409 : upload ? 201 : 200 });
+      },
+    });
+    const options = {
+      client, files: [reportPath], headers: { "Idempotency-Key": "attachment-replay" },
+      body: { from: { email: "from@example.com" }, to: { email: "agent@example.com" }, subject: "Replay", html_body: "<p>Attached</p>" },
+    };
+    await t.test("identical single-file retry returns the original result", async () => {
+      const first = await sendEmailWithFiles(options);
+      const firstBody = requests.at(-1).body;
+      const second = await sendEmailWithFiles(options);
+      assert.deepEqual(second, first);
+      assert.deepEqual(requests.at(-1).body, firstBody);
+    });
+    await t.test("two files use distinct bounded keys and replay their IDs", async () => {
+      const secondPath = join(tempDir, "second.txt");
+      await writeFile(secondPath, "Second attachment\n");
+      const many = { ...options, files: [reportPath, secondPath], headers: { "Idempotency-Key": "m".repeat(255) } };
+      const start = requests.length;
+      const first = await sendEmailWithFiles(many);
+      const second = await sendEmailWithFiles(many);
+      const uploaded = requests.slice(start).filter((request) => request.upload);
+      assert.equal(uploaded.length, 4);
+      assert(uploaded.every(({ key }) => key?.length > 0 && key.length <= 255));
+      assert.notEqual(uploaded[0].key, uploaded[1].key);
+      assert.deepEqual(uploaded.slice(2), uploaded.slice(0, 2));
+      assert.deepEqual(second, first);
+    });
+    await t.test("changed bytes conflict at upload before another send", async () => {
+      const changedOptions = { ...options, headers: { "Idempotency-Key": "changed-file-replay" } };
+      await sendEmailWithFiles(changedOptions);
+      const before = requests.filter((request) => !request.upload).length;
+      await writeFile(reportPath, "Changed bytes\n");
+      try {
+        await assert.rejects(sendEmailWithFiles(changedOptions), { code: "idempotency_conflict", status: 409 });
+        assert.equal(requests.at(-1).upload, true);
+        assert.equal(requests.filter((request) => !request.upload).length, before);
+      } finally {
+        await writeFile(reportPath, reportBytes);
+      }
+    });
+    await t.test("no outer key leaves both uploads and sends unkeyed", async () => {
+      const start = requests.length;
+      const unkeyed = { ...options, headers: undefined };
+      const first = await sendEmailWithFiles(unkeyed);
+      const firstBody = requests.at(-1).body;
+      const second = await sendEmailWithFiles(unkeyed);
+      assert(requests.slice(start).every(({ key }) => key === null));
+      assert.notEqual(second.data.message_id, first.data.message_id);
+      assert.notDeepEqual(requests.at(-1).body.attachments, firstBody.attachments);
+    });
+  });
 } finally {
   await rm(tempDir, { force: true, recursive: true });
+  console.log(JSON.stringify({ removed_workspace: tempDir }));
 }
 
 console.log("TypeScript core helper tests passed.");

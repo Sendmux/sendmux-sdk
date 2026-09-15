@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, cast
 from urllib.error import HTTPError
+from urllib.parse import parse_qs, urlsplit
 
 import pytest
+import urllib3
 
 import sendmux_mailbox.attachments as mailbox_attachments
 import sendmux_sending.attachments as sending_attachments
 from sendmux_mailbox import download_mailbox_attachment, read_mailbox_text_attachment
+from sendmux_core import SendmuxApiError
 from sendmux_mailbox.api_client import ApiClient as MailboxApiClient
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_response import (
     MailboxAttachmentUploadIntentResultResponse,
@@ -18,6 +22,7 @@ from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_response imp
 from sendmux_mailbox.models.mailbox_attachment_upload_result_response import MailboxAttachmentUploadResultResponse
 from sendmux_mailbox.models.mailbox_send_result_response import MailboxSendResultResponse
 from sendmux_sending.api_client import ApiClient as SendingApiClient
+from sendmux_sending import create_sending_client
 from sendmux_sending.models.send_success_response import SendSuccessResponse
 
 
@@ -363,3 +368,130 @@ def test_sending_attachment_from_file_and_send_email(monkeypatch: Any, tmp_path:
     assert api.requests[2]["email_send_request"].to_dict()["attachments"] == [
         {"attachment_id": "att_1234567890abcdefghijklmn"}
     ]
+
+
+@pytest.fixture
+def sending_replay(monkeypatch: Any) -> tuple[SendingApiClient, list[dict[str, Any]]]:
+    requests: list[dict[str, Any]] = []
+    cache: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+
+    def request(_pool: Any, method: str, url: str, **kwargs: Any) -> urllib3.HTTPResponse:
+        parsed = urlsplit(url)
+        assert method == "POST"
+        assert parsed.path in ("/emails/attachments", "/emails/send")
+        upload = parsed.path == "/emails/attachments"
+        headers = {key.lower(): value for key, value in kwargs["headers"].items()}
+        key = headers.get("idempotency-key")
+        body: dict[str, Any]
+        if upload:
+            query = parse_qs(parsed.query)
+            body = {
+                "filename": query["filename"][0],
+                "content_type": query.get("content_type", [headers["content-type"]])[0],
+                "size_bytes": len(kwargs["body"]),
+                "sha256": sha256(kwargs["body"]).hexdigest(),
+            }
+        else:
+            body = json.loads(kwargs["body"])
+        fingerprint = json.dumps(body, sort_keys=True)
+        previous = cache.get((parsed.path, key)) if key and len(key) <= 255 else None
+        conflict = previous is not None and previous[0] != fingerprint
+        payload: dict[str, Any]
+        if conflict:
+            payload = {
+                "ok": False,
+                "error": {"code": "idempotency_conflict", "message": "Different body for the same key", "retryable": False},
+                "meta": {"request_id": "req_py_conflict"},
+            }
+        elif previous:
+            payload = previous[1]
+        else:
+            data = {
+                "attachment_id": f"att_{len(requests) + 1:024d}",
+                "filename": body["filename"], "content_type": body["content_type"],
+                "size_bytes": body["size_bytes"], "expires_at": "2026-07-07T10:00:00.000Z",
+            } if upload else {"message_id": f"eml_{len(requests) + 1:024d}", "status": "queued"}
+            payload = {"ok": True, "data": data, "meta": {"request_id": "req_py_replay"}}
+        if key and len(key) <= 255 and previous is None:
+            cache[(parsed.path, key)] = (fingerprint, payload)
+        requests.append({"upload": upload, "key": key, "body": body, "payload": payload})
+        return urllib3.HTTPResponse(
+            status=409 if conflict else 201 if upload else 200,
+            body=json.dumps(payload).encode(), headers={"Content-Type": "application/json"},
+        )
+
+    monkeypatch.setattr(urllib3.PoolManager, "request", request)
+    return create_sending_client(api_key="smx_mbx_test_attachment_replay", base_url="https://sending-replay.test"), requests
+
+
+def test_sending_file_retry_returns_original_result(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Attachment replay\n")
+    options: dict[str, Any] = {
+        "body": {"from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Replay", "html_body": "<p>Attached</p>"},
+        "files": [report], "idempotency_key": "attachment-replay",
+    }
+    first = sending_attachments.send_email_with_files(client, **options)
+    first_body = requests[-1]["body"]
+    second = sending_attachments.send_email_with_files(client, **options)
+    assert second.to_dict() == first.to_dict()
+    assert requests[-1]["body"] == first_body
+
+
+@pytest.mark.parametrize("explicit", [False, True], ids=["derived-keys", "explicit-per-file-key"])
+def test_sending_two_file_retry_preserves_upload_keys(sending_replay: Any, tmp_path: Path, explicit: bool) -> None:
+    client, requests = sending_replay
+    first_path, second_path = tmp_path / "first.txt", tmp_path / "second.txt"
+    first_path.write_bytes(b"First attachment\n")
+    second_path.write_bytes(b"Different attachment\n")
+    options: dict[str, Any] = {
+        "body": {"from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Replay", "html_body": "<p>Attached</p>"},
+        "files": [{"path": first_path, "idempotency_key": "explicit-upload"} if explicit else first_path, str(second_path)],
+        "idempotency_key": "m" * 255,
+    }
+    first = sending_attachments.send_email_with_files(client, **options)
+    second = sending_attachments.send_email_with_files(client, **options)
+    uploaded = [request for request in requests if request["upload"]]
+    assert len(uploaded) == 4
+    assert all(0 < len(request["key"]) <= 255 for request in uploaded)
+    assert uploaded[0]["key"] != uploaded[1]["key"]
+    if explicit:
+        assert uploaded[0]["key"] == "explicit-upload"
+    assert uploaded[2:] == uploaded[:2]
+    assert second.to_dict() == first.to_dict()
+
+
+def test_sending_changed_file_conflicts_before_send(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Original attachment\n")
+    options: dict[str, Any] = {
+        "body": {"from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Replay", "html_body": "<p>Attached</p>"},
+        "files": [report], "idempotency_key": "changed-file-replay",
+    }
+    sending_attachments.send_email_with_files(client, **options)
+    sends_before = sum(not request["upload"] for request in requests)
+    report.write_bytes(b"Changed attachment bytes\n")
+    with pytest.raises(SendmuxApiError) as conflict:
+        sending_attachments.send_email_with_files(client, **options)
+    assert conflict.value.code == "idempotency_conflict"
+    assert conflict.value.status_code == 409
+    assert requests[-1]["upload"] is True
+    assert sum(not request["upload"] for request in requests) == sends_before
+
+
+def test_sending_unkeyed_file_repeat_stays_unkeyed(sending_replay: Any, tmp_path: Path) -> None:
+    client, requests = sending_replay
+    report = tmp_path / "report.txt"
+    report.write_bytes(b"Unkeyed attachment\n")
+    options: dict[str, Any] = {
+        "body": {"from": {"email": "from@example.com"}, "to": {"email": "agent@example.com"}, "subject": "Unkeyed", "html_body": "<p>Attached</p>"},
+        "files": [report],
+    }
+    first = sending_attachments.send_email_with_files(client, **options)
+    first_body = requests[-1]["body"]
+    second = sending_attachments.send_email_with_files(client, **options)
+    assert all(request["key"] is None for request in requests)
+    assert second.data.message_id != first.data.message_id
+    assert requests[-1]["body"]["attachments"] != first_body["attachments"]

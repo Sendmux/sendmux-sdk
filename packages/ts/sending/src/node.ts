@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
@@ -86,9 +87,18 @@ export async function sendEmailWithFiles({
   headers,
 }: SendEmailWithFilesOptions): Promise<SendSuccessResponse> {
   const attachments: Attachment[] = [];
-  for (const file of files) {
+  const idempotencyKey = headers?.["Idempotency-Key"]?.trim();
+  for (const [index, file] of files.entries()) {
     const upload = await uploadAttachmentFromFile({
       client,
+      ...(idempotencyKey ? {
+        headers: {
+          // Match CLI/Python derivation; changed bytes must retain the key and conflict at upload.
+          "Idempotency-Key": createHash("sha256")
+            .update(`sendmux:sending:attachment:${index}:${idempotencyKey}`)
+            .digest("hex"),
+        },
+      } : {}),
       ...(typeof file === "string"
         ? { filePath: file }
         : attachmentOptions({ contentType: file.contentType, filePath: file.path, filename: file.filename })),

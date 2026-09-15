@@ -755,6 +755,7 @@ function writeSendingAttachmentHelpers(packageName, packageDir) {
 import base64
 import mimetypes
 
+from hashlib import sha256
 from os import PathLike
 from pathlib import Path
 from typing import Any
@@ -822,14 +823,19 @@ def send_email_with_files(
     """Upload local files, attach their attachment IDs, and send one email."""
 
     attachments = list(body.get("attachments") or [])
-    for file_input in files:
+    outer_key = idempotency_key.strip() if idempotency_key else None
+    for index, file_input in enumerate(files):
         file = _file_input(file_input)
+        upload_key = file.get("idempotency_key")
+        if upload_key is None and outer_key:
+            # Match CLI/TypeScript derivation; changed bytes must conflict under the original key.
+            upload_key = sha256(f"sendmux:sending:attachment:{index}:{outer_key}".encode("utf-8")).hexdigest()
         uploaded = upload_attachment_from_file(
             api_client,
             file_path=file["path"],
             filename=file.get("filename"),
             content_type=file.get("content_type"),
-            idempotency_key=file.get("idempotency_key"),
+            idempotency_key=upload_key,
             request_timeout=request_timeout,
         )
         attachments.append({"attachment_id": uploaded.data.attachment_id})

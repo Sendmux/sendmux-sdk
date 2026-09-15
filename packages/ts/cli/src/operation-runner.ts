@@ -1,4 +1,5 @@
 import * as sdk from "@sendmux/sdk";
+import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
@@ -258,11 +259,19 @@ async function withAttachedFiles(
 
   if (operation.operationId === "sendingSendEmail") {
     const uploaded = [];
-    for (const file of files) {
+    const outerKey = operationOptions.headers?.["Idempotency-Key"];
+    const idempotencyKey = typeof outerKey === "string" ? outerKey.trim() : undefined;
+    for (const [index, file] of files.entries()) {
       const uploadResponse = await sdk.sending.sendingUploadAttachment({
         client: client as SendingClient,
         body: blobFor(file),
         headers: {
+          ...(idempotencyKey ? {
+            // Match the TS/Python helpers; content must not change the key and evade conflict detection.
+            "Idempotency-Key": createHash("sha256")
+              .update(`sendmux:sending:attachment:${index}:${idempotencyKey}`)
+              .digest("hex"),
+          } : {}),
           "Content-Length": file.sizeBytes,
           "Content-Type": file.contentType,
         },

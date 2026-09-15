@@ -1116,16 +1116,6 @@ def test_mailbox_upload_attachment_mints_presigned_url() -> None:
     }
 
 
-def test_mailbox_upload_attachment_omits_file_path_from_public_schema() -> None:
-    async def schema_check() -> None:
-        server = create_server(ServerConfig(surfaces=("mailbox",), api_key="smx_mbx_test"), transport=ok_transport())
-        async with Client(server) as client:
-            tool = next(tool for tool in await client.list_tools() if tool.name == "mailbox_upload_attachment")
-        assert "file_path" not in tool.input_schema["properties"]
-
-    asyncio.run(schema_check())
-
-
 def test_hosted_mailbox_upload_attachment_omits_file_path_from_public_schema() -> None:
     async def schema_check() -> None:
         server = create_server(

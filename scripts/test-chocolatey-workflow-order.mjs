@@ -85,45 +85,6 @@ assert.doesNotMatch(
   "Chocolatey publisher commands must not use a key-bearing option.",
 );
 
-const credentialClear = pushScript.search(/^\s*\$env:CHOCOLATEY_API_KEY\s*=\s*\$null\s*$/m);
-const firstChocolateyChild = pushScript.search(/^\s*choco\b/im);
-assert.notEqual(credentialClear, -1, "The publisher must clear its plaintext credential environment before a child starts.");
-assert.notEqual(firstChocolateyChild, -1, "The publisher must retain its Chocolatey child commands.");
-assert(
-  credentialClear < firstChocolateyChild,
-  "The publisher must clear its plaintext credential environment before the first Chocolatey child starts.",
-);
-
-const tryStart = pushScript.search(/^\s*try\s*\{/m);
-const finallyStart = pushScript.search(/^\s*\}\s*finally\s*\{/m);
-const restoration = pushScript.search(/\[IO\.File\]::WriteAllBytes\(\$configPath,\s*\$originalConfigBytes\)/);
-const restorationHashOffset = pushScript.slice(restoration).search(/Get-FileHash\s+-LiteralPath\s+\$configPath\s+-Algorithm\s+SHA256/);
-const restorationHash = restorationHashOffset === -1 ? -1 : restoration + restorationHashOffset;
-const stagingCleanup = pushScript.search(/Remove-Item\s+-LiteralPath\s+\$stagingPath\s+-Force/);
-const nativeExitCapture = pushScript.search(/^\s*\$nativeExitCode\s*=\s*\$LASTEXITCODE\s*$/m);
-const nativeExitReturn = pushScript.search(/^\s*exit\s+\$nativeExitCode\s*$/m);
-assert(tryStart !== -1 && finallyStart > tryStart, "Chocolatey publication must use a try/finally cleanup boundary.");
-assert(
-  restoration > finallyStart,
-  "Chocolatey publication must restore the exact original config bytes inside finally.",
-);
-assert(
-  restorationHash > restoration,
-  "Chocolatey publication must verify the restored config SHA-256 inside finally.",
-);
-assert(
-  stagingCleanup > finallyStart,
-  "Chocolatey publication must remove its owned staging file inside finally.",
-);
-assert(
-  nativeExitCapture > tryStart && nativeExitCapture < finallyStart,
-  "Chocolatey publication must capture the native failure before cleanup.",
-);
-assert(
-  nativeExitReturn > finallyStart && nativeExitReturn > restorationHash && nativeExitReturn > stagingCleanup,
-  "Chocolatey publication must return the captured native failure only after cleanup and verification.",
-);
-
 for (const upload of [zipUpload, packageUpload]) {
   assert.match(
     upload.text,

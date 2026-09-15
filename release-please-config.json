@@ -75,7 +75,6 @@
       "component": "python-mailbox",
       "package-name": "sendmux-mailbox",
       "release-type": "python",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/python/management": {

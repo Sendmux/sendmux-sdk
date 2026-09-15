@@ -5,6 +5,14 @@
 - The Mailbox module adopts the thread-specific list response, including required thread identity and typed state metadata; ordinary message lists remain thread-independent.
 - Upgrade `sendmux-sdk`, `sendmux-mailbox`, the lockfile, and affected call sites together; restore them together to roll back.
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.2.0...python-sdk-v2.0.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* align Python SDK mailbox floor ([57c43c4](https://github.com/Sendmux/sendmux-sdk/commit/57c43c47f9adc1d5c16bdc6904b5681794b8ab1f))
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+
 ## [1.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.1.1...python-sdk-v1.2.0) (2026-09-10)
 
 

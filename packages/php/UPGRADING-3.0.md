@@ -6,8 +6,8 @@ models for `mailboxGetChanges()` so both legacy and typed changes retain
 their data. Update your Composer constraint and any code that assumes the
 old response class.
 
-The core, Sending, and Management packages retain their `^2.1` dependency
-constraints. They do not require a 3.0 release for this migration.
+The core, Sending, and Management packages use `^2.1.1` dependency
+constraints for maintained HTTP security fixes. They remain on 2.x.
 
 ## Before you begin
 
@@ -15,6 +15,11 @@ constraints. They do not require a 3.0 release for this migration.
 - Commit your application, `composer.json`, and `composer.lock` so you can
   restore them together if you need to roll back.
 - If you use 1.x, apply the [PHP 2.0 migration guide](UPGRADING.md) first.
+- If your custom Guzzle client uses `FileCookieJar` or `SessionCookieJar`,
+  back up its state and re-authenticate into a fresh jar when upgrading.
+  Guzzle rejects old records without a boolean `HostOnly`; do not guess
+  that value. Default Sendmux clients do not enable cookies. See the
+  [upstream migration warning](https://github.com/guzzle/guzzle/security/advisories/GHSA-wm3w-8rrp-j577).
 
 ## Upgrade your application
 

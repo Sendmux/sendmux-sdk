@@ -22,6 +22,8 @@ composer require sendmux/sdk:^3.0
 
 Before upgrading from 2.x, read the [Mailbox and SDK 3.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING-3.0.md). SDK 3.0 requires Mailbox 3.x; core, Sending, and Management remain on 2.x. If you use 1.x, apply the [PHP 2.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING.md) first.
 
+If your custom Guzzle client uses `FileCookieJar` or `SessionCookieJar`, back up its state and re-authenticate into a fresh jar when upgrading. Guzzle rejects old records without a boolean `HostOnly`; do not guess that value. Default Sendmux API clients do not enable cookies. See the [upstream migration warning](https://github.com/guzzle/guzzle/security/advisories/GHSA-wm3w-8rrp-j577).
+
 ## Usage
 
 The umbrella package installs the core, sending, mailbox, and management packages together. Create clients through the surface package factories.

@@ -72,7 +72,7 @@ await test("Mailbox generation can change version without changing sibling packa
 
 await test("PHP split verification honours independent versions and the aggregate Mailbox range", async () => {
   await workspace("php-split-versions", async (directory) => {
-    const versions = { core: "2.1.0", sending: "2.1.0", mailbox: "3.0.0", management: "2.1.0", sdk: "3.0.0" };
+    const versions = { core: "2.1.1", sending: "2.1.1", mailbox: "3.0.0", management: "2.1.1", sdk: "3.0.0" };
     let checker = readFileSync(join(root, "scripts/check-php-splits.mjs"), "utf8");
     for (const [name, version] of Object.entries(versions)) {
       cpSync(join(root, "packages/php", name), join(directory, "packages/php", name), { recursive: true });

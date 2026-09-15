@@ -12,7 +12,7 @@ const generatedSourceDirs = ["mailbox", "management", "sending"].map((name) =>
 const surfaces = [
   {
     name: "sending",
-    artifactVersion: "2.1.0",
+    artifactVersion: "2.1.1",
     composerName: "sendmux/sending",
     namespace: "Sendmux\\Sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
@@ -30,7 +30,7 @@ const surfaces = [
   },
   {
     name: "management",
-    artifactVersion: "2.1.0",
+    artifactVersion: "2.1.1",
     composerName: "sendmux/management",
     namespace: "Sendmux\\Management",
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",

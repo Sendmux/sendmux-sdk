@@ -7,6 +7,10 @@
 - Breaking: successful `mailboxGetChanges()` responses use `MailboxChangesResponse` or `MailboxTypedChangesResponse` instead of `MailboxGetChanges200Response`. Update typed wrappers and response handling for the two data models; see the [3.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING-3.0.md).
 - Apply the same response-model selection to HTTP-info and asynchronous calls. Reject success bodies that match neither declared model instead of producing an incomplete model.
 
+### Security
+
+- Require Guzzle `^7.15.5`, PSR7 `^2.13.1`, and core `^2.1.1` for HTTP security fixes. If you use a custom persistent cookie jar, follow the [upgrade warning](README.md#installation) before updating.
+
 ## 2.1.0 (2026-09-11)
 
 - Add `WithAccessToken` factories for REST OAuth tokens and callable providers.

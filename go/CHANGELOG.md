@@ -7,6 +7,14 @@
 - Ordinary message lists retain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose optional `SyncState`. Other mailbox list families expose typed `IdentityState` or `QueryState` metadata where applicable.
 - Roll back by restoring the previous module requirement, imports, response fixtures, and lock or vendor state together.
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.6.1...go/v2.0.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **live-e2e:** enforce safe ownership and fresh certification ([610e283](https://github.com/Sendmux/sendmux-sdk/commit/610e283b0f2bb17ecb36d55000ea3416488d20f8))
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+
 ## [1.6.1](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.6.0...go/v1.6.1) (2026-09-11)
 
 

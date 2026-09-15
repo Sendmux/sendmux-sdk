@@ -171,6 +171,13 @@ async function runInstalledChocolateyProbe() {
       env: versionEnvironment,
       label: "installed-chocolatey-version",
     });
+    assert(
+      credentialSentinels.every(
+        (sentinel) => !JSON.stringify(probe.version_process).includes(sentinel),
+      ),
+      "A synthetic Chocolatey credential reached installed-version output",
+    );
+    console.log(JSON.stringify({ installed_chocolatey_version_process: probe.version_process }));
     assert.equal(probe.version_process.status, 0, "Installed Chocolatey version command must succeed");
     assert(!probe.version_process.timed_out, "Installed Chocolatey version command exceeded its bound");
     assert(probe.version_process.absent, "Installed Chocolatey version process must be absent after close");

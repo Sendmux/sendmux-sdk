@@ -15,9 +15,13 @@ import {
 } from "node:fs/promises";
 import { createServer, request as httpRequest } from "node:http";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import test from "node:test";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const profileFilesystemFaultPreload = fileURLToPath(
+  new URL("./profile-fs-fault-preload.mjs", import.meta.url),
+);
 
 // Windows PowerShell must rebuild its module paths when launched through Node.
 const windowsPowerShellEnv = Object.fromEntries(
@@ -45,6 +49,27 @@ async function removeClaimedDirectory(claim) {
     "Claimed directory identity changed; retaining it",
   );
   await rm(claim.path, { recursive: true, force: true });
+}
+
+async function waitForAgentRegistrationPair(state, profileName) {
+  if (
+    state.agentRegistrations.filter(
+      (candidate) => candidate.profileName === profileName,
+    ).length >= 2
+  ) {
+    state.releaseAgentRegistrationPair();
+  }
+  let timer;
+  try {
+    return await Promise.race([
+      state.agentRegistrationPairReady.then(() => true),
+      new Promise((resolve) => {
+        timer = setTimeout(() => resolve(false), 5_000);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function assertPrivatePath(path, mode) {
@@ -91,12 +116,19 @@ async function assertPrivatePath(path, mode) {
 
 async function fixture(t, defaultConfigDir) {
   let defaultConfigClaim = null;
+  let releaseAgentRegistrationPair;
+  const agentRegistrationPairReady = new Promise((resolve) => {
+    releaseAgentRegistrationPair = resolve;
+  });
   const state = {
     directory: null,
     defaultConfigDir,
     children: new Set(),
     requests: [],
     registrations: [],
+    agentRegistrations: [],
+    agentRegistrationPairReady,
+    releaseAgentRegistrationPair,
     authorization: null,
     refreshes: 0,
     revoked: [],
@@ -113,11 +145,17 @@ async function fixture(t, defaultConfigDir) {
     await Promise.all([...state.children].map((record) => record.closed));
     assert.equal(state.children.size, 0, "CLI shutdown unconfirmed; retaining credential fixture");
     if (server) {
+      const address = server.address();
       server.closeAllConnections();
       await new Promise((resolve, reject) =>
         server.close((error) => (error ? reject(error) : resolve())),
       );
       assert.equal(server.listening, false);
+      console.log(JSON.stringify({
+        resource: "oauth_fixture_server",
+        state: "closed",
+        port: typeof address === "object" && address ? address.port : null,
+      }));
     }
     if (defaultConfigClaim) {
       await removeClaimedDirectory(defaultConfigClaim);
@@ -229,6 +267,51 @@ async function fixture(t, defaultConfigDir) {
       state.revoked.push(new URLSearchParams(raw));
       if (state.mode === "revoke-fails") res.statusCode = 503;
       res.end();
+    } else if (
+      url.pathname === "/agent-auth/agent/identity" &&
+      req.method === "POST"
+    ) {
+      const registration = JSON.parse(raw);
+      const profileName = registration.mailbox_local_part;
+      const stored = JSON.parse(await readFile(state.configPath, "utf8"))
+        .profiles[profileName];
+      if (
+        stored?.state !== "registering" ||
+        stored.idempotencyKey !== req.headers["idempotency-key"] ||
+        stored.idempotencyKey !== registration.idempotency_key
+      ) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ error: "registration was not reserved before network" }));
+        return;
+      }
+      state.agentRegistrations.push({
+        idempotencyKey: req.headers["idempotency-key"],
+        profileName,
+      });
+      if (
+        profileName === "profile-fs-agent" &&
+        !(await waitForAgentRegistrationPair(state, profileName))
+      ) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ error: "concurrent registration request did not arrive" }));
+        return;
+      }
+      res.statusCode = 201;
+      res.end(
+        JSON.stringify({
+          access_token: "smx_agent_profile_fs_testkey1234567890",
+          mailbox: {
+            email: `${profileName}@myagent.mx`,
+            status: "provisioning",
+          },
+          registration_id: "areg_profile_fs",
+        }),
+      );
+    } else if (
+      url.pathname === "/api/v1/mailbox/me" &&
+      req.method === "GET"
+    ) {
+      res.end(JSON.stringify({ ok: true, data: { status: "active" }, meta: {} }));
     } else if (url.pathname === "/api/v1/me") {
       res.end(
         JSON.stringify({
@@ -251,10 +334,16 @@ async function fixture(t, defaultConfigDir) {
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   state.issuer = `http://127.0.0.1:${server.address().port}`;
+  console.log(JSON.stringify({
+    resource: "oauth_fixture_server",
+    state: "listening",
+    port: server.address().port,
+  }));
   return state;
 }
 
-async function cli(t, state, args, authorize = false) {
+async function cli(t, state, args, authorize = false, options = {}) {
+  const filesystemFault = options.filesystemFault;
   const env = {
     ...process.env,
     HOME: state.directory,
@@ -263,13 +352,20 @@ async function cli(t, state, args, authorize = false) {
     SENDMUX_ACCESS_TOKEN: "",
     SENDMUX_PROFILE: "",
     SENDMUX_BASE_URL: `${state.issuer}/api/v1`,
+    ...(filesystemFault
+      ? { SENDMUX_TEST_PROFILE_FS_FAULT: JSON.stringify(filesystemFault) }
+      : {}),
   };
   delete env.SENDMUX_CONFIG_DIR;
   if (state.defaultConfigDir) delete env.XDG_CONFIG_HOME;
   const child = spawn(
     process.execPath,
     [
-      ...(state.preload ? ["--import", pathToFileURL(state.preload).href] : []),
+      ...(filesystemFault
+        ? ["--import", pathToFileURL(profileFilesystemFaultPreload).href]
+        : state.preload
+          ? ["--import", pathToFileURL(state.preload).href]
+          : []),
       "packages/ts/cli/bin/run.js",
       ...args,
     ],
@@ -340,7 +436,7 @@ async function cli(t, state, args, authorize = false) {
     }
   }
   const [code] = await closed;
-  return { code, stdout, stderr, callbackResponse };
+  return { code, stdout, stderr, callbackResponse, closedAtMs: Date.now() };
 }
 
 const login = (t, state, authorize = true) =>
@@ -359,6 +455,50 @@ const login = (t, state, authorize = true) =>
     ],
     authorize,
   );
+
+async function seedExpiredOAuthProfile(t, state) {
+  state.authorizationLifetime = 1;
+  assert.equal((await login(t, state)).code, 0);
+  const config = JSON.parse(await readFile(state.configPath, "utf8"));
+  config.profiles.native.expiresAt = 0;
+  config.profiles.other = { apiKey: "smx_mbx_other", type: "api_key" };
+  await writeFile(state.configPath, `${JSON.stringify(config, null, 2)}\n`);
+  return await readFile(state.configPath, "utf8");
+}
+
+function profileFilesystemFault(state, label, specification) {
+  return {
+    ...specification,
+    failures: 1,
+    receiptPath: join(state.directory, `profile-fs-${label}.json`),
+  };
+}
+
+async function readFaultReceipt(fault) {
+  const receipt = JSON.parse(await readFile(fault.receiptPath, "utf8"));
+  console.log(JSON.stringify({
+    resource: "profile_filesystem_fault",
+    receipt,
+    receipt_path: fault.receiptPath,
+  }));
+  return receipt;
+}
+
+async function readOptionalFaultReceipt(fault) {
+  try {
+    return await readFaultReceipt(fault);
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+async function assertRecoveredFault(fault) {
+  const receipt = await readFaultReceipt(fault);
+  assert.equal(receipt.injected, 1, "selected filesystem denial did not occur");
+  assert.ok(receipt.matched >= 2, "filesystem boundary was not retried");
+  assert.ok(receipt.succeeded >= 1, "filesystem boundary never succeeded after denial");
+}
 
 for (const [name, authorize, exitCode] of [
   ["accepted", true, 0],
@@ -560,6 +700,237 @@ test("expired profiles rotate once across concurrent CLI requests", async (t) =>
     .native;
   assert.equal(profile.refreshToken, "native_refresh_1");
   assert.equal(profile.state, "active");
+});
+
+if (process.platform === "win32") {
+  test("Windows recovers an obstructed OAuth reservation without losing concurrent requests", async (t) => {
+    const state = await fixture(t);
+    await seedExpiredOAuthProfile(t, state);
+    const faults = [1, 2].map((index) =>
+      profileFilesystemFault(state, `oauth-reservation-${index}`, {
+        candidate: {
+          accessToken: "native_access_0",
+          profileName: "native",
+          state: "refreshing",
+        },
+        code: "EPERM",
+        operation: "rename",
+        path: state.configPath,
+      }),
+    );
+    const results = await Promise.all(
+      faults.map((filesystemFault) =>
+        cli(
+          t,
+          state,
+          ["management:get-connection", "--profile", "native", "--json"],
+          false,
+          { filesystemFault },
+        ),
+      ),
+    );
+    const receipts = await Promise.all(faults.map(readOptionalFaultReceipt));
+    const obstructed = receipts
+      .map((receipt, index) => ({ index, receipt }))
+      .filter(({ receipt }) => receipt?.injected === 1);
+    assert.ok(obstructed.length > 0, "neither concurrent participant reached the selected denial");
+    for (const { index, receipt } of obstructed) {
+      assert.equal(results[index].code, 0, "the obstructed participant did not recover");
+      assert.ok(receipt.matched >= 2, "the obstructed replacement was not retried");
+      assert.ok(receipt.succeeded >= 1, "the obstructed replacement never succeeded");
+    }
+    for (const result of results) assert.equal(result.code, 0, result.stderr);
+
+    assert.equal(state.refreshes, 1);
+    const protectedRequests = state.requests.filter(
+      (request) => request.path === "/api/v1/me",
+    );
+    assert.equal(protectedRequests.length, 2);
+    assert.ok(
+      protectedRequests.every(
+        (request) => request.authorization === "Bearer native_access_1",
+      ),
+    );
+    const config = JSON.parse(await readFile(state.configPath, "utf8"));
+    assert.equal(config.profiles.native.refreshToken, "native_refresh_1");
+    assert.equal(config.profiles.native.state, "active");
+    assert.equal(config.profiles.other.apiKey, "smx_mbx_other");
+  });
+
+  test("Windows recovers config replacement denial after OAuth token rotation without replay", async (t) => {
+    const state = await fixture(t);
+    await seedExpiredOAuthProfile(t, state);
+    const filesystemFault = profileFilesystemFault(
+      state,
+      "oauth-rotated-persistence",
+      {
+        candidate: {
+          accessToken: "native_access_1",
+          profileName: "native",
+          state: "active",
+        },
+        code: "EACCES",
+        operation: "rename",
+        path: state.configPath,
+      },
+    );
+    const result = await cli(
+      t,
+      state,
+      ["management:get-connection", "--profile", "native", "--json"],
+      false,
+      { filesystemFault },
+    );
+    await assertRecoveredFault(filesystemFault);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(state.refreshes, 1, "rotated refresh token was replayed");
+    const protectedRequests = state.requests.filter(
+      (request) => request.path === "/api/v1/me",
+    );
+    assert.deepEqual(
+      protectedRequests.map((request) => request.authorization),
+      ["Bearer native_access_1"],
+    );
+    const config = JSON.parse(await readFile(state.configPath, "utf8"));
+    assert.equal(config.profiles.native.refreshToken, "native_refresh_1");
+    assert.equal(config.profiles.native.state, "active");
+    assert.equal(config.profiles.other.apiKey, "smx_mbx_other");
+  });
+
+  test("Windows waits for a successful OAuth config lock open before refreshing", async (t) => {
+    const state = await fixture(t);
+    await seedExpiredOAuthProfile(t, state);
+    const filesystemFault = profileFilesystemFault(state, "oauth-config-lock", {
+      code: "EBUSY",
+      operation: "open",
+      path: `${state.configPath}.lock`,
+    });
+    const result = await cli(
+      t,
+      state,
+      ["management:get-connection", "--profile", "native", "--json"],
+      false,
+      { filesystemFault },
+    );
+    await assertRecoveredFault(filesystemFault);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(state.refreshes, 1);
+    assert.equal(
+      state.requests.filter((request) => request.path === "/api/v1/me").length,
+      1,
+    );
+  });
+
+  test("Windows agent registration waits for real intent-lock ownership without extra attempts", async (t) => {
+    const state = await fixture(t);
+    await mkdir(dirname(state.configPath), { mode: 0o700, recursive: true });
+    await writeFile(
+      state.configPath,
+      `${JSON.stringify({
+        defaultProfile: "other",
+        profiles: { other: { apiKey: "smx_mbx_other", type: "api_key" } },
+      }, null, 2)}\n`,
+    );
+    const profileName = "profile-fs-agent";
+    const intentLockPath = join(
+      dirname(state.configPath),
+      `agent-registration-${createHash("sha256").update(profileName).digest("hex")}.json.lock`,
+    );
+    const faults = [1, 2].map((index) =>
+      profileFilesystemFault(state, `agent-intent-lock-${index}`, {
+        code: "EPERM",
+        operation: "open",
+        path: intentLockPath,
+      }),
+    );
+    const results = await Promise.all(
+      faults.map((filesystemFault) =>
+        cli(
+          t,
+          state,
+          [
+            "agent:register",
+            profileName,
+            "--base-url",
+            state.issuer,
+            "--mailbox-local-part",
+            profileName,
+            "--json",
+          ],
+          false,
+          { filesystemFault },
+        ),
+      ),
+    );
+    await Promise.all(faults.map(assertRecoveredFault));
+    for (const result of results) assert.equal(result.code, 0, result.stderr);
+
+    assert.equal(state.agentRegistrations.length, 2, "registration was retried after lock recovery");
+    const keys = state.agentRegistrations.map(({ idempotencyKey }) => idempotencyKey);
+    assert.ok(keys.every((key) => typeof key === "string" && key.length > 0));
+    assert.equal(new Set(keys).size, 1, "concurrent registration lost its logical identity");
+    assert.deepEqual(
+      results.map((result) => JSON.parse(result.stdout).data.registration_id),
+      ["areg_profile_fs", "areg_profile_fs"],
+    );
+    const config = JSON.parse(await readFile(state.configPath, "utf8"));
+    assert.equal(config.profiles[profileName].state, "active");
+    assert.equal(config.profiles[profileName].idempotencyKey, keys[0]);
+    assert.equal(config.profiles.other.apiKey, "smx_mbx_other");
+  });
+}
+
+test("non-retry profile filesystem errors fail at the selected boundary without network progress", async (t) => {
+  const state = await fixture(t);
+  const originalConfig = await seedExpiredOAuthProfile(t, state);
+  const cases = [
+    { code: "ENOSPC", label: "nonretry-enospc" },
+    ...(process.platform === "win32"
+      ? []
+      : ["EPERM", "EACCES", "EBUSY"].map((code) => ({
+          code,
+          label: `posix-${code.toLowerCase()}`,
+        }))),
+  ];
+
+  for (const selected of cases) {
+    const requestsBefore = state.requests.length;
+    const filesystemFault = profileFilesystemFault(state, selected.label, {
+      candidate: {
+        accessToken: "native_access_0",
+        profileName: "native",
+        state: "refreshing",
+      },
+      code: selected.code,
+      operation: "rename",
+      path: state.configPath,
+    });
+    const result = await cli(
+      t,
+      state,
+      ["management:get-connection", "--profile", "native", "--json"],
+      false,
+      { filesystemFault },
+    );
+    assert.notEqual(result.code, 0, `${selected.code} unexpectedly retried`);
+    assert.equal(state.requests.length, requestsBefore, `${selected.code} reached the network`);
+    assert.equal(await readFile(state.configPath, "utf8"), originalConfig);
+    const receipt = await readFaultReceipt(filesystemFault);
+    assert.equal(receipt.code, selected.code);
+    assert.equal(receipt.injected, 1);
+    assert.equal(receipt.matched, 1, `${selected.code} was retried`);
+    assert.equal(receipt.succeeded, 0);
+    const boundaryElapsedMs = result.closedAtMs - receipt.first_injected_at_ms;
+    assert.ok(
+      boundaryElapsedMs >= 0 && boundaryElapsedMs < 2_000,
+      `${selected.code} did not fail within the immediate boundary tolerance: ${boundaryElapsedMs}ms`,
+    );
+    console.log(JSON.stringify({
+      boundary_elapsed_ms: boundaryElapsedMs,
+      code: selected.code,
+      profile_filesystem_fault: "immediate_failure",
+    }));
+  }
 });
 
 test("an ambiguous refresh failure never replays the old refresh token", async (t) => {

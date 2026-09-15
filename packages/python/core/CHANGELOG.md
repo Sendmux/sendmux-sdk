@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.3.0...python-core-v1.3.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **python:** preserve API errors through context manager cleanup ([0ce46fa](https://github.com/Sendmux/sendmux-sdk/commit/0ce46fa7a19caf0ecf47b19fab720f8f26446bd8))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/python-core-v1.2.0...python-core-v1.3.0) (2026-09-10)
 
 

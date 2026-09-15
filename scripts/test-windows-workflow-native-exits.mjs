@@ -294,7 +294,7 @@ Invoke-ChocolateyCredentialTransaction -Source $probeSource -Operation {
 }
 
 async function runCapturedProcess({ command, args, env, label }) {
-  const owner = startWindowsConsumer(command, args, { cwd: root, env, stdio: ["ignore", "pipe", "pipe"] });
+  const owner = startWindowsConsumer(command, args, { cwd: root, env: windowsPowerShellEnvironment(env), stdio: ["ignore", "pipe", "pipe"] });
   const child = owner.child;
   const receipt = { pid: child.pid, command, args, label, stdout: "", stderr: "" };
   console.log(JSON.stringify({ child_pid: child.pid, command, label }));
@@ -336,6 +336,11 @@ async function runCapturedProcess({ command, args, env, label }) {
 
 function powerShellLiteral(value) {
   return `'${value.replaceAll("'", "''")}'`;
+}
+
+function windowsPowerShellEnvironment(env) {
+  // Node is an intermediate process: Windows PowerShell must rebuild its own module paths.
+  return Object.fromEntries(Object.entries(env).filter(([name]) => name.toUpperCase() !== "PSMODULEPATH"));
 }
 
 async function runCase(candidate, scenario) {
@@ -386,7 +391,7 @@ async function runPowerShellStep({ candidate, directory, env, index, row, source
   writeFileSync(script, githubPowerShellScript(renderExpressions(source), candidate.serverCleanup));
   const child = spawn(candidate.shell, ["-NoProfile", "-NonInteractive", "-File", script], {
     cwd: directory,
-    env,
+    env: candidate.shell === windowsPowerShell ? windowsPowerShellEnvironment(env) : env,
     stdio: "inherit",
   });
   const shell = { pid: child.pid, executable: candidate.shell, step: index };

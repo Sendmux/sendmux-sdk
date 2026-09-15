@@ -403,6 +403,12 @@ jobs:
       - name: Prove Windows command control sensitivity
         run: node scripts/test-windows-consumer-sensitivity.mjs
 
+      - name: Build CLI OAuth diagnostic
+        run: pnpm -r --if-present build
+
+      - name: Verify native OAuth credential paths
+        run: node --test scripts/test-cli-oauth-login.mjs
+
       - name: Preserve exact diagnostic receipts
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

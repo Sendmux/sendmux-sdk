@@ -59,6 +59,7 @@ async function assertPrivatePath(path, mode) {
 
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), "sendmux-native-oauth-"));
+  console.log(JSON.stringify({ resource: "temp_directory", state: "created", path: directory }));
   const state = {
     directory,
     requests: [],
@@ -192,6 +193,7 @@ async function fixture(t) {
     assert.equal(server.listening, false);
     await rm(directory, { recursive: true, force: true });
     await assert.rejects(access(directory), { code: "ENOENT" });
+    console.log(JSON.stringify({ resource: "temp_directory", state: "removed", path: directory }));
   });
   return state;
 }
@@ -217,6 +219,7 @@ async function cli(t, state, args, authorize = false) {
       stdio: ["ignore", "pipe", "pipe"],
     },
   );
+  console.log(JSON.stringify({ resource: "cli_child", state: "spawned", pid: child.pid }));
   let stdout = "",
     stderr = "",
     resolveUrl;
@@ -270,6 +273,7 @@ async function cli(t, state, args, authorize = false) {
     }
   }
   const [code] = await closed;
+  console.log(JSON.stringify({ resource: "cli_child", state: "closed", pid: child.pid, code }));
   return { code, stdout, stderr, callbackResponse };
 }
 
@@ -322,6 +326,24 @@ for (const [name, authorize, exitCode] of [
 }
 
 test("native login uses S256, validates the callback and saves a protected profile without exposing tokens", async (t) => {
+  let defaultConfigDir;
+  if (process.platform === "win32") {
+    assert.ok(
+      process.env.LOCALAPPDATA,
+      "Windows default-path proof requires LOCALAPPDATA",
+    );
+    defaultConfigDir = join(process.env.LOCALAPPDATA, "sendmux");
+    await assert.rejects(
+      access(defaultConfigDir),
+      { code: "ENOENT" },
+      "Preserve any pre-existing Sendmux profile directory",
+    );
+    console.log(JSON.stringify({
+      windows_default_config: defaultConfigDir,
+      node: process.version,
+      platform: process.platform,
+    }));
+  }
   const state = await fixture(t);
   const result = await login(t, state, async (callback) => {
     const wrong = new URL(callback);
@@ -332,12 +354,18 @@ test("native login uses S256, validates the callback and saves a protected profi
     assert.equal((await fetch(wrongIssuer)).status, 400);
   });
   assert.equal(result.code, 0, result.stderr);
-  const config = JSON.parse(await readFile(state.configPath, "utf8"));
+  const checkedConfigPath = defaultConfigDir
+    ? join(defaultConfigDir, "config.json")
+    : state.configPath;
+  const config = JSON.parse(await readFile(checkedConfigPath, "utf8"));
   assert.equal(config.profiles.native.type, "oauth");
   assert.equal(config.profiles.native.accessToken, "native_access_0");
   assert.equal(config.profiles.native.refreshToken, "native_refresh_0");
-  await assertPrivatePath(state.configPath, 0o600);
-  await assertPrivatePath(join(state.directory, ".config", "sendmux"), 0o700);
+  await assertPrivatePath(checkedConfigPath, 0o600);
+  await assertPrivatePath(
+    defaultConfigDir ?? join(state.directory, ".config", "sendmux"),
+    0o700,
+  );
   assert.equal(state.registrations[0].application_type, "native");
   assert.equal(state.registrations[0].token_endpoint_auth_method, "none");
   assert.equal(state.registrations[0].resource, "https://sendmux.ai/api");

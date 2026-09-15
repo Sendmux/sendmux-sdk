@@ -407,8 +407,31 @@ jobs:
       - name: Build CLI OAuth diagnostic
         run: pnpm -r --if-present build
 
-      - name: Verify native OAuth credential paths
-        run: node --test scripts/test-cli-oauth-login.mjs
+      - name: Diagnose native OAuth concurrent refresh
+        shell: bash
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp/oauth-refresh-probe
+          node --version > .tmp/oauth-refresh-probe/node-version.txt
+          git rev-parse HEAD > .tmp/oauth-refresh-probe/head.txt
+          probe_started=$SECONDS
+          for probe_iteration in $(seq 1 100); do
+            if (( SECONDS - probe_started >= 180 )); then
+              printf 'budget-exhausted after %s completed trials\n' "$((probe_iteration - 1))"
+              exit 2
+            fi
+            printf 'oauth-refresh trial %s\n' "$probe_iteration"
+            if node --test --test-name-pattern='^expired profiles rotate once across concurrent CLI requests$' scripts/test-cli-oauth-login.mjs > ".tmp/oauth-refresh-probe/trial-${probe_iteration}.log" 2>&1; then
+              cat ".tmp/oauth-refresh-probe/trial-${probe_iteration}.log"
+            else
+              probe_status=$?
+              cat ".tmp/oauth-refresh-probe/trial-${probe_iteration}.log"
+              printf 'oauth-refresh stopped at trial %s, exit %s\n' "$probe_iteration" "$probe_status"
+              exit "$probe_status"
+            fi
+          done
+          printf '100 trials passed; OAuth root cause remains unresolved\n'
 
       - name: Preserve exact diagnostic receipts
         if: ${{ always() }}
@@ -419,5 +442,6 @@ jobs:
             .tmp/windows-workflow-native-exits/
             .tmp/windows-consumer-ownership/results.json
             .tmp/windows-workspace-cleanup/
+            .tmp/oauth-refresh-probe/
           if-no-files-found: error
           retention-days: 7

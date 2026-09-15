@@ -30,9 +30,13 @@ import path from "node:path";
 import { syncBuiltinESMExports } from "node:module";
 
 const RESOURCE = "oauth_refresh_boundary";
+const OVERFLOW_RESOURCE = "oauth_refresh_boundary_overflow";
 const VERSION = 1;
+const MAX_EVENTS = 2048;
 const startedAt = process.hrtime.bigint();
 let sequence = 0;
+let droppedEvents = 0;
+const events = [];
 
 const xdgConfigHome = process.env.XDG_CONFIG_HOME;
 if (!xdgConfigHome) throw new Error("XDG_CONFIG_HOME is required for OAuth refresh diagnostics.");
@@ -74,19 +78,43 @@ function addErrorFields(event, error, includeCause = false) {
 }
 
 function emit(event) {
-  try {
-    process.stderr.write(
-      JSON.stringify({
-        resource: RESOURCE,
-        version: VERSION,
-        pid: process.pid,
-        seq: ++sequence,
-        elapsed_ms: elapsedMilliseconds(),
-        ...event,
-      }) + "\n",
-    );
-  } catch {}
+  const observation = {
+    resource: RESOURCE,
+    version: VERSION,
+    pid: process.pid,
+    seq: ++sequence,
+    elapsed_ms: elapsedMilliseconds(),
+    ...event,
+  };
+  if (events.length < MAX_EVENTS) events.push(observation);
+  else droppedEvents += 1;
 }
+
+process.once("exit", (code) => {
+  if (code === 0) return;
+  try {
+    const output = events.map((event) => JSON.stringify(event) + "\n");
+    if (droppedEvents > 0)
+      output.push(
+        JSON.stringify({
+          resource: OVERFLOW_RESOURCE,
+          version: VERSION,
+          pid: process.pid,
+          retained_events: events.length,
+          dropped_events: droppedEvents,
+        }) + "\n",
+      );
+    const payload = Buffer.from(output.join(""));
+    let offset = 0;
+    while (offset < payload.length)
+      offset += fs.writeSync(
+        process.stderr.fd,
+        payload,
+        offset,
+        payload.length - offset,
+      );
+  } catch {}
+});
 
 async function observeFilesystem(operation, target, details, call) {
   try {
@@ -543,6 +571,23 @@ function projectOAuthRefreshBoundaryEvents(stderr) {
       continue;
     }
     if (
+      event?.resource === "oauth_refresh_boundary_overflow" &&
+      event.version === 1 &&
+      Number.isInteger(event.pid) &&
+      event.retained_events === 2048 &&
+      Number.isSafeInteger(event.dropped_events) &&
+      event.dropped_events > 0
+    ) {
+      projected.push({
+        resource: "oauth_refresh_boundary_overflow",
+        version: 1,
+        pid: event.pid,
+        retained_events: 2048,
+        dropped_events: event.dropped_events,
+      });
+      continue;
+    }
+    if (
       event?.resource !== "oauth_refresh_boundary" ||
       event.version !== 1 ||
       !Number.isInteger(event.pid) ||
@@ -593,6 +638,27 @@ function projectOAuthRefreshBoundaryEvents(stderr) {
   return projected;
 }
 
+function projectOAuthRefreshErrorCategory(result) {
+  const output = `${result.stdout}\n${result.stderr}`;
+  const categories = [
+    [
+      "OAuth refresh failed. Log out and sign in again; the old refresh token will not be replayed.",
+      "refresh_failed",
+    ],
+    [
+      "OAuth refresh did not finish. Log out and sign in again; the old refresh token will not be replayed.",
+      "refresh_unfinished",
+    ],
+    [
+      "This OAuth profile needs a new login. Run auth:logout, then auth:login.",
+      "profile_reauthorization",
+    ],
+  ];
+  for (const [literal, category] of categories)
+    if (output.includes(literal)) return category;
+  return result.code === 0 ? "absent" : "other";
+}
+
 function projectOAuthRefreshConcurrencyReceipt(
   results,
   refreshCount,
@@ -602,9 +668,10 @@ function projectOAuthRefreshConcurrencyReceipt(
   return {
     resource: "oauth_refresh_concurrency_receipt",
     version: 1,
-    children: results.map(({ pid, code }) => ({
-      pid: Number.isInteger(pid) ? pid : null,
-      code: Number.isInteger(code) ? code : null,
+    children: results.map((result) => ({
+      pid: Number.isInteger(result.pid) ? result.pid : null,
+      code: Number.isInteger(result.code) ? result.code : null,
+      error_category: projectOAuthRefreshErrorCategory(result),
     })),
     refresh_count: refreshCount,
     request_counts: {

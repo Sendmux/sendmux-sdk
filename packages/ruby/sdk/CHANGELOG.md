@@ -5,6 +5,13 @@
 - The Mailbox client adopts the thread-specific list response, including required thread identity and typed state metadata; ordinary message lists remain thread-independent.
 - Upgrade `sendmux-sdk`, `sendmux-mailbox`, the bundle lock, and affected call sites together; restore them together to roll back.
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.3.0...ruby-sdk/v2.0.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.2.0...ruby-sdk/v1.3.0) (2026-09-10)
 
 

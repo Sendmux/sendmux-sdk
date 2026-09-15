@@ -6,6 +6,14 @@
 - Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
 - Upgrade the gem, bundle lock, and affected call sites or fixtures together; restore all three together to roll back.
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v1.4.0...ruby-mailbox/v2.0.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+* **sdk:** preserve streaming arguments and prepare PHP OAuth release ([#207](https://github.com/Sendmux/sendmux-sdk/issues/207)) ([c534588](https://github.com/Sendmux/sendmux-sdk/commit/c53458875cef0bbd601c982308d84bc4e87c961c))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v1.3.0...ruby-mailbox/v1.4.0) (2026-09-10)
 
 

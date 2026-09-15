@@ -139,7 +139,7 @@ async function runOwnedCommand(commandMode, timeout, lifecycle) {
   let ownerTimedOut = false;
   const timer = setTimeout(() => {
     ownerTimedOut = true;
-    process.kill(process.pid, "SIGTERM");
+    process.emit("SIGTERM");
   }, timeout);
   try {
     await run(process.execPath, [script, commandMode, evidence], {
@@ -171,7 +171,7 @@ async function runOwnedCommand(commandMode, timeout, lifecycle) {
     active_processes: jobClosed ? 0 : null,
     assertion: commandFailure?.message ?? null,
     command: commandMode,
-    command_succeeded: !commandFailure,
+    command_succeeded: !commandFailure && !ownerTimedOut,
     controller_closed: Boolean(controllerClosed),
     controller_pid: controller?.child_pid ?? null,
     job: opened?.job ?? null,

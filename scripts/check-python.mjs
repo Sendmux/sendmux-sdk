@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import {
   checkPythonMcpDependencyFloors,
   checkPythonSdkDependencyFloors,
+  checkPythonSurfaceDependencyFloors,
 } from "./python-release-guardrails.mjs";
 
 const root = process.cwd();
@@ -14,6 +15,7 @@ checkGeneratedMailboxBodyParamOrder();
 checkGeneratedMailboxTargeting();
 checkGeneratedPackageVersions();
 checkPythonPackageMetadata();
+checkPythonSurfaceDependencyFloors({ root });
 checkPythonSdkDependencyFloors({ root });
 checkPythonMcpDependencyFloors({ root });
 

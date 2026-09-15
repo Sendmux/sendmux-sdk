@@ -4,6 +4,20 @@ import { spawnSync } from "node:child_process";
 
 export const pythonPackages = ["core", "sending", "mailbox", "management", "sdk", "mcp"];
 
+export function checkPythonSurfaceDependencyFloors({ root, changedPackages = readChangedPythonPackages({ root }) }) {
+  const manifest = readManifest(root);
+  for (const surface of ["sending", "mailbox", "management"]) {
+    const pyprojectPath = join(root, "packages", "python", surface, "pyproject.toml");
+    const pyproject = readFileSync(pyprojectPath, "utf8");
+    checkDependencyFloors({
+      source: pyproject,
+      sourcePath: pyprojectPath,
+      dependencies: [["sendmux-core", manifest["packages/python/core"]]],
+      enforceManifestFloor: changedPackages.has(surface),
+    });
+  }
+}
+
 export function checkPythonSdkDependencyFloors({ root, changedPackages = readChangedPythonPackages({ root }) }) {
   const manifest = readManifest(root);
   const pyprojectPath = join(root, "packages", "python", "sdk", "pyproject.toml");

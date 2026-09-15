@@ -400,9 +400,21 @@ test("native login uses S256, validates the callback and saves a protected profi
       ["-NoProfile", "-NonInteractive", "-Command", `$ErrorActionPreference = 'Stop'; ${script}`],
       { encoding: "utf8", env: aclEnv },
     ).trim();
-    aclEnv.SENDMUX_TEST_ORIGINAL_ACL = canaryAcl(
-      "(Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH).Sddl",
-    );
+    const describeCanary = `
+      $acl = Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH
+      $sid = [System.Security.Principal.SecurityIdentifier]
+      @{ sddl = $acl.Sddl; policy = @{
+        owner = $acl.GetOwner($sid).Value; group = $acl.GetGroup($sid).Value
+        protected = $acl.AreAccessRulesProtected
+        rules = @($acl.GetAccessRules($true, $true, $sid) | ForEach-Object {
+          @{ sid = $_.IdentityReference.Value; rights = [int]$_.FileSystemRights
+             type = [int]$_.AccessControlType; inherited = $_.IsInherited
+             inheritance = [int]$_.InheritanceFlags; propagation = [int]$_.PropagationFlags }
+        })
+      } } | ConvertTo-Json -Depth 5 -Compress
+    `;
+    const originalAcl = JSON.parse(canaryAcl(describeCanary));
+    aclEnv.SENDMUX_TEST_ORIGINAL_ACL = originalAcl.sddl;
     try {
       canaryAcl(`
         $acl = Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH
@@ -423,9 +435,10 @@ test("native login uses S256, validates the callback and saves a protected profi
         Set-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH -AclObject $acl
       `);
     }
-    assert.equal(
-      canaryAcl("(Get-Acl -LiteralPath $env:SENDMUX_TEST_ACL_PATH).Sddl"),
-      aclEnv.SENDMUX_TEST_ORIGINAL_ACL,
+    // Windows can set its auto-inherited marker without changing the access policy.
+    assert.deepEqual(
+      JSON.parse(canaryAcl(describeCanary)).policy,
+      originalAcl.policy,
     );
     await assertPrivatePath(canary, 0o600);
     console.log(JSON.stringify({ resource: "acl_sensitivity", state: "restored", path: canary }));

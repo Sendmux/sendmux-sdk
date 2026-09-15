@@ -178,12 +178,39 @@ jobs:
           $source = Resolve-Path .tmp/chocolatey/pkg
           $server = $null
 
-          if ($env:USE_LOCAL_CHOCOLATEY_ASSET -eq 'true') {
-            $server = Start-Process -FilePath node -ArgumentList @('scripts/serve-static.mjs', 'packages/ts/cli/dist', '8765') -PassThru
-            Start-Sleep -Seconds 2
-          }
-
           try {
+            if ($env:USE_LOCAL_CHOCOLATEY_ASSET -eq 'true') {
+              $server = Start-Process -FilePath node -ArgumentList @('scripts/serve-static.mjs', 'packages/ts/cli/dist', '8765') -PassThru -NoNewWindow
+              $readinessDeadline = [DateTime]::UtcNow.AddSeconds(10)
+              $readinessAttempts = 0
+              $serverReady = $false
+
+              while (-not $serverReady -and $readinessAttempts -lt 100 -and [DateTime]::UtcNow -lt $readinessDeadline) {
+                $readinessAttempts += 1
+                $server.Refresh()
+                if ($server.HasExited) {
+                  throw "Local Chocolatey asset server exited before readiness with code $($server.ExitCode)."
+                }
+
+                try {
+                  $response = Invoke-WebRequest -Uri $env:SENDMUX_CHOCOLATEY_DOWNLOAD_URL -Method Head -UseBasicParsing -TimeoutSec 1
+                  $serverReady = $response.StatusCode -ge 200 -and $response.StatusCode -lt 300
+                } catch {
+                  $server.Refresh()
+                  if ($server.HasExited) {
+                    throw "Local Chocolatey asset server exited before readiness with code $($server.ExitCode)."
+                  }
+                  if ($readinessAttempts -lt 100 -and [DateTime]::UtcNow -lt $readinessDeadline) {
+                    Start-Sleep -Milliseconds 100
+                  }
+                }
+              }
+
+              if (-not $serverReady) {
+                throw "Local Chocolatey asset server was not ready within 10 seconds."
+              }
+            }
+
             choco install sendmux.portable --source "$source" -y --no-progress
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             sendmux --help

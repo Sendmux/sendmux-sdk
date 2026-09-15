@@ -95,7 +95,6 @@
       "component": "python-mcp",
       "package-name": "sendmux-mcp",
       "release-type": "python",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0",
       "extra-files": [
         {

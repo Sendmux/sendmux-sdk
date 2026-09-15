@@ -1,20 +1,36 @@
 # Changelog
 
-## Unreleased
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.8.0...python-mcp-v2.0.0) (2026-09-15)
 
-### Changed
 
-- **Breaking:** MCP attachment tools no longer accept local paths or roots.
-  Use presigned uploads for files, or inline base64 for content within the
-  tool's limit. See
-  [the 2.0.0 upgrade and rollback guidance](README.md#unreleased-200-upgrade).
-  This contract change is prepared for package version `2.0.0`.
+### ⚠ BREAKING CHANGES
+
+* **mcp:** remove local file_path attachment inputs and require bounded inline or delegated uploads.
+  MCP attachment tools no longer accept local paths or roots. Use presigned
+  uploads for files, or inline base64 for content within the tool's limit. See
+  [the 2.0.0 upgrade and rollback guidance](README.md#200-upgrade).
 
 ### Features
 
+* **mcp:** generate package contract and verify native release state ([a3ae281](https://github.com/Sendmux/sendmux-sdk/commit/a3ae281122d2c7a77dce0842ca3a2c7ce489afe0))
+* **mcp:** modernize protocol and FastMCP runtime ([5fdab35](https://github.com/Sendmux/sendmux-sdk/commit/5fdab35b95b66de971fdcb1eb15c38f6c47d4730))
 * negotiate MCP 2026-07-28 stateless discovery while retaining 2025-11-25 clients
 * add an OAuth-protected A2A 1.0 HTTP+JSON endpoint with full hosted-operation parity
 * add curated mailbox attachment tools, zero-context upload modes, and bounded wait-for-message support
+
+
+### Bug Fixes
+
+* **live-e2e:** enforce safe ownership and fresh certification ([610e283](https://github.com/Sendmux/sendmux-sdk/commit/610e283b0f2bb17ecb36d55000ea3416488d20f8))
+* **mcp:** checkpoint before retry attempts ([76a7604](https://github.com/Sendmux/sendmux-sdk/commit/76a7604a76cc0e38c83577f5972a0aeec8364012))
+* **mcp:** enforce wire contracts and lifecycle ([70e63bf](https://github.com/Sendmux/sendmux-sdk/commit/70e63bfe82c86a99218b140b4a05a241287c7aaf))
+* **mcp:** harden cancellation and conformance evidence ([ea207b3](https://github.com/Sendmux/sendmux-sdk/commit/ea207b341a5adcddacb97508a60df3aed405f051))
+* **mcp:** own responses before retry inspection ([4b2ac8a](https://github.com/Sendmux/sendmux-sdk/commit/4b2ac8a0d95e8c06f1ecb54782aca16f3a79f064))
+
+
+### Documentation
+
+* add MCP and AI rollback guidance ([e540627](https://github.com/Sendmux/sendmux-sdk/commit/e540627596ce478aaffca34180fa4414c80cdbc7))
 
 ## [1.8.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.7.0...python-mcp-v1.8.0) (2026-09-10)
 

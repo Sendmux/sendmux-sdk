@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import {
   checkPythonMcpDependencyFloors,
   checkPythonSdkDependencyFloors,
+  checkPythonSurfaceDependencyFloors,
   readChangedPythonPackages,
 } from "./python-release-guardrails.mjs";
 
@@ -184,14 +185,90 @@ try {
     /Could not determine changed files for Python release guardrails/,
   );
 
+  for (const surface of ["sending", "mailbox", "management"]) {
+    const surfaceErrorPattern = new RegExp(
+      `${surface}[\\\\/]pyproject\\.toml must require sendmux-core`,
+    );
+    assert.match(
+      `C:\\repo\\packages\\python\\${surface}\\pyproject.toml must require sendmux-core`,
+      surfaceErrorPattern,
+    );
+    writeFixture({
+      manifest: {
+        "packages/python/core": "1.3.1",
+        "packages/python/mailbox": "1.1.0",
+        "packages/python/management": "1.0.4",
+        "packages/python/sending": "1.5.1",
+      },
+      surfaceCoreDependencies: {
+        sending: '"sendmux-core>=1.3.1,<2.0.0"',
+        mailbox: '"sendmux-core>=1.3.1,<2.0.0"',
+        management: '"sendmux-core>=1.3.1,<2.0.0"',
+        [surface]: '"sendmux-core>=1.3.0,<2.0.0"',
+      },
+    });
+    assert.throws(
+      () => checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface]) }),
+      new RegExp(`${surfaceErrorPattern.source} >= 1\\.3\\.1,<2\\.0\\.0`),
+    );
+    assert.doesNotThrow(() =>
+      checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface === "sending" ? "mailbox" : "sending"]) }),
+    );
+
+    writeFixture({
+      manifest: {
+        "packages/python/core": "1.3.1",
+        "packages/python/mailbox": "1.1.0",
+        "packages/python/management": "1.0.4",
+        "packages/python/sending": "1.5.1",
+      },
+      surfaceCoreDependencies: {
+        sending: '"sendmux-core>=1.3.1,<2.0.0"',
+        mailbox: '"sendmux-core>=1.3.1,<2.0.0"',
+        management: '"sendmux-core>=1.3.1,<2.0.0"',
+      },
+    });
+    assert.doesNotThrow(() =>
+      checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface]) }),
+    );
+
+    for (const invalidRange of ['"sendmux-core>=1.3.1"', '"sendmux-core>=1.3.1,<3.0.0"']) {
+      writeFixture({
+        manifest: {
+          "packages/python/core": "1.3.1",
+          "packages/python/mailbox": "1.1.0",
+          "packages/python/management": "1.0.4",
+          "packages/python/sending": "1.5.1",
+        },
+        surfaceCoreDependencies: {
+          sending: '"sendmux-core>=1.3.1,<2.0.0"',
+          mailbox: '"sendmux-core>=1.3.1,<2.0.0"',
+          management: '"sendmux-core>=1.3.1,<2.0.0"',
+          [surface]: invalidRange,
+        },
+      });
+      assert.throws(
+        () => checkPythonSurfaceDependencyFloors({ root, changedPackages: new Set([surface]) }),
+        new RegExp(`${surfaceErrorPattern.source} with an explicit >= floor and <2\\.0\\.0 upper bound`),
+      );
+    }
+  }
+
   console.log("Python release guardrail tests passed.");
 } finally {
   rmSync(root, { force: true, recursive: true });
 }
 
-function writeFixture({ manifest, sdkDependencies, mcpDependencies }) {
+function writeFixture({ manifest, sdkDependencies = [], mcpDependencies = [], surfaceCoreDependencies = {} }) {
   mkdirSync(join(root, "packages", "python", "sdk"), { recursive: true });
   mkdirSync(join(root, "packages", "python", "mcp"), { recursive: true });
+  for (const surface of ["sending", "mailbox", "management"]) {
+    mkdirSync(join(root, "packages", "python", surface), { recursive: true });
+    writeFileSync(
+      join(root, "packages", "python", surface, "pyproject.toml"),
+      `dependencies = [\n  ${surfaceCoreDependencies[surface] ?? '"sendmux-core>=1.2.0,<2.0.0"'}\n]\n`,
+    );
+  }
   writeFileSync(join(root, ".release-please-manifest.json"), `${JSON.stringify(manifest)}\n`);
   writeFileSync(
     join(root, "packages", "python", "sdk", "pyproject.toml"),

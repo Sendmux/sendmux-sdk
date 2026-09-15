@@ -54,6 +54,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       HAS_CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY != '' }}
+      USE_LOCAL_CHOCOLATEY_ASSET: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.push != true) }}
       SENDMUX_CHOCOLATEY_VERSION: ${{ inputs.version }}
     steps:
       - name: Check out SDK
@@ -127,10 +128,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "$USE_LOCAL_CHOCOLATEY_ASSET" = "true" ]; then
             asset="$(find packages/ts/cli/dist -maxdepth 1 -type f -name "sendmux-v*-win32-x64.zip" | sort | tail -n 1)"
             if [ -z "$asset" ]; then
-              echo "No local Windows ZIP asset found for PR Chocolatey install test."
+              echo "No local Windows ZIP asset found for Chocolatey install test."
               exit 1
             fi
             local_url="http://127.0.0.1:8765/$(basename "$asset")"
@@ -177,7 +178,7 @@ jobs:
           $source = Resolve-Path .tmp/chocolatey/pkg
           $server = $null
 
-          if ('${{ github.event_name }}' -eq 'pull_request') {
+          if ($env:USE_LOCAL_CHOCOLATEY_ASSET -eq 'true') {
             $server = Start-Process -FilePath node -ArgumentList @('scripts/serve-static.mjs', 'packages/ts/cli/dist', '8765') -PassThru
             Start-Sleep -Seconds 2
           }

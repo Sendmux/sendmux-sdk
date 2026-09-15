@@ -34,9 +34,14 @@ assert.doesNotMatch(
   "Package upload must not duplicate the pre-test CLI ZIP upload.",
 );
 assert.match(
+  packageJobHeader,
+  /^\s+USE_LOCAL_CHOCOLATEY_ASSET: \$\{\{ github\.event_name == 'pull_request' \|\| \(github\.event_name == 'workflow_dispatch' && inputs\.push != true\) \}\}$/m,
+  "PRs and non-publishing workflow dispatches must share the local-asset decision.",
+);
+assert.match(
   generatePackages.text,
-  /github\.event_name.*pull_request/s,
-  "PR Chocolatey package generation must override the download URL.",
+  /if \[ "\$USE_LOCAL_CHOCOLATEY_ASSET" = "true" \]; then/,
+  "Non-publishing workflow dispatch package generation must use the local-asset decision.",
 );
 assert.match(
   generatePackages.text,
@@ -46,12 +51,17 @@ assert.match(
 assert.match(
   testPackages.text,
   /scripts\/serve-static\.mjs/,
-  "PR Chocolatey package tests must serve the just-built ZIP locally.",
+  "Local-asset Chocolatey package tests must serve the just-built ZIP locally.",
+);
+assert.match(
+  testPackages.text,
+  /if \(\$env:USE_LOCAL_CHOCOLATEY_ASSET -eq 'true'\)/,
+  "Non-publishing workflow dispatch package tests must use the local-asset decision.",
 );
 assert.match(
   testPackages.text,
   /Stop-Process/,
-  "PR Chocolatey package tests must stop the local ZIP server.",
+  "Local-asset Chocolatey package tests must stop the local ZIP server.",
 );
 assert.doesNotMatch(
   packageJobHeader,

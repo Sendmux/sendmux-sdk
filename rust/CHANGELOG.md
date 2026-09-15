@@ -23,6 +23,13 @@
   and backslash paths before resolving credentials or sending HTTP requests.
   Supply paths relative to the configured API base.
 
+## [0.5.0](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.4.0...rust-v0.5.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **sdk:** verify Rust contracts and installed runtime consumers ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388))
+
 ## [0.4.0](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.3.0...rust-v0.4.0) (2026-09-11)
 
 

@@ -20,6 +20,8 @@ const agentKey = "smx_agent_testkey1234567890";
 const durableAgentKey = "smx_agent_durable_read_testkey1234567890";
 const delegatedAgentSendKey = "smx_agent_delegated_send_testkey1234567890";
 const rootKey = "smx_root_testkey1234567890";
+// Same authentication response budget as the existing oauth-http.ts transport.
+const oauthResponseByteLimit = 256 * 1024;
 const sendingAttachmentLimit = JSON.parse(readFileSync(
   new URL("../packages/python/mcp/sendmux_mcp/openapi/openapi-sending.json", import.meta.url), "utf8",
 )).components.schemas.EmailSendRequest.properties.attachments.maxItems;
@@ -74,6 +76,7 @@ const serverState = {
   nextAttachment: 0,
   nextMessage: 0,
   tokenExchanges: 0,
+  authStreamClosed: undefined,
 };
 const tempHome = mkdtempSync(join(tmpdir(), "sendmux-cli-"));
 console.log(JSON.stringify({ workspace: tempHome, owner_pid: process.pid }));
@@ -164,15 +167,33 @@ const server = createServer(async (request, response) => {
     }
     const accessToken = profileName === "durable-agent" ? durableAgentKey : `${durableAgentKey}_${profileName}`;
     const registrationId = profileName === "durable-agent" ? "areg_cli_durable" : `areg_cli_${profileName}`;
-    response.writeHead(201, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({
+    const registrationBody = JSON.stringify({
       access_token: accessToken,
       mailbox: { email: `${profileName}@myagent.mx`, status: "provisioning" },
       registration_id: registrationId,
       registration_type: "anonymous",
       scope: "mailbox.read email.receive",
       token_type: "Bearer",
-    }));
+    });
+    const responseBody = profileName === "oversized-auth-agent"
+      ? registrationBody.padEnd(oauthResponseByteLimit + 1, " ")
+      : profileName === "at-limit-auth-agent" ? registrationBody.padEnd(oauthResponseByteLimit, " ") : registrationBody;
+    const responseHeaders = { "Content-Type": "application/json" };
+    if (["oversized-auth-agent", "at-limit-auth-agent"].includes(profileName)) {
+      responseHeaders["Content-Length"] = Buffer.byteLength(responseBody);
+    }
+    if (profileName === "truncated-auth-agent") {
+      responseHeaders["Content-Length"] = Buffer.byteLength(responseBody) + 1;
+      responseHeaders.Connection = "close";
+    }
+    response.writeHead(201, responseHeaders);
+    if (profileName === "streamed-auth-agent") {
+      serverState.authStreamClosed = once(response, "close");
+      response.write(registrationBody.padEnd(oauthResponseByteLimit + 1, " "));
+      // Intentionally no end or Content-Length: the client must cancel after its byte budget.
+      return;
+    }
+    response.end(responseBody);
     return;
   }
 
@@ -1357,6 +1378,41 @@ try {
   ]);
 
   assertCliSuccess(rootResult, "management:domains:list with root key");
+
+  const oversizedAuthStart = serverState.requests.length;
+  const oversizedAuthResult = await runCli([
+    "agent:register", "oversized-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "oversized-auth-agent", "--json",
+  ]);
+  assertDeepEqual(oversizedAuthResult.status, 1, "Oversized authentication response must reject registration");
+  assertDeepEqual(serverState.requests.slice(oversizedAuthStart).map((request) => request.url),
+    ["/agent-auth/agent/identity"], "Oversized authentication response must not activate the profile and poll readiness");
+
+  const atLimitAuthResult = await runCli([
+    "agent:register", "at-limit-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "at-limit-auth-agent", "--json",
+  ]);
+  assertCliSuccess(atLimitAuthResult, "Authentication response at the byte limit must remain valid");
+  assertDeepEqual(JSON.parse(atLimitAuthResult.stdout).data.status, "active", "At-limit authentication must activate the profile");
+
+  const streamedAuthStart = serverState.requests.length;
+  const streamedAuthResult = await runCli([
+    "agent:register", "streamed-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "streamed-auth-agent", "--json",
+  ]);
+  assertDeepEqual(streamedAuthResult.status, 1, "Unfinished oversized authentication stream must reject registration");
+  assertDeepEqual(serverState.requests.slice(streamedAuthStart).map((request) => request.url),
+    ["/agent-auth/agent/identity"], "Unfinished oversized authentication stream must not reach readiness");
+  await serverState.authStreamClosed;
+
+  const truncatedAuthResult = await runCli([
+    "agent:register", "truncated-auth-agent", "--base-url", baseUrl,
+    "--mailbox-local-part", "truncated-auth-agent", "--json",
+  ]);
+  assertDeepEqual(truncatedAuthResult.status, 1, "Truncated authentication response must reject registration");
+  assertDeepEqual(JSON.parse(truncatedAuthResult.stdout).error.message,
+    "Sendmux agent authentication returned HTTP 201 without a JSON object.",
+    "Truncated authentication response must preserve the safe HTTP error");
 
   console.log("CLI gate checks passed.");
 } finally {

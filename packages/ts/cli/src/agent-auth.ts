@@ -19,6 +19,7 @@ const SENDING_API_RESOURCE = "https://smtp.sendmux.ai/api/v1";
 const TOKEN_EXCHANGE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:token-exchange";
 const ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
 const READINESS_TIMEOUT_MS = 10 * 60 * 1_000;
+const MAX_AUTH_RESPONSE_BYTES = 256 * 1024;
 const SENDING_TOKEN_SKEW_MS = 60 * 1_000;
 
 interface RegisterAgentInput {
@@ -416,7 +417,33 @@ async function postJson<T = Record<string, unknown>>(
 }
 
 async function responseJson(response: Response): Promise<Record<string, unknown>> {
-  const body = await response.json().catch(() => null);
+  let bytes = 0;
+  let body: unknown;
+  try {
+    const reader = response.body?.getReader();
+    const chunks: Uint8Array[] = [];
+    if (reader) {
+      try {
+        while (true) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          bytes += chunk.value.byteLength;
+          if (bytes > MAX_AUTH_RESPONSE_BYTES) break;
+          chunks.push(chunk.value);
+        }
+      } finally {
+        await reader.cancel();
+      }
+    }
+    if (bytes <= MAX_AUTH_RESPONSE_BYTES) {
+      body = JSON.parse(new TextDecoder().decode(Buffer.concat(chunks)));
+    }
+  } catch {
+    body = null;
+  }
+  if (bytes > MAX_AUTH_RESPONSE_BYTES) {
+    throw new Error("Sendmux agent authentication response exceeds the size limit.");
+  }
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new Error(`Sendmux agent authentication returned HTTP ${response.status} without a JSON object.`);
   }

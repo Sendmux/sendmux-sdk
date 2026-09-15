@@ -12,6 +12,7 @@ const generatedSourceDirs = ["mailbox", "management", "sending"].map((name) =>
 const surfaces = [
   {
     name: "sending",
+    artifactVersion: "2.1.0",
     composerName: "sendmux/sending",
     namespace: "Sendmux\\Sending",
     spec: ".codegen/openapi-sending.openapi-generator.codegen.json",
@@ -20,6 +21,7 @@ const surfaces = [
   },
   {
     name: "mailbox",
+    artifactVersion: "2.1.0",
     composerName: "sendmux/mailbox",
     namespace: "Sendmux\\Mailbox",
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
@@ -28,6 +30,7 @@ const surfaces = [
   },
   {
     name: "management",
+    artifactVersion: "2.1.0",
     composerName: "sendmux/management",
     namespace: "Sendmux\\Management",
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
@@ -71,7 +74,7 @@ for (const surface of surfaces) {
       `composerPackageName=${surface.composerName}`,
       `invokerPackage=${surface.namespace.replaceAll("\\", "\\\\")}`,
       "srcBasePath=src",
-      "artifactVersion=2.1.0",
+      `artifactVersion=${surface.artifactVersion}`,
       "hideGenerationTimestamp=true",
       "enumUnknownDefaultCase=true",
       "disallowAdditionalPropertiesIfNotPresent=false",

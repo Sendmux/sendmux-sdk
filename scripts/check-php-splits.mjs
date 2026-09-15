@@ -5,12 +5,13 @@ import { spawnSync } from "node:child_process";
 const root = process.cwd();
 const splitRoot = join(root, ".tmp", "php-splits");
 const consumerRoot = join(root, ".tmp", "php-split-consumer");
+// Local path versions are fixture inputs; public versions belong to split tags.
 const packages = [
-  { name: "core", composer: "sendmux/core", repo: "sendmux-php-core" },
-  { name: "sending", composer: "sendmux/sending", repo: "sendmux-php-sending" },
-  { name: "mailbox", composer: "sendmux/mailbox", repo: "sendmux-php-mailbox" },
-  { name: "management", composer: "sendmux/management", repo: "sendmux-php-management" },
-  { name: "sdk", composer: "sendmux/sdk", repo: "sendmux-php-sdk" },
+  { name: "core", composer: "sendmux/core", repo: "sendmux-php-core", fixtureVersion: "2.1.0" },
+  { name: "sending", composer: "sendmux/sending", repo: "sendmux-php-sending", fixtureVersion: "2.1.0" },
+  { name: "mailbox", composer: "sendmux/mailbox", repo: "sendmux-php-mailbox", fixtureVersion: "2.1.0" },
+  { name: "management", composer: "sendmux/management", repo: "sendmux-php-management", fixtureVersion: "2.1.0" },
+  { name: "sdk", composer: "sendmux/sdk", repo: "sendmux-php-sdk", fixtureVersion: "2.1.0" },
 ];
 
 rmSync(splitRoot, { force: true, recursive: true });
@@ -45,12 +46,12 @@ writeFileSync(
         options: {
           symlink: false,
           versions: {
-            [pkg.composer]: "2.1.0",
+            [pkg.composer]: pkg.fixtureVersion,
           },
         },
       })),
       require: {
-        "sendmux/sdk": "2.1.0",
+        "sendmux/sdk": packages.find((pkg) => pkg.name === "sdk").fixtureVersion,
       },
       config: {
         "sort-packages": true,

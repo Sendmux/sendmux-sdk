@@ -3014,6 +3014,12 @@ func (s *EmailSendRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.DeliveryGroup.Set {
+			e.FieldStart("delivery_group")
+			s.DeliveryGroup.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("from")
 		s.From.Encode(e)
 	}
@@ -3049,18 +3055,19 @@ func (s *EmailSendRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfEmailSendRequest = [11]string{
+var jsonFieldsNameOfEmailSendRequest = [12]string{
 	0:  "attachments",
 	1:  "bcc",
 	2:  "cc",
 	3:  "custom_headers",
-	4:  "from",
-	5:  "html_body",
-	6:  "reply_to",
-	7:  "return_path",
-	8:  "subject",
-	9:  "text_body",
-	10: "to",
+	4:  "delivery_group",
+	5:  "from",
+	6:  "html_body",
+	7:  "reply_to",
+	8:  "return_path",
+	9:  "subject",
+	10: "text_body",
+	11: "to",
 }
 
 // Decode decodes EmailSendRequest from json.
@@ -3133,8 +3140,18 @@ func (s *EmailSendRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"custom_headers\"")
 			}
+		case "delivery_group":
+			if err := func() error {
+				s.DeliveryGroup.Reset()
+				if err := s.DeliveryGroup.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"delivery_group\"")
+			}
 		case "from":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.From.Decode(d); err != nil {
 					return err
@@ -3144,7 +3161,7 @@ func (s *EmailSendRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "html_body":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Str()
 				s.HTMLBody = string(v)
@@ -3176,7 +3193,7 @@ func (s *EmailSendRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"return_path\"")
 			}
 		case "subject":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.Subject = string(v)
@@ -3198,7 +3215,7 @@ func (s *EmailSendRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"text_body\"")
 			}
 		case "to":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				if err := s.To.Decode(d); err != nil {
 					return err
@@ -3217,8 +3234,8 @@ func (s *EmailSendRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b00110000,
-		0b00000101,
+		0b01100000,
+		0b00001010,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3316,6 +3333,68 @@ func (s EmailSendRequestCustomHeaders) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *EmailSendRequestCustomHeaders) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes EmailSendRequestDeliveryGroup as json.
+func (s EmailSendRequestDeliveryGroup) Encode(e *jx.Encoder) {
+	switch s.Type {
+	case StringEmailSendRequestDeliveryGroup:
+		e.Str(s.String)
+	case StringArrayEmailSendRequestDeliveryGroup:
+		e.ArrStart()
+		for _, elem := range s.StringArray {
+			e.Str(elem)
+		}
+		e.ArrEnd()
+	}
+}
+
+// Decode decodes EmailSendRequestDeliveryGroup from json.
+func (s *EmailSendRequestDeliveryGroup) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode EmailSendRequestDeliveryGroup to nil")
+	}
+	// Sum type type_discriminator.
+	switch t := d.Next(); t {
+	case jx.Array:
+		s.StringArray = make([]string, 0)
+		if err := d.Arr(func(d *jx.Decoder) error {
+			var elem string
+			v, err := d.Str()
+			elem = string(v)
+			if err != nil {
+				return err
+			}
+			s.StringArray = append(s.StringArray, elem)
+			return nil
+		}); err != nil {
+			return err
+		}
+		s.Type = StringArrayEmailSendRequestDeliveryGroup
+	case jx.String:
+		v, err := d.Str()
+		s.String = string(v)
+		if err != nil {
+			return err
+		}
+		s.Type = StringEmailSendRequestDeliveryGroup
+	default:
+		return errors.Errorf("unexpected json type %q", t)
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s EmailSendRequestDeliveryGroup) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *EmailSendRequestDeliveryGroup) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -4262,6 +4341,39 @@ func (s OptEmailSendRequestCustomHeaders) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptEmailSendRequestCustomHeaders) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes EmailSendRequestDeliveryGroup as json.
+func (o OptEmailSendRequestDeliveryGroup) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes EmailSendRequestDeliveryGroup from json.
+func (o *OptEmailSendRequestDeliveryGroup) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptEmailSendRequestDeliveryGroup to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptEmailSendRequestDeliveryGroup) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptEmailSendRequestDeliveryGroup) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

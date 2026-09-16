@@ -468,6 +468,24 @@
             "description": "Custom X-* headers to include in the email",
             "type": "object"
           },
+          "delivery_group": {
+            "description": "One delivery group public ID or a non-empty array of up to 50 IDs",
+            "oneOf": [
+              {
+                "pattern": "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$",
+                "type": "string"
+              },
+              {
+                "items": {
+                  "pattern": "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$",
+                  "type": "string"
+                },
+                "maxItems": 50,
+                "minItems": 1,
+                "type": "array"
+              }
+            ]
+          },
           "from": {
             "$ref": "#/components/schemas/Address"
           },

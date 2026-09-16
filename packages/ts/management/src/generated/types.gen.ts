@@ -504,6 +504,13 @@ export type SendingAccountLimitRequest = {
     request_id: string;
 };
 
+/**
+ * Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.
+ */
+export type ProviderVariables = {
+    [key: string]: string;
+};
+
 export type ProviderUsageResponse = SuccessEnvelope & {
     data: ProviderUsage;
     meta?: ResponseMeta;
@@ -566,6 +573,7 @@ export type ProviderUpdateBody = {
     smtp_protocol?: 'tls' | 'ssl' | 'none' | 'starttls';
     smtp_username?: string;
     tracking_domain?: string | null;
+    variables?: ProviderVariables;
 };
 
 export type ProviderQuotaRange = {
@@ -648,6 +656,120 @@ export type ProviderQuotas = {
     per_second: ProviderQuotaRange;
 };
 
+export type ProviderListItem = {
+    allowed_actions: ProviderAllowedActions;
+    /**
+     * ISO 8601 creation timestamp
+     */
+    created_at: string;
+    /**
+     * Default From email address. Connected Google and Microsoft accounts always use their authorised account address.
+     */
+    from_email: string | null;
+    /**
+     * Default From display name.
+     */
+    from_name: string | null;
+    /**
+     * Whether an OAuth account has an active connection token.
+     */
+    has_refresh_token: boolean;
+    /**
+     * Whether a custom SMTP password is stored.
+     */
+    has_smtp_password: boolean;
+    /**
+     * Sending account public ID
+     */
+    id: string;
+    /**
+     * Whether this account is enabled for sending.
+     */
+    is_active: boolean;
+    /**
+     * False when the account is platform-managed.
+     */
+    is_editable: boolean;
+    /**
+     * True for the team's shared Amazon SES account.
+     */
+    is_shared: boolean;
+    /**
+     * Last connection test timestamp.
+     */
+    last_tested_at: string | null;
+    /**
+     * Last send timestamp.
+     */
+    last_used_at: string | null;
+    /**
+     * Display name
+     */
+    name: string;
+    /**
+     * Connected account email for OAuth accounts.
+     */
+    oauth_email: string | null;
+    /**
+     * Routing weight percentage.
+     */
+    percentage: number | null;
+    quotas: ProviderQuotas;
+    /**
+     * Default Reply-To email address.
+     */
+    reply_to_email: string | null;
+    /**
+     * Default Reply-To display name.
+     */
+    reply_to_name: string | null;
+    /**
+     * SMTP host for custom SMTP accounts.
+     */
+    smtp_host: string | null;
+    /**
+     * SMTP port for custom SMTP accounts.
+     */
+    smtp_port: number | null;
+    /**
+     * SMTP security mode.
+     */
+    smtp_protocol: string | null;
+    /**
+     * SMTP username for custom SMTP accounts.
+     */
+    smtp_username: string | null;
+    /**
+     * Current sending account status.
+     */
+    status: 'active' | 'inactive' | 'error' | 'pending';
+    /**
+     * Public-safe reason for the current status.
+     */
+    status_reason: string | null;
+    /**
+     * Custom tracking hostname.
+     */
+    tracking_domain: string | null;
+    /**
+     * Sending account type. `amazon_ses` is the shared managed account.
+     */
+    type: 'smtp' | 'gmail_api' | 'outlook_api' | 'amazon_ses';
+    /**
+     * ISO 8601 last update timestamp
+     */
+    updated_at: string;
+};
+
+export type ProviderAllowedActions = {
+    activate: boolean;
+    deactivate: boolean;
+    delete: boolean;
+    test: boolean;
+    update: boolean;
+    update_variables: boolean;
+};
+
 export type ProviderLimitsResponse = SuccessEnvelope & {
     data: ProviderLimits;
     meta?: ResponseMeta;
@@ -661,14 +783,6 @@ export type ProviderLimits = {
 export type ProviderItemResponse = SuccessEnvelope & {
     data: ProviderItem;
     meta?: ResponseMeta;
-};
-
-export type ProviderAllowedActions = {
-    activate: boolean;
-    deactivate: boolean;
-    delete: boolean;
-    test: boolean;
-    update: boolean;
 };
 
 export type ProviderItem = {
@@ -774,10 +888,11 @@ export type ProviderItem = {
      * ISO 8601 last update timestamp
      */
     updated_at: string;
+    variables: ProviderVariables;
 };
 
 export type ProviderItemCursorListResponse = SuccessEnvelope & {
-    data: Array<ProviderItem>;
+    data: Array<ProviderListItem>;
     meta?: ResponseMeta;
     pagination: CursorPagination;
 };
@@ -834,6 +949,7 @@ export type ProviderCreateBody = {
     smtp_protocol: 'tls' | 'ssl' | 'none' | 'starttls';
     smtp_username: string;
     tracking_domain?: string | null;
+    variables?: ProviderVariables;
 };
 
 export type MailboxSendScope = {
@@ -1309,6 +1425,10 @@ export type DeliveryLogDetail = {
      * ISO 8601 creation timestamp
      */
     created_at: string;
+    /**
+     * Applied per-message delivery group public IDs, or null for absent, ignored or historical hints
+     */
+    delivery_group: Array<string> | null;
     from_email: string | null;
     /**
      * Log public ID
@@ -1369,6 +1489,10 @@ export type DeliveryLogItem = {
      * ISO 8601 creation timestamp
      */
     created_at: string;
+    /**
+     * Applied per-message delivery group public IDs, or null for absent, ignored or historical hints
+     */
+    delivery_group: Array<string> | null;
     from_email: string | null;
     /**
      * Log public ID

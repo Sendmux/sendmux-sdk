@@ -1137,7 +1137,7 @@ try {
     "--base-url",
     baseUrl,
     "--body",
-    "{}",
+    JSON.stringify({ delivery_group: ["dgrp_primary", "dgrp_backup"] }),
     "--idempotency-key",
     "idem_cli_send",
     "--json",
@@ -1147,6 +1147,26 @@ try {
 
   if (latestRequest().headers["idempotency-key"] !== "idem_cli_send") {
     throw new Error("Idempotency-Key header was not passed through for sending:send");
+  }
+  assertDeepEqual(
+    JSON.parse(latestRequest().body.toString("utf8")).delivery_group,
+    ["dgrp_primary", "dgrp_backup"],
+    "sending:send must forward delivery group lists",
+  );
+
+  const sendingBatchResult = await runCli([
+    "sending:send:batch",
+    "--api-key",
+    mailboxKey,
+    "--base-url",
+    baseUrl,
+    "--body",
+    JSON.stringify({ messages: [{ delivery_group: "dgrp_primary" }] }),
+    "--json",
+  ]);
+  assertCliSuccess(sendingBatchResult, "sending:send:batch with delivery group");
+  if (JSON.parse(latestRequest().body.toString("utf8")).messages[0].delivery_group !== "dgrp_primary") {
+    throw new Error("sending:send:batch did not forward the per-message delivery group");
   }
 
   const agentConfigDir = join(tempHome, ".config", "sendmux");

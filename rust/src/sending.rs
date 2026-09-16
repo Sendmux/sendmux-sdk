@@ -121,6 +121,31 @@ pub type Recipient = Address;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(untagged)]
+pub enum DeliveryGroup {
+    Single(String),
+    Groups(Vec<String>),
+}
+
+impl From<String> for DeliveryGroup {
+    fn from(value: String) -> Self {
+        Self::Single(value)
+    }
+}
+
+impl From<&str> for DeliveryGroup {
+    fn from(value: &str) -> Self {
+        Self::Single(value.to_owned())
+    }
+}
+
+impl From<Vec<String>> for DeliveryGroup {
+    fn from(value: Vec<String>) -> Self {
+        Self::Groups(value)
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(untagged)]
 pub enum Attachment {
     /// Inline base64 content included in the send request.
     Inline(InlineAttachment),
@@ -196,6 +221,8 @@ pub struct EmailSendRequest {
     pub attachments: Vec<Attachment>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub custom_headers: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delivery_group: Option<DeliveryGroup>,
 }
 
 impl EmailSendRequest {
@@ -217,11 +244,17 @@ impl EmailSendRequest {
             return_path: None,
             attachments: Vec::new(),
             custom_headers: BTreeMap::new(),
+            delivery_group: None,
         }
     }
 
     pub fn text_body(mut self, value: impl Into<String>) -> Self {
         self.text_body = Some(value.into());
+        self
+    }
+
+    pub fn delivery_group(mut self, value: impl Into<DeliveryGroup>) -> Self {
+        self.delivery_group = Some(value.into());
         self
     }
 }

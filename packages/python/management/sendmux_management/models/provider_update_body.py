@@ -42,7 +42,8 @@ class ProviderUpdateBody(BaseModel):
     smtp_protocol: Optional[StrictStr] = None
     smtp_username: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
     tracking_domain: Optional[Annotated[str, Field(strict=True, max_length=255)]] = None
-    __properties: ClassVar[List[str]] = ["from_email", "from_name", "name", "percentage", "quotas", "reply_to_email", "reply_to_name", "smtp_host", "smtp_password", "smtp_port", "smtp_protocol", "smtp_username", "tracking_domain"]
+    variables: Optional[Dict[str, Annotated[str, Field(strict=True, max_length=4096)]]] = Field(default=None, description="Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.")
+    __properties: ClassVar[List[str]] = ["from_email", "from_name", "name", "percentage", "quotas", "reply_to_email", "reply_to_name", "smtp_host", "smtp_password", "smtp_port", "smtp_protocol", "smtp_username", "tracking_domain", "variables"]
 
     @field_validator('smtp_protocol')
     def smtp_protocol_validate_enum(cls, value):
@@ -145,6 +146,7 @@ class ProviderUpdateBody(BaseModel):
             "smtp_port": obj.get("smtp_port"),
             "smtp_protocol": obj.get("smtp_protocol"),
             "smtp_username": obj.get("smtp_username"),
-            "tracking_domain": obj.get("tracking_domain")
+            "tracking_domain": obj.get("tracking_domain"),
+            "variables": obj.get("variables")
         })
         return _obj

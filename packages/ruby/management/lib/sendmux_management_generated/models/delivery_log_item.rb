@@ -23,6 +23,9 @@ module Sendmux::Management::Generated
     # ISO 8601 creation timestamp
     attr_accessor :created_at
 
+    # Applied per-message delivery group public IDs, or null for absent, ignored or historical hints
+    attr_accessor :delivery_group
+
     attr_accessor :from_email
 
     # Log public ID
@@ -87,6 +90,7 @@ module Sendmux::Management::Generated
         :'accepted_recipient_count' => :'accepted_recipient_count',
         :'attempts' => :'attempts',
         :'created_at' => :'created_at',
+        :'delivery_group' => :'delivery_group',
         :'from_email' => :'from_email',
         :'id' => :'id',
         :'message_id' => :'message_id',
@@ -120,6 +124,7 @@ module Sendmux::Management::Generated
         :'accepted_recipient_count' => :'Integer',
         :'attempts' => :'Float',
         :'created_at' => :'String',
+        :'delivery_group' => :'Array<String>',
         :'from_email' => :'String',
         :'id' => :'String',
         :'message_id' => :'String',
@@ -141,6 +146,7 @@ module Sendmux::Management::Generated
     def self.openapi_nullable
       Set.new([
         :'accepted_recipient_count',
+        :'delivery_group',
         :'from_email',
         :'message_id',
         :'provider_id',
@@ -188,6 +194,14 @@ module Sendmux::Management::Generated
         self.created_at = attributes[:'created_at']
       else
         self.created_at = nil
+      end
+
+      if attributes.key?(:'delivery_group')
+        if (value = attributes[:'delivery_group']).is_a?(Array)
+          self.delivery_group = value
+        end
+      else
+        self.delivery_group = nil
       end
 
       if attributes.key?(:'from_email')
@@ -296,6 +310,14 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "created_at", created_at cannot be nil.')
       end
 
+      if @delivery_group.length > 50
+        invalid_properties.push('invalid value for "delivery_group", number of items must be less than or equal to 50.')
+      end
+
+      if @delivery_group.length < 1
+        invalid_properties.push('invalid value for "delivery_group", number of items must be greater than or equal to 1.')
+      end
+
       if @id.nil?
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
@@ -331,6 +353,8 @@ module Sendmux::Management::Generated
       return false if @accepted_recipient_count < 0
       return false if @attempts.nil?
       return false if @created_at.nil?
+      return false if @delivery_group.length > 50
+      return false if @delivery_group.length < 1
       return false if @id.nil?
       return false if @recipient_count > 50
       return false if @recipient_count < 0
@@ -374,6 +398,20 @@ module Sendmux::Management::Generated
       end
 
       @created_at = created_at
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] delivery_group Value to be assigned
+    def delivery_group=(delivery_group)
+      if !delivery_group.nil? && delivery_group.length > 50
+        fail ArgumentError, 'invalid value for "delivery_group", number of items must be less than or equal to 50.'
+      end
+
+      if !delivery_group.nil? && delivery_group.length < 1
+        fail ArgumentError, 'invalid value for "delivery_group", number of items must be greater than or equal to 1.'
+      end
+
+      @delivery_group = delivery_group
     end
 
     # Custom attribute writer method with validation
@@ -432,6 +470,7 @@ module Sendmux::Management::Generated
           accepted_recipient_count == o.accepted_recipient_count &&
           attempts == o.attempts &&
           created_at == o.created_at &&
+          delivery_group == o.delivery_group &&
           from_email == o.from_email &&
           id == o.id &&
           message_id == o.message_id &&
@@ -457,7 +496,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [accepted_recipient_count, attempts, created_at, from_email, id, message_id, provider_id, provider_name, recipient_count, rejected_recipient_count, sent_at, sent_from_email, size_bytes, status, status_reason, subject, to_email].hash
+      [accepted_recipient_count, attempts, created_at, delivery_group, from_email, id, message_id, provider_id, provider_name, recipient_count, rejected_recipient_count, sent_at, sent_from_email, size_bytes, status, status_reason, subject, to_email].hash
     end
 
     # Builds the object from hash

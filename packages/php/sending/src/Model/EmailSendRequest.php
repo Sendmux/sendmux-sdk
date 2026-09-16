@@ -63,6 +63,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => '\Sendmux\Sending\Model\Recipient[]',
         'cc' => '\Sendmux\Sending\Model\Recipient[]',
         'custom_headers' => 'array<string,string>',
+        'delivery_group' => '\Sendmux\Sending\Model\EmailSendRequestDeliveryGroup',
         'from' => '\Sendmux\Sending\Model\Address',
         'html_body' => 'string',
         'reply_to' => '\Sendmux\Sending\Model\Address',
@@ -82,6 +83,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => null,
         'cc' => null,
         'custom_headers' => null,
+        'delivery_group' => null,
         'from' => null,
         'html_body' => null,
         'reply_to' => null,
@@ -101,6 +103,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => false,
         'cc' => false,
         'custom_headers' => false,
+        'delivery_group' => false,
         'from' => false,
         'html_body' => false,
         'reply_to' => false,
@@ -190,6 +193,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => 'bcc',
         'cc' => 'cc',
         'custom_headers' => 'custom_headers',
+        'delivery_group' => 'delivery_group',
         'from' => 'from',
         'html_body' => 'html_body',
         'reply_to' => 'reply_to',
@@ -209,6 +213,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => 'setBcc',
         'cc' => 'setCc',
         'custom_headers' => 'setCustomHeaders',
+        'delivery_group' => 'setDeliveryGroup',
         'from' => 'setFrom',
         'html_body' => 'setHtmlBody',
         'reply_to' => 'setReplyTo',
@@ -228,6 +233,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => 'getBcc',
         'cc' => 'getCc',
         'custom_headers' => 'getCustomHeaders',
+        'delivery_group' => 'getDeliveryGroup',
         'from' => 'getFrom',
         'html_body' => 'getHtmlBody',
         'reply_to' => 'getReplyTo',
@@ -288,6 +294,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('bcc', $data ?? [], null);
         $this->setIfExists('cc', $data ?? [], null);
         $this->setIfExists('custom_headers', $data ?? [], null);
+        $this->setIfExists('delivery_group', $data ?? [], null);
         $this->setIfExists('from', $data ?? [], null);
         $this->setIfExists('html_body', $data ?? [], null);
         $this->setIfExists('reply_to', $data ?? [], null);
@@ -502,6 +509,33 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable custom_headers cannot be null');
         }
         $this->container['custom_headers'] = $custom_headers;
+
+        return $this;
+    }
+
+    /**
+     * Gets delivery_group
+     *
+     * @return \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup|null
+     */
+    public function getDeliveryGroup(): ?\Sendmux\Sending\Model\EmailSendRequestDeliveryGroup
+    {
+        return $this->container['delivery_group'];
+    }
+
+    /**
+     * Sets delivery_group
+     *
+     * @param \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup|null $delivery_group delivery_group
+     *
+     * @return $this
+     */
+    public function setDeliveryGroup(?\Sendmux\Sending\Model\EmailSendRequestDeliveryGroup $delivery_group): static
+    {
+        if (is_null($delivery_group)) {
+            throw new InvalidArgumentException('non-nullable delivery_group cannot be null');
+        }
+        $this->container['delivery_group'] = $delivery_group;
 
         return $this;
     }

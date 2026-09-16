@@ -1063,6 +1063,24 @@ func (s *EmailSendRequest) Validate() error {
 		})
 	}
 	if err := func() error {
+		if value, ok := s.DeliveryGroup.Get(); ok {
+			if err := func() error {
+				if err := value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "delivery_group",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if err := s.From.Validate(); err != nil {
 			return err
 		}
@@ -1226,6 +1244,64 @@ func (s EmailSendRequestCustomHeaders) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s EmailSendRequestDeliveryGroup) Validate() error {
+	switch s.Type {
+	case StringEmailSendRequestDeliveryGroup:
+		if err := (validate.String{
+			MinLength:    0,
+			MinLengthSet: false,
+			MaxLength:    0,
+			MaxLengthSet: false,
+			Email:        false,
+			Hostname:     false,
+			Regex:        regexMap["^dgrp_[a-z0-9][a-z0-9_-]{0,122}$"],
+		}).Validate(string(s.String)); err != nil {
+			return errors.Wrap(err, "string")
+		}
+		return nil
+	case StringArrayEmailSendRequestDeliveryGroup:
+		if s.StringArray == nil {
+			return errors.New("nil is invalid value")
+		}
+		if err := (validate.Array{
+			MinLength:    1,
+			MinLengthSet: true,
+			MaxLength:    50,
+			MaxLengthSet: true,
+		}).ValidateLength(len(s.StringArray)); err != nil {
+			return errors.Wrap(err, "array")
+		}
+		var failures []validate.FieldError
+		for i, elem := range s.StringArray {
+			if err := func() error {
+				if err := (validate.String{
+					MinLength:    0,
+					MinLengthSet: false,
+					MaxLength:    0,
+					MaxLengthSet: false,
+					Email:        false,
+					Hostname:     false,
+					Regex:        regexMap["^dgrp_[a-z0-9][a-z0-9_-]{0,122}$"],
+				}).Validate(string(elem)); err != nil {
+					return errors.Wrap(err, "string")
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	default:
+		return errors.Errorf("invalid type %q", s.Type)
+	}
 }
 
 func (s *EmailSendRequestReplyTo) Validate() error {

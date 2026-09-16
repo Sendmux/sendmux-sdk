@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
 from sendmux_management.models.cursor_pagination import CursorPagination
-from sendmux_management.models.provider_item import ProviderItem
+from sendmux_management.models.provider_list_item import ProviderListItem
 from sendmux_management.models.response_meta import ResponseMeta
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,7 +32,7 @@ class ProviderItemCursorListResponse(BaseModel):
     """ # noqa: E501
     meta: ResponseMeta
     ok: StrictBool
-    data: List[ProviderItem]
+    data: List[ProviderListItem]
     pagination: CursorPagination
     __properties: ClassVar[List[str]] = ["meta", "ok", "data", "pagination"]
 
@@ -102,7 +102,7 @@ class ProviderItemCursorListResponse(BaseModel):
         _obj = cls.model_validate({
             "meta": ResponseMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
             "ok": obj.get("ok"),
-            "data": [ProviderItem.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
+            "data": [ProviderListItem.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
             "pagination": CursorPagination.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj

@@ -338,6 +338,7 @@ def test_hosted_surface_children_keep_curated_tool_sets_without_process_api_key(
             )
         )
         tool_names: set[str] = set()
+        tools_by_name = {}
 
         for surface in HOSTED_SURFACES:
             surface_config = hosted_surface_config(surface, runtime)
@@ -350,11 +351,16 @@ def test_hosted_surface_children_keep_curated_tool_sets_without_process_api_key(
                     internal_bearer_token=runtime.internal_bearer_token,
                 ),
             )
-            tool_names.update(tool.name for tool in await child.list_tools(run_middleware=False))
+            tools = await child.list_tools(run_middleware=False)
+            tool_names.update(tool.name for tool in tools)
+            tools_by_name.update({tool.name: tool for tool in tools})
 
         assert "mailbox_get_me" in tool_names
         assert "management_list_domains" in tool_names
         assert "sending_send_email" in tool_names
+        delivery_group = tools_by_name["sending_send_email"].parameters["properties"]["delivery_group"]
+        assert delivery_group["description"] == "One delivery group public ID or a non-empty array of up to 50 IDs"
+        assert len(delivery_group["anyOf"]) == 2
 
     asyncio.run(run())
 

@@ -113,6 +113,7 @@ __all__ = [
     "ProviderItemResponse",
     "ProviderLimits",
     "ProviderLimitsResponse",
+    "ProviderListItem",
     "ProviderQuotaRange",
     "ProviderQuotas",
     "ProviderStats",
@@ -263,6 +264,7 @@ from sendmux_management.models.provider_item_cursor_list_response import Provide
 from sendmux_management.models.provider_item_response import ProviderItemResponse as ProviderItemResponse
 from sendmux_management.models.provider_limits import ProviderLimits as ProviderLimits
 from sendmux_management.models.provider_limits_response import ProviderLimitsResponse as ProviderLimitsResponse
+from sendmux_management.models.provider_list_item import ProviderListItem as ProviderListItem
 from sendmux_management.models.provider_quota_range import ProviderQuotaRange as ProviderQuotaRange
 from sendmux_management.models.provider_quotas import ProviderQuotas as ProviderQuotas
 from sendmux_management.models.provider_stats import ProviderStats as ProviderStats

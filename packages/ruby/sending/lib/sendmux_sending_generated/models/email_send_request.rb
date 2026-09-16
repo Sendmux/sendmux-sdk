@@ -27,6 +27,8 @@ module Sendmux::Sending::Generated
     # Custom X-* headers to include in the email
     attr_accessor :custom_headers
 
+    attr_accessor :delivery_group
+
     attr_accessor :from
 
     # HTML email content (max 25MB)
@@ -54,6 +56,7 @@ module Sendmux::Sending::Generated
         :'bcc' => :'bcc',
         :'cc' => :'cc',
         :'custom_headers' => :'custom_headers',
+        :'delivery_group' => :'delivery_group',
         :'from' => :'from',
         :'html_body' => :'html_body',
         :'reply_to' => :'reply_to',
@@ -81,6 +84,7 @@ module Sendmux::Sending::Generated
         :'bcc' => :'Array<Recipient>',
         :'cc' => :'Array<Recipient>',
         :'custom_headers' => :'Hash<String, String>',
+        :'delivery_group' => :'EmailSendRequestDeliveryGroup',
         :'from' => :'Address',
         :'html_body' => :'String',
         :'reply_to' => :'Address',
@@ -135,6 +139,10 @@ module Sendmux::Sending::Generated
         if (value = attributes[:'custom_headers']).is_a?(Hash)
           self.custom_headers = value
         end
+      end
+
+      if attributes.key?(:'delivery_group')
+        self.delivery_group = attributes[:'delivery_group']
       end
 
       if attributes.key?(:'from')
@@ -400,6 +408,7 @@ module Sendmux::Sending::Generated
           bcc == o.bcc &&
           cc == o.cc &&
           custom_headers == o.custom_headers &&
+          delivery_group == o.delivery_group &&
           from == o.from &&
           html_body == o.html_body &&
           reply_to == o.reply_to &&
@@ -418,7 +427,7 @@ module Sendmux::Sending::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachments, bcc, cc, custom_headers, from, html_body, reply_to, return_path, subject, text_body, to].hash
+      [attachments, bcc, cc, custom_headers, delivery_group, from, html_body, reply_to, return_path, subject, text_body, to].hash
     end
 
     # Builds the object from hash

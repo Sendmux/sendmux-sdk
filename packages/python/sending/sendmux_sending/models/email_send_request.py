@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from sendmux_sending.models.address import Address
 from sendmux_sending.models.attachment import Attachment
+from sendmux_sending.models.email_send_request_delivery_group import EmailSendRequestDeliveryGroup
 from sendmux_sending.models.recipient import Recipient
 from typing import Optional, Set
 from typing_extensions import Self
@@ -35,6 +36,7 @@ class EmailSendRequest(BaseModel):
     bcc: Optional[Annotated[List[Recipient], Field(max_length=49)]] = Field(default=None, description="BCC recipients (subject to 50 total To, CC, and BCC recipients)")
     cc: Optional[Annotated[List[Recipient], Field(max_length=49)]] = Field(default=None, description="CC recipients (subject to 50 total To, CC, and BCC recipients)")
     custom_headers: Optional[Dict[str, Annotated[str, Field(strict=True, max_length=500)]]] = Field(default=None, description="Custom X-* headers to include in the email")
+    delivery_group: Optional[EmailSendRequestDeliveryGroup] = None
     var_from: Address = Field(alias="from")
     html_body: Annotated[str, Field(min_length=1, strict=True, max_length=26214400)] = Field(description="HTML email content (max 25MB)")
     reply_to: Optional[Address] = Field(default=None, description="Reply-To address")
@@ -42,7 +44,7 @@ class EmailSendRequest(BaseModel):
     subject: Annotated[str, Field(min_length=1, strict=True, max_length=998)] = Field(description="Email subject line (max 998 chars, RFC 5322)")
     text_body: Optional[Annotated[str, Field(strict=True, max_length=26214400)]] = Field(default=None, description="Plain text alternative (max 25MB)")
     to: Address = Field(description="Primary recipient")
-    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "custom_headers", "from", "html_body", "reply_to", "return_path", "subject", "text_body", "to"]
+    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "custom_headers", "delivery_group", "from", "html_body", "reply_to", "return_path", "subject", "text_body", "to"]
 
     @field_validator('subject')
     def subject_validate_regular_expression(cls, value):
@@ -114,6 +116,9 @@ class EmailSendRequest(BaseModel):
                 if _item_cc:
                     _items.append(_item_cc.to_dict())
             _dict['cc'] = _items
+        # override the default output from pydantic by calling `to_dict()` of delivery_group
+        if self.delivery_group:
+            _dict['delivery_group'] = self.delivery_group.to_dict()
         # override the default output from pydantic by calling `to_dict()` of var_from
         if self.var_from:
             _dict['from'] = self.var_from.to_dict()
@@ -139,6 +144,7 @@ class EmailSendRequest(BaseModel):
             "bcc": [Recipient.from_dict(_item) for _item in obj["bcc"]] if obj.get("bcc") is not None else None,
             "cc": [Recipient.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "custom_headers": obj.get("custom_headers"),
+            "delivery_group": EmailSendRequestDeliveryGroup.from_dict(obj["delivery_group"]) if obj.get("delivery_group") is not None else None,
             "from": Address.from_dict(obj["from"]) if obj.get("from") is not None else None,
             "html_body": obj.get("html_body"),
             "reply_to": Address.from_dict(obj["reply_to"]) if obj.get("reply_to") is not None else None,

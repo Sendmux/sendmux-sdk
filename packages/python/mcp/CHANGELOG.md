@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* Expose one delivery group or a list of groups that narrows the eligible provider pool through Sending tools, including hosted forwarding.
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v1.8.0...python-mcp-v2.0.0) (2026-09-15)
 
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add provider variable management fields and delivery-group fields to delivery logs.
+
 ### Security
 
 - Require Guzzle `^7.15.5`, PSR7 `^2.13.1`, and core `^2.1.1` for HTTP security fixes. If you use a custom persistent cookie jar, follow the [upgrade warning](README.md#installation) before updating.

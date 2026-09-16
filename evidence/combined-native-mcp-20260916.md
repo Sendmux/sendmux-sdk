@@ -24,13 +24,14 @@ Status: local preparation complete; publication, production, and manual acceptan
 - `pnpm test:release-state`: pass.
 - `pnpm prepare:publish:pypi`: read-only selector pass; `.tmp/python-publish` contains exactly the MCP 2.1.0 wheel and sdist, no other files. No publication occurred.
 - ROOT's preceding main CI run `35073891703` succeeded 29/29; Release Please `35073891701` and CodeQL `35073891162` also succeeded.
-- ROOT's installed-candidate consumer: terminal 0, 97/97 tests, zero skips, own-site-packages `sendmux-mcp 2.1.0` plus `sendmux-core 1.3.1` provenance, and `pip check` all passed. Its six exact child PIDs/process groups and temporary fixture were verified absent.
+- ROOT's installed-candidate consumer: terminal 0, 97/97 tests, zero skips, own-site-packages `sendmux-mcp 2.1.0` plus `sendmux-core 1.3.1` provenance, and `pip check` all passed. Its owner and five child PIDs, associated process groups, and temporary fixture were verified absent.
 - ROOT's conformance run: terminal 0; required legacy `70` successful/`0` skipped, modern `114` successful plus `1` INFO and `5` capability skips. Nine non-scored task-extension failures remain explicitly retained.
 
 ## Raw artifacts and cleanup
 
 - Raw logs: `.claude/artifacts/native-mcp-2.1.0/` (`pnpm-install.log`, `pre-generation-gates.log`, `generate-mcp.log`, `post-generation-gates.log`, `drift-check.log`, `build-python-dists.log`, `check-mcp.log`, `python-release-guardrails.log`, `mcp-registry-version.log`, `release-state.log`, `prepare-pypi-publish.log`, `root-local-consumer.log`, `root-conformance.log`, `prepublish-live-canary.log`, and preceding CI receipts).
 - Bounded owner PIDs `91222`, `91785`, `92241`, `92694`, `93633`, `93642`, `96202`, `98673`, and `1130` were all verified absent. Generator/test child PIDs recorded in the raw logs were also verified absent.
+- ROOT independently checked all raw receipts: 48 recorded PIDs, 32 child process groups, and seven temporary paths were absent. The distribution build executed 146 Python tests (136 native and 10 LangChain), with zero skips; release-state tests passed 27/27.
 
 ## Remaining gates
 

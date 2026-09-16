@@ -1,0 +1,141 @@
+name: Publication guard negative diagnostic
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Exercise the publishing branch with a harmless sentinel (expected skipped).
+        type: boolean
+        default: true
+        required: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  pre-release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.fixture.outputs.releases_created }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 22
+      - name: Prepare known incompatible immutable candidate
+        id: fixture
+        run: node scripts/test-publication-gates.mjs prepare-negative --repo .
+      - name: Production contract gate before release action
+        id: guard
+        timeout-minutes: 2
+        env:
+          CANDIDATE_DIR: ${{ steps.fixture.outputs.directory }}
+          CANDIDATE_SHA: ${{ steps.fixture.outputs.sha }}
+        run: node scripts/publication-guard.mjs candidate --repo "$CANDIDATE_DIR" --sha "$CANDIDATE_SHA"
+      - name: Harmless release action sentinel
+        id: writer
+        run: |
+          echo 'ERROR — release writer was reachable'
+          exit 1
+      - name: Retain outcomes and tear down exact fixture
+        if: ${{ always() && steps.fixture.outcome == 'success' }}
+        env:
+          CANDIDATE_DIR: ${{ steps.fixture.outputs.directory }}
+          GUARD_OUTCOME: ${{ steps.guard.outcome }}
+          WRITER_OUTCOME: ${{ steps.writer.outcome }}
+        run: |
+          printf 'Guard=%s; writer=%s\n' "$GUARD_OUTCOME" "$WRITER_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          node scripts/test-publication-gates.mjs cleanup-negative --directory "$CANDIDATE_DIR"
+
+  dependent-publisher-sentinel:
+    needs: pre-release-please
+    if: ${{ needs.pre-release-please.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'ERROR — dependent publisher was reachable'
+          exit 1
+
+  independent-recovery:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        recovery: [cli, mcp]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 22
+      - name: Prepare known incompatible immutable candidate
+        id: fixture
+        run: node scripts/test-publication-gates.mjs prepare-negative --repo .
+      - name: Production contract gate before independent recovery
+        id: guard
+        timeout-minutes: 2
+        env:
+          CANDIDATE_DIR: ${{ steps.fixture.outputs.directory }}
+          CANDIDATE_SHA: ${{ steps.fixture.outputs.sha }}
+        run: node scripts/publication-guard.mjs candidate --repo "$CANDIDATE_DIR" --sha "$CANDIDATE_SHA"
+      - name: Harmless recovery sentinel
+        id: writer
+        run: |
+          echo 'ERROR — recovery writer was reachable'
+          exit 1
+      - name: Retain outcomes and tear down exact fixture
+        if: ${{ always() && steps.fixture.outcome == 'success' }}
+        env:
+          CANDIDATE_DIR: ${{ steps.fixture.outputs.directory }}
+          GUARD_OUTCOME: ${{ steps.guard.outcome }}
+          WRITER_OUTCOME: ${{ steps.writer.outcome }}
+        run: |
+          printf 'Guard=%s; writer=%s\n' "$GUARD_OUTCOME" "$WRITER_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          node scripts/test-publication-gates.mjs cleanup-negative --directory "$CANDIDATE_DIR"
+
+  conditional-distribution:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distribution: [snap-amd64, snap-arm64, chocolatey]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 22
+      - name: Prepare known incompatible immutable candidate
+        id: fixture
+        run: node scripts/test-publication-gates.mjs prepare-negative --repo .
+      - name: Production contract gate on publishing branch
+        if: ${{ inputs.publish == true }}
+        id: guard
+        timeout-minutes: 2
+        env:
+          CANDIDATE_DIR: ${{ steps.fixture.outputs.directory }}
+          CANDIDATE_SHA: ${{ steps.fixture.outputs.sha }}
+        run: node scripts/publication-guard.mjs candidate --repo "$CANDIDATE_DIR" --sha "$CANDIDATE_SHA"
+      - name: Harmless distribution sentinel
+        if: ${{ inputs.publish == true }}
+        id: writer
+        run: |
+          echo 'ERROR — distribution writer was reachable'
+          exit 1
+      - name: Retain outcomes and tear down exact fixture
+        if: ${{ always() && steps.fixture.outcome == 'success' }}
+        env:
+          CANDIDATE_DIR: ${{ steps.fixture.outputs.directory }}
+          GUARD_OUTCOME: ${{ steps.guard.outcome }}
+          WRITER_OUTCOME: ${{ steps.writer.outcome }}
+        run: |
+          printf 'Guard=%s; writer=%s\n' "$GUARD_OUTCOME" "$WRITER_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+          node scripts/test-publication-gates.mjs cleanup-negative --directory "$CANDIDATE_DIR"

@@ -46,6 +46,8 @@
     "test:python-release-guardrails": "node scripts/test-python-release-guardrails.mjs",
     "test:mcp-registry-version": "node --test scripts/mcp-registry-version.test.mjs",
     "test:openapi-canary": "node --test scripts/check-openapi-canary.test.mjs",
+    "test:publication-guard": "node --test scripts/check-openapi-canary.test.mjs scripts/publication-guard.test.mjs scripts/publish-php-split.test.mjs scripts/prepare-pypi-publish.test.mjs",
+    "publish:php-split": "node scripts/publish-php-split.mjs",
     "test:release-state": "node scripts/release-state.test.mjs && node --test scripts/release-state-fixtures.test.mjs scripts/mcp-contract.test.mjs",
     "test:windows-command-shims": "node scripts/test-windows-command-shims.mjs && node scripts/test-windows-workflow-native-exits-wiring.mjs",
     "verify:codegen": "node scripts/verify-normalized-openapi.mjs",
@@ -70,6 +72,7 @@
     "@sendmux/sdk": "workspace:*",
     "cross-spawn": "7.0.6",
     "esbuild": "0.28.1",
+    "release-please": "17.6.0",
     "typescript": "5.9.3"
   },
   "pnpm": {

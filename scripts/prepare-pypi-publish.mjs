@@ -1,10 +1,11 @@
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { basename, join } from "node:path";
+import { pythonPackages } from "./python-release-guardrails.mjs";
 
 const root = process.cwd();
 const distDir = join(root, ".tmp", "python-dist");
 const publishDir = join(root, ".tmp", "python-publish");
-const packages = ["core", "sending", "mailbox", "management", "sdk", "mcp", "langchain"];
+const packages = selectedPackages();
 
 rmSync(publishDir, { force: true, recursive: true });
 mkdirSync(publishDir, { recursive: true });
@@ -46,6 +47,21 @@ if (process.env.GITHUB_OUTPUT) {
 }
 
 console.log(`Prepared ${copied} PyPI distribution file(s) in ${publishDir}`);
+
+function selectedPackages() {
+  const value = process.env.PYTHON_PATHS_RELEASED;
+  if (value === undefined) return pythonPackages;
+  let paths;
+  try { paths = JSON.parse(value); }
+  catch { throw new Error("Invalid Python publication selection: expected released-path JSON array"); }
+  if (!Array.isArray(paths) || paths.length === 0 || paths.some((path) => typeof path !== "string" || !path)
+    || new Set(paths).size !== paths.length) throw new Error("Invalid Python publication selection");
+  const selected = paths.filter((path) => path.startsWith("packages/python/"));
+  if (selected.length === 0 || selected.some((path) => !pythonPackages.some((name) => path === `packages/python/${name}`))) {
+    throw new Error("Invalid Python publication selection: expected known Python package paths");
+  }
+  return pythonPackages.filter((name) => selected.includes(`packages/python/${name}`));
+}
 
 function readProject(path) {
   const pyproject = readFileSync(join(path, "pyproject.toml"), "utf8");

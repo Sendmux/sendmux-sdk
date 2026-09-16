@@ -70,6 +70,9 @@ jobs:
       - name: Build and verify
         run: pnpm build
 
+      - name: Publication first-write regression fixtures
+        run: pnpm test:publication-guard
+
       - name: Runtime certification regression fixtures
         run: pnpm test:runtime-contracts
 

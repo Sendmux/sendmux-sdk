@@ -114,20 +114,44 @@ function readJson(path) {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url, {
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
+  const controller = new AbortController();
+  let reader;
+  const deadline = setTimeout(() => {
+    const error = new Error("OpenAPI request timeout after 15 seconds");
+    controller.abort(error);
+    // Cancel the owned reader as well: aborting fetch alone can leave a
+    // pending body read alive after headers have already resolved.
+    void reader?.cancel(error).catch(() => {});
+  }, 15_000);
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      redirect: "error",
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
+    const chunks = [];
+    let bytes = 0;
+    reader = response.body.getReader();
+    while (true) {
+      const { done, value: chunk } = await reader.read();
+      controller.signal.throwIfAborted();
+      if (done) break;
+      bytes += chunk.byteLength;
+      if (bytes > 8 * 1024 * 1024) throw new Error(`OpenAPI response exceeds 8 MiB: ${url}`);
+      chunks.push(chunk);
+    }
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } finally {
+    clearTimeout(deadline);
+    await reader?.cancel().catch(() => {});
+    controller.abort();
   }
-
-  return response.json();
 }
 
 function assertOpenApi31(source, document) {
-  if (document.openapi !== "3.1.0") {
-    throw new Error(`${source} must be OpenAPI 3.1.0, got ${document.openapi}`);
+  if (document?.openapi !== "3.1.0") {
+    throw new Error(`${source} must be OpenAPI 3.1.0, got ${document?.openapi}`);
   }
 }
 

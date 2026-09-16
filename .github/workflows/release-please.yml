@@ -30,16 +30,54 @@ jobs:
       pull-requests: write
       issues: write
     outputs:
-      releases_created: ${{ steps.release.outputs.releases_created }}
-      paths_released: ${{ steps.release.outputs.paths_released }}
-      rust_release_created: ${{ steps.release.outputs['rust--release_created'] }}
+      releases_created: ${{ steps.verified.outputs.releases_created }}
+      paths_released: ${{ steps.verified.outputs.paths_released }}
+      rust_release_created: ${{ steps.verified.outputs.rust_release_created }}
+      candidate_sha: ${{ steps.preflight.outputs.candidate_sha }}
+      releases: ${{ steps.verified.outputs.releases }}
+      npm_packages: ${{ steps.verified.outputs.npm_packages }}
     steps:
+      - name: Check out immutable guard source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        with:
+          version: 10.22.0
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Install pinned read-only release constructor
+        run: pnpm install --frozen-lockfile
+
+      - name: Guard exact pending release candidates before tags
+        id: preflight
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CONTROL_SHA: ${{ github.sha }}
+        run: node scripts/publication-guard.mjs preflight --sha "$CONTROL_SHA" --receipt "$RUNNER_TEMP/publication-receipt.json"
+
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@0dfd8538845b8e92600d271a895a5372865d4062 # v5
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Verify actual release tag identities
+        id: verified
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_PLEASE_OUTPUTS: ${{ toJSON(steps.release.outputs) }}
+        run: node scripts/publication-guard.mjs verify-release --receipt "$RUNNER_TEMP/publication-receipt.json"
 
   publish-npm:
     needs: release-please
@@ -58,18 +96,25 @@ jobs:
       }}
     runs-on: ubuntu-latest
     environment: release
+    env:
+      CANDIDATE_SHA: ${{ needs.release-please.outputs.candidate_sha }}
+      PUBLICATION_RELEASES: ${{ needs.release-please.outputs.releases }}
+      OPENAPI_INPUT_DIR: ${{ github.workspace }}/packages/python/mcp/sendmux_mcp/openapi
+      SENDMUX_NPM_PUBLISH_PACKAGES: ${{ needs.release-please.outputs.npm_packages }}
     permissions:
       contents: write
       id-token: write
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.release-please.outputs.candidate_sha }}
 
-      - name: Check out OpenAPI snapshots
+      - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          repository: Sendmux/docs
-          path: sendmux-docs
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
@@ -104,7 +149,14 @@ jobs:
       - name: Build and verify
         run: pnpm build
 
+      - name: Guard candidate before first publication
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
+
       - name: Publish TypeScript packages to npm
+        # Every write below uses this candidate and remains downstream of this fresh check.
         run: pnpm publish:npm:ts
 
       - name: Pack CLI tarballs
@@ -140,6 +192,9 @@ jobs:
     if: ${{ needs.release-please.outputs.rust_release_created == 'true' }}
     runs-on: ubuntu-latest
     environment: release
+    env:
+      CANDIDATE_SHA: ${{ needs.release-please.outputs.candidate_sha }}
+      PUBLICATION_RELEASES: ${{ needs.release-please.outputs.releases }}
     permissions:
       contents: read
       id-token: write
@@ -149,6 +204,14 @@ jobs:
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.release-please.outputs.candidate_sha }}
+
+      - name: Check out immutable guard source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Set up Rust
         run: |
@@ -157,6 +220,13 @@ jobs:
 
       - name: Verify crates.io package
         run: cargo publish --dry-run --locked
+
+      - name: Guard candidate before first publication
+        timeout-minutes: 2
+        working-directory: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
 
       - name: Authenticate to crates.io
         id: auth
@@ -171,18 +241,37 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.recover_ts_cli_version != '' }}
     runs-on: ubuntu-latest
     environment: release
+    env:
+      OPENAPI_INPUT_DIR: ${{ github.workspace }}/packages/python/mcp/sendmux_mcp/openapi
     permissions:
       contents: write
       id-token: write
     steps:
-      - name: Check out SDK
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Check out OpenAPI snapshots
+      - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          repository: Sendmux/docs
-          path: sendmux-docs
+          ref: ${{ github.sha }}
+          path: .publication-guard
+
+      - name: Resolve CLI producer
+        id: producer
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.recover_ts_cli_version }}
+        run: node .publication-guard/scripts/publication-guard.mjs resolve --tag "ts-cli-v${REQUESTED_VERSION}"
+
+      - name: Check out SDK
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ steps.producer.outputs.sha }}
+          clean: false
+
+      - name: Restore immutable guard source after candidate checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Verify CLI recovery target
         env:
@@ -230,6 +319,13 @@ jobs:
       - name: Build and verify
         run: pnpm build
 
+      - name: Guard candidate before first publication
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PRODUCER_TAG: ${{ steps.producer.outputs.tag }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --tag "$PRODUCER_TAG"
+
       - name: Publish CLI package to npm
         run: pnpm publish:npm:ts
         env:
@@ -269,8 +365,31 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: Check out immutable guard source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          path: .publication-guard
+
+      - name: Resolve MCP producer
+        id: producer
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.recover_mcp_registry_version }}
+        run: node .publication-guard/scripts/publication-guard.mjs resolve --tag "python-mcp-v${REQUESTED_VERSION}"
+
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ steps.producer.outputs.sha }}
+          clean: false
+
+      - name: Restore immutable guard source after candidate checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
@@ -363,6 +482,14 @@ jobs:
           already_published="$(node scripts/mcp-registry-version.mjs --check)"
           echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
 
+      - name: Guard candidate before first publication
+        if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PRODUCER_TAG: ${{ steps.producer.outputs.tag }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --tag "$PRODUCER_TAG"
+
       - name: Authenticate to MCP Registry
         if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
         run: ./mcp-publisher login github-oidc
@@ -396,18 +523,24 @@ jobs:
       }}
     runs-on: ubuntu-latest
     environment: release
+    env:
+      CANDIDATE_SHA: ${{ needs.release-please.outputs.candidate_sha }}
+      PUBLICATION_RELEASES: ${{ needs.release-please.outputs.releases }}
+      OPENAPI_INPUT_DIR: ${{ github.workspace }}/packages/python/mcp/sendmux_mcp/openapi
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.release-please.outputs.candidate_sha }}
 
-      - name: Check out OpenAPI snapshots
+      - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          repository: Sendmux/docs
-          path: sendmux-docs
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
@@ -441,7 +574,16 @@ jobs:
 
       - name: Select unpublished Python distributions
         id: python-publish
-        run: pnpm prepare:publish:pypi
+        env:
+          PYTHON_PATHS_RELEASED: ${{ needs.release-please.outputs.paths_released }}
+        run: node .publication-guard/scripts/prepare-pypi-publish.mjs
+
+      - name: Guard candidate before first publication
+        if: ${{ steps.python-publish.outputs.has_files == 'true' }}
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
 
       - name: Publish Python packages to PyPI
         if: ${{ steps.python-publish.outputs.has_files == 'true' }}
@@ -461,12 +603,23 @@ jobs:
       }}
     runs-on: ubuntu-latest
     environment: release
+    env:
+      CANDIDATE_SHA: ${{ needs.release-please.outputs.candidate_sha }}
+      PUBLICATION_RELEASES: ${{ needs.release-please.outputs.releases }}
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.release-please.outputs.candidate_sha }}
+
+      - name: Check out immutable guard source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
@@ -562,6 +715,13 @@ jobs:
           already_published="$(node scripts/mcp-registry-version.mjs --check)"
           echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
 
+      - name: Guard candidate before first publication
+        if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
+
       - name: Authenticate to MCP Registry
         if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
         run: ./mcp-publisher login github-oidc
@@ -610,18 +770,24 @@ jobs:
       }}
     runs-on: ubuntu-latest
     environment: release
+    env:
+      CANDIDATE_SHA: ${{ needs.release-please.outputs.candidate_sha }}
+      PUBLICATION_RELEASES: ${{ needs.release-please.outputs.releases }}
+      OPENAPI_INPUT_DIR: ${{ github.workspace }}/packages/python/mcp/sendmux_mcp/openapi
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.release-please.outputs.candidate_sha }}
 
-      - name: Check out OpenAPI snapshots
+      - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          repository: Sendmux/docs
-          path: sendmux-docs
+          ref: ${{ github.sha }}
+          path: .publication-guard
 
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
@@ -647,6 +813,12 @@ jobs:
         run: pnpm build:ruby
         env:
           RUBY_PATHS_RELEASED: ${{ needs.release-please.outputs.paths_released }}
+
+      - name: Guard candidate before first publication
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
 
       - name: Configure RubyGems trusted publishing credentials
         uses: rubygems/configure-rubygems-credentials@762a4b77c3300434bb57c7ce80b20e36231927aa # v2.0.0

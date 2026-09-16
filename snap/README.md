@@ -188,6 +188,8 @@ after the `edge` revision is verified.
 
 ## Manual Publishing Checklist
 
+Before each manual upload or stable promotion, follow the [fresh producer-bound publication check](../docs/native-publication.md#snap-and-chocolatey) for the exact version/checksum and store revision. Run `node scripts/publication-guard.mjs snap` from the current guard checkout immediately before the write; an earlier green build is not a permanent certificate. This manual requirement is owner policy, not a restriction on credential holders using direct Snapcraft commands.
+
 1. Confirm account ownership:
    - Create or use the Sendmux Snapcraft publisher account.
    - If using a brand account, complete the Snap Store brand setup before release.

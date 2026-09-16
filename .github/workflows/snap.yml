@@ -71,6 +71,18 @@ jobs:
           echo "::error::SNAPCRAFT_STORE_CREDENTIALS is required to publish Sendmux snap builds to edge."
           exit 1
 
+      - name: Guard producer before Snap publication
+        timeout-minutes: 2
+        if: >-
+          ${{
+            github.ref == 'refs/heads/main' &&
+            (github.event_name == 'push' || inputs.publish_edge == true) &&
+            env.SNAPCRAFT_STORE_CREDENTIALS != ''
+          }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/publication-guard.mjs snap
+
       - name: Publish snap to edge
         if: >-
           ${{

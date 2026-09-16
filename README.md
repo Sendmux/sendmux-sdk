@@ -203,6 +203,8 @@ Generation refreshes editable Python metadata before discovering tools without u
 
 Native release validation covers TypeScript, Python, Rust, Ruby, and Go's component/tag convention. Go has no in-module version field. PHP versions belong to split-repository tags, not `composer.version` or release-please; Composer identities and dependencies are checked without treating a local path-repository version as publication evidence. Exact published tags and versions remain release gates.
 
+Maintainers: [native publication gates](docs/native-publication.md) bind each publisher to its immutable candidate and require fresh, strict live-schema parity before its first write, including the guarded PHP split tag command and manual Snap promotion policy.
+
 ### Verify runtime compatibility from source
 
 Maintainers: the [CI workflow](.github/workflows/ci.yml) separates the generation/static build from language runtime checks. A configured cell is a required check, not a claim that an unreleased checkout has passed remotely. Compatibility floors aren't recommendations to deploy upstream-EOL runtimes.

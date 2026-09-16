@@ -56,13 +56,51 @@ jobs:
       HAS_CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY != '' }}
       USE_LOCAL_CHOCOLATEY_ASSET: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.push != true) }}
       SENDMUX_CHOCOLATEY_VERSION: ${{ inputs.version }}
+      OPENAPI_INPUT_DIR: ${{ (github.event_name == 'release' || inputs.push == true) && 'packages/python/mcp/sendmux_mcp/openapi' || 'sendmux-docs' }}
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        env:
+          GIT_CONFIG_COUNT: 1
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: false
         with:
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
 
+      - name: Check out immutable guard source
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event_name == 'release' && 'main' || github.sha }}
+          path: .publication-guard
+
+      - name: Resolve CLI producer
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        id: producer
+        timeout-minutes: 2
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          version="${SENDMUX_CHOCOLATEY_VERSION:-$(node -p "require('./packages/ts/cli/package.json').version")}"
+          tag="${RELEASE_TAG:-ts-cli-v${version}}"
+          node .publication-guard/scripts/publication-guard.mjs resolve --tag "$tag"
+
+      - name: Check out publishing candidate
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        env:
+          GIT_CONFIG_COUNT: 1
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: false
+        with:
+          ref: ${{ steps.producer.outputs.sha }}
+          clean: false
+
       - name: Check out OpenAPI snapshots
+        if: ${{ github.event_name != 'release' && inputs.push != true }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: Sendmux/docs
@@ -149,6 +187,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           choco pack .tmp/chocolatey/sendmux/sendmux.nuspec --output-directory .tmp/chocolatey/pkg
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Guard candidate before first publication
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        timeout-minutes: 2
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PRODUCER_TAG: ${{ steps.producer.outputs.tag }}
+        run: node .publication-guard/scripts/publication-guard.mjs candidate --tag "$PRODUCER_TAG"
 
       - name: Attach CLI ZIP assets to release
         if: ${{ github.event_name == 'release' || inputs.push == true }}

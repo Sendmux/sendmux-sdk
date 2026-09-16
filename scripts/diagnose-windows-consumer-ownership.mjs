@@ -30,6 +30,28 @@ async function waitFor(check, message, milliseconds = 10000) {
   throw new Error(message);
 }
 
+async function waitForLeader(readHandles, invocation) {
+  let stopped = false;
+  const polling = (async () => {
+    while (!stopped) {
+      const handles = readHandles();
+      if (Number.isSafeInteger(handles?.leader) && handles.leader > 0) return handles;
+      await delay(25);
+    }
+  })();
+  try {
+    const outcome = await Promise.race([
+      polling.then((handles) => ({ handles })),
+      invocation.then(() => ({ completed: true })),
+    ]);
+    if (outcome.completed) throw new Error("Fixture completed before recording its leader PID");
+    return outcome.handles;
+  } finally {
+    stopped = true;
+    await polling;
+  }
+}
+
 async function recover(pid, row) {
   if (!absent(pid)) {
     const killer = spawn("taskkill.exe", ["/pid", String(pid), "/T", "/F"], {
@@ -94,9 +116,9 @@ exit 0`;
       command = powershell;
       args = ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded(leader)];
     }
-    if (kind === "powershell-deadline") {
+    if (kind === "node-leader-control" || kind === "powershell-deadline") {
       const originalTimer = globalThis.setTimeout;
-      // Only accelerate the existing deadline after both real processes are ready.
+      // Capture the existing deadline so a failed fixture can take the real owner cleanup path.
       timerMock = mock.method(globalThis, "setTimeout", (callback, ms, ...values) => {
         if (ms === 900000) deadlineCallback = callback;
         return originalTimer(callback, ms, ...values);
@@ -110,7 +132,17 @@ exit 0`;
       row.result = "failure";
       row.error = error.message;
     });
-    await waitFor(() => existsSync(ready), "Fixture did not become ready");
+    await waitForLeader(readHandles, invocation);
+    try {
+      await waitFor(() => existsSync(ready), "Fixture did not become ready");
+    } catch (error) {
+      timerMock?.mock.restore();
+      if (deadlineCallback) {
+        deadlineCallback();
+        await invocation;
+      }
+      throw error;
+    }
     handles = readHandles();
     assert(handles?.leader && handles?.descendant, "Both process handles must be recorded");
     assert.equal(JSON.parse(readFileSync(descendantReceipt, "utf8")).pid, handles.descendant);

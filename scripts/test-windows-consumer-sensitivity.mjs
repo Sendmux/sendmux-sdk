@@ -17,7 +17,7 @@ const mutations = [
 ];
 
 const readinessFailures = [];
-for (const mutation of ["cold-controller-start", "started-never-ready"]) {
+for (const mutation of ["cold-controller-start", "started-never-ready", "completed-before-ready"]) {
   const directory = mkdtempSync(join(temp, "windows-readiness-sensitivity-"));
   console.log(JSON.stringify({ workspace: directory, owner_pid: process.pid, mutation }));
   let completed = false;
@@ -31,12 +31,24 @@ for (const mutation of ["cold-controller-start", "started-never-ready"]) {
       assert.equal(original.split(bootstrap).length, 2, "Cold-start mutation must delay exactly one real bootstrap start");
       writeFileSync(job, original.replace(bootstrap, delayed));
       assert.notEqual(readFileSync(job, "utf8"), original);
-    } else {
+    } else if (mutation === "started-never-ready") {
       const diagnostic = join(directory, "diagnose-windows-consumer-ownership.mjs");
       const original = readFileSync(diagnostic, "utf8");
       const actualReadyWrite = "fs.writeFileSync(${JSON.stringify(ready)},'ready');";
       assert.equal(original.split(actualReadyWrite).length, 2, "Never-ready mutation must remove exactly one Node fixture ready write");
       writeFileSync(diagnostic, original.replace(actualReadyWrite, ""));
+      assert.notEqual(readFileSync(diagnostic, "utf8"), original);
+    } else {
+      const diagnostic = join(directory, "diagnose-windows-consumer-ownership.mjs");
+      const original = readFileSync(diagnostic, "utf8");
+      const startupGate = "    await waitForLeader(readHandles, invocation);";
+      const observedStartup = `${startupGate}\n    if (kind === "node-leader-control") writeFileSync(join(fixture, "leader-observed"), "observed");`;
+      assert.equal(original.split(startupGate).length, 2, "Completed-before-ready mutation must observe exactly one startup gate");
+      const withHandshake = original.replace(startupGate, observedStartup);
+      const actualReadyWrite = "fs.writeFileSync(${JSON.stringify(ready)},'ready');";
+      const exitAfterStartup = "const observed=setInterval(()=>{if(fs.existsSync(${JSON.stringify(join(fixture, \"leader-observed\"))})){clearInterval(observed);process.exit(17);}},25);";
+      assert.equal(withHandshake.split(actualReadyWrite).length, 2, "Completed-before-ready mutation must replace exactly one Node fixture ready write");
+      writeFileSync(diagnostic, withHandshake.replace(actualReadyWrite, exitAfterStartup));
       assert.notEqual(readFileSync(diagnostic, "utf8"), original);
     }
     const evidence = join(directory, "evidence");
@@ -49,11 +61,21 @@ for (const mutation of ["cold-controller-start", "started-never-ready"]) {
     if (mutation === "cold-controller-start") {
       assert.equal(rows[0].verdict, "passed");
       assert.equal(rows[0].result, "success");
-    } else {
+    } else if (mutation === "started-never-ready") {
       assert.equal(rows[0].verdict, "failed");
       assert.equal(rows[0].result, "failure");
       assert.match(rows[0].assertion, /Fixture did not become ready/);
       assert.match(rows[0].error, /interrupted=true/, "A started fixture that misses readiness must take the owned deadline cleanup path");
+    } else {
+      assert.equal(rows[0].verdict, "failed");
+      assert.equal(rows[0].result, "failure");
+      assert.match(rows[0].assertion, /Fixture completed before becoming ready/);
+      assert.match(rows[0].error, /owned descendant/, "An early fixture exit with a live descendant must preserve orphan rejection");
+      assert.doesNotMatch(rows[0].error, /interrupted=true/, "An early fixture exit must not be relabelled as owner interruption");
+      assert(Number.isSafeInteger(rows[0].leader) && rows[0].leader > 0);
+      assert(Number.isSafeInteger(rows[0].descendant) && rows[0].descendant > 0);
+      assert.deepEqual(rows[0].recovery, [], "An early fixture failure must not need fallback process killers");
+      assert(rows[0].recovered.includes(rows[0].leader) && rows[0].recovered.includes(rows[0].descendant));
     }
     assert(rows.every((row) => row.paths_absent && !row.cleanup_error));
     assert(rows.slice(1).every((row) => row.verdict === "passed"), "Unchanged PowerShell assertions must still pass");

@@ -149,7 +149,16 @@ async function remoteFile({ sha, file }) {
   return Buffer.from(result.data.content, "base64").toString("utf8");
 }
 
-async function discoverWindow() {
+function repositoryPrefixes(id) {
+  if (!Number.isSafeInteger(id) || id <= 0) throw new Error("Invalid GitHub repository metadata id");
+  return [`/repos/${repository}`, `/repositories/${id}`];
+}
+
+function isRepositoryRequest(pathname, prefixes) {
+  return prefixes.some((prefix) => pathname.startsWith(`${prefix}/`));
+}
+
+async function discoverWindow(prefixes) {
   const window = [];
   const seen = new Set();
   let route = "pulls?state=closed&base=main&sort=updated&direction=desc";
@@ -167,7 +176,7 @@ async function discoverWindow() {
     const next = response.headers.get("link")?.split(",").find((link) => /rel="next"/.test(link))?.match(/<([^>]+)>/)?.[1];
     if (!next) return window;
     const url = new URL(next);
-    if (url.origin !== "https://api.github.com" || url.pathname !== `/repos/${repository}/pulls`
+    if (url.origin !== "https://api.github.com" || !prefixes.some((prefix) => url.pathname === `${prefix}/pulls`)
       || url.searchParams.get("state") !== "closed" || url.searchParams.get("base") !== "main"
       || url.searchParams.get("sort") !== "updated" || url.searchParams.get("direction") !== "desc"
       || Number(url.searchParams.get("page")) !== page + 2 || url.searchParams.has("per_page")) throw new Error("Non-progressing discovery pagination");
@@ -176,7 +185,7 @@ async function discoverWindow() {
   throw new Error("Candidate discovery exceeded its page bound");
 }
 
-async function buildOfficialReleases() {
+async function buildOfficialReleases(prefixes) {
   const { GitHub, Manifest } = await import("release-please");
   let reads = 0;
   let pullPages = 0;
@@ -185,7 +194,7 @@ async function buildOfficialReleases() {
     fetch: async (input, options = {}) => {
       const url = new URL(input);
       if ((options.method ?? "GET").toUpperCase() !== "GET" || url.origin !== "https://api.github.com"
-        || !url.pathname.startsWith(`/repos/${repository}/`)) throw new Error("Release construction attempted a non-read request");
+        || !isRepositoryRequest(url.pathname, prefixes)) throw new Error("Release construction attempted a non-read request");
       if (++reads > 100 || Date.now() - started > 90_000) throw new Error("Release construction exceeded read budget");
       if (url.pathname.endsWith("/pulls") && ++pullPages > 20) throw new Error("Release discovery exceeded page bound");
       return boundedResponse(url, options);
@@ -199,6 +208,7 @@ async function buildOfficialReleases() {
 async function releaseState({ repo, sha }) {
   if (process.env.GITHUB_REPOSITORY !== repository) throw new Error("Unexpected publication repository");
   const metadata = await github("");
+  const prefixes = repositoryPrefixes(metadata.data.id);
   const head = immutableSha((await github("git/ref/heads/main")).data.object.sha);
   if (metadata.data.default_branch !== "main" || head !== sha) throw new Error("Event is superseded or target head changed");
   const files = {};
@@ -217,11 +227,11 @@ async function releaseState({ repo, sha }) {
   for (const entry of [config, ...Object.values(config.packages)]) {
     if (!["node", "python", "ruby", "rust", "go"].includes(entry["release-type"] ?? config["release-type"]) || entry["force-tag"] || entry.label || entry["release-label"]) throw new Error("Unsupported release strategy/configuration");
   }
-  const window = await discoverWindow();
+  const window = await discoverWindow(prefixes);
   const pending = window.filter((pull) => pull.labels.includes("autorelease: pending"));
   const candidates = [...new Set(pending.map((pull) => pull.sha))];
   if (candidates.length > 1) throw new Error("Multiple pending candidate merge sources require sequential releases");
-  const releases = await buildOfficialReleases();
+  const releases = await buildOfficialReleases(prefixes);
   if (new Set(releases.map((release) => release.path)).size !== releases.length) throw new Error("Duplicate released package path");
   const tags = {};
   for (const release of releases) {

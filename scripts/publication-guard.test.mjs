@@ -12,6 +12,8 @@ const executeFile = promisify(execFile);
 const execute = (command, args, options = {}) => executeFile(command, args, { ...options, env: command === "git" ? gitEnvironment(options.env) : options.env });
 const guard = process.env.SENDMUX_TEST_PUBLICATION_GUARD ?? resolve("scripts/publication-guard.mjs");
 const specPath = "packages/python/mcp/sendmux_mcp/openapi";
+const repository = "Sendmux/sendmux-sdk";
+const repositoryId = 1253958043;
 const document = { openapi: "3.1.0", paths: {}, components: { schemas: { Provider: { required: ["variables", "delivery_group"] } } } };
 
 async function foreignGitFixture(t) {
@@ -172,13 +174,15 @@ async function releaseFixture(t, options = {}) {
   let scans = 0;
   const server = createServer(async (request, response) => {
     const url = new URL(request.url, "http://fixture");
-    queries.push({ method: request.method, url: request.url });
+    queries.push({ method: request.method, url: request.url, originalUrl: request.headers["x-sendmux-fixture-original-url"] });
     response.setHeader("Content-Type", "application/json");
     const send = (value) => response.end(JSON.stringify(value));
     if (request.method !== "GET") { response.statusCode = 405; return send({ message: "writer forbidden" }); }
     if (url.pathname.endsWith("/api/v1/openapi.json")) return send(options.liveDrift ? { ...document, description: "live differs" } : document);
-    const route = url.pathname.replace("/repos/Sendmux/sendmux-sdk", "");
-    if (route === "") return send({ default_branch: "main" });
+    const repositoryPrefix = [`/repos/${repository}`, `/repositories/${repositoryId}`]
+      .find((prefix) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`));
+    const route = repositoryPrefix ? url.pathname.slice(repositoryPrefix.length) : url.pathname;
+    if (route === "") return send({ id: repositoryId, default_branch: "main" });
     if (route.startsWith("/git/trees/")) {
       const listing = (await local.git("ls-tree", "-r", sha)).stdout.trim().split("\n");
       return send({ truncated: false, tree: listing.map((line) => {
@@ -212,17 +216,23 @@ async function releaseFixture(t, options = {}) {
       assert.equal(url.searchParams.get("base"), "main");
       assert.equal(url.searchParams.get("state"), "closed");
       const page = Number(url.searchParams.get("page") ?? 1);
+      const linkOrigin = options.wrongPaginationHost ? "https://example.invalid" : "https://api.github.com";
+      const linkRepository = options.numericPagination
+        ? `/repositories/${options.wrongNumericRepository ? repositoryId + 1 : repositoryId}`
+        : `/repos/${repository}`;
+      const nextPage = options.repeatedPage ? page : page + 1;
+      const nextLink = `${linkOrigin}${linkRepository}/pulls?state=closed&base=main&sort=updated&direction=desc&page=${nextPage}`;
       if (page === 1) scans++;
       if (options.noPending) return send([]);
       if (options.lastMergedPending) {
-        response.setHeader("Link", `<https://api.github.com/repos/Sendmux/sendmux-sdk/pulls?state=closed&base=main&sort=updated&direction=desc&page=${page + 1}>; rel="next"`);
+        response.setHeader("Link", `<${nextLink}>; rel="next"`);
         if (page === 1) return send(Array.from({ length: 30 }, (_, i) => pull(1000 + i, { merged_at: null, labels: [] })));
         return send(Array.from({ length: 30 }, (_, i) => {
           const number = (page - 2) * 30 + i + 1;
           return pull(number, { labels: number === 200 ? [{ name: "autorelease: pending" }] : [], merge_commit_sha: number === 200 ? other : sha });
         }));
       }
-      if (options.incomplete || (options.closedBeforeMerged && page === 1)) response.setHeader("Link", `<https://api.github.com/repos/Sendmux/sendmux-sdk/pulls?state=closed&base=main&sort=updated&direction=desc&page=${page + 1}>; rel="next"`);
+      if (options.incomplete || (options.closedBeforeMerged && page === 1)) response.setHeader("Link", `<${nextLink}>; rel="next"`);
       if (options.incomplete || (options.closedBeforeMerged && page === 1)) return send(Array.from({ length: 30 }, (_, i) => pull(page * 1000 + i, { merged_at: null, labels: [] })));
       if (options.mixed) return send([pull(1), pull(2, { merge_commit_sha: other })]);
       if (options.changedCandidates && scans >= 3) return send([]);
@@ -246,8 +256,10 @@ async function releaseFixture(t, options = {}) {
   const preload = join(local.directory, "release-transport.mjs");
   writeFileSync(preload, `const transport = globalThis.fetch; globalThis.fetch = (input, options) => {
     const url = new URL(input);
-    if (!['api.github.com', 'app.sendmux.ai', 'smtp.sendmux.ai', 'registry.npmjs.org'].includes(url.hostname)) throw new Error('Unexpected host');
-    return transport('http://127.0.0.1:${server.address().port}' + url.pathname + url.search, options);
+    if (!['api.github.com', 'app.sendmux.ai', 'smtp.sendmux.ai', 'registry.npmjs.org', 'example.invalid'].includes(url.hostname)) throw new Error('Unexpected host');
+    const headers = new Headers(options?.headers);
+    headers.set('x-sendmux-fixture-original-url', url.href);
+    return transport('http://127.0.0.1:${server.address().port}' + url.pathname + url.search, {...options, headers});
   };`);
   const runCommand = (args, env = {}) => execute(process.execPath, [guard, ...args], {
     env: { ...process.env, GITHUB_REPOSITORY: "Sendmux/sendmux-sdk", NODE_OPTIONS: `--import=${preload}`, ...env }, timeout: 20_000,
@@ -284,14 +296,31 @@ for (const [name, options, error] of [
 }
 
 test("official release construction reaches writer after updated-order scan including unmerged closed rows", async (t) => {
-  const candidate = await releaseFixture(t, { closedBeforeMerged: true });
+  const candidate = await releaseFixture(t, { closedBeforeMerged: true, numericPagination: true });
   let writes = 0;
   await candidate.run().then(() => { writes++; });
   assert.equal(writes, 1);
   const receipt = JSON.parse(readFileSync(join(candidate.directory, "receipt.json"), "utf8"));
   assert.deepEqual(receipt.releases, [{ path: "packages/ts/cli", tag: "ts-cli-v1.2.3", version: "1.2.3", sha: candidate.sha }]);
   assert.ok(candidate.queries.every((query) => query.method === "GET"));
+  assert.ok(candidate.queries.some((query) => query.originalUrl?.startsWith(`https://api.github.com/repositories/${repositoryId}/pulls?`)));
 });
+
+for (const [name, options] of [
+  ["wrong numeric repository pagination fails before writer or unapproved fetch", { wrongNumericRepository: true }],
+  ["wrong pagination host fails before writer or unapproved fetch", { wrongPaginationHost: true }],
+  ["repeated numeric pagination page fails before writer", { repeatedPage: true }],
+]) {
+  test(name, async (t) => {
+    const candidate = await releaseFixture(t, { closedBeforeMerged: true, numericPagination: true, ...options });
+    let writes = 0;
+    await assert.rejects(candidate.run().then(() => { writes++; }), (failure) => failure.code === 1 && /Non-progressing discovery pagination/.test(failure.stderr));
+    assert.equal(writes, 0);
+    assert.ok(candidate.queries.every((query) => query.method === "GET"));
+    assert.ok(candidate.queries.every((query) => !query.originalUrl?.startsWith("https://example.invalid/")
+      && !query.originalUrl?.startsWith(`https://api.github.com/repositories/${repositoryId + 1}/`)));
+  });
+}
 
 test("no pending candidate permits guarded PR maintenance with no publisher identity", async (t) => {
   const candidate = await releaseFixture(t, { noPending: true });

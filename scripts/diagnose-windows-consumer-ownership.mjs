@@ -163,7 +163,7 @@ exit 0`;
       throw error;
     } finally {
       writeFileSync(join(evidence, "results.json"), JSON.stringify(results, null, 2));
-      console.log(JSON.stringify({ kind, verdict: row.verdict, recovered: row.recovered, paths_absent: row.paths_absent, cleanup_error: row.cleanup_error }));
+      console.log(JSON.stringify({ kind, verdict: row.verdict, recovered: row.recovered, paths_absent: row.paths_absent, cleanup_error: row.cleanup_error, assertion: row.assertion, error: row.error }));
     }
   }
 }

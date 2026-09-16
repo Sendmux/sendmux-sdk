@@ -128,3 +128,22 @@ They are retained verification noise, not waived failures or newly introduced wa
 ### Cleanup and release boundary
 
 Ownership-wrapper children `44709`, `45322`, `46294`, `46550`, `46952`, `48060`, `48756`, and `50481` each have `child_closed` receipts. No runtime service or remote resource was started. ROOT's incomplete `root-integration-build.log` was preserved and not treated as a passing gate; its interrupted exact handles were independently verified absent by ROOT.
+
+## Independent review and combined verification
+
+Recorded 2026-09-16 17:42 Australia/Melbourne against source `acb46253db6130ae5f0e0ccb5aa1c38487e9734f`.
+
+The independent scoped re-review is spec compliant and approved, with zero remaining Critical, Important or Minor findings. ROOT read the complete correction diff and checked the referenced red/green receipts. The Ruby template, after removing its 14 marked guards, is byte-identical to `ruby-client/partial_model_generic.mustache` in the installed, pinned OpenAPI Generator 7.22.0 JAR.
+
+ROOT's final `pnpm build` exited 0 in session `85809`. It used the exact two snapshot hashes recorded here and `GOTOOLCHAIN=auto` for the local development-tool invocation; no supported Go floor changed. `root-integration-final.log` has SHA-256 `9c2974ff600b1528ae5b95de164d3a0381bd214ca5aa52b30d135e1797f29d55`.
+
+- All generated clients have no uncommitted drift; TypeScript build, public API, layout, tree-shaking, release-state and CLI checks pass.
+- Go generation, tests, vet and lint pass. Python passes 136 native plus 10 LangChain tests, with source provenance and mypy checks.
+- PHP passes three generator/package-composition tests, 70 tests/328 assertions, 10 OAuth checks, static analysis and independent split installation.
+- Ruby passes 31 runs/209 assertions with zero failures/errors/skips, lint and five gem builds.
+- MCP passes 156 runtime tests with 22 retained upstream warnings. Required conformance is 70 SUCCESS for `2025-11-25`; `2026-07-28` has 114 SUCCESS, one INFO and five exact advertised-capability SKIPPED checks. The nine non-scored extension-check failures remain visible, not relabelled as passing.
+- Static live-E2E coverage passes for 104 OpenAPI operations and two custom MCP operations; runner-contract and four connection-adapter tests pass. This is not credentialed production acceptance.
+
+`root-final-verification.json` records fresh absence checks for 221 exact PID/process-group handles and 11 temporary workspaces. All 110 ownership-wrapper child starts have matching closure records. The checkout was clean after the build, and `git diff --check` passed.
+
+These results close the local correction/integration gate only. Normal PR CI/review settlement, native publication, app/proxy deployment, production canaries and manual Atlassian acceptance remain required. Previously published versions remain immutable.

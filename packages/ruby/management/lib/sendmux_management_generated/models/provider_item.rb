@@ -465,7 +465,7 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "variables", variables cannot be nil.')
       end
 
-      if @variables.length > 50
+      if !@variables.nil? && @variables.length > 50
         invalid_properties.push('invalid value for "variables", number of items must be less than or equal to 50.')
       end
 
@@ -494,7 +494,7 @@ module Sendmux::Management::Generated
       return false unless type_validator.valid?(@type)
       return false if @updated_at.nil?
       return false if @variables.nil?
-      return false if @variables.length > 50
+      return false if !@variables.nil? && @variables.length > 50
       true
     end
 

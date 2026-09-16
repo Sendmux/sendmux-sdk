@@ -32,6 +32,8 @@ Combined source snapshots:
 
 ## Green evidence
 
+The gate counts below are historical results from the feature worktree and are superseded by the later [combined routing and MCP integration verification](./mcp-routing-combined-20260916.md#verified-checks).
+
 Raw logs are under `.claude/artifacts/mailbox-variables-routing/`.
 
 - TypeScript Sending, Management, and AI SDK builds; AI SDK: 3 passed, 0 skipped (`check-ts-final.log`).

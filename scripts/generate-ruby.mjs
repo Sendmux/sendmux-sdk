@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "ruby-codegen");
+const templateDir = join(root, "codegen", "templates", "ruby");
 
 const surfaces = [
   {
@@ -70,6 +71,8 @@ for (const surface of surfaces) {
     inputSpec,
     "-o",
     generatedRoot,
+    "-t",
+    templateDir,
     `--additional-properties=${[
       `gemName=${surface.generatedGemName}`,
       `moduleName=Sendmux::${surface.moduleName}::Generated`,
@@ -110,6 +113,7 @@ console.log("Generated Ruby SDK packages");
 
 function writeFilteredSpec(surface) {
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
+  prepareNilSafeValidation(source, surface);
   const allowed = new Set(surface.tags);
   const paths = {};
 
@@ -134,6 +138,42 @@ function writeFilteredSpec(surface) {
   const outputPath = join(outputRoot, `${surface.name}.openapi-generator.codegen.json`);
   writeFileSync(outputPath, `${JSON.stringify(pruneComponents({ ...source, paths }), null, 2)}\n`);
   return outputPath;
+}
+
+function prepareNilSafeValidation(document, surface) {
+  if (surface.name !== "management") {
+    return;
+  }
+
+  const nullableConstraints = {
+    DeliveryLogItem: ["accepted_recipient_count", "delivery_group", "recipient_count", "rejected_recipient_count"],
+    DeliveryLogDetail: ["accepted_recipient_count", "delivery_group", "recipient_count", "rejected_recipient_count", "recipients"],
+    SharedAmazonSesLimit: ["daily_limit", "threshold_usage"],
+    SharedAmazonSesLimitRequest: ["approved_daily_limit"],
+  };
+  for (const [schemaName, propertyNames] of Object.entries(nullableConstraints)) {
+    for (const propertyName of propertyNames) {
+      const property = document.components?.schemas?.[schemaName]?.properties?.[propertyName];
+      const hasConstraint = ["maximum", "minimum", "maxItems", "minItems"].some((key) => key in (property ?? {}));
+      if (property?.nullable !== true || !hasConstraint) {
+        throw new Error(`Unexpected nullable constraint for ${schemaName}.${propertyName}`);
+      }
+      property["x-sendmux-nil-safe-validation"] = true;
+    }
+  }
+
+  const variables = document.components?.schemas?.ProviderItem?.properties?.variables;
+  if (variables?.$ref !== "#/components/schemas/ProviderVariables") {
+    throw new Error("Unexpected ProviderItem.variables schema");
+  }
+  const providerVariables = document.components?.schemas?.ProviderVariables;
+  if (providerVariables?.type !== "object" || providerVariables.maxProperties !== 50) {
+    throw new Error("Unexpected ProviderVariables schema");
+  }
+  document.components.schemas.ProviderItem.properties.variables = {
+    ...structuredClone(providerVariables),
+    "x-sendmux-nil-safe-validation": true,
+  };
 }
 
 function pruneComponents(document) {

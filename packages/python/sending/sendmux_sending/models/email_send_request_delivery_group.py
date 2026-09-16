@@ -78,7 +78,7 @@ class EmailSendRequestDeliveryGroup(BaseModel):
             return v
 
     @classmethod
-    def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:
+    def from_dict(cls, obj: Union[List[str], str]) -> Self:
         return cls.from_json(json.dumps(obj))
 
     @classmethod

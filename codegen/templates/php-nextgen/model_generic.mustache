@@ -15,7 +15,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        {{#vars}}'{{name}}' => '{{{dataType}}}'{{^-last}},
+        {{#vars}}'{{name}}' => '{{#vendorExtensions.x-sendmux-primitive-union}}string|array{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{{dataType}}}{{/vendorExtensions.x-sendmux-primitive-union}}'{{^-last}},
         {{/-last}}{{/vars}}
     ];
 
@@ -220,14 +220,28 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
      */
     protected array $container = [];
     {{/parentSchema}}
+    {{#vendorExtensions.x-sendmux-primitive-union}}
+    /** @var string|string[] */
+    private string|array $value;
+    {{/vendorExtensions.x-sendmux-primitive-union}}
 
     /**
      * Constructor
      *
+    {{#vendorExtensions.x-sendmux-primitive-union}}
+     * @param string|string[] $data Delivery group public ID or IDs
+    {{/vendorExtensions.x-sendmux-primitive-union}}
+    {{^vendorExtensions.x-sendmux-primitive-union}}
      * @param array $data Associated array of property values initializing the model
+    {{/vendorExtensions.x-sendmux-primitive-union}}
      */
-    public function __construct(?array $data = null)
+    public function __construct({{#vendorExtensions.x-sendmux-primitive-union}}string|array $data{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}?array $data = null{{/vendorExtensions.x-sendmux-primitive-union}})
     {
+        {{#vendorExtensions.x-sendmux-primitive-union}}
+        self::validatePrimitiveUnion($data);
+        $this->value = $data;
+        {{/vendorExtensions.x-sendmux-primitive-union}}
+        {{^vendorExtensions.x-sendmux-primitive-union}}
         {{#discriminator}}
         // Initialize discriminator property with the model name.
         $this->container['{{discriminatorName}}'] = static::$openAPIModelName;
@@ -238,10 +252,48 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
 
         {{/parentSchema}}
         {{#vars}}
+        {{#vendorExtensions.x-sendmux-primitive-union}}
+        if (array_key_exists('{{name}}', $data ?? [])) {
+            $this->{{setter}}($data['{{name}}']);
+        } else {
+            $this->container['{{name}}'] = null;
+        }
+        {{/vendorExtensions.x-sendmux-primitive-union}}
+        {{^vendorExtensions.x-sendmux-primitive-union}}
         $this->setIfExists('{{name}}', $data ?? [], {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}});
+        {{/vendorExtensions.x-sendmux-primitive-union}}
         {{/vars}}
+        {{/vendorExtensions.x-sendmux-primitive-union}}
     }
 
+    {{#vendorExtensions.x-sendmux-primitive-union}}
+    /** @param string|string[] $value */
+    private static function validatePrimitiveUnion(string|array $value): void
+    {
+        $pattern = '/{{{vendorExtensions.x-sendmux-primitive-pattern}}}/D';
+        if (is_string($value)) {
+            if (preg_match($pattern, $value) !== 1) {
+                throw new InvalidArgumentException('delivery group must be a valid public ID');
+            }
+            return;
+        }
+
+        if (!array_is_list($value)
+            || count($value) < {{vendorExtensions.x-sendmux-primitive-min-items}}
+            || count($value) > {{vendorExtensions.x-sendmux-primitive-max-items}}
+        ) {
+            throw new InvalidArgumentException(
+                'delivery group list must contain between {{vendorExtensions.x-sendmux-primitive-min-items}} and {{vendorExtensions.x-sendmux-primitive-max-items}} public IDs'
+            );
+        }
+        foreach ($value as $publicId) {
+            if (!is_string($publicId) || preg_match($pattern, $publicId) !== 1) {
+                throw new InvalidArgumentException('delivery group list must contain only valid public IDs');
+            }
+        }
+    }
+
+    {{/vendorExtensions.x-sendmux-primitive-union}}
     /**
      * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
      * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
@@ -265,6 +317,10 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
      */
     public function listInvalidProperties(): array
     {
+        {{#vendorExtensions.x-sendmux-primitive-union}}
+        return [];
+        {{/vendorExtensions.x-sendmux-primitive-union}}
+        {{^vendorExtensions.x-sendmux-primitive-union}}
         {{#vendorExtensions.x-sendmux-attachment-union}}
         $values = array_filter($this->container, static fn ($value) => $value !== null);
         $variants = [
@@ -354,6 +410,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
         {{/vars}}
         return $invalidProperties;
         {{/vendorExtensions.x-sendmux-attachment-union}}
+        {{/vendorExtensions.x-sendmux-primitive-union}}
     }
 
     /**
@@ -369,12 +426,12 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
     /**
      * Gets {{name}}
      *
-     * @return {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}}
+     * @return {{#vendorExtensions.x-sendmux-primitive-union}}string|string[]{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{{dataType}}}{{/vendorExtensions.x-sendmux-primitive-union}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}}
     {{#deprecated}}
      * @deprecated
     {{/deprecated}}
      */
-    public function {{getter}}(): {{exts.x-php-prop-type}}
+    public function {{getter}}(): {{#vendorExtensions.x-sendmux-primitive-union}}string|array|null{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{exts.x-php-prop-type}}{{/vendorExtensions.x-sendmux-primitive-union}}
     {
         return $this->container['{{name}}'];
     }
@@ -382,15 +439,22 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
     /**
      * Sets {{name}}
      *
-     * @param {{{dataType}}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{name}}{{#description}} {{{.}}}{{/description}}{{^description}} {{{name}}}{{/description}}
+     * @param {{#vendorExtensions.x-sendmux-primitive-union}}string|string[]{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{{dataType}}}{{/vendorExtensions.x-sendmux-primitive-union}}{{#notRequiredOrIsNullable}}|null{{/notRequiredOrIsNullable}} ${{name}}{{#description}} {{{.}}}{{/description}}{{^description}} {{{name}}}{{/description}}
      *
      * @return $this
     {{#deprecated}}
      * @deprecated
     {{/deprecated}}
      */
-    public function {{setter}}({{exts.x-php-prop-type}} ${{name}}): static
+    public function {{setter}}({{#vendorExtensions.x-sendmux-primitive-union}}string|array{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{exts.x-php-prop-type}}{{/vendorExtensions.x-sendmux-primitive-union}} ${{name}}): static
     {
+        {{#vendorExtensions.x-sendmux-primitive-union}}
+        new {{{dataType}}}(${{name}});
+        $this->container['{{name}}'] = ${{name}};
+
+        return $this;
+        {{/vendorExtensions.x-sendmux-primitive-union}}
+        {{^vendorExtensions.x-sendmux-primitive-union}}
         {{#isNullable}}
         if (is_null(${{name}})) {
             array_push($this->openAPINullablesSetToNull, '{{name}}');
@@ -475,6 +539,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
         $this->container['{{name}}'] = ${{name}};
 
         return $this;
+        {{/vendorExtensions.x-sendmux-primitive-union}}
     }
     {{/vars}}
     /**
@@ -541,7 +606,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
     #[ReturnTypeWillChange]
     public function jsonSerialize(): mixed
     {
-       return ObjectSerializer::sanitizeForSerialization($this);
+        {{#vendorExtensions.x-sendmux-primitive-union}}return $this->value;{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}return ObjectSerializer::sanitizeForSerialization($this);{{/vendorExtensions.x-sendmux-primitive-union}}
     }
 
     /**
@@ -552,7 +617,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
     public function __toString(): string
     {
         return json_encode(
-            ObjectSerializer::sanitizeForSerialization($this),
+            {{#vendorExtensions.x-sendmux-primitive-union}}$this->jsonSerialize(){{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}ObjectSerializer::sanitizeForSerialization($this){{/vendorExtensions.x-sendmux-primitive-union}},
             JSON_PRETTY_PRINT
         );
     }
@@ -564,6 +629,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
      */
     public function toHeaderValue(): string
     {
-        return json_encode(ObjectSerializer::sanitizeForSerialization($this));
+        return json_encode({{#vendorExtensions.x-sendmux-primitive-union}}$this->jsonSerialize(){{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}ObjectSerializer::sanitizeForSerialization($this){{/vendorExtensions.x-sendmux-primitive-union}});
     }
 }

@@ -93,6 +93,7 @@ console.log("Generated PHP SDK packages");
 function writeFilteredSpec(surface) {
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
   prepareAttachmentUnion(source);
+  prepareDeliveryGroupPrimitiveUnion(source, surface);
   const allowed = new Set(surface.tags);
   const paths = {};
 
@@ -163,6 +164,32 @@ function prepareAttachmentUnion(document) {
     "x-sendmux-attachment-union": true,
     "x-sendmux-any-of-variants": variants,
   };
+}
+
+function prepareDeliveryGroupPrimitiveUnion(document, surface) {
+  if (surface.name !== "sending") {
+    return;
+  }
+
+  const deliveryGroup = document.components?.schemas?.EmailSendRequest?.properties?.delivery_group;
+  const [scalar, list] = deliveryGroup?.oneOf ?? [];
+  const expectedPattern = "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$";
+  if (
+    scalar?.type !== "string"
+    || scalar.pattern !== expectedPattern
+    || list?.type !== "array"
+    || list.items?.type !== "string"
+    || list.items.pattern !== expectedPattern
+    || list.minItems !== 1
+    || list.maxItems !== 50
+  ) {
+    throw new Error("Unexpected EmailSendRequest delivery_group primitive union");
+  }
+
+  deliveryGroup["x-sendmux-primitive-union"] = true;
+  deliveryGroup["x-sendmux-primitive-pattern"] = expectedPattern;
+  deliveryGroup["x-sendmux-primitive-min-items"] = list.minItems;
+  deliveryGroup["x-sendmux-primitive-max-items"] = list.maxItems;
 }
 
 function markTrailingSdkParams(document) {

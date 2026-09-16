@@ -63,7 +63,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => '\Sendmux\Sending\Model\Recipient[]',
         'cc' => '\Sendmux\Sending\Model\Recipient[]',
         'custom_headers' => 'array<string,string>',
-        'delivery_group' => '\Sendmux\Sending\Model\EmailSendRequestDeliveryGroup',
+        'delivery_group' => 'string|array',
         'from' => '\Sendmux\Sending\Model\Address',
         'html_body' => 'string',
         'reply_to' => '\Sendmux\Sending\Model\Address',
@@ -294,7 +294,11 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('bcc', $data ?? [], null);
         $this->setIfExists('cc', $data ?? [], null);
         $this->setIfExists('custom_headers', $data ?? [], null);
-        $this->setIfExists('delivery_group', $data ?? [], null);
+        if (array_key_exists('delivery_group', $data ?? [])) {
+            $this->setDeliveryGroup($data['delivery_group']);
+        } else {
+            $this->container['delivery_group'] = null;
+        }
         $this->setIfExists('from', $data ?? [], null);
         $this->setIfExists('html_body', $data ?? [], null);
         $this->setIfExists('reply_to', $data ?? [], null);
@@ -516,9 +520,9 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets delivery_group
      *
-     * @return \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup|null
+     * @return string|string[]|null
      */
-    public function getDeliveryGroup(): ?\Sendmux\Sending\Model\EmailSendRequestDeliveryGroup
+    public function getDeliveryGroup(): string|array|null
     {
         return $this->container['delivery_group'];
     }
@@ -526,15 +530,13 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets delivery_group
      *
-     * @param \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup|null $delivery_group delivery_group
+     * @param string|string[]|null $delivery_group delivery_group
      *
      * @return $this
      */
-    public function setDeliveryGroup(?\Sendmux\Sending\Model\EmailSendRequestDeliveryGroup $delivery_group): static
+    public function setDeliveryGroup(string|array $delivery_group): static
     {
-        if (is_null($delivery_group)) {
-            throw new InvalidArgumentException('non-nullable delivery_group cannot be null');
-        }
+        new \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup($delivery_group);
         $this->container['delivery_group'] = $delivery_group;
 
         return $this;

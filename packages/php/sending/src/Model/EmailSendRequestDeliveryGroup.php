@@ -217,14 +217,45 @@ class EmailSendRequestDeliveryGroup implements ModelInterface, ArrayAccess, Json
      * @var array
      */
     protected array $container = [];
+    /** @var string|string[] */
+    private string|array $value;
 
     /**
      * Constructor
      *
-     * @param array $data Associated array of property values initializing the model
+     * @param string|string[] $data Delivery group public ID or IDs
      */
-    public function __construct(?array $data = null)
+    public function __construct(string|array $data)
     {
+        self::validatePrimitiveUnion($data);
+        $this->value = $data;
+    }
+
+    /** @param string|string[] $value */
+    private static function validatePrimitiveUnion(string|array $value): void
+    {
+        $pattern = '/^dgrp_[a-z0-9][a-z0-9_-]{0,122}$/D';
+        if (is_string($value)) {
+            if (preg_match($pattern, $value) !== 1) {
+                throw new InvalidArgumentException('delivery group must be a valid public ID');
+            }
+            return;
+        }
+
+        if (
+            !array_is_list($value)
+            || count($value) < 1
+            || count($value) > 50
+        ) {
+            throw new InvalidArgumentException(
+                'delivery group list must contain between 1 and 50 public IDs'
+            );
+        }
+        foreach ($value as $publicId) {
+            if (!is_string($publicId) || preg_match($pattern, $publicId) !== 1) {
+                throw new InvalidArgumentException('delivery group list must contain only valid public IDs');
+            }
+        }
     }
 
     /**
@@ -250,9 +281,7 @@ class EmailSendRequestDeliveryGroup implements ModelInterface, ArrayAccess, Json
      */
     public function listInvalidProperties(): array
     {
-        $invalidProperties = [];
-
-        return $invalidProperties;
+        return [];
     }
 
     /**
@@ -327,7 +356,7 @@ class EmailSendRequestDeliveryGroup implements ModelInterface, ArrayAccess, Json
     #[ReturnTypeWillChange]
     public function jsonSerialize(): mixed
     {
-        return ObjectSerializer::sanitizeForSerialization($this);
+        return $this->value;
     }
 
     /**
@@ -338,7 +367,7 @@ class EmailSendRequestDeliveryGroup implements ModelInterface, ArrayAccess, Json
     public function __toString(): string
     {
         return json_encode(
-            ObjectSerializer::sanitizeForSerialization($this),
+            $this->jsonSerialize(),
             JSON_PRETTY_PRINT
         );
     }
@@ -350,6 +379,6 @@ class EmailSendRequestDeliveryGroup implements ModelInterface, ArrayAccess, Json
      */
     public function toHeaderValue(): string
     {
-        return json_encode(ObjectSerializer::sanitizeForSerialization($this));
+        return json_encode($this->jsonSerialize());
     }
 }

@@ -308,11 +308,11 @@ module Sendmux::Management::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @accepted_recipient_count > 50
+      if !@accepted_recipient_count.nil? && @accepted_recipient_count > 50
         invalid_properties.push('invalid value for "accepted_recipient_count", must be smaller than or equal to 50.')
       end
 
-      if @accepted_recipient_count < 0
+      if !@accepted_recipient_count.nil? && @accepted_recipient_count < 0
         invalid_properties.push('invalid value for "accepted_recipient_count", must be greater than or equal to 0.')
       end
 
@@ -324,11 +324,11 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "created_at", created_at cannot be nil.')
       end
 
-      if @delivery_group.length > 50
+      if !@delivery_group.nil? && @delivery_group.length > 50
         invalid_properties.push('invalid value for "delivery_group", number of items must be less than or equal to 50.')
       end
 
-      if @delivery_group.length < 1
+      if !@delivery_group.nil? && @delivery_group.length < 1
         invalid_properties.push('invalid value for "delivery_group", number of items must be greater than or equal to 1.')
       end
 
@@ -336,23 +336,23 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
-      if @recipient_count > 50
+      if !@recipient_count.nil? && @recipient_count > 50
         invalid_properties.push('invalid value for "recipient_count", must be smaller than or equal to 50.')
       end
 
-      if @recipient_count < 0
+      if !@recipient_count.nil? && @recipient_count < 0
         invalid_properties.push('invalid value for "recipient_count", must be greater than or equal to 0.')
       end
 
-      if @recipients.length > 50
+      if !@recipients.nil? && @recipients.length > 50
         invalid_properties.push('invalid value for "recipients", number of items must be less than or equal to 50.')
       end
 
-      if @rejected_recipient_count > 50
+      if !@rejected_recipient_count.nil? && @rejected_recipient_count > 50
         invalid_properties.push('invalid value for "rejected_recipient_count", must be smaller than or equal to 50.')
       end
 
-      if @rejected_recipient_count < 0
+      if !@rejected_recipient_count.nil? && @rejected_recipient_count < 0
         invalid_properties.push('invalid value for "rejected_recipient_count", must be greater than or equal to 0.')
       end
 
@@ -367,18 +367,18 @@ module Sendmux::Management::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @accepted_recipient_count > 50
-      return false if @accepted_recipient_count < 0
+      return false if !@accepted_recipient_count.nil? && @accepted_recipient_count > 50
+      return false if !@accepted_recipient_count.nil? && @accepted_recipient_count < 0
       return false if @attempts.nil?
       return false if @created_at.nil?
-      return false if @delivery_group.length > 50
-      return false if @delivery_group.length < 1
+      return false if !@delivery_group.nil? && @delivery_group.length > 50
+      return false if !@delivery_group.nil? && @delivery_group.length < 1
       return false if @id.nil?
-      return false if @recipient_count > 50
-      return false if @recipient_count < 0
-      return false if @recipients.length > 50
-      return false if @rejected_recipient_count > 50
-      return false if @rejected_recipient_count < 0
+      return false if !@recipient_count.nil? && @recipient_count > 50
+      return false if !@recipient_count.nil? && @recipient_count < 0
+      return false if !@recipients.nil? && @recipients.length > 50
+      return false if !@rejected_recipient_count.nil? && @rejected_recipient_count > 50
+      return false if !@rejected_recipient_count.nil? && @rejected_recipient_count < 0
       return false if @status.nil?
       status_validator = EnumAttributeValidator.new('String', ["pending", "sent", "failed", "rejected", "unknown_default_open_api"])
       return false unless status_validator.valid?(@status)

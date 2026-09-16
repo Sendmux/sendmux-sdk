@@ -170,7 +170,7 @@ module Sendmux::Management::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @approved_daily_limit <= 0
+      if !@approved_daily_limit.nil? && @approved_daily_limit <= 0
         invalid_properties.push('invalid value for "approved_daily_limit", must be greater than 0.')
       end
 
@@ -209,7 +209,7 @@ module Sendmux::Management::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @approved_daily_limit <= 0
+      return false if !@approved_daily_limit.nil? && @approved_daily_limit <= 0
       return false if @created_at.nil?
       return false if @current_daily_limit.nil?
       return false if @current_daily_limit < 0

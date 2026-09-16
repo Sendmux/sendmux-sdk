@@ -63,7 +63,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         'bcc' => '\Sendmux\Sending\Model\Recipient[]',
         'cc' => '\Sendmux\Sending\Model\Recipient[]',
         'custom_headers' => 'array<string,string>',
-        'delivery_group' => 'string|array',
+        'delivery_group' => 'mixed',
         'from' => '\Sendmux\Sending\Model\Address',
         'html_body' => 'string',
         'reply_to' => '\Sendmux\Sending\Model\Address',
@@ -294,7 +294,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('bcc', $data ?? [], null);
         $this->setIfExists('cc', $data ?? [], null);
         $this->setIfExists('custom_headers', $data ?? [], null);
-        if (array_key_exists('delivery_group', $data ?? [])) {
+        if (array_key_exists('delivery_group', $data ?? []) && $data['delivery_group'] !== null) {
             $this->setDeliveryGroup($data['delivery_group']);
         } else {
             $this->container['delivery_group'] = null;

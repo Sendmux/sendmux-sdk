@@ -92,3 +92,39 @@ Status: Locally committed correction batch; awaiting ROOT's independent scoped r
 Torn down: All owned command children and temporary Python cohort workspaces verified closed/removed by the ownership wrapper.
 
 Parked: The three rejected eager-validation/public-API redesign findings remain unchanged by design; broader integration/release verification belongs to ROOT.
+
+## Scoped review follow-up — PHP serializer contract
+
+Base: `dd31abed8e264e05f4717388a0d4ada83e47d7e3`. ROOT accepted review findings I1/I2 after tracing the generated serializer. No Python or Ruby source/test/gate was changed or rerun.
+
+### Added RED evidence
+
+- `php-serializer-red.log`: the 11-case focused suite produced 2 failures and 2 errors. `ObjectSerializer::sanitizeForSerialization()` returned empty `stdClass` values for scalar/list wrappers; direct union deserialization raised `ArgumentCountError` from the zero-argument model construction path.
+- `php-null-red.log`: the isolated explicit-null constructor test raised `TypeError` when the constructor passed null to the non-null setter.
+
+### Source correction
+
+- The generated request metadata now uses the serializer's supported `mixed` vocabulary for this marked raw primitive union; the public setter remains the schema-validation boundary.
+- A fail-loud Sending-only generator transform adds exact `EmailSendRequestDeliveryGroup` handling to generated `ObjectSerializer.php`: wrappers serialize through their raw representation and direct wrapper deserialization constructs the validated union.
+- The marked request constructor calls its setter only for a supplied non-null value. Absence and explicit null both retain the established omitted-field sentinel; direct setter null remains rejected.
+
+### GREEN and drift evidence
+
+- `php-followup-focused-green.log`: 12 tests/60 assertions, zero failures/errors/skips. Coverage includes scalar/list wrappers, public serializer and direct union deserializer, raw single/batch request round trips, adjacent attachment serialization, omitted input, and explicit null.
+- `check-php-followup.log`: syntax and PHPStan clean; PHPUnit 70 tests/328 assertions; OAuth Node checks 10/10, zero skipped.
+- `php-followup-before.sha256` equals `php-followup-after.sha256` for all 337 generated PHP source files after `php-followup-idempotence.log`; `git diff --check` passed.
+- Exact input hashes remain App `2e32e665c99d26d47b4c208ee2de76b6249a47129afdecab19ccf8f50712d409` and Sending `c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e`.
+
+### Accepted warning baseline
+
+The PHP generator warning categories are pre-existing and repeat unchanged in both `php-generation-attempt-2.log` and the follow-up `php-null-generation.log`/`php-followup-idempotence.log`:
+
+- `InlineModelResolver`: `allOf schema \`null\` containing multiple types (not model) is not supported at the moment.`
+- `ExamplesUtils`: `No application/json content media type found in response. Response examples can currently only be generated for application/json media type.`
+- `ModelUtils`: `Failed to get the schema name: null`.
+
+They are retained verification noise, not waived failures or newly introduced warnings. No warning suppression, dependency upgrade, or global build setting changed.
+
+### Cleanup and release boundary
+
+Ownership-wrapper children `44709`, `45322`, `46294`, `46550`, `46952`, `48060`, `48756`, and `50481` each have `child_closed` receipts. No runtime service or remote resource was started. ROOT's incomplete `root-integration-build.log` was preserved and not treated as a passing gate; its interrupted exact handles were independently verified absent by ROOT.

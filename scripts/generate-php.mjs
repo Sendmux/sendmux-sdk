@@ -84,6 +84,7 @@ for (const surface of surfaces) {
 
   rmSync(join(packageDir, "src"), { force: true, recursive: true });
   cpSync(join(generatedRoot, "src"), join(packageDir, "src"), { recursive: true });
+  patchPrimitiveUnionSerializer(surface, packageDir);
   writeClientFactory(surface, packageDir);
 }
 
@@ -302,6 +303,55 @@ function collectRefs(value, refs) {
   for (const child of Object.values(value)) {
     collectRefs(child, refs);
   }
+}
+
+function patchPrimitiveUnionSerializer(surface, packageDir) {
+  if (surface.name !== "sending") {
+    return;
+  }
+
+  const serializerPath = join(packageDir, "src", "ObjectSerializer.php");
+  let serializer = readFileSync(serializerPath, "utf8");
+  serializer = replaceOnce(
+    serializer,
+    `        if (is_scalar($data) || null === $data) {
+            return $data;
+        }
+`,
+    `        if (is_scalar($data) || null === $data) {
+            return $data;
+        }
+
+        if ($data instanceof \\Sendmux\\Sending\\Model\\EmailSendRequestDeliveryGroup) {
+            return $data->jsonSerialize();
+        }
+`,
+    serializerPath,
+  );
+  serializer = replaceOnce(
+    serializer,
+    `        if (null === $data) {
+            return null;
+        }
+`,
+    `        if (null === $data) {
+            return null;
+        }
+
+        if ($class === \\Sendmux\\Sending\\Model\\EmailSendRequestDeliveryGroup::class) {
+            return new \\Sendmux\\Sending\\Model\\EmailSendRequestDeliveryGroup($data);
+        }
+`,
+    serializerPath,
+  );
+  writeFileSync(serializerPath, serializer);
+}
+
+function replaceOnce(source, from, to, filePath) {
+  if (!source.includes(from)) {
+    throw new Error(`Could not find expected generated snippet in ${filePath}`);
+  }
+  return source.replace(from, to);
 }
 
 function writeClientFactory(surface, packageDir) {

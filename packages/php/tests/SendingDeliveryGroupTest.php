@@ -12,6 +12,7 @@ use Sendmux\Sending\Model\Attachment;
 use Sendmux\Sending\Model\BatchSendRequest;
 use Sendmux\Sending\Model\EmailSendRequest;
 use Sendmux\Sending\Model\EmailSendRequestDeliveryGroup;
+use Sendmux\Sending\ObjectSerializer;
 
 final class SendingDeliveryGroupTest extends TestCase
 {
@@ -56,6 +57,70 @@ final class SendingDeliveryGroupTest extends TestCase
         self::assertArrayNotHasKey('delivery_group', $this->jsonObject($this->request()));
     }
 
+    public function testExplicitNullDeliveryGroupStaysOmitted(): void
+    {
+        $request = $this->request(['delivery_group' => null]);
+
+        self::assertArrayNotHasKey('delivery_group', $this->jsonObject($request));
+        self::assertArrayNotHasKey(
+            'delivery_group',
+            $this->jsonObject(ObjectSerializer::sanitizeForSerialization($request))
+        );
+    }
+
+    /** @param string|list<string> $deliveryGroup */
+    #[DataProvider('validDeliveryGroups')]
+    public function testObjectSerializerPreservesDeliveryGroupInPrimitiveAndRequestBodies(
+        string|array $deliveryGroup
+    ): void {
+        self::assertSame(
+            $deliveryGroup,
+            ObjectSerializer::sanitizeForSerialization(new EmailSendRequestDeliveryGroup($deliveryGroup))
+        );
+
+        $request = $this->request(['delivery_group' => $deliveryGroup]);
+        $serializedRequest = $this->jsonObject(ObjectSerializer::sanitizeForSerialization($request));
+        self::assertSame($deliveryGroup, $serializedRequest['delivery_group']);
+        self::assertSame(
+            ['content' => 'Zml4dHVyZQ==', 'filename' => 'fixture.txt'],
+            $this->firstObject($serializedRequest, 'attachments')
+        );
+
+        $batch = new BatchSendRequest(['messages' => [$request]]);
+        $serializedBatch = $this->jsonObject(ObjectSerializer::sanitizeForSerialization($batch));
+        self::assertSame($deliveryGroup, $this->firstObject($serializedBatch, 'messages')['delivery_group']);
+    }
+
+    /** @param string|list<string> $deliveryGroup */
+    #[DataProvider('validDeliveryGroups')]
+    public function testObjectSerializerDeserializesDeliveryGroupAndRequestBodies(string|array $deliveryGroup): void
+    {
+        $union = ObjectSerializer::deserialize($deliveryGroup, EmailSendRequestDeliveryGroup::class);
+        self::assertInstanceOf(EmailSendRequestDeliveryGroup::class, $union);
+        self::assertSame($deliveryGroup, ObjectSerializer::sanitizeForSerialization($union));
+
+        $request = ObjectSerializer::deserialize($this->rawRequest($deliveryGroup), EmailSendRequest::class);
+        self::assertInstanceOf(EmailSendRequest::class, $request);
+        self::assertSame($deliveryGroup, $request->getDeliveryGroup());
+        self::assertSame(
+            $deliveryGroup,
+            $this->jsonObject(ObjectSerializer::sanitizeForSerialization($request))['delivery_group']
+        );
+
+        $batch = ObjectSerializer::deserialize(
+            ['messages' => [$this->rawRequest($deliveryGroup)]],
+            BatchSendRequest::class
+        );
+        self::assertInstanceOf(BatchSendRequest::class, $batch);
+        self::assertSame(
+            $deliveryGroup,
+            $this->firstObject(
+                $this->jsonObject(ObjectSerializer::sanitizeForSerialization($batch)),
+                'messages'
+            )['delivery_group']
+        );
+    }
+
     /** @return iterable<string, array{string|list<string>}> */
     public static function invalidDeliveryGroups(): iterable
     {
@@ -90,6 +155,25 @@ final class SendingDeliveryGroupTest extends TestCase
         ]);
     }
 
+    /**
+     * @param string|list<string> $deliveryGroup
+     * @return array<string, mixed>
+     */
+    private function rawRequest(string|array $deliveryGroup): array
+    {
+        return [
+            'attachments' => [[
+                'content' => 'Zml4dHVyZQ==',
+                'filename' => 'fixture.txt',
+            ]],
+            'delivery_group' => $deliveryGroup,
+            'from' => ['email' => 'sender@example.com'],
+            'html_body' => '<p>Fixture</p>',
+            'subject' => 'Fixture',
+            'to' => ['email' => 'recipient@example.com'],
+        ];
+    }
+
     /** @return mixed */
     private function jsonValue(mixed $value): mixed
     {
@@ -103,5 +187,19 @@ final class SendingDeliveryGroupTest extends TestCase
         self::assertIsArray($decoded);
 
         return $decoded;
+    }
+
+    /**
+     * @param array<mixed> $object
+     * @return array<mixed>
+     */
+    private function firstObject(array $object, string $field): array
+    {
+        $values = $object[$field];
+        self::assertIsArray($values);
+        $first = $values[0] ?? null;
+        self::assertIsArray($first);
+
+        return $first;
     }
 }

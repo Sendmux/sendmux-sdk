@@ -15,7 +15,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        {{#vars}}'{{name}}' => '{{#vendorExtensions.x-sendmux-primitive-union}}string|array{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{{dataType}}}{{/vendorExtensions.x-sendmux-primitive-union}}'{{^-last}},
+        {{#vars}}'{{name}}' => '{{#vendorExtensions.x-sendmux-primitive-union}}mixed{{/vendorExtensions.x-sendmux-primitive-union}}{{^vendorExtensions.x-sendmux-primitive-union}}{{{dataType}}}{{/vendorExtensions.x-sendmux-primitive-union}}'{{^-last}},
         {{/-last}}{{/vars}}
     ];
 
@@ -253,7 +253,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{/parentSchema}}{{^par
         {{/parentSchema}}
         {{#vars}}
         {{#vendorExtensions.x-sendmux-primitive-union}}
-        if (array_key_exists('{{name}}', $data ?? [])) {
+        if (array_key_exists('{{name}}', $data ?? []) && $data['{{name}}'] !== null) {
             $this->{{setter}}($data['{{name}}']);
         } else {
             $this->container['{{name}}'] = null;

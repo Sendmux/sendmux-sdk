@@ -2,9 +2,9 @@
 
 ## Status
 
-⏸ Coded and verified locally from parent `f8a4d6b7ef1675f74ac09928aa208ad611b920a3`; this evidence is included in the correction commit. The batch is not pushed, merged, published, or deployed. ROOT owns independent review and release coordination.
+⏸ Coded and verified from parent `f8a4d6b7ef1675f74ac09928aa208ad611b920a3`; independent scoped review and local combined verification are approved. The correction batch is pushed to PR229, not merged, published or deployed. Normal PR review/CI settlement and the remaining release gates still apply.
 
-All generation used `OPENAPI_INPUT_DIR=/Users/rj/Desktop/GIT-REPOS/sendmux-docs-mcp-oauth`:
+All generation used the explicitly selected sibling checkout, `OPENAPI_INPUT_DIR=../sendmux-docs-mcp-oauth`:
 
 - App SHA-256: `2e32e665c99d26d47b4c208ee2de76b6249a47129afdecab19ccf8f50712d409`
 - Sending SHA-256: `c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e`
@@ -87,7 +87,7 @@ Journeys: N/A — SDK model/serializer seams are the approved public journey; no
 
 Evidence: `evidence/pr229-generator-corrections-20260916.md`; raw receipts in the MAIN artifact directory above.
 
-Status: Locally committed correction batch; awaiting ROOT's independent scoped review, push, review replies, merge, publication and deployment gates.
+Status: Independently reviewed correction batch, pushed to PR229; awaiting normal PR review/CI settlement, merge, publication and deployment gates.
 
 Torn down: All owned command children and temporary Python cohort workspaces verified closed/removed by the ownership wrapper.
 
@@ -147,3 +147,13 @@ ROOT's final `pnpm build` exited 0 in session `85809`. It used the exact two sna
 `root-final-verification.json` records fresh absence checks for 221 exact PID/process-group handles and 11 temporary workspaces. All 110 ownership-wrapper child starts have matching closure records. The checkout was clean after the build, and `git diff --check` passed.
 
 These results close the local correction/integration gate only. Normal PR CI/review settlement, native publication, app/proxy deployment, production canaries and manual Atlassian acceptance remain required. Previously published versions remain immutable.
+
+## Documentation follow-up
+
+Recorded 2026-09-16 18:03 Australia/Melbourne against parent `4e6effef13f9949918ee1cbc57de3be7f49bcd9a`.
+
+The setter PHPDoc incorrectly admitted null. The pre-correction setter at `f8a4d6b7ef1675f74ac09928aa208ad611b920a3:packages/php/sending/src/Model/EmailSendRequest.php:533-536` already rejected null; accepting it as a clearing operation would change that contract. The marked template PHPDoc now matches the non-null setter. Actual generation with the same verified snapshots changed exactly one PHPDoc line in one generated file. PHP token comparison, excluding comments and whitespace, proves its executable code is unchanged. Constructor null-as-omitted and nullable getter behaviour remain unchanged.
+
+`doc-followup-verification.log` records successful regeneration, the exact generated-file comparison, unchanged executable tokens, PHPUnit 12 tests/72 assertions with no skips, PHPStan with no errors, and `git diff --check`. No tests were added or removed. All four command children and the owner were independently verified absent after the terminal result.
+
+The evidence status no longer describes completed local review as pending. Six workstation-root path occurrences in this PR's four affected evidence files use sibling-relative paths; hashes and historical results are preserved, and this is not a Git-history scrub. The current-head CI run `35069947753` passed all 29 jobs; this does not substitute for the subsequent commit's normal remote gates. The external reviewer reported a repository clone failure, so its status is not represented as clone-backed approval.

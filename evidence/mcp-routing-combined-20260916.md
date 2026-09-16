@@ -22,7 +22,7 @@ Product emission ran from the integrated app and proxy trees. Both outputs exact
 - App: `2e32e665c99d26d47b4c208ee2de76b6249a47129afdecab19ccf8f50712d409`.
 - Sending: `c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e`.
 
-Every SDK generation/build command used explicit `OPENAPI_INPUT_DIR=/Users/rj/Desktop/GIT-REPOS/sendmux-docs-mcp-oauth`. Generated outputs passed drift checks; Postman emission made no changes. Candidate artifacts use local source metadata and must not be confused with immutable already-published artifacts bearing those versions.
+Every SDK generation/build command used the explicitly selected sibling checkout, `OPENAPI_INPUT_DIR=../sendmux-docs-mcp-oauth`. Generated outputs passed drift checks; Postman emission made no changes. Candidate artifacts use local source metadata and must not be confused with immutable already-published artifacts bearing those versions.
 
 ## Verified checks
 

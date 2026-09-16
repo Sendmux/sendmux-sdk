@@ -530,7 +530,7 @@ class EmailSendRequest implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets delivery_group
      *
-     * @param string|string[]|null $delivery_group delivery_group
+     * @param string|string[] $delivery_group delivery_group
      *
      * @return $this
      */

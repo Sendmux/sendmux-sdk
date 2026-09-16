@@ -19081,7 +19081,7 @@ class MailboxAPIApi
             foreach (explode('|', $dataType) as $variant) {
                 try {
                     $value = ObjectSerializer::deserialize($content, $variant, []);
-                    if ($value->valid() && $value->getData()->valid()) {
+                    if ($value instanceof $variant && $value->valid() && $value->getData()->valid()) {
                         return [$value, $response->getStatusCode(), $response->getHeaders()];
                     }
                 } catch (\InvalidArgumentException | \TypeError $error) {

@@ -22,7 +22,7 @@ export const pythonPackages = [
 export const pythonVerificationCohorts = [
   { name: "native", packages: pythonPackages.filter(({ name }) => ["core", "sending", "mailbox", "management", "mcp"].includes(name)) },
   { name: "sdk", packages: pythonPackages.filter(({ name }) => name === "sdk") },
-  { name: "langchain", packages: pythonPackages.filter(({ name }) => name === "langchain") },
+  { name: "langchain", packages: pythonPackages.filter(({ name }) => ["sending", "langchain"].includes(name)) },
 ];
 const ownedChildren = new Set();
 
@@ -302,7 +302,12 @@ class NoSkippedTests:
 sys.exit(pytest.main(sys.argv[1:], plugins=[NoSkippedTests()]))
 `);
   if (cohort.name === "langchain") {
-    await run(python, ["runtime_tests.py", "--import-mode=importlib", join(root, "packages/python/tests/test_langchain.py")], { cwd: consumer, env });
+    await run(python, [
+      "runtime_tests.py",
+      "--import-mode=importlib",
+      join(root, "packages/python/tests/test_langchain.py"),
+      join(root, "packages/python/langchain/tests"),
+    ], { cwd: consumer, env });
     return;
   }
   const mcpTests = join(root, "packages/python/mcp/tests");

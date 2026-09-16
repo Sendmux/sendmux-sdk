@@ -5,7 +5,12 @@
 ### Changed
 
 - Breaking: successful `mailboxGetChanges()` responses use `MailboxChangesResponse` or `MailboxTypedChangesResponse` instead of `MailboxGetChanges200Response`. Update typed wrappers and response handling for the two data models; see the [3.0 migration guide](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING-3.0.md).
+- Breaking: `mailboxListThreadMessages()` uses `MailboxThreadMessageSummaryCursorListResponse` instead of `MailboxMessageSummaryCursorListResponse`, including HTTP-info and resolved asynchronous forms. Five existing list responses replace `ResponseMeta` getter/setter types with operation-specific metadata classes. Update typed consumers and manual fixtures using the [response and metadata migration steps](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/php/UPGRADING-3.0.md#upgrade-your-application); thread-message metadata requires `thread_id` and permits absent `sync_state`.
 - Apply the same response-model selection to HTTP-info and asynchronous calls. Reject success bodies that match neither declared model instead of producing an incomplete model.
+
+### Fixed
+
+- Reject a JSON `null` changes-response body with the documented `UnexpectedValueException` instead of PHP `Error`, across ordinary, HTTP-info, and asynchronous calls.
 
 ### Security
 

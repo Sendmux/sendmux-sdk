@@ -68,12 +68,30 @@ for (const surface of surfaces) {
 
   rmSync(join(packageDir, surface.packageName), { force: true, recursive: true });
   cpSync(join(generatedRoot, surface.packageName), join(packageDir, surface.packageName), { recursive: true });
+  correctPrimitiveUnionAnnotations(surface, packageDir);
   writeSurfaceClient(surface);
   linkGeneratedRuntimeVersion(surface, packageDir);
   normalizePythonFiles(join(packageDir, surface.packageName));
 }
 
 console.log("Generated Python SDK packages");
+
+function correctPrimitiveUnionAnnotations(surface, packageDir) {
+  if (surface.name !== "sending") {
+    return;
+  }
+
+  const modelPath = join(
+    packageDir,
+    surface.packageName,
+    "models",
+    "email_send_request_delivery_group.py",
+  );
+  const current = readFileSync(modelPath, "utf8");
+  const generated = "def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:";
+  const corrected = "def from_dict(cls, obj: Union[List[str], str]) -> Self:";
+  writeFileSync(modelPath, replaceOnce({ source: current, filePath: modelPath, from: generated, to: corrected }));
+}
 
 function readProjectVersion(packageDir) {
   const pyprojectPath = join(packageDir, "pyproject.toml");

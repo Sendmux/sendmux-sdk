@@ -61,7 +61,7 @@ class ProviderItemCursorListResponse implements ModelInterface, ArrayAccess, Jso
     protected static array $openAPITypes = [
         'meta' => '\Sendmux\Management\Model\ResponseMeta',
         'ok' => 'bool',
-        'data' => '\Sendmux\Management\Model\ProviderItem[]',
+        'data' => '\Sendmux\Management\Model\ProviderListItem[]',
         'pagination' => '\Sendmux\Management\Model\CursorPagination'
     ];
 
@@ -354,7 +354,7 @@ class ProviderItemCursorListResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Gets data
      *
-     * @return \Sendmux\Management\Model\ProviderItem[]
+     * @return \Sendmux\Management\Model\ProviderListItem[]
      */
     public function getData(): array
     {
@@ -364,7 +364,7 @@ class ProviderItemCursorListResponse implements ModelInterface, ArrayAccess, Jso
     /**
      * Sets data
      *
-     * @param \Sendmux\Management\Model\ProviderItem[] $data data
+     * @param \Sendmux\Management\Model\ProviderListItem[] $data data
      *
      * @return $this
      */

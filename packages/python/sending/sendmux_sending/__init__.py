@@ -48,6 +48,7 @@ __all__ = [
     "ConnectionResponse",
     "ConnectionTeam",
     "EmailSendRequest",
+    "EmailSendRequestDeliveryGroup",
     "ErrorDetail",
     "ErrorIssue",
     "ErrorResponse",
@@ -95,6 +96,7 @@ from sendmux_sending.models.connection_mailboxes_inner import ConnectionMailboxe
 from sendmux_sending.models.connection_response import ConnectionResponse as ConnectionResponse
 from sendmux_sending.models.connection_team import ConnectionTeam as ConnectionTeam
 from sendmux_sending.models.email_send_request import EmailSendRequest as EmailSendRequest
+from sendmux_sending.models.email_send_request_delivery_group import EmailSendRequestDeliveryGroup as EmailSendRequestDeliveryGroup
 from sendmux_sending.models.error_detail import ErrorDetail as ErrorDetail
 from sendmux_sending.models.error_issue import ErrorIssue as ErrorIssue
 from sendmux_sending.models.error_response import ErrorResponse as ErrorResponse

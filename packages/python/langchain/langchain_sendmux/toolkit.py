@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 from langchain_core.tools import BaseTool, BaseToolkit, tool
 from pydantic import Field
@@ -76,6 +76,7 @@ class SendmuxToolkit(BaseToolkit):
             html: Optional[str] = None,
             var_from: Optional[str] = None,
             idempotency_key: Optional[str] = None,
+            delivery_group: Optional[Union[str, list[str]]] = None,
         ) -> Any:
             """Send an email through Sendmux to any recipient.
 
@@ -87,6 +88,8 @@ class SendmuxToolkit(BaseToolkit):
                 var_from: Sender email address; defaults to the configured sender.
                 idempotency_key: Optional key that makes a retried send idempotent
                     for 24 hours.
+                delivery_group: Optional delivery group ID or list of group IDs that
+                    narrows the eligible provider pool.
             """
             sender = var_from if var_from is not None else default_from
             if sender is None:
@@ -94,20 +97,27 @@ class SendmuxToolkit(BaseToolkit):
                     "No sender address: pass `var_from` in the tool call, or set "
                     "default_from on SendmuxToolkit."
                 )
+            if delivery_group is not None:
+                from sendmux_sending.models.email_send_request_delivery_group import (
+                    EmailSendRequestDeliveryGroup,
+                )
+
+                delivery_group_value = EmailSendRequestDeliveryGroup(delivery_group)
+            else:
+                delivery_group_value = None
             # EmailSendRequest.var_from carries alias "from" (a Python keyword),
             # so build from a dict via model_validate rather than keyword args.
+            request: dict[str, Any] = {
+                "from": {"email": sender},
+                "to": {"email": to},
+                "subject": subject,
+                "text_body": text,
+                "html_body": html if html is not None else _html_from_text(text),
+            }
+            if delivery_group_value is not None:
+                request["delivery_group"] = delivery_group_value
             response = emails.sending_send_email(
-                EmailSendRequest.model_validate(
-                    {
-                        "from": {"email": sender},
-                        "to": {"email": to},
-                        "subject": subject,
-                        "text_body": text,
-                        "html_body": (
-                            html if html is not None else _html_from_text(text)
-                        ),
-                    }
-                ),
+                EmailSendRequest.model_validate(request),
                 idempotency_key=idempotency_key,
             )
             return response.data

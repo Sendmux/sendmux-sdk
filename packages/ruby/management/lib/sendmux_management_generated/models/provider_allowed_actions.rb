@@ -25,6 +25,8 @@ module Sendmux::Management::Generated
 
     attr_accessor :update
 
+    attr_accessor :update_variables
+
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
@@ -32,7 +34,8 @@ module Sendmux::Management::Generated
         :'deactivate' => :'deactivate',
         :'delete' => :'delete',
         :'test' => :'test',
-        :'update' => :'update'
+        :'update' => :'update',
+        :'update_variables' => :'update_variables'
       }
     end
 
@@ -53,7 +56,8 @@ module Sendmux::Management::Generated
         :'deactivate' => :'Boolean',
         :'delete' => :'Boolean',
         :'test' => :'Boolean',
-        :'update' => :'Boolean'
+        :'update' => :'Boolean',
+        :'update_variables' => :'Boolean'
       }
     end
 
@@ -108,6 +112,12 @@ module Sendmux::Management::Generated
       else
         self.update = nil
       end
+
+      if attributes.key?(:'update_variables')
+        self.update_variables = attributes[:'update_variables']
+      else
+        self.update_variables = nil
+      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -135,6 +145,10 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "update", update cannot be nil.')
       end
 
+      if @update_variables.nil?
+        invalid_properties.push('invalid value for "update_variables", update_variables cannot be nil.')
+      end
+
       invalid_properties
     end
 
@@ -147,6 +161,7 @@ module Sendmux::Management::Generated
       return false if @delete.nil?
       return false if @test.nil?
       return false if @update.nil?
+      return false if @update_variables.nil?
       true
     end
 
@@ -200,6 +215,16 @@ module Sendmux::Management::Generated
       @update = update
     end
 
+    # Custom attribute writer method with validation
+    # @param [Object] update_variables Value to be assigned
+    def update_variables=(update_variables)
+      if update_variables.nil?
+        fail ArgumentError, 'update_variables cannot be nil'
+      end
+
+      @update_variables = update_variables
+    end
+
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -209,7 +234,8 @@ module Sendmux::Management::Generated
           deactivate == o.deactivate &&
           delete == o.delete &&
           test == o.test &&
-          update == o.update
+          update == o.update &&
+          update_variables == o.update_variables
     end
 
     # @see the `==` method
@@ -221,7 +247,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [activate, deactivate, delete, test, update].hash
+      [activate, deactivate, delete, test, update, update_variables].hash
     end
 
     # Builds the object from hash

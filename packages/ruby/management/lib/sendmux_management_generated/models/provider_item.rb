@@ -94,6 +94,9 @@ module Sendmux::Management::Generated
     # ISO 8601 last update timestamp
     attr_accessor :updated_at
 
+    # Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.
+    attr_accessor :variables
+
     class EnumAttributeValidator
       attr_reader :datatype
       attr_reader :allowable_values
@@ -145,7 +148,8 @@ module Sendmux::Management::Generated
         :'status_reason' => :'status_reason',
         :'tracking_domain' => :'tracking_domain',
         :'type' => :'type',
-        :'updated_at' => :'updated_at'
+        :'updated_at' => :'updated_at',
+        :'variables' => :'variables'
       }
     end
 
@@ -188,7 +192,8 @@ module Sendmux::Management::Generated
         :'status_reason' => :'String',
         :'tracking_domain' => :'String',
         :'type' => :'String',
-        :'updated_at' => :'String'
+        :'updated_at' => :'String',
+        :'variables' => :'Hash<String, String>'
       }
     end
 
@@ -389,6 +394,14 @@ module Sendmux::Management::Generated
       else
         self.updated_at = nil
       end
+
+      if attributes.key?(:'variables')
+        if (value = attributes[:'variables']).is_a?(Hash)
+          self.variables = value
+        end
+      else
+        self.variables = nil
+      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -448,6 +461,14 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "updated_at", updated_at cannot be nil.')
       end
 
+      if @variables.nil?
+        invalid_properties.push('invalid value for "variables", variables cannot be nil.')
+      end
+
+      if !@variables.nil? && @variables.length > 50
+        invalid_properties.push('invalid value for "variables", number of items must be less than or equal to 50.')
+      end
+
       invalid_properties
     end
 
@@ -472,6 +493,8 @@ module Sendmux::Management::Generated
       type_validator = EnumAttributeValidator.new('String', ["smtp", "gmail_api", "outlook_api", "amazon_ses", "unknown_default_open_api"])
       return false unless type_validator.valid?(@type)
       return false if @updated_at.nil?
+      return false if @variables.nil?
+      return false if !@variables.nil? && @variables.length > 50
       true
     end
 
@@ -605,6 +628,20 @@ module Sendmux::Management::Generated
       @updated_at = updated_at
     end
 
+    # Custom attribute writer method with validation
+    # @param [Object] variables Value to be assigned
+    def variables=(variables)
+      if variables.nil?
+        fail ArgumentError, 'variables cannot be nil'
+      end
+
+      if variables.length > 50
+        fail ArgumentError, 'invalid value for "variables", number of items must be less than or equal to 50.'
+      end
+
+      @variables = variables
+    end
+
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -636,7 +673,8 @@ module Sendmux::Management::Generated
           status_reason == o.status_reason &&
           tracking_domain == o.tracking_domain &&
           type == o.type &&
-          updated_at == o.updated_at
+          updated_at == o.updated_at &&
+          variables == o.variables
     end
 
     # @see the `==` method
@@ -648,7 +686,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [allowed_actions, created_at, from_email, from_name, has_refresh_token, has_smtp_password, id, is_active, is_editable, is_shared, last_tested_at, last_used_at, name, oauth_email, percentage, quotas, reply_to_email, reply_to_name, smtp_host, smtp_port, smtp_protocol, smtp_username, status, status_reason, tracking_domain, type, updated_at].hash
+      [allowed_actions, created_at, from_email, from_name, has_refresh_token, has_smtp_password, id, is_active, is_editable, is_shared, last_tested_at, last_used_at, name, oauth_email, percentage, quotas, reply_to_email, reply_to_name, smtp_host, smtp_port, smtp_protocol, smtp_username, status, status_reason, tracking_domain, type, updated_at, variables].hash
     end
 
     # Builds the object from hash

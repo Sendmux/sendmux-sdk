@@ -32,7 +32,8 @@ class ProviderAllowedActions(BaseModel):
     delete: StrictBool
     test: StrictBool
     update: StrictBool
-    __properties: ClassVar[List[str]] = ["activate", "deactivate", "delete", "test", "update"]
+    update_variables: StrictBool
+    __properties: ClassVar[List[str]] = ["activate", "deactivate", "delete", "test", "update", "update_variables"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -89,6 +90,7 @@ class ProviderAllowedActions(BaseModel):
             "deactivate": obj.get("deactivate"),
             "delete": obj.get("delete"),
             "test": obj.get("test"),
-            "update": obj.get("update")
+            "update": obj.get("update"),
+            "update_variables": obj.get("update_variables")
         })
         return _obj

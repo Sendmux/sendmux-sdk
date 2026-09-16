@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* Add provider variable management fields and delivery-group fields to delivery logs.
+
 ## [1.4.1](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.4.0...python-management-v1.4.1) (2026-09-15)
 
 

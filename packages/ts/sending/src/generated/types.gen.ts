@@ -132,6 +132,10 @@ export type EmailSendRequest = {
     custom_headers?: {
         [key: string]: string;
     };
+    /**
+     * One delivery group public ID or a non-empty array of up to 50 IDs
+     */
+    delivery_group?: string | Array<string>;
     from: Address;
     /**
      * HTML email content (max 25MB)

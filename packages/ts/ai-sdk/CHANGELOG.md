@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add one delivery group or a list of groups that narrows the eligible provider pool to the `send_email` tool.
+
 ### Changed
 
 - **Breaking:** The `zod` peer dependency minimum is `3.25.76`. Upgrade Zod

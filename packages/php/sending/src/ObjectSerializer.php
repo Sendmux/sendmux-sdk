@@ -73,6 +73,10 @@ class ObjectSerializer
             return $data;
         }
 
+        if ($data instanceof \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup) {
+            return $data->jsonSerialize();
+        }
+
         if ($data instanceof DateTime) {
             return ($format === 'date') ? $data->format('Y-m-d') : $data->format(self::$dateTimeFormat);
         }
@@ -392,6 +396,10 @@ class ObjectSerializer
     {
         if (null === $data) {
             return null;
+        }
+
+        if ($class === \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup::class) {
+            return new \Sendmux\Sending\Model\EmailSendRequestDeliveryGroup($data);
         }
 
         if (strcasecmp(substr($class, -2), '[]') === 0) {

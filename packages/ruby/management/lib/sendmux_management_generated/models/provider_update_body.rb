@@ -42,6 +42,9 @@ module Sendmux::Management::Generated
 
     attr_accessor :tracking_domain
 
+    # Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.
+    attr_accessor :variables
+
     class EnumAttributeValidator
       attr_reader :datatype
       attr_reader :allowable_values
@@ -79,7 +82,8 @@ module Sendmux::Management::Generated
         :'smtp_port' => :'smtp_port',
         :'smtp_protocol' => :'smtp_protocol',
         :'smtp_username' => :'smtp_username',
-        :'tracking_domain' => :'tracking_domain'
+        :'tracking_domain' => :'tracking_domain',
+        :'variables' => :'variables'
       }
     end
 
@@ -108,7 +112,8 @@ module Sendmux::Management::Generated
         :'smtp_port' => :'Integer',
         :'smtp_protocol' => :'String',
         :'smtp_username' => :'String',
-        :'tracking_domain' => :'String'
+        :'tracking_domain' => :'String',
+        :'variables' => :'Hash<String, String>'
       }
     end
 
@@ -119,7 +124,7 @@ module Sendmux::Management::Generated
         :'from_name',
         :'reply_to_email',
         :'reply_to_name',
-        :'tracking_domain'
+        :'tracking_domain',
       ])
     end
 
@@ -189,6 +194,12 @@ module Sendmux::Management::Generated
 
       if attributes.key?(:'tracking_domain')
         self.tracking_domain = attributes[:'tracking_domain']
+      end
+
+      if attributes.key?(:'variables')
+        if (value = attributes[:'variables']).is_a?(Hash)
+          self.variables = value
+        end
       end
     end
 
@@ -265,6 +276,10 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "tracking_domain", the character length must be smaller than or equal to 255.')
       end
 
+      if !@variables.nil? && @variables.length > 50
+        invalid_properties.push('invalid value for "variables", number of items must be less than or equal to 50.')
+      end
+
       invalid_properties
     end
 
@@ -291,6 +306,7 @@ module Sendmux::Management::Generated
       return false if !@smtp_username.nil? && @smtp_username.to_s.length > 255
       return false if !@smtp_username.nil? && @smtp_username.to_s.length < 1
       return false if !@tracking_domain.nil? && @tracking_domain.to_s.length > 255
+      return false if !@variables.nil? && @variables.length > 50
       true
     end
 
@@ -462,6 +478,20 @@ module Sendmux::Management::Generated
       @tracking_domain = tracking_domain
     end
 
+    # Custom attribute writer method with validation
+    # @param [Object] variables Value to be assigned
+    def variables=(variables)
+      if variables.nil?
+        fail ArgumentError, 'variables cannot be nil'
+      end
+
+      if variables.length > 50
+        fail ArgumentError, 'invalid value for "variables", number of items must be less than or equal to 50.'
+      end
+
+      @variables = variables
+    end
+
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -479,7 +509,8 @@ module Sendmux::Management::Generated
           smtp_port == o.smtp_port &&
           smtp_protocol == o.smtp_protocol &&
           smtp_username == o.smtp_username &&
-          tracking_domain == o.tracking_domain
+          tracking_domain == o.tracking_domain &&
+          variables == o.variables
     end
 
     # @see the `==` method
@@ -491,7 +522,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [from_email, from_name, name, percentage, quotas, reply_to_email, reply_to_name, smtp_host, smtp_password, smtp_port, smtp_protocol, smtp_username, tracking_domain].hash
+      [from_email, from_name, name, percentage, quotas, reply_to_email, reply_to_name, smtp_host, smtp_password, smtp_port, smtp_protocol, smtp_username, tracking_domain, variables].hash
     end
 
     # Builds the object from hash

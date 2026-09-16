@@ -85,7 +85,8 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         'status_reason' => 'string',
         'tracking_domain' => 'string',
         'type' => 'string',
-        'updated_at' => 'string'
+        'updated_at' => 'string',
+        'variables' => 'array<string,string>'
     ];
 
     /**
@@ -120,7 +121,8 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         'status_reason' => null,
         'tracking_domain' => null,
         'type' => null,
-        'updated_at' => null
+        'updated_at' => null,
+        'variables' => null
     ];
 
     /**
@@ -155,7 +157,8 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         'status_reason' => true,
         'tracking_domain' => true,
         'type' => false,
-        'updated_at' => false
+        'updated_at' => false,
+        'variables' => false
     ];
 
     /**
@@ -260,7 +263,8 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         'status_reason' => 'status_reason',
         'tracking_domain' => 'tracking_domain',
         'type' => 'type',
-        'updated_at' => 'updated_at'
+        'updated_at' => 'updated_at',
+        'variables' => 'variables'
     ];
 
     /**
@@ -295,7 +299,8 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         'status_reason' => 'setStatusReason',
         'tracking_domain' => 'setTrackingDomain',
         'type' => 'setType',
-        'updated_at' => 'setUpdatedAt'
+        'updated_at' => 'setUpdatedAt',
+        'variables' => 'setVariables'
     ];
 
     /**
@@ -330,7 +335,8 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         'status_reason' => 'getStatusReason',
         'tracking_domain' => 'getTrackingDomain',
         'type' => 'getType',
-        'updated_at' => 'getUpdatedAt'
+        'updated_at' => 'getUpdatedAt',
+        'variables' => 'getVariables'
     ];
 
     /**
@@ -449,6 +455,7 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('tracking_domain', $data ?? [], null);
         $this->setIfExists('type', $data ?? [], null);
         $this->setIfExists('updated_at', $data ?? [], null);
+        $this->setIfExists('variables', $data ?? [], null);
     }
 
     /**
@@ -575,6 +582,13 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['updated_at'] === null) {
             $invalidProperties[] = "'updated_at' can't be null";
         }
+        if ($this->container['variables'] === null) {
+            $invalidProperties[] = "'variables' can't be null";
+        }
+        if (!is_null($this->container['variables']) && (count($this->container['variables']) > 50)) {
+            $invalidProperties[] = "invalid value for 'variables', number of items must be less than or equal to 50.";
+        }
+
         return $invalidProperties;
     }
 
@@ -1418,6 +1432,37 @@ class ProviderItem implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable updated_at cannot be null');
         }
         $this->container['updated_at'] = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * Gets variables
+     *
+     * @return array<string,string>
+     */
+    public function getVariables(): array
+    {
+        return $this->container['variables'];
+    }
+
+    /**
+     * Sets variables
+     *
+     * @param array<string,string> $variables Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.
+     *
+     * @return $this
+     */
+    public function setVariables(array $variables): static
+    {
+        if (is_null($variables)) {
+            throw new InvalidArgumentException('non-nullable variables cannot be null');
+        }
+
+        if ((count($variables) > 50)) {
+            throw new InvalidArgumentException('invalid value for $variables when calling ProviderItem., number of items must be less than or equal to 50.');
+        }
+        $this->container['variables'] = $variables;
 
         return $this;
     }

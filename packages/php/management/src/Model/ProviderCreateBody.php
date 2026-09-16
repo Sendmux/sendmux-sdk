@@ -71,7 +71,8 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         'smtp_port' => 'int',
         'smtp_protocol' => 'string',
         'smtp_username' => 'string',
-        'tracking_domain' => 'string'
+        'tracking_domain' => 'string',
+        'variables' => 'array<string,string>'
     ];
 
     /**
@@ -92,7 +93,8 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         'smtp_port' => null,
         'smtp_protocol' => null,
         'smtp_username' => null,
-        'tracking_domain' => null
+        'tracking_domain' => null,
+        'variables' => null
     ];
 
     /**
@@ -113,7 +115,8 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         'smtp_port' => false,
         'smtp_protocol' => false,
         'smtp_username' => false,
-        'tracking_domain' => true
+        'tracking_domain' => true,
+        'variables' => false
     ];
 
     /**
@@ -204,7 +207,8 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         'smtp_port' => 'smtp_port',
         'smtp_protocol' => 'smtp_protocol',
         'smtp_username' => 'smtp_username',
-        'tracking_domain' => 'tracking_domain'
+        'tracking_domain' => 'tracking_domain',
+        'variables' => 'variables'
     ];
 
     /**
@@ -225,7 +229,8 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         'smtp_port' => 'setSmtpPort',
         'smtp_protocol' => 'setSmtpProtocol',
         'smtp_username' => 'setSmtpUsername',
-        'tracking_domain' => 'setTrackingDomain'
+        'tracking_domain' => 'setTrackingDomain',
+        'variables' => 'setVariables'
     ];
 
     /**
@@ -246,7 +251,8 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         'smtp_port' => 'getSmtpPort',
         'smtp_protocol' => 'getSmtpProtocol',
         'smtp_username' => 'getSmtpUsername',
-        'tracking_domain' => 'getTrackingDomain'
+        'tracking_domain' => 'getTrackingDomain',
+        'variables' => 'getVariables'
     ];
 
     /**
@@ -330,6 +336,7 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         $this->setIfExists('smtp_protocol', $data ?? [], null);
         $this->setIfExists('smtp_username', $data ?? [], null);
         $this->setIfExists('tracking_domain', $data ?? [], null);
+        $this->setIfExists('variables', $data ?? [], null);
     }
 
     /**
@@ -450,6 +457,10 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
 
         if (!is_null($this->container['tracking_domain']) && (mb_strlen($this->container['tracking_domain']) > 255)) {
             $invalidProperties[] = "invalid value for 'tracking_domain', the character length must be smaller than or equal to 255.";
+        }
+
+        if (!is_null($this->container['variables']) && (count($this->container['variables']) > 50)) {
+            $invalidProperties[] = "invalid value for 'variables', number of items must be less than or equal to 50.";
         }
 
         return $invalidProperties;
@@ -914,6 +925,37 @@ class ProviderCreateBody implements ModelInterface, ArrayAccess, JsonSerializabl
         }
 
         $this->container['tracking_domain'] = $tracking_domain;
+
+        return $this;
+    }
+
+    /**
+     * Gets variables
+     *
+     * @return array<string,string>|null
+     */
+    public function getVariables(): ?array
+    {
+        return $this->container['variables'];
+    }
+
+    /**
+     * Sets variables
+     *
+     * @param array<string,string>|null $variables Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.
+     *
+     * @return $this
+     */
+    public function setVariables(?array $variables): static
+    {
+        if (is_null($variables)) {
+            throw new InvalidArgumentException('non-nullable variables cannot be null');
+        }
+
+        if ((count($variables) > 50)) {
+            throw new InvalidArgumentException('invalid value for $variables when calling ProviderCreateBody., number of items must be less than or equal to 50.');
+        }
+        $this->container['variables'] = $variables;
 
         return $this;
     }

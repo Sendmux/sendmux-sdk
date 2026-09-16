@@ -1262,8 +1262,10 @@ type DeliveryLogDetail struct {
 	AcceptedRecipientCount NilInt  `json:"accepted_recipient_count"`
 	Attempts               float64 `json:"attempts"`
 	// ISO 8601 creation timestamp.
-	CreatedAt string    `json:"created_at"`
-	FromEmail NilString `json:"from_email"`
+	CreatedAt string `json:"created_at"`
+	// Applied per-message delivery group public IDs, or null for absent, ignored or historical hints.
+	DeliveryGroup []string  `json:"delivery_group"`
+	FromEmail     NilString `json:"from_email"`
 	// Log public ID.
 	ID string `json:"id"`
 	// Email Message-ID header.
@@ -1303,6 +1305,11 @@ func (s *DeliveryLogDetail) GetAttempts() float64 {
 // GetCreatedAt returns the value of CreatedAt.
 func (s *DeliveryLogDetail) GetCreatedAt() string {
 	return s.CreatedAt
+}
+
+// GetDeliveryGroup returns the value of DeliveryGroup.
+func (s *DeliveryLogDetail) GetDeliveryGroup() []string {
+	return s.DeliveryGroup
 }
 
 // GetFromEmail returns the value of FromEmail.
@@ -1393,6 +1400,11 @@ func (s *DeliveryLogDetail) SetAttempts(val float64) {
 // SetCreatedAt sets the value of CreatedAt.
 func (s *DeliveryLogDetail) SetCreatedAt(val string) {
 	s.CreatedAt = val
+}
+
+// SetDeliveryGroup sets the value of DeliveryGroup.
+func (s *DeliveryLogDetail) SetDeliveryGroup(val []string) {
+	s.DeliveryGroup = val
 }
 
 // SetFromEmail sets the value of FromEmail.
@@ -1531,8 +1543,10 @@ type DeliveryLogItem struct {
 	AcceptedRecipientCount NilInt  `json:"accepted_recipient_count"`
 	Attempts               float64 `json:"attempts"`
 	// ISO 8601 creation timestamp.
-	CreatedAt string    `json:"created_at"`
-	FromEmail NilString `json:"from_email"`
+	CreatedAt string `json:"created_at"`
+	// Applied per-message delivery group public IDs, or null for absent, ignored or historical hints.
+	DeliveryGroup []string  `json:"delivery_group"`
+	FromEmail     NilString `json:"from_email"`
 	// Log public ID.
 	ID string `json:"id"`
 	// Email Message-ID header.
@@ -1570,6 +1584,11 @@ func (s *DeliveryLogItem) GetAttempts() float64 {
 // GetCreatedAt returns the value of CreatedAt.
 func (s *DeliveryLogItem) GetCreatedAt() string {
 	return s.CreatedAt
+}
+
+// GetDeliveryGroup returns the value of DeliveryGroup.
+func (s *DeliveryLogItem) GetDeliveryGroup() []string {
+	return s.DeliveryGroup
 }
 
 // GetFromEmail returns the value of FromEmail.
@@ -1655,6 +1674,11 @@ func (s *DeliveryLogItem) SetAttempts(val float64) {
 // SetCreatedAt sets the value of CreatedAt.
 func (s *DeliveryLogItem) SetCreatedAt(val string) {
 	s.CreatedAt = val
+}
+
+// SetDeliveryGroup sets the value of DeliveryGroup.
+func (s *DeliveryLogItem) SetDeliveryGroup(val []string) {
+	s.DeliveryGroup = val
 }
 
 // SetFromEmail sets the value of FromEmail.
@@ -9915,6 +9939,52 @@ func (o OptProviderUpdateBodySMTPProtocol) Or(d ProviderUpdateBodySMTPProtocol) 
 	return d
 }
 
+// NewOptProviderVariables returns new OptProviderVariables with value set to v.
+func NewOptProviderVariables(v ProviderVariables) OptProviderVariables {
+	return OptProviderVariables{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptProviderVariables is optional ProviderVariables.
+type OptProviderVariables struct {
+	Value ProviderVariables
+	Set   bool
+}
+
+// IsSet returns true if OptProviderVariables was set.
+func (o OptProviderVariables) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptProviderVariables) Reset() {
+	var v ProviderVariables
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptProviderVariables) SetTo(v ProviderVariables) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptProviderVariables) Get() (v ProviderVariables, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptProviderVariables) Or(d ProviderVariables) ProviderVariables {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptSetFilterStateBody returns new OptSetFilterStateBody with value set to v.
 func NewOptSetFilterStateBody(v SetFilterStateBody) OptSetFilterStateBody {
 	return OptSetFilterStateBody{
@@ -10331,11 +10401,12 @@ func (o OptWebhookUpdateBodyFilters) Or(d WebhookUpdateBodyFilters) WebhookUpdat
 
 // Ref: #/components/schemas/ProviderAllowedActions
 type ProviderAllowedActions struct {
-	Activate   bool `json:"activate"`
-	Deactivate bool `json:"deactivate"`
-	Delete     bool `json:"delete"`
-	Test       bool `json:"test"`
-	Update     bool `json:"update"`
+	Activate        bool `json:"activate"`
+	Deactivate      bool `json:"deactivate"`
+	Delete          bool `json:"delete"`
+	Test            bool `json:"test"`
+	Update          bool `json:"update"`
+	UpdateVariables bool `json:"update_variables"`
 }
 
 // GetActivate returns the value of Activate.
@@ -10363,6 +10434,11 @@ func (s *ProviderAllowedActions) GetUpdate() bool {
 	return s.Update
 }
 
+// GetUpdateVariables returns the value of UpdateVariables.
+func (s *ProviderAllowedActions) GetUpdateVariables() bool {
+	return s.UpdateVariables
+}
+
 // SetActivate sets the value of Activate.
 func (s *ProviderAllowedActions) SetActivate(val bool) {
 	s.Activate = val
@@ -10388,6 +10464,11 @@ func (s *ProviderAllowedActions) SetUpdate(val bool) {
 	s.Update = val
 }
 
+// SetUpdateVariables sets the value of UpdateVariables.
+func (s *ProviderAllowedActions) SetUpdateVariables(val bool) {
+	s.UpdateVariables = val
+}
+
 // Ref: #/components/schemas/ProviderCreateBody
 type ProviderCreateBody struct {
 	// Default From email address for an SMTP account.
@@ -10404,6 +10485,7 @@ type ProviderCreateBody struct {
 	SMTPProtocol   ProviderCreateBodySMTPProtocol `json:"smtp_protocol"`
 	SMTPUsername   string                         `json:"smtp_username"`
 	TrackingDomain OptNilString                   `json:"tracking_domain"`
+	Variables      OptProviderVariables           `json:"variables"`
 }
 
 // GetFromEmail returns the value of FromEmail.
@@ -10471,6 +10553,11 @@ func (s *ProviderCreateBody) GetTrackingDomain() OptNilString {
 	return s.TrackingDomain
 }
 
+// GetVariables returns the value of Variables.
+func (s *ProviderCreateBody) GetVariables() OptProviderVariables {
+	return s.Variables
+}
+
 // SetFromEmail sets the value of FromEmail.
 func (s *ProviderCreateBody) SetFromEmail(val OptNilString) {
 	s.FromEmail = val
@@ -10534,6 +10621,11 @@ func (s *ProviderCreateBody) SetSMTPUsername(val string) {
 // SetTrackingDomain sets the value of TrackingDomain.
 func (s *ProviderCreateBody) SetTrackingDomain(val OptNilString) {
 	s.TrackingDomain = val
+}
+
+// SetVariables sets the value of Variables.
+func (s *ProviderCreateBody) SetVariables(val OptProviderVariables) {
+	s.Variables = val
 }
 
 type ProviderCreateBodyQuotas struct {
@@ -11318,7 +11410,8 @@ type ProviderItem struct {
 	// Sending account type. `amazon_ses` is the shared managed account.
 	Type ProviderItemType `json:"type"`
 	// ISO 8601 last update timestamp.
-	UpdatedAt string `json:"updated_at"`
+	UpdatedAt string            `json:"updated_at"`
+	Variables ProviderVariables `json:"variables"`
 }
 
 // GetAllowedActions returns the value of AllowedActions.
@@ -11456,6 +11549,11 @@ func (s *ProviderItem) GetUpdatedAt() string {
 	return s.UpdatedAt
 }
 
+// GetVariables returns the value of Variables.
+func (s *ProviderItem) GetVariables() ProviderVariables {
+	return s.Variables
+}
+
 // SetAllowedActions sets the value of AllowedActions.
 func (s *ProviderItem) SetAllowedActions(val ProviderAllowedActions) {
 	s.AllowedActions = val
@@ -11591,13 +11689,18 @@ func (s *ProviderItem) SetUpdatedAt(val string) {
 	s.UpdatedAt = val
 }
 
+// SetVariables sets the value of Variables.
+func (s *ProviderItem) SetVariables(val ProviderVariables) {
+	s.Variables = val
+}
+
 // Merged schema.
 // Ref: #/components/schemas/ProviderItemCursorListResponse
 type ProviderItemCursorListResponse struct {
 	// Merged property.
 	Meta       ProviderItemCursorListResponseMeta `json:"meta"`
 	Ok         ProviderItemCursorListResponseOk   `json:"ok"`
-	Data       []ProviderItem                     `json:"data"`
+	Data       []ProviderListItem                 `json:"data"`
 	Pagination CursorPagination                   `json:"pagination"`
 }
 
@@ -11612,7 +11715,7 @@ func (s *ProviderItemCursorListResponse) GetOk() ProviderItemCursorListResponseO
 }
 
 // GetData returns the value of Data.
-func (s *ProviderItemCursorListResponse) GetData() []ProviderItem {
+func (s *ProviderItemCursorListResponse) GetData() []ProviderListItem {
 	return s.Data
 }
 
@@ -11632,7 +11735,7 @@ func (s *ProviderItemCursorListResponse) SetOk(val ProviderItemCursorListRespons
 }
 
 // SetData sets the value of Data.
-func (s *ProviderItemCursorListResponse) SetData(val []ProviderItem) {
+func (s *ProviderItemCursorListResponse) SetData(val []ProviderListItem) {
 	s.Data = val
 }
 
@@ -12049,6 +12152,445 @@ const (
 func (ProviderLimitsResponseOk) AllValues() []ProviderLimitsResponseOk {
 	return []ProviderLimitsResponseOk{
 		ProviderLimitsResponseOkTrue,
+	}
+}
+
+// Ref: #/components/schemas/ProviderListItem
+type ProviderListItem struct {
+	AllowedActions ProviderAllowedActions `json:"allowed_actions"`
+	// ISO 8601 creation timestamp.
+	CreatedAt string `json:"created_at"`
+	// Default From email address. Connected Google and Microsoft accounts always use their authorised
+	// account address.
+	FromEmail NilString `json:"from_email"`
+	// Default From display name.
+	FromName NilString `json:"from_name"`
+	// Whether an OAuth account has an active connection token.
+	HasRefreshToken bool `json:"has_refresh_token"`
+	// Whether a custom SMTP password is stored.
+	HasSMTPPassword bool `json:"has_smtp_password"`
+	// Sending account public ID.
+	ID string `json:"id"`
+	// Whether this account is enabled for sending.
+	IsActive bool `json:"is_active"`
+	// False when the account is platform-managed.
+	IsEditable bool `json:"is_editable"`
+	// True for the team's shared Amazon SES account.
+	IsShared bool `json:"is_shared"`
+	// Last connection test timestamp.
+	LastTestedAt NilString `json:"last_tested_at"`
+	// Last send timestamp.
+	LastUsedAt NilString `json:"last_used_at"`
+	// Display name.
+	Name string `json:"name"`
+	// Connected account email for OAuth accounts.
+	OAuthEmail NilString `json:"oauth_email"`
+	// Routing weight percentage.
+	Percentage NilInt         `json:"percentage"`
+	Quotas     ProviderQuotas `json:"quotas"`
+	// Default Reply-To email address.
+	ReplyToEmail NilString `json:"reply_to_email"`
+	// Default Reply-To display name.
+	ReplyToName NilString `json:"reply_to_name"`
+	// SMTP host for custom SMTP accounts.
+	SMTPHost NilString `json:"smtp_host"`
+	// SMTP port for custom SMTP accounts.
+	SMTPPort NilInt `json:"smtp_port"`
+	// SMTP security mode.
+	SMTPProtocol NilString `json:"smtp_protocol"`
+	// SMTP username for custom SMTP accounts.
+	SMTPUsername NilString `json:"smtp_username"`
+	// Current sending account status.
+	Status ProviderListItemStatus `json:"status"`
+	// Public-safe reason for the current status.
+	StatusReason NilString `json:"status_reason"`
+	// Custom tracking hostname.
+	TrackingDomain NilString `json:"tracking_domain"`
+	// Sending account type. `amazon_ses` is the shared managed account.
+	Type ProviderListItemType `json:"type"`
+	// ISO 8601 last update timestamp.
+	UpdatedAt string `json:"updated_at"`
+}
+
+// GetAllowedActions returns the value of AllowedActions.
+func (s *ProviderListItem) GetAllowedActions() ProviderAllowedActions {
+	return s.AllowedActions
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ProviderListItem) GetCreatedAt() string {
+	return s.CreatedAt
+}
+
+// GetFromEmail returns the value of FromEmail.
+func (s *ProviderListItem) GetFromEmail() NilString {
+	return s.FromEmail
+}
+
+// GetFromName returns the value of FromName.
+func (s *ProviderListItem) GetFromName() NilString {
+	return s.FromName
+}
+
+// GetHasRefreshToken returns the value of HasRefreshToken.
+func (s *ProviderListItem) GetHasRefreshToken() bool {
+	return s.HasRefreshToken
+}
+
+// GetHasSMTPPassword returns the value of HasSMTPPassword.
+func (s *ProviderListItem) GetHasSMTPPassword() bool {
+	return s.HasSMTPPassword
+}
+
+// GetID returns the value of ID.
+func (s *ProviderListItem) GetID() string {
+	return s.ID
+}
+
+// GetIsActive returns the value of IsActive.
+func (s *ProviderListItem) GetIsActive() bool {
+	return s.IsActive
+}
+
+// GetIsEditable returns the value of IsEditable.
+func (s *ProviderListItem) GetIsEditable() bool {
+	return s.IsEditable
+}
+
+// GetIsShared returns the value of IsShared.
+func (s *ProviderListItem) GetIsShared() bool {
+	return s.IsShared
+}
+
+// GetLastTestedAt returns the value of LastTestedAt.
+func (s *ProviderListItem) GetLastTestedAt() NilString {
+	return s.LastTestedAt
+}
+
+// GetLastUsedAt returns the value of LastUsedAt.
+func (s *ProviderListItem) GetLastUsedAt() NilString {
+	return s.LastUsedAt
+}
+
+// GetName returns the value of Name.
+func (s *ProviderListItem) GetName() string {
+	return s.Name
+}
+
+// GetOAuthEmail returns the value of OAuthEmail.
+func (s *ProviderListItem) GetOAuthEmail() NilString {
+	return s.OAuthEmail
+}
+
+// GetPercentage returns the value of Percentage.
+func (s *ProviderListItem) GetPercentage() NilInt {
+	return s.Percentage
+}
+
+// GetQuotas returns the value of Quotas.
+func (s *ProviderListItem) GetQuotas() ProviderQuotas {
+	return s.Quotas
+}
+
+// GetReplyToEmail returns the value of ReplyToEmail.
+func (s *ProviderListItem) GetReplyToEmail() NilString {
+	return s.ReplyToEmail
+}
+
+// GetReplyToName returns the value of ReplyToName.
+func (s *ProviderListItem) GetReplyToName() NilString {
+	return s.ReplyToName
+}
+
+// GetSMTPHost returns the value of SMTPHost.
+func (s *ProviderListItem) GetSMTPHost() NilString {
+	return s.SMTPHost
+}
+
+// GetSMTPPort returns the value of SMTPPort.
+func (s *ProviderListItem) GetSMTPPort() NilInt {
+	return s.SMTPPort
+}
+
+// GetSMTPProtocol returns the value of SMTPProtocol.
+func (s *ProviderListItem) GetSMTPProtocol() NilString {
+	return s.SMTPProtocol
+}
+
+// GetSMTPUsername returns the value of SMTPUsername.
+func (s *ProviderListItem) GetSMTPUsername() NilString {
+	return s.SMTPUsername
+}
+
+// GetStatus returns the value of Status.
+func (s *ProviderListItem) GetStatus() ProviderListItemStatus {
+	return s.Status
+}
+
+// GetStatusReason returns the value of StatusReason.
+func (s *ProviderListItem) GetStatusReason() NilString {
+	return s.StatusReason
+}
+
+// GetTrackingDomain returns the value of TrackingDomain.
+func (s *ProviderListItem) GetTrackingDomain() NilString {
+	return s.TrackingDomain
+}
+
+// GetType returns the value of Type.
+func (s *ProviderListItem) GetType() ProviderListItemType {
+	return s.Type
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *ProviderListItem) GetUpdatedAt() string {
+	return s.UpdatedAt
+}
+
+// SetAllowedActions sets the value of AllowedActions.
+func (s *ProviderListItem) SetAllowedActions(val ProviderAllowedActions) {
+	s.AllowedActions = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ProviderListItem) SetCreatedAt(val string) {
+	s.CreatedAt = val
+}
+
+// SetFromEmail sets the value of FromEmail.
+func (s *ProviderListItem) SetFromEmail(val NilString) {
+	s.FromEmail = val
+}
+
+// SetFromName sets the value of FromName.
+func (s *ProviderListItem) SetFromName(val NilString) {
+	s.FromName = val
+}
+
+// SetHasRefreshToken sets the value of HasRefreshToken.
+func (s *ProviderListItem) SetHasRefreshToken(val bool) {
+	s.HasRefreshToken = val
+}
+
+// SetHasSMTPPassword sets the value of HasSMTPPassword.
+func (s *ProviderListItem) SetHasSMTPPassword(val bool) {
+	s.HasSMTPPassword = val
+}
+
+// SetID sets the value of ID.
+func (s *ProviderListItem) SetID(val string) {
+	s.ID = val
+}
+
+// SetIsActive sets the value of IsActive.
+func (s *ProviderListItem) SetIsActive(val bool) {
+	s.IsActive = val
+}
+
+// SetIsEditable sets the value of IsEditable.
+func (s *ProviderListItem) SetIsEditable(val bool) {
+	s.IsEditable = val
+}
+
+// SetIsShared sets the value of IsShared.
+func (s *ProviderListItem) SetIsShared(val bool) {
+	s.IsShared = val
+}
+
+// SetLastTestedAt sets the value of LastTestedAt.
+func (s *ProviderListItem) SetLastTestedAt(val NilString) {
+	s.LastTestedAt = val
+}
+
+// SetLastUsedAt sets the value of LastUsedAt.
+func (s *ProviderListItem) SetLastUsedAt(val NilString) {
+	s.LastUsedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *ProviderListItem) SetName(val string) {
+	s.Name = val
+}
+
+// SetOAuthEmail sets the value of OAuthEmail.
+func (s *ProviderListItem) SetOAuthEmail(val NilString) {
+	s.OAuthEmail = val
+}
+
+// SetPercentage sets the value of Percentage.
+func (s *ProviderListItem) SetPercentage(val NilInt) {
+	s.Percentage = val
+}
+
+// SetQuotas sets the value of Quotas.
+func (s *ProviderListItem) SetQuotas(val ProviderQuotas) {
+	s.Quotas = val
+}
+
+// SetReplyToEmail sets the value of ReplyToEmail.
+func (s *ProviderListItem) SetReplyToEmail(val NilString) {
+	s.ReplyToEmail = val
+}
+
+// SetReplyToName sets the value of ReplyToName.
+func (s *ProviderListItem) SetReplyToName(val NilString) {
+	s.ReplyToName = val
+}
+
+// SetSMTPHost sets the value of SMTPHost.
+func (s *ProviderListItem) SetSMTPHost(val NilString) {
+	s.SMTPHost = val
+}
+
+// SetSMTPPort sets the value of SMTPPort.
+func (s *ProviderListItem) SetSMTPPort(val NilInt) {
+	s.SMTPPort = val
+}
+
+// SetSMTPProtocol sets the value of SMTPProtocol.
+func (s *ProviderListItem) SetSMTPProtocol(val NilString) {
+	s.SMTPProtocol = val
+}
+
+// SetSMTPUsername sets the value of SMTPUsername.
+func (s *ProviderListItem) SetSMTPUsername(val NilString) {
+	s.SMTPUsername = val
+}
+
+// SetStatus sets the value of Status.
+func (s *ProviderListItem) SetStatus(val ProviderListItemStatus) {
+	s.Status = val
+}
+
+// SetStatusReason sets the value of StatusReason.
+func (s *ProviderListItem) SetStatusReason(val NilString) {
+	s.StatusReason = val
+}
+
+// SetTrackingDomain sets the value of TrackingDomain.
+func (s *ProviderListItem) SetTrackingDomain(val NilString) {
+	s.TrackingDomain = val
+}
+
+// SetType sets the value of Type.
+func (s *ProviderListItem) SetType(val ProviderListItemType) {
+	s.Type = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *ProviderListItem) SetUpdatedAt(val string) {
+	s.UpdatedAt = val
+}
+
+// Current sending account status.
+type ProviderListItemStatus string
+
+const (
+	ProviderListItemStatusActive   ProviderListItemStatus = "active"
+	ProviderListItemStatusInactive ProviderListItemStatus = "inactive"
+	ProviderListItemStatusError    ProviderListItemStatus = "error"
+	ProviderListItemStatusPending  ProviderListItemStatus = "pending"
+)
+
+// AllValues returns all ProviderListItemStatus values.
+func (ProviderListItemStatus) AllValues() []ProviderListItemStatus {
+	return []ProviderListItemStatus{
+		ProviderListItemStatusActive,
+		ProviderListItemStatusInactive,
+		ProviderListItemStatusError,
+		ProviderListItemStatusPending,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ProviderListItemStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case ProviderListItemStatusActive:
+		return []byte(s), nil
+	case ProviderListItemStatusInactive:
+		return []byte(s), nil
+	case ProviderListItemStatusError:
+		return []byte(s), nil
+	case ProviderListItemStatusPending:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ProviderListItemStatus) UnmarshalText(data []byte) error {
+	switch ProviderListItemStatus(data) {
+	case ProviderListItemStatusActive:
+		*s = ProviderListItemStatusActive
+		return nil
+	case ProviderListItemStatusInactive:
+		*s = ProviderListItemStatusInactive
+		return nil
+	case ProviderListItemStatusError:
+		*s = ProviderListItemStatusError
+		return nil
+	case ProviderListItemStatusPending:
+		*s = ProviderListItemStatusPending
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Sending account type. `amazon_ses` is the shared managed account.
+type ProviderListItemType string
+
+const (
+	ProviderListItemTypeSMTP       ProviderListItemType = "smtp"
+	ProviderListItemTypeGmailAPI   ProviderListItemType = "gmail_api"
+	ProviderListItemTypeOutlookAPI ProviderListItemType = "outlook_api"
+	ProviderListItemTypeAmazonSes  ProviderListItemType = "amazon_ses"
+)
+
+// AllValues returns all ProviderListItemType values.
+func (ProviderListItemType) AllValues() []ProviderListItemType {
+	return []ProviderListItemType{
+		ProviderListItemTypeSMTP,
+		ProviderListItemTypeGmailAPI,
+		ProviderListItemTypeOutlookAPI,
+		ProviderListItemTypeAmazonSes,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ProviderListItemType) MarshalText() ([]byte, error) {
+	switch s {
+	case ProviderListItemTypeSMTP:
+		return []byte(s), nil
+	case ProviderListItemTypeGmailAPI:
+		return []byte(s), nil
+	case ProviderListItemTypeOutlookAPI:
+		return []byte(s), nil
+	case ProviderListItemTypeAmazonSes:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ProviderListItemType) UnmarshalText(data []byte) error {
+	switch ProviderListItemType(data) {
+	case ProviderListItemTypeSMTP:
+		*s = ProviderListItemTypeSMTP
+		return nil
+	case ProviderListItemTypeGmailAPI:
+		*s = ProviderListItemTypeGmailAPI
+		return nil
+	case ProviderListItemTypeOutlookAPI:
+		*s = ProviderListItemTypeOutlookAPI
+		return nil
+	case ProviderListItemTypeAmazonSes:
+		*s = ProviderListItemTypeAmazonSes
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
 	}
 }
 
@@ -12559,6 +13101,7 @@ type ProviderUpdateBody struct {
 	SMTPProtocol   OptProviderUpdateBodySMTPProtocol `json:"smtp_protocol"`
 	SMTPUsername   OptString                         `json:"smtp_username"`
 	TrackingDomain OptNilString                      `json:"tracking_domain"`
+	Variables      OptProviderVariables              `json:"variables"`
 }
 
 // GetFromEmail returns the value of FromEmail.
@@ -12626,6 +13169,11 @@ func (s *ProviderUpdateBody) GetTrackingDomain() OptNilString {
 	return s.TrackingDomain
 }
 
+// GetVariables returns the value of Variables.
+func (s *ProviderUpdateBody) GetVariables() OptProviderVariables {
+	return s.Variables
+}
+
 // SetFromEmail sets the value of FromEmail.
 func (s *ProviderUpdateBody) SetFromEmail(val OptNilString) {
 	s.FromEmail = val
@@ -12689,6 +13237,11 @@ func (s *ProviderUpdateBody) SetSMTPUsername(val OptString) {
 // SetTrackingDomain sets the value of TrackingDomain.
 func (s *ProviderUpdateBody) SetTrackingDomain(val OptNilString) {
 	s.TrackingDomain = val
+}
+
+// SetVariables sets the value of Variables.
+func (s *ProviderUpdateBody) SetVariables(val OptProviderVariables) {
+	s.Variables = val
 }
 
 type ProviderUpdateBodyQuotas struct {
@@ -13496,6 +14049,22 @@ func (ProviderUsageWindowDays) AllValues() []ProviderUsageWindowDays {
 	return []ProviderUsageWindowDays{
 		ProviderUsageWindowDays7,
 	}
+}
+
+// Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it,
+//
+//	and an empty map clears it. Detail responses return an empty map when no variables are set.
+//
+// Ref: #/components/schemas/ProviderVariables
+type ProviderVariables map[string]string
+
+func (s *ProviderVariables) init() ProviderVariables {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
 }
 
 // Ref: #/components/schemas/ResourceLimitSnapshot

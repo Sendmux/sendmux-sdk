@@ -51,8 +51,8 @@
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "86e7afbe39ff9847c2f0c2d9f63deb91326a426f1d52db90dba787251ea0be6f",
-      "openapi/openapi-sending.json": "f3caa5b45c7d9e0c8890d54964ffd7ed9a78073833b3d4959b40b714066d15e9",
+      "openapi/openapi-app.json": "2e32e665c99d26d47b4c208ee2de76b6249a47129afdecab19ccf8f50712d409",
+      "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
       "permissions.py": "fe8f3ec91814552098fe8fa5c052b2ab0c73aea0db6b338a47cc41adcb6b7119",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
       "retry.py": "e1454a54ffe1b5b558c820b6e9cff2d2c0f8c1ea501f63051dc9716bf1f67191",
@@ -10755,6 +10755,20 @@
                             "description": "ISO 8601 creation timestamp",
                             "type": "string"
                           },
+                          "delivery_group": {
+                            "description": "Applied per-message delivery group public IDs, or null for absent, ignored or historical hints",
+                            "items": {
+                              "maxLength": 128,
+                              "minLength": 6,
+                              "type": "string"
+                            },
+                            "maxItems": 50,
+                            "minItems": 1,
+                            "type": [
+                              "array",
+                              "null"
+                            ]
+                          },
                           "from_email": {
                             "type": [
                               "string",
@@ -10909,6 +10923,7 @@
                           "id",
                           "provider_id",
                           "provider_name",
+                          "delivery_group",
                           "message_id",
                           "from_email",
                           "sent_from_email",
@@ -12005,6 +12020,20 @@
                               "description": "ISO 8601 creation timestamp",
                               "type": "string"
                             },
+                            "delivery_group": {
+                              "description": "Applied per-message delivery group public IDs, or null for absent, ignored or historical hints",
+                              "items": {
+                                "maxLength": 128,
+                                "minLength": 6,
+                                "type": "string"
+                              },
+                              "maxItems": 50,
+                              "minItems": 1,
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
                             "from_email": {
                               "type": [
                                 "string",
@@ -12107,6 +12136,7 @@
                             "id",
                             "provider_id",
                             "provider_name",
+                            "delivery_group",
                             "message_id",
                             "from_email",
                             "sent_from_email",
@@ -13990,6 +14020,24 @@
                 "description": "Custom X-* headers to include in the email",
                 "type": "object"
               },
+              "delivery_group": {
+                "anyOf": [
+                  {
+                    "pattern": "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$",
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "pattern": "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$",
+                      "type": "string"
+                    },
+                    "maxItems": 50,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                ],
+                "description": "One delivery group public ID or a non-empty array of up to 50 IDs"
+              },
               "from": {
                 "additionalProperties": false,
                 "description": "Sender address",
@@ -14332,6 +14380,24 @@
                       },
                       "description": "Custom X-* headers to include in the email",
                       "type": "object"
+                    },
+                    "delivery_group": {
+                      "anyOf": [
+                        {
+                          "pattern": "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$",
+                          "type": "string"
+                        },
+                        {
+                          "items": {
+                            "pattern": "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$",
+                            "type": "string"
+                          },
+                          "maxItems": 50,
+                          "minItems": 1,
+                          "type": "array"
+                        }
+                      ],
+                      "description": "One delivery group public ID or a non-empty array of up to 50 IDs"
                     },
                     "from": {
                       "additionalProperties": false,

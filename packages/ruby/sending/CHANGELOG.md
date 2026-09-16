@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* Add one delivery group or a list of `delivery_group` IDs to email send requests.
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.3.0...ruby-sending/v1.4.0) (2026-09-10)
 
 

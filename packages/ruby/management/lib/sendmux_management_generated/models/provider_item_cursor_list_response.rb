@@ -48,7 +48,7 @@ module Sendmux::Management::Generated
       {
         :'meta' => :'ResponseMeta',
         :'ok' => :'Boolean',
-        :'data' => :'Array<ProviderItem>',
+        :'data' => :'Array<ProviderListItem>',
         :'pagination' => :'CursorPagination'
       }
     end

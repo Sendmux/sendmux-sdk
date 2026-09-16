@@ -32,6 +32,7 @@ class DeliveryLogDetail(BaseModel):
     accepted_recipient_count: Optional[Annotated[int, Field(le=50, strict=True, ge=0)]] = Field(description="Recipient occurrences accepted by the provider, or null when no recipient snapshot exists")
     attempts: Union[StrictFloat, StrictInt]
     created_at: StrictStr = Field(description="ISO 8601 creation timestamp")
+    delivery_group: Optional[Annotated[List[Annotated[str, Field(min_length=6, strict=True, max_length=128)]], Field(min_length=1, max_length=50)]] = Field(description="Applied per-message delivery group public IDs, or null for absent, ignored or historical hints")
     from_email: Optional[StrictStr]
     id: StrictStr = Field(description="Log public ID")
     message_id: Optional[StrictStr] = Field(description="Email Message-ID header")
@@ -47,7 +48,7 @@ class DeliveryLogDetail(BaseModel):
     status_reason: Optional[StrictStr]
     subject: Optional[StrictStr]
     to_email: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["accepted_recipient_count", "attempts", "created_at", "from_email", "id", "message_id", "provider_id", "provider_name", "recipient_count", "recipients", "rejected_recipient_count", "sent_at", "sent_from_email", "size_bytes", "status", "status_reason", "subject", "to_email"]
+    __properties: ClassVar[List[str]] = ["accepted_recipient_count", "attempts", "created_at", "delivery_group", "from_email", "id", "message_id", "provider_id", "provider_name", "recipient_count", "recipients", "rejected_recipient_count", "sent_at", "sent_from_email", "size_bytes", "status", "status_reason", "subject", "to_email"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -106,6 +107,11 @@ class DeliveryLogDetail(BaseModel):
         # and model_fields_set contains the field
         if self.accepted_recipient_count is None and "accepted_recipient_count" in self.model_fields_set:
             _dict['accepted_recipient_count'] = None
+
+        # set to None if delivery_group (nullable) is None
+        # and model_fields_set contains the field
+        if self.delivery_group is None and "delivery_group" in self.model_fields_set:
+            _dict['delivery_group'] = None
 
         # set to None if from_email (nullable) is None
         # and model_fields_set contains the field
@@ -187,6 +193,7 @@ class DeliveryLogDetail(BaseModel):
             "accepted_recipient_count": obj.get("accepted_recipient_count"),
             "attempts": obj.get("attempts"),
             "created_at": obj.get("created_at"),
+            "delivery_group": obj.get("delivery_group"),
             "from_email": obj.get("from_email"),
             "id": obj.get("id"),
             "message_id": obj.get("message_id"),

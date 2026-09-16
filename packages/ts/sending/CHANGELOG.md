@@ -4,6 +4,8 @@
 
 ### Features
 
+* add one delivery group or a list of `delivery_group` IDs to email send requests
+
 * add Node file attachment helper for Sending API email sends
 
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sending-v1.4.0...ts-sending-v1.5.0) (2026-09-10)

@@ -1246,6 +1246,8 @@ type EmailSendRequest struct {
 	Cc []Recipient `json:"cc"`
 	// Custom X-* headers to include in the email.
 	CustomHeaders OptEmailSendRequestCustomHeaders `json:"custom_headers"`
+	// One delivery group public ID or a non-empty array of up to 50 IDs.
+	DeliveryGroup OptEmailSendRequestDeliveryGroup `json:"delivery_group"`
 	From          Address                          `json:"from"`
 	// HTML email content (max 25MB).
 	HTMLBody string                     `json:"html_body"`
@@ -1277,6 +1279,11 @@ func (s *EmailSendRequest) GetCc() []Recipient {
 // GetCustomHeaders returns the value of CustomHeaders.
 func (s *EmailSendRequest) GetCustomHeaders() OptEmailSendRequestCustomHeaders {
 	return s.CustomHeaders
+}
+
+// GetDeliveryGroup returns the value of DeliveryGroup.
+func (s *EmailSendRequest) GetDeliveryGroup() OptEmailSendRequestDeliveryGroup {
+	return s.DeliveryGroup
 }
 
 // GetFrom returns the value of From.
@@ -1334,6 +1341,11 @@ func (s *EmailSendRequest) SetCustomHeaders(val OptEmailSendRequestCustomHeaders
 	s.CustomHeaders = val
 }
 
+// SetDeliveryGroup sets the value of DeliveryGroup.
+func (s *EmailSendRequest) SetDeliveryGroup(val OptEmailSendRequestDeliveryGroup) {
+	s.DeliveryGroup = val
+}
+
 // SetFrom sets the value of From.
 func (s *EmailSendRequest) SetFrom(val Address) {
 	s.From = val
@@ -1379,6 +1391,75 @@ func (s *EmailSendRequestCustomHeaders) init() EmailSendRequestCustomHeaders {
 		*s = m
 	}
 	return m
+}
+
+// One delivery group public ID or a non-empty array of up to 50 IDs.
+// EmailSendRequestDeliveryGroup represents sum type.
+type EmailSendRequestDeliveryGroup struct {
+	Type        EmailSendRequestDeliveryGroupType // switch on this field
+	String      string
+	StringArray []string
+}
+
+// EmailSendRequestDeliveryGroupType is oneOf type of EmailSendRequestDeliveryGroup.
+type EmailSendRequestDeliveryGroupType string
+
+// Possible values for EmailSendRequestDeliveryGroupType.
+const (
+	StringEmailSendRequestDeliveryGroup      EmailSendRequestDeliveryGroupType = "string"
+	StringArrayEmailSendRequestDeliveryGroup EmailSendRequestDeliveryGroupType = "[]string"
+)
+
+// IsString reports whether EmailSendRequestDeliveryGroup is string.
+func (s EmailSendRequestDeliveryGroup) IsString() bool {
+	return s.Type == StringEmailSendRequestDeliveryGroup
+}
+
+// IsStringArray reports whether EmailSendRequestDeliveryGroup is []string.
+func (s EmailSendRequestDeliveryGroup) IsStringArray() bool {
+	return s.Type == StringArrayEmailSendRequestDeliveryGroup
+}
+
+// SetString sets EmailSendRequestDeliveryGroup to string.
+func (s *EmailSendRequestDeliveryGroup) SetString(v string) {
+	s.Type = StringEmailSendRequestDeliveryGroup
+	s.String = v
+}
+
+// GetString returns string and true boolean if EmailSendRequestDeliveryGroup is string.
+func (s EmailSendRequestDeliveryGroup) GetString() (v string, ok bool) {
+	if !s.IsString() {
+		return v, false
+	}
+	return s.String, true
+}
+
+// NewStringEmailSendRequestDeliveryGroup returns new EmailSendRequestDeliveryGroup from string.
+func NewStringEmailSendRequestDeliveryGroup(v string) EmailSendRequestDeliveryGroup {
+	var s EmailSendRequestDeliveryGroup
+	s.SetString(v)
+	return s
+}
+
+// SetStringArray sets EmailSendRequestDeliveryGroup to []string.
+func (s *EmailSendRequestDeliveryGroup) SetStringArray(v []string) {
+	s.Type = StringArrayEmailSendRequestDeliveryGroup
+	s.StringArray = v
+}
+
+// GetStringArray returns []string and true boolean if EmailSendRequestDeliveryGroup is []string.
+func (s EmailSendRequestDeliveryGroup) GetStringArray() (v []string, ok bool) {
+	if !s.IsStringArray() {
+		return v, false
+	}
+	return s.StringArray, true
+}
+
+// NewStringArrayEmailSendRequestDeliveryGroup returns new EmailSendRequestDeliveryGroup from []string.
+func NewStringArrayEmailSendRequestDeliveryGroup(v []string) EmailSendRequestDeliveryGroup {
+	var s EmailSendRequestDeliveryGroup
+	s.SetStringArray(v)
+	return s
 }
 
 // Sender address.
@@ -1797,6 +1878,52 @@ func (o OptEmailSendRequestCustomHeaders) Get() (v EmailSendRequestCustomHeaders
 
 // Or returns value if set, or given parameter if does not.
 func (o OptEmailSendRequestCustomHeaders) Or(d EmailSendRequestCustomHeaders) EmailSendRequestCustomHeaders {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptEmailSendRequestDeliveryGroup returns new OptEmailSendRequestDeliveryGroup with value set to v.
+func NewOptEmailSendRequestDeliveryGroup(v EmailSendRequestDeliveryGroup) OptEmailSendRequestDeliveryGroup {
+	return OptEmailSendRequestDeliveryGroup{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptEmailSendRequestDeliveryGroup is optional EmailSendRequestDeliveryGroup.
+type OptEmailSendRequestDeliveryGroup struct {
+	Value EmailSendRequestDeliveryGroup
+	Set   bool
+}
+
+// IsSet returns true if OptEmailSendRequestDeliveryGroup was set.
+func (o OptEmailSendRequestDeliveryGroup) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptEmailSendRequestDeliveryGroup) Reset() {
+	var v EmailSendRequestDeliveryGroup
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptEmailSendRequestDeliveryGroup) SetTo(v EmailSendRequestDeliveryGroup) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptEmailSendRequestDeliveryGroup) Get() (v EmailSendRequestDeliveryGroup, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptEmailSendRequestDeliveryGroup) Or(d EmailSendRequestDeliveryGroup) EmailSendRequestDeliveryGroup {
 	if v, ok := o.Get(); ok {
 		return v
 	}

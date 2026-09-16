@@ -12,6 +12,8 @@
 
 ### Added
 
+- Single and batch sends accept one delivery group or a list of groups that narrows the eligible provider pool.
+
 - Six list methods accept cursors through their `*_with_cursor` variants.
   Pass `pagination.next_cursor` to advance when `has_more` is true.
 - Single and batch sends accept `Attachment::uploaded(attachment_id)` for

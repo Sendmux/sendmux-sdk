@@ -166,6 +166,7 @@ async fn sending_accepts_inline_and_uploaded_attachments_on_single_and_batch_rou
     let body = json!({
         "from":{"email":"sender@example.test"},"to":{"email":"recipient@example.test"},
         "subject":"Fixture","html_body":"<p>Fixture</p>",
+        "delivery_group":["dgrp_primary","dgrp_backup"],
         "attachments":[{"filename":"note.txt","content":"SGk=","encoding":"base64","type":"text/plain"},{"attachment_id":"att_abcdefghijklmnopqrstuvwx"}]
     });
     let request: EmailSendRequest = serde_json::from_value(body.clone())
@@ -208,6 +209,14 @@ async fn sending_accepts_inline_and_uploaded_attachments_on_single_and_batch_rou
     let single: Value =
         serde_json::from_str(requests[0].split_once("\r\n\r\n").unwrap().1).unwrap();
     let batch: Value = serde_json::from_str(requests[1].split_once("\r\n\r\n").unwrap().1).unwrap();
+    assert_eq!(
+        single["delivery_group"],
+        json!(["dgrp_primary", "dgrp_backup"])
+    );
+    assert_eq!(
+        batch["messages"][0]["delivery_group"],
+        json!(["dgrp_primary", "dgrp_backup"])
+    );
     assert_eq!(single, body);
     assert_eq!(batch, json!({"messages":[body]}));
     assert!(serde_json::from_value::<Attachment>(json!({"filename":"missing-content"})).is_err());

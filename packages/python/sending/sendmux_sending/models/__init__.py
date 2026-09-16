@@ -31,6 +31,7 @@ from sendmux_sending.models.connection_mailboxes_inner import ConnectionMailboxe
 from sendmux_sending.models.connection_response import ConnectionResponse
 from sendmux_sending.models.connection_team import ConnectionTeam
 from sendmux_sending.models.email_send_request import EmailSendRequest
+from sendmux_sending.models.email_send_request_delivery_group import EmailSendRequestDeliveryGroup
 from sendmux_sending.models.error_detail import ErrorDetail
 from sendmux_sending.models.error_issue import ErrorIssue
 from sendmux_sending.models.error_response import ErrorResponse

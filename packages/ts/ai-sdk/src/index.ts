@@ -76,8 +76,12 @@ export function sendmux(config: SendmuxToolsConfig): ToolSet {
           .describe(
             "Optional key that makes a retried send idempotent for 24 hours",
           ),
+        deliveryGroup: z
+          .union([z.string(), z.array(z.string()).min(1)])
+          .optional()
+          .describe("Optional delivery group ID or list of delivery group IDs that narrows the eligible provider pool"),
       }),
-      execute: async ({ to, subject, text, html, from, idempotencyKey }) => {
+      execute: async ({ to, subject, text, html, from, idempotencyKey, deliveryGroup }) => {
         const sender = from ?? config.defaultFrom;
         if (sender === undefined) {
           throw new Error(
@@ -92,6 +96,7 @@ export function sendmux(config: SendmuxToolsConfig): ToolSet {
             subject,
             text_body: text,
             html_body: html ?? htmlFromText(text),
+            ...(deliveryGroup === undefined ? {} : { delivery_group: deliveryGroup }),
           },
           ...(idempotencyKey === undefined
             ? {}

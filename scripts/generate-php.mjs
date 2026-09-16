@@ -84,6 +84,7 @@ for (const surface of surfaces) {
 
   rmSync(join(packageDir, "src"), { force: true, recursive: true });
   cpSync(join(generatedRoot, "src"), join(packageDir, "src"), { recursive: true });
+  patchPrimitiveUnionSerializer(surface, packageDir);
   writeClientFactory(surface, packageDir);
 }
 
@@ -93,6 +94,7 @@ console.log("Generated PHP SDK packages");
 function writeFilteredSpec(surface) {
   const source = JSON.parse(readFileSync(join(root, surface.spec), "utf8"));
   prepareAttachmentUnion(source);
+  prepareDeliveryGroupPrimitiveUnion(source, surface);
   const allowed = new Set(surface.tags);
   const paths = {};
 
@@ -163,6 +165,32 @@ function prepareAttachmentUnion(document) {
     "x-sendmux-attachment-union": true,
     "x-sendmux-any-of-variants": variants,
   };
+}
+
+function prepareDeliveryGroupPrimitiveUnion(document, surface) {
+  if (surface.name !== "sending") {
+    return;
+  }
+
+  const deliveryGroup = document.components?.schemas?.EmailSendRequest?.properties?.delivery_group;
+  const [scalar, list] = deliveryGroup?.oneOf ?? [];
+  const expectedPattern = "^dgrp_[a-z0-9][a-z0-9_-]{0,122}$";
+  if (
+    scalar?.type !== "string"
+    || scalar.pattern !== expectedPattern
+    || list?.type !== "array"
+    || list.items?.type !== "string"
+    || list.items.pattern !== expectedPattern
+    || list.minItems !== 1
+    || list.maxItems !== 50
+  ) {
+    throw new Error("Unexpected EmailSendRequest delivery_group primitive union");
+  }
+
+  deliveryGroup["x-sendmux-primitive-union"] = true;
+  deliveryGroup["x-sendmux-primitive-pattern"] = expectedPattern;
+  deliveryGroup["x-sendmux-primitive-min-items"] = list.minItems;
+  deliveryGroup["x-sendmux-primitive-max-items"] = list.maxItems;
 }
 
 function markTrailingSdkParams(document) {
@@ -275,6 +303,55 @@ function collectRefs(value, refs) {
   for (const child of Object.values(value)) {
     collectRefs(child, refs);
   }
+}
+
+function patchPrimitiveUnionSerializer(surface, packageDir) {
+  if (surface.name !== "sending") {
+    return;
+  }
+
+  const serializerPath = join(packageDir, "src", "ObjectSerializer.php");
+  let serializer = readFileSync(serializerPath, "utf8");
+  serializer = replaceOnce(
+    serializer,
+    `        if (is_scalar($data) || null === $data) {
+            return $data;
+        }
+`,
+    `        if (is_scalar($data) || null === $data) {
+            return $data;
+        }
+
+        if ($data instanceof \\Sendmux\\Sending\\Model\\EmailSendRequestDeliveryGroup) {
+            return $data->jsonSerialize();
+        }
+`,
+    serializerPath,
+  );
+  serializer = replaceOnce(
+    serializer,
+    `        if (null === $data) {
+            return null;
+        }
+`,
+    `        if (null === $data) {
+            return null;
+        }
+
+        if ($class === \\Sendmux\\Sending\\Model\\EmailSendRequestDeliveryGroup::class) {
+            return new \\Sendmux\\Sending\\Model\\EmailSendRequestDeliveryGroup($data);
+        }
+`,
+    serializerPath,
+  );
+  writeFileSync(serializerPath, serializer);
+}
+
+function replaceOnce(source, from, to, filePath) {
+  if (!source.includes(from)) {
+    throw new Error(`Could not find expected generated snippet in ${filePath}`);
+  }
+  return source.replace(from, to);
 }
 
 function writeClientFactory(surface, packageDir) {

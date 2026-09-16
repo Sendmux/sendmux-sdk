@@ -9,6 +9,7 @@ await test("all AI SDK tools resolve the current OAuth token before each request
     requests.push({
       path: new URL(request.url).pathname,
       authorization: request.headers.get("authorization"),
+      body: request.method === "GET" ? null : await request.clone().json(),
     });
     return Response.json({
       ok: true,
@@ -29,7 +30,7 @@ await test("all AI SDK tools resolve the current OAuth token before each request
   await tools.list_messages.execute({ limit: 1 }, options);
   token = "oauth-second";
   await tools.send_email.execute(
-    { to: "reader@example.com", subject: "Test", text: "Test" },
+    { to: "reader@example.com", subject: "Test", text: "Test", deliveryGroup: ["dgrp_primary", "dgrp_backup"] },
     options,
   );
   token = "oauth-third";
@@ -38,11 +39,28 @@ await test("all AI SDK tools resolve the current OAuth token before each request
     options,
   );
   assert.deepEqual(requests, [
-    { path: "/api/v1/mailbox/messages", authorization: "Bearer oauth-first" },
-    { path: "/api/v1/emails/send", authorization: "Bearer oauth-second" },
+    { path: "/api/v1/mailbox/messages", authorization: "Bearer oauth-first", body: null },
+    {
+      path: "/api/v1/emails/send",
+      authorization: "Bearer oauth-second",
+      body: {
+        from: { email: "agent@example.com" },
+        to: { email: "reader@example.com" },
+        subject: "Test",
+        text_body: "Test",
+        html_body: "<p>Test</p>",
+        delivery_group: ["dgrp_primary", "dgrp_backup"],
+      },
+    },
     {
       path: "/api/v1/mailbox/messages/send",
       authorization: "Bearer oauth-third",
+      body: {
+        to: [{ email: "reader@example.com", name: null }],
+        subject: "Test",
+        text_body: "Test",
+        html_body: "<p>Test</p>",
+      },
     },
   ]);
 });

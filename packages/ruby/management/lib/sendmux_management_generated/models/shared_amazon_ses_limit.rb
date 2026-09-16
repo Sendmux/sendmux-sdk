@@ -154,7 +154,7 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "can_request_increase", can_request_increase cannot be nil.')
       end
 
-      if @daily_limit < 0
+      if !@daily_limit.nil? && @daily_limit < 0
         invalid_properties.push('invalid value for "daily_limit", must be greater than or equal to 0.')
       end
 
@@ -170,7 +170,7 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "sent_today", must be greater than or equal to 0.')
       end
 
-      if @threshold_usage < 0
+      if !@threshold_usage.nil? && @threshold_usage < 0
         invalid_properties.push('invalid value for "threshold_usage", must be greater than or equal to 0.')
       end
 
@@ -182,11 +182,11 @@ module Sendmux::Management::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @can_request_increase.nil?
-      return false if @daily_limit < 0
+      return false if !@daily_limit.nil? && @daily_limit < 0
       return false if @is_near_limit.nil?
       return false if @sent_today.nil?
       return false if @sent_today < 0
-      return false if @threshold_usage < 0
+      return false if !@threshold_usage.nil? && @threshold_usage < 0
       true
     end
 

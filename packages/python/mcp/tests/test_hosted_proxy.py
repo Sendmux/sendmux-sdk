@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import gzip
 import json
 from collections.abc import AsyncIterator, Mapping
@@ -159,6 +160,59 @@ def test_proxy_transport_sends_operation_envelope_without_token_passthrough(
             "headers": {"idempotency-key": "idem_123"},
             "body_base64": None,
         }
+
+    asyncio.run(run())
+
+
+def test_proxy_transport_forwards_delivery_groups_for_hosted_sending(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def run() -> None:
+        captured: list[httpx.Request] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured.append(request)
+            return httpx.Response(202, json={"ok": True}, request=request)
+
+        monkeypatch.setattr(
+            "sendmux_mcp.hosted_proxy.get_access_token",
+            lambda: AccessToken(
+                token="inbound-mcp-token",
+                client_id="mcp_client_public",
+                scopes=["email.send"],
+                claims={"grant_id": "mcp_grant_public"},
+            ),
+        )
+        config = ServerConfig(surfaces=("sending",), api_key="smx_mbx_test")
+        spec = prepare_for_fastmcp(load_spec(config), base_url=config.api_base_url)
+        transport = HostedProxyTransport(
+            HostedProxyConfig(
+                proxy_url="https://app.sendmux.ai/api/internal/mcp/proxy",
+                upstream_base_url=config.api_base_url,
+                internal_bearer_token="internal-service-token",
+            ),
+            manifest=build_hosted_operation_manifest(spec, "sending"),
+            inner=httpx.MockTransport(handler),
+        )
+        body = {
+            "from": {"email": "sender@example.test"},
+            "to": {"email": "recipient@example.test"},
+            "subject": "Fixture",
+            "html_body": "<p>Fixture</p>",
+            "delivery_group": ["dgrp_primary", "dgrp_backup"],
+        }
+        request = httpx.Request(
+            "POST",
+            "https://smtp.sendmux.ai/api/v1/emails/send",
+            headers={"content-type": "application/json"},
+            json=body,
+        )
+
+        await transport.handle_async_request(request)
+
+        envelope = json.loads((await captured[0].aread()).decode())
+        assert envelope["operation_id"] == "sendingSendEmail"
+        assert json.loads(base64.b64decode(envelope["body_base64"])) == body
 
     asyncio.run(run())
 

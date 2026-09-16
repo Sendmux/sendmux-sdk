@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* add provider variable management fields and delivery-group fields to delivery logs
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.3.0...ts-management-v1.4.0) (2026-09-10)
 
 

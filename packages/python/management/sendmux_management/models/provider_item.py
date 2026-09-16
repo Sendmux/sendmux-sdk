@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from sendmux_management.models.provider_allowed_actions import ProviderAllowedActions
 from sendmux_management.models.provider_quotas import ProviderQuotas
 from typing import Optional, Set
@@ -56,7 +57,8 @@ class ProviderItem(BaseModel):
     tracking_domain: Optional[StrictStr] = Field(description="Custom tracking hostname.")
     type: StrictStr = Field(description="Sending account type. `amazon_ses` is the shared managed account.")
     updated_at: StrictStr = Field(description="ISO 8601 last update timestamp")
-    __properties: ClassVar[List[str]] = ["allowed_actions", "created_at", "from_email", "from_name", "has_refresh_token", "has_smtp_password", "id", "is_active", "is_editable", "is_shared", "last_tested_at", "last_used_at", "name", "oauth_email", "percentage", "quotas", "reply_to_email", "reply_to_name", "smtp_host", "smtp_port", "smtp_protocol", "smtp_username", "status", "status_reason", "tracking_domain", "type", "updated_at"]
+    variables: Dict[str, Annotated[str, Field(strict=True, max_length=4096)]] = Field(description="Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.")
+    __properties: ClassVar[List[str]] = ["allowed_actions", "created_at", "from_email", "from_name", "has_refresh_token", "has_smtp_password", "id", "is_active", "is_editable", "is_shared", "last_tested_at", "last_used_at", "name", "oauth_email", "percentage", "quotas", "reply_to_email", "reply_to_name", "smtp_host", "smtp_port", "smtp_protocol", "smtp_username", "status", "status_reason", "tracking_domain", "type", "updated_at", "variables"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -225,6 +227,7 @@ class ProviderItem(BaseModel):
             "status_reason": obj.get("status_reason"),
             "tracking_domain": obj.get("tracking_domain"),
             "type": obj.get("type"),
-            "updated_at": obj.get("updated_at")
+            "updated_at": obj.get("updated_at"),
+            "variables": obj.get("variables")
         })
         return _obj

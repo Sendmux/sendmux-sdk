@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* Add provider variable management fields and delivery-group fields to delivery logs.
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.2.0...ruby-management/v1.3.0) (2026-09-10)
 
 

@@ -62,6 +62,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'accepted_recipient_count' => 'int',
         'attempts' => 'float',
         'created_at' => 'string',
+        'delivery_group' => 'string[]',
         'from_email' => 'string',
         'id' => 'string',
         'message_id' => 'string',
@@ -87,6 +88,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'accepted_recipient_count' => null,
         'attempts' => null,
         'created_at' => null,
+        'delivery_group' => null,
         'from_email' => null,
         'id' => null,
         'message_id' => null,
@@ -112,6 +114,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'accepted_recipient_count' => true,
         'attempts' => false,
         'created_at' => false,
+        'delivery_group' => true,
         'from_email' => true,
         'id' => false,
         'message_id' => true,
@@ -207,6 +210,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'accepted_recipient_count' => 'accepted_recipient_count',
         'attempts' => 'attempts',
         'created_at' => 'created_at',
+        'delivery_group' => 'delivery_group',
         'from_email' => 'from_email',
         'id' => 'id',
         'message_id' => 'message_id',
@@ -232,6 +236,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'accepted_recipient_count' => 'setAcceptedRecipientCount',
         'attempts' => 'setAttempts',
         'created_at' => 'setCreatedAt',
+        'delivery_group' => 'setDeliveryGroup',
         'from_email' => 'setFromEmail',
         'id' => 'setId',
         'message_id' => 'setMessageId',
@@ -257,6 +262,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         'accepted_recipient_count' => 'getAcceptedRecipientCount',
         'attempts' => 'getAttempts',
         'created_at' => 'getCreatedAt',
+        'delivery_group' => 'getDeliveryGroup',
         'from_email' => 'getFromEmail',
         'id' => 'getId',
         'message_id' => 'getMessageId',
@@ -344,6 +350,7 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('accepted_recipient_count', $data ?? [], null);
         $this->setIfExists('attempts', $data ?? [], null);
         $this->setIfExists('created_at', $data ?? [], null);
+        $this->setIfExists('delivery_group', $data ?? [], null);
         $this->setIfExists('from_email', $data ?? [], null);
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('message_id', $data ?? [], null);
@@ -402,6 +409,17 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['created_at'] === null) {
             $invalidProperties[] = "'created_at' can't be null";
         }
+        if ($this->container['delivery_group'] === null && !$this->isNullableSetToNull('delivery_group')) {
+            $invalidProperties[] = "'delivery_group' is required";
+        }
+        if (!is_null($this->container['delivery_group']) && (count($this->container['delivery_group']) > 50)) {
+            $invalidProperties[] = "invalid value for 'delivery_group', number of items must be less than or equal to 50.";
+        }
+
+        if (!is_null($this->container['delivery_group']) && (count($this->container['delivery_group']) < 1)) {
+            $invalidProperties[] = "invalid value for 'delivery_group', number of items must be greater than or equal to 1.";
+        }
+
         if ($this->container['from_email'] === null && !$this->isNullableSetToNull('from_email')) {
             $invalidProperties[] = "'from_email' is required";
         }
@@ -573,6 +591,47 @@ class DeliveryLogItem implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable created_at cannot be null');
         }
         $this->container['created_at'] = $created_at;
+
+        return $this;
+    }
+
+    /**
+     * Gets delivery_group
+     *
+     * @return string[]|null
+     */
+    public function getDeliveryGroup(): ?array
+    {
+        return $this->container['delivery_group'];
+    }
+
+    /**
+     * Sets delivery_group
+     *
+     * @param string[]|null $delivery_group Applied per-message delivery group public IDs, or null for absent, ignored or historical hints
+     *
+     * @return $this
+     */
+    public function setDeliveryGroup(?array $delivery_group): static
+    {
+        if (is_null($delivery_group)) {
+            array_push($this->openAPINullablesSetToNull, 'delivery_group');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('delivery_group', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+
+        if (!is_null($delivery_group) && (count($delivery_group) > 50)) {
+            throw new InvalidArgumentException('invalid value for $delivery_group when calling DeliveryLogItem., number of items must be less than or equal to 50.');
+        }
+        if (!is_null($delivery_group) && (count($delivery_group) < 1)) {
+            throw new InvalidArgumentException('invalid length for $delivery_group when calling DeliveryLogItem., number of items must be greater than or equal to 1.');
+        }
+        $this->container['delivery_group'] = $delivery_group;
 
         return $this;
     }

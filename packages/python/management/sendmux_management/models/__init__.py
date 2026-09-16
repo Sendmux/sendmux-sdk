@@ -89,6 +89,7 @@ from sendmux_management.models.provider_item_cursor_list_response import Provide
 from sendmux_management.models.provider_item_response import ProviderItemResponse
 from sendmux_management.models.provider_limits import ProviderLimits
 from sendmux_management.models.provider_limits_response import ProviderLimitsResponse
+from sendmux_management.models.provider_list_item import ProviderListItem
 from sendmux_management.models.provider_quota_range import ProviderQuotaRange
 from sendmux_management.models.provider_quotas import ProviderQuotas
 from sendmux_management.models.provider_stats import ProviderStats

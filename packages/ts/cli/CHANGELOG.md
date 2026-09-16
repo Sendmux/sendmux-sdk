@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* Forward `delivery_group` values in single and batch Sending API request bodies.
+
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.5.0...ts-cli-v1.6.0) (2026-09-11)
 
 

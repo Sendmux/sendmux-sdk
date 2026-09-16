@@ -63,7 +63,8 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         'deactivate' => 'bool',
         'delete' => 'bool',
         'test' => 'bool',
-        'update' => 'bool'
+        'update' => 'bool',
+        'update_variables' => 'bool'
     ];
 
     /**
@@ -76,7 +77,8 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         'deactivate' => null,
         'delete' => null,
         'test' => null,
-        'update' => null
+        'update' => null,
+        'update_variables' => null
     ];
 
     /**
@@ -89,7 +91,8 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         'deactivate' => false,
         'delete' => false,
         'test' => false,
-        'update' => false
+        'update' => false,
+        'update_variables' => false
     ];
 
     /**
@@ -172,7 +175,8 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         'deactivate' => 'deactivate',
         'delete' => 'delete',
         'test' => 'test',
-        'update' => 'update'
+        'update' => 'update',
+        'update_variables' => 'update_variables'
     ];
 
     /**
@@ -185,7 +189,8 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         'deactivate' => 'setDeactivate',
         'delete' => 'setDelete',
         'test' => 'setTest',
-        'update' => 'setUpdate'
+        'update' => 'setUpdate',
+        'update_variables' => 'setUpdateVariables'
     ];
 
     /**
@@ -198,7 +203,8 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         'deactivate' => 'getDeactivate',
         'delete' => 'getDelete',
         'test' => 'getTest',
-        'update' => 'getUpdate'
+        'update' => 'getUpdate',
+        'update_variables' => 'getUpdateVariables'
     ];
 
     /**
@@ -253,6 +259,7 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         $this->setIfExists('delete', $data ?? [], null);
         $this->setIfExists('test', $data ?? [], null);
         $this->setIfExists('update', $data ?? [], null);
+        $this->setIfExists('update_variables', $data ?? [], null);
     }
 
     /**
@@ -294,6 +301,9 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
         }
         if ($this->container['update'] === null) {
             $invalidProperties[] = "'update' can't be null";
+        }
+        if ($this->container['update_variables'] === null) {
+            $invalidProperties[] = "'update_variables' can't be null";
         }
         return $invalidProperties;
     }
@@ -438,6 +448,33 @@ class ProviderAllowedActions implements ModelInterface, ArrayAccess, JsonSeriali
             throw new InvalidArgumentException('non-nullable update cannot be null');
         }
         $this->container['update'] = $update;
+
+        return $this;
+    }
+
+    /**
+     * Gets update_variables
+     *
+     * @return bool
+     */
+    public function getUpdateVariables(): bool
+    {
+        return $this->container['update_variables'];
+    }
+
+    /**
+     * Sets update_variables
+     *
+     * @param bool $update_variables update_variables
+     *
+     * @return $this
+     */
+    public function setUpdateVariables(bool $update_variables): static
+    {
+        if (is_null($update_variables)) {
+            throw new InvalidArgumentException('non-nullable update_variables cannot be null');
+        }
+        $this->container['update_variables'] = $update_variables;
 
         return $this;
     }

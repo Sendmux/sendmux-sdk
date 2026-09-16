@@ -428,6 +428,13 @@ jobs:
       - name: Diagnose actual Windows consumer ownership
         run: node scripts/diagnose-windows-consumer-ownership.mjs .tmp/windows-consumer-ownership
 
+      - name: Repeat Windows ownership diagnostic up to 20 times
+        run: |
+          for ($iteration = 1; $iteration -le 20; $iteration++) {
+            node scripts/diagnose-windows-consumer-ownership.mjs ".tmp/windows-consumer-ownership-repeat-$iteration"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
       - name: Prove Windows command control sensitivity
         run: node scripts/test-windows-consumer-sensitivity.mjs
 
@@ -445,6 +452,7 @@ jobs:
           path: |
             .tmp/windows-workflow-native-exits/
             .tmp/windows-consumer-ownership/results.json
+            .tmp/windows-consumer-ownership-repeat-*/results.json
             .tmp/windows-workspace-cleanup/
           if-no-files-found: error
           retention-days: 7

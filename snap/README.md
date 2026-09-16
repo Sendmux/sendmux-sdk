@@ -188,7 +188,7 @@ after the `edge` revision is verified.
 
 ## Manual Publishing Checklist
 
-Before each manual upload or stable promotion, follow the [fresh producer-bound publication check](../docs/native-publication.md#snap-and-chocolatey) for the exact version/checksum and store revision. Run `node scripts/publication-guard.mjs snap` from the current guard checkout immediately before the write; an earlier green build is not a permanent certificate. This manual requirement is owner policy, not a restriction on credential holders using direct Snapcraft commands.
+Before a manual upload, verify the selected YAML version and npm source checksum, then run the [fresh producer-bound publication check](../docs/native-publication.md#snap-and-chocolatey), `node scripts/publication-guard.mjs snap`, from the current guard checkout with that exact Snap configuration immediately before uploading to `edge`. After upload, record and verify the resulting store revision for each architecture against the selected build. Before `stable` promotion, verify that exact existing revision, rerun the fresh guard, promote, and read back the stable channel map. The guard checks producer provenance and schemas, not store revisions; the npm source checksum is not a snap artifact checksum. An earlier green build is not a permanent certificate. This manual requirement is owner policy, not a restriction on credential holders using direct Snapcraft commands.
 
 1. Confirm account ownership:
    - Create or use the Sendmux Snapcraft publisher account.

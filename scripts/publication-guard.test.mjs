@@ -347,12 +347,34 @@ for (const [workflow, job, guardName] of [
     const step = jobSource.split(`      - name: ${guardName}\n`)[1]?.split(/^      - /m)[0];
     const inline = step?.match(/^        run: (?!\|)(.+)$/m)?.[1];
     const block = step?.match(/^        run: \|\n((?:          .*\n|\n)+)/m)?.[1]?.replace(/^          /gm, "");
-    const command = (inline ?? block ?? "true").replace(/(?:\.\.\/)?(?:\.publication-guard\/)?scripts\/publication-guard\.mjs/g, JSON.stringify(guard));
     const negative = await releaseFixture(t, { tagExists: true, liveDrift: true });
-    await assert.rejects(negative.runBoundary(command), (error) => error.code === 1 && !error.stdout.includes("writer-reached") && /differs/.test(error.stderr));
+    // A checkout path is data even when its name contains shell metacharacters.
+    const fixtureGuard = join(negative.directory, "guard ' $(printf expanded) `printf substituted`.mjs");
+    writeFileSync(fixtureGuard, `process.argv[1] = ${JSON.stringify(guard)}; await import(${JSON.stringify(guard)});`);
+    const command = (inline ?? block ?? "true").replace(/(?:\.\.\/)?(?:\.publication-guard\/)?scripts\/publication-guard\.mjs/g, '"$SENDMUX_TEST_GUARD_PATH"');
+    await assert.rejects(negative.runBoundary(command, { SENDMUX_TEST_GUARD_PATH: fixtureGuard }), (error) => error.code === 1 && !error.stdout.includes("writer-reached") && /differs/.test(error.stderr));
     const positive = await releaseFixture(t, { tagExists: true });
-    const { stdout } = await positive.runBoundary(command, job.includes("mcp") ? { PRODUCER_TAG: "python-mcp-v1.2.3" } : {});
+    const { stdout } = await positive.runBoundary(command, { SENDMUX_TEST_GUARD_PATH: fixtureGuard, ...(job.includes("mcp") ? { PRODUCER_TAG: "python-mcp-v1.2.3" } : {}) });
     assert.match(stdout, /writer-reached/);
+  });
+}
+
+for (const job of ["pre-release-please", "dependent-publisher-sentinel", "independent-recovery", "conditional-distribution"]) {
+  test(`diagnostic ${job} sentinel rejects reachability`, async (t) => {
+    const workflow = readFileSync(resolve(".github/workflows/publication-guard-diagnostic.yml"), "utf8");
+    const jobSource = workflow.split(new RegExp(`^  ${job}:`, "m"))[1]?.split(/^  [\w-]+:/m)[0] ?? "";
+    const step = jobSource.split(/^      - /m).slice(1).find((source) => job === "dependent-publisher-sentinel" ? source.startsWith("run:") : /^        id: writer$/m.test(source));
+    const inline = step?.match(/^(?:        )?run: (?!\|)(.+)$/m)?.[1];
+    const block = step?.match(/^(?:        )?run: \|\n((?:          .*\n|\n)+)/m)?.[1]?.replace(/^          /gm, "");
+    const command = inline ?? block;
+    assert.equal(typeof command, "string", `${job} must retain an executable sentinel`);
+    const child = execute("bash", ["-euo", "pipefail", "-c", command], { timeout: 10_000 });
+    t.diagnostic(JSON.stringify({ child: child.child.pid }));
+    try {
+      await assert.rejects(child, (error) => error.code === 1 && /ERROR — .* was reachable/.test(error.stdout));
+    } finally {
+      assert.throws(() => process.kill(child.child.pid, 0), { code: "ESRCH" });
+    }
   });
 }
 

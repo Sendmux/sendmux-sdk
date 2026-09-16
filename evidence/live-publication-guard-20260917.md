@@ -51,3 +51,25 @@ Raw evidence: this worktree's `.claude/live-publication-guard-report.md`, its na
 Journeys: No UI behavior changed; real Actions negative diagnostics and positive published-consumer checks remain separate gates.
 
 Status: Locally reviewed and verified source, pending normal commit/PR/CI. The credential-free Actions diagnostic must prove failed guards and genuinely skipped writer sentinels after merge. Final combined generation, compatible backend deployment, sequential native publication and exact public readback remain required. Already-published versions remain immutable. No new parked implementation work.
+
+## PR236 correction checkpoint — 2026-09-17 08:07
+
+The initial source is committed as `9a8acae91452ba0724a39d96ff5968723d8c654c`. Its hosted CI, native runtime matrix, CodeQL and both Snap builds passed; the non-publishing ownership diagnostic was intentionally skipped. Those results precede the following review correction and do not qualify its new head.
+
+Five accepted findings are corrected in one batch:
+
+- Dynamic test checkout paths pass through a quoted environment reference, not interpolation into Bash source. A harmless path containing quotes, command substitution and backticks reproduced `ERR_MODULE_NOT_FOUND` after the old shell altered its filename; all ten real workflow boundary cases now preserve it.
+- Chocolatey's guard checkout uses `github.workflow_sha`, binding it to the executing workflow rather than mutable `main`. Existing immutable old tags retain their old workflows; recovery for an older producer uses the reviewed control revision's existing manual-dispatch path.
+- All four diagnostic writer sentinels exit 1 if reached. Four actual YAML-command tests each failed with `Missing expected rejection` before this correction, then passed. Aggregate workflow failure alone remains insufficient: the hosted diagnostic must show the guard failed and its writer was skipped.
+- All three diagnostic checkouts disable credential persistence. This does not claim GitHub has no initial read token or other credential context.
+- Snap instructions distinguish pre-upload source verification, post-upload revision recording and exact-revision verification before manual stable promotion. The guard does not inspect store revisions, and the npm source checksum is not a snap artifact checksum.
+
+CodeQL's separate PyPI test-path finding was independently traced and refuted: the cited paths enter direct Node argv or a JSON-encoded JavaScript import, not the Bash command source. No unrelated launcher rewrite or alert dismissal was performed.
+
+Final focused verification: **75/75, zero failures or skips**, including the four added sentinel cases and preserved negative/positive publication controls. Chocolatey order and LF/CRLF checks, Snap checks, JavaScript syntax, both changed YAML parses and diff checks pass. No test was removed, weakened or given a wider timeout. The prior full build remains applicable to unchanged production helpers and package inputs; this bounded correction changes only test, workflow and engineering-documentation surfaces.
+
+ROOT read the actual five-file delta, independent review, original REDs and final results, then verified all five source hashes and freshly rechecked 89 PIDs, seven groups, 30 directories and 20 ports absent/refused. Older synchronous children without recorded handles retain the earlier qualification. Manifest SHA-256: `c397ea468f6b6877ae873b7231fe137d4a2471f2d52b877a7fe240926b110915`.
+
+Receipts: `.claude/guard-pr236-review-{red,green}.log`, `.claude/guard-pr236-review-independent.md`, `.claude/guard-pr236-correction-report.md`, and `.claude/guard-pr236-correction-{sentinel-red,sentinel-green,focused,workflows,yaml,root-cleanup}.log`. No production or public package mutation occurred. The correction still requires normal commit/push, fresh hosted checks and review settlement; actual Actions-negative, combined regeneration, deployments, publications and live acceptance remain open.
+
+The first correction commit attempt omitted `OPENAPI_INPUT_DIR`; the normal hook selected default sibling docs snapshots and failed with `Unexpected EmailSendRequest delivery_group primitive union`, after regenerating 17 unstaged client files. No commit or push occurred. The failed log and generated patch are retained as `.claude/guard-pr236-correction-commit.log` and `.claude/guard-pr236-correction-wrong-input.patch`. Recovery uses normal generation with the verified immutable inputs named in the full-build section, not manual generated-file edits or a hook bypass; its outcome is recorded separately.

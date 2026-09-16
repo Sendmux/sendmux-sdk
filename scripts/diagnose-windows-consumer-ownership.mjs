@@ -134,10 +134,14 @@ exit 0`;
     });
     await waitForLeader(readHandles, invocation);
     try {
-      await waitFor(() => existsSync(ready), "Fixture did not become ready");
+      await waitFor(() => {
+        if (existsSync(ready)) return true;
+        if (row.result) throw new Error("Fixture completed before becoming ready");
+        return false;
+      }, "Fixture did not become ready");
     } catch (error) {
       timerMock?.mock.restore();
-      if (deadlineCallback) {
+      if (!row.result && deadlineCallback) {
         deadlineCallback();
         await invocation;
       }

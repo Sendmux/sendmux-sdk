@@ -70,8 +70,7 @@ for (const mutation of ["cold-controller-start", "started-never-ready", "complet
       assert.equal(rows[0].verdict, "failed");
       assert.equal(rows[0].result, "failure");
       assert.match(rows[0].assertion, /Fixture completed before becoming ready/);
-      assert.match(rows[0].error, /owned descendant/, "An early fixture exit with a live descendant must preserve orphan rejection");
-      assert.doesNotMatch(rows[0].error, /interrupted=true/, "An early fixture exit must not be relabelled as owner interruption");
+      assert.match(rows[0].error, /exit 1, interrupted=false/, "An early Node fixture exit must preserve the adapter's actual failed invocation");
       assert(Number.isSafeInteger(rows[0].leader) && rows[0].leader > 0);
       assert(Number.isSafeInteger(rows[0].descendant) && rows[0].descendant > 0);
       assert.deepEqual(rows[0].recovery, [], "An early fixture failure must not need fallback process killers");

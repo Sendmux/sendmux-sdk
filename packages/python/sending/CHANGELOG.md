@@ -2,9 +2,19 @@
 
 ## Unreleased
 
+## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sending-v1.5.1...python-sending-v1.6.0) (2026-09-16)
+
+
 ### Features
 
 * Add one delivery group or a list of `delivery_group` IDs to email send requests.
+* integrate combined provider variables and delivery routing ([81bbf22](https://github.com/Sendmux/sendmux-sdk/commit/81bbf221a357bf5d588eba654184ff34491473df))
+* **sdk:** add provider variables and delivery group routing ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a))
+
+
+### Bug Fixes
+
+* correct generated client contracts ([dd31abe](https://github.com/Sendmux/sendmux-sdk/commit/dd31abed8e264e05f4717388a0d4ada83e47d7e3))
 
 ## [1.5.1](https://github.com/Sendmux/sendmux-sdk/compare/python-sending-v1.5.0...python-sending-v1.5.1) (2026-09-15)
 

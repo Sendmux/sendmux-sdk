@@ -16,6 +16,68 @@ const mutations = [
   { name: "wrong-exit", from: "process.exitCode = code ?? 1", to: "process.exitCode = 1", expected: /exit 1, interrupted=false/ },
 ];
 
+const readinessFailures = [];
+for (const mutation of ["cold-controller-start", "started-never-ready"]) {
+  const directory = mkdtempSync(join(temp, "windows-readiness-sensitivity-"));
+  console.log(JSON.stringify({ workspace: directory, owner_pid: process.pid, mutation }));
+  let completed = false;
+  try {
+    for (const file of files) copyFileSync(join(scripts, file), join(directory, file));
+    if (mutation === "cold-controller-start") {
+      const job = join(directory, "windows-consumer-job.ps1");
+      const original = readFileSync(job, "utf8");
+      const bootstrap = "    $bootstrap = [Diagnostics.Process]::Start($start)";
+      const delayed = "    Start-Sleep -Seconds 12\n" + bootstrap;
+      assert.equal(original.split(bootstrap).length, 2, "Cold-start mutation must delay exactly one real bootstrap start");
+      writeFileSync(job, original.replace(bootstrap, delayed));
+      assert.notEqual(readFileSync(job, "utf8"), original);
+    } else {
+      const diagnostic = join(directory, "diagnose-windows-consumer-ownership.mjs");
+      const original = readFileSync(diagnostic, "utf8");
+      const actualReadyWrite = "fs.writeFileSync(${JSON.stringify(ready)},'ready');";
+      assert.equal(original.split(actualReadyWrite).length, 2, "Never-ready mutation must remove exactly one Node fixture ready write");
+      writeFileSync(diagnostic, original.replace(actualReadyWrite, ""));
+      assert.notEqual(readFileSync(diagnostic, "utf8"), original);
+    }
+    const evidence = join(directory, "evidence");
+    const command = run(process.execPath, [join(directory, "diagnose-windows-consumer-ownership.mjs"), evidence]);
+    if (mutation === "cold-controller-start") await command;
+    else await assert.rejects(command, /exit 1/);
+    const rows = JSON.parse(readFileSync(join(evidence, "results.json"), "utf8"));
+    assert.equal(rows.length, 3);
+    assert.equal(rows[0].kind, "node-leader-control");
+    if (mutation === "cold-controller-start") {
+      assert.equal(rows[0].verdict, "passed");
+      assert.equal(rows[0].result, "success");
+    } else {
+      assert.equal(rows[0].verdict, "failed");
+      assert.equal(rows[0].result, "failure");
+      assert.match(rows[0].assertion, /Fixture did not become ready/);
+      assert.match(rows[0].error, /interrupted=true/, "A started fixture that misses readiness must take the owned deadline cleanup path");
+    }
+    assert(rows.every((row) => row.paths_absent && !row.cleanup_error));
+    assert(rows.slice(1).every((row) => row.verdict === "passed"), "Unchanged PowerShell assertions must still pass");
+    completed = true;
+    console.log(JSON.stringify({ sensitivity: mutation, detected: true, results: rows }));
+  } catch (error) {
+    readinessFailures.push({ mutation, directory, error });
+    console.error(JSON.stringify({ sensitivity: mutation, detected: false, retained_workspace: directory, error: error.message }));
+  } finally {
+    if (completed) {
+      await rm(directory, { recursive: true, maxRetries: 3, retryDelay: 100 });
+      assert(!existsSync(directory));
+      console.log(JSON.stringify({ removed_workspace: directory }));
+    } else {
+      console.error(JSON.stringify({ retained_workspace: directory, reason: "Readiness sensitivity did not establish the expected result" }));
+    }
+  }
+}
+assert.equal(
+  readinessFailures.length,
+  0,
+  `Windows readiness sensitivity failures:\n${readinessFailures.map(({ mutation, directory, error }) => `${mutation} (${directory}): ${error.stack}`).join("\n")}`,
+);
+
 for (const mutation of Array.from({ length: 4 }, (_, iteration) => mutations.map((mutation) => ({ ...mutation, iteration }))).flat()) {
   // Checkout-local so the real cross-spawn dependency resolves; never alter source.
   const directory = mkdtempSync(join(temp, "windows-job-sensitivity-"));

@@ -449,10 +449,12 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows-consumer-ownership
+          include-hidden-files: true
           path: |
             .tmp/windows-workflow-native-exits/
             .tmp/windows-consumer-ownership/results.json
             .tmp/windows-consumer-ownership-repeat-*/results.json
             .tmp/windows-workspace-cleanup/
+            !.tmp/**/.*
           if-no-files-found: error
           retention-days: 7

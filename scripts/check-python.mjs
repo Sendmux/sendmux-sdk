@@ -87,7 +87,12 @@ await workspace("python-source-cohorts", async (directory) => {
       await run("python3", ["-m", "venv", cohortVenv], { cwd: directory, env });
       await run(cohortPython, ["-m", "pip", "install", "--upgrade", "pip"], { cwd: root, env });
       await run(cohortPython, ["-m", "pip", "install", "-r", "requirements-dev.txt"], { cwd: root, env });
-      await run(cohortPython, ["-m", "pip", "install", "-e", `packages/python/${cohortName}`], { cwd: root, env });
+      await run(cohortPython, [
+        "-m",
+        "pip",
+        "install",
+        ...cohort.packages.flatMap(({ name }) => ["-e", `packages/python/${name}`]),
+      ], { cwd: root, env });
       const result = {
         cohort,
         python: cohortPython,
@@ -95,12 +100,18 @@ await workspace("python-source-cohorts", async (directory) => {
         expectedRoot: root,
         mypyTargets: cohortName === "sdk"
           ? ["packages/python/sdk"]
-          : ["packages/python/langchain", "packages/python/tests/test_langchain.py"],
+          : [
+              "packages/python/langchain",
+              "packages/python/tests/test_langchain.py",
+            ],
       };
       if (cohortName === "langchain") {
         result.pytestRunner = pytestRunner;
         result.pytestReceipt = langchainReceipt;
-        result.pytestTargets = ["packages/python/tests/test_langchain.py"];
+        result.pytestTargets = [
+          "packages/python/tests/test_langchain.py",
+          "packages/python/langchain/tests",
+        ];
       }
       await verifySourceCohort(result);
     });
@@ -170,6 +181,9 @@ function verifySharedTestCoverage(nativeReceiptPath, langchainReceiptPath) {
     .filter((name) => name.endsWith(".py"))
     .sort();
   assert.deepEqual(actualFiles, [...sharedTests].sort(), "Every shared Python test file must belong to a verification cohort");
+  const langchainFiles = readdirSync(join(root, "packages/python/langchain/tests"))
+    .filter((name) => name.startsWith("test_") && name.endsWith(".py"))
+    .sort();
   const receipts = [nativeReceiptPath, langchainReceiptPath].map((filePath) => JSON.parse(readFileSync(filePath, "utf8")));
   const allNodeIds = [];
   for (const receipt of receipts) {
@@ -180,6 +194,12 @@ function verifySharedTestCoverage(nativeReceiptPath, langchainReceiptPath) {
     allNodeIds.push(...receipt.collected);
   }
   assert(allNodeIds.length > 0, "Shared Python tests must not be empty");
+  for (const file of langchainFiles) {
+    assert(
+      receipts[1].collected.some((nodeId) => nodeId.startsWith(`packages/python/langchain/tests/${file}`)),
+      `LangChain package test ${file} must execute in the LangChain cohort`,
+    );
+  }
   assert.equal(new Set(allNodeIds).size, allNodeIds.length, "Shared Python test node IDs must execute exactly once");
   console.log(JSON.stringify({ python_test_coverage: receipts }));
   console.log(JSON.stringify({ python_shared_tests: allNodeIds.length, native: receipts[0].collected.length, langchain: receipts[1].collected.length, skipped: 0, xfailed: 0, xpassed: 0 }));

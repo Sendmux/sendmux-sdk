@@ -1,8 +1,10 @@
 # Native publication gates
 
-Source-owned publishing commands require strict equality between both candidate-owned OpenAPI 3.1 snapshots and the unauthenticated production App and Sending schemas. Object-key order is canonicalized; descriptions, arrays, required fields, and all other content remain significant. Description-only drift can therefore block publication without proving a client-breaking change.
+The Release Please, recovery, Snap, and Chocolatey workflows and the PHP split command require strict equality between both candidate-owned OpenAPI 3.1 snapshots and the unauthenticated production App and Sending schemas. Object-key order is canonicalized; descriptions, arrays, required fields, and all other content remain significant. Description-only drift can therefore block publication without proving a client-breaking change.
 
-The checker makes one request per fixed production endpoint, with a 15-second deadline through body consumption and an 8 MiB decoded-body limit. Redirects, incomplete bodies, non-2xx responses, invalid JSON, non-3.1 documents, and differences fail closed. Publication steps have a two-minute outer limit. Publishing entry points offer no offline-live directory, endpoint override, retry, or ignored-field list.
+The checker makes one request per fixed production endpoint, with a 15-second deadline through body consumption and an 8 MiB decoded-body limit. Redirects, incomplete bodies, non-2xx responses, invalid JSON, non-3.1 documents, and differences fail closed. Publication guard steps have a two-minute outer limit. These guarded entry points offer no offline-live directory, endpoint override, retry, or ignored-field list.
+
+`pnpm publish:rubygems`, `pnpm publish:npm:ts`, and `scripts/update-homebrew-tap.mjs` are low-level workflow helpers, not supported standalone release procedures. They do not enforce candidate provenance or live-schema parity themselves. Use their guarded Release Please publishing or recovery workflow; a credential holder invoking a helper directly can bypass those workflow checks.
 
 ## Candidate identity
 

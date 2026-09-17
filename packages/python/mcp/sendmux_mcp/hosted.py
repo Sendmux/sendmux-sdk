@@ -15,6 +15,8 @@ from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.routing import Route
+from starlette.types import ASGIApp
 from starlette.applications import Starlette
 
 from sendmux_mcp.config import DEFAULT_APP_BASE_URL, ServerConfig, Surface, config_from_env, parse_csv
@@ -173,6 +175,12 @@ def create_hosted_http_app(
         stateless_http=runtime.stateless_http,
         transport="http",
     )
+    metadata_path = "/.well-known/oauth-protected-resource"
+    mcp_metadata_route = next(
+        route for route in app.router.routes if isinstance(route, Route) and route.path.startswith(metadata_path)
+    )
+    mcp_hostname = urlparse(runtime.resource_base_url).hostname
+    assert mcp_hostname is not None
 
     manifests = []
     for surface in HOSTED_SURFACES:
@@ -197,7 +205,20 @@ def create_hosted_http_app(
         ),
         proxy_transport=a2a_proxy_transport,
     )
-    app.router.routes[0:0] = a2a_components.routes
+    a2a_metadata_route = next(
+        route for route in a2a_components.routes if isinstance(route, Route) and route.path == metadata_path
+    )
+
+    async def root_resource_metadata(request: Request) -> ASGIApp:
+        if request.url.hostname == mcp_hostname:
+            return mcp_metadata_route.handle
+        return a2a_metadata_route.handle
+
+    # Let the selected resource route own method validation and its Allow header.
+    root_metadata_route = Route(metadata_path, endpoint=root_resource_metadata, methods=[])
+    app.router.routes[0:0] = [
+        root_metadata_route if route is a2a_metadata_route else route for route in a2a_components.routes
+    ]
 
     original_lifespan = app.router.lifespan_context
 

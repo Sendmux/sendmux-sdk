@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import replace
 from importlib.metadata import version
+from urllib.parse import urlparse
 
 import httpx
 import pytest
@@ -14,6 +15,7 @@ from sendmux_mcp.hosted import (
     HOSTED_MCP_DISCOVERY_SCOPES,
     HOSTED_SURFACES,
     HostedServerRuntimeConfig,
+    create_hosted_http_app,
     create_hosted_server,
     hosted_mcp_proxy_config,
     hosted_http_middleware,
@@ -280,6 +282,63 @@ def test_hosted_server_protected_resource_metadata_preserves_authorization_serve
         assert response.status_code == 200
         assert response.json()["authorization_servers"] == ["https://app.sendmux.ai"]
         assert response.json()["scopes_supported"] == list(HOSTED_MCP_DISCOVERY_SCOPES)
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize(
+    ("resource_base_url", "mcp_path"),
+    [
+        ("https://mcp.sendmux.ai", "/mcp"),
+        ("https://custom-mcp.example.com:8443", "/custom/"),
+    ],
+)
+def test_hosted_root_metadata_uses_configured_mcp_host(resource_base_url: str, mcp_path: str) -> None:
+    async def run() -> None:
+        runtime = replace(runtime_config(), resource_base_url=resource_base_url, mcp_path=mcp_path)
+        app = create_hosted_http_app(runtime)
+        metadata_path = "/.well-known/oauth-protected-resource"
+
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url=resource_base_url) as client:
+                root = await client.get(metadata_path)
+                mixed_case = await client.get(metadata_path, headers={"Host": urlparse(resource_base_url).netloc.upper()})
+                scoped = await client.get(f"{metadata_path}{mcp_path}")
+                a2a = await client.get(f"https://a2a.sendmux.ai{metadata_path}")
+                root_head = await client.head(metadata_path, headers={"Host": urlparse(resource_base_url).netloc.upper()})
+                scoped_head = await client.head(f"{metadata_path}{mcp_path}")
+                a2a_head = await client.head(f"https://a2a.sendmux.ai{metadata_path}")
+                a2a_post = await client.post(f"https://a2a.sendmux.ai{metadata_path}")
+                a2a_options = await client.options(f"https://a2a.sendmux.ai{metadata_path}")
+                other_host = await client.get(f"https://other.example.com{metadata_path}")
+                forbidden = await client.get(metadata_path, headers={"Origin": "https://evil.example"})
+                unauthenticated = await client.post(
+                    mcp_path,
+                    json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+                )
+
+        assert root.status_code == scoped.status_code == 200
+        assert root.json()["resource"] == f"{resource_base_url}{mcp_path}"
+        assert mixed_case.status_code == 200
+        assert mixed_case.json() == root.json()
+        assert root.json() == scoped.json()
+        assert root_head.status_code == scoped_head.status_code == a2a_head.status_code == 200
+        assert root_head.content == scoped_head.content == a2a_head.content == b""
+        assert root_head.headers["content-length"] == scoped_head.headers["content-length"]
+        assert root_head.headers["cache-control"] == scoped_head.headers["cache-control"]
+        assert a2a_head.headers["cache-control"] == a2a.headers["cache-control"]
+        assert a2a_post.status_code == a2a_options.status_code == 405
+        assert set(a2a_post.headers["allow"].split(", ")) == set(a2a_options.headers["allow"].split(", ")) == {"GET", "HEAD"}
+        assert a2a.status_code == other_host.status_code == 200
+        assert a2a.json()["resource"] == "https://a2a.sendmux.ai/a2a/v1"
+        assert a2a.json()["resource_name"] == "Sendmux A2A"
+        assert other_host.json() == a2a.json()
+        assert forbidden.status_code == 403
+        assert forbidden.json()["error"]["code"] == "origin_forbidden"
+        assert unauthenticated.status_code == 401
+        assert f'resource_metadata="{resource_base_url}{metadata_path}{mcp_path}"' in (
+            unauthenticated.headers["www-authenticate"]
+        )
 
     asyncio.run(run())
 

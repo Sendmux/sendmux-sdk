@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Return the correct MCP resource metadata at the root discovery URL, including requests with differently capitalised hostnames; A2A discovery is unchanged.
+
 ## [2.1.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.0.0...python-mcp-v2.1.0) (2026-09-16)
 
 

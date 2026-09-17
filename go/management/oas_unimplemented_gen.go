@@ -577,8 +577,9 @@ func (UnimplementedHandler) ManagementUpdateMailbox(ctx context.Context, req Opt
 
 // ManagementUpdateProvider implements managementUpdateProvider operation.
 //
-// Updates a custom sending account. The shared Amazon SES account cannot be edited here; use
-// activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+// Updates a custom sending account or replaces variables on the shared Amazon SES account.
+// Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request
+// endpoint for its other allowed actions.
 //
 // PATCH /providers/{public_id}
 func (UnimplementedHandler) ManagementUpdateProvider(ctx context.Context, req OptProviderUpdateBody, params ManagementUpdateProviderParams) (r ManagementUpdateProviderRes, _ error) {

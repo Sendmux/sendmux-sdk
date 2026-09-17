@@ -427,8 +427,9 @@ type Invoker interface {
 	ManagementUpdateMailbox(ctx context.Context, request OptUpdateMailboxBody, params ManagementUpdateMailboxParams) (ManagementUpdateMailboxRes, error)
 	// ManagementUpdateProvider invokes managementUpdateProvider operation.
 	//
-	// Updates a custom sending account. The shared Amazon SES account cannot be edited here; use
-	// activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+	// Updates a custom sending account or replaces variables on the shared Amazon SES account.
+	// Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request
+	// endpoint for its other allowed actions.
 	//
 	// PATCH /providers/{public_id}
 	ManagementUpdateProvider(ctx context.Context, request OptProviderUpdateBody, params ManagementUpdateProviderParams) (ManagementUpdateProviderRes, error)
@@ -7707,8 +7708,9 @@ func (c *Client) sendManagementUpdateMailbox(ctx context.Context, request OptUpd
 
 // ManagementUpdateProvider invokes managementUpdateProvider operation.
 //
-// Updates a custom sending account. The shared Amazon SES account cannot be edited here; use
-// activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+// Updates a custom sending account or replaces variables on the shared Amazon SES account.
+// Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request
+// endpoint for its other allowed actions.
 //
 // PATCH /providers/{public_id}
 func (c *Client) ManagementUpdateProvider(ctx context.Context, request OptProviderUpdateBody, params ManagementUpdateProviderParams) (ManagementUpdateProviderRes, error) {

@@ -9677,8 +9677,9 @@ func (s *Server) handleManagementUpdateMailboxRequest(args [1]string, argsEscape
 
 // handleManagementUpdateProviderRequest handles managementUpdateProvider operation.
 //
-// Updates a custom sending account. The shared Amazon SES account cannot be edited here; use
-// activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+// Updates a custom sending account or replaces variables on the shared Amazon SES account.
+// Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request
+// endpoint for its other allowed actions.
 //
 // PATCH /providers/{public_id}
 func (s *Server) handleManagementUpdateProviderRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {

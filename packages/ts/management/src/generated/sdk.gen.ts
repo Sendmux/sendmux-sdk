@@ -443,7 +443,7 @@ export const managementGetProvider = <ThrowOnError extends boolean = false>(opti
 /**
  * Update a sending account
  *
- * Updates a custom sending account. The shared Amazon SES account cannot be edited here; use activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+ * Updates a custom sending account or replaces variables on the shared Amazon SES account. Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request endpoint for its other allowed actions.
  */
 export const managementUpdateProvider = <ThrowOnError extends boolean = false>(options: Options<ManagementUpdateProviderData, ThrowOnError>) => (options.client ?? client).patch<ManagementUpdateProviderResponses, ManagementUpdateProviderErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],

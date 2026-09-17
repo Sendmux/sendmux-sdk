@@ -3901,7 +3901,7 @@ class SendingAccountsApi:
     ) -> ProviderItemResponse:
         """Update a sending account
 
-        Updates a custom sending account. The shared Amazon SES account cannot be edited here; use activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+        Updates a custom sending account or replaces variables on the shared Amazon SES account. Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request endpoint for its other allowed actions.
 
         :param public_id: (required)
         :type public_id: str
@@ -3981,7 +3981,7 @@ class SendingAccountsApi:
     ) -> ApiResponse[ProviderItemResponse]:
         """Update a sending account
 
-        Updates a custom sending account. The shared Amazon SES account cannot be edited here; use activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+        Updates a custom sending account or replaces variables on the shared Amazon SES account. Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request endpoint for its other allowed actions.
 
         :param public_id: (required)
         :type public_id: str
@@ -4061,7 +4061,7 @@ class SendingAccountsApi:
     ) -> RESTResponseType:
         """Update a sending account
 
-        Updates a custom sending account. The shared Amazon SES account cannot be edited here; use activate/deactivate and the limit-request endpoint for the allowed shared-account actions.
+        Updates a custom sending account or replaces variables on the shared Amazon SES account. Shared-account connection settings cannot be edited; use activate/deactivate and the limit-request endpoint for its other allowed actions.
 
         :param public_id: (required)
         :type public_id: str

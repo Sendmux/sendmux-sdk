@@ -25,4 +25,6 @@ The artifact-owned temporary directory exposed an existing non-repository test's
 
 ## Release boundary
 
+PR241 review correction, 2026-09-17 21:52: classify the raised Sending dependency floor under breaking changes alongside Management. The exact requirement and runtime artifacts are unchanged; the normal drift hook still applies. No additional runtime test is warranted for moving an unchanged changelog sentence.
+
 Status: source preparation, not merged or published. Independent review, normal drift hook and PR gates remain; SDK 3 then requires native candidate and public-installed acceptance. Journeys: offline installed-package contract; no browser-facing change or live credentials. Four recorded runner PIDs are absent; temporary scratch is empty; dependencies and verification artifacts are retained for the release gates. No production resources changed.

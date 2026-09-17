@@ -5,11 +5,8 @@
 ### ⚠ BREAKING CHANGES
 
 * Require `sendmux-management>=2.0.0,<3.0.0`: provider-list items use `ProviderListItem` instead of `ProviderItem`; detail responses retain `ProviderItem` and require `variables`.
-* Upgrade the SDK, component requirements, lockfile, and affected annotations or fixtures together. See [Version 3.0.0 migration](README.md#version-300-migration).
-
-### Features
-
 * Require `sendmux-sending>=1.6.0,<2.0.0` for delivery-group routing; retain the Core 1.3.1 and Mailbox 2.0.0 floors.
+* Upgrade the SDK, component requirements, lockfile, and affected annotations or fixtures together. See [Version 3.0.0 migration](README.md#version-300-migration).
 
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.2.0...python-sdk-v2.0.0) (2026-09-15)
 

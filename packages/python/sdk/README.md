@@ -104,6 +104,18 @@ The umbrella package lazy-loads:
 
 Use the per-surface packages directly when an integration only needs one API surface.
 
+## Version 3.0.0 migration
+
+SDK 3 adopts Management 2 and Sending 1.6. The `management` module's provider-list responses contain `ProviderListItem` objects instead of `ProviderItem` objects. Detail responses retain `ProviderItem` and require the `variables` map; list items omit that map.
+
+To migrate from SDK 2:
+
+1. Update your requirements to `sendmux-sdk>=3.0.0,<4.0.0` and regenerate your lockfile. If you pin components directly, use `sendmux-management>=2.0.0,<3.0.0` and `sendmux-sending>=1.6.0,<2.0.0`; the Core `>=1.3.1,<2.0.0` and Mailbox `>=2.0.0,<3.0.0` ranges are unchanged.
+2. Change provider-list annotations and type checks from `management.ProviderItem` to `management.ProviderListItem`. Keep `management.ProviderItem` for detail responses, and include `variables` in detail fixtures (`{}` when none are set).
+3. Run `python -m pip check` and your provider-list, provider-detail, and sending tests. Confirm list items use `ProviderListItem`, detail fixtures retain their variables, and delivery-group requests serialize the selected group.
+
+To roll back, restore the previous SDK and component requirements, lockfile, and affected call sites together.
+
 ## Version 2.0.0 migration
 
 The umbrella's `mailbox` module adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose optional typed `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose typed state metadata where applicable.

@@ -82,7 +82,6 @@
       "component": "python-management",
       "package-name": "sendmux-management",
       "release-type": "python",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/python/sdk": {

@@ -695,16 +695,12 @@ func requiredEnv(names ...string) string {
 	return ""
 }
 
+// failPlan aborts the whole plan with a non-zero exit, matching the Python, PHP and Ruby
+// harnesses; the runner attributes a non-zero exit to the requested operation. A synthetic
+// "go-plan" result row would be rejected by the runner as an unknown result pair.
 func failPlan(err error) {
-	encode(map[string]any{
-		"results": []result{{
-			Adapter:     "go",
-			Error:       err.Error(),
-			OperationID: "go-plan",
-			Status:      "failed",
-		}},
-	})
-	os.Exit(0)
+	fmt.Fprintln(os.Stderr, "live E2E plan failed:", err)
+	os.Exit(1)
 }
 
 func encode(value any) {

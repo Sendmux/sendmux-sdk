@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import test from "node:test";
 import * as sdk from "@sendmux/sdk";
 import { createFixtureRuntime, runAdapterStep, runLanguageSdkOperations, runMcpOperations, fetchWithTimeout, withAbortSignal, runChildHarness, selectOperations, buildOperationPlan, expectedCliErrorMatches, scenarios, operations, fixtures } from "./run-live-e2e.mjs";
@@ -1205,6 +1205,91 @@ test("a child success cannot masquerade as expected-negative and its created ID 
       assert.equal(runtime.ledger.resources[0].status, "absent");
     }, { ledgerPath: join(dir, "resources.json") });
   } finally { rmSync(dir, { recursive: true }); }
+  }
+});
+
+test("Go harness persists its journal under the runner's default relative ledger path", async () => {
+  // runLiveE2E defaults ledgerPath to a cwd-relative .tmp path; the Go child alone runs with cwd "go".
+  const ledgerDirectory = join(".tmp", "live-e2e", `go-journal-${randomUUID()}`);
+  let removed = false;
+  try {
+    await withApi(req => {
+      if (req.url.endsWith("/me") || req.url.endsWith("/connection")) return { body: connection() };
+      if (req.method === "POST") return { status: 201, body: envelope({ id: "folder_journal", can_add_items: true, name: "fixture", parent_id: null, role: null, sort_order: 0, total_messages: 0, unread_messages: 0 }) };
+      if (req.method === "DELETE") { removed = true; return { body: envelope({}) }; }
+      return { status: 404, body: { ok: false, error: { code: "not_found", message: "absent", retryable: false }, meta: { request_id: "req_absent" } } };
+    }, async ({ runtime, baseUrl }) => {
+      await runtime.preflight(expected);
+      const operation = operations.find(item => item.operationId === "mailboxCreateFolder");
+      const request = { body: { name: "fixture" } };
+      const journalPath = runtime.journalPath("go", operation.operationId);
+      const results = await runLanguageSdkOperations({ adapter: "go", operations: [operation], credentials: { mailboxApiKey: "smx_mbx_test", appBaseUrl: baseUrl }, requests: new Map([[operation.operationId, {
+        request, journalPath, recoverJournal: () => runtime.recoverJournal(journalPath, operation.operationId, request),
+      }]]) });
+      assert.deepEqual(results, [{ adapter: "go", operationId: operation.operationId, status: "passed" }]);
+      assert.equal(runtime.ledger.resources[0]?.id, "folder_journal", "created ID must be recovered from the Go journal");
+      await runtime.teardown();
+      assert.equal(removed, true);
+      assert.equal(runtime.ledger.resources[0].status, "absent");
+    }, { ledgerPath: join(ledgerDirectory, "resources.json") });
+  } finally { rmSync(ledgerDirectory, { recursive: true, force: true }); }
+});
+
+test("a child-side plan failure is attributed to the requested operation in every language adapter", async () => {
+  await withEnv({ SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "", SENDMUX_STAGING_MAILBOX_API_KEY: "" }, async () => {
+    for (const adapter of ["python", "go", "php", "ruby"]) {
+      const dir = mkdtempSync(join(tmpdir(), `sendmux-plan-failure-${adapter}-`));
+      try {
+        await withApi(() => ({ status: 500, body: { ok: false, error: { code: "internal_error", message: "unexpected request", retryable: false }, meta: { request_id: "req_unexpected" } } }), async ({ requests, runtime, baseUrl }) => {
+          const operation = operations.find(item => item.operationId === "mailboxCreateFolder");
+          const request = { body: { name: "fixture" } };
+          const journalPath = runtime.journalPath(adapter, operation.operationId);
+          const results = await runLanguageSdkOperations({ adapter, operations: [operation], credentials: { mailboxApiKey: "", appBaseUrl: baseUrl }, requests: new Map([[operation.operationId, {
+            request, journalPath, recoverJournal: () => runtime.recoverJournal(journalPath, operation.operationId, request),
+          }]]) });
+          assert.equal(results.length, 1, `${adapter} must report exactly the requested pair`);
+          assert.equal(results[0].adapter, adapter);
+          assert.equal(results[0].operationId, operation.operationId, `${adapter} plan failure must be attributed to the requested operation`);
+          assert.equal(results[0].status, "failed");
+          assert.match(results[0].error, /^(?:SDK operation failed; response details withheld|Child exited [1-9]\d*; output withheld from public evidence)$/);
+          assert.equal(requests.length, 0, `${adapter} must not send a request without a credential`);
+        }, { ledgerPath: join(dir, "resources.json") });
+      } finally { rmSync(dir, { recursive: true }); }
+    }
+  });
+});
+
+test("mailbox teardown accepts the documented deleted tombstone as absence and nothing weaker", async () => {
+  // Management API: DELETE soft-deletes; GET /mailboxes/{id} then returns the row with status "deleted"
+  // (status is documented as active | suspended | deleted) while the list omits it.
+  for (const [label, readback, expectedStatus] of [
+    ["deleted tombstone", { id: "mbx_owned", status: "deleted" }, "absent"],
+    ["still active", { id: "mbx_owned", status: "active" }, "failed"],
+    ["tombstone for another mailbox", { id: "mbx_other", status: "deleted" }, "failed"],
+  ]) {
+    const dir = mkdtempSync(join(tmpdir(), "sendmux-mailbox-tombstone-"));
+    let deleted = false;
+    try {
+      await withApi(req => {
+        if (req.url.endsWith("/me") || req.url.endsWith("/connection")) return { body: connection() };
+        if (req.method === "POST") return { status: 201, body: envelope({ mailbox: { id: "mbx_owned", status: "active" } }) };
+        if (req.method === "DELETE") { deleted = true; return { body: envelope({ deleted: true, id: "mbx_owned" }) }; }
+        if (req.method === "GET" && deleted) return { body: envelope(readback) };
+        return { status: 404, body: { ok: false, error: { code: "not_found", message: "absent", retryable: false }, meta: { request_id: "req_absent" } } };
+      }, async ({ runtime }) => {
+        await runtime.preflight(expected);
+        await runtime.runOperation("managementCreateMailbox", { body: { local_part: "fixture", domain_id: "mdom_fixture" } });
+        assert.equal(runtime.ledger.resources[0].id, "mbx_owned");
+        if (expectedStatus === "absent") {
+          await runtime.teardown();
+          assert.equal(runtime.ledger.resources[0].verification, "get_deleted_tombstone", label);
+        } else {
+          await assert.rejects(runtime.teardown(), /remains after cleanup/, label);
+        }
+        assert.equal(deleted, true, label);
+        assert.equal(runtime.ledger.resources[0].status, expectedStatus, label);
+      }, { ledgerPath: join(dir, "resources.json") });
+    } finally { rmSync(dir, { recursive: true }); }
   }
 });
 

@@ -5,7 +5,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
 import { configurationFromEnv, expectedPairs, journalSelectors, validateResultPairs } from "./live-e2e-contract.mjs";
@@ -2492,6 +2492,11 @@ function isAlreadyAbsent(error) {
   return error?.status === 404 && error?.body?.ok === false && error?.body?.error?.code === "not_found" && typeof error?.body?.meta?.request_id === "string" && error.body.meta.request_id.length > 0;
 }
 
+// Soft-deleted resources (mailboxes: status active | suspended | deleted) stay readable by ID after DELETE.
+function isDeletedTombstone(envelope, id) {
+  return envelope?.ok === true && envelope?.data?.id === id && envelope?.data?.status === "deleted";
+}
+
 function requireSelectedValue(value, selectors, label) {
   const selected = selectFirstValue(value, selectors);
   if (!selected) {
@@ -2605,7 +2610,8 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, s
     },
     journalPath(adapter, operationId) {
       mkdirSync(dirname(ledgerPath), { recursive: true });
-      return join(dirname(ledgerPath), `${adapter}-${operationId}-${randomUUID()}.jsonl`);
+      // Absolute: the path crosses into child harnesses that may run with their own cwd (Go runs in go/).
+      return resolve(dirname(ledgerPath), `${adapter}-${operationId}-${randomUUID()}.jsonl`);
     },
     recoverJournal(path, operationId, request, attachmentEvidence) {
       if (!existsSync(path)) return;
@@ -2706,11 +2712,10 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, s
             if (receipt !== undefined) assert.ok(receipt.data?.deleted === true && receipt.data?.id === id, "Invalid exact mailbox key revocation receipt");
             entry.verification = receipt === undefined ? "structured_not_found" : "exact_revocation_receipt";
           } else {
-          try {
-            await this.runOperation(read, { path });
-            throw new Error(`Resource ${id} remains after cleanup`);
-          } catch (error) { if (!isAlreadyAbsent(error)) throw error; }
-            entry.verification = "get_not_found";
+            const readback = await ignoreCleanupErrors(() => this.runOperation(read, { path }));
+            if (readback === undefined) entry.verification = "get_not_found";
+            else if (isDeletedTombstone(readback, id)) entry.verification = "get_deleted_tombstone";
+            else throw new Error(`Resource ${id} remains after cleanup`);
           }
           entry.status = "absent";
         } catch (error) { entry.status = "failed"; throw error; }

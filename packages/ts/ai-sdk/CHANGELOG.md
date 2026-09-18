@@ -1,17 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-- Add one delivery group or a list of groups that narrows the eligible provider pool to the `send_email` tool.
-
-### Changed
-
-- **Breaking:** The `zod` peer dependency minimum is `3.25.76`. Upgrade Zod
-  `3.24` before adopting this release, and retain compatibility with your
-  installed `ai` version. See [the 0.5.0 upgrade notes](README.md#unreleased-050-upgrade).
-
 ## [0.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.3.3...ts-ai-sdk-v0.4.0) (2026-09-10)
 
 

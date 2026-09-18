@@ -89,7 +89,7 @@ Sends through your configured sending providers, to any recipient.
 | `html` | string | no | HTML body. Generated from `text` if omitted |
 | `from` | string | no | Sender address. Falls back to `defaultFrom` |
 | `idempotencyKey` | string | no | Makes a retried send idempotent for 24 hours |
-| `deliveryGroup` | string or string[] | no | Delivery group ID, or a list of IDs, that narrows the eligible provider pool |
+| `deliveryGroup` | string or string[] | no | Delivery group ID, or a non-empty list of IDs, that narrows the eligible provider pool |
 
 ### `list_messages`
 

@@ -186,10 +186,9 @@ selectors, automatic retries, and missing named operations aren't implied by
 raw JSON access. `ApiError.retryable` reports the server/fallback classification;
 the Rust transport doesn't retry or wait on `Retry-After` automatically.
 
-### Unreleased Rust contract changes
+### 0.5.0 Rust contract changes
 
-These changes are prepared for `0.5.0`, an incompatible upgrade from `0.4.x`.
-They describe the source candidate, not a package-publication receipt:
+`0.5.0` is an incompatible upgrade from `0.4.x`:
 
 - Raw Mailbox and Management paths must be relative to the configured API base.
   Absolute URLs, authority paths, and backslash paths return
@@ -207,13 +206,12 @@ They describe the source candidate, not a package-publication receipt:
   send requests. This doesn't add an attachment upload method.
 
 Code that constructs `Response` or `Attachment` with struct literals, or accesses
-old attachment fields directly, must migrate before adopting the candidate.
+old attachment fields directly, must migrate before adopting `0.5.0`.
 Replace attachment literals with the constructors or match the enum variants;
 include `pagination: None` when constructing response fixtures without cursor
 metadata. Rebuild and run your application's tests before deploying the upgrade.
 To roll back, restore your previous `Cargo.toml`, `Cargo.lock`, and corresponding
-call-site changes together. Package versions remain unchanged until the release
-automation prepares the `0.5.0` release PR.
+call-site changes together.
 
 This crate is aligned to the committed Sendmux OpenAPI snapshots in the
 `sendmux-sdk` repository:

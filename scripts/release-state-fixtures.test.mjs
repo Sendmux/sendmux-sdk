@@ -13,9 +13,9 @@ const editJson = (path, edit) => { const value = readJson(path); edit(value); wr
 function fixture(run) {
   const root = mkdtempSync(join(tmpdir(), "sendmux-release-state-"));
   try {
-    for (const path of ["packages", "go/go.mod", "rust/Cargo.toml", "release-please-config.json", ".release-please-manifest.json", ".ruby-version"]) {
+    for (const path of ["packages", "go/go.mod", "rust/Cargo.toml", "rust/ci/floor-consumer/Cargo.lock", "release-please-config.json", ".release-please-manifest.json", ".ruby-version"]) {
       if (!existsSync(join(repository, path))) continue;
-      cpSync(join(repository, path), join(root, path), { recursive: true, filter: (source) => !/node_modules|vendor|\.venv|__pycache__|\/dist(?:\/|$)/.test(source) && (!/\.[^/]+$/.test(source) || /(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|composer\.json|\.gemspec|version\.rb|__init__\.py|release-please.*\.json|\.ruby-version)$/.test(source)) });
+      cpSync(join(repository, path), join(root, path), { recursive: true, filter: (source) => !/node_modules|vendor|\.venv|__pycache__|\/dist(?:\/|$)/.test(source) && (!/\.[^/]+$/.test(source) || /(?:package\.json|pyproject\.toml|Cargo\.toml|Cargo\.lock|go\.mod|composer\.json|\.gemspec|version\.rb|__init__\.py|release-please.*\.json|\.ruby-version)$/.test(source)) });
     }
     run(root);
   } finally {
@@ -35,6 +35,8 @@ function check(root) {
   return child;
 }
 
+const rustConsumerLockEntry = /^name = "sendmux"\nversion = "([^"]+)"$/m;
+
 function mutateNativeVersion(root, file, pattern) {
   const path = join(root, file);
   const before = readFileSync(path, "utf8");
@@ -50,6 +52,8 @@ const mutations = {
   "typescript version": (root) => editJson(join(root, "packages/ts/core/package.json"), (p) => { p.version = "0.0.0"; }),
   "python version": (root) => mutateNativeVersion(root, "packages/python/core/pyproject.toml", /^version = "([^"]+)"$/m),
   "rust version": (root) => mutateNativeVersion(root, "rust/Cargo.toml", /^version = "([^"]+)"$/m),
+  "rust floor consumer lock": (root) => mutateNativeVersion(root, "rust/ci/floor-consumer/Cargo.lock", rustConsumerLockEntry),
+  "rust floor consumer lock updater": (root) => editJson(join(root, "release-please-config.json"), (c) => { delete c.packages.rust["extra-files"]; }),
   "ruby version": (root) => mutateNativeVersion(root, "packages/ruby/core/lib/sendmux/core/version.rb", /^\s*VERSION = '([^']+)'$/m),
   "ruby identity": (root) => writeFileSync(join(root, "packages/ruby/core/sendmux-core.gemspec"), readFileSync(join(root, "packages/ruby/core/sendmux-core.gemspec"), "utf8").replace("spec.name = 'sendmux-core'", "spec.name = 'wrong-core'")),
   "go identity": (root) => writeFileSync(join(root, "go/go.mod"), readFileSync(join(root, "go/go.mod"), "utf8").replace("module sendmux.ai/go", "module wrong.invalid/go")),
@@ -77,9 +81,9 @@ test("native release gate accepts native versions without inventing Go or PHP fi
   assert.equal(result.status, 0, result.stderr);
 }));
 
-for (const [language, owner, versionFile] of [
+for (const [language, owner, versionFile, lockFile] of [
   ["python", "packages/python/core", "packages/python/core/pyproject.toml"],
-  ["rust", "rust", "rust/Cargo.toml"],
+  ["rust", "rust", "rust/Cargo.toml", "rust/ci/floor-consumer/Cargo.lock"],
   ["ruby", "packages/ruby/core", "packages/ruby/core/lib/sendmux/core/version.rb"],
 ]) {
   test(`native release gate accepts synchronized future ${language} release and rejects its version mutation`, () => fixture((root) => {
@@ -91,6 +95,7 @@ for (const [language, owner, versionFile] of [
     const advanced = before.replace(current, future);
     assert.notEqual(advanced, before, `${language} future fixture must change native bytes`);
     writeFileSync(path, advanced);
+    if (lockFile) writeFileSync(join(root, lockFile), readFileSync(join(root, lockFile), "utf8").replace(rustConsumerLockEntry, (entry) => entry.replace(current, future)));
     editJson(join(root, ".release-please-manifest.json"), (m) => { m[owner] = future; });
     const healthy = check(root);
     assert.equal(healthy.status, 0, healthy.stderr);

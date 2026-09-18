@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { booleanGates, stringConfiguration, validateRun, resultStatuses } from "./live-e2e-contract.mjs";
+import { booleanGates, finalizeRunWithAttachmentReceipt, stringConfiguration, validateRun, resultStatuses } from "./live-e2e-contract.mjs";
 
 const defaultManifestPath = "docs/live-e2e-audit-manifest.json";
 const operationsPath = "packages/ts/cli/src/generated/operations.ts";
@@ -35,27 +35,54 @@ if (!args.result) {
   throw new Error("Missing --result <path>.");
 }
 
+const commitSha = args.commit || gitSha();
+const sourceResult = readJson(args.result);
+const result = args.receipt
+  ? finalizeRunWithAttachmentReceipt(sourceResult, readJson(args.receipt), {
+      collectorSourceSha: args.collectorSourceSha,
+      runId: args.runId,
+      scenarios: readJson(scenarioPath).scenarios ?? {},
+      sourceSha: commitSha,
+    })
+  : sourceResult;
+if (args.receipt) {
+  assert.ok(args.finalResultOut, "--receipt requires --final-result-out <path>.");
+} else {
+  assert.ok(!args.finalResultOut && !args.collectorSourceSha, "Finalisation arguments require --receipt <path>.");
+  assert.ok(!(sourceResult.run?.cleanup?.resources ?? []).some(resource => resource.status === "storage_absent"), "Finalised attachment evidence requires --receipt <path> and --collector-source-sha <sha>.");
+}
+
 const manifest = buildManifest({
-  commitSha: args.commit || gitSha(),
+  commitSha,
   generatedAt: args.generatedAt || new Date().toISOString(),
-  result: readJson(args.result),
+  result,
   runId: args.runId,
   source: args.source || "protected-live-e2e",
 });
 
 validateManifest(manifest);
-args.out ||= join(".tmp", "live-e2e", manifest.run.id, "audit-manifest.json");
+args.out ||= join(".tmp", "live-e2e", manifest.run.id, args.receipt ? "final-audit-manifest.json" : "audit-manifest.json");
 assert.notEqual(resolve(args.out), resolve(defaultManifestPath), "Fresh audits must not overwrite the committed historical manifest");
+if (args.receipt) {
+  assert.notEqual(resolve(args.finalResultOut), resolve(args.result), "Finalised result must not overwrite phase-one evidence");
+  assert.notEqual(resolve(args.finalResultOut), resolve(args.out), "Finalised result and manifest require distinct paths");
+  mkdirSync(dirname(args.finalResultOut), { recursive: true });
+}
 mkdirSync(dirname(args.out), { recursive: true });
+if (args.receipt) writeFileSync(args.finalResultOut, `${JSON.stringify(result, null, 2)}\n`, { flag: "wx", mode: 0o600, flush: true });
 writeFileSync(args.out, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx", mode: 0o600, flush: true });
+if (args.receipt) console.log(`Wrote finalized live E2E result to ${args.finalResultOut}`);
 console.log(`Wrote live E2E audit manifest to ${args.out}`);
 
 function parseArgs(argv) {
   const parsed = {
     check: "",
+    collectorSourceSha: "",
     commit: "",
+    finalResultOut: "",
     generatedAt: "",
     out: "",
+    receipt: "",
     result: "",
     runId: "",
     source: "",
@@ -78,6 +105,16 @@ function parseArgs(argv) {
       index += 1;
       continue;
     }
+    if (arg === "--collector-source-sha") {
+      parsed.collectorSourceSha = requireArgValue(argv, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--final-result-out") {
+      parsed.finalResultOut = requireArgValue(argv, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--generated-at") {
       parsed.generatedAt = requireArgValue(argv, index, arg);
       index += 1;
@@ -90,6 +127,11 @@ function parseArgs(argv) {
     }
     if (arg === "--result") {
       parsed.result = requireArgValue(argv, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--receipt") {
+      parsed.receipt = requireArgValue(argv, index, arg);
       index += 1;
       continue;
     }

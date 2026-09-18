@@ -3,9 +3,9 @@
 import assert from "node:assert/strict";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { spawn, spawnSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
 import { configurationFromEnv, expectedPairs, journalSelectors, validateResultPairs } from "./live-e2e-contract.mjs";
@@ -174,7 +174,7 @@ const runDirectory = join(".tmp", "live-e2e", runId);
 mkdirSync(dirname(runDirectory), { recursive: true });
 mkdirSync(runDirectory);
 const startedAt = new Date().toISOString();
-const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId, sdk });
+const fixtureRuntime = createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, sourceSha });
 const results = [];
 const errors = [];
 let cleanupOk = true;
@@ -315,10 +315,10 @@ async function runAdapterStepInner({ adapter, credentials, fixtureRuntime, fixtu
   if (!prepared.ok) {
     return [failResult(adapter, operation.operationId, prepared.error)];
   }
-  if (operation.responseKind === "json") prepared.value.observeResult = value => fixtureRuntime.observeResult(operation.operationId, prepared.value.request, value);
+  if (operation.responseKind === "json") prepared.value.observeResult = value => fixtureRuntime.observeResult(operation.operationId, prepared.value.request, value, prepared.value.attachmentEvidence);
   fixtureRuntime.beginOperation(operation.operationId, prepared.value.request);
   prepared.value.journalPath = fixtureRuntime.journalPath(adapter, operation.operationId);
-  prepared.value.recoverJournal = () => fixtureRuntime.recoverJournal(prepared.value.journalPath, operation.operationId, prepared.value.request);
+  prepared.value.recoverJournal = () => fixtureRuntime.recoverJournal(prepared.value.journalPath, operation.operationId, prepared.value.request, prepared.value.attachmentEvidence);
 
   if (adapter === typescriptSdkAdapter) {
     return [await runSdkOperation({ credentials, operation, prepared: prepared.value, sdk })];
@@ -887,7 +887,9 @@ async function runCliOperation({ credentials, operation, prepared }) {
     const result = await runCli(cliArgs, tempHome, cliTimeoutMsFor(operation, prepared.request), {
       SENDMUX_API_KEY: apiKey,
       SENDMUX_BASE_URL: baseUrl,
+      SENDMUX_LIVE_E2E_ATTACHMENT_JOURNAL: prepared.journalPath,
     });
+    prepared.recoverJournal?.();
     let recovered;
     if (operation.responseKind === "json") {
       try { recovered = JSON.parse(result.stdout); } catch { /* Incomplete output cannot establish ownership. */ }
@@ -923,6 +925,7 @@ function runCli(args, tempHome, timeoutMs = 30_000, envOverrides = {}) {
         HOME: tempHome,
         SENDMUX_API_KEY: "",
         SENDMUX_BASE_URL: "",
+        SENDMUX_LIVE_E2E_ATTACHMENT_JOURNAL: "",
         SENDMUX_PROFILE: "",
         XDG_CONFIG_HOME: join(tempHome, ".config"),
         ...envOverrides,
@@ -959,9 +962,6 @@ function parseCliOutput(stdout, operation) {
 }
 
 async function requestOptionsFor({ adapter, fixtureRuntime, fixtures, operation }) {
-  if (["mailboxUploadAttachment", "mailboxGetMessageAttachment", "mailboxReadAttachment", "mailboxWaitForMessage", "sendingUploadAttachment", "sendingCreateAttachmentUpload", "sendingCompleteAttachmentUpload", "sendingGetAttachment"].includes(operation.operationId) || (adapter === "cli" && ["mailboxSendMessage", "sendingSendEmail"].includes(operation.operationId))) {
-    throw new UnmetPrecondition("Attachment byte certification requires trusted storage-retention verification before upload; URL/reference expiry is not physical deletion and this public SDK runner cannot retrieve the backing storage policy");
-  }
   const factory = operationRequestFactories[operation.operationId];
   if (factory) {
     return factory({ adapter, fixtureRuntime, operation });
@@ -1166,11 +1166,12 @@ async function restoreMailboxIdentity(fixtureRuntime, body) {
 }
 
 async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
-  const content = `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`;
-  const filename = `live-e2e-${fixtureRuntime.runId}.txt`;
+  const attachment = attachmentFixture(fixtureRuntime, adapter, "mailboxUploadAttachment");
+  const { content, filename } = attachment;
   if (adapter === "cli") {
-    const file = createLiveAttachmentFile(fixtureRuntime, "presigned-upload", content);
+    const file = createLiveAttachmentFile(fixtureRuntime, "presigned-upload", attachment);
     return {
+      attachmentEvidence: evidenceForAttachment(attachment, adapter, "mailboxUploadAttachment"),
       request: {
         contentType: "text/plain",
         file: file.filePath,
@@ -1188,6 +1189,7 @@ async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
   }
   if (adapter === "mcp") {
     return {
+      attachmentEvidence: evidenceForAttachment(attachment, adapter, "mailboxUploadAttachment"),
       request: {
         body: {
           content_base64: Buffer.from(content, "utf8").toString("base64"),
@@ -1198,6 +1200,7 @@ async function prepareMailboxUploadAttachment({ adapter, fixtureRuntime }) {
     };
   }
   return {
+    attachmentEvidence: evidenceForAttachment(attachment, adapter, "mailboxUploadAttachment"),
     request: {
       body: content,
       query: {
@@ -1320,11 +1323,12 @@ async function prepareMailboxSendMessage({ adapter, fixtureRuntime }) {
   assertFixtureRecipientAllowed({ recipient, sourceName: "mailboxSendMessage" });
   const attachmentFile =
     adapter === "cli"
-      ? createLiveAttachmentFile(
+      ? createLiveAttachmentFile(fixtureRuntime, "cli-attach-send", attachmentFixture(
           fixtureRuntime,
-          "cli-attach-send",
-          `Sendmux live E2E CLI attachment ${fixtureRuntime.runId}\n`,
-        )
+          adapter,
+          "mailboxSendMessage",
+          "Sendmux live E2E CLI attachment",
+        ))
       : null;
   return {
     cleanupSelectors: ["data.message_id"],
@@ -1480,12 +1484,12 @@ async function createOwnedMailboxMessage(fixtureRuntime, opts = {}) {
 }
 
 async function uploadOwnedMailboxAttachment(fixtureRuntime, label) {
-  const filename = `live-e2e-${label}-${fixtureRuntime.runId}.txt`;
-  const content = `Sendmux live E2E attachment ${fixtureRuntime.runId}\n`;
+  const attachmentFixtureValue = attachmentFixture(fixtureRuntime, "fixture", label);
+  const { content, filename } = attachmentFixtureValue;
   const response = await fixtureRuntime.runOperation("mailboxUploadAttachment", {
     body: content,
     query: { filename },
-  });
+  }, { attachmentEvidence: evidenceForAttachment(attachmentFixtureValue, "fixture", "mailboxUploadAttachment") });
   return {
     attachment: {
       blob_id: requireSelectedValue(response, ["data.blob_id"], `${label} attachment blob id`),
@@ -1496,12 +1500,50 @@ async function uploadOwnedMailboxAttachment(fixtureRuntime, label) {
   };
 }
 
-function createLiveAttachmentFile(fixtureRuntime, label, content) {
+function createLiveAttachmentFile(fixtureRuntime, label, attachment) {
   const dir = mkdtempSync(join(tmpdir(), "sendmux-live-e2e-attachment-"));
-  const filePath = join(dir, `${fixtureRuntime.resourceLabel(label)}.txt`);
-  writeFileSync(filePath, content, "utf8");
+  const filePath = join(dir, attachment.filename ?? `${fixtureRuntime.resourceLabel(label)}.txt`);
+  writeFileSync(filePath, attachment.content, "utf8");
   fixtureRuntime.addTeardown(() => rmSync(dir, { force: true, recursive: true }));
-  return { content, filePath };
+  return { ...attachment, filePath };
+}
+
+function attachmentFixture(fixtureRuntime, adapter, label, prefix = "Sendmux live E2E attachment") {
+  const token = fixtureRuntime.resourceLabel(`${adapter}-${label}`);
+  const content = `${prefix} ${fixtureRuntime.runId} ${adapter} ${label} ${token}\n`;
+  return {
+    adapter,
+    content,
+    contentType: "text/plain",
+    filename: `${token}.txt`,
+    sha256: createHash("sha256").update(content).digest("hex"),
+    sizeBytes: Buffer.byteLength(content, "utf8"),
+  };
+}
+
+function evidenceForAttachment(attachment, adapter, operationId) {
+  return {
+    adapter,
+    filename: attachment.filename,
+    operationId,
+    sha256: attachment.sha256,
+    size_bytes: attachment.sizeBytes,
+  };
+}
+
+function applyAttachmentEvidence(entry, evidence, operationId) {
+  if (!evidence) return false;
+  assert.deepEqual(Object.keys(evidence).sort(), ["adapter", "filename", "operationId", "sha256", "size_bytes"], "Unexpected attachment evidence fields");
+  assert.equal(entry.operationId, operationId, "Attachment resource operation mismatch");
+  assert.equal(evidence.operationId, operationId, "Attachment evidence operation mismatch");
+  assert.ok(typeof evidence.adapter === "string" && evidence.adapter.length > 0 && typeof evidence.filename === "string" && evidence.filename.length > 0, "Invalid attachment evidence identity");
+  assert.ok(Number.isInteger(evidence.size_bytes) && evidence.size_bytes > 0, "Invalid attachment evidence length");
+  assert.match(evidence.sha256, /^[a-f0-9]{64}$/, "Invalid attachment evidence digest");
+  for (const field of ["adapter", "filename", "sha256", "size_bytes"]) {
+    if (entry[field] !== undefined) assert.equal(entry[field], evidence[field], `Conflicting attachment evidence ${field}`);
+    entry[field] = evidence[field];
+  }
+  return true;
 }
 
 async function assertUploadedAttachmentRoundTrip({ expectedContent, fixtureRuntime, label, uploadResult }) {
@@ -1943,11 +1985,12 @@ async function prepareSendingSendEmail({ adapter, fixtureRuntime }) {
   assertFixtureRecipientAllowed({ recipient: email, sourceName: "sendingSendEmail" });
   const attachmentFile =
     adapter === "cli"
-      ? createLiveAttachmentFile(
+      ? createLiveAttachmentFile(fixtureRuntime, "sending-cli-attach", attachmentFixture(
           fixtureRuntime,
-          "sending-cli-attach",
-          `Sendmux live E2E Sending attachment ${fixtureRuntime.runId}\n`,
-        )
+          adapter,
+          "sendingSendEmail",
+          "Sendmux live E2E Sending attachment",
+        ))
       : null;
   return {
     request: {
@@ -1959,7 +2002,7 @@ async function prepareSendingSendEmail({ adapter, fixtureRuntime }) {
 }
 
 async function prepareSendingUploadAttachment({ adapter, fixtureRuntime }) {
-  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-upload-attachment");
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-upload-attachment", adapter);
   const afterResult = async (value) => {
     await assertSendingAttachmentMetadata({
       contentType: attachment.contentType,
@@ -1972,6 +2015,7 @@ async function prepareSendingUploadAttachment({ adapter, fixtureRuntime }) {
 
   if (adapter === "mcp") {
     return {
+      attachmentEvidence: evidenceForAttachment(attachment, adapter, "sendingUploadAttachment"),
       afterResult,
       request: {
         body: {
@@ -1984,6 +2028,7 @@ async function prepareSendingUploadAttachment({ adapter, fixtureRuntime }) {
   }
 
   return {
+    attachmentEvidence: evidenceForAttachment(attachment, adapter, "sendingUploadAttachment"),
     afterResult,
     request: {
       body: attachment.content,
@@ -2019,8 +2064,8 @@ async function prepareSendingGetAttachment({ fixtureRuntime }) {
   };
 }
 
-async function prepareSendingCreateAttachmentUpload({ fixtureRuntime }) {
-  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-create-attachment-upload");
+async function prepareSendingCreateAttachmentUpload({ adapter, fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-create-attachment-upload", adapter);
   return {
     request: {
       body: {
@@ -2043,14 +2088,15 @@ async function prepareSendingCreateAttachmentUpload({ fixtureRuntime }) {
   };
 }
 
-async function prepareSendingCompleteAttachmentUpload({ fixtureRuntime }) {
-  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-complete-attachment-upload");
+async function prepareSendingCompleteAttachmentUpload({ adapter, fixtureRuntime }) {
+  const attachment = sendingAttachmentFixture(fixtureRuntime, "sending-complete-attachment-upload", adapter);
   const intent = await createSendingAttachmentUploadIntent({
     attachment,
     fixtureRuntime,
     label: "sending-complete-attachment-upload",
   });
   return {
+    attachmentEvidence: evidenceForAttachment(attachment, adapter, "sendingCompleteAttachmentUpload"),
     request: {
       body: attachment.content,
       headers: {
@@ -2261,14 +2307,8 @@ function sendingEmailBody({ email, fixtureRuntime, subjectLabel }) {
   };
 }
 
-function sendingAttachmentFixture(fixtureRuntime, label) {
-  const content = `Sendmux live E2E Sending attachment ${fixtureRuntime.runId} ${label}\n`;
-  return {
-    content,
-    contentType: "text/plain",
-    filename: `${fixtureRuntime.resourceLabel(label)}.txt`,
-    sizeBytes: Buffer.byteLength(content, "utf8"),
-  };
+function sendingAttachmentFixture(fixtureRuntime, label, adapter = "fixture") {
+  return attachmentFixture(fixtureRuntime, adapter, label, "Sendmux live E2E Sending attachment");
 }
 
 async function uploadOwnedSendingAttachment(fixtureRuntime, label) {
@@ -2282,7 +2322,7 @@ async function uploadOwnedSendingAttachment(fixtureRuntime, label) {
       content_type: attachment.contentType,
       filename: attachment.filename,
     },
-  });
+  }, { attachmentEvidence: evidenceForAttachment(attachment, "fixture", "sendingUploadAttachment") });
   return {
     ...attachment,
     attachmentId: requireSelectedValue(response, ["data.attachment_id"], `${label} attachment id`),
@@ -2324,7 +2364,7 @@ async function completeSendingAttachmentUploadUrl({ attachment, fixtureRuntime, 
     method,
   });
   const payload = await response.json().catch(() => null);
-  fixtureRuntime.observeResult("sendingCompleteAttachmentUpload", {}, payload);
+  fixtureRuntime.observeResult("sendingCompleteAttachmentUpload", {}, payload, evidenceForAttachment(attachment, attachment.adapter, "sendingCompleteAttachmentUpload"));
   assert.equal(response.status, 201, `${label} delegated upload returned HTTP ${response.status}`);
   assertSendingAttachmentMetadataValue({
     attachmentId: selectFirstValue(payload, ["data.attachment_id"]),
@@ -2460,7 +2500,8 @@ function requireSelectedValue(value, selectors, label) {
   return selected;
 }
 
-function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, ledgerPath = join(".tmp", "live-e2e", runId, "resources.json") }) {
+function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, sourceSha, ledgerPath = join(".tmp", "live-e2e", runId, "resources.json") }) {
+  assert.match(sourceSha, /^[0-9a-f]{40}$/, "Fixture runtime requires the exact source SHA");
   const idempotencyCounts = new Map();
   const resourceCounts = new Map();
   const runSlug = runId.replace(/[^a-z0-9]/gi, "").slice(0, 12).toLowerCase();
@@ -2469,7 +2510,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, l
   const deliveries = new Map();
   const operationsById = new Map(operations.map((operation) => [operation.operationId, operation]));
   let proof;
-  const ledger = { runId, resources: [] };
+  const ledger = { runId, sourceSha, resources: [] };
   const persist = () => {
     mkdirSync(dirname(ledgerPath), { recursive: true });
     writeFileSync(`${ledgerPath}.tmp`, `${JSON.stringify(ledger, null, 2)}\n`, { mode: 0o600, flush: true });
@@ -2566,15 +2607,47 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, l
       mkdirSync(dirname(ledgerPath), { recursive: true });
       return join(dirname(ledgerPath), `${adapter}-${operationId}-${randomUUID()}.jsonl`);
     },
-    recoverJournal(path, operationId, request) {
+    recoverJournal(path, operationId, request, attachmentEvidence) {
       if (!existsSync(path)) return;
+      const nestedIds = new Set();
+      const nestedOrdinals = new Set();
       for (const line of readFileSync(path, "utf8").split("\n").filter(Boolean)) {
         const record = JSON.parse(line);
         assert.equal(record.operationId, operationId, "Unexpected journal operation");
-        this.observeResult(operationId, request, record.result);
+        if (Object.hasOwn(record, "result")) {
+          assert.deepEqual(Object.keys(record).sort(), ["operationId", "result"], "Unexpected child journal fields");
+          this.observeResult(operationId, request, record.result, attachmentEvidence);
+          continue;
+        }
+        assert.deepEqual(Object.keys(record).sort(), ["adapter", "filename", "id", "nestedOperationId", "operationId", "ordinal", "sha256", "size_bytes"], "Unexpected nested attachment journal fields");
+        assert.equal(record.adapter, "cli", "Nested attachment journal must come from CLI");
+        const nestedOperationId = { mailboxSendMessage: "mailboxUploadAttachment", sendingSendEmail: "sendingUploadAttachment" }[operationId];
+        assert.equal(record.nestedOperationId, nestedOperationId, "Unexpected nested attachment operation");
+        assert.ok(Number.isInteger(record.ordinal) && record.ordinal >= 0, "Invalid nested attachment ordinal");
+        assert.ok(!nestedOrdinals.has(record.ordinal), "Duplicate nested attachment ordinal");
+        assert.ok(typeof record.id === "string" && record.id.length > 0 && !nestedIds.has(record.id), "Invalid or duplicate nested attachment ID");
+        assert.ok(typeof record.filename === "string" && record.filename.length > 0, "Invalid nested attachment filename");
+        assert.ok(Number.isInteger(record.size_bytes) && record.size_bytes > 0, "Invalid nested attachment length");
+        assert.match(record.sha256, /^[a-f0-9]{64}$/, "Invalid nested attachment digest");
+        const attachmentPath = request.attach?.[record.ordinal];
+        assert.ok(typeof attachmentPath === "string", "Nested attachment ordinal is outside the outer request");
+        const bytes = readFileSync(attachmentPath);
+        assert.equal(record.filename, basename(attachmentPath), "Nested attachment filename mismatch");
+        assert.equal(record.size_bytes, bytes.byteLength, "Nested attachment length mismatch");
+        assert.equal(record.sha256, createHash("sha256").update(bytes).digest("hex"), "Nested attachment digest mismatch");
+        nestedOrdinals.add(record.ordinal);
+        nestedIds.add(record.id);
+        const idField = nestedOperationId === "mailboxUploadAttachment" ? "blob_id" : "attachment_id";
+        this.observeResult(nestedOperationId, {}, { data: { [idField]: record.id } }, {
+          adapter: "cli",
+          filename: record.filename,
+          operationId: nestedOperationId,
+          sha256: record.sha256,
+          size_bytes: record.size_bytes,
+        }, { nestedIdentityOnly: true });
       }
     },
-    observeResult(operationId, request, value) {
+    observeResult(operationId, request, value, attachmentEvidence, { nestedIdentityOnly = false } = {}) {
       const retention = {
         mailboxCreateAttachmentUpload: ["data.upload_id", "url_expires_at", "upload_intent"],
         mailboxUploadAttachment: ["data.blob_id", null, "mailbox_blob"],
@@ -2585,12 +2658,19 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, l
       if (retention) {
         const [selector, expiryField, kind] = retention;
         const id = selectFirstValue(value, [selector]);
-        if (id && !ledger.resources.some(item => item.kind === kind && item.id === id)) {
+        if (!id) assert.notEqual(value?.ok, true, `${operationId} success response omitted ${selector}`);
+        if (id) {
           assert.equal(typeof id, "string", "Resource ID must be a string");
+          const existing = ledger.resources.find(item => item.kind === kind && item.id === id);
+          if (existing) {
+            if (applyAttachmentEvidence(existing, attachmentEvidence, operationId)) persist();
+            return;
+          }
           const entry = { operationId, kind, id, status: kind === "upload_intent" ? "pending" : "unverified_retention", public_delete: false, storage_cleanup: kind === "upload_intent" ? "no_uploaded_bytes" : "unverified" };
+          applyAttachmentEvidence(entry, attachmentEvidence, operationId);
           ledger.resources.push(entry);
           persist();
-          if (expiryField) {
+          if (expiryField && !nestedIdentityOnly) {
             const expiry = requireSelectedValue(value, ["data.expires_at"], "retention expiry");
             assert.ok(typeof expiry === "string" && Number.isFinite(Date.parse(expiry)), "Invalid retention expiry");
             entry[expiryField] = expiry.replace(/\+00:00$/, "Z");
@@ -2670,7 +2750,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, l
       return `live-e2e-${safeLabel}-${runSlug}-${count}`;
     },
     runId,
-    async runOperation(operationId, request = {}) {
+    async runOperation(operationId, request = {}, { attachmentEvidence } = {}) {
       assert.ok(proof, "Connection identity preflight must succeed before fixture operations");
       this.beginOperation(operationId, request);
       const operation = operationsById.get(operationId);
@@ -2680,8 +2760,8 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, l
       const client = sdkClientFor({ credentials, operation, sdk });
       const sdkOperation = sdk[operation.surface]?.[operation.operationId];
       assert.equal(typeof sdkOperation, "function", `${operation.operationId} is not exported by @sendmux/sdk`);
-      const response = await runBoundedSdkOperation({ client, operation, request, onResponse: response => this.observeResult(operationId, request, response.data), sdkOperation });
-      this.observeResult(operationId, request, response.data);
+      const response = await runBoundedSdkOperation({ client, operation, request, onResponse: response => this.observeResult(operationId, request, response.data, attachmentEvidence), sdkOperation });
+      this.observeResult(operationId, request, response.data, attachmentEvidence);
       assertLiveResponse(response.data, operation);
       return response.data;
     },

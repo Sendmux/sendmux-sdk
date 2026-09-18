@@ -295,8 +295,8 @@ assert.match(
 );
 assert.match(
   runnerSource,
-  /runCli\(cliArgs, tempHome, cliTimeoutMsFor\(operation, prepared\.request\), \{\s*SENDMUX_API_KEY:\s*apiKey,\s*SENDMUX_BASE_URL:\s*baseUrl,\s*\}\)/,
-  "live E2E CLI invocations must pass credentials through child env, not argv",
+  /runCli\(cliArgs, tempHome, cliTimeoutMsFor\(operation, prepared\.request\), \{\s*SENDMUX_API_KEY:\s*apiKey,\s*SENDMUX_BASE_URL:\s*baseUrl,\s*SENDMUX_LIVE_E2E_ATTACHMENT_JOURNAL:\s*prepared\.journalPath,\s*\}\)/,
+  "live E2E CLI invocations must pass credentials and the private attachment journal path through child env, not argv",
 );
 assert.doesNotMatch(
   runnerSource.match(/async function runCliOperation[\s\S]*?function runCli/)?.[0] ?? "",
@@ -349,8 +349,8 @@ assert.match(
 );
 assert.match(
   manifestWriterSource,
-  /commitSha:\s*args\.commit\s*\|\|\s*gitSha\(\)/,
-  "live E2E audit manifest writer must default blank commit args to git rev-parse HEAD",
+  /const commitSha = args\.commit \|\| gitSha\(\);[\s\S]*?const manifest = buildManifest\(\{\s*commitSha,/,
+  "live E2E audit manifest writer must default blank commit args to git rev-parse HEAD and pass that commit to the manifest",
 );
 assert.match(
   manifestWriterSource,

@@ -2,6 +2,9 @@
 
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.6.0...ts-mailbox-v2.0.0) (2026-09-18)
 
+### Changed
+
+* **Breaking:** `mailboxListThreadMessages` returns `MailboxThreadMessageSummaryCursorListResponse`, whose `meta.thread_id` is required and whose optional `meta.sync_state` is typed; thread-message results you construct (fixtures, mocks, annotated wrappers) must now supply `thread_id`, while reading results is unaffected. `mailboxListMessages` keeps `MailboxMessageSummaryCursorListResponse`; identity, submission, quota, and thread list responses expose optional typed state metadata (`identity_state`, `query_state`, `sync_state`) ([87f54eb](https://github.com/Sendmux/sendmux-sdk/commit/87f54eb1679994ddcbdd68ad25d674ad6978f57f)). See [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20).
 
 ### Bug Fixes
 

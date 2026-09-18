@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.6.0...ts-mailbox-v2.0.0) (2026-09-18)
+
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+* **sdk:** preserve streaming arguments and prepare PHP OAuth release ([#207](https://github.com/Sendmux/sendmux-sdk/issues/207)) ([c534588](https://github.com/Sendmux/sendmux-sdk/commit/c53458875cef0bbd601c982308d84bc4e87c961c))
+
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.5.0...ts-mailbox-v1.6.0) (2026-09-10)
 
 

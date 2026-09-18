@@ -32,7 +32,7 @@ npm install @sendmux/sdk
 
 `@sendmux/sdk` 2.0 re-exports `@sendmux/management` 2.0 and `@sendmux/mailbox` 2.0,
 so it carries their two result-type changes; the `sending` and `core` namespaces
-are unchanged. If you pass sending-account list entries to code that expects a
+carry no breaking change. If you pass sending-account list entries to code that expects a
 detail result, or construct thread-message list results (fixtures, mocks, or
 wrappers annotated with the operation's result type), update those types before
 upgrading to 2.0. Code that only reads results keeps compiling.

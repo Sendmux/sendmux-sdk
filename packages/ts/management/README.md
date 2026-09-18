@@ -23,6 +23,46 @@ Generated TypeScript client for the Sendmux Management API.
 npm install @sendmux/management
 ```
 
+## Migrate from 1.x to 2.0
+
+If you pass sending-account list entries to code that expects a detail result,
+update those types before upgrading to 2.0. `managementListProviders` returns
+`ProviderListItem` entries without `variables`; `managementGetProvider` returns
+a `ProviderItem` with required `variables`. A list entry no longer satisfies the
+detail type.
+
+1. Derive separate list and detail types from the public operations. The package
+   doesn't export these generated model names directly:
+
+   ```ts
+   import {
+     managementGetProvider,
+     managementListProviders,
+   } from "@sendmux/management";
+
+   type ProviderListItem = NonNullable<
+     Awaited<ReturnType<typeof managementListProviders>>["data"]
+   >["data"][number];
+   type ProviderItem = NonNullable<
+     Awaited<ReturnType<typeof managementGetProvider>>["data"]
+   >["data"];
+   ```
+
+2. For code that only needs list fields, replace the detail annotation with the
+   list type:
+
+   ```ts
+   // Before: type ProviderRow = ProviderItem;
+   type ProviderRow = ProviderListItem;
+   ```
+
+   If you need `variables`, fetch the detail with `managementGetProvider` using
+   the account's `id` as `path.public_id`. Don't cast a list entry to `ProviderItem` or add
+   an empty `variables` object to stand in for the account's actual variables.
+
+3. Run your application's TypeScript check. List-only code should accept
+   `ProviderListItem`; code that reads `variables` must receive a detail result.
+
 ## OAuth access tokens
 
 Pass `accessToken` instead of `apiKey` for a REST OAuth token or synchronous/asynchronous provider.

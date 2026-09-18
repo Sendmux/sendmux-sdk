@@ -8,6 +8,22 @@
 * Require `sendmux-sending>=1.6.0,<2.0.0` for delivery-group routing; retain the Core 1.3.1 and Mailbox 2.0.0 floors.
 * Upgrade the SDK, component requirements, lockfile, and affected annotations or fixtures together. See [Version 3.0.0 migration](README.md#version-300-migration).
 
+## [3.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v2.0.0...python-sdk-v3.0.0) (2026-09-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **python-sdk:** provider lists expose ProviderListItem while details retain ProviderItem with variables. Requires Management 2 and prepares the SDK 3 release; published SDK versions remain immutable.
+
+### Bug Fixes
+
+* **python-sdk:** adopt Management 2 and Sending 1.6 producer floors ([d296c8f](https://github.com/Sendmux/sendmux-sdk/commit/d296c8f550e1754b2190b8a5f028c96bff4404b1))
+
+
+### Documentation
+
+* **python-sdk:** classify raised Sending floor as breaking ([c91c415](https://github.com/Sendmux/sendmux-sdk/commit/c91c415d57845fe7950c057fc93e46ef8b7ccdf3))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v1.2.0...python-sdk-v2.0.0) (2026-09-15)
 
 

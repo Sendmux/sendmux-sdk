@@ -6,6 +6,21 @@
 
 * Add provider variable management fields and delivery-group fields to delivery logs.
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.3.0...ruby-management/v2.0.0) (2026-09-18)
+
+
+### Features
+
+* integrate combined provider variables and delivery routing ([81bbf22](https://github.com/Sendmux/sendmux-sdk/commit/81bbf221a357bf5d588eba654184ff34491473df))
+* **sdk:** add provider variables and delivery group routing ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a))
+
+
+### Bug Fixes
+
+* correct generated client contracts ([dd31abe](https://github.com/Sendmux/sendmux-sdk/commit/dd31abed8e264e05f4717388a0d4ada83e47d7e3))
+* **sdk:** adopt final provider contract description and provenance ([a9bdaf5](https://github.com/Sendmux/sendmux-sdk/commit/a9bdaf58f0db684328458e269ba8aff515334d0b))
+* **sdk:** adopt final provider contract description and provenance ([815278e](https://github.com/Sendmux/sendmux-sdk/commit/815278e76587dcba314c51202b8e764250e51ef3))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.2.0...ruby-management/v1.3.0) (2026-09-10)
 
 

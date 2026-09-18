@@ -1,5 +1,7 @@
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const ruby = commandWithRbenv("ruby");
@@ -7,24 +9,27 @@ const bundle = commandWithRbenv("bundle");
 const gem = commandWithRbenv("gem");
 const packages = ["core", "sending", "mailbox", "management", "sdk"];
 
-checkGeneratedRubyHeaderStringification();
-run(bundle, ["install"]);
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  run([process.execPath], ["scripts/test-ruby-release-guardrails.mjs"]);
+  checkGeneratedRubyHeaderStringification();
+  run(bundle, ["install"]);
 
-for (const name of packages) {
-  const version = readVersion(name);
-  const gemFile = `sendmux-${name}-${version}.gem`;
-  run(gem, ["build", `sendmux-${name}.gemspec`], { cwd: `${root}/packages/ruby/${name}` });
-  run(gem, ["specification", gemFile, "name"], { cwd: `${root}/packages/ruby/${name}` });
-  rmSync(`${root}/packages/ruby/${name}/${gemFile}`, { force: true });
+  for (const name of packages) {
+    const version = readVersion(name);
+    const gemFile = `sendmux-${name}-${version}.gem`;
+    run(gem, ["build", `sendmux-${name}.gemspec`], { cwd: `${root}/packages/ruby/${name}` });
+    run(gem, ["specification", gemFile, "name"], { cwd: `${root}/packages/ruby/${name}` });
+    rmSync(`${root}/packages/ruby/${name}/${gemFile}`, { force: true });
+  }
+
+  runShell(`find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ${ruby.join(" ")} -c`);
+  checkRubyDependencyFloors();
+  run(bundle, ["exec", "rubocop", "packages/ruby"]);
+  run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_core.rb"]);
+  run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_connection.rb"]);
+  run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_oauth_retry.rb"]);
+  run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_management_validation.rb"]);
 }
-
-runShell(`find packages/ruby -name '*.rb' -print0 | xargs -0 -n 1 ${ruby.join(" ")} -c`);
-checkRubyDependencyFloors();
-run(bundle, ["exec", "rubocop", "packages/ruby"]);
-run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_core.rb"]);
-run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_connection.rb"]);
-run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_oauth_retry.rb"]);
-run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_management_validation.rb"]);
 
 function commandWithRbenv(command) {
   if (existsSync(`${process.env.HOME}/.rbenv/bin/rbenv`) || existsSync("/opt/homebrew/bin/rbenv")) {
@@ -43,9 +48,8 @@ function readVersion(name) {
   return match[1];
 }
 
-function checkRubyDependencyFloors() {
-  const manifest = JSON.parse(readFileSync(`${root}/.release-please-manifest.json`, "utf8"));
-  const changedPackages = readChangedRubyPackages();
+export function checkRubyDependencyFloors({ root: fixtureRoot = root, changedPackages = readChangedRubyPackages() } = {}) {
+  const manifest = JSON.parse(readFileSync(`${fixtureRoot}/.release-please-manifest.json`, "utf8"));
   const dependencyChecks = [
     {
       packageName: "sending",
@@ -65,7 +69,7 @@ function checkRubyDependencyFloors() {
   ];
 
   for (const { packageName, gemspecPath, dependencies } of dependencyChecks) {
-    const source = readFileSync(`${root}/${gemspecPath}`, "utf8");
+    const source = readFileSync(`${fixtureRoot}/${gemspecPath}`, "utf8");
     const enforceManifestFloor = changedPackages.has(packageName);
     for (const [dependency, minimumVersion] of dependencies) {
       if (typeof minimumVersion !== "string") {
@@ -73,11 +77,15 @@ function checkRubyDependencyFloors() {
       }
 
       const dependencyPattern = new RegExp(
-        `spec\\.add_dependency '${dependency}', '>= ([^']+)', '< 2\\.0'`,
+        `spec\\.add_dependency '${dependency}', '>= ([^']+)', '< ([^']+)'`,
       );
-      const actualVersion = source.match(dependencyPattern)?.[1];
+      const [, actualVersion, actualCeiling] = source.match(dependencyPattern) ?? [];
       if (!actualVersion) {
-        throw new Error(`${gemspecPath} must require ${dependency} with an explicit >= floor and < 2.0 upper bound`);
+        throw new Error(`${gemspecPath} must require ${dependency} with an explicit >= floor and < next-major upper bound`);
+      }
+      const expectedCeiling = `${parseSemver(actualVersion)[0] + 1}.0`;
+      if (actualCeiling !== expectedCeiling) {
+        throw new Error(`${gemspecPath} must require ${dependency} < ${expectedCeiling} for floor >= ${actualVersion}; found < ${actualCeiling}`);
       }
       if (enforceManifestFloor && compareSemver(actualVersion, minimumVersion) < 0) {
         throw new Error(`${gemspecPath} must require ${dependency} >= ${minimumVersion}; found >= ${actualVersion}`);

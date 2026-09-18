@@ -8,6 +8,9 @@
 
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.3.0...ruby-management/v2.0.0) (2026-09-18)
 
+### Changed
+
+* **Breaking:** `management_list_providers` returns `ProviderListItem` instead of `ProviderItem`; list entries don't expose `variables`, while detail `ProviderItem` requires a variables hash. Update list-specific class checks and fetch detail when you need variables. See [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20).
 
 ### Features
 

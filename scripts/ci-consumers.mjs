@@ -140,24 +140,53 @@ export async function workspace(label, action) {
 async function packTypescript(directory, names) {
   const packs = join(directory, "packs");
   mkdirSync(packs);
-  for (const name of names) await run("pnpm", ["--filter", `@sendmux/${name}`, "pack", "--pack-destination", packs]);
-  const archives = readdirSync(packs).filter((name) => name.endsWith(".tgz"));
-  assert.equal(archives.length, names.length);
-  return archives.map((name) => join(packs, name));
+  const candidates = [];
+  for (const name of names) {
+    await run("pnpm", ["--filter", `@sendmux/${name}`, "pack", "--pack-destination", packs]);
+    candidates.push(packedCandidate(join(root, "packages/ts", name), packs));
+  }
+  assert.equal(readdirSync(packs).filter((name) => name.endsWith(".tgz")).length, names.length);
+  return candidates;
 }
 
-function newNodeConsumer(directory) {
+export function packedCandidate(directory, packs) {
+  const { name, version } = JSON.parse(readFileSync(join(directory, "package.json"), "utf8"));
+  const archive = join(packs, `${name.replace(/^@/, "").replace("/", "-")}-${version}.tgz`);
+  assert(existsSync(archive), `Expected packed candidate ${archive}`);
+  return { name, version, archive };
+}
+
+// Exact-version keys only: pnpm applies "name@range" overrides to a dependent's declared spec when it equals or intersects the key,
+// so a packed sibling declaring the candidate version (or a range containing it) installs the tarball; a bare key would mask a wrong range.
+export function candidateOverrides(candidates) {
+  return Object.fromEntries(candidates.map(({ name, version, archive }) => [`${name}@${version}`, `file:${archive}`]));
+}
+
+// pnpm 10 reads package.json#pnpm.overrides; pnpm 11 stops reading package.json#pnpm, so the consumer would then need pnpm-workspace.yaml.
+export function newNodeConsumer(directory, candidates) {
   mkdirSync(directory);
-  writeFileSync(join(directory, "package.json"), JSON.stringify({ name: "sendmux-ci-consumer", private: true, type: "module" }));
+  writeFileSync(join(directory, "package.json"), JSON.stringify({ name: "sendmux-ci-consumer", private: true, type: "module", pnpm: { overrides: candidateOverrides(candidates) } }));
 }
 
 export async function nodeProvenance(directory, names) {
+  const packages = names.map((name) => (name.includes("/") ? name : `@sendmux/${name}`));
+  const scopes = [...new Set(packages.map((name) => name.split("/")[0]))];
   const source = `import assert from 'node:assert/strict';
-import {realpathSync} from 'node:fs'; import {fileURLToPath} from 'node:url'; import {sep} from 'node:path';
-for (const name of ${JSON.stringify(names.map((name) => `@sendmux/${name}`))}) {
-  const location = realpathSync(fileURLToPath(import.meta.resolve(name)));
-  assert(location.startsWith(realpathSync(process.cwd()) + sep), name + ': not installed in consumer');
+import {readFileSync, realpathSync} from 'node:fs'; import {createRequire} from 'node:module'; import {fileURLToPath} from 'node:url'; import {join, sep} from 'node:path';
+const consumer = realpathSync(process.cwd());
+const installed = (name) => realpathSync(fileURLToPath(import.meta.resolve(name)));
+for (const name of ${JSON.stringify(packages)}) {
+  const location = installed(name);
+  assert(location.startsWith(consumer + sep), name + ': not installed in consumer');
   await import(name); console.log(JSON.stringify({installed_package:name, location}));
+  // Resolve from the installed package's real directory: a require based on the consumer's top-level link would always find the top-level instance.
+  const manifest = realpathSync(join(consumer, 'node_modules', name, 'package.json'));
+  const {dependencies = {}} = JSON.parse(readFileSync(manifest, 'utf8'));
+  for (const dependency of Object.keys(dependencies).filter((dependency) => ${JSON.stringify(scopes)}.includes(dependency.split('/')[0]))) {
+    const nested = realpathSync(createRequire(manifest).resolve(dependency));
+    assert.equal(nested, installed(dependency), name + ' -> ' + dependency + ': resolved a different instance');
+    console.log(JSON.stringify({candidate_edge: name + ' -> ' + dependency, location: nested}));
+  }
 }`;
   writeFileSync(join(directory, "provenance.mjs"), source);
   await run(process.execPath, ["provenance.mjs"], { cwd: directory });
@@ -166,10 +195,10 @@ for (const name of ${JSON.stringify(names.map((name) => `@sendmux/${name}`))}) {
 export async function nodeConsumer() {
   await workspace("node-consumer", async (directory) => {
     const names = [...nativePackages, "cli"];
-    const archives = await packTypescript(directory, names);
+    const candidates = await packTypescript(directory, names);
     const consumer = join(directory, "consumer");
-    newNodeConsumer(consumer);
-    await run("pnpm", ["add", "--save-exact", ...archives], { cwd: consumer });
+    newNodeConsumer(consumer, candidates);
+    await run("pnpm", ["add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer });
     await nodeProvenance(consumer, names);
     await run("pnpm", ["exec", "sendmux", "--help"], { cwd: consumer });
   });
@@ -187,9 +216,10 @@ export const aiPairs = [
 export async function aiConsumers(pairs = aiPairs) {
   await workspace("ai-consumers", async (directory) => {
     const names = ["core", "sending", "mailbox", "ai-sdk"];
-    const archives = await packTypescript(directory, names);
+    const candidates = await packTypescript(directory, names);
+    const archives = candidates.map(({ archive }) => archive);
     const incompatible = join(directory, "incompatible-zod-3.24.0");
-    newNodeConsumer(incompatible);
+    newNodeConsumer(incompatible, candidates);
     await run("pnpm", ["add", "--save-exact", ...archives, "ai@5.0.0", "zod@3.24.0", "semver@7.8.5"], { cwd: incompatible });
     writeFileSync(join(incompatible, "reject-peer.mjs"), `import assert from 'node:assert/strict';
 import semver from 'semver'; import {readFileSync} from 'node:fs';
@@ -200,7 +230,7 @@ assert(semver.satisfies(installed('zod').version, installed('@sendmux/ai-sdk').p
     console.log("Expected negative: installed Zod 3.24.0 consumer rejected by candidate peer contract");
     for (const [ai, zod] of pairs) {
       const consumer = join(directory, `ai-${ai}-zod-${zod}`);
-      newNodeConsumer(consumer);
+      newNodeConsumer(consumer, candidates);
       await run("pnpm", ["add", "--save-exact", ...archives, `ai@${ai}`, `zod@${zod}`, "semver@7.8.5"], { cwd: consumer });
       await nodeProvenance(consumer, names);
       writeFileSync(join(consumer, "peers.mjs"), `import assert from 'node:assert/strict';

@@ -4,7 +4,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameS
 import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
-import { nodeProvenance, nodeTests, pythonArtifactConsumers, run, workspace } from "./ci-consumers.mjs";
+import { fileURLToPath } from "node:url";
+import { candidateOverrides, newNodeConsumer, nodeProvenance, nodeTests, packedCandidate, pythonArtifactConsumers, run, workspace } from "./ci-consumers.mjs";
 
 test("Python artifact consumers isolate sequential releases and reject missing or changed targets", async () => {
   await workspace("python-cohort-fixture", async (directory) => {
@@ -278,5 +279,70 @@ assert(existsSync(retained), 'unconfirmed group workspace must be retained');`);
       }
       assert.throws(() => process.kill(owner.pid, 0), { code: "ESRCH" });
     }
+  });
+});
+
+function fixturePackage(directory, manifest) {
+  mkdirSync(directory, { recursive: true });
+  writeFileSync(join(directory, "package.json"), JSON.stringify({ ...manifest, type: "module", exports: "./index.js" }));
+  writeFileSync(join(directory, "index.js"), `export const fixture = ${JSON.stringify(manifest.name)};`);
+}
+
+async function packFixture(directory, packs) {
+  await run("pnpm", ["--dir", directory, "pack", "--pack-destination", packs]);
+  return packedCandidate(directory, packs);
+}
+
+test("packed dependents resolve an unpublished sibling candidate from its tarball instead of the registry", async () => {
+  await workspace("sibling-candidate", async (directory) => {
+    const packs = join(directory, "packs");
+    mkdirSync(packs);
+    fixturePackage(join(directory, "leaf"), { name: "@sendmux-ci-fixture/leaf", version: "0.0.0-fixture" });
+    fixturePackage(join(directory, "dependent"), { name: "@sendmux-ci-fixture/dependent", version: "1.0.0", dependencies: { "@sendmux-ci-fixture/leaf": "0.0.0-fixture" } });
+    const candidates = [await packFixture(join(directory, "leaf"), packs), await packFixture(join(directory, "dependent"), packs)];
+    const consumer = join(directory, "consumer");
+    newNodeConsumer(consumer, candidates);
+    await run("pnpm", ["add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer });
+    await nodeProvenance(consumer, candidates.map(({ name }) => name));
+  });
+});
+
+test("a packed dependent whose range excludes the candidate is not masked", async () => {
+  await workspace("excluded-candidate", async (directory) => {
+    const packs = join(directory, "packs");
+    mkdirSync(packs);
+    fixturePackage(join(directory, "leaf"), { name: "@sendmux-ci-fixture/leaf", version: "0.0.0-fixture" });
+    fixturePackage(join(directory, "dependent"), { name: "@sendmux-ci-fixture/dependent", version: "1.0.0", dependencies: { "@sendmux-ci-fixture/leaf": "0.0.1" } });
+    const candidates = [await packFixture(join(directory, "leaf"), packs), await packFixture(join(directory, "dependent"), packs)];
+    assert.deepEqual(Object.keys(candidateOverrides(candidates)), ["@sendmux-ci-fixture/leaf@0.0.0-fixture", "@sendmux-ci-fixture/dependent@1.0.0"]);
+    const consumer = join(directory, "consumer");
+    newNodeConsumer(consumer, candidates);
+    await assert.rejects(run("pnpm", ["add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer }), /exit 1/);
+    console.log("Expected negative: dependent range 0.0.1 excludes candidate 0.0.0-fixture and reaches the registry");
+  });
+});
+
+test("nested candidate edges must be the tarball instance, not a registry copy", async () => {
+  await workspace("nested-candidate-edge", async (directory) => {
+    const packs = join(directory, "packs");
+    mkdirSync(packs);
+    await run("pnpm", ["--filter", "@sendmux/core", "pack", "--pack-destination", packs]);
+    const core = packedCandidate(fileURLToPath(new URL("../packages/ts/core", import.meta.url)), packs);
+    const dependent = join(directory, "dependent");
+    fixturePackage(dependent, { name: "@sendmux-ci-fixture/dependent", version: "1.0.0", dependencies: { "@sendmux/core": "1.1.0" } });
+    const registryEdge = [core, await packFixture(dependent, packs)];
+    const registryConsumer = join(directory, "registry-edge");
+    newNodeConsumer(registryConsumer, registryEdge);
+    await run("pnpm", ["add", "--save-exact", ...registryEdge.map(({ archive }) => archive)], { cwd: registryConsumer });
+    await assert.rejects(nodeProvenance(registryConsumer, registryEdge.map(({ name }) => name)), /exit 1/);
+    console.log("Expected negative: dependent pinned to published @sendmux/core 1.1.0 resolved a registry copy");
+    const candidatePacks = join(directory, "candidate-packs");
+    mkdirSync(candidatePacks);
+    fixturePackage(dependent, { name: "@sendmux-ci-fixture/dependent", version: "1.0.0", dependencies: { "@sendmux/core": core.version } });
+    const candidateEdge = [core, await packFixture(dependent, candidatePacks)];
+    const candidateConsumer = join(directory, "candidate-edge");
+    newNodeConsumer(candidateConsumer, candidateEdge);
+    await run("pnpm", ["add", "--save-exact", ...candidateEdge.map(({ archive }) => archive)], { cwd: candidateConsumer });
+    await nodeProvenance(candidateConsumer, candidateEdge.map(({ name }) => name));
   });
 });

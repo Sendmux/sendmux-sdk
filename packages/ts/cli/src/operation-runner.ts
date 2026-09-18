@@ -1,6 +1,6 @@
 import * as sdk from "@sendmux/sdk";
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { closeSync, createReadStream, fsyncSync, openSync, writeSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { basename, extname } from "node:path";
 
@@ -238,7 +238,7 @@ async function withAttachedFiles(
 
   if (operation.operationId === "mailboxSendMessage") {
     const uploaded = [];
-    for (const file of files) {
+    for (const [ordinal, file] of files.entries()) {
       const uploadResponse = await sdk.mailbox.mailboxUploadAttachment({
         client: client as MailboxClient,
         body: blobFor(file),
@@ -251,8 +251,10 @@ async function withAttachedFiles(
         },
       });
       const result = envelopeData<Record<string, unknown>>(uploadResponse, "mailboxUploadAttachment");
+      const blobId = stringField(result, "blob_id", "mailboxUploadAttachment");
+      journalNestedAttachment({ file, id: blobId, nestedOperationId: "mailboxUploadAttachment", operationId: operation.operationId, ordinal });
       uploaded.push({
-        blob_id: stringField(result, "blob_id", "mailboxUploadAttachment"),
+        blob_id: blobId,
         content_type: stringField(result, "content_type", "mailboxUploadAttachment"),
         filename: stringField(result, "filename", "mailboxUploadAttachment"),
       });
@@ -291,8 +293,10 @@ async function withAttachedFiles(
         },
       });
       const result = envelopeData<Record<string, unknown>>(uploadResponse, "sendingUploadAttachment");
+      const attachmentId = stringField(result, "attachment_id", "sendingUploadAttachment");
+      journalNestedAttachment({ file, id: attachmentId, nestedOperationId: "sendingUploadAttachment", operationId: operation.operationId, ordinal: index });
       uploaded.push({
-        attachment_id: stringField(result, "attachment_id", "sendingUploadAttachment"),
+        attachment_id: attachmentId,
       });
     }
 
@@ -320,6 +324,34 @@ async function withAttachedFiles(
       ],
     },
   };
+}
+
+function journalNestedAttachment({ file, id, nestedOperationId, operationId, ordinal }: {
+  file: AttachmentFile;
+  id: string;
+  nestedOperationId: "mailboxUploadAttachment" | "sendingUploadAttachment";
+  operationId: string;
+  ordinal: number;
+}): void {
+  const path = process.env.SENDMUX_LIVE_E2E_ATTACHMENT_JOURNAL;
+  if (!path) return;
+  const record = {
+    adapter: "cli",
+    filename: file.filename,
+    id,
+    operationId,
+    nestedOperationId,
+    ordinal,
+    sha256: createHash("sha256").update(file.bytes).digest("hex"),
+    size_bytes: file.sizeBytes,
+  };
+  const descriptor = openSync(path, "a", 0o600);
+  try {
+    writeSync(descriptor, `${JSON.stringify(record)}\n`, undefined, "utf8");
+    fsyncSync(descriptor);
+  } finally {
+    closeSync(descriptor);
+  }
 }
 
 interface AttachmentFile {

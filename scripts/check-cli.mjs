@@ -75,6 +75,7 @@ const serverState = {
   sendingSends: new Map(),
   nextAttachment: 0,
   nextMessage: 0,
+  failNextAttachmentSend: undefined,
   tokenExchanges: 0,
   authStreamClosed: undefined,
   authRedirectPath: undefined,
@@ -310,8 +311,7 @@ const server = createServer(async (request, response) => {
   if (request.method === "POST" && requestUrl.startsWith("/mailbox/attachments:upload")) {
     const url = new URL(requestUrl, "http://127.0.0.1");
     const filename = url.searchParams.get("filename") ?? "attachment.bin";
-    response.setHeader("Content-Type", "application/json");
-    response.end(JSON.stringify({
+    const payload = {
       ok: true,
       data: {
         blob_id: `blob_cli_${filename}`,
@@ -320,7 +320,17 @@ const server = createServer(async (request, response) => {
         size_bytes: body.byteLength,
       },
       meta: { request_id: "req_cli_upload" },
-    }));
+    };
+    serverState.requests.at(-1).responseBody = payload;
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify(payload));
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl === "/mailbox/messages/send" && serverState.failNextAttachmentSend === "mailbox") {
+    serverState.failNextAttachmentSend = undefined;
+    response.writeHead(503, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ ok: false, error: { code: "service_unavailable", message: "Outer send failed", retryable: true }, meta: { request_id: "req_cli_mailbox_outer_failure" } }));
     return;
   }
 
@@ -361,6 +371,12 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === "POST" && requestUrl === "/emails/send" && body.length && JSON.parse(body).attachments?.length) {
+    if (serverState.failNextAttachmentSend === "sending") {
+      serverState.failNextAttachmentSend = undefined;
+      response.writeHead(503, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ ok: false, error: { code: "service_unavailable", message: "Outer send failed", retryable: true }, meta: { request_id: "req_cli_sending_outer_failure" } }));
+      return;
+    }
     if (JSON.parse(body).attachments.length > sendingAttachmentLimit) {
       response.writeHead(400, { "Content-Type": "application/json" });
       response.end(JSON.stringify({
@@ -835,6 +851,34 @@ try {
     },
   ], "sending:send --attach must inject uploaded attachment references");
   assertDeepEqual(sendingAttachUploadRequest.headers["idempotency-key"], undefined, "Unkeyed attachment upload must stay unkeyed");
+
+  for (const fixture of [
+    { command: "mailbox:send-message", operationId: "mailboxSendMessage", nestedOperationId: "mailboxUploadAttachment", surface: "mailbox", args: [
+      "--api-key", mailboxKey, "--base-url", baseUrl, "--body", JSON.stringify({ subject: "CLI journal failure", text_body: "Attached", to: [{ email: "agent@example.com", name: null }] }), "--attach", textAttachmentPath, "--json",
+    ] },
+    { command: "sending:send", operationId: "sendingSendEmail", nestedOperationId: "sendingUploadAttachment", surface: "sending", args: [
+      "--api-key", mailboxKey, "--base-url", baseUrl, "--body", JSON.stringify({ from: { email: "from@example.com" }, html_body: "<p>Attached</p>", subject: "CLI journal failure", to: { email: "agent@example.com" } }), "--attach", textAttachmentPath, "--json",
+    ] },
+  ]) {
+    const journalPath = join(tempHome, `${fixture.surface}-nested-attachments.jsonl`);
+    const requestStart = serverState.requests.length;
+    serverState.failNextAttachmentSend = fixture.surface;
+    const failedSend = await runCli([fixture.command, ...fixture.args], { SENDMUX_LIVE_E2E_ATTACHMENT_JOURNAL: journalPath });
+    assertDeepEqual(failedSend.status, 1, `${fixture.command} outer failure must remain a failed command`);
+    const upload = serverState.requests.slice(requestStart).find(request => request.url.startsWith(fixture.surface === "mailbox" ? "/mailbox/attachments:upload" : "/emails/attachments"));
+    const [record] = readFileSync(journalPath, "utf8").trim().split("\n").map(line => JSON.parse(line));
+    assertDeepEqual(record, {
+      adapter: "cli",
+      filename: "report.txt",
+      id: fixture.surface === "mailbox" ? upload.responseBody.data.blob_id : upload.responseBody.data.attachment_id,
+      operationId: fixture.operationId,
+      nestedOperationId: fixture.nestedOperationId,
+      ordinal: 0,
+      sha256: createHash("sha256").update(textAttachmentBytes).digest("hex"),
+      size_bytes: textAttachmentBytes.byteLength,
+    }, `${fixture.command} must durably journal its nested upload before outer send`);
+  }
+
   const unkeyedRetry = await runCli(sendingAttachArgs);
   assertCliSuccess(unkeyedRetry, "sending attachment unkeyed repeat");
   if (JSON.parse(unkeyedRetry.stdout).data.message_id === JSON.parse(sendingAttachResult.stdout).data.message_id) {

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import * as sdk from "@sendmux/sdk";
 import { createFixtureRuntime, runAdapterStep, runLanguageSdkOperations, runMcpOperations, fetchWithTimeout, withAbortSignal, runChildHarness, selectOperations, buildOperationPlan, expectedCliErrorMatches, scenarios, operations, fixtures } from "./run-live-e2e.mjs";
@@ -42,7 +43,7 @@ async function withApi(handler, run, runtimeOptions = {}) {
   try {
     const baseUrl = `http://127.0.0.1:${server.address().port}/api/v1`;
     await run({ requests, baseUrl, runtime: createFixtureRuntime({
-      sdk, operations, fixtures, runId: "local-safety-test",
+      sdk, operations, fixtures, runId: "local-safety-test", sourceSha: "a".repeat(40),
       ledgerPath: ownedDirectory ? join(ownedDirectory, "resources.json") : runtimeOptions.ledgerPath,
       credentials: { rootApiKey: "smx_root_test", mailboxApiKey: "smx_mbx_test", appBaseUrl: baseUrl, sendingBaseUrl: baseUrl },
       ...runtimeOptions,
@@ -260,6 +261,89 @@ test("all-gates default selects custom MCP operations with mailbox credential re
   });
 });
 
+test("byte fixtures remain gated, use unique object-bound bytes, and await storage evidence", async () => {
+  await withEnv({ SENDMUX_LIVE_E2E_BINARY: "" }, () => {
+    const entry = buildOperationPlan(operations, scenarios, fixtures).find(item => item.operation.operationId === "mailboxUploadAttachment");
+    assert.equal(entry.status, "gated");
+    assert.match(entry.reason, /SENDMUX_LIVE_E2E_BINARY=1/);
+  });
+
+  const observedBodies = [];
+  let uploadCount = 0;
+  await withEnv({ SENDMUX_LIVE_E2E_BINARY: "1" }, async () => {
+    await withApi((req, body) => {
+      if (req.method === "GET") return { body: connection() };
+      observedBodies.push(body);
+      uploadCount += 1;
+      return { body: envelope({
+        blob_id: `blob_unique_${uploadCount}`,
+        content_type: "text/plain",
+        filename: new URL(req.url, "http://fixture.test").searchParams.get("filename"),
+        size_bytes: Buffer.byteLength(body),
+      }) };
+    }, async ({ runtime, baseUrl }) => {
+      await runtime.preflight(expected);
+      const operation = operations.find(item => item.operationId === "mailboxUploadAttachment");
+      const credentials = { mailboxApiKey: "smx_mbx_test", appBaseUrl: baseUrl };
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const [result] = await runAdapterStep({ adapter: "typescript", credentials, fixtureRuntime: runtime, fixtures, operation, sdk });
+        assert.equal(result.status, "passed");
+      }
+      assert.equal(new Set(observedBodies).size, 2, "Repeated attachment fixtures must not share storage hashes");
+      assert.equal(runtime.ledger.sourceSha, "a".repeat(40));
+      assert.deepEqual(runtime.ledger.resources.map((resource, index) => ({
+        adapter: resource.adapter,
+        filename: resource.filename,
+        id: resource.id,
+        sha256: resource.sha256,
+        size_bytes: resource.size_bytes,
+        status: resource.status,
+      })), observedBodies.map((body, index) => ({
+        adapter: "typescript",
+        filename: runtime.ledger.resources[index].filename,
+        id: `blob_unique_${index + 1}`,
+        sha256: createHash("sha256").update(body).digest("hex"),
+        size_bytes: Buffer.byteLength(body),
+        status: "unverified_retention",
+      })));
+      assert.notEqual(runtime.ledger.resources[0].filename, runtime.ledger.resources[1].filename);
+      await assert.rejects(runtime.teardown(), /retention verification remains unmet/);
+    });
+  });
+});
+
+test("sending attachment fixtures also use unique bytes and ledger evidence", async () => {
+  const observedBodies = [];
+  const uploaded = new Map();
+  let uploadCount = 0;
+  await withApi((req, body) => {
+    if (req.method === "GET" && /\/(?:me|connection)$/.test(req.url)) return { body: connection() };
+    if (req.method === "GET") return { body: envelope(uploaded.get(req.url.split("/").at(-1))) };
+    observedBodies.push(body);
+    uploadCount += 1;
+    const metadata = {
+      attachment_id: `att_unique_${uploadCount}`,
+      content_type: "text/plain",
+      expires_at: "2026-09-18T00:00:00.000Z",
+      filename: new URL(req.url, "http://fixture.test").searchParams.get("filename"),
+      size_bytes: Buffer.byteLength(body),
+    };
+    uploaded.set(metadata.attachment_id, metadata);
+    return { status: 201, body: envelope(metadata) };
+  }, async ({ runtime, baseUrl }) => {
+    await runtime.preflight(expected);
+    const operation = operations.find(item => item.operationId === "sendingUploadAttachment");
+    const credentials = { mailboxApiKey: "smx_mbx_test", appBaseUrl: baseUrl, sendingBaseUrl: baseUrl };
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const [result] = await runAdapterStep({ adapter: "typescript", credentials, fixtureRuntime: runtime, fixtures, operation, sdk });
+      assert.equal(result.status, "passed");
+    }
+    assert.equal(new Set(observedBodies).size, 2, "Repeated Sending fixtures must not share storage hashes");
+    assert.deepEqual(runtime.ledger.resources.map(resource => resource.sha256), observedBodies.map(body => createHash("sha256").update(body).digest("hex")));
+    await assert.rejects(runtime.teardown(), /retention verification remains unmet/);
+  });
+});
+
 test("local CLI error words never count as an expected API negative", () => {
   assert.equal(expectedCliErrorMatches({ stderr: "local profile conflict; no request sent", stdout: "" }, { expectedErrorCodes: ["conflict"] }), false);
   assert.equal(expectedCliErrorMatches({ stdout: JSON.stringify({ ok: false, error: { code: "conflict" } }) }, { expectedErrorCodes: ["conflict"] }), false);
@@ -455,7 +539,7 @@ test("fatal CLI shutdown retains private configuration recovery until the exact 
         const originalTimer=setTimeout,kill=process.kill;
         process.kill=(pid,signal)=>{if(${JSON.stringify(mode)}==='denied'&&pid<0&&signal!==0&&fs.existsSync(${JSON.stringify(childPath)})&&-pid===JSON.parse(fs.readFileSync(${JSON.stringify(childPath)})).pid)throw Object.assign(new Error('private-signal-canary'),{code:'EPERM'});return kill(pid,signal);};
         mock.method(globalThis,'setTimeout',(callback,ms,...args)=>{const timer=originalTimer(callback,ms,...args);if(ms===30000&&${JSON.stringify(mode)}==='denied'){const ready=()=>{if(fs.existsSync(${JSON.stringify(childPath)})){clearTimeout(timer);callback(...args);}else originalTimer(ready,10);};originalTimer(ready,10);}return timer;});
-        const runtime=createFixtureRuntime({credentials:{},fixtures,operations,runId:'cli-fatal-home',sdk,ledgerPath:${JSON.stringify(join(dir, "resources.json"))}});
+        const runtime=createFixtureRuntime({credentials:{},fixtures,operations,runId:'cli-fatal-home',sourceSha:'${"a".repeat(40)}',sdk,ledgerPath:${JSON.stringify(join(dir, "resources.json"))}});
         const results=await runAdapterStep({adapter:'cli',credentials:{},fixtureRuntime:runtime,fixtures,operation:operations.find(item=>item.operationId==='sendingGetOpenApiSpec'),sdk});
         await finishLiveRun({ok:results[0].status==='passed',results,run:{id:'cli-fatal-home',cleanup:{ok:true,...runtime.ledger}}},${JSON.stringify(dir)});
         console.log('NEXT_OPERATION');`;
@@ -608,6 +692,71 @@ test("CLI interruption retains available created IDs without certifying output o
   assert.deepEqual(observed, ["normal", "interrupted", "malformed", "stderr"].map(mode => ({ mode, status: mode === "normal" ? "passed" : "failed", knownId: ["normal", "interrupted"].includes(mode) ? "folder_cli_owned" : null, removed: ["normal", "interrupted"].includes(mode) ? ["folder_cli_owned"] : [], publicLeak: false })));
 });
 
+test("ordinary child attachment recovery keeps object binding on success and interruption", async () => {
+  for (const mode of ["success", "interrupted"]) {
+    const dir = mkdtempSync(join(tmpdir(), `sendmux-child-attachment-${mode}-`));
+    try {
+      const operation = operations.find(item => item.operationId === "mailboxUploadAttachment");
+      const runtime = createFixtureRuntime({ credentials: {}, fixtures, operations, runId: `child-${mode}`, sourceSha: "a".repeat(40), sdk: {}, ledgerPath: join(dir, "resources.json") });
+      const journalPath = runtime.journalPath("python", operation.operationId);
+      const result = { data: { blob_id: `blob_child_${mode}` } };
+      const attachmentEvidence = { adapter: "python", filename: `${mode}.txt`, operationId: operation.operationId, sha256: "b".repeat(64), size_bytes: 5 };
+      const output = JSON.stringify({ results: [{ adapter: "python", operationId: operation.operationId, status: "passed", result }] });
+      const child = `const fs=require('node:fs');const plan=JSON.parse(process.env.SENDMUX_LIVE_E2E_LANGUAGE_PLAN);fs.writeFileSync(plan.operations[0].journalPath,JSON.stringify({operationId:${JSON.stringify(operation.operationId)},result:${JSON.stringify(result)}})+'\\n');${mode === "success" ? `process.stdout.write(${JSON.stringify(output)})` : "process.kill(process.pid,'SIGTERM')"};`;
+      const [childResult] = await runLanguageSdkOperations({ adapter: "python", credentials: {}, operations: [operation], command: { bin: process.execPath, args: ["-e", child] }, requests: new Map([[operation.operationId, {
+        attachmentEvidence,
+        journalPath,
+        observeResult: value => runtime.observeResult(operation.operationId, {}, value, attachmentEvidence),
+        request: {},
+        recoverJournal: () => runtime.recoverJournal(journalPath, operation.operationId, {}, mode === "interrupted" ? attachmentEvidence : undefined),
+      }]]) });
+      assert.equal(childResult.status, mode === "success" ? "passed" : "failed");
+      assert.deepEqual(runtime.ledger.resources[0], { operationId: operation.operationId, kind: "mailbox_blob", id: `blob_child_${mode}`, ...attachmentEvidence, status: "unverified_retention", public_delete: false, storage_cleanup: "unverified" });
+      assert.throws(() => runtime.observeResult(operation.operationId, {}, result, { ...attachmentEvidence, sha256: "c".repeat(64) }), /Conflicting attachment evidence sha256/);
+    } finally { rmSync(dir, { recursive: true }); }
+  }
+});
+
+test("CLI nested attachment journal survives an outer send failure and is bound to the exact file", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sendmux-cli-attachment-journal-"));
+  const originalDirectory = process.cwd();
+  try {
+    await withEnv({ SENDMUX_STAGING_SEND: "1", SENDMUX_LIVE_E2E_FIXTURE_SEND_TO: expected.mailboxEmail }, async () => {
+      await withApi((req) => {
+        if (req.url.endsWith("/me") || req.url.endsWith("/connection")) return { body: connection() };
+        if (req.method === "GET" && req.url.startsWith("/api/v1/mailbox/messages?")) {
+          const subject = new URL(req.url, "http://fixture.test").searchParams.get("subject");
+          return { body: { ...envelope([{ id: `msg_${createHash("sha256").update(subject).digest("hex").slice(0, 8)}`, subject, from: { email: expected.mailboxEmail }, to: [{ email: expected.mailboxEmail }] }]), pagination: { has_more: false } } };
+        }
+        if (req.method === "DELETE") return { body: envelope({ deleted: true, id: req.url.split("/").at(-1) }) };
+        return { status: 404, body: { ok: false, error: { code: "not_found", message: "absent", retryable: false }, meta: { request_id: "req_absent" } } };
+      }, async ({ runtime, baseUrl }) => {
+        await runtime.preflight(expected);
+        mkdirSync(join(dir, "packages/ts/cli/bin"), { recursive: true });
+        writeFileSync(join(dir, "packages/ts/cli/bin/run.js"), `const fs=require('node:fs');const crypto=require('node:crypto');const path=require('node:path');
+          const args=process.argv.slice(2);const file=args[args.indexOf('--attach')+1];const bytes=fs.readFileSync(file);const journal=process.env.SENDMUX_LIVE_E2E_ATTACHMENT_JOURNAL;
+          const sending=args[0].startsWith('sending:');const record={adapter:'cli',filename:path.basename(file),id:sending?'att_cli_nested':'blob_cli_nested',operationId:sending?'sendingSendEmail':'mailboxSendMessage',nestedOperationId:sending?'sendingUploadAttachment':'mailboxUploadAttachment',ordinal:0,sha256:crypto.createHash('sha256').update(bytes).digest('hex'),size_bytes:bytes.length};
+          if(!journal)process.exit(18);const fd=fs.openSync(journal,'a',0o600);fs.writeSync(fd,JSON.stringify(record)+'\\n');fs.fsyncSync(fd);fs.closeSync(fd);process.exit(17);`);
+        process.chdir(dir);
+        for (const expectedNested of [
+          { id: "blob_cli_nested", kind: "mailbox_blob", nestedOperationId: "mailboxUploadAttachment", operationId: "mailboxSendMessage" },
+          { id: "att_cli_nested", kind: "sending_attachment", nestedOperationId: "sendingUploadAttachment", operationId: "sendingSendEmail" },
+        ]) {
+          const [result] = await runAdapterStep({ adapter: "cli", credentials: { mailboxApiKey: "smx_mbx_test", appBaseUrl: baseUrl, sendingBaseUrl: baseUrl }, fixtureRuntime: runtime, fixtures, operation: operations.find(item => item.operationId === expectedNested.operationId), sdk });
+          assert.equal(result.status, "failed");
+          assert.doesNotMatch(result.error, /Missing retention expiry/);
+          const nested = runtime.ledger.resources.find(resource => resource.id === expectedNested.id);
+          assert.deepEqual({ adapter: nested.adapter, kind: nested.kind, operationId: nested.operationId, status: nested.status }, { adapter: "cli", kind: expectedNested.kind, operationId: expectedNested.nestedOperationId, status: "unverified_retention" });
+        }
+        await assert.rejects(runtime.teardown(), /retention verification remains unmet/);
+      }, { ledgerPath: join(dir, "resources.json") });
+    });
+  } finally {
+    process.chdir(originalDirectory);
+    rmSync(dir, { recursive: true });
+  }
+});
+
 test("malformed CLI JSON fails without publishing its private parser excerpt", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sendmux-cli-malformed-"));
   const originalDirectory = process.cwd();
@@ -615,7 +764,7 @@ test("malformed CLI JSON fails without publishing its private parser excerpt", a
     mkdirSync(join(dir, "packages/ts/cli/bin"), { recursive: true });
     writeFileSync(join(dir, "packages/ts/cli/bin/run.js"), `require('node:fs').writeFileSync(${JSON.stringify(join(dir, "child.pid"))},String(process.pid));console.log('private-parser-canary confidential response');`);
     process.chdir(dir);
-    const fixtureRuntime = createFixtureRuntime({ credentials: {}, fixtures, operations, runId: "parser-local", sdk, ledgerPath: join(dir, "resources.json") });
+    const fixtureRuntime = createFixtureRuntime({ credentials: {}, fixtures, operations, runId: "parser-local", sourceSha: "a".repeat(40), sdk, ledgerPath: join(dir, "resources.json") });
     const result = await runAdapterStep({ adapter: "cli", credentials: {}, fixtureRuntime, fixtures, operation: operations.find(item => item.operationId === "sendingGetOpenApiSpec"), sdk });
     assertProcessGone(Number(readFileSync(join(dir, "child.pid"), "utf8")));
     assert.equal(result[0].status, "failed");
@@ -788,7 +937,7 @@ test("HTTP deadlines include body consumption and abort stalled bodies before cl
       const dir = mkdtempSync(join(tmpdir(), "sendmux-sse-deadline-"));
       try {
         const credentials = { mailboxApiKey: "smx_mbx_test", appBaseUrl: `${base}/api/v1` };
-        const runtime = createFixtureRuntime({ credentials, fixtures, operations, runId: "sse-fixture", sdk, ledgerPath: join(dir, "resources.json") });
+        const runtime = createFixtureRuntime({ credentials, fixtures, operations, runId: "sse-fixture", sourceSha: "a".repeat(40), sdk, ledgerPath: join(dir, "resources.json") });
         await assert.rejects(withAbortSignal(() => runAdapterStep({ adapter: "typescript", credentials, fixtureRuntime: runtime, fixtures, operation: operations.find(item => item.operationId === "mailboxStreamEvents"), sdk }), 100, "SSE fixture deadline"), /SSE fixture deadline/);
         await streamClosed;
         await runtime.teardown();
@@ -932,6 +1081,84 @@ test("audit writer defaults to a fresh run path and refuses overwrites", () => {
     assert.notEqual(refused.status, 0);
     assert.equal(existsSync(unsafePath), false);
     assert.doesNotMatch(refused.stdout + refused.stderr, /smx_agent_private_canary/);
+  } finally { rmSync(dir, { recursive: true }); }
+});
+
+test("audit writer finalizes only exact object-bound attachment receipts into distinct outputs", () => {
+  const dir = mkdtempSync(join(tmpdir(), "sendmux-attachment-finalizer-"));
+  try {
+    for (const folder of ["docs", "scripts"]) mkdirSync(join(dir, folder));
+    for (const folder of ["packages", "test"]) symlinkSync(join(process.cwd(), folder), join(dir, folder), "dir");
+    for (const file of ["run-live-e2e.mjs", "live-e2e-contract.mjs"]) writeFileSync(join(dir, "scripts", file), readFileSync(join("scripts", file)));
+    const sourceSha = "a".repeat(40);
+    const collectorSha = "b".repeat(40);
+    const operationIds = ["mailboxUploadAttachment", "sendingUploadAttachment"];
+    const pairs = expectedPairs(operationIds, ["typescript"], scenarios).map(({ applicable, ...pair }) => pair);
+    const resources = [
+      { operationId: "mailboxUploadAttachment", adapter: "typescript", kind: "mailbox_blob", id: "blob_owned", filename: "mailbox.txt", size_bytes: 7, sha256: "1".repeat(64), status: "unverified_retention", public_delete: false, storage_cleanup: "unverified" },
+      { operationId: "sendingUploadAttachment", adapter: "typescript", kind: "sending_attachment", id: "att_owned", filename: "sending.txt", size_bytes: 8, sha256: "2".repeat(64), status: "unverified_retention", public_delete: false, storage_cleanup: "unverified" },
+    ];
+    const phaseOne = { ok: false, errors: ["Attachment reference/URL expiry does not establish storage cleanup; retention verification remains unmet"], results: pairs.map(pair => ({ ...pair, status: "passed" })), run: {
+      id: "attachment-run", source_sha: sourceSha, started_at: "2026-09-17T00:00:00.000Z", ended_at: "2026-09-17T00:01:00.000Z",
+      operation_ids: operationIds, adapters: ["typescript"], applicable_pairs: pairs, configuration: configurationFromEnv({}),
+      fixture_proof: { teamId: "team_expected", mailboxId: "mbx_expected", mailboxEmail: "fixture@example.test", surfaces: ["mailbox", "sending"] },
+      cleanup: { ok: false, runId: "attachment-run", sourceSha, resources },
+    } };
+    const observationFor = (resource, index) => ({
+      operationId: resource.operationId, adapter: resource.adapter, kind: resource.kind, id: resource.id, filename: resource.filename,
+      size_bytes: resource.size_bytes, sha256: resource.sha256, cleanup_mode: resource.kind === "sending_attachment" ? "manual_delete" : "scheduled_expiry",
+      presence: "present", presence_observed_at: `2026-09-17T00:0${index + 2}:00.000Z`, absence: "not_found", absence_observed_at: `2026-09-17T00:0${index + 3}:00.000Z`,
+      runtime: { context: "operator-context", namespace: "sendmux", pod_uid: `pod-${index}`, container: "collector", image_id: `sha256:${String(index + 3).repeat(64)}` },
+    });
+    const receipt = { schema_version: 1, kind: "sendmux-attachment-storage-receipt", run_id: "attachment-run", source_sha: sourceSha,
+      fixture_proof: phaseOne.run.fixture_proof, producer: { name: "sendmux-attachment-storage-collector", version: "1", source_sha: collectorSha },
+      observations: resources.map(observationFor),
+    };
+    const resultPath = join(dir, "result.json");
+    const receiptPath = join(dir, "receipt.json");
+    const finalPath = join(dir, "final-result.json");
+    const manifestPath = join(dir, "final-manifest.json");
+    writeFileSync(resultPath, JSON.stringify(phaseOne));
+    writeFileSync(receiptPath, JSON.stringify(receipt));
+    const args = [join(process.cwd(), "scripts/write-live-e2e-audit-manifest.mjs"), "--result", resultPath, "--receipt", receiptPath, "--final-result-out", finalPath, "--out", manifestPath, "--run-id", "attachment-run", "--commit", sourceSha, "--collector-source-sha", collectorSha];
+    const finalized = spawnSync(process.execPath, args, { cwd: dir, encoding: "utf8" });
+    assert.equal(finalized.status, 0, finalized.stderr);
+    const finalResult = JSON.parse(readFileSync(finalPath, "utf8"));
+    assert.equal(finalResult.ok, true);
+    assert.equal(finalResult.run.cleanup.ok, true);
+    assert.deepEqual(finalResult.errors, []);
+    assert.ok(finalResult.run.cleanup.resources.every(resource => resource.receipt_source_sha === collectorSha));
+    assert.deepEqual(finalResult.run.cleanup.resources.map(resource => ({ id: resource.id, status: resource.status, storage_cleanup: resource.storage_cleanup })), [
+      { id: "blob_owned", status: "storage_absent", storage_cleanup: "scheduled_expiry" },
+      { id: "att_owned", status: "storage_absent", storage_cleanup: "manual_delete" },
+    ]);
+    assert.equal(JSON.parse(readFileSync(resultPath, "utf8")).run.cleanup.resources[0].status, "unverified_retention");
+    assert.equal(JSON.parse(readFileSync(manifestPath, "utf8")).run.cleanup.resources[1].id, "att_owned");
+
+    for (const [label, mutate] of [
+      ["wrong-run", value => { value.run_id = "other-run"; }],
+      ["wrong-source", value => { value.source_sha = "c".repeat(40); }],
+      ["wrong-collector-source", value => { value.producer.source_sha = "c".repeat(40); }],
+      ["wrong-team", value => { value.fixture_proof.teamId = "team_other"; }],
+      ["wrong-adapter", value => { value.observations[0].adapter = "python"; }],
+      ["wrong-id", value => { value.observations[0].id = "blob_other"; }],
+      ["wrong-digest", value => { value.observations[0].sha256 = "f".repeat(64); }],
+      ["wrong-cleanup-mode", value => { value.observations[1].cleanup_mode = "scheduled_expiry"; }],
+      ["absence-without-presence", value => { value.observations[0].presence = "absent"; }],
+      ["reversed-time", value => { value.observations[0].absence_observed_at = "2026-09-17T00:01:00.000Z"; }],
+      ["missing-sibling", value => { value.observations.pop(); }],
+      ["extra-field", value => { value.observations[0].trusted = true; }],
+      ["duplicate", value => { value.observations.push(structuredClone(value.observations[0])); }],
+    ]) {
+      const invalidReceiptPath = join(dir, `${label}-receipt.json`);
+      const invalidFinalPath = join(dir, `${label}-result.json`);
+      const invalidManifestPath = join(dir, `${label}-manifest.json`);
+      const invalid = structuredClone(receipt); mutate(invalid); writeFileSync(invalidReceiptPath, JSON.stringify(invalid));
+      const refused = spawnSync(process.execPath, args.map(value => value === receiptPath ? invalidReceiptPath : value === finalPath ? invalidFinalPath : value === manifestPath ? invalidManifestPath : value), { cwd: dir, encoding: "utf8" });
+      assert.notEqual(refused.status, 0, `${label} receipt must be rejected`);
+      assert.equal(existsSync(invalidFinalPath), false);
+      assert.equal(existsSync(invalidManifestPath), false);
+    }
   } finally { rmSync(dir, { recursive: true }); }
 });
 

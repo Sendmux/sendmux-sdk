@@ -8,6 +8,9 @@
 
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.4.0...ts-management-v2.0.0) (2026-09-18)
 
+### Changed
+
+* **Breaking:** `managementListProviders` returns `ProviderListItem` entries without `variables`, while `managementGetProvider` returns `ProviderItem` with required `variables`. List entries no longer satisfy the detail type; use separate list/detail types and fetch a detail result when you need variables. See [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20).
 
 ### Features
 

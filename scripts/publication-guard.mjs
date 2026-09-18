@@ -259,11 +259,12 @@ async function preflight({ repo, sha, receipt }) {
 }
 
 async function resolveProducer(tag) {
-  const match = /^(ts-cli|python-mcp)-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(tag ?? "");
-  if (!match) throw new Error("Expected an immutable CLI or MCP release tag");
+  const producers = { "ts-cli": "packages/ts/cli", "ts-management": "packages/ts/management", "python-mcp": "packages/python/mcp" };
+  const match = /^(ts-cli|ts-management|python-mcp)-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(tag ?? "");
+  if (!match) throw new Error("Expected an immutable CLI, Management or MCP release tag");
   const sha = await resolveTag(tag);
   if (!sha) throw new Error(`Missing producer release tag: ${tag}`);
-  const release = { path: match[1] === "ts-cli" ? "packages/ts/cli" : "packages/python/mcp", tag, version: match[2], sha };
+  const release = { path: producers[match[1]], tag, version: match[2], sha };
   await assertNativeVersion({ release, read: (file) => remoteFile({ sha, file }) });
   return release;
 }

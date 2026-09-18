@@ -78,10 +78,8 @@ export function validateRecoveryLedger(ledger, { runId, sourceSha } = {}) {
   assert.match(runId, /^[a-zA-Z0-9_-]+$/, "Invalid expected run ID");
   assertKnownFields(ledger, ["ok", "runId", "sourceSha", "resources", "status"]);
   assert.equal(ledger.runId, runId, "Run ID provenance mismatch");
-  if (ledger.sourceSha !== undefined) {
-    assert.match(ledger.sourceSha, /^[0-9a-f]{40}$/, "Invalid recovery source SHA");
-    if (sourceSha !== undefined) assert.equal(ledger.sourceSha, sourceSha, "Recovery source SHA provenance mismatch");
-  }
+  if (sourceSha !== undefined) assert.equal(ledger.sourceSha, sourceSha, "Recovery source SHA provenance mismatch");
+  if (ledger.sourceSha !== undefined) assert.match(ledger.sourceSha, /^[0-9a-f]{40}$/, "Invalid recovery source SHA");
   assert.ok(Array.isArray(ledger.resources), "Missing recovery resources");
   if (ledger.ok !== undefined) assert.equal(typeof ledger.ok, "boolean", "Invalid cleanup outcome");
   if (ledger.status !== undefined) assert.ok(["incomplete", "blocked_active_work"].includes(ledger.status), "Invalid recovery status");
@@ -111,6 +109,7 @@ export function finalizeRunWithAttachmentReceipt(result, receipt, { collectorSou
   validateAttachmentReceipt(receipt, { collectorSourceSha, fixtureProof: result.run.fixture_proof, runId, sourceSha });
 
   const finalized = structuredClone(result);
+  assert.ok(!finalized.run.cleanup.resources.some(resource => resource.status === "storage_absent"), "Phase-one result already contains finalized attachment evidence");
   const unresolved = finalized.run.cleanup.resources.filter(resource => resource.status === "unverified_retention");
   assert.ok(unresolved.length > 0, "Attachment receipt has no unresolved resources to finalize");
   const resourcesByIdentity = new Map(unresolved.map(resource => [attachmentIdentity(resource), resource]));

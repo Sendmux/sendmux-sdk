@@ -713,6 +713,9 @@ test("ordinary child attachment recovery keeps object binding on success and int
       assert.equal(childResult.status, mode === "success" ? "passed" : "failed");
       assert.deepEqual(runtime.ledger.resources[0], { operationId: operation.operationId, kind: "mailbox_blob", id: `blob_child_${mode}`, ...attachmentEvidence, status: "unverified_retention", public_delete: false, storage_cleanup: "unverified" });
       assert.throws(() => runtime.observeResult(operation.operationId, {}, result, { ...attachmentEvidence, sha256: "c".repeat(64) }), /Conflicting attachment evidence sha256/);
+      assert.throws(() => runtime.observeResult(operation.operationId, {}, { ok: true, data: {} }), /success response omitted data\.blob_id/);
+      runtime.observeResult(operation.operationId, {}, { ok: false, error: { code: "not_found", message: "absent", retryable: false } });
+      assert.equal(runtime.ledger.resources.length, 1);
     } finally { rmSync(dir, { recursive: true }); }
   }
 });
@@ -959,7 +962,7 @@ test("fresh provenance refuses pending cleanup and secret-bearing fixture config
   const result = { ok: true, results: [{ adapter: "typescript", operationId: "managementGetConnection", status: "passed" }], run: {
     id: "fresh-run", source_sha: sourceSha, started_at: "2026-09-12T00:00:00.000Z", ended_at: "2026-09-12T00:01:00.000Z",
     operation_ids: ["managementGetConnection"], adapters: ["typescript"], applicable_pairs: pairs.map(({ applicable, ...pair }) => pair),
-    configuration, fixture_proof: { teamId: "team_expected", surfaces: ["management"] }, cleanup: { ok: true, resources: [] },
+    configuration, fixture_proof: { teamId: "team_expected", surfaces: ["management"] }, cleanup: { ok: true, sourceSha, resources: [] },
   } };
   assert.equal(validateRun(result, { runId: "fresh-run", sourceSha, scenarios }), result);
   for (const mutate of [
@@ -1042,6 +1045,8 @@ test("workflow runner or writer failure cannot authorize a historical audit uplo
 test("recovery validation retains only the current run's sanitized unresolved ownership", () => {
   const valid = { runId: "fresh-run", resources: [{ operationId: "mailboxCreateFolder", id: "folder_owned", path: { folder_id: "folder_owned" }, status: "failed" }] };
   assert.equal(validateRecoveryLedger(valid, { runId: "fresh-run" }), valid);
+  assert.throws(() => validateRecoveryLedger(valid, { runId: "fresh-run", sourceSha: "a".repeat(40) }), /source SHA/);
+  assert.equal(validateRecoveryLedger({ ...valid, sourceSha: "a".repeat(40) }, { runId: "fresh-run", sourceSha: "a".repeat(40) }).sourceSha, "a".repeat(40));
   for (const invalid of [
     { ...valid, runId: "old-run" },
     { ...valid, resources: [{ ...valid.resources[0], upload_url: "https://example.test/private" }] },
@@ -1062,7 +1067,7 @@ test("audit writer defaults to a fresh run path and refuses overwrites", () => {
     writeFileSync(resultPath, JSON.stringify({ ok: true, results: [{ adapter: "typescript", operationId: "managementGetConnection", status: "passed" }], run: {
       id: "fresh-run", source_sha: "a".repeat(40), started_at: "2026-09-12T00:00:00.000Z", ended_at: "2026-09-12T00:01:00.000Z",
       operation_ids: ["managementGetConnection"], adapters: ["typescript"], applicable_pairs: [{ adapter: "typescript", operationId: "managementGetConnection" }],
-      configuration: configurationFromEnv({}), fixture_proof: { teamId: "team_expected", surfaces: ["management"] }, cleanup: { ok: true, resources: [] },
+      configuration: configurationFromEnv({}), fixture_proof: { teamId: "team_expected", surfaces: ["management"] }, cleanup: { ok: true, sourceSha: "a".repeat(40), resources: [] },
     } }));
     const args = [join(process.cwd(), "scripts/write-live-e2e-audit-manifest.mjs"), "--result", resultPath, "--run-id", "fresh-run", "--commit", "a".repeat(40)];
     const result = spawnSync(process.execPath, args, { cwd: dir, encoding: "utf8" });
@@ -1134,6 +1139,19 @@ test("audit writer finalizes only exact object-bound attachment receipts into di
     ]);
     assert.equal(JSON.parse(readFileSync(resultPath, "utf8")).run.cleanup.resources[0].status, "unverified_retention");
     assert.equal(JSON.parse(readFileSync(manifestPath, "utf8")).run.cleanup.resources[1].id, "att_owned");
+    const unreceiptedManifestPath = join(dir, "unreceipted-manifest.json");
+    const unreceipted = spawnSync(process.execPath, [args[0], "--result", finalPath, "--out", unreceiptedManifestPath, "--run-id", "attachment-run", "--commit", sourceSha], { cwd: dir, encoding: "utf8" });
+    assert.notEqual(unreceipted.status, 0, "finalized attachment evidence must not publish without a receipt");
+    assert.equal(existsSync(unreceiptedManifestPath), false);
+    const tampered = structuredClone(phaseOne);
+    tampered.run.cleanup.resources[1] = finalResult.run.cleanup.resources[1];
+    const tamperedResultPath = join(dir, "tampered-result.json");
+    const partialReceiptPath = join(dir, "partial-receipt.json");
+    writeFileSync(tamperedResultPath, JSON.stringify(tampered));
+    writeFileSync(partialReceiptPath, JSON.stringify({ ...receipt, observations: [receipt.observations[0]] }));
+    const prefinalized = spawnSync(process.execPath, args.map(value => value === resultPath ? tamperedResultPath : value === receiptPath ? partialReceiptPath : value === finalPath ? join(dir, "tampered-final.json") : value === manifestPath ? join(dir, "tampered-manifest.json") : value), { cwd: dir, encoding: "utf8" });
+    assert.notEqual(prefinalized.status, 0, "pre-finalized rows must not pass through receipt finalization");
+    assert.equal(existsSync(join(dir, "tampered-final.json")), false);
 
     for (const [label, mutate] of [
       ["wrong-run", value => { value.run_id = "other-run"; }],

@@ -2658,6 +2658,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, s
       if (retention) {
         const [selector, expiryField, kind] = retention;
         const id = selectFirstValue(value, [selector]);
+        if (!id) assert.notEqual(value?.ok, true, `${operationId} success response omitted ${selector}`);
         if (id) {
           assert.equal(typeof id, "string", "Resource ID must be a string");
           const existing = ledger.resources.find(item => item.kind === kind && item.id === id);

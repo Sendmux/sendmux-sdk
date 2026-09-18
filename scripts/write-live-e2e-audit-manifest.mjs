@@ -49,6 +49,7 @@ if (args.receipt) {
   assert.ok(args.finalResultOut, "--receipt requires --final-result-out <path>.");
 } else {
   assert.ok(!args.finalResultOut && !args.collectorSourceSha, "Finalisation arguments require --receipt <path>.");
+  assert.ok(!(sourceResult.run?.cleanup?.resources ?? []).some(resource => resource.status === "storage_absent"), "Finalised attachment evidence requires --receipt <path> and --collector-source-sha <sha>.");
 }
 
 const manifest = buildManifest({

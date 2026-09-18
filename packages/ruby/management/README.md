@@ -29,8 +29,44 @@ gem install sendmux-management
 Or add it to your Gemfile:
 
 ```ruby
-gem "sendmux-management", "~> 1.0"
+gem "sendmux-management", "~> 2.0"
 ```
+
+## Migrate from 1.x to 2.0
+
+If you check sending-account result classes, update those checks when upgrading
+to 2.0. `management_list_providers` returns `ProviderListItem` entries instead of
+`ProviderItem`. List entries don't expose `variables`; detail results remain
+`ProviderItem` and require a variables hash, which is empty when none are set.
+
+1. Update list-specific class checks to use the class loaded by the public entry
+   point:
+
+   ```ruby
+   require "sendmux/management"
+
+   def provider_list_item?(item)
+     # Before: item.is_a?(Sendmux::Management::Generated::ProviderItem)
+     item.is_a?(Sendmux::Management::Generated::ProviderListItem)
+   end
+   ```
+
+2. If you need an account's variables, fetch its detail using the public client.
+   Pass the account's `id` as the `public_id` argument:
+
+   ```ruby
+   def provider_variables(client, public_id)
+     detail = client.sending_accounts.management_get_provider(public_id).data
+     detail.variables
+   end
+   ```
+
+   Don't convert a list entry into `ProviderItem` or substitute an empty variables
+   hash for the account's actual variables. Update hand-built detail fixtures to
+   include `variables: {}` when no variables are set.
+
+3. Run your application's tests with the updated bundle. Verify that list
+   handling accepts `ProviderListItem` and only detail handling reads variables.
 
 ## OAuth access tokens
 

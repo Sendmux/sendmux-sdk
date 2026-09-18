@@ -2,8 +2,9 @@
 
 ## Unreleased 2.0 migration
 
+- **Breaking:** Require `sendmux-management >= 2.0.0, < 3.0`. Sending-account list entries change from `ProviderItem` to `ProviderListItem`, while detail results require `variables`; update class checks and detail fixtures. See [the Management migration steps](../management/README.md#migrate-from-1x-to-20).
 - The Mailbox client adopts the thread-specific list response, including required thread identity and typed state metadata; ordinary message lists remain thread-independent.
-- Upgrade `sendmux-sdk`, `sendmux-mailbox`, the bundle lock, and affected call sites together; restore them together to roll back.
+- Upgrade `sendmux-sdk`, `sendmux-mailbox`, `sendmux-management`, the bundle lock, and affected call sites together; restore them together to roll back.
 
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.2.0...ruby-sdk/v1.3.0) (2026-09-10)
 

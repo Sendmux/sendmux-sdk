@@ -111,7 +111,9 @@ Generated API errors are mapped to `Sendmux::Core::ApiError`.
 
 Version 2 is not published yet. The umbrella Mailbox client adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose optional typed `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose typed state metadata where applicable.
 
-When the release is available, update `sendmux-sdk`, `sendmux-mailbox`, the bundle lock, and affected call sites or fixtures together. To roll back, restore the previous gem requirements, lock, and call sites together.
+The Management dependency requires `sendmux-management >= 2.0.0, < 3.0`. Sending-account list entries change from `Sendmux::Management::Generated::ProviderItem` to `ProviderListItem`; detail results require `variables`. The client returned by `Sendmux::SDK.management(...)` uses the same operations and classes described in [the Management 2.0 migration steps](../management/README.md#migrate-from-1x-to-20).
+
+When the release is available, update `sendmux-sdk`, `sendmux-mailbox`, `sendmux-management`, the bundle lock, and affected call sites or fixtures together. To roll back, restore the previous gem requirements, lock, and call sites together.
 
 ## Support
 

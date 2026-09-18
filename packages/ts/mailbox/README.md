@@ -23,6 +23,53 @@ Generated TypeScript client for the Sendmux Mailbox API.
 npm install @sendmux/mailbox
 ```
 
+## Migrate from 1.x to 2.0
+
+If you construct thread-message list results — fixtures, mocks, or wrappers
+annotated with the operation's result type — add the thread identity before
+upgrading to 2.0. `mailboxListThreadMessages` returns
+`MailboxThreadMessageSummaryCursorListResponse` instead of
+`MailboxMessageSummaryCursorListResponse`: its `meta.thread_id` is required and
+`meta.sync_state` is an optional string. Code that only reads thread-message
+results keeps compiling.
+
+1. Derive the result type from the public operation. The package doesn't export
+   the generated model names directly:
+
+   ```ts
+   import { mailboxListThreadMessages } from "@sendmux/mailbox";
+
+   type ThreadMessageList = NonNullable<
+     Awaited<ReturnType<typeof mailboxListThreadMessages>>["data"]
+   >;
+   ```
+
+2. Add the thread identity to every constructed thread-message result:
+
+   ```ts
+   // Before: meta: { request_id: "req_fixture" }
+   const fixture: ThreadMessageList = {
+     ok: true,
+     meta: { request_id: "req_fixture", thread_id: "thr_1" },
+     data: [],
+     pagination: { has_more: false },
+   };
+   ```
+
+   Ordinary `mailboxListMessages` results remain
+   `MailboxMessageSummaryCursorListResponse`: they have no thread identity and
+   expose an optional typed `meta.sync_state`. Identity, submission, quota, and
+   thread list responses likewise expose optional typed state metadata
+   (`identity_state`, `query_state`); no new field is required there.
+
+3. Run your application's TypeScript check. A constructed thread-message result
+   without `meta.thread_id` fails with `Property 'thread_id' is missing in type
+   … but required in type 'MailboxThreadMessagesMeta'`.
+
+Update `@sendmux/mailbox`, its lockfile, and affected result annotations or
+fixtures together. To roll back, restore those package, lockfile, and call-site
+changes together.
+
 ## OAuth access tokens
 
 Pass `accessToken` instead of `apiKey` for a REST OAuth token or synchronous/asynchronous provider.
@@ -185,12 +232,6 @@ for await (const message of paginate(async (cursor) => {
   console.log(message.id);
 }
 ```
-
-## Version 2 migration candidate
-
-Version 2 is not published yet. It changes thread-message list results to `MailboxThreadMessageSummaryCursorListResponse`, whose `meta.thread_id` is required and whose optional `meta.sync_state` is typed. Constructed thread results must provide that thread identity. Ordinary `mailboxListMessages` results remain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose their own typed sync state. Identity, submission, quota, and thread list responses likewise expose their API state as typed metadata.
-
-When the release is available, update `@sendmux/mailbox`, its lockfile, and affected result annotations or fixtures together. To roll back, restore those package, lockfile, and call-site changes together.
 
 ## Support
 

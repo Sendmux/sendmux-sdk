@@ -156,6 +156,8 @@ async function releaseFixture(t, options = {}) {
   writeFileSync(join(local.repo, "packages/python/mcp/pyproject.toml"), '[project]\nversion = "1.2.3"\n');
   mkdirSync(join(local.repo, ".github/workflows"), { recursive: true });
   writeFileSync(join(local.repo, "packages/ts/cli/package.json"), JSON.stringify({ name: "@sendmux/cli", version: "1.2.3" }));
+  mkdirSync(join(local.repo, "packages/ts/management"), { recursive: true });
+  writeFileSync(join(local.repo, "packages/ts/management/package.json"), JSON.stringify({ name: "@sendmux/management", version: "1.2.3" }));
   writeFileSync(join(local.repo, "release-please-config.json"), JSON.stringify(config));
   writeFileSync(join(local.repo, ".release-please-manifest.json"), '{"packages/ts/cli":"1.2.3"}');
   const workflowSource = readFileSync(resolve(".github/workflows/release-please.yml"), "utf8");
@@ -338,6 +340,14 @@ test("recovery resolves the tag commit and rejects a manual version/source misma
   assert.match(stdout, new RegExp(candidate.sha));
 });
 
+test("recovery resolves a Management tag commit and rejects a manual version/source mismatch", async (t) => {
+  const candidate = await releaseFixture(t, { tagExists: true });
+  await assert.rejects(candidate.runCommand(["resolve", "--tag", "ts-management-v9.9.9"]), (error) => /version/.test(error.stderr));
+  const { stdout } = await candidate.runCommand(["resolve", "--tag", "ts-management-v1.2.3"]);
+  assert.match(stdout, new RegExp(candidate.sha));
+  assert.match(stdout, /"path":"packages\/ts\/management"/);
+});
+
 test("Snap binds checksum and producer source before its write", async (t) => {
   const candidate = await releaseFixture(t, { tagExists: true });
   let writes = 0;
@@ -366,7 +376,7 @@ test("post-action verification does not trust output sha over actual tag identit
 // credential-free diagnostic workflow; these fixtures never invoke a writer.
 for (const [workflow, job, guardName] of [
   ["release-please", "release-please", "Guard exact pending release candidates before tags"],
-  ...["publish-npm", "publish-cratesio", "recover-ts-cli-release", "recover-mcp-registry-release", "publish-pypi", "publish-mcp-registry", "publish-rubygems"].map((job) => ["release-please", job, "Guard candidate before first publication"]),
+  ...["publish-npm", "publish-cratesio", "recover-ts-cli-release", "recover-ts-management-release", "recover-mcp-registry-release", "publish-pypi", "publish-mcp-registry", "publish-rubygems"].map((job) => ["release-please", job, "Guard candidate before first publication"]),
   ["snap", "build", "Guard producer before Snap publication"],
   ["chocolatey", "package", "Guard candidate before first publication"],
 ]) {
@@ -420,7 +430,7 @@ test("credential-free Actions fixture uses a real committed mismatch and tears d
   assert.equal(existsSync(receipt.directory), false);
 });
 
-for (const [job, tag] of [["recover-ts-cli-release", "ts-cli-v1.2.3"], ["recover-mcp-registry-release", "python-mcp-v1.2.3"]]) {
+for (const [job, tag] of [["recover-ts-cli-release", "ts-cli-v1.2.3"], ["recover-ts-management-release", "ts-management-v1.2.3"], ["recover-mcp-registry-release", "python-mcp-v1.2.3"]]) {
   test(`${job}: empty-workspace checkout lifecycle retains exact current guard and reaches publication boundary`, async (t) => {
     const candidate = await releaseFixture(t, { tagExists: true });
     const control = join(candidate.directory, "control");
@@ -458,7 +468,7 @@ for (const [job, tag] of [["recover-ts-cli-release", "ts-cli-v1.2.3"], ["recover
         }
         await execute("git", ["-C", target, "checkout", "-q", "--detach", sha], { timeout: 10_000 });
         t.diagnostic(JSON.stringify({ checkout: target, sha }));
-      } else if (/^name: Resolve (CLI|MCP) producer/.test(step)) {
+      } else if (/^name: Resolve (CLI|Management|MCP) producer/.test(step)) {
         const command = step.match(/^        run: (.+)$/m)[1];
         await candidate.runBoundary(command, { REQUESTED_VERSION: "1.2.3", GITHUB_OUTPUT: output }, workspace);
         producer = Object.fromEntries(readFileSync(output, "utf8").trim().split("\n").map((line) => line.split("=")));

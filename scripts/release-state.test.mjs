@@ -49,6 +49,11 @@ for (const path of owners) {
     name = tomlField("rust/Cargo.toml", "package", "name");
     version = tomlField("rust/Cargo.toml", "package", "version");
     releaseType = "rust";
+    const consumerLock = "ci/floor-consumer/Cargo.lock";
+    const locked = lockedPackageVersion(`rust/${consumerLock}`, name);
+    assert.equal(locked, version, `rust/${consumerLock} pins ${name} ${locked} but rust/Cargo.toml is ${version}; the floor consumer checks the packaged crate with --locked`);
+    const updater = (owner["extra-files"] ?? []).find((file) => file?.type === "toml" && file.path === consumerLock);
+    assert.equal(updater?.jsonpath, `$.package[?(@.name.value=='${name}')].version`, `rust release config must declare the ${consumerLock} TOML updater so release PRs bump the floor consumer lock with the crate version`);
   } else if (path === "go") {
     name = readFileSync(join(root, "go/go.mod"), "utf8").match(/^module\s+(\S+)$/m)?.[1];
     releaseType = "go";
@@ -120,6 +125,14 @@ function packagePaths(language, metadataFile) {
   return readdirSync(join(root, "packages", language), { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && existsSync(join(root, "packages", language, entry.name, typeof metadataFile === "function" ? metadataFile(entry.name) : metadataFile)))
     .map((entry) => `packages/${language}/${entry.name}`);
+}
+
+function lockedPackageVersion(path, name) {
+  const blocks = readFileSync(join(root, path), "utf8").split(/^\[\[package\]\]$/m).filter((block) => block.match(/^name = "([^"]+)"$/m)?.[1] === name);
+  assert.equal(blocks.length, 1, `${path} must lock exactly one ${name} package`);
+  const version = blocks[0].match(/^version = "([^"]+)"$/m)?.[1];
+  assert.ok(version, `${path} has no ${name} version`);
+  return version;
 }
 
 function tomlField(path, section, field) {

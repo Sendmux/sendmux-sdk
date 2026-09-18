@@ -1108,7 +1108,7 @@ test("audit writer finalizes only exact object-bound attachment receipts into di
       operationId: resource.operationId, adapter: resource.adapter, kind: resource.kind, id: resource.id, filename: resource.filename,
       size_bytes: resource.size_bytes, sha256: resource.sha256, cleanup_mode: resource.kind === "sending_attachment" ? "manual_delete" : "scheduled_expiry",
       presence: "present", presence_observed_at: `2026-09-17T00:0${index + 2}:00.000Z`, absence: "not_found", absence_observed_at: `2026-09-17T00:0${index + 3}:00.000Z`,
-      runtime: { context: "operator-context", namespace: "sendmux", pod_uid: `pod-${index}`, container: "collector", image_id: `sha256:${String(index + 3).repeat(64)}` },
+      runtime: { site: "operator-site", environment: "sendmux", instance_id: `instance-${index}`, process: "collector", build_id: `sha256:${String(index + 3).repeat(64)}` },
     });
     const receipt = { schema_version: 1, kind: "sendmux-attachment-storage-receipt", run_id: "attachment-run", source_sha: sourceSha,
       fixture_proof: phaseOne.run.fixture_proof, producer: { name: "sendmux-attachment-storage-collector", version: "1", source_sha: collectorSha },

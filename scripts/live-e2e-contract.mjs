@@ -168,8 +168,8 @@ function validateAttachmentReceipt(receipt, { collectorSourceSha, fixtureProof, 
     assert.equal(observation.presence, "present", "Attachment receipt lacks a positive presence observation");
     assert.equal(observation.absence, "not_found", "Attachment receipt lacks a privileged absence observation");
     assert.ok(Number.isFinite(Date.parse(observation.presence_observed_at)) && Number.isFinite(Date.parse(observation.absence_observed_at)) && Date.parse(observation.absence_observed_at) > Date.parse(observation.presence_observed_at), "Attachment receipt observation times are invalid");
-    assertKnownFields(observation.runtime, ["context", "namespace", "pod_uid", "container", "image_id"]);
-    for (const field of ["context", "namespace", "pod_uid", "container", "image_id"]) assert.ok(typeof observation.runtime[field] === "string" && observation.runtime[field].length > 0, `Missing attachment runtime ${field}`);
+    assertKnownFields(observation.runtime, ["site", "environment", "instance_id", "process", "build_id"]);
+    for (const field of ["site", "environment", "instance_id", "process", "build_id"]) assert.ok(typeof observation.runtime[field] === "string" && observation.runtime[field].length > 0, `Missing attachment runtime ${field}`);
   }
   return receipt;
 }

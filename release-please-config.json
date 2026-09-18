@@ -34,7 +34,6 @@
     "packages/ts/management": {
       "component": "ts-management",
       "package-name": "@sendmux/management",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ts/sdk": {

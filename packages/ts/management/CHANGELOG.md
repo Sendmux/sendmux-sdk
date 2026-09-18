@@ -6,6 +6,23 @@
 
 * add provider variable management fields and delivery-group fields to delivery logs
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.4.0...ts-management-v2.0.0) (2026-09-18)
+
+### Changed
+
+* **Breaking:** `managementListProviders` returns `ProviderListItem` entries without `variables`, while `managementGetProvider` returns `ProviderItem` with required `variables`. List entries no longer satisfy the detail type; use separate list/detail types and fetch a detail result when you need variables. See [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20).
+
+### Features
+
+* integrate combined provider variables and delivery routing ([81bbf22](https://github.com/Sendmux/sendmux-sdk/commit/81bbf221a357bf5d588eba654184ff34491473df))
+* **sdk:** add provider variables and delivery group routing ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a))
+
+
+### Bug Fixes
+
+* **sdk:** adopt final provider contract description and provenance ([a9bdaf5](https://github.com/Sendmux/sendmux-sdk/commit/a9bdaf58f0db684328458e269ba8aff515334d0b))
+* **sdk:** adopt final provider contract description and provenance ([815278e](https://github.com/Sendmux/sendmux-sdk/commit/815278e76587dcba314c51202b8e764250e51ef3))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v1.3.0...ts-management-v1.4.0) (2026-09-10)
 
 

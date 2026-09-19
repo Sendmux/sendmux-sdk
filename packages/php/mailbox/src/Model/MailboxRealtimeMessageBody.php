@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Mailbox
+ * MailboxRealtimeMessageBody
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * Mailbox Class Doc Comment
+ * MailboxRealtimeMessageBody Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxRealtimeMessageBody implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'Mailbox';
+    protected static string $openAPIModelName = 'MailboxRealtimeMessage_body';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,13 +59,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'created_at' => 'string',
-        'display_name' => 'string',
-        'email' => 'string',
-        'id' => 'string',
-        'quota_bytes' => 'int',
-        'send_scope' => '\Sendmux\Mailbox\Model\MailboxSendScope',
-        'status' => 'string'
+        'html' => 'string',
+        'is_truncated' => 'bool',
+        'max_bytes' => 'int',
+        'text' => 'string'
     ];
 
     /**
@@ -74,13 +71,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'created_at' => null,
-        'display_name' => null,
-        'email' => null,
-        'id' => null,
-        'quota_bytes' => null,
-        'send_scope' => null,
-        'status' => null
+        'html' => null,
+        'is_truncated' => null,
+        'max_bytes' => null,
+        'text' => null
     ];
 
     /**
@@ -89,13 +83,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'created_at' => false,
-        'display_name' => true,
-        'email' => false,
-        'id' => false,
-        'quota_bytes' => true,
-        'send_scope' => true,
-        'status' => false
+        'html' => true,
+        'is_truncated' => false,
+        'max_bytes' => false,
+        'text' => true
     ];
 
     /**
@@ -174,13 +165,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'created_at' => 'created_at',
-        'display_name' => 'display_name',
-        'email' => 'email',
-        'id' => 'id',
-        'quota_bytes' => 'quota_bytes',
-        'send_scope' => 'send_scope',
-        'status' => 'status'
+        'html' => 'html',
+        'is_truncated' => 'is_truncated',
+        'max_bytes' => 'max_bytes',
+        'text' => 'text'
     ];
 
     /**
@@ -189,13 +177,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $setters = [
-        'created_at' => 'setCreatedAt',
-        'display_name' => 'setDisplayName',
-        'email' => 'setEmail',
-        'id' => 'setId',
-        'quota_bytes' => 'setQuotaBytes',
-        'send_scope' => 'setSendScope',
-        'status' => 'setStatus'
+        'html' => 'setHtml',
+        'is_truncated' => 'setIsTruncated',
+        'max_bytes' => 'setMaxBytes',
+        'text' => 'setText'
     ];
 
     /**
@@ -204,13 +189,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $getters = [
-        'created_at' => 'getCreatedAt',
-        'display_name' => 'getDisplayName',
-        'email' => 'getEmail',
-        'id' => 'getId',
-        'quota_bytes' => 'getQuotaBytes',
-        'send_scope' => 'getSendScope',
-        'status' => 'getStatus'
+        'html' => 'getHtml',
+        'is_truncated' => 'getIsTruncated',
+        'max_bytes' => 'getMaxBytes',
+        'text' => 'getText'
     ];
 
     /**
@@ -260,13 +242,10 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('created_at', $data ?? [], null);
-        $this->setIfExists('display_name', $data ?? [], null);
-        $this->setIfExists('email', $data ?? [], null);
-        $this->setIfExists('id', $data ?? [], null);
-        $this->setIfExists('quota_bytes', $data ?? [], null);
-        $this->setIfExists('send_scope', $data ?? [], null);
-        $this->setIfExists('status', $data ?? [], null);
+        $this->setIfExists('html', $data ?? [], null);
+        $this->setIfExists('is_truncated', $data ?? [], null);
+        $this->setIfExists('max_bytes', $data ?? [], null);
+        $this->setIfExists('text', $data ?? [], null);
     }
 
     /**
@@ -294,26 +273,17 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $invalidProperties = [];
 
-        if ($this->container['created_at'] === null) {
-            $invalidProperties[] = "'created_at' can't be null";
+        if ($this->container['html'] === null && !$this->isNullableSetToNull('html')) {
+            $invalidProperties[] = "'html' is required";
         }
-        if ($this->container['display_name'] === null && !$this->isNullableSetToNull('display_name')) {
-            $invalidProperties[] = "'display_name' is required";
+        if ($this->container['is_truncated'] === null) {
+            $invalidProperties[] = "'is_truncated' can't be null";
         }
-        if ($this->container['email'] === null) {
-            $invalidProperties[] = "'email' can't be null";
+        if ($this->container['max_bytes'] === null) {
+            $invalidProperties[] = "'max_bytes' can't be null";
         }
-        if ($this->container['id'] === null) {
-            $invalidProperties[] = "'id' can't be null";
-        }
-        if ($this->container['quota_bytes'] === null && !$this->isNullableSetToNull('quota_bytes')) {
-            $invalidProperties[] = "'quota_bytes' is required";
-        }
-        if ($this->container['send_scope'] === null && !$this->isNullableSetToNull('send_scope')) {
-            $invalidProperties[] = "'send_scope' is required";
-        }
-        if ($this->container['status'] === null) {
-            $invalidProperties[] = "'status' can't be null";
+        if ($this->container['text'] === null && !$this->isNullableSetToNull('text')) {
+            $invalidProperties[] = "'text' is required";
         }
         return $invalidProperties;
     }
@@ -328,211 +298,123 @@ class Mailbox implements ModelInterface, ArrayAccess, JsonSerializable
 
 
     /**
-     * Gets created_at
-     *
-     * @return string
-     */
-    public function getCreatedAt(): string
-    {
-        return $this->container['created_at'];
-    }
-
-    /**
-     * Sets created_at
-     *
-     * @param string $created_at ISO 8601 creation timestamp
-     *
-     * @return $this
-     */
-    public function setCreatedAt(string $created_at): static
-    {
-        if (is_null($created_at)) {
-            throw new InvalidArgumentException('non-nullable created_at cannot be null');
-        }
-        $this->container['created_at'] = $created_at;
-
-        return $this;
-    }
-
-    /**
-     * Gets display_name
+     * Gets html
      *
      * @return string|null
      */
-    public function getDisplayName(): ?string
+    public function getHtml(): ?string
     {
-        return $this->container['display_name'];
+        return $this->container['html'];
     }
 
     /**
-     * Sets display_name
+     * Sets html
      *
-     * @param string|null $display_name Optional display name shown in outbound From headers
+     * @param string|null $html html
      *
      * @return $this
      */
-    public function setDisplayName(?string $display_name): static
+    public function setHtml(?string $html): static
     {
-        if (is_null($display_name)) {
-            array_push($this->openAPINullablesSetToNull, 'display_name');
+        if (is_null($html)) {
+            array_push($this->openAPINullablesSetToNull, 'html');
         } else {
             $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('display_name', $nullablesSetToNull);
+            $index = array_search('html', $nullablesSetToNull);
             if ($index !== false) {
                 unset($nullablesSetToNull[$index]);
                 $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
             }
         }
-        $this->container['display_name'] = $display_name;
+        $this->container['html'] = $html;
 
         return $this;
     }
 
     /**
-     * Gets email
+     * Gets is_truncated
      *
-     * @return string
+     * @return bool
      */
-    public function getEmail(): string
+    public function getIsTruncated(): bool
     {
-        return $this->container['email'];
+        return $this->container['is_truncated'];
     }
 
     /**
-     * Sets email
+     * Sets is_truncated
      *
-     * @param string $email Mailbox email address (lowercase)
+     * @param bool $is_truncated is_truncated
      *
      * @return $this
      */
-    public function setEmail(string $email): static
+    public function setIsTruncated(bool $is_truncated): static
     {
-        if (is_null($email)) {
-            throw new InvalidArgumentException('non-nullable email cannot be null');
+        if (is_null($is_truncated)) {
+            throw new InvalidArgumentException('non-nullable is_truncated cannot be null');
         }
-        $this->container['email'] = $email;
+        $this->container['is_truncated'] = $is_truncated;
 
         return $this;
     }
 
     /**
-     * Gets id
+     * Gets max_bytes
      *
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getMaxBytes(): int
     {
-        return $this->container['id'];
+        return $this->container['max_bytes'];
     }
 
     /**
-     * Sets id
+     * Sets max_bytes
      *
-     * @param string $id Public ID
+     * @param int $max_bytes max_bytes
      *
      * @return $this
      */
-    public function setId(string $id): static
+    public function setMaxBytes(int $max_bytes): static
     {
-        if (is_null($id)) {
-            throw new InvalidArgumentException('non-nullable id cannot be null');
+        if (is_null($max_bytes)) {
+            throw new InvalidArgumentException('non-nullable max_bytes cannot be null');
         }
-        $this->container['id'] = $id;
+        $this->container['max_bytes'] = $max_bytes;
 
         return $this;
     }
 
     /**
-     * Gets quota_bytes
+     * Gets text
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getQuotaBytes(): ?int
+    public function getText(): ?string
     {
-        return $this->container['quota_bytes'];
+        return $this->container['text'];
     }
 
     /**
-     * Sets quota_bytes
+     * Sets text
      *
-     * @param int|null $quota_bytes Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.
+     * @param string|null $text text
      *
      * @return $this
      */
-    public function setQuotaBytes(?int $quota_bytes): static
+    public function setText(?string $text): static
     {
-        if (is_null($quota_bytes)) {
-            array_push($this->openAPINullablesSetToNull, 'quota_bytes');
+        if (is_null($text)) {
+            array_push($this->openAPINullablesSetToNull, 'text');
         } else {
             $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('quota_bytes', $nullablesSetToNull);
+            $index = array_search('text', $nullablesSetToNull);
             if ($index !== false) {
                 unset($nullablesSetToNull[$index]);
                 $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
             }
         }
-        $this->container['quota_bytes'] = $quota_bytes;
-
-        return $this;
-    }
-
-    /**
-     * Gets send_scope
-     *
-     * @return \Sendmux\Mailbox\Model\MailboxSendScope|null
-     */
-    public function getSendScope(): ?\Sendmux\Mailbox\Model\MailboxSendScope
-    {
-        return $this->container['send_scope'];
-    }
-
-    /**
-     * Sets send_scope
-     *
-     * @param \Sendmux\Mailbox\Model\MailboxSendScope|null $send_scope send_scope
-     *
-     * @return $this
-     */
-    public function setSendScope(?\Sendmux\Mailbox\Model\MailboxSendScope $send_scope): static
-    {
-        if (is_null($send_scope)) {
-            array_push($this->openAPINullablesSetToNull, 'send_scope');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('send_scope', $nullablesSetToNull);
-            if ($index !== false) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
-        }
-        $this->container['send_scope'] = $send_scope;
-
-        return $this;
-    }
-
-    /**
-     * Gets status
-     *
-     * @return string
-     */
-    public function getStatus(): string
-    {
-        return $this->container['status'];
-    }
-
-    /**
-     * Sets status
-     *
-     * @param string $status active | suspended | deleted
-     *
-     * @return $this
-     */
-    public function setStatus(string $status): static
-    {
-        if (is_null($status)) {
-            throw new InvalidArgumentException('non-nullable status cannot be null');
-        }
-        $this->container['status'] = $status;
+        $this->container['text'] = $text;
 
         return $this;
     }

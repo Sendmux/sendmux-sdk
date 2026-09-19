@@ -61,6 +61,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $openAPITypes = [
         'attachments' => '\Sendmux\Mailbox\Model\MailboxAttachment[]',
         'bcc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
+        'body' => '\Sendmux\Mailbox\Model\MailboxRealtimeMessageBody',
         'cc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'flags' => '\Sendmux\Mailbox\Model\MailboxMessageFlags',
         'folder_ids' => 'string[]',
@@ -70,13 +71,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'keywords' => 'string[]',
         'preview' => 'string',
         'received_at' => 'string',
+        'rfc5322_message_id' => 'string',
         'sent_at' => 'string',
         'size_bytes' => 'int',
         'subject' => 'string',
         'thread_id' => 'string',
-        'to' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
-        'body' => '\Sendmux\Mailbox\Model\MailboxRealtimeMessageAllOfBody',
-        'rfc5322_message_id' => 'string'
+        'to' => '\Sendmux\Mailbox\Model\MailboxAddress[]'
     ];
 
     /**
@@ -87,6 +87,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $openAPIFormats = [
         'attachments' => null,
         'bcc' => null,
+        'body' => null,
         'cc' => null,
         'flags' => null,
         'folder_ids' => null,
@@ -96,13 +97,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'keywords' => null,
         'preview' => null,
         'received_at' => null,
+        'rfc5322_message_id' => null,
         'sent_at' => null,
         'size_bytes' => null,
         'subject' => null,
         'thread_id' => null,
-        'to' => null,
-        'body' => null,
-        'rfc5322_message_id' => null
+        'to' => null
     ];
 
     /**
@@ -113,6 +113,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $openAPINullables = [
         'attachments' => false,
         'bcc' => false,
+        'body' => false,
         'cc' => false,
         'flags' => false,
         'folder_ids' => false,
@@ -122,13 +123,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'keywords' => false,
         'preview' => true,
         'received_at' => true,
+        'rfc5322_message_id' => true,
         'sent_at' => true,
         'size_bytes' => true,
         'subject' => true,
         'thread_id' => true,
-        'to' => false,
-        'body' => false,
-        'rfc5322_message_id' => true
+        'to' => false
     ];
 
     /**
@@ -209,6 +209,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $attributeMap = [
         'attachments' => 'attachments',
         'bcc' => 'bcc',
+        'body' => 'body',
         'cc' => 'cc',
         'flags' => 'flags',
         'folder_ids' => 'folder_ids',
@@ -218,13 +219,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'keywords' => 'keywords',
         'preview' => 'preview',
         'received_at' => 'received_at',
+        'rfc5322_message_id' => 'rfc5322_message_id',
         'sent_at' => 'sent_at',
         'size_bytes' => 'size_bytes',
         'subject' => 'subject',
         'thread_id' => 'thread_id',
-        'to' => 'to',
-        'body' => 'body',
-        'rfc5322_message_id' => 'rfc5322_message_id'
+        'to' => 'to'
     ];
 
     /**
@@ -235,6 +235,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $setters = [
         'attachments' => 'setAttachments',
         'bcc' => 'setBcc',
+        'body' => 'setBody',
         'cc' => 'setCc',
         'flags' => 'setFlags',
         'folder_ids' => 'setFolderIds',
@@ -244,13 +245,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'keywords' => 'setKeywords',
         'preview' => 'setPreview',
         'received_at' => 'setReceivedAt',
+        'rfc5322_message_id' => 'setRfc5322MessageId',
         'sent_at' => 'setSentAt',
         'size_bytes' => 'setSizeBytes',
         'subject' => 'setSubject',
         'thread_id' => 'setThreadId',
-        'to' => 'setTo',
-        'body' => 'setBody',
-        'rfc5322_message_id' => 'setRfc5322MessageId'
+        'to' => 'setTo'
     ];
 
     /**
@@ -261,6 +261,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     protected static array $getters = [
         'attachments' => 'getAttachments',
         'bcc' => 'getBcc',
+        'body' => 'getBody',
         'cc' => 'getCc',
         'flags' => 'getFlags',
         'folder_ids' => 'getFolderIds',
@@ -270,13 +271,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'keywords' => 'getKeywords',
         'preview' => 'getPreview',
         'received_at' => 'getReceivedAt',
+        'rfc5322_message_id' => 'getRfc5322MessageId',
         'sent_at' => 'getSentAt',
         'size_bytes' => 'getSizeBytes',
         'subject' => 'getSubject',
         'thread_id' => 'getThreadId',
-        'to' => 'getTo',
-        'body' => 'getBody',
-        'rfc5322_message_id' => 'getRfc5322MessageId'
+        'to' => 'getTo'
     ];
 
     /**
@@ -328,6 +328,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $this->setIfExists('attachments', $data ?? [], null);
         $this->setIfExists('bcc', $data ?? [], null);
+        $this->setIfExists('body', $data ?? [], null);
         $this->setIfExists('cc', $data ?? [], null);
         $this->setIfExists('flags', $data ?? [], null);
         $this->setIfExists('folder_ids', $data ?? [], null);
@@ -337,13 +338,12 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         $this->setIfExists('keywords', $data ?? [], null);
         $this->setIfExists('preview', $data ?? [], null);
         $this->setIfExists('received_at', $data ?? [], null);
+        $this->setIfExists('rfc5322_message_id', $data ?? [], null);
         $this->setIfExists('sent_at', $data ?? [], null);
         $this->setIfExists('size_bytes', $data ?? [], null);
         $this->setIfExists('subject', $data ?? [], null);
         $this->setIfExists('thread_id', $data ?? [], null);
         $this->setIfExists('to', $data ?? [], null);
-        $this->setIfExists('body', $data ?? [], null);
-        $this->setIfExists('rfc5322_message_id', $data ?? [], null);
     }
 
     /**
@@ -374,6 +374,9 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['bcc'] === null) {
             $invalidProperties[] = "'bcc' can't be null";
         }
+        if ($this->container['body'] === null) {
+            $invalidProperties[] = "'body' can't be null";
+        }
         if ($this->container['cc'] === null) {
             $invalidProperties[] = "'cc' can't be null";
         }
@@ -401,6 +404,9 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         if ($this->container['received_at'] === null && !$this->isNullableSetToNull('received_at')) {
             $invalidProperties[] = "'received_at' is required";
         }
+        if ($this->container['rfc5322_message_id'] === null && !$this->isNullableSetToNull('rfc5322_message_id')) {
+            $invalidProperties[] = "'rfc5322_message_id' is required";
+        }
         if ($this->container['sent_at'] === null && !$this->isNullableSetToNull('sent_at')) {
             $invalidProperties[] = "'sent_at' is required";
         }
@@ -415,12 +421,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         }
         if ($this->container['to'] === null) {
             $invalidProperties[] = "'to' can't be null";
-        }
-        if ($this->container['body'] === null) {
-            $invalidProperties[] = "'body' can't be null";
-        }
-        if ($this->container['rfc5322_message_id'] === null && !$this->isNullableSetToNull('rfc5322_message_id')) {
-            $invalidProperties[] = "'rfc5322_message_id' is required";
         }
         return $invalidProperties;
     }
@@ -447,7 +447,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets attachments
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAttachment[]|null $attachments attachments
+     * @param \Sendmux\Mailbox\Model\MailboxAttachment[]|null $attachments Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
      *
      * @return $this
      */
@@ -484,6 +484,33 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
             throw new InvalidArgumentException('non-nullable bcc cannot be null');
         }
         $this->container['bcc'] = $bcc;
+
+        return $this;
+    }
+
+    /**
+     * Gets body
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxRealtimeMessageBody
+     */
+    public function getBody(): \Sendmux\Mailbox\Model\MailboxRealtimeMessageBody
+    {
+        return $this->container['body'];
+    }
+
+    /**
+     * Sets body
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxRealtimeMessageBody $body body
+     *
+     * @return $this
+     */
+    public function setBody(\Sendmux\Mailbox\Model\MailboxRealtimeMessageBody $body): static
+    {
+        if (is_null($body)) {
+            throw new InvalidArgumentException('non-nullable body cannot be null');
+        }
+        $this->container['body'] = $body;
 
         return $this;
     }
@@ -753,6 +780,40 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     }
 
     /**
+     * Gets rfc5322_message_id
+     *
+     * @return string|null
+     */
+    public function getRfc5322MessageId(): ?string
+    {
+        return $this->container['rfc5322_message_id'];
+    }
+
+    /**
+     * Sets rfc5322_message_id
+     *
+     * @param string|null $rfc5322_message_id rfc5322_message_id
+     *
+     * @return $this
+     */
+    public function setRfc5322MessageId(?string $rfc5322_message_id): static
+    {
+        if (is_null($rfc5322_message_id)) {
+            array_push($this->openAPINullablesSetToNull, 'rfc5322_message_id');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('rfc5322_message_id', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['rfc5322_message_id'] = $rfc5322_message_id;
+
+        return $this;
+    }
+
+    /**
      * Gets sent_at
      *
      * @return string|null
@@ -911,67 +972,6 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
             throw new InvalidArgumentException('non-nullable to cannot be null');
         }
         $this->container['to'] = $to;
-
-        return $this;
-    }
-
-    /**
-     * Gets body
-     *
-     * @return \Sendmux\Mailbox\Model\MailboxRealtimeMessageAllOfBody
-     */
-    public function getBody(): \Sendmux\Mailbox\Model\MailboxRealtimeMessageAllOfBody
-    {
-        return $this->container['body'];
-    }
-
-    /**
-     * Sets body
-     *
-     * @param \Sendmux\Mailbox\Model\MailboxRealtimeMessageAllOfBody $body body
-     *
-     * @return $this
-     */
-    public function setBody(\Sendmux\Mailbox\Model\MailboxRealtimeMessageAllOfBody $body): static
-    {
-        if (is_null($body)) {
-            throw new InvalidArgumentException('non-nullable body cannot be null');
-        }
-        $this->container['body'] = $body;
-
-        return $this;
-    }
-
-    /**
-     * Gets rfc5322_message_id
-     *
-     * @return string|null
-     */
-    public function getRfc5322MessageId(): ?string
-    {
-        return $this->container['rfc5322_message_id'];
-    }
-
-    /**
-     * Sets rfc5322_message_id
-     *
-     * @param string|null $rfc5322_message_id rfc5322_message_id
-     *
-     * @return $this
-     */
-    public function setRfc5322MessageId(?string $rfc5322_message_id): static
-    {
-        if (is_null($rfc5322_message_id)) {
-            array_push($this->openAPINullablesSetToNull, 'rfc5322_message_id');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('rfc5322_message_id', $nullablesSetToNull);
-            if ($index !== false) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
-        }
-        $this->container['rfc5322_message_id'] = $rfc5322_message_id;
 
         return $this;
     }

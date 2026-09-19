@@ -3,6 +3,18 @@
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.6.1...go/v2.0.0) (2026-09-19)
 
 
+### Changed
+
+* **Breaking:** the module path is `sendmux.ai/go/v2` (tag `go/v2.0.0`). Change the `go.mod` requirement and every `sendmux.ai/go/...` import to `sendmux.ai/go/v2/...` together, then `go mod tidy`; v1 (`sendmux.ai/go`, last release `go/v1.6.1`) is unchanged and not retracted ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb)). See [Version 2 migration](README.md#version-2-migration).
+* **Breaking (mailbox):** `MailboxListThreadMessages` returns `*MailboxThreadMessageSummaryCursorListResponse` (required `Meta.ThreadID`, optional `Meta.SyncState`); `*MailboxMessageSummaryCursorListResponse` no longer satisfies `MailboxListThreadMessagesRes`. `MailboxListMessages` keeps its type and gains optional `Meta.SyncState`; identity, quota, submission and thread list metadata gain typed `IdentityState` or `QueryState` ([87f54eb](https://github.com/Sendmux/sendmux-sdk/commit/87f54eb1679994ddcbdd68ad25d674ad6978f57f)). `MailboxMessage.Attachments` is `[]MailboxAttachment`, the type `MailboxMessageSummary` and `MailboxMessageContent` already use, and `GetAttachments`/`SetAttachments` follow it; the v1-only `MailboxMessageAttachmentsItem` type is removed. Replace the type name; the fields are the same ([1653051](https://github.com/Sendmux/sendmux-sdk/commit/1653051b2ad74ce815e609fafd23c21e1334679a)).
+* **Breaking (management):** `ProviderItemCursorListResponse.Data` is `[]ProviderListItem`, which carries no `Variables`; `ProviderItem`, `ProviderCreateBody`, `ProviderUpdateBody`, `OptProviderCreateBody`, `OptProviderUpdateBody` and `DeliveryLogItem` gain map or slice fields and are no longer comparable ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a)).
+
+### Added
+
+* **management:** `ProviderItem.Variables`, `ProviderCreateBody.Variables` and `ProviderUpdateBody.Variables` (`ProviderVariables`, `map[string]string`), `ProviderAllowedActions.UpdateVariables`, and `DeliveryGroup []string` on `DeliveryLogItem` and `DeliveryLogDetail` ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a)).
+* **sending:** `EmailSendRequest.DeliveryGroup` narrows the eligible provider pool for one send to a delivery group or a list of groups; build it with `NewStringEmailSendRequestDeliveryGroup` or `NewStringArrayEmailSendRequestDeliveryGroup` inside `NewOptEmailSendRequestDeliveryGroup` ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a)).
+
+
 ### ⚠ BREAKING CHANGES
 
 * **go:** `mailbox.MailboxMessageAttachmentsItem` and its accessors are removed; `MailboxMessage.Attachments`, `(*MailboxMessage).GetAttachments` and `(*MailboxMessage).SetAttachments` use `[]mailbox.MailboxAttachment`. Replace the removed type name with `mailbox.MailboxAttachment`; the fields are the same.

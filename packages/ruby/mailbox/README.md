@@ -29,8 +29,67 @@ gem install sendmux-mailbox
 Or add it to your Gemfile:
 
 ```ruby
-gem "sendmux-mailbox", "~> 1.0"
+gem "sendmux-mailbox", "~> 2.0"
 ```
+
+## Migrate from 1.x to 2.0
+
+If you check thread-message result classes or build thread-message fixtures by
+hand, update them when upgrading to 2.0. `mailbox_list_thread_messages` returns
+`MailboxThreadMessageSummaryCursorListResponse` instead of
+`MailboxMessageSummaryCursorListResponse`: its `meta` is
+`MailboxThreadMessagesMeta`, whose `thread_id` is required and whose
+`sync_state` is an optional string. Code that only reads thread-message results
+keeps working.
+
+1. Update thread-message class checks to use the class loaded by the public
+   entry point:
+
+   ```ruby
+   require "sendmux/mailbox"
+
+   def thread_message_list?(response)
+     # Before: response.is_a?(Sendmux::Mailbox::Generated::MailboxMessageSummaryCursorListResponse)
+     response.is_a?(Sendmux::Mailbox::Generated::MailboxThreadMessageSummaryCursorListResponse)
+   end
+   ```
+
+2. Add the thread identity to every thread-message result you construct. Pass
+   the thread's `id` as the `thread_id` argument when you read one from the
+   public client:
+
+   ```ruby
+   def thread_message_fixture(thread_id)
+     # Before: meta: { request_id: "req_fixture" }
+     Sendmux::Mailbox::Generated::MailboxThreadMessageSummaryCursorListResponse.build_from_hash(
+       ok: true,
+       meta: { request_id: "req_fixture", thread_id: thread_id },
+       data: [],
+       pagination: { has_more: false }
+     )
+   end
+
+   def thread_sync_state(client, thread_id)
+     response = client.mailbox_api.mailbox_list_thread_messages(thread_id, limit: 50)
+     [response.meta.thread_id, response.meta.sync_state]
+   end
+   ```
+
+   Ordinary `mailbox_list_messages` results remain
+   `MailboxMessageSummaryCursorListResponse`: they have no thread identity and
+   expose an optional typed `meta.sync_state`. Identity, submission, quota, and
+   thread list responses likewise replace the generic `ResponseMeta` with
+   `MailboxIdentityListMeta` or `MailboxQueryMeta`, which add optional
+   `identity_state` or `query_state`; `meta.request_id` is unchanged everywhere
+   and no new field is required there.
+
+3. Run your application's tests with the updated bundle. A constructed
+   thread-message result without `meta.thread_id` fails with
+   `ArgumentError: thread_id cannot be nil`.
+
+Update `sendmux-mailbox`, the bundle lock, and affected call sites or fixtures
+together. To roll back, restore those gem requirement, lock, and call-site
+changes together.
 
 ## OAuth access tokens
 
@@ -111,12 +170,6 @@ rescue Sendmux::Core::ApiError => error
   warn "#{error.status} #{error.code}: #{error.message}"
 end
 ```
-
-## Version 2 migration candidate
-
-Version 2 is not published yet. Thread-message list calls return `MailboxThreadMessageSummaryCursorListResponse`; its metadata requires `thread_id` and exposes optional typed `sync_state`. Constructed thread results must use the thread-specific response and metadata models. Ordinary message-list calls remain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose their own typed sync state. Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
-
-When the release is available, update `sendmux-mailbox`, the bundle lock, and affected call sites or fixtures together. To roll back, restore the previous gem requirement, lock, and call sites together.
 
 ## Support
 

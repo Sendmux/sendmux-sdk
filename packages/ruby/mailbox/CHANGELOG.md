@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased 2.0 migration
-
-- Thread-message lists use `MailboxThreadMessageSummaryCursorListResponse`, with required `meta.thread_id` and typed optional `meta.sync_state`; ordinary message lists remain thread-independent.
-- Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
-- Upgrade the gem, bundle lock, and affected call sites or fixtures together; restore all three together to roll back.
-
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v1.3.0...ruby-mailbox/v1.4.0) (2026-09-10)
 
 

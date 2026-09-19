@@ -22,7 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment
 from sendmux_mailbox.models.mailbox_message_flags import MailboxMessageFlags
-from sendmux_mailbox.models.mailbox_realtime_message_all_of_body import MailboxRealtimeMessageAllOfBody
+from sendmux_mailbox.models.mailbox_realtime_message_body import MailboxRealtimeMessageBody
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -31,8 +31,9 @@ class MailboxRealtimeMessage(BaseModel):
     """
     MailboxRealtimeMessage
     """ # noqa: E501
-    attachments: Optional[List[MailboxAttachment]] = None
+    attachments: Optional[List[MailboxAttachment]] = Field(default=None, description="Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.")
     bcc: List[MailboxAddress]
+    body: MailboxRealtimeMessageBody
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
     folder_ids: List[StrictStr]
@@ -42,14 +43,13 @@ class MailboxRealtimeMessage(BaseModel):
     keywords: List[StrictStr] = Field(description="Active message keywords, including system flags and custom labels.")
     preview: Optional[StrictStr]
     received_at: Optional[StrictStr]
+    rfc5322_message_id: Optional[StrictStr]
     sent_at: Optional[StrictStr]
     size_bytes: Optional[StrictInt]
     subject: Optional[StrictStr]
     thread_id: Optional[StrictStr]
     to: List[MailboxAddress]
-    body: MailboxRealtimeMessageAllOfBody
-    rfc5322_message_id: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "thread_id", "to", "body", "rfc5322_message_id"]
+    __properties: ClassVar[List[str]] = ["attachments", "bcc", "body", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "rfc5322_message_id", "sent_at", "size_bytes", "subject", "thread_id", "to"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -104,6 +104,9 @@ class MailboxRealtimeMessage(BaseModel):
                 if _item_bcc:
                     _items.append(_item_bcc.to_dict())
             _dict['bcc'] = _items
+        # override the default output from pydantic by calling `to_dict()` of body
+        if self.body:
+            _dict['body'] = self.body.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in cc (list)
         _items = []
         if self.cc:
@@ -124,9 +127,6 @@ class MailboxRealtimeMessage(BaseModel):
                 if _item_to:
                     _items.append(_item_to.to_dict())
             _dict['to'] = _items
-        # override the default output from pydantic by calling `to_dict()` of body
-        if self.body:
-            _dict['body'] = self.body.to_dict()
         # set to None if var_from (nullable) is None
         # and model_fields_set contains the field
         if self.var_from is None and "var_from" in self.model_fields_set:
@@ -141,6 +141,11 @@ class MailboxRealtimeMessage(BaseModel):
         # and model_fields_set contains the field
         if self.received_at is None and "received_at" in self.model_fields_set:
             _dict['received_at'] = None
+
+        # set to None if rfc5322_message_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.rfc5322_message_id is None and "rfc5322_message_id" in self.model_fields_set:
+            _dict['rfc5322_message_id'] = None
 
         # set to None if sent_at (nullable) is None
         # and model_fields_set contains the field
@@ -162,11 +167,6 @@ class MailboxRealtimeMessage(BaseModel):
         if self.thread_id is None and "thread_id" in self.model_fields_set:
             _dict['thread_id'] = None
 
-        # set to None if rfc5322_message_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.rfc5322_message_id is None and "rfc5322_message_id" in self.model_fields_set:
-            _dict['rfc5322_message_id'] = None
-
         return _dict
 
     @classmethod
@@ -181,6 +181,7 @@ class MailboxRealtimeMessage(BaseModel):
         _obj = cls.model_validate({
             "attachments": [MailboxAttachment.from_dict(_item) for _item in obj["attachments"]] if obj.get("attachments") is not None else None,
             "bcc": [MailboxAddress.from_dict(_item) for _item in obj["bcc"]] if obj.get("bcc") is not None else None,
+            "body": MailboxRealtimeMessageBody.from_dict(obj["body"]) if obj.get("body") is not None else None,
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "flags": MailboxMessageFlags.from_dict(obj["flags"]) if obj.get("flags") is not None else None,
             "folder_ids": obj.get("folder_ids"),
@@ -190,12 +191,11 @@ class MailboxRealtimeMessage(BaseModel):
             "keywords": obj.get("keywords"),
             "preview": obj.get("preview"),
             "received_at": obj.get("received_at"),
+            "rfc5322_message_id": obj.get("rfc5322_message_id"),
             "sent_at": obj.get("sent_at"),
             "size_bytes": obj.get("size_bytes"),
             "subject": obj.get("subject"),
             "thread_id": obj.get("thread_id"),
-            "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None,
-            "body": MailboxRealtimeMessageAllOfBody.from_dict(obj["body"]) if obj.get("body") is not None else None,
-            "rfc5322_message_id": obj.get("rfc5322_message_id")
+            "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None
         })
         return _obj

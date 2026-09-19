@@ -43,7 +43,6 @@ __all__ = [
     "CursorPagination",
     "GrantedMailbox",
     "GrantedMailboxListResponse",
-    "Mailbox",
     "MailboxAddress",
     "MailboxAttachment",
     "MailboxAttachmentUploadIntentBody",
@@ -109,7 +108,7 @@ __all__ = [
     "MailboxRawBodyResponseAllOfData",
     "MailboxRealtimeEvent",
     "MailboxRealtimeMessage",
-    "MailboxRealtimeMessageAllOfBody",
+    "MailboxRealtimeMessageBody",
     "MailboxSearchSnippet",
     "MailboxSearchSnippetsResult",
     "MailboxSearchSnippetsResultResponse",
@@ -199,7 +198,6 @@ from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolde
 from sendmux_mailbox.models.cursor_pagination import CursorPagination as CursorPagination
 from sendmux_mailbox.models.granted_mailbox import GrantedMailbox as GrantedMailbox
 from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse as GrantedMailboxListResponse
-from sendmux_mailbox.models.mailbox import Mailbox as Mailbox
 from sendmux_mailbox.models.mailbox_address import MailboxAddress as MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment as MailboxAttachment
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody as MailboxAttachmentUploadIntentBody
@@ -265,7 +263,7 @@ from sendmux_mailbox.models.mailbox_raw_body_response import MailboxRawBodyRespo
 from sendmux_mailbox.models.mailbox_raw_body_response_all_of_data import MailboxRawBodyResponseAllOfData as MailboxRawBodyResponseAllOfData
 from sendmux_mailbox.models.mailbox_realtime_event import MailboxRealtimeEvent as MailboxRealtimeEvent
 from sendmux_mailbox.models.mailbox_realtime_message import MailboxRealtimeMessage as MailboxRealtimeMessage
-from sendmux_mailbox.models.mailbox_realtime_message_all_of_body import MailboxRealtimeMessageAllOfBody as MailboxRealtimeMessageAllOfBody
+from sendmux_mailbox.models.mailbox_realtime_message_body import MailboxRealtimeMessageBody as MailboxRealtimeMessageBody
 from sendmux_mailbox.models.mailbox_search_snippet import MailboxSearchSnippet as MailboxSearchSnippet
 from sendmux_mailbox.models.mailbox_search_snippets_result import MailboxSearchSnippetsResult as MailboxSearchSnippetsResult
 from sendmux_mailbox.models.mailbox_search_snippets_result_response import MailboxSearchSnippetsResultResponse as MailboxSearchSnippetsResultResponse

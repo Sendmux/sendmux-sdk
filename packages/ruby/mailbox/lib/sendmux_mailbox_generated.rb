@@ -177,3 +177,9 @@ module Sendmux::Mailbox::Generated
     end
   end
 end
+
+module Sendmux::Mailbox::Generated
+  # Deprecated model constants kept as aliases of their replacements until the next major release.
+  MailboxRealtimeMessageAllOfBody = MailboxRealtimeMessageBody
+  deprecate_constant :MailboxRealtimeMessageAllOfBody
+end

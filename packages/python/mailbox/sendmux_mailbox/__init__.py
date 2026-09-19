@@ -339,3 +339,25 @@ from sendmux_mailbox.attachments import (
     upload_mailbox_attachment_from_file,
     upload_mailbox_attachment_via_presigned_file,
 )
+
+import warnings as _warnings
+
+from typing import Any as _Any
+
+# Deprecated model names kept as aliases of their replacements until the release named here.
+_DEPRECATED_MODEL_ALIASES = {
+    "MailboxRealtimeMessageAllOfBody": ("MailboxRealtimeMessageBody", "sendmux-mailbox 3.0"),
+}
+
+
+def __getattr__(name: str) -> _Any:
+    alias = _DEPRECATED_MODEL_ALIASES.get(name)
+    if alias is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    replacement, removed_in = alias
+    _warnings.warn(
+        f"{name} is deprecated; use {replacement}. It will be removed in {removed_in}.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return globals()[replacement]

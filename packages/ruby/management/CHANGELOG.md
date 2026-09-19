@@ -6,6 +6,14 @@
 
 * Add provider variable management fields and delivery-group fields to delivery logs.
 
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v2.0.0...ruby-management/v2.0.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+* **ruby-management:** regenerate the flattened webhook secret response model ([b002849](https://github.com/Sendmux/sendmux-sdk/commit/b00284908ee07980f25badafaba90f4bd4eb6b25))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v1.3.0...ruby-management/v2.0.0) (2026-09-18)
 
 ### Changed

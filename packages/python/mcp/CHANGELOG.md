@@ -4,6 +4,14 @@
 
 - Return the correct MCP resource metadata at the root discovery URL, including requests with differently capitalised hostnames; A2A discovery is unchanged.
 
+## [2.1.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.1.1...python-mcp-v2.1.2) (2026-09-19)
+
+
+### Bug Fixes
+
+* **python-mcp:** publish the deployed flattened response schemas ([a3a2897](https://github.com/Sendmux/sendmux-sdk/commit/a3a2897b1f891c405eaa457b7130c14f36508e6d))
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+
 ## [2.1.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.1.0...python-mcp-v2.1.1) (2026-09-17)
 
 

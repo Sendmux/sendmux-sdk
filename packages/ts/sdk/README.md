@@ -28,6 +28,95 @@ Optional umbrella package for the Sendmux TypeScript SDK.
 npm install @sendmux/sdk
 ```
 
+## Migrate from 1.x to 2.0
+
+`@sendmux/sdk` 2.0 re-exports `@sendmux/management` 2.0 and `@sendmux/mailbox` 2.0,
+so it carries their two result-type changes; the `sending` and `core` namespaces
+carry no breaking change. If you pass sending-account list entries to code that expects a
+detail result, or construct thread-message list results (fixtures, mocks, or
+wrappers annotated with the operation's result type), update those types before
+upgrading to 2.0. Code that only reads results keeps compiling.
+
+1. `management.managementListProviders` returns `ProviderListItem` entries
+   without `variables`; `management.managementGetProvider` returns a
+   `ProviderItem` with required `variables`. A list entry no longer satisfies
+   the detail type. Derive separate list and detail types from the public
+   operations (the namespaces don't export these generated model names
+   directly), and give list-only code the list type:
+
+   ```ts
+   import { management } from "@sendmux/sdk";
+
+   type ProviderListItem = NonNullable<
+     Awaited<ReturnType<typeof management.managementListProviders>>["data"]
+   >["data"][number];
+   type ProviderItem = NonNullable<
+     Awaited<ReturnType<typeof management.managementGetProvider>>["data"]
+   >["data"];
+
+   // Before: type ProviderRow = ProviderItem;
+   type ProviderRow = ProviderListItem;
+   ```
+
+   If you need `variables`, fetch the detail with the account's `id` as
+   `path.public_id`. Don't cast a list entry to `ProviderItem` or add an empty
+   `variables` object to stand in for the account's actual variables:
+
+   ```ts
+   async function loadVariables(
+     client: management.ManagementClient,
+     account: ProviderListItem,
+   ): Promise<ProviderItem["variables"] | undefined> {
+     const detail = await management.managementGetProvider({
+       client,
+       path: { public_id: account.id },
+     });
+     return detail.data?.data.variables;
+   }
+   ```
+
+2. `mailbox.mailboxListThreadMessages` returns
+   `MailboxThreadMessageSummaryCursorListResponse` instead of
+   `MailboxMessageSummaryCursorListResponse`: its `meta.thread_id` is required
+   and `meta.sync_state` is an optional string. Add the thread identity to every
+   constructed thread-message result:
+
+   ```ts
+   import { mailbox } from "@sendmux/sdk";
+
+   type ThreadMessageList = NonNullable<
+     Awaited<ReturnType<typeof mailbox.mailboxListThreadMessages>>["data"]
+   >;
+
+   // Before: meta: { request_id: "req_fixture" }
+   const fixture: ThreadMessageList = {
+     ok: true,
+     meta: { request_id: "req_fixture", thread_id: "thr_1" },
+     data: [],
+     pagination: { has_more: false },
+   };
+   ```
+
+   Ordinary `mailbox.mailboxListMessages` results remain
+   `MailboxMessageSummaryCursorListResponse`: they have no thread identity and
+   expose an optional typed `meta.sync_state`. Identity, submission, quota, and
+   thread list responses likewise expose optional typed state metadata
+   (`identity_state`, `query_state`); no new field is required there.
+
+3. Run your application's TypeScript check. List-only code should accept
+   `ProviderListItem`, code that reads `variables` must receive a detail result,
+   and a constructed thread-message result without `meta.thread_id` fails with
+   `Property 'thread_id' is missing in type … but required in type
+   'MailboxThreadMessagesMeta'`.
+
+Update `@sendmux/sdk`, any directly installed `@sendmux/management` or
+`@sendmux/mailbox`, the lockfile, and affected annotations, fixtures, or call
+sites together. To roll back, restore those package, lockfile, and call-site
+changes together. The per-surface notes are in the
+[`@sendmux/management`](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ts/management/README.md#migrate-from-1x-to-20)
+and [`@sendmux/mailbox`](https://github.com/Sendmux/sendmux-sdk/blob/main/packages/ts/mailbox/README.md#migrate-from-1x-to-20)
+READMEs.
+
 ## OAuth access tokens
 
 Each surface client also accepts `accessToken`: a bare token string or a synchronous or asynchronous provider. Pass either `apiKey` or `accessToken`. The provider runs for each authenticated request; your application owns token storage and refresh coordination.
@@ -73,12 +162,6 @@ The umbrella package re-exports:
 - `management` from `@sendmux/management`
 
 Use the per-surface packages directly when an integration only needs one API surface.
-
-## Version 2 migration candidate
-
-Version 2 is not published yet. The umbrella's Mailbox namespace adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose typed optional `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose their state through typed metadata.
-
-When the release is available, update `@sendmux/sdk`, `@sendmux/mailbox`, the lockfile, and affected result annotations or fixtures together. To roll back, restore the previous package versions, lockfile, and call sites together.
 
 ## Support
 

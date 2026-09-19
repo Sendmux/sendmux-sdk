@@ -1,10 +1,5 @@
 # Changelog
 
-## Unreleased 2.0 migration
-
-- The Mailbox namespace adopts the thread-specific list response, including required thread identity and typed state metadata; ordinary message lists remain thread-independent.
-- Upgrade `@sendmux/sdk`, `@sendmux/mailbox`, the lockfile, and affected call sites together; restore them together to roll back.
-
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.2...ts-sdk-v1.5.0) (2026-09-10)
 
 

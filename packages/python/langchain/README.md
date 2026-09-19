@@ -84,6 +84,7 @@ Sends through your configured sending providers, to any recipient.
 | `html` | str | no | HTML body. Generated from `text` if omitted |
 | `var_from` | str | no | Sender address. Falls back to `default_from` |
 | `idempotency_key` | str | no | Makes a retried send idempotent for 24 hours |
+| `delivery_group` | str or list[str] | no | One delivery group ID, or a list of IDs, that narrows the eligible provider pool for this send. Omit to keep the default routing |
 
 `var_from` is spelt that way because `from` is a reserved word in Python.
 

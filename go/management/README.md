@@ -6,8 +6,6 @@ Go client for managing domains, mailboxes, sending accounts, billing, logs, and 
 
 ## Install
 
-This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
-
 ```sh
 go get sendmux.ai/go/v2@v2.0.0
 ```
@@ -87,5 +85,3 @@ func main() {
 - Management API: <https://sendmux.ai/docs/api/introduction>
 - Domain guide: <https://sendmux.ai/docs/guides/domain-management>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/management>
-
-The v2 module and reference page are release candidates until tag `go/v2.0.0` is published.

@@ -1,16 +1,5 @@
 # Changelog
 
-## Unreleased v2 migration
-
-### Features
-
-- Add typed provider-variable management fields, delivery-group log fields, and one delivery group or a list of groups that narrows the eligible provider pool for sends.
-
-- Change the module and imports from `sendmux.ai/go` to `sendmux.ai/go/v2` after tag `go/v2.0.0` is published.
-- Thread-message lists return `MailboxThreadMessageSummaryCursorListResponse`; its metadata requires `ThreadID` and exposes optional `SyncState`. Constructed thread fixtures must use the corresponding thread-specific metadata and success types.
-- Ordinary message lists retain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose optional `SyncState`. Other mailbox list families expose typed `IdentityState` or `QueryState` metadata where applicable.
-- Roll back by restoring the previous module requirement, imports, response fixtures, and lock or vendor state together.
-
 ## [1.6.1](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.6.0...go/v1.6.1) (2026-09-11)
 
 

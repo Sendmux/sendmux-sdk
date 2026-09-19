@@ -6,7 +6,7 @@ Official Sendmux Go module for the Sending, Mailbox, and Management APIs.
 
 ## Install
 
-This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
+Requires Go 1.23 or newer.
 
 ```sh
 go get sendmux.ai/go/v2@v2.0.0
@@ -192,13 +192,41 @@ All three surface packages expose `NewWithAccessToken(token, opts...)` and `NewW
 
 Use a bare REST access token with the operation's required scopes and mailbox access. See [OAuth for REST APIs](https://sendmux.ai/docs/developer-tools/oauth). Existing `New` constructors retain API-key prefix validation.
 
-## Version 2 migration candidate
+## Version 2 migration
 
-Version 2 is not published yet. When `go/v2.0.0` is available, change the module requirement and every Sendmux import from `sendmux.ai/go/...` to `sendmux.ai/go/v2/...` together.
+`sendmux.ai/go/v2` is a new major module. Version 1 (`sendmux.ai/go`, last release `go/v1.6.1`) keeps working unchanged and is not retracted.
 
-Thread-message list calls return `*mailbox.MailboxThreadMessageSummaryCursorListResponse`. Its metadata requires `ThreadID` and exposes optional `SyncState`; constructed thread results must provide the thread-specific `Meta` and `Ok` types. Ordinary message lists remain `*mailbox.MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose optional `SyncState` in their own metadata type. Other mailbox list metadata now exposes typed `IdentityState` or `QueryState` where the API supplies it.
+1. Require the v2 module and change every Sendmux import in the same commit, then run `go mod tidy` to drop the v1 requirement:
 
-To roll back, restore the previous module requirement, imports, constructed response types, and lock or vendor state together. Do not mix v1 imports with v2 response fixtures.
+   ```sh
+   go get sendmux.ai/go/v2@v2.0.0
+   ```
+
+   | v1 import | v2 import |
+   | --- | --- |
+   | `sendmux.ai/go/core` | `sendmux.ai/go/v2/core` |
+   | `sendmux.ai/go/sending` | `sendmux.ai/go/v2/sending` |
+   | `sendmux.ai/go/mailbox` | `sendmux.ai/go/v2/mailbox` |
+   | `sendmux.ai/go/management` | `sendmux.ai/go/v2/management` |
+   | `sendmux.ai/go/sdk` | `sendmux.ai/go/v2/sdk` |
+
+   Do not mix v1 and v2 imports in one binary: `core.APIError`, `core.RetryOptions` and every generated type are distinct types in each major version.
+
+2. **Mailbox.** `MailboxListThreadMessages` returns `*mailbox.MailboxThreadMessageSummaryCursorListResponse`; its metadata has a required `ThreadID` and an optional `SyncState`. A type assertion on `*mailbox.MailboxMessageSummaryCursorListResponse` for that call no longer matches, and constructed thread results must use `MailboxThreadMessageSummaryCursorListResponseMeta` and `MailboxThreadMessageSummaryCursorListResponseOk`. `MailboxListMessages` still returns `*mailbox.MailboxMessageSummaryCursorListResponse`, whose metadata gains an optional `SyncState`. Identity, quota, submission and thread list metadata gain typed `IdentityState` or `QueryState` fields.
+
+3. **Management.** `ManagementListProviders` returns `[]management.ProviderListItem` in `ProviderItemCursorListResponse.Data` instead of `[]management.ProviderItem`; the list item carries no `Variables`. The provider detail type `ProviderItem` gains `Variables management.ProviderVariables` (`map[string]string`), `ProviderCreateBody` and `ProviderUpdateBody` gain optional `Variables`, and `ProviderAllowedActions` gains `UpdateVariables`. `DeliveryLogItem` and `DeliveryLogDetail` gain `DeliveryGroup []string`. Because of the new map and slice fields, `ProviderItem`, `ProviderCreateBody`, `ProviderUpdateBody`, `OptProviderCreateBody`, `OptProviderUpdateBody` and `DeliveryLogItem` are no longer comparable with `==` and cannot be used as map keys.
+
+4. **Sending (additive).** `EmailSendRequest.DeliveryGroup` narrows the eligible provider pool for one send to one delivery group or a list of groups:
+
+   ```go
+   request.DeliveryGroup = sending.NewOptEmailSendRequestDeliveryGroup(
+   	sending.NewStringArrayEmailSendRequestDeliveryGroup([]string{"dgrp_primary", "dgrp_backup"}),
+   )
+   ```
+
+   Use `sending.NewStringEmailSendRequestDeliveryGroup("dgrp_primary")` for a single group.
+
+To roll back, restore the v1 module requirement, imports, constructed response types, and lock or vendor state together.
 
 ## Runtime behaviour
 

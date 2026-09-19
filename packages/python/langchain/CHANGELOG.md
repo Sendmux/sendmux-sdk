@@ -1,15 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* Add one delivery group or a list of groups that narrows the eligible provider pool to the `send_email` tool.
-
-### Bug Fixes
-
-* Require `sendmux-sending>=1.6.0,<2.0.0` and `sendmux-mailbox>=2.0.0,<3.0.0` so toolkit installations include delivery-group routing, the core error-propagation fix and the mailbox response-metadata fixes.
-
 ## [0.3.0](https://github.com/Sendmux/sendmux-sdk/compare/python-langchain-v0.2.1...python-langchain-v0.3.0) (2026-09-10)
 
 

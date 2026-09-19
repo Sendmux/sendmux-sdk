@@ -66,9 +66,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         'filters' => '\Sendmux\Management\Model\WebhookFilters',
         'id' => 'string',
         'name' => 'string',
+        'secret' => 'string',
         'updated_at' => 'string',
-        'url' => 'string',
-        'secret' => 'string'
+        'url' => 'string'
     ];
 
     /**
@@ -84,9 +84,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         'filters' => null,
         'id' => null,
         'name' => null,
+        'secret' => null,
         'updated_at' => null,
-        'url' => 'uri',
-        'secret' => null
+        'url' => 'uri'
     ];
 
     /**
@@ -102,9 +102,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         'filters' => false,
         'id' => false,
         'name' => true,
+        'secret' => false,
         'updated_at' => false,
-        'url' => false,
-        'secret' => false
+        'url' => false
     ];
 
     /**
@@ -190,9 +190,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         'filters' => 'filters',
         'id' => 'id',
         'name' => 'name',
+        'secret' => 'secret',
         'updated_at' => 'updated_at',
-        'url' => 'url',
-        'secret' => 'secret'
+        'url' => 'url'
     ];
 
     /**
@@ -208,9 +208,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         'filters' => 'setFilters',
         'id' => 'setId',
         'name' => 'setName',
+        'secret' => 'setSecret',
         'updated_at' => 'setUpdatedAt',
-        'url' => 'setUrl',
-        'secret' => 'setSecret'
+        'url' => 'setUrl'
     ];
 
     /**
@@ -226,9 +226,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         'filters' => 'getFilters',
         'id' => 'getId',
         'name' => 'getName',
+        'secret' => 'getSecret',
         'updated_at' => 'getUpdatedAt',
-        'url' => 'getUrl',
-        'secret' => 'getSecret'
+        'url' => 'getUrl'
     ];
 
     /**
@@ -314,9 +314,9 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         $this->setIfExists('filters', $data ?? [], null);
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('secret', $data ?? [], null);
         $this->setIfExists('updated_at', $data ?? [], null);
         $this->setIfExists('url', $data ?? [], null);
-        $this->setIfExists('secret', $data ?? [], null);
     }
 
     /**
@@ -365,14 +365,14 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
         if ($this->container['name'] === null && !$this->isNullableSetToNull('name')) {
             $invalidProperties[] = "'name' is required";
         }
+        if ($this->container['secret'] === null) {
+            $invalidProperties[] = "'secret' can't be null";
+        }
         if ($this->container['updated_at'] === null) {
             $invalidProperties[] = "'updated_at' can't be null";
         }
         if ($this->container['url'] === null) {
             $invalidProperties[] = "'url' can't be null";
-        }
-        if ($this->container['secret'] === null) {
-            $invalidProperties[] = "'secret' can't be null";
         }
         return $invalidProperties;
     }
@@ -592,6 +592,33 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
     }
 
     /**
+     * Gets secret
+     *
+     * @return string
+     */
+    public function getSecret(): string
+    {
+        return $this->container['secret'];
+    }
+
+    /**
+     * Sets secret
+     *
+     * @param string $secret Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
+     *
+     * @return $this
+     */
+    public function setSecret(string $secret): static
+    {
+        if (is_null($secret)) {
+            throw new InvalidArgumentException('non-nullable secret cannot be null');
+        }
+        $this->container['secret'] = $secret;
+
+        return $this;
+    }
+
+    /**
      * Gets updated_at
      *
      * @return string
@@ -641,33 +668,6 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
             throw new InvalidArgumentException('non-nullable url cannot be null');
         }
         $this->container['url'] = $url;
-
-        return $this;
-    }
-
-    /**
-     * Gets secret
-     *
-     * @return string
-     */
-    public function getSecret(): string
-    {
-        return $this->container['secret'];
-    }
-
-    /**
-     * Sets secret
-     *
-     * @param string $secret Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
-     *
-     * @return $this
-     */
-    public function setSecret(string $secret): static
-    {
-        if (is_null($secret)) {
-            throw new InvalidArgumentException('non-nullable secret cannot be null');
-        }
-        $this->container['secret'] = $secret;
 
         return $this;
     }

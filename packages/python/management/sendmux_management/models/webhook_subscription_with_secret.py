@@ -35,10 +35,10 @@ class WebhookSubscriptionWithSecret(BaseModel):
     filters: WebhookFilters
     id: StrictStr = Field(description="Webhook public ID")
     name: Optional[StrictStr] = Field(description="Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.")
+    secret: StrictStr = Field(description="Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.")
     updated_at: StrictStr = Field(description="ISO 8601 last-modified timestamp")
     url: StrictStr = Field(description="HTTPS endpoint that receives signed event POSTs.")
-    secret: StrictStr = Field(description="Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.")
-    __properties: ClassVar[List[str]] = ["created_at", "enabled", "event_types", "failing", "filters", "id", "name", "updated_at", "url", "secret"]
+    __properties: ClassVar[List[str]] = ["created_at", "enabled", "event_types", "failing", "filters", "id", "name", "secret", "updated_at", "url"]
 
     @field_validator('event_types')
     def event_types_validate_enum(cls, value):
@@ -114,8 +114,8 @@ class WebhookSubscriptionWithSecret(BaseModel):
             "filters": WebhookFilters.from_dict(obj["filters"]) if obj.get("filters") is not None else None,
             "id": obj.get("id"),
             "name": obj.get("name"),
+            "secret": obj.get("secret"),
             "updated_at": obj.get("updated_at"),
-            "url": obj.get("url"),
-            "secret": obj.get("secret")
+            "url": obj.get("url")
         })
         return _obj

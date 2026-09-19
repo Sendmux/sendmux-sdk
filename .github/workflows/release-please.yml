@@ -624,6 +624,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: .publication-guard
+          persist-credentials: false
 
       - name: Resolve Python producer
         id: producer
@@ -638,12 +639,14 @@ jobs:
         with:
           ref: ${{ steps.producer.outputs.sha }}
           clean: false
+          persist-credentials: false
 
       - name: Restore immutable guard source after candidate checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ github.sha }}
           path: .publication-guard
+          persist-credentials: false
 
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8

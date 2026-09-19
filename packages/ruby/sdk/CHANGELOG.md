@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.3.0...ruby-sdk/v2.0.0) (2026-09-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ruby-sdk:** adopt Mailbox 2 producer floor
+* **ruby-sdk:** adopt Management 2 producer floor
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+* **ruby-sdk:** adopt Mailbox 2 producer floor ([051a621](https://github.com/Sendmux/sendmux-sdk/commit/051a6215f1ef2a8400696baba9a84d8b8d9d9aae))
+* **ruby-sdk:** adopt Management 2 producer floor ([3c4fe75](https://github.com/Sendmux/sendmux-sdk/commit/3c4fe755c8be1b3afcd9b25aeb0aa4bb65be8556))
+* **ruby-sdk:** require released sending 1.5.0 ([eaf5a80](https://github.com/Sendmux/sendmux-sdk/commit/eaf5a80d19abaca9db21e9c093a8713ad972d934))
+
 ## [1.3.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.2.0...ruby-sdk/v1.3.0) (2026-09-10)
 
 

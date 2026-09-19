@@ -48,7 +48,6 @@
     "packages/ts/ai-sdk": {
       "component": "ts-ai-sdk",
       "package-name": "@sendmux/ai-sdk",
-      "release-as": "0.5.0",
       "initial-version": "0.1.0"
     },
     "packages/python/langchain": {
@@ -163,7 +162,6 @@
       "package-name": "sendmux-sdk",
       "release-type": "ruby",
       "version-file": "lib/sendmux/sdk/version.rb",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     }
   }

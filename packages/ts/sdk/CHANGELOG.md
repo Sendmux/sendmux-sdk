@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.5.0...ts-sdk-v2.0.0) (2026-09-19)
+
+### Changed
+
+* **Breaking:** the `management` namespace is now `@sendmux/management` 2.0.0 and the `mailbox` namespace is `@sendmux/mailbox` 2.0.0. `management.managementListProviders` returns `ProviderListItem` entries without `variables` while `management.managementGetProvider` returns `ProviderItem` with required `variables`, so a list entry no longer satisfies the detail type; `mailbox.mailboxListThreadMessages` returns `MailboxThreadMessageSummaryCursorListResponse`, whose `meta.thread_id` is required, so thread-message results you construct (fixtures, mocks, annotated wrappers) must supply `thread_id`. Reading results is unaffected; the `sending` (1.6.0) and `core` (1.2.0) namespaces carry no breaking change. See [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20).
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 2.0.0
+    * @sendmux/management bumped to 2.0.0
+    * @sendmux/sending bumped to 1.6.0
+
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.2...ts-sdk-v1.5.0) (2026-09-10)
 
 

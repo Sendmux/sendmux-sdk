@@ -6,8 +6,6 @@ Package `sdk` anchors the Sendmux Go module. It does not re-export the surface c
 
 ## Install
 
-This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
-
 ```sh
 go get sendmux.ai/go/v2@v2.0.0
 ```
@@ -38,4 +36,4 @@ All three surface packages also provide `NewWithAccessToken` and `NewWithTokenPr
 - Guides: <https://sendmux.ai/docs>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/sdk>
 
-The v2 module and reference page are release candidates until tag `go/v2.0.0` is published. See the [module migration guidance](../README.md#version-2-migration-candidate) before changing imports.
+Upgrading from `sendmux.ai/go` v1? See the [version 2 migration](../README.md#version-2-migration) before changing imports.

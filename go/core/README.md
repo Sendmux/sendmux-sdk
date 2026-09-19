@@ -6,8 +6,6 @@ Shared runtime helpers used by the Sendmux Go surface packages.
 
 ## Install
 
-This source targets the unpublished `go/v2.0.0` release. Run this command only after that tag is available:
-
 ```sh
 go get sendmux.ai/go/v2@v2.0.0
 ```
@@ -60,5 +58,3 @@ Most applications should import `sendmux.ai/go/v2/sending`, `sendmux.ai/go/v2/ma
 
 - Guides: <https://sendmux.ai/docs>
 - Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/core>
-
-The v2 module and reference pages are release candidates until tag `go/v2.0.0` is published.

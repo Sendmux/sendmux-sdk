@@ -7,6 +7,11 @@
 ## [2.1.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.1.1...python-mcp-v2.1.2) (2026-09-19)
 
 
+### Fixed
+
+* **Tool result schemas:** `mailbox_get_me`, `mailbox_get_message`, `mailbox_get_thread` and `management_create_webhook` advertised an output schema whose `result.data` combined two closed objects with `allOf`, which no real response could satisfy, so MCP clients that validate structured results rejected valid responses. Each is now one flat object with the same properties and required fields, matching the deployed API. No tool was added, removed or renamed, and no input schema changed ([a3a2897](https://github.com/Sendmux/sendmux-sdk/commit/a3a2897b1f891c405eaa457b7130c14f36508e6d), [628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83)).
+
+
 ### Bug Fixes
 
 * **python-mcp:** publish the deployed flattened response schemas ([a3a2897](https://github.com/Sendmux/sendmux-sdk/commit/a3a2897b1f891c405eaa457b7130c14f36508e6d))

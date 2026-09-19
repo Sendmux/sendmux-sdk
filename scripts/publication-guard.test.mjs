@@ -154,6 +154,8 @@ async function releaseFixture(t, options = {}) {
   if (options.customLabels) config.label = "custom pending";
   mkdirSync(join(local.repo, "packages/ts/cli"), { recursive: true });
   writeFileSync(join(local.repo, "packages/python/mcp/pyproject.toml"), '[project]\nversion = "1.2.3"\n');
+  mkdirSync(join(local.repo, "packages/python/langchain"), { recursive: true });
+  writeFileSync(join(local.repo, "packages/python/langchain/pyproject.toml"), '[project]\nname = "langchain-sendmux"\nversion = "1.2.3"\n');
   mkdirSync(join(local.repo, ".github/workflows"), { recursive: true });
   writeFileSync(join(local.repo, "packages/ts/cli/package.json"), JSON.stringify({ name: "@sendmux/cli", version: "1.2.3" }));
   mkdirSync(join(local.repo, "packages/ts/management"), { recursive: true });
@@ -348,6 +350,18 @@ test("recovery resolves a Management tag commit and rejects a manual version/sou
   assert.match(stdout, /"path":"packages\/ts\/management"/);
 });
 
+test("recovery resolves a Python package tag commit, emits its released path, and rejects a manual version/source mismatch", async (t) => {
+  const candidate = await releaseFixture(t, { tagExists: true });
+  await assert.rejects(candidate.runCommand(["resolve", "--tag", "python-langchain-v9.9.9"]), (error) => /version/.test(error.stderr));
+  await assert.rejects(candidate.runCommand(["resolve", "--tag", "python-unknown-v1.2.3"]), (error) => /release tag/.test(error.stderr));
+  const output = join(candidate.directory, "python-producer-output");
+  const { stdout } = await candidate.runCommand(["resolve", "--tag", "python-langchain-v1.2.3"], { GITHUB_OUTPUT: output });
+  assert.match(stdout, new RegExp(candidate.sha));
+  assert.match(stdout, /"path":"packages\/python\/langchain"/);
+  const outputs = Object.fromEntries(readFileSync(output, "utf8").trim().split("\n").map((line) => line.split("=")));
+  assert.equal(outputs.paths_released, '["packages/python/langchain"]');
+});
+
 test("Snap binds checksum and producer source before its write", async (t) => {
   const candidate = await releaseFixture(t, { tagExists: true });
   let writes = 0;
@@ -376,7 +390,7 @@ test("post-action verification does not trust output sha over actual tag identit
 // credential-free diagnostic workflow; these fixtures never invoke a writer.
 for (const [workflow, job, guardName] of [
   ["release-please", "release-please", "Guard exact pending release candidates before tags"],
-  ...["publish-npm", "publish-cratesio", "recover-ts-cli-release", "recover-ts-management-release", "recover-mcp-registry-release", "publish-pypi", "publish-mcp-registry", "publish-rubygems"].map((job) => ["release-please", job, "Guard candidate before first publication"]),
+  ...["publish-npm", "publish-cratesio", "recover-ts-cli-release", "recover-ts-management-release", "recover-mcp-registry-release", "recover-python-release", "publish-pypi", "publish-mcp-registry", "publish-rubygems"].map((job) => ["release-please", job, "Guard candidate before first publication"]),
   ["snap", "build", "Guard producer before Snap publication"],
   ["chocolatey", "package", "Guard candidate before first publication"],
 ]) {
@@ -393,7 +407,8 @@ for (const [workflow, job, guardName] of [
     const command = (inline ?? block ?? "true").replace(/(?:\.\.\/)?(?:\.publication-guard\/)?scripts\/publication-guard\.mjs/g, '"$SENDMUX_TEST_GUARD_PATH"');
     await assert.rejects(negative.runBoundary(command, { SENDMUX_TEST_GUARD_PATH: fixtureGuard }), (error) => error.code === 1 && !error.stdout.includes("writer-reached") && /differs/.test(error.stderr));
     const positive = await releaseFixture(t, { tagExists: true });
-    const { stdout } = await positive.runBoundary(command, { SENDMUX_TEST_GUARD_PATH: fixtureGuard, ...(job.includes("mcp") ? { PRODUCER_TAG: "python-mcp-v1.2.3" } : {}) });
+    const { stdout } = await positive.runBoundary(command, { SENDMUX_TEST_GUARD_PATH: fixtureGuard, ...(job.includes("mcp") ? { PRODUCER_TAG: "python-mcp-v1.2.3" } : {}),
+      ...(job === "recover-python-release" ? { PRODUCER_TAG: "python-langchain-v1.2.3" } : {}) });
     assert.match(stdout, /writer-reached/);
   });
 }
@@ -430,7 +445,7 @@ test("credential-free Actions fixture uses a real committed mismatch and tears d
   assert.equal(existsSync(receipt.directory), false);
 });
 
-for (const [job, tag] of [["recover-ts-cli-release", "ts-cli-v1.2.3"], ["recover-ts-management-release", "ts-management-v1.2.3"], ["recover-mcp-registry-release", "python-mcp-v1.2.3"]]) {
+for (const [job, tag] of [["recover-ts-cli-release", "ts-cli-v1.2.3"], ["recover-ts-management-release", "ts-management-v1.2.3"], ["recover-mcp-registry-release", "python-mcp-v1.2.3"], ["recover-python-release", "python-langchain-v1.2.3"]]) {
   test(`${job}: empty-workspace checkout lifecycle retains exact current guard and reaches publication boundary`, async (t) => {
     const candidate = await releaseFixture(t, { tagExists: true });
     const control = join(candidate.directory, "control");
@@ -468,9 +483,9 @@ for (const [job, tag] of [["recover-ts-cli-release", "ts-cli-v1.2.3"], ["recover
         }
         await execute("git", ["-C", target, "checkout", "-q", "--detach", sha], { timeout: 10_000 });
         t.diagnostic(JSON.stringify({ checkout: target, sha }));
-      } else if (/^name: Resolve (CLI|Management|MCP) producer/.test(step)) {
+      } else if (/^name: Resolve (CLI|Management|MCP|Python) producer/.test(step)) {
         const command = step.match(/^        run: (.+)$/m)[1];
-        await candidate.runBoundary(command, { REQUESTED_VERSION: "1.2.3", GITHUB_OUTPUT: output }, workspace);
+        await candidate.runBoundary(command, { REQUESTED_VERSION: "1.2.3", REQUESTED_TAG: tag, GITHUB_OUTPUT: output }, workspace);
         producer = Object.fromEntries(readFileSync(output, "utf8").trim().split("\n").map((line) => line.split("=")));
         assert.equal(producer.sha, candidate.sha);
         assert.equal(producer.tag, tag);

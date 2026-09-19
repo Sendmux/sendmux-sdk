@@ -259,9 +259,10 @@ async function preflight({ repo, sha, receipt }) {
 }
 
 async function resolveProducer(tag) {
-  const producers = { "ts-cli": "packages/ts/cli", "ts-management": "packages/ts/management", "python-mcp": "packages/python/mcp" };
-  const match = /^(ts-cli|ts-management|python-mcp)-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(tag ?? "");
-  if (!match) throw new Error("Expected an immutable CLI, Management or MCP release tag");
+  const producers = { "ts-cli": "packages/ts/cli", "ts-management": "packages/ts/management" };
+  for (const component of ["core", "sending", "mailbox", "management", "sdk", "mcp", "langchain"]) producers[`python-${component}`] = `packages/python/${component}`;
+  const match = /^(ts-cli|ts-management|python-(?:core|sending|mailbox|management|sdk|mcp|langchain))-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(tag ?? "");
+  if (!match) throw new Error("Expected an immutable CLI, Management, MCP or Python package release tag");
   const sha = await resolveTag(tag);
   if (!sha) throw new Error(`Missing producer release tag: ${tag}`);
   const release = { path: producers[match[1]], tag, version: match[2], sha };
@@ -350,7 +351,7 @@ async function main() {
     await preflight({ repo: resolve(options.repo ?? "."), sha: options.sha, receipt: options.receipt });
   } else if (command === "resolve") {
     const release = await resolveProducer(options.tag);
-    output("sha", release.sha); output("tag", release.tag); output("version", release.version);
+    output("sha", release.sha); output("tag", release.tag); output("version", release.version); output("paths_released", [release.path]);
     console.log(JSON.stringify(release));
   } else if (command === "verify-release") {
     await verifyAction(options.receipt);

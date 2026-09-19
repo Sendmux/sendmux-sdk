@@ -112,16 +112,20 @@ for (const [helper, released, dependencies] of [
       }
     };
     const workflow = readFileSync(process.env.SENDMUX_TEST_WORKFLOW_FILE ?? resolve(".github/workflows/release-please.yml"), "utf8");
-    const step = workflow.split("      - name: Build Python distributions\n")[1].split(/^      - /m)[0];
-    const env = { ...process.env };
-    for (const key of ["PYTHON_CHANGED_PACKAGES", "PYTHON_PATHS_RELEASED", "GITHUB_BASE_REF"]) delete env[key];
-    if (/^          PYTHON_PATHS_RELEASED: \$\{\{ needs\.release-please\.outputs\.paths_released \}\}$/m.test(step)) {
-      env.PYTHON_PATHS_RELEASED = JSON.stringify(released.map((name) => `packages/python/${name}`));
-    }
+    // Both PyPI writers (publish-pypi after Release Please, recover-python-release from a resolved tag) build from their own released selection.
+    const steps = workflow.split("      - name: Build Python distributions\n").slice(1).map((source) => source.split(/^      - /m)[0]);
+    assert.equal(steps.length, 2, "publish-pypi and recover-python-release each build the released selection");
     const source = `import {${helper}} from ${JSON.stringify(resolve("scripts/python-release-guardrails.mjs"))}; ${helper}({root:process.cwd()});`;
-    writeFloors("1.1.0");
-    await assert.rejects(run(process.execPath, ["--input-type=module", "-e", source], { env }), (error) => error.code === 1 && /must require sendmux-.+ >= 1\.2\.0,<2\.0\.0; found >= 1\.1\.0/.test(error.stderr));
-    writeFloors("1.2.0");
-    await run(process.execPath, ["--input-type=module", "-e", source], { env });
+    for (const step of steps) {
+      const env = { ...process.env };
+      for (const key of ["PYTHON_CHANGED_PACKAGES", "PYTHON_PATHS_RELEASED", "GITHUB_BASE_REF"]) delete env[key];
+      if (/^          PYTHON_PATHS_RELEASED: \$\{\{ (?:needs\.release-please|steps\.producer)\.outputs\.paths_released \}\}$/m.test(step)) {
+        env.PYTHON_PATHS_RELEASED = JSON.stringify(released.map((name) => `packages/python/${name}`));
+      }
+      writeFloors("1.1.0");
+      await assert.rejects(run(process.execPath, ["--input-type=module", "-e", source], { env }), (error) => error.code === 1 && /must require sendmux-.+ >= 1\.2\.0,<2\.0\.0; found >= 1\.1\.0/.test(error.stderr));
+      writeFloors("1.2.0");
+      await run(process.execPath, ["--input-type=module", "-e", source], { env });
+    }
   });
 }

@@ -38,7 +38,6 @@
     "packages/ts/sdk": {
       "component": "ts-sdk",
       "package-name": "@sendmux/sdk",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ts/cli": {
@@ -120,7 +119,6 @@
       "component": "rust",
       "package-name": "sendmux",
       "release-type": "rust",
-      "release-as": "0.5.0",
       "initial-version": "0.1.0",
       "extra-files": [
         {
@@ -149,7 +147,6 @@
       "package-name": "sendmux-mailbox",
       "release-type": "ruby",
       "version-file": "lib/sendmux/mailbox/version.rb",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ruby/management": {
@@ -157,7 +154,6 @@
       "package-name": "sendmux-management",
       "release-type": "ruby",
       "version-file": "lib/sendmux/management/version.rb",
-      "release-as": "2.0.0",
       "initial-version": "1.0.0"
     },
     "packages/ruby/sdk": {

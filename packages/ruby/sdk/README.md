@@ -30,8 +30,87 @@ gem install sendmux-sdk
 Or add it to your Gemfile:
 
 ```ruby
-gem "sendmux-sdk", "~> 1.0"
+gem "sendmux-sdk", "~> 2.0"
 ```
+
+## Migrate from 1.x to 2.0
+
+`sendmux-sdk` 2.0 requires `sendmux-management >= 2.0.0, < 3.0` and
+`sendmux-mailbox >= 2.0.0, < 3.0`, so it carries their two result-class changes;
+`sendmux-sending` (now `>= 1.5.0, < 2.0`) and `sendmux-core` carry no breaking
+change. The helper methods still return the surface gems' clients, so results
+from `Sendmux::SDK.management(...)` and `Sendmux::SDK.mailbox(...)` follow
+[the Management migration steps](../management/README.md#migrate-from-1x-to-20)
+and [the Mailbox migration steps](../mailbox/README.md#migrate-from-1x-to-20).
+If you check sending-account or thread-message result classes, read `variables`
+from sending-account list entries, or build thread-message fixtures by hand,
+update that code when upgrading to 2.0. Code that only reads other result
+fields keeps working.
+
+1. `management_list_providers` returns `ProviderListItem` entries instead of
+   `ProviderItem`. List entries don't expose `variables`; detail results remain
+   `ProviderItem` and require a variables hash, which is empty when none are
+   set. Update list-specific class checks to use the class loaded by the
+   umbrella entry point, and fetch the detail when you need an account's
+   variables:
+
+   ```ruby
+   require "sendmux/sdk"
+
+   def provider_list_item?(item)
+     # Before: item.is_a?(Sendmux::Management::Generated::ProviderItem)
+     item.is_a?(Sendmux::Management::Generated::ProviderListItem)
+   end
+
+   def provider_variables(management, public_id)
+     detail = management.sending_accounts.management_get_provider(public_id).data
+     detail.variables
+   end
+   ```
+
+   Pass the client returned by `Sendmux::SDK.management(...)` as `management`
+   and the account's `id` as `public_id`. Don't convert a list entry into
+   `ProviderItem` or substitute an empty variables hash for the account's actual
+   variables. Update hand-built detail fixtures to include `variables: {}` when
+   no variables are set.
+
+2. `mailbox_list_thread_messages` returns
+   `MailboxThreadMessageSummaryCursorListResponse` instead of
+   `MailboxMessageSummaryCursorListResponse`: its `meta` is
+   `MailboxThreadMessagesMeta`, whose `thread_id` is required and whose
+   `sync_state` is an optional string. Update thread-message class checks and
+   add the thread identity to every thread-message result you construct:
+
+   ```ruby
+   def thread_message_list?(response)
+     # Before: response.is_a?(Sendmux::Mailbox::Generated::MailboxMessageSummaryCursorListResponse)
+     response.is_a?(Sendmux::Mailbox::Generated::MailboxThreadMessageSummaryCursorListResponse)
+   end
+
+   def thread_message_fixture(thread_id)
+     # Before: meta: { request_id: "req_fixture" }
+     Sendmux::Mailbox::Generated::MailboxThreadMessageSummaryCursorListResponse.build_from_hash(
+       ok: true,
+       meta: { request_id: "req_fixture", thread_id: thread_id },
+       data: [],
+       pagination: { has_more: false }
+     )
+   end
+   ```
+
+   Ordinary `mailbox_list_messages` results remain
+   `MailboxMessageSummaryCursorListResponse` and have no thread identity. The
+   other Mailbox list families replace the generic `ResponseMeta` with typed
+   metadata whose `request_id` is unchanged and whose new fields are optional.
+
+3. Run your application's tests with the updated bundle. Verify that list
+   handling accepts `ProviderListItem` and only detail handling reads
+   `variables`. A constructed thread-message result without `meta.thread_id`
+   fails with `ArgumentError: thread_id cannot be nil`.
+
+Update `sendmux-sdk`, `sendmux-mailbox`, `sendmux-management`, the bundle lock,
+and affected call sites or fixtures together. To roll back, restore those gem
+requirements, lock, and call-site changes together.
 
 ## OAuth access tokens
 
@@ -106,14 +185,6 @@ pager.each { |mailbox| puts mailbox.id }
 ```
 
 Generated API errors are mapped to `Sendmux::Core::ApiError`.
-
-## Version 2 migration candidate
-
-Version 2 is not published yet. The umbrella Mailbox client adopts the thread-specific list response: thread-message results require `meta.thread_id` and expose optional typed `meta.sync_state`, while ordinary message-list results remain thread-independent. Other Mailbox list families expose typed state metadata where applicable.
-
-The Management dependency requires `sendmux-management >= 2.0.0, < 3.0`. Sending-account list entries change from `Sendmux::Management::Generated::ProviderItem` to `ProviderListItem`; detail results require `variables`. The client returned by `Sendmux::SDK.management(...)` uses the same operations and classes described in [the Management 2.0 migration steps](../management/README.md#migrate-from-1x-to-20).
-
-When the release is available, update `sendmux-sdk`, `sendmux-mailbox`, `sendmux-management`, the bundle lock, and affected call sites or fixtures together. To roll back, restore the previous gem requirements, lock, and call sites together.
 
 ## Support
 

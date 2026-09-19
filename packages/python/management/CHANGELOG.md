@@ -6,6 +6,14 @@
 
 * Add provider variable management fields and delivery-group fields to delivery logs.
 
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v2.0.0...python-management-v2.0.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **python-management:** regenerate the flattened webhook secret response model ([88a4c0b](https://github.com/Sendmux/sendmux-sdk/commit/88a4c0b8e35a0b704b0cd16f213bfa7cfe55887f))
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.4.1...python-management-v2.0.0) (2026-09-17)
 
 

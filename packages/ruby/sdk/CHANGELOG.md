@@ -3,6 +3,14 @@
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sdk/v1.3.0...ruby-sdk/v2.0.0) (2026-09-19)
 
 
+### Changed
+
+* **Breaking:** the umbrella now requires `sendmux-management >= 2.0.0, < 3.0` and `sendmux-mailbox >= 2.0.0, < 3.0`, so `Sendmux::SDK.management(...)` and `Sendmux::SDK.mailbox(...)` return the 2.0 result classes: sending-account list entries are `ProviderListItem` (no `variables`) while `management_get_provider` returns `ProviderItem` with a required `variables` hash, and `mailbox_list_thread_messages` returns `MailboxThreadMessageSummaryCursorListResponse` whose `meta.thread_id` is required. Code that only reads results keeps working; class checks and constructed fixtures must follow [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20) ([3c4fe75](https://github.com/Sendmux/sendmux-sdk/commit/3c4fe755c8be1b3afcd9b25aeb0aa4bb65be8556), [051a621](https://github.com/Sendmux/sendmux-sdk/commit/051a6215f1ef2a8400696baba9a84d8b8d9d9aae)).
+
+### Dependencies
+
+* `sendmux-mailbox >= 2.0.0, < 3.0` (was `>= 1.4.0, < 2.0`), `sendmux-management >= 2.0.0, < 3.0` (was `>= 1.3.0, < 2.0`), `sendmux-sending >= 1.5.0, < 2.0` (was `>= 1.4.0, < 2.0`; [eaf5a80](https://github.com/Sendmux/sendmux-sdk/commit/eaf5a80d19abaca9db21e9c093a8713ad972d934)); `sendmux-core >= 1.3.0, < 2.0` unchanged.
+
 ### ⚠ BREAKING CHANGES
 
 * **ruby-sdk:** adopt Mailbox 2 producer floor

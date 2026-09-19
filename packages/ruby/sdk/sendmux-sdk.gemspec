@@ -21,5 +21,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'sendmux-core', '>= 1.3.0', '< 2.0'
   spec.add_dependency 'sendmux-mailbox', '>= 2.0.0', '< 3.0'
   spec.add_dependency 'sendmux-management', '>= 2.0.0', '< 3.0'
-  spec.add_dependency 'sendmux-sending', '>= 1.4.0', '< 2.0'
+  spec.add_dependency 'sendmux-sending', '>= 1.5.0', '< 2.0'
 end

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v1.4.0...ruby-mailbox/v2.0.0) (2026-09-19)
+
+### Changed
+
+* **Breaking:** `mailbox_list_thread_messages` returns `MailboxThreadMessageSummaryCursorListResponse`, whose `meta.thread_id` is required and whose optional `meta.sync_state` is typed; thread-message results you construct (fixtures, mocks, wrappers) must now supply `thread_id`, while reading results is unaffected. `mailbox_list_messages` keeps `MailboxMessageSummaryCursorListResponse`; message, identity, submission, quota, and thread list responses replace the generic `ResponseMeta` with `MailboxSyncMeta`, `MailboxIdentityListMeta`, or `MailboxQueryMeta`, which add optional typed state metadata (`sync_state`, `identity_state`, `query_state`) ([87f54eb](https://github.com/Sendmux/sendmux-sdk/commit/87f54eb1679994ddcbdd68ad25d674ad6978f57f)). See [Migrate from 1.x to 2.0](README.md#migrate-from-1x-to-20).
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+* **sdk:** preserve streaming arguments and prepare PHP OAuth release ([#207](https://github.com/Sendmux/sendmux-sdk/issues/207)) ([c534588](https://github.com/Sendmux/sendmux-sdk/commit/c53458875cef0bbd601c982308d84bc4e87c961c))
+
 ## [1.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v1.3.0...ruby-mailbox/v1.4.0) (2026-09-10)
 
 

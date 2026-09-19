@@ -172,11 +172,43 @@ for message in iter_cursor_pages(lambda cursor: api.mailbox_list_messages(cursor
     print(message.id)
 ```
 
-## Version 2 migration candidate
+## Migrate from 1.x to 2.0
 
-Version 2 is not published yet. Thread-message list calls return `MailboxThreadMessageSummaryCursorListResponse`; its metadata requires `thread_id` and exposes optional typed `sync_state`. Constructed thread results must use the thread-specific response and metadata models. Ordinary message-list calls remain `MailboxMessageSummaryCursorListResponse`, have no thread identity, and expose their own typed sync state. Identity, submission, quota, and thread list responses expose typed state metadata where applicable.
+If you annotate or construct thread-message list results (fixtures, mocks, or wrappers typed with the operation's result model), add the thread identity when upgrading to 2.0. `mailbox_list_thread_messages` returns `MailboxThreadMessageSummaryCursorListResponse` instead of `MailboxMessageSummaryCursorListResponse`: its `meta` is `MailboxThreadMessagesMeta`, whose `thread_id` is required and whose `sync_state` is an optional string. Code that only reads thread-message results keeps working.
 
-When the release is available, update `sendmux-mailbox`, its lockfile, and affected annotations or fixtures together. To roll back, restore the previous package requirement, lockfile, and call sites together.
+1. Update thread-message annotations and type checks to the thread-specific result model:
+
+   ```python
+   from sendmux_mailbox import MailboxThreadMessageSummaryCursorListResponse
+
+   # Before: isinstance(response, MailboxMessageSummaryCursorListResponse)
+   def is_thread_message_list(response: object) -> bool:
+       return isinstance(response, MailboxThreadMessageSummaryCursorListResponse)
+   ```
+
+2. Add the thread identity to every thread-message result you construct:
+
+   ```python
+   from sendmux_mailbox import MailboxThreadMessageSummaryCursorListResponse
+
+   # Before: "meta": {"request_id": "req_fixture"}
+   fixture = MailboxThreadMessageSummaryCursorListResponse.model_validate(
+       {
+           "ok": True,
+           "meta": {"request_id": "req_fixture", "thread_id": "thr_1"},
+           "data": [],
+           "pagination": {"has_more": False},
+       }
+   )
+   ```
+
+   Ordinary `mailbox_list_messages` results remain `MailboxMessageSummaryCursorListResponse`: they have no thread identity and their `meta` is `MailboxSyncMeta` with an optional `sync_state`. Identity, submission, quota, and thread list responses likewise carry `MailboxIdentityListMeta` or `MailboxQueryMeta` with optional `identity_state` or `query_state`; no new field is required there.
+
+3. Run your tests and `mypy`. A constructed thread-message result without `thread_id` fails validation with `meta.thread_id  Field required`.
+
+`MailboxRealtimeMessage.body` is a `MailboxRealtimeMessageBody`. The earlier generated name, `MailboxRealtimeMessageAllOfBody`, remains importable from `sendmux_mailbox` and `sendmux_mailbox.models` as a deprecated alias of that class: reading it emits a `DeprecationWarning`, and the alias is removed in 3.0. Switch imports to `MailboxRealtimeMessageBody`.
+
+Update `sendmux-mailbox`, its lockfile, and affected annotations or fixtures together. To roll back, restore those package, lockfile, and call-site changes together.
 
 ## Support
 

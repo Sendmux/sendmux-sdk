@@ -33169,16 +33169,16 @@ func (s *WebhookSubscriptionWithSecret) encodeFields(e *jx.Encoder) {
 		s.Name.Encode(e)
 	}
 	{
+		e.FieldStart("secret")
+		e.Str(s.Secret)
+	}
+	{
 		e.FieldStart("updated_at")
 		e.Str(s.UpdatedAt)
 	}
 	{
 		e.FieldStart("url")
 		json.EncodeURI(e, s.URL)
-	}
-	{
-		e.FieldStart("secret")
-		e.Str(s.Secret)
 	}
 }
 
@@ -33190,9 +33190,9 @@ var jsonFieldsNameOfWebhookSubscriptionWithSecret = [10]string{
 	4: "filters",
 	5: "id",
 	6: "name",
-	7: "updated_at",
-	8: "url",
-	9: "secret",
+	7: "secret",
+	8: "updated_at",
+	9: "url",
 }
 
 // Decode decodes WebhookSubscriptionWithSecret from json.
@@ -33290,8 +33290,20 @@ func (s *WebhookSubscriptionWithSecret) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
-		case "updated_at":
+		case "secret":
 			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				v, err := d.Str()
+				s.Secret = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"secret\"")
+			}
+		case "updated_at":
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				v, err := d.Str()
 				s.UpdatedAt = string(v)
@@ -33303,7 +33315,7 @@ func (s *WebhookSubscriptionWithSecret) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"updated_at\"")
 			}
 		case "url":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := json.DecodeURI(d)
 				s.URL = v
@@ -33313,18 +33325,6 @@ func (s *WebhookSubscriptionWithSecret) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"url\"")
-			}
-		case "secret":
-			requiredBitSet[1] |= 1 << 1
-			if err := func() error {
-				v, err := d.Str()
-				s.Secret = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"secret\"")
 			}
 		default:
 			return d.Skip()

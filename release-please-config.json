@@ -73,6 +73,7 @@
       "component": "python-mailbox",
       "package-name": "sendmux-mailbox",
       "release-type": "python",
+      "release-as": "2.0.1",
       "initial-version": "1.0.0"
     },
     "packages/python/management": {
@@ -147,6 +148,7 @@
       "package-name": "sendmux-mailbox",
       "release-type": "ruby",
       "version-file": "lib/sendmux/mailbox/version.rb",
+      "release-as": "2.0.1",
       "initial-version": "1.0.0"
     },
     "packages/ruby/management": {

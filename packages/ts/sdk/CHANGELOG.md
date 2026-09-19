@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.5.0...ts-sdk-v2.0.0) (2026-09-19)
+
+
+### Bug Fixes
+
+* prepare mailbox SDK major releases ([dc01472](https://github.com/Sendmux/sendmux-sdk/commit/dc014724f7f6eb6b93293e6acbcc1a36c5060ebb))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v1.4.2...ts-sdk-v1.5.0) (2026-09-10)
 
 

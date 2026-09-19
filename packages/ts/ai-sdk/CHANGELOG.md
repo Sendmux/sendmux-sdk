@@ -2,6 +2,18 @@
 
 ## [0.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.4.0...ts-ai-sdk-v0.5.0) (2026-09-19)
 
+### Changed
+
+* **Breaking:** the `zod` peer dependency minimum is `3.25.76` (was `3.24.0`). Upgrade Zod `3.24` before adopting this release and keep `ai` and `zod` within the peer ranges accepted by your installed `ai` version ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)). See [Upgrading to 0.5.0](README.md#upgrading-to-050).
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 2.0.0
+    * @sendmux/sending bumped to 1.6.0
+
 
 ### Features
 

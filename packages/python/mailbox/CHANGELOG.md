@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.0...python-mailbox-v2.0.1) (2026-09-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **python-mailbox:** `sendmux_mailbox.MailboxRealtimeMessageAllOfBody` is renamed to `sendmux_mailbox.MailboxRealtimeMessageBody` (the type of `MailboxRealtimeMessage.body`), and the unused `sendmux_mailbox.Mailbox` model (`sendmux_mailbox.models.mailbox`) is removed.
+
+### Bug Fixes
+
+* **python-mailbox:** regenerate flattened mailbox response models ([1a57997](https://github.com/Sendmux/sendmux-sdk/commit/1a57997bef97d065f24aa0b6cfec2acceb191744))
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+
+
+### Documentation
+
+* **python-mailbox:** replace the pre-release migration note with the 1.x to 2.0 guide ([1ed2c23](https://github.com/Sendmux/sendmux-sdk/commit/1ed2c23aff0c79d7810f7230decf73e79c71e0df))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.5.1...python-mailbox-v2.0.0) (2026-09-15)
 
 

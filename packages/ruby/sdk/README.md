@@ -42,9 +42,10 @@ change. The helper methods still return the surface gems' clients, so results
 from `Sendmux::SDK.management(...)` and `Sendmux::SDK.mailbox(...)` follow
 [the Management migration steps](../management/README.md#migrate-from-1x-to-20)
 and [the Mailbox migration steps](../mailbox/README.md#migrate-from-1x-to-20).
-If you check sending-account or thread-message result classes, or build
-thread-message fixtures by hand, update them when upgrading to 2.0. Code that
-only reads results keeps working.
+If you check sending-account or thread-message result classes, read `variables`
+from sending-account list entries, or build thread-message fixtures by hand,
+update that code when upgrading to 2.0. Code that only reads other result
+fields keeps working.
 
 1. `management_list_providers` returns `ProviderListItem` entries instead of
    `ProviderItem`. List entries don't expose `variables`; detail results remain

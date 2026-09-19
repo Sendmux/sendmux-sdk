@@ -51,7 +51,7 @@
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "09b00ae13c88fe4ecc1bb3fd965bb30efd79447d5ea68b5334816a7452d40b58",
+      "openapi/openapi-app.json": "b901839a0d8bd7504295c4cbcab9d0b4db38b9cca32b435504d15f5e6ef81e98",
       "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
       "permissions.py": "fe8f3ec91814552098fe8fa5c052b2ab0c73aea0db6b338a47cc41adcb6b7119",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
@@ -2729,101 +2729,91 @@
                   {
                     "properties": {
                       "data": {
-                        "allOf": [
-                          {
+                        "additionalProperties": false,
+                        "properties": {
+                          "created_at": {
+                            "description": "ISO 8601 creation timestamp",
+                            "type": "string"
+                          },
+                          "display_name": {
+                            "description": "Optional display name shown in outbound From headers",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "email": {
+                            "description": "Mailbox email address (lowercase)",
+                            "example": "agent@acme.com",
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Public ID",
+                            "example": "mbx_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          },
+                          "quota_bytes": {
+                            "description": "Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ]
+                          },
+                          "quota_used_bytes": {
+                            "description": "Live storage usage in bytes. Omitted when usage is temporarily unavailable.",
+                            "type": "integer"
+                          },
+                          "send_scope": {
                             "additionalProperties": false,
                             "properties": {
-                              "created_at": {
-                                "description": "ISO 8601 creation timestamp",
-                                "type": "string"
-                              },
-                              "display_name": {
-                                "description": "Optional display name shown in outbound From headers",
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "email": {
-                                "description": "Mailbox email address (lowercase)",
-                                "example": "agent@acme.com",
-                                "type": "string"
-                              },
-                              "id": {
-                                "description": "Public ID",
-                                "example": "mbx_clxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                "type": "string"
-                              },
-                              "quota_bytes": {
-                                "description": "Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.",
-                                "type": [
-                                  "integer",
-                                  "null"
-                                ]
-                              },
-                              "send_scope": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "group_public_ids": {
-                                    "description": "Delivery group public IDs (only when type=group)",
-                                    "items": {
-                                      "type": "string"
-                                    },
-                                    "type": "array"
-                                  },
-                                  "provider_public_ids": {
-                                    "description": "Provider public IDs (only when type=providers)",
-                                    "items": {
-                                      "type": "string"
-                                    },
-                                    "type": "array"
-                                  },
-                                  "type": {
-                                    "description": "Outbound routing strategy. `all` lets the mailbox use any team-configured provider; `providers` restricts to the listed provider IDs; `group` routes via a delivery group.",
-                                    "enum": [
-                                      "all",
-                                      "providers",
-                                      "group"
-                                    ],
-                                    "type": "string"
-                                  }
+                              "group_public_ids": {
+                                "description": "Delivery group public IDs (only when type=group)",
+                                "items": {
+                                  "type": "string"
                                 },
-                                "required": [
-                                  "type"
-                                ],
-                                "type": [
-                                  "object",
-                                  "null"
-                                ]
+                                "type": "array"
                               },
-                              "status": {
-                                "description": "active | suspended | deleted",
-                                "example": "active",
+                              "provider_public_ids": {
+                                "description": "Provider public IDs (only when type=providers)",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "type": {
+                                "description": "Outbound routing strategy. `all` lets the mailbox use any team-configured provider; `providers` restricts to the listed provider IDs; `group` routes via a delivery group.",
+                                "enum": [
+                                  "all",
+                                  "providers",
+                                  "group"
+                                ],
                                 "type": "string"
                               }
                             },
                             "required": [
-                              "id",
-                              "email",
-                              "display_name",
-                              "quota_bytes",
-                              "send_scope",
-                              "status",
-                              "created_at"
+                              "type"
                             ],
-                            "type": "object"
+                            "type": [
+                              "object",
+                              "null"
+                            ]
                           },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "quota_used_bytes": {
-                                "description": "Live storage usage in bytes. Omitted when usage is temporarily unavailable.",
-                                "type": "integer"
-                              }
-                            },
-                            "type": "object"
+                          "status": {
+                            "description": "active | suspended | deleted",
+                            "example": "active",
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "email",
+                          "display_name",
+                          "quota_bytes",
+                          "send_scope",
+                          "status",
+                          "created_at"
+                        ],
+                        "type": "object"
                       },
                       "meta": {
                         "additionalProperties": false,
@@ -2916,362 +2906,292 @@
                   {
                     "properties": {
                       "data": {
-                        "allOf": [
-                          {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachments": {
+                            "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "content_id": {
+                                  "description": "Content ID for inline attachments, when present.",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "content_type": {
+                                  "example": "application/pdf",
+                                  "type": "string"
+                                },
+                                "disposition": {
+                                  "example": "attachment",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "download_url": {
+                                  "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
+                                  "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachment-downloads/attref_abc123?download_token=...",
+                                  "type": "string"
+                                },
+                                "filename": {
+                                  "example": "invoice.pdf",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "id": {
+                                  "description": "Attachment blob ID.",
+                                  "type": "string"
+                                },
+                                "size_bytes": {
+                                  "example": 12345,
+                                  "type": [
+                                    "integer",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "filename",
+                                "content_type",
+                                "size_bytes",
+                                "disposition",
+                                "content_id"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "bcc": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "example": "agent@example.com",
+                                  "format": "email",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "example": "Support",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "name"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "cc": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "example": "agent@example.com",
+                                  "format": "email",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "example": "Support",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "name"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "flags": {
                             "additionalProperties": false,
                             "properties": {
-                              "attachments": {
-                                "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
-                                "items": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "content_id": {
-                                      "description": "Content ID for inline attachments, when present.",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    },
-                                    "content_type": {
-                                      "example": "application/pdf",
-                                      "type": "string"
-                                    },
-                                    "disposition": {
-                                      "example": "attachment",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    },
-                                    "download_url": {
-                                      "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
-                                      "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachment-downloads/attref_abc123?download_token=...",
-                                      "type": "string"
-                                    },
-                                    "filename": {
-                                      "example": "invoice.pdf",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    },
-                                    "id": {
-                                      "description": "Attachment blob ID.",
-                                      "type": "string"
-                                    },
-                                    "size_bytes": {
-                                      "example": 12345,
-                                      "type": [
-                                        "integer",
-                                        "null"
-                                      ]
-                                    }
-                                  },
-                                  "required": [
-                                    "id",
-                                    "filename",
-                                    "content_type",
-                                    "size_bytes",
-                                    "disposition",
-                                    "content_id"
-                                  ],
-                                  "type": "object"
-                                },
-                                "type": "array"
-                              },
-                              "bcc": {
-                                "items": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "email": {
-                                      "example": "agent@example.com",
-                                      "format": "email",
-                                      "type": "string"
-                                    },
-                                    "name": {
-                                      "example": "Support",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    }
-                                  },
-                                  "required": [
-                                    "email",
-                                    "name"
-                                  ],
-                                  "type": "object"
-                                },
-                                "type": "array"
-                              },
-                              "cc": {
-                                "items": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "email": {
-                                      "example": "agent@example.com",
-                                      "format": "email",
-                                      "type": "string"
-                                    },
-                                    "name": {
-                                      "example": "Support",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    }
-                                  },
-                                  "required": [
-                                    "email",
-                                    "name"
-                                  ],
-                                  "type": "object"
-                                },
-                                "type": "array"
-                              },
-                              "flags": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "answered": {
-                                    "type": "boolean"
-                                  },
-                                  "draft": {
-                                    "type": "boolean"
-                                  },
-                                  "flagged": {
-                                    "type": "boolean"
-                                  },
-                                  "seen": {
-                                    "type": "boolean"
-                                  }
-                                },
-                                "required": [
-                                  "seen",
-                                  "flagged",
-                                  "draft",
-                                  "answered"
-                                ],
-                                "type": "object"
-                              },
-                              "folder_ids": {
-                                "items": {
-                                  "type": "string"
-                                },
-                                "type": "array"
-                              },
-                              "from": {
-                                "allOf": [
-                                  {
-                                    "additionalProperties": false,
-                                    "properties": {
-                                      "email": {
-                                        "example": "agent@example.com",
-                                        "format": "email",
-                                        "type": "string"
-                                      },
-                                      "name": {
-                                        "example": "Support",
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "email",
-                                      "name"
-                                    ],
-                                    "type": "object"
-                                  },
-                                  {
-                                    "type": [
-                                      "object",
-                                      "null"
-                                    ]
-                                  }
-                                ]
-                              },
-                              "has_attachments": {
+                              "answered": {
                                 "type": "boolean"
                               },
-                              "id": {
-                                "description": "Message ID",
-                                "type": "string"
+                              "draft": {
+                                "type": "boolean"
                               },
-                              "keywords": {
-                                "description": "Active message keywords, including system flags and custom labels.",
-                                "example": [
-                                  "$seen",
-                                  "$flagged",
-                                  "agent_triaged"
-                                ],
-                                "items": {
-                                  "type": "string"
-                                },
-                                "type": "array"
+                              "flagged": {
+                                "type": "boolean"
                               },
-                              "preview": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "received_at": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "sent_at": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "size_bytes": {
-                                "type": [
-                                  "integer",
-                                  "null"
-                                ]
-                              },
-                              "subject": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "thread_id": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "to": {
-                                "items": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "email": {
-                                      "example": "agent@example.com",
-                                      "format": "email",
-                                      "type": "string"
-                                    },
-                                    "name": {
-                                      "example": "Support",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    }
-                                  },
-                                  "required": [
-                                    "email",
-                                    "name"
-                                  ],
-                                  "type": "object"
-                                },
-                                "type": "array"
+                              "seen": {
+                                "type": "boolean"
                               }
                             },
                             "required": [
-                              "id",
-                              "thread_id",
-                              "folder_ids",
-                              "subject",
-                              "preview",
-                              "from",
-                              "to",
-                              "cc",
-                              "bcc",
-                              "received_at",
-                              "sent_at",
-                              "size_bytes",
-                              "has_attachments",
-                              "keywords",
-                              "flags"
+                              "seen",
+                              "flagged",
+                              "draft",
+                              "answered"
                             ],
                             "type": "object"
                           },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "attachments": {
-                                "items": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "content_id": {
-                                      "description": "Content ID for inline attachments, when present.",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    },
-                                    "content_type": {
-                                      "example": "application/pdf",
-                                      "type": "string"
-                                    },
-                                    "disposition": {
-                                      "example": "attachment",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    },
-                                    "download_url": {
-                                      "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
-                                      "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachment-downloads/attref_abc123?download_token=...",
-                                      "type": "string"
-                                    },
-                                    "filename": {
-                                      "example": "invoice.pdf",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    },
-                                    "id": {
-                                      "description": "Attachment blob ID.",
-                                      "type": "string"
-                                    },
-                                    "size_bytes": {
-                                      "example": 12345,
-                                      "type": [
-                                        "integer",
-                                        "null"
-                                      ]
-                                    }
+                          "folder_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "from": {
+                            "allOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "email": {
+                                    "example": "agent@example.com",
+                                    "format": "email",
+                                    "type": "string"
                                   },
-                                  "required": [
-                                    "id",
-                                    "filename",
-                                    "content_type",
-                                    "size_bytes",
-                                    "disposition",
-                                    "content_id"
-                                  ],
-                                  "type": "object"
+                                  "name": {
+                                    "example": "Support",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
                                 },
-                                "type": "array"
+                                "required": [
+                                  "email",
+                                  "name"
+                                ],
+                                "type": "object"
                               },
-                              "html_body": {
+                              {
                                 "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "text_body": {
-                                "type": [
-                                  "string",
+                                  "object",
                                   "null"
                                 ]
                               }
-                            },
-                            "required": [
-                              "text_body",
-                              "html_body"
+                            ]
+                          },
+                          "has_attachments": {
+                            "type": "boolean"
+                          },
+                          "html_body": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "id": {
+                            "description": "Message ID",
+                            "type": "string"
+                          },
+                          "keywords": {
+                            "description": "Active message keywords, including system flags and custom labels.",
+                            "example": [
+                              "$seen",
+                              "$flagged",
+                              "agent_triaged"
                             ],
-                            "type": "object"
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "preview": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "received_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "sent_at": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "size_bytes": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ]
+                          },
+                          "subject": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "text_body": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "thread_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "to": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "example": "agent@example.com",
+                                  "format": "email",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "example": "Support",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "name"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "thread_id",
+                          "folder_ids",
+                          "subject",
+                          "preview",
+                          "from",
+                          "to",
+                          "cc",
+                          "bcc",
+                          "received_at",
+                          "sent_at",
+                          "size_bytes",
+                          "has_attachments",
+                          "keywords",
+                          "flags",
+                          "text_body",
+                          "html_body"
+                        ],
+                        "type": "object"
                       },
                       "meta": {
                         "additionalProperties": false,
@@ -3981,396 +3901,384 @@
                   {
                     "properties": {
                       "data": {
-                        "allOf": [
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "folder_ids": {
-                                "items": {
-                                  "type": "string"
-                                },
-                                "type": "array"
-                              },
-                              "has_attachments": {
-                                "type": "boolean"
-                              },
-                              "id": {
-                                "description": "Thread ID",
-                                "type": "string"
-                              },
-                              "last_message": {
-                                "allOf": [
-                                  {
+                        "additionalProperties": false,
+                        "properties": {
+                          "folder_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "has_attachments": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "description": "Thread ID",
+                            "type": "string"
+                          },
+                          "last_message": {
+                            "allOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "attachments": {
+                                    "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
+                                    "items": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "content_id": {
+                                          "description": "Content ID for inline attachments, when present.",
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        },
+                                        "content_type": {
+                                          "example": "application/pdf",
+                                          "type": "string"
+                                        },
+                                        "disposition": {
+                                          "example": "attachment",
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        },
+                                        "download_url": {
+                                          "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
+                                          "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachment-downloads/attref_abc123?download_token=...",
+                                          "type": "string"
+                                        },
+                                        "filename": {
+                                          "example": "invoice.pdf",
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        },
+                                        "id": {
+                                          "description": "Attachment blob ID.",
+                                          "type": "string"
+                                        },
+                                        "size_bytes": {
+                                          "example": 12345,
+                                          "type": [
+                                            "integer",
+                                            "null"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "filename",
+                                        "content_type",
+                                        "size_bytes",
+                                        "disposition",
+                                        "content_id"
+                                      ],
+                                      "type": "object"
+                                    },
+                                    "type": "array"
+                                  },
+                                  "bcc": {
+                                    "items": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "email": {
+                                          "example": "agent@example.com",
+                                          "format": "email",
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "example": "Support",
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "email",
+                                        "name"
+                                      ],
+                                      "type": "object"
+                                    },
+                                    "type": "array"
+                                  },
+                                  "cc": {
+                                    "items": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "email": {
+                                          "example": "agent@example.com",
+                                          "format": "email",
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "example": "Support",
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "email",
+                                        "name"
+                                      ],
+                                      "type": "object"
+                                    },
+                                    "type": "array"
+                                  },
+                                  "flags": {
                                     "additionalProperties": false,
                                     "properties": {
-                                      "attachments": {
-                                        "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
-                                        "items": {
-                                          "additionalProperties": false,
-                                          "properties": {
-                                            "content_id": {
-                                              "description": "Content ID for inline attachments, when present.",
-                                              "type": [
-                                                "string",
-                                                "null"
-                                              ]
-                                            },
-                                            "content_type": {
-                                              "example": "application/pdf",
-                                              "type": "string"
-                                            },
-                                            "disposition": {
-                                              "example": "attachment",
-                                              "type": [
-                                                "string",
-                                                "null"
-                                              ]
-                                            },
-                                            "download_url": {
-                                              "description": "Short-lived URL for this exact attachment. Fetch it promptly; if it expires, call the message or attachment metadata endpoint again to receive a fresh URL.",
-                                              "example": "https://app.sendmux.ai/api/v1/mailbox/messages/msg_123/attachment-downloads/attref_abc123?download_token=...",
-                                              "type": "string"
-                                            },
-                                            "filename": {
-                                              "example": "invoice.pdf",
-                                              "type": [
-                                                "string",
-                                                "null"
-                                              ]
-                                            },
-                                            "id": {
-                                              "description": "Attachment blob ID.",
-                                              "type": "string"
-                                            },
-                                            "size_bytes": {
-                                              "example": 12345,
-                                              "type": [
-                                                "integer",
-                                                "null"
-                                              ]
-                                            }
-                                          },
-                                          "required": [
-                                            "id",
-                                            "filename",
-                                            "content_type",
-                                            "size_bytes",
-                                            "disposition",
-                                            "content_id"
-                                          ],
-                                          "type": "object"
-                                        },
-                                        "type": "array"
-                                      },
-                                      "bcc": {
-                                        "items": {
-                                          "additionalProperties": false,
-                                          "properties": {
-                                            "email": {
-                                              "example": "agent@example.com",
-                                              "format": "email",
-                                              "type": "string"
-                                            },
-                                            "name": {
-                                              "example": "Support",
-                                              "type": [
-                                                "string",
-                                                "null"
-                                              ]
-                                            }
-                                          },
-                                          "required": [
-                                            "email",
-                                            "name"
-                                          ],
-                                          "type": "object"
-                                        },
-                                        "type": "array"
-                                      },
-                                      "cc": {
-                                        "items": {
-                                          "additionalProperties": false,
-                                          "properties": {
-                                            "email": {
-                                              "example": "agent@example.com",
-                                              "format": "email",
-                                              "type": "string"
-                                            },
-                                            "name": {
-                                              "example": "Support",
-                                              "type": [
-                                                "string",
-                                                "null"
-                                              ]
-                                            }
-                                          },
-                                          "required": [
-                                            "email",
-                                            "name"
-                                          ],
-                                          "type": "object"
-                                        },
-                                        "type": "array"
-                                      },
-                                      "flags": {
-                                        "additionalProperties": false,
-                                        "properties": {
-                                          "answered": {
-                                            "type": "boolean"
-                                          },
-                                          "draft": {
-                                            "type": "boolean"
-                                          },
-                                          "flagged": {
-                                            "type": "boolean"
-                                          },
-                                          "seen": {
-                                            "type": "boolean"
-                                          }
-                                        },
-                                        "required": [
-                                          "seen",
-                                          "flagged",
-                                          "draft",
-                                          "answered"
-                                        ],
-                                        "type": "object"
-                                      },
-                                      "folder_ids": {
-                                        "items": {
-                                          "type": "string"
-                                        },
-                                        "type": "array"
-                                      },
-                                      "from": {
-                                        "allOf": [
-                                          {
-                                            "additionalProperties": false,
-                                            "properties": {
-                                              "email": {
-                                                "example": "agent@example.com",
-                                                "format": "email",
-                                                "type": "string"
-                                              },
-                                              "name": {
-                                                "example": "Support",
-                                                "type": [
-                                                  "string",
-                                                  "null"
-                                                ]
-                                              }
-                                            },
-                                            "required": [
-                                              "email",
-                                              "name"
-                                            ],
-                                            "type": "object"
-                                          },
-                                          {
-                                            "type": [
-                                              "object",
-                                              "null"
-                                            ]
-                                          }
-                                        ]
-                                      },
-                                      "has_attachments": {
+                                      "answered": {
                                         "type": "boolean"
                                       },
-                                      "id": {
-                                        "description": "Message ID",
-                                        "type": "string"
+                                      "draft": {
+                                        "type": "boolean"
                                       },
-                                      "keywords": {
-                                        "description": "Active message keywords, including system flags and custom labels.",
-                                        "example": [
-                                          "$seen",
-                                          "$flagged",
-                                          "agent_triaged"
-                                        ],
-                                        "items": {
-                                          "type": "string"
-                                        },
-                                        "type": "array"
+                                      "flagged": {
+                                        "type": "boolean"
                                       },
-                                      "preview": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "received_at": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "sent_at": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "size_bytes": {
-                                        "type": [
-                                          "integer",
-                                          "null"
-                                        ]
-                                      },
-                                      "subject": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "thread_id": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "to": {
-                                        "items": {
-                                          "additionalProperties": false,
-                                          "properties": {
-                                            "email": {
-                                              "example": "agent@example.com",
-                                              "format": "email",
-                                              "type": "string"
-                                            },
-                                            "name": {
-                                              "example": "Support",
-                                              "type": [
-                                                "string",
-                                                "null"
-                                              ]
-                                            }
-                                          },
-                                          "required": [
-                                            "email",
-                                            "name"
-                                          ],
-                                          "type": "object"
-                                        },
-                                        "type": "array"
+                                      "seen": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
-                                      "id",
-                                      "thread_id",
-                                      "folder_ids",
-                                      "subject",
-                                      "preview",
-                                      "from",
-                                      "to",
-                                      "cc",
-                                      "bcc",
-                                      "received_at",
-                                      "sent_at",
-                                      "size_bytes",
-                                      "has_attachments",
-                                      "keywords",
-                                      "flags"
+                                      "seen",
+                                      "flagged",
+                                      "draft",
+                                      "answered"
                                     ],
                                     "type": "object"
                                   },
-                                  {
-                                    "type": [
-                                      "object",
-                                      "null"
-                                    ]
-                                  }
-                                ]
-                              },
-                              "message_count": {
-                                "type": "integer"
-                              },
-                              "participants": {
-                                "items": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "email": {
-                                      "example": "agent@example.com",
-                                      "format": "email",
+                                  "folder_ids": {
+                                    "items": {
                                       "type": "string"
                                     },
-                                    "name": {
-                                      "example": "Support",
-                                      "type": [
-                                        "string",
-                                        "null"
-                                      ]
-                                    }
+                                    "type": "array"
                                   },
-                                  "required": [
-                                    "email",
-                                    "name"
-                                  ],
-                                  "type": "object"
-                                },
-                                "type": "array"
-                              },
-                              "states": {
-                                "additionalProperties": false,
-                                "properties": {
-                                  "email_state": {
+                                  "from": {
+                                    "allOf": [
+                                      {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "email": {
+                                            "example": "agent@example.com",
+                                            "format": "email",
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "example": "Support",
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "email",
+                                          "name"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      {
+                                        "type": [
+                                          "object",
+                                          "null"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "has_attachments": {
+                                    "type": "boolean"
+                                  },
+                                  "id": {
+                                    "description": "Message ID",
+                                    "type": "string"
+                                  },
+                                  "keywords": {
+                                    "description": "Active message keywords, including system flags and custom labels.",
+                                    "example": [
+                                      "$seen",
+                                      "$flagged",
+                                      "agent_triaged"
+                                    ],
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "type": "array"
+                                  },
+                                  "preview": {
                                     "type": [
                                       "string",
                                       "null"
                                     ]
                                   },
-                                  "thread_state": {
+                                  "received_at": {
                                     "type": [
                                       "string",
                                       "null"
                                     ]
+                                  },
+                                  "sent_at": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "size_bytes": {
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "thread_id": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "to": {
+                                    "items": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "email": {
+                                          "example": "agent@example.com",
+                                          "format": "email",
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "example": "Support",
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "email",
+                                        "name"
+                                      ],
+                                      "type": "object"
+                                    },
+                                    "type": "array"
                                   }
                                 },
                                 "required": [
-                                  "thread_state",
-                                  "email_state"
+                                  "id",
+                                  "thread_id",
+                                  "folder_ids",
+                                  "subject",
+                                  "preview",
+                                  "from",
+                                  "to",
+                                  "cc",
+                                  "bcc",
+                                  "received_at",
+                                  "sent_at",
+                                  "size_bytes",
+                                  "has_attachments",
+                                  "keywords",
+                                  "flags"
                                 ],
                                 "type": "object"
                               },
-                              "subject": {
+                              {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ]
+                              }
+                            ]
+                          },
+                          "message_count": {
+                            "type": "integer"
+                          },
+                          "message_ids": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "participants": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "example": "agent@example.com",
+                                  "format": "email",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "example": "Support",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "name"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "states": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "email_state": {
                                 "type": [
                                   "string",
                                   "null"
                                 ]
                               },
-                              "unread_count": {
-                                "type": "integer"
+                              "thread_state": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
                               }
                             },
                             "required": [
-                              "id",
-                              "subject",
-                              "message_count",
-                              "unread_count",
-                              "has_attachments",
-                              "folder_ids",
-                              "participants",
-                              "last_message",
-                              "states"
+                              "thread_state",
+                              "email_state"
                             ],
                             "type": "object"
                           },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "message_ids": {
-                                "items": {
-                                  "type": "string"
-                                },
-                                "type": "array"
-                              }
-                            },
-                            "required": [
-                              "message_ids"
-                            ],
-                            "type": "object"
+                          "subject": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "unread_count": {
+                            "type": "integer"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "subject",
+                          "message_count",
+                          "unread_count",
+                          "has_attachments",
+                          "folder_ids",
+                          "participants",
+                          "last_message",
+                          "states",
+                          "message_ids"
+                        ],
+                        "type": "object"
                       },
                       "meta": {
                         "additionalProperties": false,
@@ -9848,121 +9756,109 @@
                   {
                     "properties": {
                       "data": {
-                        "allOf": [
-                          {
+                        "additionalProperties": false,
+                        "properties": {
+                          "created_at": {
+                            "description": "ISO 8601 creation timestamp",
+                            "example": "2026-04-23T09:12:00Z",
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "description": "When false, no events are delivered to this subscription.",
+                            "example": true,
+                            "type": "boolean"
+                          },
+                          "event_types": {
+                            "description": "Event types this subscription receives.",
+                            "example": [
+                              "message.bounced",
+                              "message.received"
+                            ],
+                            "items": {
+                              "description": "Event types a webhook may subscribe to. `sendmux.test` is accepted so you can verify end-to-end delivery via POST /webhooks/{id}/test.",
+                              "enum": [
+                                "message.delivered",
+                                "message.bounced",
+                                "message.complained",
+                                "message.rejected",
+                                "message.delivery_delayed",
+                                "message.received",
+                                "message.received.spam",
+                                "sendmux.test"
+                              ],
+                              "example": "message.bounced",
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "failing": {
+                            "description": "True when the 24-hour retry window has been exhausted for this subscription. Reset by updating the subscription (e.g. fixing the URL) and re-enabling.",
+                            "example": false,
+                            "type": "boolean"
+                          },
+                          "filters": {
                             "additionalProperties": false,
+                            "description": "Optional delivery scope. Empty mailbox_ids means all team mailboxes.",
                             "properties": {
-                              "created_at": {
-                                "description": "ISO 8601 creation timestamp",
-                                "example": "2026-04-23T09:12:00Z",
-                                "type": "string"
-                              },
-                              "enabled": {
-                                "description": "When false, no events are delivered to this subscription.",
-                                "example": true,
-                                "type": "boolean"
-                              },
-                              "event_types": {
-                                "description": "Event types this subscription receives.",
+                              "mailbox_ids": {
+                                "description": "Mailbox public IDs to receive events for. Empty means all mailboxes in the team.",
                                 "example": [
-                                  "message.bounced",
-                                  "message.received"
+                                  "mbx_clxxxxxxxxxxxxxxxxxxxxxxxxx"
                                 ],
                                 "items": {
-                                  "description": "Event types a webhook may subscribe to. `sendmux.test` is accepted so you can verify end-to-end delivery via POST /webhooks/{id}/test.",
-                                  "enum": [
-                                    "message.delivered",
-                                    "message.bounced",
-                                    "message.complained",
-                                    "message.rejected",
-                                    "message.delivery_delayed",
-                                    "message.received",
-                                    "message.received.spam",
-                                    "sendmux.test"
-                                  ],
-                                  "example": "message.bounced",
                                   "type": "string"
                                 },
                                 "type": "array"
-                              },
-                              "failing": {
-                                "description": "True when the 24-hour retry window has been exhausted for this subscription. Reset by updating the subscription (e.g. fixing the URL) and re-enabling.",
-                                "example": false,
-                                "type": "boolean"
-                              },
-                              "filters": {
-                                "additionalProperties": false,
-                                "description": "Optional delivery scope. Empty mailbox_ids means all team mailboxes.",
-                                "properties": {
-                                  "mailbox_ids": {
-                                    "description": "Mailbox public IDs to receive events for. Empty means all mailboxes in the team.",
-                                    "example": [
-                                      "mbx_clxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                    ],
-                                    "items": {
-                                      "type": "string"
-                                    },
-                                    "type": "array"
-                                  }
-                                },
-                                "required": [
-                                  "mailbox_ids"
-                                ],
-                                "type": "object"
-                              },
-                              "id": {
-                                "description": "Webhook public ID",
-                                "example": "whk_clxxxxxxxxxxxxxxxxxxxxxxxxx",
-                                "type": "string"
-                              },
-                              "name": {
-                                "description": "Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.",
-                                "example": "Acme inbound forwarder",
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              "updated_at": {
-                                "description": "ISO 8601 last-modified timestamp",
-                                "example": "2026-04-23T09:12:00Z",
-                                "type": "string"
-                              },
-                              "url": {
-                                "description": "HTTPS endpoint that receives signed event POSTs.",
-                                "example": "https://hooks.acme.com/sendmux",
-                                "format": "uri",
-                                "type": "string"
                               }
                             },
                             "required": [
-                              "id",
-                              "name",
-                              "url",
-                              "event_types",
-                              "filters",
-                              "enabled",
-                              "failing",
-                              "created_at",
-                              "updated_at"
+                              "mailbox_ids"
                             ],
                             "type": "object"
                           },
-                          {
-                            "additionalProperties": false,
-                            "properties": {
-                              "secret": {
-                                "description": "Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret \u2014 store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
-                                "example": "whsec_a9f3c2\u2026",
-                                "type": "string"
-                              }
-                            },
-                            "required": [
-                              "secret"
-                            ],
-                            "type": "object"
+                          "id": {
+                            "description": "Webhook public ID",
+                            "example": "whk_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.",
+                            "example": "Acme inbound forwarder",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "secret": {
+                            "description": "Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret \u2014 store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
+                            "example": "whsec_a9f3c2\u2026",
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "description": "ISO 8601 last-modified timestamp",
+                            "example": "2026-04-23T09:12:00Z",
+                            "type": "string"
+                          },
+                          "url": {
+                            "description": "HTTPS endpoint that receives signed event POSTs.",
+                            "example": "https://hooks.acme.com/sendmux",
+                            "format": "uri",
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "url",
+                          "event_types",
+                          "filters",
+                          "enabled",
+                          "failing",
+                          "created_at",
+                          "updated_at",
+                          "secret"
+                        ],
+                        "type": "object"
                       },
                       "meta": {
                         "additionalProperties": false,

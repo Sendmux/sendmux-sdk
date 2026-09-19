@@ -26,6 +26,8 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :message_count
 
+    attr_accessor :message_ids
+
     attr_accessor :participants
 
     attr_accessor :states
@@ -33,8 +35,6 @@ module Sendmux::Mailbox::Generated
     attr_accessor :subject
 
     attr_accessor :unread_count
-
-    attr_accessor :message_ids
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
@@ -44,11 +44,11 @@ module Sendmux::Mailbox::Generated
         :'id' => :'id',
         :'last_message' => :'last_message',
         :'message_count' => :'message_count',
+        :'message_ids' => :'message_ids',
         :'participants' => :'participants',
         :'states' => :'states',
         :'subject' => :'subject',
-        :'unread_count' => :'unread_count',
-        :'message_ids' => :'message_ids'
+        :'unread_count' => :'unread_count'
       }
     end
 
@@ -70,11 +70,11 @@ module Sendmux::Mailbox::Generated
         :'id' => :'String',
         :'last_message' => :'MailboxMessageSummary',
         :'message_count' => :'Integer',
+        :'message_ids' => :'Array<String>',
         :'participants' => :'Array<MailboxAddress>',
         :'states' => :'MailboxThreadSummaryStates',
         :'subject' => :'String',
-        :'unread_count' => :'Integer',
-        :'message_ids' => :'Array<String>'
+        :'unread_count' => :'Integer'
       }
     end
 
@@ -84,13 +84,6 @@ module Sendmux::Mailbox::Generated
         :'last_message',
         :'subject',
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'MailboxThreadSummary'
-      ]
     end
 
     # Initializes the object
@@ -141,6 +134,14 @@ module Sendmux::Mailbox::Generated
         self.message_count = nil
       end
 
+      if attributes.key?(:'message_ids')
+        if (value = attributes[:'message_ids']).is_a?(Array)
+          self.message_ids = value
+        end
+      else
+        self.message_ids = nil
+      end
+
       if attributes.key?(:'participants')
         if (value = attributes[:'participants']).is_a?(Array)
           self.participants = value
@@ -166,14 +167,6 @@ module Sendmux::Mailbox::Generated
       else
         self.unread_count = nil
       end
-
-      if attributes.key?(:'message_ids')
-        if (value = attributes[:'message_ids']).is_a?(Array)
-          self.message_ids = value
-        end
-      else
-        self.message_ids = nil
-      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -197,6 +190,10 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "message_count", message_count cannot be nil.')
       end
 
+      if @message_ids.nil?
+        invalid_properties.push('invalid value for "message_ids", message_ids cannot be nil.')
+      end
+
       if @participants.nil?
         invalid_properties.push('invalid value for "participants", participants cannot be nil.')
       end
@@ -207,10 +204,6 @@ module Sendmux::Mailbox::Generated
 
       if @unread_count.nil?
         invalid_properties.push('invalid value for "unread_count", unread_count cannot be nil.')
-      end
-
-      if @message_ids.nil?
-        invalid_properties.push('invalid value for "message_ids", message_ids cannot be nil.')
       end
 
       invalid_properties
@@ -224,10 +217,10 @@ module Sendmux::Mailbox::Generated
       return false if @has_attachments.nil?
       return false if @id.nil?
       return false if @message_count.nil?
+      return false if @message_ids.nil?
       return false if @participants.nil?
       return false if @states.nil?
       return false if @unread_count.nil?
-      return false if @message_ids.nil?
       true
     end
 
@@ -272,6 +265,16 @@ module Sendmux::Mailbox::Generated
     end
 
     # Custom attribute writer method with validation
+    # @param [Object] message_ids Value to be assigned
+    def message_ids=(message_ids)
+      if message_ids.nil?
+        fail ArgumentError, 'message_ids cannot be nil'
+      end
+
+      @message_ids = message_ids
+    end
+
+    # Custom attribute writer method with validation
     # @param [Object] participants Value to be assigned
     def participants=(participants)
       if participants.nil?
@@ -301,16 +304,6 @@ module Sendmux::Mailbox::Generated
       @unread_count = unread_count
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] message_ids Value to be assigned
-    def message_ids=(message_ids)
-      if message_ids.nil?
-        fail ArgumentError, 'message_ids cannot be nil'
-      end
-
-      @message_ids = message_ids
-    end
-
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -321,11 +314,11 @@ module Sendmux::Mailbox::Generated
           id == o.id &&
           last_message == o.last_message &&
           message_count == o.message_count &&
+          message_ids == o.message_ids &&
           participants == o.participants &&
           states == o.states &&
           subject == o.subject &&
-          unread_count == o.unread_count &&
-          message_ids == o.message_ids
+          unread_count == o.unread_count
     end
 
     # @see the `==` method
@@ -337,7 +330,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [folder_ids, has_attachments, id, last_message, message_count, participants, states, subject, unread_count, message_ids].hash
+      [folder_ids, has_attachments, id, last_message, message_count, message_ids, participants, states, subject, unread_count].hash
     end
 
     # Builds the object from hash

@@ -5156,7 +5156,6 @@ type MailboxListUsageNotModified struct{}
 
 func (*MailboxListUsageNotModified) mailboxListUsageRes() {}
 
-// Merged schema.
 // Ref: #/components/schemas/MailboxMe
 type MailboxMe struct {
 	// ISO 8601 creation timestamp.
@@ -5168,12 +5167,12 @@ type MailboxMe struct {
 	// Public ID.
 	ID string `json:"id"`
 	// Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.
-	QuotaBytes NilInt              `json:"quota_bytes"`
-	SendScope  NilMailboxSendScope `json:"send_scope"`
+	QuotaBytes NilInt `json:"quota_bytes"`
+	// Live storage usage in bytes. Omitted when usage is temporarily unavailable.
+	QuotaUsedBytes OptInt              `json:"quota_used_bytes"`
+	SendScope      NilMailboxSendScope `json:"send_scope"`
 	// Active | suspended | deleted.
 	Status string `json:"status"`
-	// Live storage usage in bytes. Omitted when usage is temporarily unavailable.
-	QuotaUsedBytes OptInt `json:"quota_used_bytes"`
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -5201,6 +5200,11 @@ func (s *MailboxMe) GetQuotaBytes() NilInt {
 	return s.QuotaBytes
 }
 
+// GetQuotaUsedBytes returns the value of QuotaUsedBytes.
+func (s *MailboxMe) GetQuotaUsedBytes() OptInt {
+	return s.QuotaUsedBytes
+}
+
 // GetSendScope returns the value of SendScope.
 func (s *MailboxMe) GetSendScope() NilMailboxSendScope {
 	return s.SendScope
@@ -5209,11 +5213,6 @@ func (s *MailboxMe) GetSendScope() NilMailboxSendScope {
 // GetStatus returns the value of Status.
 func (s *MailboxMe) GetStatus() string {
 	return s.Status
-}
-
-// GetQuotaUsedBytes returns the value of QuotaUsedBytes.
-func (s *MailboxMe) GetQuotaUsedBytes() OptInt {
-	return s.QuotaUsedBytes
 }
 
 // SetCreatedAt sets the value of CreatedAt.
@@ -5241,6 +5240,11 @@ func (s *MailboxMe) SetQuotaBytes(val NilInt) {
 	s.QuotaBytes = val
 }
 
+// SetQuotaUsedBytes sets the value of QuotaUsedBytes.
+func (s *MailboxMe) SetQuotaUsedBytes(val OptInt) {
+	s.QuotaUsedBytes = val
+}
+
 // SetSendScope sets the value of SendScope.
 func (s *MailboxMe) SetSendScope(val NilMailboxSendScope) {
 	s.SendScope = val
@@ -5249,11 +5253,6 @@ func (s *MailboxMe) SetSendScope(val NilMailboxSendScope) {
 // SetStatus sets the value of Status.
 func (s *MailboxMe) SetStatus(val string) {
 	s.Status = val
-}
-
-// SetQuotaUsedBytes sets the value of QuotaUsedBytes.
-func (s *MailboxMe) SetQuotaUsedBytes(val OptInt) {
-	s.QuotaUsedBytes = val
 }
 
 // Merged schema.
@@ -5373,17 +5372,18 @@ func (MailboxMeItemResponseOk) AllValues() []MailboxMeItemResponseOk {
 	}
 }
 
-// Merged schema.
 // Ref: #/components/schemas/MailboxMessage
 type MailboxMessage struct {
-	// Merged property.
-	Attachments    []MailboxMessageAttachmentsItem `json:"attachments"`
-	Bcc            []MailboxAddress                `json:"bcc"`
-	Cc             []MailboxAddress                `json:"cc"`
-	Flags          MailboxMessageFlags             `json:"flags"`
-	FolderIds      []string                        `json:"folder_ids"`
-	From           NilMailboxAddress               `json:"from"`
-	HasAttachments bool                            `json:"has_attachments"`
+	// Attachment metadata for this message. Each item includes a short-lived `download_url`; if it
+	// expires, fetch message metadata again.
+	Attachments    []MailboxAttachment `json:"attachments"`
+	Bcc            []MailboxAddress    `json:"bcc"`
+	Cc             []MailboxAddress    `json:"cc"`
+	Flags          MailboxMessageFlags `json:"flags"`
+	FolderIds      []string            `json:"folder_ids"`
+	From           NilMailboxAddress   `json:"from"`
+	HasAttachments bool                `json:"has_attachments"`
+	HTMLBody       NilString           `json:"html_body"`
 	// Message ID.
 	ID string `json:"id"`
 	// Active message keywords, including system flags and custom labels.
@@ -5393,14 +5393,13 @@ type MailboxMessage struct {
 	SentAt     NilString        `json:"sent_at"`
 	SizeBytes  NilInt           `json:"size_bytes"`
 	Subject    NilString        `json:"subject"`
+	TextBody   NilString        `json:"text_body"`
 	ThreadID   NilString        `json:"thread_id"`
 	To         []MailboxAddress `json:"to"`
-	HTMLBody   NilString        `json:"html_body"`
-	TextBody   NilString        `json:"text_body"`
 }
 
 // GetAttachments returns the value of Attachments.
-func (s *MailboxMessage) GetAttachments() []MailboxMessageAttachmentsItem {
+func (s *MailboxMessage) GetAttachments() []MailboxAttachment {
 	return s.Attachments
 }
 
@@ -5432,6 +5431,11 @@ func (s *MailboxMessage) GetFrom() NilMailboxAddress {
 // GetHasAttachments returns the value of HasAttachments.
 func (s *MailboxMessage) GetHasAttachments() bool {
 	return s.HasAttachments
+}
+
+// GetHTMLBody returns the value of HTMLBody.
+func (s *MailboxMessage) GetHTMLBody() NilString {
+	return s.HTMLBody
 }
 
 // GetID returns the value of ID.
@@ -5469,6 +5473,11 @@ func (s *MailboxMessage) GetSubject() NilString {
 	return s.Subject
 }
 
+// GetTextBody returns the value of TextBody.
+func (s *MailboxMessage) GetTextBody() NilString {
+	return s.TextBody
+}
+
 // GetThreadID returns the value of ThreadID.
 func (s *MailboxMessage) GetThreadID() NilString {
 	return s.ThreadID
@@ -5479,18 +5488,8 @@ func (s *MailboxMessage) GetTo() []MailboxAddress {
 	return s.To
 }
 
-// GetHTMLBody returns the value of HTMLBody.
-func (s *MailboxMessage) GetHTMLBody() NilString {
-	return s.HTMLBody
-}
-
-// GetTextBody returns the value of TextBody.
-func (s *MailboxMessage) GetTextBody() NilString {
-	return s.TextBody
-}
-
 // SetAttachments sets the value of Attachments.
-func (s *MailboxMessage) SetAttachments(val []MailboxMessageAttachmentsItem) {
+func (s *MailboxMessage) SetAttachments(val []MailboxAttachment) {
 	s.Attachments = val
 }
 
@@ -5522,6 +5521,11 @@ func (s *MailboxMessage) SetFrom(val NilMailboxAddress) {
 // SetHasAttachments sets the value of HasAttachments.
 func (s *MailboxMessage) SetHasAttachments(val bool) {
 	s.HasAttachments = val
+}
+
+// SetHTMLBody sets the value of HTMLBody.
+func (s *MailboxMessage) SetHTMLBody(val NilString) {
+	s.HTMLBody = val
 }
 
 // SetID sets the value of ID.
@@ -5559,6 +5563,11 @@ func (s *MailboxMessage) SetSubject(val NilString) {
 	s.Subject = val
 }
 
+// SetTextBody sets the value of TextBody.
+func (s *MailboxMessage) SetTextBody(val NilString) {
+	s.TextBody = val
+}
+
 // SetThreadID sets the value of ThreadID.
 func (s *MailboxMessage) SetThreadID(val NilString) {
 	s.ThreadID = val
@@ -5567,104 +5576,6 @@ func (s *MailboxMessage) SetThreadID(val NilString) {
 // SetTo sets the value of To.
 func (s *MailboxMessage) SetTo(val []MailboxAddress) {
 	s.To = val
-}
-
-// SetHTMLBody sets the value of HTMLBody.
-func (s *MailboxMessage) SetHTMLBody(val NilString) {
-	s.HTMLBody = val
-}
-
-// SetTextBody sets the value of TextBody.
-func (s *MailboxMessage) SetTextBody(val NilString) {
-	s.TextBody = val
-}
-
-// Merged schema.
-type MailboxMessageAttachmentsItem struct {
-	// Merged property.
-	ContentID NilString `json:"content_id"`
-	// Merged property.
-	ContentType string `json:"content_type"`
-	// Merged property.
-	Disposition NilString `json:"disposition"`
-	// Merged property.
-	DownloadURL OptString `json:"download_url"`
-	// Merged property.
-	Filename NilString `json:"filename"`
-	// Merged property.
-	ID string `json:"id"`
-	// Merged property.
-	SizeBytes NilInt `json:"size_bytes"`
-}
-
-// GetContentID returns the value of ContentID.
-func (s *MailboxMessageAttachmentsItem) GetContentID() NilString {
-	return s.ContentID
-}
-
-// GetContentType returns the value of ContentType.
-func (s *MailboxMessageAttachmentsItem) GetContentType() string {
-	return s.ContentType
-}
-
-// GetDisposition returns the value of Disposition.
-func (s *MailboxMessageAttachmentsItem) GetDisposition() NilString {
-	return s.Disposition
-}
-
-// GetDownloadURL returns the value of DownloadURL.
-func (s *MailboxMessageAttachmentsItem) GetDownloadURL() OptString {
-	return s.DownloadURL
-}
-
-// GetFilename returns the value of Filename.
-func (s *MailboxMessageAttachmentsItem) GetFilename() NilString {
-	return s.Filename
-}
-
-// GetID returns the value of ID.
-func (s *MailboxMessageAttachmentsItem) GetID() string {
-	return s.ID
-}
-
-// GetSizeBytes returns the value of SizeBytes.
-func (s *MailboxMessageAttachmentsItem) GetSizeBytes() NilInt {
-	return s.SizeBytes
-}
-
-// SetContentID sets the value of ContentID.
-func (s *MailboxMessageAttachmentsItem) SetContentID(val NilString) {
-	s.ContentID = val
-}
-
-// SetContentType sets the value of ContentType.
-func (s *MailboxMessageAttachmentsItem) SetContentType(val string) {
-	s.ContentType = val
-}
-
-// SetDisposition sets the value of Disposition.
-func (s *MailboxMessageAttachmentsItem) SetDisposition(val NilString) {
-	s.Disposition = val
-}
-
-// SetDownloadURL sets the value of DownloadURL.
-func (s *MailboxMessageAttachmentsItem) SetDownloadURL(val OptString) {
-	s.DownloadURL = val
-}
-
-// SetFilename sets the value of Filename.
-func (s *MailboxMessageAttachmentsItem) SetFilename(val NilString) {
-	s.Filename = val
-}
-
-// SetID sets the value of ID.
-func (s *MailboxMessageAttachmentsItem) SetID(val string) {
-	s.ID = val
-}
-
-// SetSizeBytes sets the value of SizeBytes.
-func (s *MailboxMessageAttachmentsItem) SetSizeBytes(val NilInt) {
-	s.SizeBytes = val
 }
 
 // Ref: #/components/schemas/MailboxMessageContent
@@ -10356,7 +10267,6 @@ func (MailboxSubmissionResponseOk) AllValues() []MailboxSubmissionResponseOk {
 	}
 }
 
-// Merged schema.
 // Ref: #/components/schemas/MailboxThread
 type MailboxThread struct {
 	FolderIds      []string `json:"folder_ids"`
@@ -10365,11 +10275,11 @@ type MailboxThread struct {
 	ID           string                   `json:"id"`
 	LastMessage  NilMailboxMessageSummary `json:"last_message"`
 	MessageCount int                      `json:"message_count"`
+	MessageIds   []string                 `json:"message_ids"`
 	Participants []MailboxAddress         `json:"participants"`
 	States       MailboxThreadStates      `json:"states"`
 	Subject      NilString                `json:"subject"`
 	UnreadCount  int                      `json:"unread_count"`
-	MessageIds   []string                 `json:"message_ids"`
 }
 
 // GetFolderIds returns the value of FolderIds.
@@ -10397,6 +10307,11 @@ func (s *MailboxThread) GetMessageCount() int {
 	return s.MessageCount
 }
 
+// GetMessageIds returns the value of MessageIds.
+func (s *MailboxThread) GetMessageIds() []string {
+	return s.MessageIds
+}
+
 // GetParticipants returns the value of Participants.
 func (s *MailboxThread) GetParticipants() []MailboxAddress {
 	return s.Participants
@@ -10415,11 +10330,6 @@ func (s *MailboxThread) GetSubject() NilString {
 // GetUnreadCount returns the value of UnreadCount.
 func (s *MailboxThread) GetUnreadCount() int {
 	return s.UnreadCount
-}
-
-// GetMessageIds returns the value of MessageIds.
-func (s *MailboxThread) GetMessageIds() []string {
-	return s.MessageIds
 }
 
 // SetFolderIds sets the value of FolderIds.
@@ -10447,6 +10357,11 @@ func (s *MailboxThread) SetMessageCount(val int) {
 	s.MessageCount = val
 }
 
+// SetMessageIds sets the value of MessageIds.
+func (s *MailboxThread) SetMessageIds(val []string) {
+	s.MessageIds = val
+}
+
 // SetParticipants sets the value of Participants.
 func (s *MailboxThread) SetParticipants(val []MailboxAddress) {
 	s.Participants = val
@@ -10465,11 +10380,6 @@ func (s *MailboxThread) SetSubject(val NilString) {
 // SetUnreadCount sets the value of UnreadCount.
 func (s *MailboxThread) SetUnreadCount(val int) {
 	s.UnreadCount = val
-}
-
-// SetMessageIds sets the value of MessageIds.
-func (s *MailboxThread) SetMessageIds(val []string) {
-	s.MessageIds = val
 }
 
 // Merged schema.

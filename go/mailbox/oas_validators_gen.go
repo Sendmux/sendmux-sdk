@@ -4960,6 +4960,17 @@ func (s *MailboxThread) Validate() error {
 		})
 	}
 	if err := func() error {
+		if s.MessageIds == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "message_ids",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if s.Participants == nil {
 			return errors.New("nil is invalid value")
 		}
@@ -4984,17 +4995,6 @@ func (s *MailboxThread) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "participants",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if s.MessageIds == nil {
-			return errors.New("nil is invalid value")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "message_ids",
 			Error: err,
 		})
 	}

@@ -35,14 +35,14 @@ module Sendmux::Management::Generated
     # Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.
     attr_accessor :name
 
+    # Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
+    attr_accessor :secret
+
     # ISO 8601 last-modified timestamp
     attr_accessor :updated_at
 
     # HTTPS endpoint that receives signed event POSTs.
     attr_accessor :url
-
-    # Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
-    attr_accessor :secret
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -76,9 +76,9 @@ module Sendmux::Management::Generated
         :'filters' => :'filters',
         :'id' => :'id',
         :'name' => :'name',
+        :'secret' => :'secret',
         :'updated_at' => :'updated_at',
-        :'url' => :'url',
-        :'secret' => :'secret'
+        :'url' => :'url'
       }
     end
 
@@ -102,9 +102,9 @@ module Sendmux::Management::Generated
         :'filters' => :'WebhookFilters',
         :'id' => :'String',
         :'name' => :'String',
+        :'secret' => :'String',
         :'updated_at' => :'String',
-        :'url' => :'String',
-        :'secret' => :'String'
+        :'url' => :'String'
       }
     end
 
@@ -113,13 +113,6 @@ module Sendmux::Management::Generated
       Set.new([
         :'name',
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'WebhookSubscription'
-      ]
     end
 
     # Initializes the object
@@ -182,6 +175,12 @@ module Sendmux::Management::Generated
         self.name = nil
       end
 
+      if attributes.key?(:'secret')
+        self.secret = attributes[:'secret']
+      else
+        self.secret = nil
+      end
+
       if attributes.key?(:'updated_at')
         self.updated_at = attributes[:'updated_at']
       else
@@ -192,12 +191,6 @@ module Sendmux::Management::Generated
         self.url = attributes[:'url']
       else
         self.url = nil
-      end
-
-      if attributes.key?(:'secret')
-        self.secret = attributes[:'secret']
-      else
-        self.secret = nil
       end
     end
 
@@ -230,16 +223,16 @@ module Sendmux::Management::Generated
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
+      if @secret.nil?
+        invalid_properties.push('invalid value for "secret", secret cannot be nil.')
+      end
+
       if @updated_at.nil?
         invalid_properties.push('invalid value for "updated_at", updated_at cannot be nil.')
       end
 
       if @url.nil?
         invalid_properties.push('invalid value for "url", url cannot be nil.')
-      end
-
-      if @secret.nil?
-        invalid_properties.push('invalid value for "secret", secret cannot be nil.')
       end
 
       invalid_properties
@@ -255,9 +248,9 @@ module Sendmux::Management::Generated
       return false if @failing.nil?
       return false if @filters.nil?
       return false if @id.nil?
+      return false if @secret.nil?
       return false if @updated_at.nil?
       return false if @url.nil?
-      return false if @secret.nil?
       true
     end
 
@@ -312,6 +305,16 @@ module Sendmux::Management::Generated
     end
 
     # Custom attribute writer method with validation
+    # @param [Object] secret Value to be assigned
+    def secret=(secret)
+      if secret.nil?
+        fail ArgumentError, 'secret cannot be nil'
+      end
+
+      @secret = secret
+    end
+
+    # Custom attribute writer method with validation
     # @param [Object] updated_at Value to be assigned
     def updated_at=(updated_at)
       if updated_at.nil?
@@ -331,16 +334,6 @@ module Sendmux::Management::Generated
       @url = url
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] secret Value to be assigned
-    def secret=(secret)
-      if secret.nil?
-        fail ArgumentError, 'secret cannot be nil'
-      end
-
-      @secret = secret
-    end
-
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -353,9 +346,9 @@ module Sendmux::Management::Generated
           filters == o.filters &&
           id == o.id &&
           name == o.name &&
+          secret == o.secret &&
           updated_at == o.updated_at &&
-          url == o.url &&
-          secret == o.secret
+          url == o.url
     end
 
     # @see the `==` method
@@ -367,7 +360,7 @@ module Sendmux::Management::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [created_at, enabled, event_types, failing, filters, id, name, updated_at, url, secret].hash
+      [created_at, enabled, event_types, failing, filters, id, name, secret, updated_at, url].hash
     end
 
     # Builds the object from hash

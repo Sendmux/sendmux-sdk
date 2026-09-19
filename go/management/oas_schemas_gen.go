@@ -17391,7 +17391,6 @@ func (WebhookSubscriptionResponseOk) AllValues() []WebhookSubscriptionResponseOk
 	}
 }
 
-// Merged schema.
 // Ref: #/components/schemas/WebhookSubscriptionWithSecret
 type WebhookSubscriptionWithSecret struct {
 	// ISO 8601 creation timestamp.
@@ -17409,14 +17408,14 @@ type WebhookSubscriptionWithSecret struct {
 	// Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions
 	// created without a name.
 	Name NilString `json:"name"`
-	// ISO 8601 last-modified timestamp.
-	UpdatedAt string `json:"updated_at"`
-	// HTTPS endpoint that receives signed event POSTs.
-	URL url.URL `json:"url"`
 	// Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY
 	// response containing the raw secret — store it securely; it cannot be retrieved later. Use POST
 	// /webhooks/{id}/rotate-secret to issue a new one.
 	Secret string `json:"secret"`
+	// ISO 8601 last-modified timestamp.
+	UpdatedAt string `json:"updated_at"`
+	// HTTPS endpoint that receives signed event POSTs.
+	URL url.URL `json:"url"`
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -17454,6 +17453,11 @@ func (s *WebhookSubscriptionWithSecret) GetName() NilString {
 	return s.Name
 }
 
+// GetSecret returns the value of Secret.
+func (s *WebhookSubscriptionWithSecret) GetSecret() string {
+	return s.Secret
+}
+
 // GetUpdatedAt returns the value of UpdatedAt.
 func (s *WebhookSubscriptionWithSecret) GetUpdatedAt() string {
 	return s.UpdatedAt
@@ -17462,11 +17466,6 @@ func (s *WebhookSubscriptionWithSecret) GetUpdatedAt() string {
 // GetURL returns the value of URL.
 func (s *WebhookSubscriptionWithSecret) GetURL() url.URL {
 	return s.URL
-}
-
-// GetSecret returns the value of Secret.
-func (s *WebhookSubscriptionWithSecret) GetSecret() string {
-	return s.Secret
 }
 
 // SetCreatedAt sets the value of CreatedAt.
@@ -17504,6 +17503,11 @@ func (s *WebhookSubscriptionWithSecret) SetName(val NilString) {
 	s.Name = val
 }
 
+// SetSecret sets the value of Secret.
+func (s *WebhookSubscriptionWithSecret) SetSecret(val string) {
+	s.Secret = val
+}
+
 // SetUpdatedAt sets the value of UpdatedAt.
 func (s *WebhookSubscriptionWithSecret) SetUpdatedAt(val string) {
 	s.UpdatedAt = val
@@ -17512,11 +17516,6 @@ func (s *WebhookSubscriptionWithSecret) SetUpdatedAt(val string) {
 // SetURL sets the value of URL.
 func (s *WebhookSubscriptionWithSecret) SetURL(val url.URL) {
 	s.URL = val
-}
-
-// SetSecret sets the value of Secret.
-func (s *WebhookSubscriptionWithSecret) SetSecret(val string) {
-	s.Secret = val
 }
 
 // Event types a webhook may subscribe to. `sendmux.test` is accepted so you can verify end-to-end

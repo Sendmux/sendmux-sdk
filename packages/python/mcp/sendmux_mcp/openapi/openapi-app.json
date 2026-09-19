@@ -3145,21 +3145,59 @@
         "unevaluatedProperties": false
       },
       "MailboxMe": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Mailbox"
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "description": "ISO 8601 creation timestamp",
+            "type": "string"
           },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "quota_used_bytes": {
-                "description": "Live storage usage in bytes. Omitted when usage is temporarily unavailable.",
-                "type": "integer"
-              }
-            },
-            "type": "object"
+          "display_name": {
+            "description": "Optional display name shown in outbound From headers",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "description": "Mailbox email address (lowercase)",
+            "example": "agent@acme.com",
+            "type": "string"
+          },
+          "id": {
+            "description": "Public ID",
+            "example": "mbx_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "type": "string"
+          },
+          "quota_bytes": {
+            "description": "Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "quota_used_bytes": {
+            "description": "Live storage usage in bytes. Omitted when usage is temporarily unavailable.",
+            "type": "integer"
+          },
+          "send_scope": {
+            "$ref": "#/components/schemas/MailboxSendScope"
+          },
+          "status": {
+            "description": "active | suspended | deleted",
+            "example": "active",
+            "type": "string"
           }
-        ]
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "quota_bytes",
+          "send_scope",
+          "status",
+          "created_at"
+        ],
+        "type": "object"
       },
       "MailboxMeItemResponse": {
         "allOf": [
@@ -3184,39 +3222,143 @@
         "unevaluatedProperties": false
       },
       "MailboxMessage": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MailboxMessageSummary"
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAttachment"
+            },
+            "type": "array"
           },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "attachments": {
-                "items": {
-                  "$ref": "#/components/schemas/MailboxAttachment"
-                },
-                "type": "array"
+          "bcc": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "cc": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "flags": {
+            "$ref": "#/components/schemas/MailboxMessageFlags"
+          },
+          "folder_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "from": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MailboxAddress"
               },
-              "html_body": {
+              {
                 "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "text_body": {
-                "type": [
-                  "string",
+                  "object",
                   "null"
                 ]
               }
-            },
-            "required": [
-              "text_body",
-              "html_body"
+            ]
+          },
+          "has_attachments": {
+            "type": "boolean"
+          },
+          "html_body": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "description": "Message ID",
+            "type": "string"
+          },
+          "keywords": {
+            "description": "Active message keywords, including system flags and custom labels.",
+            "example": [
+              "$seen",
+              "$flagged",
+              "agent_triaged"
             ],
-            "type": "object"
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "preview": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "received_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sent_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "text_body": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thread_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
           }
-        ]
+        },
+        "required": [
+          "id",
+          "thread_id",
+          "folder_ids",
+          "subject",
+          "preview",
+          "from",
+          "to",
+          "cc",
+          "bcc",
+          "received_at",
+          "sent_at",
+          "size_bytes",
+          "has_attachments",
+          "keywords",
+          "flags",
+          "text_body",
+          "html_body"
+        ],
+        "type": "object"
       },
       "MailboxMessageContent": {
         "additionalProperties": false,
@@ -4093,50 +4235,37 @@
         "type": "object"
       },
       "MailboxRealtimeMessage": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MailboxMessageSummary"
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAttachment"
+            },
+            "type": "array"
           },
-          {
+          "bcc": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "body": {
             "additionalProperties": false,
             "properties": {
-              "attachments": {
-                "items": {
-                  "$ref": "#/components/schemas/MailboxAttachment"
-                },
-                "type": "array"
+              "html": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "body": {
-                "additionalProperties": false,
-                "properties": {
-                  "html": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  },
-                  "is_truncated": {
-                    "type": "boolean"
-                  },
-                  "max_bytes": {
-                    "type": "integer"
-                  },
-                  "text": {
-                    "type": [
-                      "string",
-                      "null"
-                    ]
-                  }
-                },
-                "required": [
-                  "text",
-                  "html",
-                  "is_truncated",
-                  "max_bytes"
-                ],
-                "type": "object"
+              "is_truncated": {
+                "type": "boolean"
               },
-              "rfc5322_message_id": {
+              "max_bytes": {
+                "type": "integer"
+              },
+              "text": {
                 "type": [
                   "string",
                   "null"
@@ -4144,14 +4273,131 @@
               }
             },
             "required": [
-              "rfc5322_message_id",
-              "body"
+              "text",
+              "html",
+              "is_truncated",
+              "max_bytes"
             ],
+            "type": "object"
+          },
+          "cc": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "flags": {
+            "$ref": "#/components/schemas/MailboxMessageFlags"
+          },
+          "folder_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "from": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MailboxAddress"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          },
+          "has_attachments": {
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Message ID",
+            "type": "string"
+          },
+          "keywords": {
+            "description": "Active message keywords, including system flags and custom labels.",
+            "example": [
+              "$seen",
+              "$flagged",
+              "agent_triaged"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "preview": {
             "type": [
-              "object",
+              "string",
               "null"
             ]
+          },
+          "received_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rfc5322_message_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sent_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thread_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
           }
+        },
+        "required": [
+          "id",
+          "thread_id",
+          "folder_ids",
+          "subject",
+          "preview",
+          "from",
+          "to",
+          "cc",
+          "bcc",
+          "received_at",
+          "sent_at",
+          "size_bytes",
+          "has_attachments",
+          "keywords",
+          "flags",
+          "rfc5322_message_id",
+          "body"
+        ],
+        "type": [
+          "object",
+          "null"
         ]
       },
       "MailboxSearchSnippet": {
@@ -5077,26 +5323,94 @@
         "type": "object"
       },
       "MailboxThread": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MailboxThreadSummary"
+        "additionalProperties": false,
+        "properties": {
+          "folder_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
-          {
+          "has_attachments": {
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Thread ID",
+            "type": "string"
+          },
+          "last_message": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MailboxMessageSummary"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          },
+          "message_count": {
+            "type": "integer"
+          },
+          "message_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "states": {
             "additionalProperties": false,
             "properties": {
-              "message_ids": {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
+              "email_state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "thread_state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": [
-              "message_ids"
+              "thread_state",
+              "email_state"
             ],
             "type": "object"
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unread_count": {
+            "type": "integer"
           }
-        ]
+        },
+        "required": [
+          "id",
+          "subject",
+          "message_count",
+          "unread_count",
+          "has_attachments",
+          "folder_ids",
+          "participants",
+          "last_message",
+          "states",
+          "message_ids"
+        ],
+        "type": "object"
       },
       "MailboxThreadContentMeta": {
         "additionalProperties": false,
@@ -8375,25 +8689,92 @@
         "unevaluatedProperties": false
       },
       "WebhookSubscriptionWithSecret": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WebhookSubscription"
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "description": "ISO 8601 creation timestamp",
+            "example": "2026-04-23T09:12:00Z",
+            "type": "string"
           },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "secret": {
-                "description": "Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
-                "example": "whsec_a9f3c2…",
-                "type": "string"
-              }
-            },
-            "required": [
-              "secret"
+          "enabled": {
+            "description": "When false, no events are delivered to this subscription.",
+            "example": true,
+            "type": "boolean"
+          },
+          "event_types": {
+            "description": "Event types this subscription receives.",
+            "example": [
+              "message.bounced",
+              "message.received"
             ],
-            "type": "object"
+            "items": {
+              "description": "Event types a webhook may subscribe to. `sendmux.test` is accepted so you can verify end-to-end delivery via POST /webhooks/{id}/test.",
+              "enum": [
+                "message.delivered",
+                "message.bounced",
+                "message.complained",
+                "message.rejected",
+                "message.delivery_delayed",
+                "message.received",
+                "message.received.spam",
+                "sendmux.test"
+              ],
+              "example": "message.bounced",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "failing": {
+            "description": "True when the 24-hour retry window has been exhausted for this subscription. Reset by updating the subscription (e.g. fixing the URL) and re-enabling.",
+            "example": false,
+            "type": "boolean"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/WebhookFilters"
+          },
+          "id": {
+            "description": "Webhook public ID",
+            "example": "whk_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "type": "string"
+          },
+          "name": {
+            "description": "Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.",
+            "example": "Acme inbound forwarder",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "secret": {
+            "description": "Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
+            "example": "whsec_a9f3c2…",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "ISO 8601 last-modified timestamp",
+            "example": "2026-04-23T09:12:00Z",
+            "type": "string"
+          },
+          "url": {
+            "description": "HTTPS endpoint that receives signed event POSTs.",
+            "example": "https://hooks.acme.com/sendmux",
+            "format": "uri",
+            "type": "string"
           }
-        ]
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "event_types",
+          "filters",
+          "enabled",
+          "failing",
+          "created_at",
+          "updated_at",
+          "secret"
+        ],
+        "type": "object"
       },
       "WebhookSubscriptionWithSecretResponse": {
         "allOf": [

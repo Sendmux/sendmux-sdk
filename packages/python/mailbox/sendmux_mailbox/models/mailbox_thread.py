@@ -35,12 +35,12 @@ class MailboxThread(BaseModel):
     id: StrictStr = Field(description="Thread ID")
     last_message: Optional[MailboxMessageSummary]
     message_count: StrictInt
+    message_ids: List[StrictStr]
     participants: List[MailboxAddress]
     states: MailboxThreadSummaryStates
     subject: Optional[StrictStr]
     unread_count: StrictInt
-    message_ids: List[StrictStr]
-    __properties: ClassVar[List[str]] = ["folder_ids", "has_attachments", "id", "last_message", "message_count", "participants", "states", "subject", "unread_count", "message_ids"]
+    __properties: ClassVar[List[str]] = ["folder_ids", "has_attachments", "id", "last_message", "message_count", "message_ids", "participants", "states", "subject", "unread_count"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -121,10 +121,10 @@ class MailboxThread(BaseModel):
             "id": obj.get("id"),
             "last_message": MailboxMessageSummary.from_dict(obj["last_message"]) if obj.get("last_message") is not None else None,
             "message_count": obj.get("message_count"),
+            "message_ids": obj.get("message_ids"),
             "participants": [MailboxAddress.from_dict(_item) for _item in obj["participants"]] if obj.get("participants") is not None else None,
             "states": MailboxThreadSummaryStates.from_dict(obj["states"]) if obj.get("states") is not None else None,
             "subject": obj.get("subject"),
-            "unread_count": obj.get("unread_count"),
-            "message_ids": obj.get("message_ids")
+            "unread_count": obj.get("unread_count")
         })
         return _obj

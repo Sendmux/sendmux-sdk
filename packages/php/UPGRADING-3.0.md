@@ -191,6 +191,14 @@ constraints for maintained HTTP security fixes. They remain on 2.x.
        $response->getMeta()->getThreadId(), PHP_EOL;
    ```
 
+5. Replace `MailboxRealtimeMessageAllOfBody` with `MailboxRealtimeMessageBody`
+   in imports, type declarations, and manually constructed realtime events.
+   `MailboxRealtimeMessage::getBody()` returns the renamed class and
+   `setBody()` accepts it; the `text`, `html`, `is_truncated`, and
+   `max_bytes` accessors are unchanged. Remove any reference to
+   `Sendmux\Mailbox\Model\Mailbox`, which no mailbox operation returned;
+   `mailboxGetMe()` still returns `MailboxMeItemResponse` with `MailboxMe` data.
+
 ## Verify the migration
 
 Run this command in your application directory:

@@ -33,10 +33,10 @@ class MailboxMe(BaseModel):
     email: StrictStr = Field(description="Mailbox email address (lowercase)")
     id: StrictStr = Field(description="Public ID")
     quota_bytes: Optional[StrictInt] = Field(description="Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.")
+    quota_used_bytes: Optional[StrictInt] = Field(default=None, description="Live storage usage in bytes. Omitted when usage is temporarily unavailable.")
     send_scope: Optional[MailboxSendScope]
     status: StrictStr = Field(description="active | suspended | deleted")
-    quota_used_bytes: Optional[StrictInt] = Field(default=None, description="Live storage usage in bytes. Omitted when usage is temporarily unavailable.")
-    __properties: ClassVar[List[str]] = ["created_at", "display_name", "email", "id", "quota_bytes", "send_scope", "status", "quota_used_bytes"]
+    __properties: ClassVar[List[str]] = ["created_at", "display_name", "email", "id", "quota_bytes", "quota_used_bytes", "send_scope", "status"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -112,8 +112,8 @@ class MailboxMe(BaseModel):
             "email": obj.get("email"),
             "id": obj.get("id"),
             "quota_bytes": obj.get("quota_bytes"),
+            "quota_used_bytes": obj.get("quota_used_bytes"),
             "send_scope": MailboxSendScope.from_dict(obj["send_scope"]) if obj.get("send_scope") is not None else None,
-            "status": obj.get("status"),
-            "quota_used_bytes": obj.get("quota_used_bytes")
+            "status": obj.get("status")
         })
         return _obj

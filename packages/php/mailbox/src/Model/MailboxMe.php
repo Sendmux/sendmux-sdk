@@ -64,9 +64,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         'email' => 'string',
         'id' => 'string',
         'quota_bytes' => 'int',
+        'quota_used_bytes' => 'int',
         'send_scope' => '\Sendmux\Mailbox\Model\MailboxSendScope',
-        'status' => 'string',
-        'quota_used_bytes' => 'int'
+        'status' => 'string'
     ];
 
     /**
@@ -80,9 +80,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         'email' => null,
         'id' => null,
         'quota_bytes' => null,
+        'quota_used_bytes' => null,
         'send_scope' => null,
-        'status' => null,
-        'quota_used_bytes' => null
+        'status' => null
     ];
 
     /**
@@ -96,9 +96,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         'email' => false,
         'id' => false,
         'quota_bytes' => true,
+        'quota_used_bytes' => false,
         'send_scope' => true,
-        'status' => false,
-        'quota_used_bytes' => false
+        'status' => false
     ];
 
     /**
@@ -182,9 +182,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         'email' => 'email',
         'id' => 'id',
         'quota_bytes' => 'quota_bytes',
+        'quota_used_bytes' => 'quota_used_bytes',
         'send_scope' => 'send_scope',
-        'status' => 'status',
-        'quota_used_bytes' => 'quota_used_bytes'
+        'status' => 'status'
     ];
 
     /**
@@ -198,9 +198,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         'email' => 'setEmail',
         'id' => 'setId',
         'quota_bytes' => 'setQuotaBytes',
+        'quota_used_bytes' => 'setQuotaUsedBytes',
         'send_scope' => 'setSendScope',
-        'status' => 'setStatus',
-        'quota_used_bytes' => 'setQuotaUsedBytes'
+        'status' => 'setStatus'
     ];
 
     /**
@@ -214,9 +214,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         'email' => 'getEmail',
         'id' => 'getId',
         'quota_bytes' => 'getQuotaBytes',
+        'quota_used_bytes' => 'getQuotaUsedBytes',
         'send_scope' => 'getSendScope',
-        'status' => 'getStatus',
-        'quota_used_bytes' => 'getQuotaUsedBytes'
+        'status' => 'getStatus'
     ];
 
     /**
@@ -271,9 +271,9 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('email', $data ?? [], null);
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('quota_bytes', $data ?? [], null);
+        $this->setIfExists('quota_used_bytes', $data ?? [], null);
         $this->setIfExists('send_scope', $data ?? [], null);
         $this->setIfExists('status', $data ?? [], null);
-        $this->setIfExists('quota_used_bytes', $data ?? [], null);
     }
 
     /**
@@ -484,6 +484,33 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets quota_used_bytes
+     *
+     * @return int|null
+     */
+    public function getQuotaUsedBytes(): ?int
+    {
+        return $this->container['quota_used_bytes'];
+    }
+
+    /**
+     * Sets quota_used_bytes
+     *
+     * @param int|null $quota_used_bytes Live storage usage in bytes. Omitted when usage is temporarily unavailable.
+     *
+     * @return $this
+     */
+    public function setQuotaUsedBytes(?int $quota_used_bytes): static
+    {
+        if (is_null($quota_used_bytes)) {
+            throw new InvalidArgumentException('non-nullable quota_used_bytes cannot be null');
+        }
+        $this->container['quota_used_bytes'] = $quota_used_bytes;
+
+        return $this;
+    }
+
+    /**
      * Gets send_scope
      *
      * @return \Sendmux\Mailbox\Model\MailboxSendScope|null
@@ -540,33 +567,6 @@ class MailboxMe implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable status cannot be null');
         }
         $this->container['status'] = $status;
-
-        return $this;
-    }
-
-    /**
-     * Gets quota_used_bytes
-     *
-     * @return int|null
-     */
-    public function getQuotaUsedBytes(): ?int
-    {
-        return $this->container['quota_used_bytes'];
-    }
-
-    /**
-     * Sets quota_used_bytes
-     *
-     * @param int|null $quota_used_bytes Live storage usage in bytes. Omitted when usage is temporarily unavailable.
-     *
-     * @return $this
-     */
-    public function setQuotaUsedBytes(?int $quota_used_bytes): static
-    {
-        if (is_null($quota_used_bytes)) {
-            throw new InvalidArgumentException('non-nullable quota_used_bytes cannot be null');
-        }
-        $this->container['quota_used_bytes'] = $quota_used_bytes;
 
         return $this;
     }

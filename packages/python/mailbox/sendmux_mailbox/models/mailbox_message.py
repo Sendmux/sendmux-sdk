@@ -30,13 +30,14 @@ class MailboxMessage(BaseModel):
     """
     MailboxMessage
     """ # noqa: E501
-    attachments: Optional[List[MailboxAttachment]] = None
+    attachments: Optional[List[MailboxAttachment]] = Field(default=None, description="Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.")
     bcc: List[MailboxAddress]
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
     folder_ids: List[StrictStr]
     var_from: Optional[MailboxAddress] = Field(alias="from")
     has_attachments: StrictBool
+    html_body: Optional[StrictStr]
     id: StrictStr = Field(description="Message ID")
     keywords: List[StrictStr] = Field(description="Active message keywords, including system flags and custom labels.")
     preview: Optional[StrictStr]
@@ -44,11 +45,10 @@ class MailboxMessage(BaseModel):
     sent_at: Optional[StrictStr]
     size_bytes: Optional[StrictInt]
     subject: Optional[StrictStr]
+    text_body: Optional[StrictStr]
     thread_id: Optional[StrictStr]
     to: List[MailboxAddress]
-    html_body: Optional[StrictStr]
-    text_body: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "thread_id", "to", "html_body", "text_body"]
+    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "html_body", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "text_body", "thread_id", "to"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -128,6 +128,11 @@ class MailboxMessage(BaseModel):
         if self.var_from is None and "var_from" in self.model_fields_set:
             _dict['from'] = None
 
+        # set to None if html_body (nullable) is None
+        # and model_fields_set contains the field
+        if self.html_body is None and "html_body" in self.model_fields_set:
+            _dict['html_body'] = None
+
         # set to None if preview (nullable) is None
         # and model_fields_set contains the field
         if self.preview is None and "preview" in self.model_fields_set:
@@ -153,20 +158,15 @@ class MailboxMessage(BaseModel):
         if self.subject is None and "subject" in self.model_fields_set:
             _dict['subject'] = None
 
-        # set to None if thread_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.thread_id is None and "thread_id" in self.model_fields_set:
-            _dict['thread_id'] = None
-
-        # set to None if html_body (nullable) is None
-        # and model_fields_set contains the field
-        if self.html_body is None and "html_body" in self.model_fields_set:
-            _dict['html_body'] = None
-
         # set to None if text_body (nullable) is None
         # and model_fields_set contains the field
         if self.text_body is None and "text_body" in self.model_fields_set:
             _dict['text_body'] = None
+
+        # set to None if thread_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.thread_id is None and "thread_id" in self.model_fields_set:
+            _dict['thread_id'] = None
 
         return _dict
 
@@ -187,6 +187,7 @@ class MailboxMessage(BaseModel):
             "folder_ids": obj.get("folder_ids"),
             "from": MailboxAddress.from_dict(obj["from"]) if obj.get("from") is not None else None,
             "has_attachments": obj.get("has_attachments"),
+            "html_body": obj.get("html_body"),
             "id": obj.get("id"),
             "keywords": obj.get("keywords"),
             "preview": obj.get("preview"),
@@ -194,9 +195,8 @@ class MailboxMessage(BaseModel):
             "sent_at": obj.get("sent_at"),
             "size_bytes": obj.get("size_bytes"),
             "subject": obj.get("subject"),
+            "text_body": obj.get("text_body"),
             "thread_id": obj.get("thread_id"),
-            "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None,
-            "html_body": obj.get("html_body"),
-            "text_body": obj.get("text_body")
+            "to": [MailboxAddress.from_dict(_item) for _item in obj["to"]] if obj.get("to") is not None else None
         })
         return _obj

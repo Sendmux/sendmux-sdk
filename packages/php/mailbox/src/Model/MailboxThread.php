@@ -64,11 +64,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'string',
         'last_message' => '\Sendmux\Mailbox\Model\MailboxMessageSummary',
         'message_count' => 'int',
+        'message_ids' => 'string[]',
         'participants' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'states' => '\Sendmux\Mailbox\Model\MailboxThreadSummaryStates',
         'subject' => 'string',
-        'unread_count' => 'int',
-        'message_ids' => 'string[]'
+        'unread_count' => 'int'
     ];
 
     /**
@@ -82,11 +82,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => null,
         'last_message' => null,
         'message_count' => null,
+        'message_ids' => null,
         'participants' => null,
         'states' => null,
         'subject' => null,
-        'unread_count' => null,
-        'message_ids' => null
+        'unread_count' => null
     ];
 
     /**
@@ -100,11 +100,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => false,
         'last_message' => true,
         'message_count' => false,
+        'message_ids' => false,
         'participants' => false,
         'states' => false,
         'subject' => true,
-        'unread_count' => false,
-        'message_ids' => false
+        'unread_count' => false
     ];
 
     /**
@@ -188,11 +188,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'id',
         'last_message' => 'last_message',
         'message_count' => 'message_count',
+        'message_ids' => 'message_ids',
         'participants' => 'participants',
         'states' => 'states',
         'subject' => 'subject',
-        'unread_count' => 'unread_count',
-        'message_ids' => 'message_ids'
+        'unread_count' => 'unread_count'
     ];
 
     /**
@@ -206,11 +206,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'setId',
         'last_message' => 'setLastMessage',
         'message_count' => 'setMessageCount',
+        'message_ids' => 'setMessageIds',
         'participants' => 'setParticipants',
         'states' => 'setStates',
         'subject' => 'setSubject',
-        'unread_count' => 'setUnreadCount',
-        'message_ids' => 'setMessageIds'
+        'unread_count' => 'setUnreadCount'
     ];
 
     /**
@@ -224,11 +224,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         'id' => 'getId',
         'last_message' => 'getLastMessage',
         'message_count' => 'getMessageCount',
+        'message_ids' => 'getMessageIds',
         'participants' => 'getParticipants',
         'states' => 'getStates',
         'subject' => 'getSubject',
-        'unread_count' => 'getUnreadCount',
-        'message_ids' => 'getMessageIds'
+        'unread_count' => 'getUnreadCount'
     ];
 
     /**
@@ -283,11 +283,11 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('id', $data ?? [], null);
         $this->setIfExists('last_message', $data ?? [], null);
         $this->setIfExists('message_count', $data ?? [], null);
+        $this->setIfExists('message_ids', $data ?? [], null);
         $this->setIfExists('participants', $data ?? [], null);
         $this->setIfExists('states', $data ?? [], null);
         $this->setIfExists('subject', $data ?? [], null);
         $this->setIfExists('unread_count', $data ?? [], null);
-        $this->setIfExists('message_ids', $data ?? [], null);
     }
 
     /**
@@ -330,6 +330,9 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['message_count'] === null) {
             $invalidProperties[] = "'message_count' can't be null";
         }
+        if ($this->container['message_ids'] === null) {
+            $invalidProperties[] = "'message_ids' can't be null";
+        }
         if ($this->container['participants'] === null) {
             $invalidProperties[] = "'participants' can't be null";
         }
@@ -341,9 +344,6 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
         }
         if ($this->container['unread_count'] === null) {
             $invalidProperties[] = "'unread_count' can't be null";
-        }
-        if ($this->container['message_ids'] === null) {
-            $invalidProperties[] = "'message_ids' can't be null";
         }
         return $invalidProperties;
     }
@@ -500,6 +500,33 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
+     * Gets message_ids
+     *
+     * @return string[]
+     */
+    public function getMessageIds(): array
+    {
+        return $this->container['message_ids'];
+    }
+
+    /**
+     * Sets message_ids
+     *
+     * @param string[] $message_ids message_ids
+     *
+     * @return $this
+     */
+    public function setMessageIds(array $message_ids): static
+    {
+        if (is_null($message_ids)) {
+            throw new InvalidArgumentException('non-nullable message_ids cannot be null');
+        }
+        $this->container['message_ids'] = $message_ids;
+
+        return $this;
+    }
+
+    /**
      * Gets participants
      *
      * @return \Sendmux\Mailbox\Model\MailboxAddress[]
@@ -610,33 +637,6 @@ class MailboxThread implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable unread_count cannot be null');
         }
         $this->container['unread_count'] = $unread_count;
-
-        return $this;
-    }
-
-    /**
-     * Gets message_ids
-     *
-     * @return string[]
-     */
-    public function getMessageIds(): array
-    {
-        return $this->container['message_ids'];
-    }
-
-    /**
-     * Sets message_ids
-     *
-     * @param string[] $message_ids message_ids
-     *
-     * @return $this
-     */
-    public function setMessageIds(array $message_ids): static
-    {
-        if (is_null($message_ids)) {
-            throw new InvalidArgumentException('non-nullable message_ids cannot be null');
-        }
-        $this->container['message_ids'] = $message_ids;
 
         return $this;
     }

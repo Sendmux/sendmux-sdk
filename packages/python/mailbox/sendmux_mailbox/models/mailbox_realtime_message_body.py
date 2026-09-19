@@ -17,25 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from sendmux_mailbox.models.mailbox_send_scope import MailboxSendScope
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class Mailbox(BaseModel):
+class MailboxRealtimeMessageBody(BaseModel):
     """
-    Mailbox
+    MailboxRealtimeMessageBody
     """ # noqa: E501
-    created_at: StrictStr = Field(description="ISO 8601 creation timestamp")
-    display_name: Optional[StrictStr] = Field(description="Optional display name shown in outbound From headers")
-    email: StrictStr = Field(description="Mailbox email address (lowercase)")
-    id: StrictStr = Field(description="Public ID")
-    quota_bytes: Optional[StrictInt] = Field(description="Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.")
-    send_scope: Optional[MailboxSendScope]
-    status: StrictStr = Field(description="active | suspended | deleted")
-    __properties: ClassVar[List[str]] = ["created_at", "display_name", "email", "id", "quota_bytes", "send_scope", "status"]
+    html: Optional[StrictStr]
+    is_truncated: StrictBool
+    max_bytes: StrictInt
+    text: Optional[StrictStr]
+    __properties: ClassVar[List[str]] = ["html", "is_truncated", "max_bytes", "text"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -55,7 +51,7 @@ class Mailbox(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of Mailbox from a JSON string"""
+        """Create an instance of MailboxRealtimeMessageBody from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,29 +72,21 @@ class Mailbox(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of send_scope
-        if self.send_scope:
-            _dict['send_scope'] = self.send_scope.to_dict()
-        # set to None if display_name (nullable) is None
+        # set to None if html (nullable) is None
         # and model_fields_set contains the field
-        if self.display_name is None and "display_name" in self.model_fields_set:
-            _dict['display_name'] = None
+        if self.html is None and "html" in self.model_fields_set:
+            _dict['html'] = None
 
-        # set to None if quota_bytes (nullable) is None
+        # set to None if text (nullable) is None
         # and model_fields_set contains the field
-        if self.quota_bytes is None and "quota_bytes" in self.model_fields_set:
-            _dict['quota_bytes'] = None
-
-        # set to None if send_scope (nullable) is None
-        # and model_fields_set contains the field
-        if self.send_scope is None and "send_scope" in self.model_fields_set:
-            _dict['send_scope'] = None
+        if self.text is None and "text" in self.model_fields_set:
+            _dict['text'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of Mailbox from a dict"""
+        """Create an instance of MailboxRealtimeMessageBody from a dict"""
         if obj is None:
             return None
 
@@ -106,12 +94,9 @@ class Mailbox(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "created_at": obj.get("created_at"),
-            "display_name": obj.get("display_name"),
-            "email": obj.get("email"),
-            "id": obj.get("id"),
-            "quota_bytes": obj.get("quota_bytes"),
-            "send_scope": MailboxSendScope.from_dict(obj["send_scope"]) if obj.get("send_scope") is not None else None,
-            "status": obj.get("status")
+            "html": obj.get("html"),
+            "is_truncated": obj.get("is_truncated"),
+            "max_bytes": obj.get("max_bytes"),
+            "text": obj.get("text")
         })
         return _obj

@@ -50,6 +50,58 @@ export type ResponseMeta = {
     request_id: string;
 };
 
+export type WebhookSubscriptionWithSecret = {
+    /**
+     * ISO 8601 creation timestamp
+     */
+    created_at: string;
+    /**
+     * When false, no events are delivered to this subscription.
+     */
+    enabled: boolean;
+    /**
+     * Event types this subscription receives.
+     */
+    event_types: Array<'message.delivered' | 'message.bounced' | 'message.complained' | 'message.rejected' | 'message.delivery_delayed' | 'message.received' | 'message.received.spam' | 'sendmux.test'>;
+    /**
+     * True when the 24-hour retry window has been exhausted for this subscription. Reset by updating the subscription (e.g. fixing the URL) and re-enabling.
+     */
+    failing: boolean;
+    filters: WebhookFilters;
+    /**
+     * Webhook public ID
+     */
+    id: string;
+    /**
+     * Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.
+     */
+    name: string | null;
+    /**
+     * Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
+     */
+    secret: string;
+    /**
+     * ISO 8601 last-modified timestamp
+     */
+    updated_at: string;
+    /**
+     * HTTPS endpoint that receives signed event POSTs.
+     */
+    url: string;
+};
+
+export type SuccessEnvelope = {
+    meta: {
+        [key: string]: unknown;
+    };
+    ok: true;
+};
+
+export type WebhookSubscriptionResponse = SuccessEnvelope & {
+    data: WebhookSubscription;
+    meta?: ResponseMeta;
+};
+
 export type WebhookSubscription = {
     /**
      * ISO 8601 creation timestamp
@@ -84,25 +136,6 @@ export type WebhookSubscription = {
      * HTTPS endpoint that receives signed event POSTs.
      */
     url: string;
-};
-
-export type WebhookSubscriptionWithSecret = WebhookSubscription & {
-    /**
-     * Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
-     */
-    secret: string;
-};
-
-export type SuccessEnvelope = {
-    meta: {
-        [key: string]: unknown;
-    };
-    ok: true;
-};
-
-export type WebhookSubscriptionResponse = SuccessEnvelope & {
-    data: WebhookSubscription;
-    meta?: ResponseMeta;
 };
 
 export type WebhookSubscriptionCursorListResponse = SuccessEnvelope & {
@@ -967,6 +1000,19 @@ export type MailboxSendScope = {
     type: 'all' | 'providers' | 'group';
 } | null;
 
+export type MailboxKeyDeletedResponse = SuccessEnvelope & {
+    data: {
+        deleted: true;
+        id: string;
+    };
+    meta?: ResponseMeta;
+};
+
+export type MailboxItemResponse = SuccessEnvelope & {
+    data: Mailbox;
+    meta?: ResponseMeta;
+};
+
 export type Mailbox = {
     /**
      * ISO 8601 creation timestamp
@@ -993,19 +1039,6 @@ export type Mailbox = {
      * active | suspended | deleted
      */
     status: string;
-};
-
-export type MailboxKeyDeletedResponse = SuccessEnvelope & {
-    data: {
-        deleted: true;
-        id: string;
-    };
-    meta?: ResponseMeta;
-};
-
-export type MailboxItemResponse = SuccessEnvelope & {
-    data: Mailbox;
-    meta?: ResponseMeta;
 };
 
 export type MailboxItemCursorListResponse = SuccessEnvelope & {

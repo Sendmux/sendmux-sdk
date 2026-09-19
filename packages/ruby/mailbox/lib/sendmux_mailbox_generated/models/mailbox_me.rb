@@ -30,13 +30,13 @@ module Sendmux::Mailbox::Generated
     # Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.
     attr_accessor :quota_bytes
 
+    # Live storage usage in bytes. Omitted when usage is temporarily unavailable.
+    attr_accessor :quota_used_bytes
+
     attr_accessor :send_scope
 
     # active | suspended | deleted
     attr_accessor :status
-
-    # Live storage usage in bytes. Omitted when usage is temporarily unavailable.
-    attr_accessor :quota_used_bytes
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
@@ -46,9 +46,9 @@ module Sendmux::Mailbox::Generated
         :'email' => :'email',
         :'id' => :'id',
         :'quota_bytes' => :'quota_bytes',
+        :'quota_used_bytes' => :'quota_used_bytes',
         :'send_scope' => :'send_scope',
-        :'status' => :'status',
-        :'quota_used_bytes' => :'quota_used_bytes'
+        :'status' => :'status'
       }
     end
 
@@ -70,9 +70,9 @@ module Sendmux::Mailbox::Generated
         :'email' => :'String',
         :'id' => :'String',
         :'quota_bytes' => :'Integer',
+        :'quota_used_bytes' => :'Integer',
         :'send_scope' => :'MailboxSendScope',
-        :'status' => :'String',
-        :'quota_used_bytes' => :'Integer'
+        :'status' => :'String'
       }
     end
 
@@ -83,13 +83,6 @@ module Sendmux::Mailbox::Generated
         :'quota_bytes',
         :'send_scope',
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'Mailbox'
-      ]
     end
 
     # Initializes the object
@@ -138,6 +131,10 @@ module Sendmux::Mailbox::Generated
         self.quota_bytes = nil
       end
 
+      if attributes.key?(:'quota_used_bytes')
+        self.quota_used_bytes = attributes[:'quota_used_bytes']
+      end
+
       if attributes.key?(:'send_scope')
         self.send_scope = attributes[:'send_scope']
       else
@@ -148,10 +145,6 @@ module Sendmux::Mailbox::Generated
         self.status = attributes[:'status']
       else
         self.status = nil
-      end
-
-      if attributes.key?(:'quota_used_bytes')
-        self.quota_used_bytes = attributes[:'quota_used_bytes']
       end
     end
 
@@ -240,9 +233,9 @@ module Sendmux::Mailbox::Generated
           email == o.email &&
           id == o.id &&
           quota_bytes == o.quota_bytes &&
+          quota_used_bytes == o.quota_used_bytes &&
           send_scope == o.send_scope &&
-          status == o.status &&
-          quota_used_bytes == o.quota_used_bytes
+          status == o.status
     end
 
     # @see the `==` method
@@ -254,7 +247,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [created_at, display_name, email, id, quota_bytes, send_scope, status, quota_used_bytes].hash
+      [created_at, display_name, email, id, quota_bytes, quota_used_bytes, send_scope, status].hash
     end
 
     # Builds the object from hash

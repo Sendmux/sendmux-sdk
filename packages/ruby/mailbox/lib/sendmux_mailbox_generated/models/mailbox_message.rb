@@ -15,6 +15,7 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxMessage < ApiModelBase
+    # Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
     attr_accessor :attachments
 
     attr_accessor :bcc
@@ -28,6 +29,8 @@ module Sendmux::Mailbox::Generated
     attr_accessor :from
 
     attr_accessor :has_attachments
+
+    attr_accessor :html_body
 
     # Message ID
     attr_accessor :id
@@ -45,13 +48,11 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :subject
 
+    attr_accessor :text_body
+
     attr_accessor :thread_id
 
     attr_accessor :to
-
-    attr_accessor :html_body
-
-    attr_accessor :text_body
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
@@ -63,6 +64,7 @@ module Sendmux::Mailbox::Generated
         :'folder_ids' => :'folder_ids',
         :'from' => :'from',
         :'has_attachments' => :'has_attachments',
+        :'html_body' => :'html_body',
         :'id' => :'id',
         :'keywords' => :'keywords',
         :'preview' => :'preview',
@@ -70,10 +72,9 @@ module Sendmux::Mailbox::Generated
         :'sent_at' => :'sent_at',
         :'size_bytes' => :'size_bytes',
         :'subject' => :'subject',
+        :'text_body' => :'text_body',
         :'thread_id' => :'thread_id',
-        :'to' => :'to',
-        :'html_body' => :'html_body',
-        :'text_body' => :'text_body'
+        :'to' => :'to'
       }
     end
 
@@ -97,6 +98,7 @@ module Sendmux::Mailbox::Generated
         :'folder_ids' => :'Array<String>',
         :'from' => :'MailboxAddress',
         :'has_attachments' => :'Boolean',
+        :'html_body' => :'String',
         :'id' => :'String',
         :'keywords' => :'Array<String>',
         :'preview' => :'String',
@@ -104,10 +106,9 @@ module Sendmux::Mailbox::Generated
         :'sent_at' => :'String',
         :'size_bytes' => :'Integer',
         :'subject' => :'String',
+        :'text_body' => :'String',
         :'thread_id' => :'String',
-        :'to' => :'Array<MailboxAddress>',
-        :'html_body' => :'String',
-        :'text_body' => :'String'
+        :'to' => :'Array<MailboxAddress>'
       }
     end
 
@@ -115,22 +116,15 @@ module Sendmux::Mailbox::Generated
     def self.openapi_nullable
       Set.new([
         :'from',
+        :'html_body',
         :'preview',
         :'received_at',
         :'sent_at',
         :'size_bytes',
         :'subject',
+        :'text_body',
         :'thread_id',
-        :'html_body',
-        :'text_body'
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'MailboxMessageSummary'
-      ]
     end
 
     # Initializes the object
@@ -197,6 +191,12 @@ module Sendmux::Mailbox::Generated
         self.has_attachments = nil
       end
 
+      if attributes.key?(:'html_body')
+        self.html_body = attributes[:'html_body']
+      else
+        self.html_body = nil
+      end
+
       if attributes.key?(:'id')
         self.id = attributes[:'id']
       else
@@ -241,6 +241,12 @@ module Sendmux::Mailbox::Generated
         self.subject = nil
       end
 
+      if attributes.key?(:'text_body')
+        self.text_body = attributes[:'text_body']
+      else
+        self.text_body = nil
+      end
+
       if attributes.key?(:'thread_id')
         self.thread_id = attributes[:'thread_id']
       else
@@ -253,18 +259,6 @@ module Sendmux::Mailbox::Generated
         end
       else
         self.to = nil
-      end
-
-      if attributes.key?(:'html_body')
-        self.html_body = attributes[:'html_body']
-      else
-        self.html_body = nil
-      end
-
-      if attributes.key?(:'text_body')
-        self.text_body = attributes[:'text_body']
-      else
-        self.text_body = nil
       end
     end
 
@@ -415,6 +409,7 @@ module Sendmux::Mailbox::Generated
           folder_ids == o.folder_ids &&
           from == o.from &&
           has_attachments == o.has_attachments &&
+          html_body == o.html_body &&
           id == o.id &&
           keywords == o.keywords &&
           preview == o.preview &&
@@ -422,10 +417,9 @@ module Sendmux::Mailbox::Generated
           sent_at == o.sent_at &&
           size_bytes == o.size_bytes &&
           subject == o.subject &&
+          text_body == o.text_body &&
           thread_id == o.thread_id &&
-          to == o.to &&
-          html_body == o.html_body &&
-          text_body == o.text_body
+          to == o.to
     end
 
     # @see the `==` method
@@ -437,7 +431,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to, html_body, text_body].hash
+      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, html_body, id, keywords, preview, received_at, sent_at, size_bytes, subject, text_body, thread_id, to].hash
     end
 
     # Builds the object from hash

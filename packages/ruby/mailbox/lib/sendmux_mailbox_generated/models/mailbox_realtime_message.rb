@@ -15,9 +15,12 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxRealtimeMessage < ApiModelBase
+    # Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
     attr_accessor :attachments
 
     attr_accessor :bcc
+
+    attr_accessor :body
 
     attr_accessor :cc
 
@@ -39,6 +42,8 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :received_at
 
+    attr_accessor :rfc5322_message_id
+
     attr_accessor :sent_at
 
     attr_accessor :size_bytes
@@ -49,15 +54,12 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :to
 
-    attr_accessor :body
-
-    attr_accessor :rfc5322_message_id
-
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
         :'attachments' => :'attachments',
         :'bcc' => :'bcc',
+        :'body' => :'body',
         :'cc' => :'cc',
         :'flags' => :'flags',
         :'folder_ids' => :'folder_ids',
@@ -67,13 +69,12 @@ module Sendmux::Mailbox::Generated
         :'keywords' => :'keywords',
         :'preview' => :'preview',
         :'received_at' => :'received_at',
+        :'rfc5322_message_id' => :'rfc5322_message_id',
         :'sent_at' => :'sent_at',
         :'size_bytes' => :'size_bytes',
         :'subject' => :'subject',
         :'thread_id' => :'thread_id',
-        :'to' => :'to',
-        :'body' => :'body',
-        :'rfc5322_message_id' => :'rfc5322_message_id'
+        :'to' => :'to'
       }
     end
 
@@ -92,6 +93,7 @@ module Sendmux::Mailbox::Generated
       {
         :'attachments' => :'Array<MailboxAttachment>',
         :'bcc' => :'Array<MailboxAddress>',
+        :'body' => :'MailboxRealtimeMessageBody',
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
         :'folder_ids' => :'Array<String>',
@@ -101,13 +103,12 @@ module Sendmux::Mailbox::Generated
         :'keywords' => :'Array<String>',
         :'preview' => :'String',
         :'received_at' => :'String',
+        :'rfc5322_message_id' => :'String',
         :'sent_at' => :'String',
         :'size_bytes' => :'Integer',
         :'subject' => :'String',
         :'thread_id' => :'String',
-        :'to' => :'Array<MailboxAddress>',
-        :'body' => :'MailboxRealtimeMessageAllOfBody',
-        :'rfc5322_message_id' => :'String'
+        :'to' => :'Array<MailboxAddress>'
       }
     end
 
@@ -117,19 +118,12 @@ module Sendmux::Mailbox::Generated
         :'from',
         :'preview',
         :'received_at',
+        :'rfc5322_message_id',
         :'sent_at',
         :'size_bytes',
         :'subject',
         :'thread_id',
-        :'rfc5322_message_id'
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'MailboxMessageSummary'
-      ]
     end
 
     # Initializes the object
@@ -160,6 +154,12 @@ module Sendmux::Mailbox::Generated
         end
       else
         self.bcc = nil
+      end
+
+      if attributes.key?(:'body')
+        self.body = attributes[:'body']
+      else
+        self.body = nil
       end
 
       if attributes.key?(:'cc')
@@ -222,6 +222,12 @@ module Sendmux::Mailbox::Generated
         self.received_at = nil
       end
 
+      if attributes.key?(:'rfc5322_message_id')
+        self.rfc5322_message_id = attributes[:'rfc5322_message_id']
+      else
+        self.rfc5322_message_id = nil
+      end
+
       if attributes.key?(:'sent_at')
         self.sent_at = attributes[:'sent_at']
       else
@@ -253,18 +259,6 @@ module Sendmux::Mailbox::Generated
       else
         self.to = nil
       end
-
-      if attributes.key?(:'body')
-        self.body = attributes[:'body']
-      else
-        self.body = nil
-      end
-
-      if attributes.key?(:'rfc5322_message_id')
-        self.rfc5322_message_id = attributes[:'rfc5322_message_id']
-      else
-        self.rfc5322_message_id = nil
-      end
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -274,6 +268,10 @@ module Sendmux::Mailbox::Generated
       invalid_properties = Array.new
       if @bcc.nil?
         invalid_properties.push('invalid value for "bcc", bcc cannot be nil.')
+      end
+
+      if @body.nil?
+        invalid_properties.push('invalid value for "body", body cannot be nil.')
       end
 
       if @cc.nil?
@@ -304,10 +302,6 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "to", to cannot be nil.')
       end
 
-      if @body.nil?
-        invalid_properties.push('invalid value for "body", body cannot be nil.')
-      end
-
       invalid_properties
     end
 
@@ -316,6 +310,7 @@ module Sendmux::Mailbox::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @bcc.nil?
+      return false if @body.nil?
       return false if @cc.nil?
       return false if @flags.nil?
       return false if @folder_ids.nil?
@@ -323,7 +318,6 @@ module Sendmux::Mailbox::Generated
       return false if @id.nil?
       return false if @keywords.nil?
       return false if @to.nil?
-      return false if @body.nil?
       true
     end
 
@@ -335,6 +329,16 @@ module Sendmux::Mailbox::Generated
       end
 
       @bcc = bcc
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] body Value to be assigned
+    def body=(body)
+      if body.nil?
+        fail ArgumentError, 'body cannot be nil'
+      end
+
+      @body = body
     end
 
     # Custom attribute writer method with validation
@@ -407,16 +411,6 @@ module Sendmux::Mailbox::Generated
       @to = to
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] body Value to be assigned
-    def body=(body)
-      if body.nil?
-        fail ArgumentError, 'body cannot be nil'
-      end
-
-      @body = body
-    end
-
     # Checks equality by comparing each attribute.
     # @param [Object] Object to be compared
     def ==(o)
@@ -424,6 +418,7 @@ module Sendmux::Mailbox::Generated
       self.class == o.class &&
           attachments == o.attachments &&
           bcc == o.bcc &&
+          body == o.body &&
           cc == o.cc &&
           flags == o.flags &&
           folder_ids == o.folder_ids &&
@@ -433,13 +428,12 @@ module Sendmux::Mailbox::Generated
           keywords == o.keywords &&
           preview == o.preview &&
           received_at == o.received_at &&
+          rfc5322_message_id == o.rfc5322_message_id &&
           sent_at == o.sent_at &&
           size_bytes == o.size_bytes &&
           subject == o.subject &&
           thread_id == o.thread_id &&
-          to == o.to &&
-          body == o.body &&
-          rfc5322_message_id == o.rfc5322_message_id
+          to == o.to
     end
 
     # @see the `==` method
@@ -451,7 +445,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to, body, rfc5322_message_id].hash
+      [attachments, bcc, body, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, rfc5322_message_id, sent_at, size_bytes, subject, thread_id, to].hash
     end
 
     # Builds the object from hash

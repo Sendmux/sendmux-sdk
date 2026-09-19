@@ -14,7 +14,7 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxRealtimeMessageAllOfBody < ApiModelBase
+  class MailboxRealtimeMessageBody < ApiModelBase
     attr_accessor :html
 
     attr_accessor :is_truncated
@@ -65,14 +65,14 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxRealtimeMessageAllOfBody` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxRealtimeMessageBody` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxRealtimeMessageAllOfBody`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxRealtimeMessageBody`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }

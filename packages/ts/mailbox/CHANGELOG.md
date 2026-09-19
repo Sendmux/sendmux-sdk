@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v2.0.0...ts-mailbox-v2.0.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+* **ts-mailbox:** regenerate flattened mailbox response types ([6d297d1](https://github.com/Sendmux/sendmux-sdk/commit/6d297d15d506b22ab6935bd537070a4b5dbb5c30))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v1.6.0...ts-mailbox-v2.0.0) (2026-09-18)
 
 ### Changed

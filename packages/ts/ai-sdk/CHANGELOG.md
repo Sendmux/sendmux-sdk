@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.4.0...ts-ai-sdk-v0.5.0) (2026-09-19)
+
+
+### Features
+
+* integrate combined provider variables and delivery routing ([81bbf22](https://github.com/Sendmux/sendmux-sdk/commit/81bbf221a357bf5d588eba654184ff34491473df))
+* **sdk:** add provider variables and delivery group routing ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a))
+
+
+### Bug Fixes
+
+* **sdk:** verify Rust contracts and installed runtime consumers ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388))
+
 ## [0.4.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-ai-sdk-v0.3.3...ts-ai-sdk-v0.4.0) (2026-09-10)
 
 

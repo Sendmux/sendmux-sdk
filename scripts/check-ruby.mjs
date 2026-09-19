@@ -29,6 +29,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_connection.rb"]);
   run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_oauth_retry.rb"]);
   run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_management_validation.rb"]);
+  run(bundle, ["exec", "ruby", "-Ipackages/ruby/tests", "packages/ruby/tests/test_mailbox_deprecated_aliases.rb"]);
 }
 
 function commandWithRbenv(command) {

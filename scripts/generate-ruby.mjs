@@ -28,6 +28,9 @@ const surfaces = [
     keySurface: "MAILBOX",
     defaultBaseUrl: "https://app.sendmux.ai/api/v1",
     modelNameMappings: ["ApiError=ApiErrorResponse"],
+    // Generated constants dropped by a schema regeneration that still resolve, as deprecated constants,
+    // until the next planned major. Remove an entry when that major ships.
+    deprecatedModelAliases: [{ deprecated: "MailboxRealtimeMessageAllOfBody", replacement: "MailboxRealtimeMessageBody" }],
   },
   {
     name: "management",
@@ -104,6 +107,7 @@ for (const surface of surfaces) {
       join(packageDir, "lib", surface.generatedGemName, "models", "management_create_mailbox_request.rb"),
     );
   }
+  writeDeprecatedModelAliases(surface, join(packageDir, "lib", `${surface.generatedGemName}.rb`));
   stripTrailingWhitespace(join(packageDir, "lib", `${surface.generatedGemName}.rb`));
   stripTrailingWhitespace(join(packageDir, "lib", surface.generatedGemName));
   writeSurfaceClient(surface, packageDir);
@@ -352,6 +356,45 @@ function stripTrailingWhitespace(path) {
   if (stripped !== source) {
     writeFileSync(path, stripped);
   }
+}
+
+function writeDeprecatedModelAliases(surface, entryPath) {
+  const aliases = surface.deprecatedModelAliases ?? [];
+  if (aliases.length === 0) {
+    return;
+  }
+
+  const generated = readFileSync(entryPath, "utf8");
+  for (const { deprecated, replacement } of aliases) {
+    if (!generated.includes(modelRequireLine(surface, replacement))) {
+      throw new Error(`${entryPath} no longer requires ${replacement}; update the ${deprecated} alias in generate-ruby.mjs`);
+    }
+    if (generated.includes(modelRequireLine(surface, deprecated))) {
+      throw new Error(`${entryPath} requires ${deprecated} again; drop its alias from generate-ruby.mjs`);
+    }
+  }
+
+  const constants = aliases
+    .map(
+      ({ deprecated, replacement }) => `  ${deprecated} = ${replacement}
+  deprecate_constant :${deprecated}`,
+    )
+    .join("\n");
+  writeFileSync(
+    entryPath,
+    `${generated.trimEnd()}
+
+module Sendmux::${surface.moduleName}::Generated
+  # Deprecated model constants kept as aliases of their replacements until the next major release.
+${constants}
+end
+`,
+  );
+}
+
+function modelRequireLine(surface, modelName) {
+  const fileName = modelName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+  return `require '${surface.generatedGemName}/models/${fileName}'\n`;
 }
 
 function patchGeneratedApiClientHeaders(apiClientPath) {

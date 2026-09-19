@@ -151,3 +151,25 @@ from sendmux_mailbox.models.send_mailbox_message_body_attachments_inner_any_of1 
 from sendmux_mailbox.models.send_mailbox_message_result import SendMailboxMessageResult
 from sendmux_mailbox.models.success_envelope import SuccessEnvelope
 from sendmux_mailbox.models.update_mailbox_identity_body import UpdateMailboxIdentityBody
+
+import warnings as _warnings
+
+from typing import Any as _Any
+
+# Deprecated model names kept as aliases of their replacements until the release named here.
+_DEPRECATED_MODEL_ALIASES = {
+    "MailboxRealtimeMessageAllOfBody": ("MailboxRealtimeMessageBody", "sendmux-mailbox 3.0"),
+}
+
+
+def __getattr__(name: str) -> _Any:
+    alias = _DEPRECATED_MODEL_ALIASES.get(name)
+    if alias is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    replacement, removed_in = alias
+    _warnings.warn(
+        f"{name} is deprecated; use {replacement}. It will be removed in {removed_in}.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return globals()[replacement]

@@ -20,6 +20,15 @@ const surfaces = [
     packageName: "sendmux_mailbox",
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
     tags: ["Mailbox API"],
+    // Generated names dropped by a schema regeneration that still resolve, with a DeprecationWarning,
+    // until the next planned major. Remove an entry when that major ships.
+    deprecatedModelAliases: [
+      {
+        deprecated: "MailboxRealtimeMessageAllOfBody",
+        replacement: "MailboxRealtimeMessageBody",
+        removedIn: "sendmux-mailbox 3.0",
+      },
+    ],
   },
   {
     name: "management",
@@ -70,6 +79,7 @@ for (const surface of surfaces) {
   cpSync(join(generatedRoot, surface.packageName), join(packageDir, surface.packageName), { recursive: true });
   correctPrimitiveUnionAnnotations(surface, packageDir);
   writeSurfaceClient(surface);
+  writeDeprecatedModelAliases(surface, packageDir);
   linkGeneratedRuntimeVersion(surface, packageDir);
   normalizePythonFiles(join(packageDir, surface.packageName));
 }
@@ -384,6 +394,61 @@ from ${surface.packageName}.attachments import (
 `,
     );
   }
+}
+
+function writeDeprecatedModelAliases(surface, packageDir) {
+  const aliases = surface.deprecatedModelAliases ?? [];
+  if (aliases.length === 0) {
+    return;
+  }
+
+  const packageRoot = join(packageDir, surface.packageName);
+  for (const initPath of [join(packageRoot, "__init__.py"), join(packageRoot, "models", "__init__.py")]) {
+    const generated = readFileSync(initPath, "utf8");
+    for (const { deprecated, replacement } of aliases) {
+      if (!modelImportPattern(replacement).test(generated)) {
+        throw new Error(`${initPath} no longer exports ${replacement}; update the ${deprecated} alias in generate-python.mjs`);
+      }
+      if (modelImportPattern(deprecated).test(generated)) {
+        throw new Error(`${initPath} exports ${deprecated} again; drop its alias from generate-python.mjs`);
+      }
+    }
+
+    const table = aliases
+      .map(({ deprecated, replacement, removedIn }) => `    "${deprecated}": ("${replacement}", "${removedIn}"),`)
+      .join("\n");
+    writeFileSync(
+      initPath,
+      `${generated.trimEnd()}
+
+import warnings as _warnings
+
+from typing import Any as _Any
+
+# Deprecated model names kept as aliases of their replacements until the release named here.
+_DEPRECATED_MODEL_ALIASES = {
+${table}
+}
+
+
+def __getattr__(name: str) -> _Any:
+    alias = _DEPRECATED_MODEL_ALIASES.get(name)
+    if alias is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    replacement, removed_in = alias
+    _warnings.warn(
+        f"{name} is deprecated; use {replacement}. It will be removed in {removed_in}.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return globals()[replacement]
+`,
+    );
+  }
+}
+
+function modelImportPattern(modelName) {
+  return new RegExp(`^from \\S+ import ${modelName}(?: as ${modelName})?$`, "m");
 }
 
 function writeMailboxEventsHelper(packageName, packageDir) {

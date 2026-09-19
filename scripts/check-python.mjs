@@ -17,6 +17,7 @@ const sharedTests = [
   "test_core.py",
   "test_generated_runtime_versions.py",
   "test_langchain.py",
+  "test_mailbox_deprecated_aliases.py",
   "test_mailbox_events.py",
   "test_mailbox_stream_arguments.py",
   "test_management_validation.py",

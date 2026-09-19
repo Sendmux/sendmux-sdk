@@ -1,10 +1,33 @@
 # Changelog
 
-## Unreleased
+## [1.7.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.6.0...ts-cli-v1.7.0) (2026-09-19)
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/sdk bumped to 2.0.0 (carries @sendmux/management 2.0.0, @sendmux/mailbox 2.0.0, @sendmux/sending 1.6.0 with `delivery_group` on sends)
+
 
 ### Features
 
-* Forward `delivery_group` values in single and batch Sending API request bodies.
+* integrate combined provider variables and delivery routing ([81bbf22](https://github.com/Sendmux/sendmux-sdk/commit/81bbf221a357bf5d588eba654184ff34491473df))
+* **live-e2e:** certify attachment retention with bound upload evidence and immutable receipts ([8e272ca](https://github.com/Sendmux/sendmux-sdk/commit/8e272ca52a78fbfc46f38ee7225f56717a775e46))
+* **live-e2e:** certify attachment retention with bound upload evidence and immutable receipts ([a3fc6cf](https://github.com/Sendmux/sendmux-sdk/commit/a3fc6cf2f1e33ccc8cfc5795ee8b6d129ba3427e))
+* **sdk:** add provider variables and delivery group routing ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a))
+
+
+### Bug Fixes
+
+* **cli:** bound agent authentication request lifetimes ([b3f0129](https://github.com/Sendmux/sendmux-sdk/commit/b3f0129b542190773f9346dfba535c1a711ee73e))
+* **cli:** bound agent authentication response bodies ([0972d2e](https://github.com/Sendmux/sendmux-sdk/commit/0972d2e1ef18891deaaba0513a1572544eebc9e0))
+* **cli:** recognise REST readiness error envelopes ([691ed25](https://github.com/Sendmux/sendmux-sdk/commit/691ed2589a95e681f08ed9ea7f804a312c7e975d))
+* **cli:** reject agent authentication redirects ([34461a0](https://github.com/Sendmux/sendmux-sdk/commit/34461a02debd65a2bd93f9cca5b28bfa796ff1b9))
+* **cli:** retain readiness response ownership through completion ([e482b37](https://github.com/Sendmux/sendmux-sdk/commit/e482b37633eb9ac4c422dcdf5c53a00ebf67102a))
+* **cli:** retry Windows profile filesystem contention ([8e4a570](https://github.com/Sendmux/sendmux-sdk/commit/8e4a5702c0561b86db5558fb332a126d577be78a))
+* preserve attachment idempotency across composite sends ([5549549](https://github.com/Sendmux/sendmux-sdk/commit/554954947126eb2bdf56e1bf675ebc2b908a8216))
+* **sending:** bound attachment file reads before upload ([83cb780](https://github.com/Sendmux/sendmux-sdk/commit/83cb7802a0e35d0779dad2f2c7d69e21c6d3d8d3))
+* **sending:** reject excess files before attachment uploads ([3a1deca](https://github.com/Sendmux/sendmux-sdk/commit/3a1deca72f3fac51bb3843fce175ba2cd367e7c7))
 
 ## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.5.0...ts-cli-v1.6.0) (2026-09-11)
 

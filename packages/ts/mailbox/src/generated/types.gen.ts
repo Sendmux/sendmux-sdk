@@ -274,8 +274,23 @@ export type MailboxThreadDetailResponse = SuccessEnvelope & {
     meta?: ResponseMeta;
 };
 
-export type MailboxThread = MailboxThreadSummary & {
+export type MailboxThread = {
+    folder_ids: Array<string>;
+    has_attachments: boolean;
+    /**
+     * Thread ID
+     */
+    id: string;
+    last_message: MailboxMessageSummary | null;
+    message_count: number;
     message_ids: Array<string>;
+    participants: Array<MailboxAddress>;
+    states: {
+        email_state: string | null;
+        thread_state: string | null;
+    };
+    subject: string | null;
+    unread_count: number;
 };
 
 export type MailboxThreadContentResponse = SuccessEnvelope & {
@@ -577,16 +592,40 @@ export type MailboxSearchSnippetsResult = {
     sync_state: string | null;
 };
 
-export type MailboxRealtimeMessage = (MailboxMessageSummary & {
+export type MailboxRealtimeMessage = {
+    /**
+     * Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+     */
     attachments?: Array<MailboxAttachment>;
+    bcc: Array<MailboxAddress>;
     body: {
         html: string | null;
         is_truncated: boolean;
         max_bytes: number;
         text: string | null;
     };
+    cc: Array<MailboxAddress>;
+    flags: MailboxMessageFlags;
+    folder_ids: Array<string>;
+    from: MailboxAddress | null;
+    has_attachments: boolean;
+    /**
+     * Message ID
+     */
+    id: string;
+    /**
+     * Active message keywords, including system flags and custom labels.
+     */
+    keywords: Array<string>;
+    preview: string | null;
+    received_at: string | null;
     rfc5322_message_id: string | null;
-}) | null;
+    sent_at: string | null;
+    size_bytes: number | null;
+    subject: string | null;
+    thread_id: string | null;
+    to: Array<MailboxAddress>;
+} | null;
 
 export type MailboxRealtimeEvent = {
     event_type: 'message.received' | 'message.received.spam' | 'sync_required';
@@ -676,10 +715,34 @@ export type MailboxMessageDetailResponse = SuccessEnvelope & {
     meta?: ResponseMeta;
 };
 
-export type MailboxMessage = MailboxMessageSummary & {
+export type MailboxMessage = {
+    /**
+     * Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+     */
     attachments?: Array<MailboxAttachment>;
+    bcc: Array<MailboxAddress>;
+    cc: Array<MailboxAddress>;
+    flags: MailboxMessageFlags;
+    folder_ids: Array<string>;
+    from: MailboxAddress | null;
+    has_attachments: boolean;
     html_body: string | null;
+    /**
+     * Message ID
+     */
+    id: string;
+    /**
+     * Active message keywords, including system flags and custom labels.
+     */
+    keywords: Array<string>;
+    preview: string | null;
+    received_at: string | null;
+    sent_at: string | null;
+    size_bytes: number | null;
+    subject: string | null;
     text_body: string | null;
+    thread_id: string | null;
+    to: Array<MailboxAddress>;
 };
 
 export type MailboxMessageDeletedResponse = SuccessEnvelope & {
@@ -712,7 +775,7 @@ export type MailboxMeItemResponse = SuccessEnvelope & {
     meta?: ResponseMeta;
 };
 
-export type Mailbox = {
+export type MailboxMe = {
     /**
      * ISO 8601 creation timestamp
      */
@@ -733,18 +796,15 @@ export type Mailbox = {
      * Storage quota in bytes. Current writable tiers are 1 GB, 5 GB, and 50 GB.
      */
     quota_bytes: number | null;
+    /**
+     * Live storage usage in bytes. Omitted when usage is temporarily unavailable.
+     */
+    quota_used_bytes?: number;
     send_scope: MailboxSendScope;
     /**
      * active | suspended | deleted
      */
     status: string;
-};
-
-export type MailboxMe = Mailbox & {
-    /**
-     * Live storage usage in bytes. Omitted when usage is temporarily unavailable.
-     */
-    quota_used_bytes?: number;
 };
 
 export type MailboxIdentityResponse = SuccessEnvelope & {

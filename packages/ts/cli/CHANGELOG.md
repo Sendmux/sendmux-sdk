@@ -1,12 +1,12 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* Forward `delivery_group` values in single and batch Sending API request bodies.
-
 ## [1.7.0](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.6.0...ts-cli-v1.7.0) (2026-09-19)
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/sdk bumped to 2.0.0 (carries @sendmux/management 2.0.0, @sendmux/mailbox 2.0.0, @sendmux/sending 1.6.0 with `delivery_group` on sends)
 
 
 ### Features

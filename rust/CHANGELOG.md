@@ -3,6 +3,23 @@
 ## [0.5.0](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.4.0...rust-v0.5.0) (2026-09-19)
 
 
+### Changed
+
+* **Breaking:** `Attachment` is an enum: `Inline(InlineAttachment)` or `Uploaded(UploadedAttachmentRef)`. Replace struct literals and direct field access with `Attachment::base64(filename, content)` / `Attachment::uploaded(attachment_id)` or match the variants ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)). See [0.5.0 Rust contract changes](README.crates.io.md#050-rust-contract-changes).
+* **Breaking:** `Response<T>` gains `pagination: Option<CursorPagination>`; add `pagination: None` to response fixtures without cursor metadata ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)).
+* **Breaking:** `Error` gains the `InvalidRequestPath` variant; exhaustive `match` arms must add it ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)).
+
+### Added
+
+* Single and batch sends accept one delivery group or a list of groups (`delivery_group`) that narrows the eligible provider pool ([94f52d4](https://github.com/Sendmux/sendmux-sdk/commit/94f52d4e9f6157e197308541cc5987517bac7a4a)).
+* Six list methods accept cursors through `*_with_cursor` variants; pass `pagination.next_cursor` while `has_more` is true ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)).
+* Single and batch sends accept `Attachment::uploaded(attachment_id)` for existing Sending attachment references ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)).
+
+### Security
+
+* Raw Mailbox and Management requests reject absolute URLs, authority paths, and backslash paths before resolving credentials or sending HTTP requests; supply paths relative to the configured API base ([3703a89](https://github.com/Sendmux/sendmux-sdk/commit/3703a899cd234bee362bb51f52af15f85e9c1388)).
+
+
 ### Features
 
 * integrate combined provider variables and delivery routing ([81bbf22](https://github.com/Sendmux/sendmux-sdk/commit/81bbf221a357bf5d588eba654184ff34491473df))

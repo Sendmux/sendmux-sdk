@@ -37,7 +37,7 @@ module Sendmux::Management::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'credential' => :'MailboxAppPasswordResultCredential'
+        :'credential' => :'MailboxCredential'
       }
     end
 

@@ -444,7 +444,7 @@ export type SharedAmazonSesLimitRequestPageResponse = SuccessEnvelope & {
     meta?: ResponseMeta;
 };
 
-export type SharedAmazonSesLimitRequest = {
+export type SharedAmazonSesLimitRequestOrNull = {
     approved_daily_limit: number | null;
     created_at: string;
     current_daily_limit: number;
@@ -453,7 +453,7 @@ export type SharedAmazonSesLimitRequest = {
     decision_note: string | null;
     id: string;
     status: 'pending' | 'approved' | 'denied' | 'cancelled';
-};
+} | null;
 
 export type SharedAmazonSesLimit = {
     can_request_increase: boolean;
@@ -468,12 +468,23 @@ export type SharedAmazonSesLimit = {
 
 export type SharedAmazonSesLimitRequestPage = {
     limit: SharedAmazonSesLimit;
-    pending_request: SharedAmazonSesLimitRequest | null;
+    pending_request: SharedAmazonSesLimitRequestOrNull;
 };
 
 export type SharedAmazonSesLimitRequestCreateResponse = SuccessEnvelope & {
     data: SharedAmazonSesLimitRequestCreate;
     meta?: ResponseMeta;
+};
+
+export type SharedAmazonSesLimitRequest = {
+    approved_daily_limit: number | null;
+    created_at: string;
+    current_daily_limit: number;
+    current_daily_sent: number;
+    decided_at: string | null;
+    decision_note: string | null;
+    id: string;
+    status: 'pending' | 'approved' | 'denied' | 'cancelled';
 };
 
 export type SharedAmazonSesLimitRequestCreate = {
@@ -576,27 +587,19 @@ export type ProviderUpdateBody = {
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_day?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_day?: number | ProviderQuotaRange | null;
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_hour?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_hour?: number | ProviderQuotaRange | null;
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_minute?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_minute?: number | ProviderQuotaRange | null;
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_second?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_second?: number | ProviderQuotaRange | null;
     };
     reply_to_email?: string | null;
     reply_to_name?: string | null;
@@ -612,7 +615,7 @@ export type ProviderUpdateBody = {
 export type ProviderQuotaRange = {
     max: number;
     min: number;
-} | null;
+};
 
 export type ProviderTypeCounts = {
     /**
@@ -683,11 +686,16 @@ export type ProviderStats = {
 };
 
 export type ProviderQuotas = {
-    per_day: ProviderQuotaRange;
-    per_hour: ProviderQuotaRange;
-    per_minute: ProviderQuotaRange;
-    per_second: ProviderQuotaRange;
+    per_day: ProviderQuotaRangeOrNull;
+    per_hour: ProviderQuotaRangeOrNull;
+    per_minute: ProviderQuotaRangeOrNull;
+    per_second: ProviderQuotaRangeOrNull;
 };
+
+export type ProviderQuotaRangeOrNull = {
+    max: number;
+    min: number;
+} | null;
 
 export type ProviderListItem = {
     allowed_actions: ProviderAllowedActions;
@@ -952,27 +960,19 @@ export type ProviderCreateBody = {
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_day?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_day?: number | ProviderQuotaRange | null;
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_hour?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_hour?: number | ProviderQuotaRange | null;
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_minute?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_minute?: number | ProviderQuotaRange | null;
         /**
          * Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
          */
-        per_second?: number | (ProviderQuotaRange & {
-            [key: string]: unknown;
-        }) | null;
+        per_second?: number | ProviderQuotaRange | null;
     };
     reply_to_email?: string | null;
     reply_to_name?: string | null;
@@ -1218,7 +1218,7 @@ export type MailboxDeletedResponse = SuccessEnvelope & {
 /**
  * Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.
  */
-export type MailboxCredential = {
+export type MailboxCredentialOrNull = {
     /**
      * IMAP retrieval port
      */
@@ -1247,13 +1247,42 @@ export type MailboxCredential = {
     username: string;
 } | null;
 
+export type MailboxCredential = {
+    /**
+     * IMAP retrieval port
+     */
+    imap_port: number;
+    key_prefix: string;
+    key_suffix: string;
+    /**
+     * Credential public ID
+     */
+    public_id: string;
+    /**
+     * Mailbox credential — shown exactly once. Use as a Bearer token on the HTTP API and as the password for IMAP retrieval and SMTP submission.
+     */
+    secret: string;
+    /**
+     * Mailbox server name
+     */
+    server: string;
+    /**
+     * SMTP submission port
+     */
+    smtp_port: number;
+    /**
+     * Mailbox email address used as the login
+     */
+    username: string;
+};
+
 export type MailboxCreateResultResponse = SuccessEnvelope & {
     data: MailboxCreateResult;
     meta?: ResponseMeta;
 };
 
 export type MailboxCreateResult = {
-    credential: MailboxCredential;
+    credential: MailboxCredentialOrNull;
     mailbox: Mailbox;
     /**
      * Optional warning string when the mailbox was created without an initial credential
@@ -1286,9 +1315,7 @@ export type MailboxAppPasswordResultResponse = SuccessEnvelope & {
 };
 
 export type MailboxAppPasswordResult = {
-    credential: MailboxCredential & {
-        [key: string]: unknown;
-    };
+    credential: MailboxCredential;
 };
 
 export type IncomingLogItemResponse = SuccessEnvelope & {

@@ -20,8 +20,8 @@ import json
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
 from sendmux_mailbox.models.cursor_pagination import CursorPagination
+from sendmux_mailbox.models.mailbox_message_content import MailboxMessageContent
 from sendmux_mailbox.models.mailbox_thread_content_meta import MailboxThreadContentMeta
-from sendmux_mailbox.models.mailbox_thread_content_response_all_of_data import MailboxThreadContentResponseAllOfData
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -32,7 +32,7 @@ class MailboxThreadContentResponse(BaseModel):
     """ # noqa: E501
     meta: MailboxThreadContentMeta
     ok: StrictBool
-    data: List[MailboxThreadContentResponseAllOfData]
+    data: List[MailboxMessageContent]
     pagination: CursorPagination
     __properties: ClassVar[List[str]] = ["meta", "ok", "data", "pagination"]
 
@@ -102,7 +102,7 @@ class MailboxThreadContentResponse(BaseModel):
         _obj = cls.model_validate({
             "meta": MailboxThreadContentMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
             "ok": obj.get("ok"),
-            "data": [MailboxThreadContentResponseAllOfData.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
+            "data": [MailboxMessageContent.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
             "pagination": CursorPagination.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
         })
         return _obj

@@ -73,7 +73,6 @@ from sendmux_mailbox.models.mailbox_message_content_body import MailboxMessageCo
 from sendmux_mailbox.models.mailbox_message_content_dates import MailboxMessageContentDates
 from sendmux_mailbox.models.mailbox_message_content_participants import MailboxMessageContentParticipants
 from sendmux_mailbox.models.mailbox_message_content_response import MailboxMessageContentResponse
-from sendmux_mailbox.models.mailbox_message_content_response_all_of_data import MailboxMessageContentResponseAllOfData
 from sendmux_mailbox.models.mailbox_message_content_states import MailboxMessageContentStates
 from sendmux_mailbox.models.mailbox_message_count import MailboxMessageCount
 from sendmux_mailbox.models.mailbox_message_count_response import MailboxMessageCountResponse
@@ -90,7 +89,6 @@ from sendmux_mailbox.models.mailbox_quota_cursor_list_response import MailboxQuo
 from sendmux_mailbox.models.mailbox_raw_body import MailboxRawBody
 from sendmux_mailbox.models.mailbox_raw_body_body import MailboxRawBodyBody
 from sendmux_mailbox.models.mailbox_raw_body_response import MailboxRawBodyResponse
-from sendmux_mailbox.models.mailbox_raw_body_response_all_of_data import MailboxRawBodyResponseAllOfData
 from sendmux_mailbox.models.mailbox_realtime_event import MailboxRealtimeEvent
 from sendmux_mailbox.models.mailbox_realtime_message import MailboxRealtimeMessage
 from sendmux_mailbox.models.mailbox_realtime_message_body import MailboxRealtimeMessageBody
@@ -120,14 +118,12 @@ from sendmux_mailbox.models.mailbox_submission_cursor_list_response import Mailb
 from sendmux_mailbox.models.mailbox_submission_delivery_status import MailboxSubmissionDeliveryStatus
 from sendmux_mailbox.models.mailbox_submission_envelope import MailboxSubmissionEnvelope
 from sendmux_mailbox.models.mailbox_submission_envelope_address import MailboxSubmissionEnvelopeAddress
-from sendmux_mailbox.models.mailbox_submission_envelope_rcpt_to_inner import MailboxSubmissionEnvelopeRcptToInner
 from sendmux_mailbox.models.mailbox_submission_response import MailboxSubmissionResponse
 from sendmux_mailbox.models.mailbox_sync_meta import MailboxSyncMeta
 from sendmux_mailbox.models.mailbox_thread import MailboxThread
 from sendmux_mailbox.models.mailbox_thread_content_meta import MailboxThreadContentMeta
 from sendmux_mailbox.models.mailbox_thread_content_meta_states import MailboxThreadContentMetaStates
 from sendmux_mailbox.models.mailbox_thread_content_response import MailboxThreadContentResponse
-from sendmux_mailbox.models.mailbox_thread_content_response_all_of_data import MailboxThreadContentResponseAllOfData
 from sendmux_mailbox.models.mailbox_thread_detail_response import MailboxThreadDetailResponse
 from sendmux_mailbox.models.mailbox_thread_message_summary_cursor_list_response import MailboxThreadMessageSummaryCursorListResponse
 from sendmux_mailbox.models.mailbox_thread_messages_meta import MailboxThreadMessagesMeta
@@ -159,6 +155,10 @@ from typing import Any as _Any
 # Deprecated model names kept as aliases of their replacements until the release named here.
 _DEPRECATED_MODEL_ALIASES = {
     "MailboxRealtimeMessageAllOfBody": ("MailboxRealtimeMessageBody", "sendmux-mailbox 3.0"),
+    "MailboxMessageContentResponseAllOfData": ("MailboxMessageContent", "sendmux-mailbox 3.0"),
+    "MailboxRawBodyResponseAllOfData": ("MailboxRawBody", "sendmux-mailbox 3.0"),
+    "MailboxSubmissionEnvelopeRcptToInner": ("MailboxSubmissionEnvelopeAddress", "sendmux-mailbox 3.0"),
+    "MailboxThreadContentResponseAllOfData": ("MailboxMessageContent", "sendmux-mailbox 3.0"),
 }
 
 

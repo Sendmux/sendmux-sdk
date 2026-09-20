@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
-from sendmux_mailbox.models.mailbox_raw_body_response_all_of_data import MailboxRawBodyResponseAllOfData
+from sendmux_mailbox.models.mailbox_raw_body import MailboxRawBody
 from sendmux_mailbox.models.response_meta import ResponseMeta
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,7 @@ class MailboxRawBodyResponse(BaseModel):
     """ # noqa: E501
     meta: ResponseMeta
     ok: StrictBool
-    data: MailboxRawBodyResponseAllOfData
+    data: MailboxRawBody
     __properties: ClassVar[List[str]] = ["meta", "ok", "data"]
 
     model_config = ConfigDict(
@@ -93,6 +93,6 @@ class MailboxRawBodyResponse(BaseModel):
         _obj = cls.model_validate({
             "meta": ResponseMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
             "ok": obj.get("ok"),
-            "data": MailboxRawBodyResponseAllOfData.from_dict(obj["data"]) if obj.get("data") is not None else None
+            "data": MailboxRawBody.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj

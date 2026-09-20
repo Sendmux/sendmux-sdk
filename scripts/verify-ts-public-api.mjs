@@ -36,10 +36,11 @@ for (const surface of surfaces) {
   }
 }
 
-if (!/pending_request:\s*SharedAmazonSesLimitRequest\s*\|\s*null;/.test(managementGeneratedTypes)) {
-  throw new Error("management generated type SharedAmazonSesLimitRequestPage.pending_request must preserve null");
-}
-
+assertNullableProperty({
+  propertyName: "pending_request",
+  source: managementGeneratedTypes,
+  typeName: "SharedAmazonSesLimitRequestPage",
+});
 assertNullableProperty({
   propertyName: "type",
   source: managementGeneratedTypes,
@@ -75,7 +76,23 @@ function assertNullableProperty({ propertyName, source, typeName }) {
   }
 
   const property = typeBlock.match(new RegExp(`^\\s*${propertyName}:\\s*([^;]+);`, "m"))?.[1];
-  if (!property?.split("|").some((member) => member.trim() === "null")) {
+  if (!property || !isNullableType({ source, type: property })) {
     throw new Error(`generated type ${typeName}.${propertyName} must preserve null`);
   }
+}
+
+// A property preserves null when its union names `null` directly, or when it references a generated
+// object alias (the OpenAPI `…OrNull` components) whose own definition closes with `} | null;`.
+function isNullableType({ source, type }) {
+  const members = type.split("|").map((member) => member.trim());
+  if (members.includes("null")) {
+    return true;
+  }
+  return members.some((member) => {
+    if (!/^[A-Za-z_$][\w$]*$/.test(member)) {
+      return false;
+    }
+    const alias = source.match(new RegExp(`^export type ${member} = \\{[\\s\\S]*?^\\}(\\s*\\|\\s*null)?;`, "m"));
+    return Boolean(alias?.[1]);
+  });
 }

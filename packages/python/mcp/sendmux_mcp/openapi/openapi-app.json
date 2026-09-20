@@ -1473,18 +1473,36 @@
         ],
         "type": "object"
       },
+      "MailboxAddressOrNull": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "example": "agent@example.com",
+            "format": "email",
+            "type": "string"
+          },
+          "name": {
+            "example": "Support",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
+      },
       "MailboxAppPasswordResult": {
         "additionalProperties": false,
         "properties": {
           "credential": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxCredential"
-              },
-              {
-                "type": "object"
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxCredential"
           }
         },
         "required": [
@@ -1913,13 +1931,13 @@
         "additionalProperties": false,
         "properties": {
           "content": {
-            "$ref": "#/components/schemas/MailboxMessageContent"
+            "$ref": "#/components/schemas/MailboxMessageContentOrNull"
           },
           "message": {
             "$ref": "#/components/schemas/MailboxMessageSummary"
           },
           "raw_body": {
-            "$ref": "#/components/schemas/MailboxRawBody"
+            "$ref": "#/components/schemas/MailboxRawBodyOrNull"
           }
         },
         "required": [
@@ -2245,7 +2263,7 @@
         "additionalProperties": false,
         "properties": {
           "credential": {
-            "$ref": "#/components/schemas/MailboxCredential"
+            "$ref": "#/components/schemas/MailboxCredentialOrNull"
           },
           "mailbox": {
             "$ref": "#/components/schemas/Mailbox"
@@ -2288,6 +2306,56 @@
         "unevaluatedProperties": false
       },
       "MailboxCredential": {
+        "additionalProperties": false,
+        "properties": {
+          "imap_port": {
+            "description": "IMAP retrieval port",
+            "example": 993,
+            "type": "integer"
+          },
+          "key_prefix": {
+            "type": "string"
+          },
+          "key_suffix": {
+            "type": "string"
+          },
+          "public_id": {
+            "description": "Credential public ID",
+            "example": "smx_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "type": "string"
+          },
+          "secret": {
+            "description": "Mailbox credential — shown exactly once. Use as a Bearer token on the HTTP API and as the password for IMAP retrieval and SMTP submission.",
+            "type": "string"
+          },
+          "server": {
+            "description": "Mailbox server name",
+            "example": "mail.sendmux.ai",
+            "type": "string"
+          },
+          "smtp_port": {
+            "description": "SMTP submission port",
+            "example": 587,
+            "type": "integer"
+          },
+          "username": {
+            "description": "Mailbox email address used as the login",
+            "type": "string"
+          }
+        },
+        "required": [
+          "public_id",
+          "secret",
+          "key_prefix",
+          "key_suffix",
+          "server",
+          "imap_port",
+          "smtp_port",
+          "username"
+        ],
+        "type": "object"
+      },
+      "MailboxCredentialOrNull": {
         "additionalProperties": false,
         "description": "Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.",
         "properties": {
@@ -3253,17 +3321,7 @@
             "type": "array"
           },
           "from": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxAddress"
-              },
-              {
-                "type": [
-                  "object",
-                  "null"
-                ]
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxAddressOrNull"
           },
           "has_attachments": {
             "type": "boolean"
@@ -3278,12 +3336,32 @@
             "description": "Message ID",
             "type": "string"
           },
+          "in_reply_to": {
+            "description": "`In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.",
+            "example": [
+              "20260918.0009@example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "keywords": {
             "description": "Active message keywords, including system flags and custom labels.",
             "example": [
               "$seen",
               "$flagged",
               "agent_triaged"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "message_id": {
+            "description": "`Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.",
+            "example": [
+              "20260919.0001@example.com"
             ],
             "items": {
               "type": "string"
@@ -3301,6 +3379,24 @@
               "string",
               "null"
             ]
+          },
+          "references": {
+            "description": "`References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.",
+            "example": [
+              "20260917.0001@example.com",
+              "20260918.0009@example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reply_to": {
+            "description": "`Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
           },
           "sent_at": {
             "type": [
@@ -3356,7 +3452,11 @@
           "keywords",
           "flags",
           "text_body",
-          "html_body"
+          "html_body",
+          "message_id",
+          "in_reply_to",
+          "references",
+          "reply_to"
         ],
         "type": "object"
       },
@@ -3475,17 +3575,191 @@
                 "type": "array"
               },
               "from": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MailboxAddress"
-                  },
-                  {
-                    "type": [
-                      "object",
-                      "null"
-                    ]
-                  }
+                "$ref": "#/components/schemas/MailboxAddressOrNull"
+              },
+              "reply_to": {
+                "items": {
+                  "$ref": "#/components/schemas/MailboxAddress"
+                },
+                "type": "array"
+              },
+              "to": {
+                "items": {
+                  "$ref": "#/components/schemas/MailboxAddress"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "cc",
+              "bcc",
+              "reply_to"
+            ],
+            "type": "object"
+          },
+          "states": {
+            "additionalProperties": false,
+            "properties": {
+              "email_state": {
+                "type": [
+                  "string",
+                  "null"
                 ]
+              },
+              "option_hash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "email_state",
+              "option_hash"
+            ],
+            "type": "object"
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thread_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "thread_id",
+          "subject",
+          "participants",
+          "dates",
+          "body",
+          "headers",
+          "attachments",
+          "states"
+        ],
+        "type": "object"
+      },
+      "MailboxMessageContentOrNull": {
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachment metadata only. Attachment contents are not parsed by this endpoint.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAttachment"
+            },
+            "type": "array"
+          },
+          "body": {
+            "additionalProperties": false,
+            "properties": {
+              "extracted_links": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "format": {
+                "enum": [
+                  "text",
+                  "html"
+                ],
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "html": {
+                "description": "HTML body when requested. Returned as a JSON string and not as rendered content.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "is_truncated": {
+                "type": "boolean"
+              },
+              "quotes_stripped": {
+                "type": "boolean"
+              },
+              "signature_stripped": {
+                "type": "boolean"
+              },
+              "text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "truncated_at_chars": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "format",
+              "text",
+              "html",
+              "is_truncated",
+              "truncated_at_chars",
+              "signature_stripped",
+              "quotes_stripped",
+              "extracted_links"
+            ],
+            "type": "object"
+          },
+          "dates": {
+            "additionalProperties": false,
+            "properties": {
+              "received_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sent_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "received_at",
+              "sent_at"
+            ],
+            "type": "object"
+          },
+          "headers": {
+            "$ref": "#/components/schemas/MailboxContentHeaders"
+          },
+          "id": {
+            "description": "Message ID",
+            "type": "string"
+          },
+          "participants": {
+            "additionalProperties": false,
+            "properties": {
+              "bcc": {
+                "items": {
+                  "$ref": "#/components/schemas/MailboxAddress"
+                },
+                "type": "array"
+              },
+              "cc": {
+                "items": {
+                  "$ref": "#/components/schemas/MailboxAddress"
+                },
+                "type": "array"
+              },
+              "from": {
+                "$ref": "#/components/schemas/MailboxAddressOrNull"
               },
               "reply_to": {
                 "items": {
@@ -3565,14 +3839,7 @@
           {
             "properties": {
               "data": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MailboxMessageContent"
-                  },
-                  {
-                    "type": "object"
-                  }
-                ]
+                "$ref": "#/components/schemas/MailboxMessageContent"
               },
               "meta": {
                 "$ref": "#/components/schemas/ResponseMeta"
@@ -3822,17 +4089,7 @@
             "type": "array"
           },
           "from": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxAddress"
-              },
-              {
-                "type": [
-                  "object",
-                  "null"
-                ]
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxAddressOrNull"
           },
           "has_attachments": {
             "type": "boolean"
@@ -3943,6 +4200,124 @@
           }
         ],
         "unevaluatedProperties": false
+      },
+      "MailboxMessageSummaryOrNull": {
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAttachment"
+            },
+            "type": "array"
+          },
+          "bcc": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "cc": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          },
+          "flags": {
+            "$ref": "#/components/schemas/MailboxMessageFlags"
+          },
+          "folder_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "from": {
+            "$ref": "#/components/schemas/MailboxAddressOrNull"
+          },
+          "has_attachments": {
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Message ID",
+            "type": "string"
+          },
+          "keywords": {
+            "description": "Active message keywords, including system flags and custom labels.",
+            "example": [
+              "$seen",
+              "$flagged",
+              "agent_triaged"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "preview": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "received_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sent_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "size_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thread_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to": {
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "thread_id",
+          "folder_ids",
+          "subject",
+          "preview",
+          "from",
+          "to",
+          "cc",
+          "bcc",
+          "received_at",
+          "sent_at",
+          "size_bytes",
+          "has_attachments",
+          "keywords",
+          "flags"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
       },
       "MailboxQueryMeta": {
         "additionalProperties": false,
@@ -4128,6 +4503,85 @@
           "body",
           "states"
         ],
+        "type": "object"
+      },
+      "MailboxRawBodyOrNull": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "additionalProperties": false,
+            "properties": {
+              "html": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "is_truncated": {
+                "type": "boolean"
+              },
+              "text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "truncated_at_chars": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "text",
+              "html",
+              "is_truncated",
+              "truncated_at_chars"
+            ],
+            "type": "object"
+          },
+          "id": {
+            "description": "Message ID",
+            "type": "string"
+          },
+          "part": {
+            "enum": [
+              "text",
+              "html",
+              "both"
+            ],
+            "type": "string"
+          },
+          "states": {
+            "additionalProperties": false,
+            "properties": {
+              "email_state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "email_state"
+            ],
+            "type": "object"
+          },
+          "thread_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "thread_id",
+          "part",
+          "body",
+          "states"
+        ],
         "type": [
           "object",
           "null"
@@ -4141,14 +4595,7 @@
           {
             "properties": {
               "data": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MailboxRawBody"
-                  },
-                  {
-                    "type": "object"
-                  }
-                ]
+                "$ref": "#/components/schemas/MailboxRawBody"
               },
               "meta": {
                 "$ref": "#/components/schemas/ResponseMeta"
@@ -4296,17 +4743,7 @@
             "type": "array"
           },
           "from": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxAddress"
-              },
-              {
-                "type": [
-                  "object",
-                  "null"
-                ]
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxAddressOrNull"
           },
           "has_attachments": {
             "type": "boolean"
@@ -5231,18 +5668,11 @@
         "additionalProperties": false,
         "properties": {
           "mail_from": {
-            "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
+            "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddressOrNull"
           },
           "rcpt_to": {
             "items": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
-                },
-                {
-                  "type": "object"
-                }
-              ]
+              "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
             },
             "type": "array"
           }
@@ -5257,6 +5687,32 @@
         ]
       },
       "MailboxSubmissionEnvelopeAddress": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "format": "email",
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "parameters"
+        ],
+        "type": "object"
+      },
+      "MailboxSubmissionEnvelopeAddressOrNull": {
         "additionalProperties": false,
         "properties": {
           "email": {
@@ -5339,17 +5795,7 @@
             "type": "string"
           },
           "last_message": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxMessageSummary"
-              },
-              {
-                "type": [
-                  "object",
-                  "null"
-                ]
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxMessageSummaryOrNull"
           },
           "message_count": {
             "type": "integer"
@@ -5471,14 +5917,7 @@
             "properties": {
               "data": {
                 "items": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/MailboxMessageContent"
-                    },
-                    {
-                      "type": "object"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/MailboxMessageContent"
                 },
                 "type": "array"
               },
@@ -5585,17 +6024,7 @@
             "type": "string"
           },
           "last_message": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxMessageSummary"
-              },
-              {
-                "type": [
-                  "object",
-                  "null"
-                ]
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxMessageSummaryOrNull"
           },
           "message_count": {
             "type": "integer"
@@ -5976,14 +6405,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -5998,14 +6420,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6020,14 +6435,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6042,14 +6450,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6689,6 +7090,26 @@
           "min",
           "max"
         ],
+        "type": "object"
+      },
+      "ProviderQuotaRangeOrNull": {
+        "additionalProperties": false,
+        "properties": {
+          "max": {
+            "example": 60,
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "min": {
+            "example": 60,
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ],
         "type": [
           "object",
           "null"
@@ -6698,16 +7119,16 @@
         "additionalProperties": false,
         "properties": {
           "per_day": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "$ref": "#/components/schemas/ProviderQuotaRangeOrNull"
           },
           "per_hour": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "$ref": "#/components/schemas/ProviderQuotaRangeOrNull"
           },
           "per_minute": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "$ref": "#/components/schemas/ProviderQuotaRangeOrNull"
           },
           "per_second": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "$ref": "#/components/schemas/ProviderQuotaRangeOrNull"
           }
         },
         "required": [
@@ -6940,14 +7361,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6962,14 +7376,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6984,14 +7391,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -7006,14 +7406,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -7656,6 +8049,68 @@
         ],
         "unevaluatedProperties": false
       },
+      "SharedAmazonSesLimitRequestOrNull": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_daily_limit": {
+            "exclusiveMinimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "current_daily_limit": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "current_daily_sent": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decision_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "example": "slir_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "approved",
+              "denied",
+              "cancelled"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "current_daily_limit",
+          "current_daily_sent",
+          "approved_daily_limit",
+          "decision_note",
+          "created_at",
+          "decided_at"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
+      },
       "SharedAmazonSesLimitRequestPage": {
         "additionalProperties": false,
         "properties": {
@@ -7663,17 +8118,7 @@
             "$ref": "#/components/schemas/SharedAmazonSesLimit"
           },
           "pending_request": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
-              },
-              {
-                "type": [
-                  "object",
-                  "null"
-                ]
-              }
-            ]
+            "$ref": "#/components/schemas/SharedAmazonSesLimitRequestOrNull"
           }
         },
         "required": [

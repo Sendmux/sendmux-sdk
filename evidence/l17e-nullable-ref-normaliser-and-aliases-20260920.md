@@ -2,7 +2,7 @@
 
 PR https://github.com/Sendmux/sendmux-sdk/pull/277 (`agent/nullable-ref-normaliser-and-aliases`, base `origin/main`
 `86d7174`, label `major`). Code commits: `0f692c5` (normaliser rule + test), `1b396a4` (alias tables, writers, tests,
-generated Go alias files), `d33be31` (review fixes: PHP generator fixture import, Go block spacing, planner message). Raw logs: `/Users/rj/Desktop/GIT-REPOS/sendmux-sdk/.claude/artifacts/l17e/` (machine-local).
+generated Go alias files), `d33be31` (review fixes: PHP generator fixture import, Go block spacing, planner message). Raw logs: `.claude/artifacts/l17e/` in the main checkout (gitignored, machine-local).
 
 ## Why
 

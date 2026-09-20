@@ -24,7 +24,7 @@ function generatedHashes(directory) {
 
 function prepareFixture(directory) {
   mkdirSync(join(directory, "scripts"));
-  for (const name of ["generate-php.mjs", "normalize-openapi-for-codegen.mjs"]) {
+  for (const name of ["deprecated-model-aliases.mjs", "generate-php.mjs", "normalize-openapi-for-codegen.mjs"]) {
     cpSync(join(root, "scripts", name), join(directory, "scripts", name));
   }
   for (const name of ["package.json", "openapitools.json", "phpcs.xml"]) cpSync(join(root, name), join(directory, name));

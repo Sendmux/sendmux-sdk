@@ -25,6 +25,9 @@ test("holds an alias while the deprecated name is still generated", () => {
 test("fails when the replacement is not generated, naming both models", () => {
   assert.throws(
     () => planDeprecatedModelAliases({ aliases: [alias], isGenerated: (name) => name === "OldModel", label: "__init__.py" }),
-    { message: "__init__.py does not generate NewModel; update the OldModel alias" },
+    {
+      message: "__init__.py does not generate NewModel, the replacement for OldModel; "
+        + "regenerate from the schema this table targets or update the alias",
+    },
   );
 });

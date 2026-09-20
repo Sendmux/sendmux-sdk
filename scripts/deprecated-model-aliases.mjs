@@ -9,7 +9,10 @@ export function planDeprecatedModelAliases({ aliases, isGenerated, label }) {
   const pending = [];
   for (const alias of aliases) {
     if (!isGenerated(alias.replacement)) {
-      throw new Error(`${label} does not generate ${alias.replacement}; update the ${alias.deprecated} alias`);
+      throw new Error(
+        `${label} does not generate ${alias.replacement}, the replacement for ${alias.deprecated}; `
+          + "regenerate from the schema this table targets or update the alias",
+      );
     }
     (isGenerated(alias.deprecated) ? pending : active).push(alias);
   }

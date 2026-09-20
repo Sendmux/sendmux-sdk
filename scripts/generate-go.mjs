@@ -630,7 +630,7 @@ package ${surface.name}
 // Deprecated type names kept as aliases of their replacements until the next major release. The
 // table lives in scripts/generate-go.mjs; an alias appears once its former type has left the
 // generated output.
-${blocks.join("\n")}`,
+${blocks.join("")}`,
   );
 }
 

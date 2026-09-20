@@ -294,9 +294,7 @@ export type MailboxThread = {
 };
 
 export type MailboxThreadContentResponse = SuccessEnvelope & {
-    data: Array<MailboxMessageContent & {
-        [key: string]: unknown;
-    }>;
+    data: Array<MailboxMessageContent>;
     meta?: MailboxThreadContentMeta;
     pagination: CursorPagination;
 };
@@ -366,7 +364,7 @@ export type MailboxMessageContent = {
     };
     subject: string | null;
     thread_id: string | null;
-} | null;
+};
 
 export type MailboxSyncMeta = {
     request_id: string;
@@ -383,13 +381,11 @@ export type MailboxSubmissionEnvelopeAddress = {
     parameters: {
         [key: string]: string | null;
     } | null;
-} | null;
+};
 
 export type MailboxSubmissionEnvelope = {
-    mail_from: MailboxSubmissionEnvelopeAddress;
-    rcpt_to: Array<MailboxSubmissionEnvelopeAddress & {
-        [key: string]: unknown;
-    }>;
+    mail_from: MailboxSubmissionEnvelopeAddress | null;
+    rcpt_to: Array<MailboxSubmissionEnvelopeAddress>;
 } | null;
 
 export type MailboxSubmissionDeliveryStatus = {
@@ -641,9 +637,7 @@ export type MailboxRealtimeEvent = {
 };
 
 export type MailboxRawBodyResponse = SuccessEnvelope & {
-    data: MailboxRawBody & {
-        [key: string]: unknown;
-    };
+    data: MailboxRawBody;
     meta?: ResponseMeta;
 };
 
@@ -663,7 +657,7 @@ export type MailboxRawBody = {
         email_state: string | null;
     };
     thread_id: string | null;
-} | null;
+};
 
 export type MailboxQuotaCursorListResponse = SuccessEnvelope & {
     data: Array<MailboxQuota>;
@@ -732,11 +726,27 @@ export type MailboxMessage = {
      */
     id: string;
     /**
+     * `In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.
+     */
+    in_reply_to: Array<string>;
+    /**
      * Active message keywords, including system flags and custom labels.
      */
     keywords: Array<string>;
+    /**
+     * `Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.
+     */
+    message_id: Array<string>;
     preview: string | null;
     received_at: string | null;
+    /**
+     * `References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.
+     */
+    references: Array<string>;
+    /**
+     * `Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.
+     */
+    reply_to: Array<MailboxAddress>;
     sent_at: string | null;
     size_bytes: number | null;
     subject: string | null;
@@ -764,9 +774,7 @@ export type MailboxMessageCount = {
 };
 
 export type MailboxMessageContentResponse = SuccessEnvelope & {
-    data: MailboxMessageContent & {
-        [key: string]: unknown;
-    };
+    data: MailboxMessageContent;
     meta?: ResponseMeta;
 };
 
@@ -930,9 +938,9 @@ export type MailboxBatchGetResultResponse = SuccessEnvelope & {
 };
 
 export type MailboxBatchGetItem = {
-    content: MailboxMessageContent;
+    content: MailboxMessageContent | null;
     message: MailboxMessageSummary;
-    raw_body: MailboxRawBody;
+    raw_body: MailboxRawBody | null;
 };
 
 export type MailboxBatchGetResult = {

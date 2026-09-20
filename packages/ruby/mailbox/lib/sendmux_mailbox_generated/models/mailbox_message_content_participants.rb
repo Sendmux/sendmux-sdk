@@ -51,7 +51,7 @@ module Sendmux::Mailbox::Generated
       {
         :'bcc' => :'Array<MailboxAddress>',
         :'cc' => :'Array<MailboxAddress>',
-        :'from' => :'MailboxAddress',
+        :'from' => :'MailboxAddressOrNull',
         :'reply_to' => :'Array<MailboxAddress>',
         :'to' => :'Array<MailboxAddress>'
       }

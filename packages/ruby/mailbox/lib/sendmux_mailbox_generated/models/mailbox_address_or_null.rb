@@ -14,16 +14,16 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxSubmissionEnvelopeRcptToInner < ApiModelBase
+  class MailboxAddressOrNull < ApiModelBase
     attr_accessor :email
 
-    attr_accessor :parameters
+    attr_accessor :name
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
         :'email' => :'email',
-        :'parameters' => :'parameters'
+        :'name' => :'name'
       }
     end
 
@@ -41,36 +41,29 @@ module Sendmux::Mailbox::Generated
     def self.openapi_types
       {
         :'email' => :'String',
-        :'parameters' => :'Hash<String, String>'
+        :'name' => :'String'
       }
     end
 
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
-        :'parameters'
+        :'name'
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'MailboxSubmissionEnvelopeAddress'
-      ]
     end
 
     # Initializes the object
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxSubmissionEnvelopeRcptToInner` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxAddressOrNull` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxSubmissionEnvelopeRcptToInner`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxAddressOrNull`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
@@ -81,12 +74,10 @@ module Sendmux::Mailbox::Generated
         self.email = nil
       end
 
-      if attributes.key?(:'parameters')
-        if (value = attributes[:'parameters']).is_a?(Hash)
-          self.parameters = value
-        end
+      if attributes.key?(:'name')
+        self.name = attributes[:'name']
       else
-        self.parameters = nil
+        self.name = nil
       end
     end
 
@@ -126,7 +117,7 @@ module Sendmux::Mailbox::Generated
       return true if self.equal?(o)
       self.class == o.class &&
           email == o.email &&
-          parameters == o.parameters
+          name == o.name
     end
 
     # @see the `==` method
@@ -138,7 +129,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [email, parameters].hash
+      [email, name].hash
     end
 
     # Builds the object from hash

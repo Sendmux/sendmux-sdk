@@ -43,9 +43,9 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'content' => :'MailboxMessageContent',
+        :'content' => :'MailboxMessageContentOrNull',
         :'message' => :'MailboxMessageSummary',
-        :'raw_body' => :'MailboxRawBody'
+        :'raw_body' => :'MailboxRawBodyOrNull'
       }
     end
 

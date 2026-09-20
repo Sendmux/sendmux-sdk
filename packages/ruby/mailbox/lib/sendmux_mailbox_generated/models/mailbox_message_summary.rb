@@ -90,7 +90,7 @@ module Sendmux::Mailbox::Generated
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
         :'folder_ids' => :'Array<String>',
-        :'from' => :'MailboxAddress',
+        :'from' => :'MailboxAddressOrNull',
         :'has_attachments' => :'Boolean',
         :'id' => :'String',
         :'keywords' => :'Array<String>',

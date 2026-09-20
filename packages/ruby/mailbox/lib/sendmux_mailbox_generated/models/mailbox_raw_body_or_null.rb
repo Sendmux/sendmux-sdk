@@ -14,38 +14,47 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxMessageContentResponseAllOfData < ApiModelBase
-    # Attachment metadata only. Attachment contents are not parsed by this endpoint.
-    attr_accessor :attachments
-
+  class MailboxRawBodyOrNull < ApiModelBase
     attr_accessor :body
-
-    attr_accessor :dates
-
-    attr_accessor :headers
 
     # Message ID
     attr_accessor :id
 
-    attr_accessor :participants
+    attr_accessor :part
 
     attr_accessor :states
 
-    attr_accessor :subject
-
     attr_accessor :thread_id
+
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'attachments' => :'attachments',
         :'body' => :'body',
-        :'dates' => :'dates',
-        :'headers' => :'headers',
         :'id' => :'id',
-        :'participants' => :'participants',
+        :'part' => :'part',
         :'states' => :'states',
-        :'subject' => :'subject',
         :'thread_id' => :'thread_id'
       }
     end
@@ -63,14 +72,10 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'attachments' => :'Array<MailboxAttachment>',
-        :'body' => :'MailboxMessageContentBody',
-        :'dates' => :'MailboxMessageContentDates',
-        :'headers' => :'MailboxContentHeaders',
+        :'body' => :'MailboxRawBodyBody',
         :'id' => :'String',
-        :'participants' => :'MailboxMessageContentParticipants',
-        :'states' => :'MailboxMessageContentStates',
-        :'subject' => :'String',
+        :'part' => :'String',
+        :'states' => :'MailboxBatchGetResultStates',
         :'thread_id' => :'String'
       }
     end
@@ -78,58 +83,30 @@ module Sendmux::Mailbox::Generated
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
-        :'subject',
         :'thread_id'
       ])
-    end
-
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'MailboxMessageContent'
-      ]
     end
 
     # Initializes the object
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxMessageContentResponseAllOfData` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxRawBodyOrNull` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxMessageContentResponseAllOfData`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxRawBodyOrNull`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
-
-      if attributes.key?(:'attachments')
-        if (value = attributes[:'attachments']).is_a?(Array)
-          self.attachments = value
-        end
-      else
-        self.attachments = nil
-      end
 
       if attributes.key?(:'body')
         self.body = attributes[:'body']
       else
         self.body = nil
-      end
-
-      if attributes.key?(:'dates')
-        self.dates = attributes[:'dates']
-      else
-        self.dates = nil
-      end
-
-      if attributes.key?(:'headers')
-        self.headers = attributes[:'headers']
-      else
-        self.headers = nil
       end
 
       if attributes.key?(:'id')
@@ -138,22 +115,16 @@ module Sendmux::Mailbox::Generated
         self.id = nil
       end
 
-      if attributes.key?(:'participants')
-        self.participants = attributes[:'participants']
+      if attributes.key?(:'part')
+        self.part = attributes[:'part']
       else
-        self.participants = nil
+        self.part = nil
       end
 
       if attributes.key?(:'states')
         self.states = attributes[:'states']
       else
         self.states = nil
-      end
-
-      if attributes.key?(:'subject')
-        self.subject = attributes[:'subject']
-      else
-        self.subject = nil
       end
 
       if attributes.key?(:'thread_id')
@@ -168,28 +139,16 @@ module Sendmux::Mailbox::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @attachments.nil?
-        invalid_properties.push('invalid value for "attachments", attachments cannot be nil.')
-      end
-
       if @body.nil?
         invalid_properties.push('invalid value for "body", body cannot be nil.')
-      end
-
-      if @dates.nil?
-        invalid_properties.push('invalid value for "dates", dates cannot be nil.')
-      end
-
-      if @headers.nil?
-        invalid_properties.push('invalid value for "headers", headers cannot be nil.')
       end
 
       if @id.nil?
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
-      if @participants.nil?
-        invalid_properties.push('invalid value for "participants", participants cannot be nil.')
+      if @part.nil?
+        invalid_properties.push('invalid value for "part", part cannot be nil.')
       end
 
       if @states.nil?
@@ -203,24 +162,13 @@ module Sendmux::Mailbox::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @attachments.nil?
       return false if @body.nil?
-      return false if @dates.nil?
-      return false if @headers.nil?
       return false if @id.nil?
-      return false if @participants.nil?
+      return false if @part.nil?
+      part_validator = EnumAttributeValidator.new('String', ["text", "html", "both", "unknown_default_open_api"])
+      return false unless part_validator.valid?(@part)
       return false if @states.nil?
       true
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] attachments Value to be assigned
-    def attachments=(attachments)
-      if attachments.nil?
-        fail ArgumentError, 'attachments cannot be nil'
-      end
-
-      @attachments = attachments
     end
 
     # Custom attribute writer method with validation
@@ -234,26 +182,6 @@ module Sendmux::Mailbox::Generated
     end
 
     # Custom attribute writer method with validation
-    # @param [Object] dates Value to be assigned
-    def dates=(dates)
-      if dates.nil?
-        fail ArgumentError, 'dates cannot be nil'
-      end
-
-      @dates = dates
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] headers Value to be assigned
-    def headers=(headers)
-      if headers.nil?
-        fail ArgumentError, 'headers cannot be nil'
-      end
-
-      @headers = headers
-    end
-
-    # Custom attribute writer method with validation
     # @param [Object] id Value to be assigned
     def id=(id)
       if id.nil?
@@ -263,14 +191,14 @@ module Sendmux::Mailbox::Generated
       @id = id
     end
 
-    # Custom attribute writer method with validation
-    # @param [Object] participants Value to be assigned
-    def participants=(participants)
-      if participants.nil?
-        fail ArgumentError, 'participants cannot be nil'
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] part Object to be assigned
+    def part=(part)
+      validator = EnumAttributeValidator.new('String', ["text", "html", "both", "unknown_default_open_api"])
+      unless validator.valid?(part)
+        fail ArgumentError, "invalid value for \"part\", must be one of #{validator.allowable_values}."
       end
-
-      @participants = participants
+      @part = part
     end
 
     # Custom attribute writer method with validation
@@ -288,14 +216,10 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          attachments == o.attachments &&
           body == o.body &&
-          dates == o.dates &&
-          headers == o.headers &&
           id == o.id &&
-          participants == o.participants &&
+          part == o.part &&
           states == o.states &&
-          subject == o.subject &&
           thread_id == o.thread_id
     end
 
@@ -308,7 +232,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachments, body, dates, headers, id, participants, states, subject, thread_id].hash
+      [body, id, part, states, thread_id].hash
     end
 
     # Builds the object from hash

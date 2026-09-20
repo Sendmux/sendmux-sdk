@@ -65,7 +65,7 @@ module Sendmux::Mailbox::Generated
         :'folder_ids' => :'Array<String>',
         :'has_attachments' => :'Boolean',
         :'id' => :'String',
-        :'last_message' => :'MailboxMessageSummary',
+        :'last_message' => :'MailboxMessageSummaryOrNull',
         :'message_count' => :'Integer',
         :'participants' => :'Array<MailboxAddress>',
         :'states' => :'MailboxThreadSummaryStates',

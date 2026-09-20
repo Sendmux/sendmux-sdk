@@ -40,8 +40,8 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'mail_from' => :'MailboxSubmissionEnvelopeAddress',
-        :'rcpt_to' => :'Array<MailboxSubmissionEnvelopeRcptToInner>'
+        :'mail_from' => :'MailboxSubmissionEnvelopeAddressOrNull',
+        :'rcpt_to' => :'Array<MailboxSubmissionEnvelopeAddress>'
       }
     end
 

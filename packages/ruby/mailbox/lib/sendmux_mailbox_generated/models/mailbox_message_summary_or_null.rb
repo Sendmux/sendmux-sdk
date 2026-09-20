@@ -14,13 +14,11 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxRealtimeMessage < ApiModelBase
+  class MailboxMessageSummaryOrNull < ApiModelBase
     # Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
     attr_accessor :attachments
 
     attr_accessor :bcc
-
-    attr_accessor :body
 
     attr_accessor :cc
 
@@ -42,8 +40,6 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :received_at
 
-    attr_accessor :rfc5322_message_id
-
     attr_accessor :sent_at
 
     attr_accessor :size_bytes
@@ -59,7 +55,6 @@ module Sendmux::Mailbox::Generated
       {
         :'attachments' => :'attachments',
         :'bcc' => :'bcc',
-        :'body' => :'body',
         :'cc' => :'cc',
         :'flags' => :'flags',
         :'folder_ids' => :'folder_ids',
@@ -69,7 +64,6 @@ module Sendmux::Mailbox::Generated
         :'keywords' => :'keywords',
         :'preview' => :'preview',
         :'received_at' => :'received_at',
-        :'rfc5322_message_id' => :'rfc5322_message_id',
         :'sent_at' => :'sent_at',
         :'size_bytes' => :'size_bytes',
         :'subject' => :'subject',
@@ -93,7 +87,6 @@ module Sendmux::Mailbox::Generated
       {
         :'attachments' => :'Array<MailboxAttachment>',
         :'bcc' => :'Array<MailboxAddress>',
-        :'body' => :'MailboxRealtimeMessageBody',
         :'cc' => :'Array<MailboxAddress>',
         :'flags' => :'MailboxMessageFlags',
         :'folder_ids' => :'Array<String>',
@@ -103,7 +96,6 @@ module Sendmux::Mailbox::Generated
         :'keywords' => :'Array<String>',
         :'preview' => :'String',
         :'received_at' => :'String',
-        :'rfc5322_message_id' => :'String',
         :'sent_at' => :'String',
         :'size_bytes' => :'Integer',
         :'subject' => :'String',
@@ -118,7 +110,6 @@ module Sendmux::Mailbox::Generated
         :'from',
         :'preview',
         :'received_at',
-        :'rfc5322_message_id',
         :'sent_at',
         :'size_bytes',
         :'subject',
@@ -130,14 +121,14 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxRealtimeMessage` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxMessageSummaryOrNull` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxRealtimeMessage`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxMessageSummaryOrNull`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
@@ -154,12 +145,6 @@ module Sendmux::Mailbox::Generated
         end
       else
         self.bcc = nil
-      end
-
-      if attributes.key?(:'body')
-        self.body = attributes[:'body']
-      else
-        self.body = nil
       end
 
       if attributes.key?(:'cc')
@@ -222,12 +207,6 @@ module Sendmux::Mailbox::Generated
         self.received_at = nil
       end
 
-      if attributes.key?(:'rfc5322_message_id')
-        self.rfc5322_message_id = attributes[:'rfc5322_message_id']
-      else
-        self.rfc5322_message_id = nil
-      end
-
       if attributes.key?(:'sent_at')
         self.sent_at = attributes[:'sent_at']
       else
@@ -270,10 +249,6 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "bcc", bcc cannot be nil.')
       end
 
-      if @body.nil?
-        invalid_properties.push('invalid value for "body", body cannot be nil.')
-      end
-
       if @cc.nil?
         invalid_properties.push('invalid value for "cc", cc cannot be nil.')
       end
@@ -310,7 +285,6 @@ module Sendmux::Mailbox::Generated
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
       return false if @bcc.nil?
-      return false if @body.nil?
       return false if @cc.nil?
       return false if @flags.nil?
       return false if @folder_ids.nil?
@@ -329,16 +303,6 @@ module Sendmux::Mailbox::Generated
       end
 
       @bcc = bcc
-    end
-
-    # Custom attribute writer method with validation
-    # @param [Object] body Value to be assigned
-    def body=(body)
-      if body.nil?
-        fail ArgumentError, 'body cannot be nil'
-      end
-
-      @body = body
     end
 
     # Custom attribute writer method with validation
@@ -418,7 +382,6 @@ module Sendmux::Mailbox::Generated
       self.class == o.class &&
           attachments == o.attachments &&
           bcc == o.bcc &&
-          body == o.body &&
           cc == o.cc &&
           flags == o.flags &&
           folder_ids == o.folder_ids &&
@@ -428,7 +391,6 @@ module Sendmux::Mailbox::Generated
           keywords == o.keywords &&
           preview == o.preview &&
           received_at == o.received_at &&
-          rfc5322_message_id == o.rfc5322_message_id &&
           sent_at == o.sent_at &&
           size_bytes == o.size_bytes &&
           subject == o.subject &&
@@ -445,7 +407,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachments, bcc, body, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, rfc5322_message_id, sent_at, size_bytes, subject, thread_id, to].hash
+      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, id, keywords, preview, received_at, sent_at, size_bytes, subject, thread_id, to].hash
     end
 
     # Builds the object from hash

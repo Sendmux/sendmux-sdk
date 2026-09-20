@@ -5386,16 +5386,28 @@ type MailboxMessage struct {
 	HTMLBody       NilString           `json:"html_body"`
 	// Message ID.
 	ID string `json:"id"`
+	// `In-Reply-To` header values, with the surrounding angle brackets removed — the message this one
+	// replies to. Empty when the message is not a reply.
+	InReplyTo []string `json:"in_reply_to"`
 	// Active message keywords, including system flags and custom labels.
-	Keywords   []string         `json:"keywords"`
-	Preview    NilString        `json:"preview"`
-	ReceivedAt NilString        `json:"received_at"`
-	SentAt     NilString        `json:"sent_at"`
-	SizeBytes  NilInt           `json:"size_bytes"`
-	Subject    NilString        `json:"subject"`
-	TextBody   NilString        `json:"text_body"`
-	ThreadID   NilString        `json:"thread_id"`
-	To         []MailboxAddress `json:"to"`
+	Keywords []string `json:"keywords"`
+	// `Message-ID` header values for this message, with the surrounding angle brackets removed. Empty
+	// when the message carries no `Message-ID`.
+	MessageID  []string  `json:"message_id"`
+	Preview    NilString `json:"preview"`
+	ReceivedAt NilString `json:"received_at"`
+	// `References` header values, with the surrounding angle brackets removed — the ancestor chain of
+	// this message, oldest first. Empty when the message starts a conversation.
+	References []string `json:"references"`
+	// `Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty
+	// when the message carries no `Reply-To`.
+	ReplyTo   []MailboxAddress `json:"reply_to"`
+	SentAt    NilString        `json:"sent_at"`
+	SizeBytes NilInt           `json:"size_bytes"`
+	Subject   NilString        `json:"subject"`
+	TextBody  NilString        `json:"text_body"`
+	ThreadID  NilString        `json:"thread_id"`
+	To        []MailboxAddress `json:"to"`
 }
 
 // GetAttachments returns the value of Attachments.
@@ -5443,9 +5455,19 @@ func (s *MailboxMessage) GetID() string {
 	return s.ID
 }
 
+// GetInReplyTo returns the value of InReplyTo.
+func (s *MailboxMessage) GetInReplyTo() []string {
+	return s.InReplyTo
+}
+
 // GetKeywords returns the value of Keywords.
 func (s *MailboxMessage) GetKeywords() []string {
 	return s.Keywords
+}
+
+// GetMessageID returns the value of MessageID.
+func (s *MailboxMessage) GetMessageID() []string {
+	return s.MessageID
 }
 
 // GetPreview returns the value of Preview.
@@ -5456,6 +5478,16 @@ func (s *MailboxMessage) GetPreview() NilString {
 // GetReceivedAt returns the value of ReceivedAt.
 func (s *MailboxMessage) GetReceivedAt() NilString {
 	return s.ReceivedAt
+}
+
+// GetReferences returns the value of References.
+func (s *MailboxMessage) GetReferences() []string {
+	return s.References
+}
+
+// GetReplyTo returns the value of ReplyTo.
+func (s *MailboxMessage) GetReplyTo() []MailboxAddress {
+	return s.ReplyTo
 }
 
 // GetSentAt returns the value of SentAt.
@@ -5533,9 +5565,19 @@ func (s *MailboxMessage) SetID(val string) {
 	s.ID = val
 }
 
+// SetInReplyTo sets the value of InReplyTo.
+func (s *MailboxMessage) SetInReplyTo(val []string) {
+	s.InReplyTo = val
+}
+
 // SetKeywords sets the value of Keywords.
 func (s *MailboxMessage) SetKeywords(val []string) {
 	s.Keywords = val
+}
+
+// SetMessageID sets the value of MessageID.
+func (s *MailboxMessage) SetMessageID(val []string) {
+	s.MessageID = val
 }
 
 // SetPreview sets the value of Preview.
@@ -5546,6 +5588,16 @@ func (s *MailboxMessage) SetPreview(val NilString) {
 // SetReceivedAt sets the value of ReceivedAt.
 func (s *MailboxMessage) SetReceivedAt(val NilString) {
 	s.ReceivedAt = val
+}
+
+// SetReferences sets the value of References.
+func (s *MailboxMessage) SetReferences(val []string) {
+	s.References = val
+}
+
+// SetReplyTo sets the value of ReplyTo.
+func (s *MailboxMessage) SetReplyTo(val []MailboxAddress) {
+	s.ReplyTo = val
 }
 
 // SetSentAt sets the value of SentAt.
@@ -5903,9 +5955,9 @@ func (s *MailboxMessageContentParticipants) SetTo(val []MailboxAddress) {
 // Ref: #/components/schemas/MailboxMessageContentResponse
 type MailboxMessageContentResponse struct {
 	// Merged property.
-	Meta MailboxMessageContentResponseMeta    `json:"meta"`
-	Ok   MailboxMessageContentResponseOk      `json:"ok"`
-	Data NilMailboxMessageContentResponseData `json:"data"`
+	Meta MailboxMessageContentResponseMeta `json:"meta"`
+	Ok   MailboxMessageContentResponseOk   `json:"ok"`
+	Data MailboxMessageContent             `json:"data"`
 }
 
 // GetMeta returns the value of Meta.
@@ -5919,7 +5971,7 @@ func (s *MailboxMessageContentResponse) GetOk() MailboxMessageContentResponseOk 
 }
 
 // GetData returns the value of Data.
-func (s *MailboxMessageContentResponse) GetData() NilMailboxMessageContentResponseData {
+func (s *MailboxMessageContentResponse) GetData() MailboxMessageContent {
 	return s.Data
 }
 
@@ -5934,357 +5986,11 @@ func (s *MailboxMessageContentResponse) SetOk(val MailboxMessageContentResponseO
 }
 
 // SetData sets the value of Data.
-func (s *MailboxMessageContentResponse) SetData(val NilMailboxMessageContentResponseData) {
+func (s *MailboxMessageContentResponse) SetData(val MailboxMessageContent) {
 	s.Data = val
 }
 
 func (*MailboxMessageContentResponse) mailboxListContentRes() {}
-
-// Merged schema.
-type MailboxMessageContentResponseData struct {
-	// Attachment metadata only. Attachment contents are not parsed by this endpoint.
-	Attachments []MailboxAttachment                    `json:"attachments"`
-	Body        MailboxMessageContentResponseDataBody  `json:"body"`
-	Dates       MailboxMessageContentResponseDataDates `json:"dates"`
-	Headers     MailboxContentHeaders                  `json:"headers"`
-	// Message ID.
-	ID           string                                        `json:"id"`
-	Participants MailboxMessageContentResponseDataParticipants `json:"participants"`
-	States       MailboxMessageContentResponseDataStates       `json:"states"`
-	Subject      NilString                                     `json:"subject"`
-	ThreadID     NilString                                     `json:"thread_id"`
-}
-
-// GetAttachments returns the value of Attachments.
-func (s *MailboxMessageContentResponseData) GetAttachments() []MailboxAttachment {
-	return s.Attachments
-}
-
-// GetBody returns the value of Body.
-func (s *MailboxMessageContentResponseData) GetBody() MailboxMessageContentResponseDataBody {
-	return s.Body
-}
-
-// GetDates returns the value of Dates.
-func (s *MailboxMessageContentResponseData) GetDates() MailboxMessageContentResponseDataDates {
-	return s.Dates
-}
-
-// GetHeaders returns the value of Headers.
-func (s *MailboxMessageContentResponseData) GetHeaders() MailboxContentHeaders {
-	return s.Headers
-}
-
-// GetID returns the value of ID.
-func (s *MailboxMessageContentResponseData) GetID() string {
-	return s.ID
-}
-
-// GetParticipants returns the value of Participants.
-func (s *MailboxMessageContentResponseData) GetParticipants() MailboxMessageContentResponseDataParticipants {
-	return s.Participants
-}
-
-// GetStates returns the value of States.
-func (s *MailboxMessageContentResponseData) GetStates() MailboxMessageContentResponseDataStates {
-	return s.States
-}
-
-// GetSubject returns the value of Subject.
-func (s *MailboxMessageContentResponseData) GetSubject() NilString {
-	return s.Subject
-}
-
-// GetThreadID returns the value of ThreadID.
-func (s *MailboxMessageContentResponseData) GetThreadID() NilString {
-	return s.ThreadID
-}
-
-// SetAttachments sets the value of Attachments.
-func (s *MailboxMessageContentResponseData) SetAttachments(val []MailboxAttachment) {
-	s.Attachments = val
-}
-
-// SetBody sets the value of Body.
-func (s *MailboxMessageContentResponseData) SetBody(val MailboxMessageContentResponseDataBody) {
-	s.Body = val
-}
-
-// SetDates sets the value of Dates.
-func (s *MailboxMessageContentResponseData) SetDates(val MailboxMessageContentResponseDataDates) {
-	s.Dates = val
-}
-
-// SetHeaders sets the value of Headers.
-func (s *MailboxMessageContentResponseData) SetHeaders(val MailboxContentHeaders) {
-	s.Headers = val
-}
-
-// SetID sets the value of ID.
-func (s *MailboxMessageContentResponseData) SetID(val string) {
-	s.ID = val
-}
-
-// SetParticipants sets the value of Participants.
-func (s *MailboxMessageContentResponseData) SetParticipants(val MailboxMessageContentResponseDataParticipants) {
-	s.Participants = val
-}
-
-// SetStates sets the value of States.
-func (s *MailboxMessageContentResponseData) SetStates(val MailboxMessageContentResponseDataStates) {
-	s.States = val
-}
-
-// SetSubject sets the value of Subject.
-func (s *MailboxMessageContentResponseData) SetSubject(val NilString) {
-	s.Subject = val
-}
-
-// SetThreadID sets the value of ThreadID.
-func (s *MailboxMessageContentResponseData) SetThreadID(val NilString) {
-	s.ThreadID = val
-}
-
-type MailboxMessageContentResponseDataBody struct {
-	ExtractedLinks []string                                       `json:"extracted_links"`
-	Format         NilMailboxMessageContentResponseDataBodyFormat `json:"format"`
-	// HTML body when requested. Returned as a JSON string and not as rendered content.
-	HTML              NilString `json:"html"`
-	IsTruncated       bool      `json:"is_truncated"`
-	QuotesStripped    bool      `json:"quotes_stripped"`
-	SignatureStripped bool      `json:"signature_stripped"`
-	Text              NilString `json:"text"`
-	TruncatedAtChars  NilInt    `json:"truncated_at_chars"`
-}
-
-// GetExtractedLinks returns the value of ExtractedLinks.
-func (s *MailboxMessageContentResponseDataBody) GetExtractedLinks() []string {
-	return s.ExtractedLinks
-}
-
-// GetFormat returns the value of Format.
-func (s *MailboxMessageContentResponseDataBody) GetFormat() NilMailboxMessageContentResponseDataBodyFormat {
-	return s.Format
-}
-
-// GetHTML returns the value of HTML.
-func (s *MailboxMessageContentResponseDataBody) GetHTML() NilString {
-	return s.HTML
-}
-
-// GetIsTruncated returns the value of IsTruncated.
-func (s *MailboxMessageContentResponseDataBody) GetIsTruncated() bool {
-	return s.IsTruncated
-}
-
-// GetQuotesStripped returns the value of QuotesStripped.
-func (s *MailboxMessageContentResponseDataBody) GetQuotesStripped() bool {
-	return s.QuotesStripped
-}
-
-// GetSignatureStripped returns the value of SignatureStripped.
-func (s *MailboxMessageContentResponseDataBody) GetSignatureStripped() bool {
-	return s.SignatureStripped
-}
-
-// GetText returns the value of Text.
-func (s *MailboxMessageContentResponseDataBody) GetText() NilString {
-	return s.Text
-}
-
-// GetTruncatedAtChars returns the value of TruncatedAtChars.
-func (s *MailboxMessageContentResponseDataBody) GetTruncatedAtChars() NilInt {
-	return s.TruncatedAtChars
-}
-
-// SetExtractedLinks sets the value of ExtractedLinks.
-func (s *MailboxMessageContentResponseDataBody) SetExtractedLinks(val []string) {
-	s.ExtractedLinks = val
-}
-
-// SetFormat sets the value of Format.
-func (s *MailboxMessageContentResponseDataBody) SetFormat(val NilMailboxMessageContentResponseDataBodyFormat) {
-	s.Format = val
-}
-
-// SetHTML sets the value of HTML.
-func (s *MailboxMessageContentResponseDataBody) SetHTML(val NilString) {
-	s.HTML = val
-}
-
-// SetIsTruncated sets the value of IsTruncated.
-func (s *MailboxMessageContentResponseDataBody) SetIsTruncated(val bool) {
-	s.IsTruncated = val
-}
-
-// SetQuotesStripped sets the value of QuotesStripped.
-func (s *MailboxMessageContentResponseDataBody) SetQuotesStripped(val bool) {
-	s.QuotesStripped = val
-}
-
-// SetSignatureStripped sets the value of SignatureStripped.
-func (s *MailboxMessageContentResponseDataBody) SetSignatureStripped(val bool) {
-	s.SignatureStripped = val
-}
-
-// SetText sets the value of Text.
-func (s *MailboxMessageContentResponseDataBody) SetText(val NilString) {
-	s.Text = val
-}
-
-// SetTruncatedAtChars sets the value of TruncatedAtChars.
-func (s *MailboxMessageContentResponseDataBody) SetTruncatedAtChars(val NilInt) {
-	s.TruncatedAtChars = val
-}
-
-type MailboxMessageContentResponseDataBodyFormat string
-
-const (
-	MailboxMessageContentResponseDataBodyFormatText MailboxMessageContentResponseDataBodyFormat = "text"
-	MailboxMessageContentResponseDataBodyFormatHTML MailboxMessageContentResponseDataBodyFormat = "html"
-)
-
-// AllValues returns all MailboxMessageContentResponseDataBodyFormat values.
-func (MailboxMessageContentResponseDataBodyFormat) AllValues() []MailboxMessageContentResponseDataBodyFormat {
-	return []MailboxMessageContentResponseDataBodyFormat{
-		MailboxMessageContentResponseDataBodyFormatText,
-		MailboxMessageContentResponseDataBodyFormatHTML,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s MailboxMessageContentResponseDataBodyFormat) MarshalText() ([]byte, error) {
-	switch s {
-	case MailboxMessageContentResponseDataBodyFormatText:
-		return []byte(s), nil
-	case MailboxMessageContentResponseDataBodyFormatHTML:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *MailboxMessageContentResponseDataBodyFormat) UnmarshalText(data []byte) error {
-	switch MailboxMessageContentResponseDataBodyFormat(data) {
-	case MailboxMessageContentResponseDataBodyFormatText:
-		*s = MailboxMessageContentResponseDataBodyFormatText
-		return nil
-	case MailboxMessageContentResponseDataBodyFormatHTML:
-		*s = MailboxMessageContentResponseDataBodyFormatHTML
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-type MailboxMessageContentResponseDataDates struct {
-	ReceivedAt NilString `json:"received_at"`
-	SentAt     NilString `json:"sent_at"`
-}
-
-// GetReceivedAt returns the value of ReceivedAt.
-func (s *MailboxMessageContentResponseDataDates) GetReceivedAt() NilString {
-	return s.ReceivedAt
-}
-
-// GetSentAt returns the value of SentAt.
-func (s *MailboxMessageContentResponseDataDates) GetSentAt() NilString {
-	return s.SentAt
-}
-
-// SetReceivedAt sets the value of ReceivedAt.
-func (s *MailboxMessageContentResponseDataDates) SetReceivedAt(val NilString) {
-	s.ReceivedAt = val
-}
-
-// SetSentAt sets the value of SentAt.
-func (s *MailboxMessageContentResponseDataDates) SetSentAt(val NilString) {
-	s.SentAt = val
-}
-
-type MailboxMessageContentResponseDataParticipants struct {
-	Bcc     []MailboxAddress  `json:"bcc"`
-	Cc      []MailboxAddress  `json:"cc"`
-	From    NilMailboxAddress `json:"from"`
-	ReplyTo []MailboxAddress  `json:"reply_to"`
-	To      []MailboxAddress  `json:"to"`
-}
-
-// GetBcc returns the value of Bcc.
-func (s *MailboxMessageContentResponseDataParticipants) GetBcc() []MailboxAddress {
-	return s.Bcc
-}
-
-// GetCc returns the value of Cc.
-func (s *MailboxMessageContentResponseDataParticipants) GetCc() []MailboxAddress {
-	return s.Cc
-}
-
-// GetFrom returns the value of From.
-func (s *MailboxMessageContentResponseDataParticipants) GetFrom() NilMailboxAddress {
-	return s.From
-}
-
-// GetReplyTo returns the value of ReplyTo.
-func (s *MailboxMessageContentResponseDataParticipants) GetReplyTo() []MailboxAddress {
-	return s.ReplyTo
-}
-
-// GetTo returns the value of To.
-func (s *MailboxMessageContentResponseDataParticipants) GetTo() []MailboxAddress {
-	return s.To
-}
-
-// SetBcc sets the value of Bcc.
-func (s *MailboxMessageContentResponseDataParticipants) SetBcc(val []MailboxAddress) {
-	s.Bcc = val
-}
-
-// SetCc sets the value of Cc.
-func (s *MailboxMessageContentResponseDataParticipants) SetCc(val []MailboxAddress) {
-	s.Cc = val
-}
-
-// SetFrom sets the value of From.
-func (s *MailboxMessageContentResponseDataParticipants) SetFrom(val NilMailboxAddress) {
-	s.From = val
-}
-
-// SetReplyTo sets the value of ReplyTo.
-func (s *MailboxMessageContentResponseDataParticipants) SetReplyTo(val []MailboxAddress) {
-	s.ReplyTo = val
-}
-
-// SetTo sets the value of To.
-func (s *MailboxMessageContentResponseDataParticipants) SetTo(val []MailboxAddress) {
-	s.To = val
-}
-
-type MailboxMessageContentResponseDataStates struct {
-	EmailState NilString `json:"email_state"`
-	OptionHash string    `json:"option_hash"`
-}
-
-// GetEmailState returns the value of EmailState.
-func (s *MailboxMessageContentResponseDataStates) GetEmailState() NilString {
-	return s.EmailState
-}
-
-// GetOptionHash returns the value of OptionHash.
-func (s *MailboxMessageContentResponseDataStates) GetOptionHash() string {
-	return s.OptionHash
-}
-
-// SetEmailState sets the value of EmailState.
-func (s *MailboxMessageContentResponseDataStates) SetEmailState(val NilString) {
-	s.EmailState = val
-}
-
-// SetOptionHash sets the value of OptionHash.
-func (s *MailboxMessageContentResponseDataStates) SetOptionHash(val string) {
-	s.OptionHash = val
-}
 
 // Merged schema.
 type MailboxMessageContentResponseMeta struct {
@@ -7727,9 +7433,9 @@ func (s *MailboxRawBodyPart) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/MailboxRawBodyResponse
 type MailboxRawBodyResponse struct {
 	// Merged property.
-	Meta MailboxRawBodyResponseMeta    `json:"meta"`
-	Ok   MailboxRawBodyResponseOk      `json:"ok"`
-	Data NilMailboxRawBodyResponseData `json:"data"`
+	Meta MailboxRawBodyResponseMeta `json:"meta"`
+	Ok   MailboxRawBodyResponseOk   `json:"ok"`
+	Data MailboxRawBody             `json:"data"`
 }
 
 // GetMeta returns the value of Meta.
@@ -7743,7 +7449,7 @@ func (s *MailboxRawBodyResponse) GetOk() MailboxRawBodyResponseOk {
 }
 
 // GetData returns the value of Data.
-func (s *MailboxRawBodyResponse) GetData() NilMailboxRawBodyResponseData {
+func (s *MailboxRawBodyResponse) GetData() MailboxRawBody {
 	return s.Data
 }
 
@@ -7758,180 +7464,11 @@ func (s *MailboxRawBodyResponse) SetOk(val MailboxRawBodyResponseOk) {
 }
 
 // SetData sets the value of Data.
-func (s *MailboxRawBodyResponse) SetData(val NilMailboxRawBodyResponseData) {
+func (s *MailboxRawBodyResponse) SetData(val MailboxRawBody) {
 	s.Data = val
 }
 
 func (*MailboxRawBodyResponse) mailboxListBodyRes() {}
-
-// Merged schema.
-type MailboxRawBodyResponseData struct {
-	Body MailboxRawBodyResponseDataBody `json:"body"`
-	// Message ID.
-	ID       string                           `json:"id"`
-	Part     MailboxRawBodyResponseDataPart   `json:"part"`
-	States   MailboxRawBodyResponseDataStates `json:"states"`
-	ThreadID NilString                        `json:"thread_id"`
-}
-
-// GetBody returns the value of Body.
-func (s *MailboxRawBodyResponseData) GetBody() MailboxRawBodyResponseDataBody {
-	return s.Body
-}
-
-// GetID returns the value of ID.
-func (s *MailboxRawBodyResponseData) GetID() string {
-	return s.ID
-}
-
-// GetPart returns the value of Part.
-func (s *MailboxRawBodyResponseData) GetPart() MailboxRawBodyResponseDataPart {
-	return s.Part
-}
-
-// GetStates returns the value of States.
-func (s *MailboxRawBodyResponseData) GetStates() MailboxRawBodyResponseDataStates {
-	return s.States
-}
-
-// GetThreadID returns the value of ThreadID.
-func (s *MailboxRawBodyResponseData) GetThreadID() NilString {
-	return s.ThreadID
-}
-
-// SetBody sets the value of Body.
-func (s *MailboxRawBodyResponseData) SetBody(val MailboxRawBodyResponseDataBody) {
-	s.Body = val
-}
-
-// SetID sets the value of ID.
-func (s *MailboxRawBodyResponseData) SetID(val string) {
-	s.ID = val
-}
-
-// SetPart sets the value of Part.
-func (s *MailboxRawBodyResponseData) SetPart(val MailboxRawBodyResponseDataPart) {
-	s.Part = val
-}
-
-// SetStates sets the value of States.
-func (s *MailboxRawBodyResponseData) SetStates(val MailboxRawBodyResponseDataStates) {
-	s.States = val
-}
-
-// SetThreadID sets the value of ThreadID.
-func (s *MailboxRawBodyResponseData) SetThreadID(val NilString) {
-	s.ThreadID = val
-}
-
-type MailboxRawBodyResponseDataBody struct {
-	HTML             NilString `json:"html"`
-	IsTruncated      bool      `json:"is_truncated"`
-	Text             NilString `json:"text"`
-	TruncatedAtChars NilInt    `json:"truncated_at_chars"`
-}
-
-// GetHTML returns the value of HTML.
-func (s *MailboxRawBodyResponseDataBody) GetHTML() NilString {
-	return s.HTML
-}
-
-// GetIsTruncated returns the value of IsTruncated.
-func (s *MailboxRawBodyResponseDataBody) GetIsTruncated() bool {
-	return s.IsTruncated
-}
-
-// GetText returns the value of Text.
-func (s *MailboxRawBodyResponseDataBody) GetText() NilString {
-	return s.Text
-}
-
-// GetTruncatedAtChars returns the value of TruncatedAtChars.
-func (s *MailboxRawBodyResponseDataBody) GetTruncatedAtChars() NilInt {
-	return s.TruncatedAtChars
-}
-
-// SetHTML sets the value of HTML.
-func (s *MailboxRawBodyResponseDataBody) SetHTML(val NilString) {
-	s.HTML = val
-}
-
-// SetIsTruncated sets the value of IsTruncated.
-func (s *MailboxRawBodyResponseDataBody) SetIsTruncated(val bool) {
-	s.IsTruncated = val
-}
-
-// SetText sets the value of Text.
-func (s *MailboxRawBodyResponseDataBody) SetText(val NilString) {
-	s.Text = val
-}
-
-// SetTruncatedAtChars sets the value of TruncatedAtChars.
-func (s *MailboxRawBodyResponseDataBody) SetTruncatedAtChars(val NilInt) {
-	s.TruncatedAtChars = val
-}
-
-type MailboxRawBodyResponseDataPart string
-
-const (
-	MailboxRawBodyResponseDataPartText MailboxRawBodyResponseDataPart = "text"
-	MailboxRawBodyResponseDataPartHTML MailboxRawBodyResponseDataPart = "html"
-	MailboxRawBodyResponseDataPartBoth MailboxRawBodyResponseDataPart = "both"
-)
-
-// AllValues returns all MailboxRawBodyResponseDataPart values.
-func (MailboxRawBodyResponseDataPart) AllValues() []MailboxRawBodyResponseDataPart {
-	return []MailboxRawBodyResponseDataPart{
-		MailboxRawBodyResponseDataPartText,
-		MailboxRawBodyResponseDataPartHTML,
-		MailboxRawBodyResponseDataPartBoth,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s MailboxRawBodyResponseDataPart) MarshalText() ([]byte, error) {
-	switch s {
-	case MailboxRawBodyResponseDataPartText:
-		return []byte(s), nil
-	case MailboxRawBodyResponseDataPartHTML:
-		return []byte(s), nil
-	case MailboxRawBodyResponseDataPartBoth:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *MailboxRawBodyResponseDataPart) UnmarshalText(data []byte) error {
-	switch MailboxRawBodyResponseDataPart(data) {
-	case MailboxRawBodyResponseDataPartText:
-		*s = MailboxRawBodyResponseDataPartText
-		return nil
-	case MailboxRawBodyResponseDataPartHTML:
-		*s = MailboxRawBodyResponseDataPartHTML
-		return nil
-	case MailboxRawBodyResponseDataPartBoth:
-		*s = MailboxRawBodyResponseDataPartBoth
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-type MailboxRawBodyResponseDataStates struct {
-	EmailState NilString `json:"email_state"`
-}
-
-// GetEmailState returns the value of EmailState.
-func (s *MailboxRawBodyResponseDataStates) GetEmailState() NilString {
-	return s.EmailState
-}
-
-// SetEmailState sets the value of EmailState.
-func (s *MailboxRawBodyResponseDataStates) SetEmailState(val NilString) {
-	s.EmailState = val
-}
 
 // Merged schema.
 type MailboxRawBodyResponseMeta struct {
@@ -10078,8 +9615,8 @@ func (s *MailboxSubmissionDeliveryStatus) SetSMTPReply(val NilString) {
 
 // Ref: #/components/schemas/MailboxSubmissionEnvelope
 type MailboxSubmissionEnvelope struct {
-	MailFrom NilMailboxSubmissionEnvelopeAddress      `json:"mail_from"`
-	RcptTo   []NilMailboxSubmissionEnvelopeRcptToItem `json:"rcpt_to"`
+	MailFrom NilMailboxSubmissionEnvelopeAddress `json:"mail_from"`
+	RcptTo   []MailboxSubmissionEnvelopeAddress  `json:"rcpt_to"`
 }
 
 // GetMailFrom returns the value of MailFrom.
@@ -10088,7 +9625,7 @@ func (s *MailboxSubmissionEnvelope) GetMailFrom() NilMailboxSubmissionEnvelopeAd
 }
 
 // GetRcptTo returns the value of RcptTo.
-func (s *MailboxSubmissionEnvelope) GetRcptTo() []NilMailboxSubmissionEnvelopeRcptToItem {
+func (s *MailboxSubmissionEnvelope) GetRcptTo() []MailboxSubmissionEnvelopeAddress {
 	return s.RcptTo
 }
 
@@ -10098,7 +9635,7 @@ func (s *MailboxSubmissionEnvelope) SetMailFrom(val NilMailboxSubmissionEnvelope
 }
 
 // SetRcptTo sets the value of RcptTo.
-func (s *MailboxSubmissionEnvelope) SetRcptTo(val []NilMailboxSubmissionEnvelopeRcptToItem) {
+func (s *MailboxSubmissionEnvelope) SetRcptTo(val []MailboxSubmissionEnvelopeAddress) {
 	s.RcptTo = val
 }
 
@@ -10131,43 +9668,6 @@ func (s *MailboxSubmissionEnvelopeAddress) SetParameters(val NilMailboxSubmissio
 type MailboxSubmissionEnvelopeAddressParameters map[string]NilString
 
 func (s *MailboxSubmissionEnvelopeAddressParameters) init() MailboxSubmissionEnvelopeAddressParameters {
-	m := *s
-	if m == nil {
-		m = map[string]NilString{}
-		*s = m
-	}
-	return m
-}
-
-// Merged schema.
-type MailboxSubmissionEnvelopeRcptToItem struct {
-	Email      string                                           `json:"email"`
-	Parameters NilMailboxSubmissionEnvelopeRcptToItemParameters `json:"parameters"`
-}
-
-// GetEmail returns the value of Email.
-func (s *MailboxSubmissionEnvelopeRcptToItem) GetEmail() string {
-	return s.Email
-}
-
-// GetParameters returns the value of Parameters.
-func (s *MailboxSubmissionEnvelopeRcptToItem) GetParameters() NilMailboxSubmissionEnvelopeRcptToItemParameters {
-	return s.Parameters
-}
-
-// SetEmail sets the value of Email.
-func (s *MailboxSubmissionEnvelopeRcptToItem) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetParameters sets the value of Parameters.
-func (s *MailboxSubmissionEnvelopeRcptToItem) SetParameters(val NilMailboxSubmissionEnvelopeRcptToItemParameters) {
-	s.Parameters = val
-}
-
-type MailboxSubmissionEnvelopeRcptToItemParameters map[string]NilString
-
-func (s *MailboxSubmissionEnvelopeRcptToItemParameters) init() MailboxSubmissionEnvelopeRcptToItemParameters {
 	m := *s
 	if m == nil {
 		m = map[string]NilString{}
@@ -10386,10 +9886,10 @@ func (s *MailboxThread) SetUnreadCount(val int) {
 // Ref: #/components/schemas/MailboxThreadContentResponse
 type MailboxThreadContentResponse struct {
 	// Merged property.
-	Meta       MailboxThreadContentResponseMeta          `json:"meta"`
-	Ok         MailboxThreadContentResponseOk            `json:"ok"`
-	Data       []NilMailboxThreadContentResponseDataItem `json:"data"`
-	Pagination CursorPagination                          `json:"pagination"`
+	Meta       MailboxThreadContentResponseMeta `json:"meta"`
+	Ok         MailboxThreadContentResponseOk   `json:"ok"`
+	Data       []MailboxMessageContent          `json:"data"`
+	Pagination CursorPagination                 `json:"pagination"`
 }
 
 // GetMeta returns the value of Meta.
@@ -10403,7 +9903,7 @@ func (s *MailboxThreadContentResponse) GetOk() MailboxThreadContentResponseOk {
 }
 
 // GetData returns the value of Data.
-func (s *MailboxThreadContentResponse) GetData() []NilMailboxThreadContentResponseDataItem {
+func (s *MailboxThreadContentResponse) GetData() []MailboxMessageContent {
 	return s.Data
 }
 
@@ -10423,7 +9923,7 @@ func (s *MailboxThreadContentResponse) SetOk(val MailboxThreadContentResponseOk)
 }
 
 // SetData sets the value of Data.
-func (s *MailboxThreadContentResponse) SetData(val []NilMailboxThreadContentResponseDataItem) {
+func (s *MailboxThreadContentResponse) SetData(val []MailboxMessageContent) {
 	s.Data = val
 }
 
@@ -10433,352 +9933,6 @@ func (s *MailboxThreadContentResponse) SetPagination(val CursorPagination) {
 }
 
 func (*MailboxThreadContentResponse) mailboxGetThreadContentRes() {}
-
-// Merged schema.
-type MailboxThreadContentResponseDataItem struct {
-	// Attachment metadata only. Attachment contents are not parsed by this endpoint.
-	Attachments []MailboxAttachment                       `json:"attachments"`
-	Body        MailboxThreadContentResponseDataItemBody  `json:"body"`
-	Dates       MailboxThreadContentResponseDataItemDates `json:"dates"`
-	Headers     MailboxContentHeaders                     `json:"headers"`
-	// Message ID.
-	ID           string                                           `json:"id"`
-	Participants MailboxThreadContentResponseDataItemParticipants `json:"participants"`
-	States       MailboxThreadContentResponseDataItemStates       `json:"states"`
-	Subject      NilString                                        `json:"subject"`
-	ThreadID     NilString                                        `json:"thread_id"`
-}
-
-// GetAttachments returns the value of Attachments.
-func (s *MailboxThreadContentResponseDataItem) GetAttachments() []MailboxAttachment {
-	return s.Attachments
-}
-
-// GetBody returns the value of Body.
-func (s *MailboxThreadContentResponseDataItem) GetBody() MailboxThreadContentResponseDataItemBody {
-	return s.Body
-}
-
-// GetDates returns the value of Dates.
-func (s *MailboxThreadContentResponseDataItem) GetDates() MailboxThreadContentResponseDataItemDates {
-	return s.Dates
-}
-
-// GetHeaders returns the value of Headers.
-func (s *MailboxThreadContentResponseDataItem) GetHeaders() MailboxContentHeaders {
-	return s.Headers
-}
-
-// GetID returns the value of ID.
-func (s *MailboxThreadContentResponseDataItem) GetID() string {
-	return s.ID
-}
-
-// GetParticipants returns the value of Participants.
-func (s *MailboxThreadContentResponseDataItem) GetParticipants() MailboxThreadContentResponseDataItemParticipants {
-	return s.Participants
-}
-
-// GetStates returns the value of States.
-func (s *MailboxThreadContentResponseDataItem) GetStates() MailboxThreadContentResponseDataItemStates {
-	return s.States
-}
-
-// GetSubject returns the value of Subject.
-func (s *MailboxThreadContentResponseDataItem) GetSubject() NilString {
-	return s.Subject
-}
-
-// GetThreadID returns the value of ThreadID.
-func (s *MailboxThreadContentResponseDataItem) GetThreadID() NilString {
-	return s.ThreadID
-}
-
-// SetAttachments sets the value of Attachments.
-func (s *MailboxThreadContentResponseDataItem) SetAttachments(val []MailboxAttachment) {
-	s.Attachments = val
-}
-
-// SetBody sets the value of Body.
-func (s *MailboxThreadContentResponseDataItem) SetBody(val MailboxThreadContentResponseDataItemBody) {
-	s.Body = val
-}
-
-// SetDates sets the value of Dates.
-func (s *MailboxThreadContentResponseDataItem) SetDates(val MailboxThreadContentResponseDataItemDates) {
-	s.Dates = val
-}
-
-// SetHeaders sets the value of Headers.
-func (s *MailboxThreadContentResponseDataItem) SetHeaders(val MailboxContentHeaders) {
-	s.Headers = val
-}
-
-// SetID sets the value of ID.
-func (s *MailboxThreadContentResponseDataItem) SetID(val string) {
-	s.ID = val
-}
-
-// SetParticipants sets the value of Participants.
-func (s *MailboxThreadContentResponseDataItem) SetParticipants(val MailboxThreadContentResponseDataItemParticipants) {
-	s.Participants = val
-}
-
-// SetStates sets the value of States.
-func (s *MailboxThreadContentResponseDataItem) SetStates(val MailboxThreadContentResponseDataItemStates) {
-	s.States = val
-}
-
-// SetSubject sets the value of Subject.
-func (s *MailboxThreadContentResponseDataItem) SetSubject(val NilString) {
-	s.Subject = val
-}
-
-// SetThreadID sets the value of ThreadID.
-func (s *MailboxThreadContentResponseDataItem) SetThreadID(val NilString) {
-	s.ThreadID = val
-}
-
-type MailboxThreadContentResponseDataItemBody struct {
-	ExtractedLinks []string                                          `json:"extracted_links"`
-	Format         NilMailboxThreadContentResponseDataItemBodyFormat `json:"format"`
-	// HTML body when requested. Returned as a JSON string and not as rendered content.
-	HTML              NilString `json:"html"`
-	IsTruncated       bool      `json:"is_truncated"`
-	QuotesStripped    bool      `json:"quotes_stripped"`
-	SignatureStripped bool      `json:"signature_stripped"`
-	Text              NilString `json:"text"`
-	TruncatedAtChars  NilInt    `json:"truncated_at_chars"`
-}
-
-// GetExtractedLinks returns the value of ExtractedLinks.
-func (s *MailboxThreadContentResponseDataItemBody) GetExtractedLinks() []string {
-	return s.ExtractedLinks
-}
-
-// GetFormat returns the value of Format.
-func (s *MailboxThreadContentResponseDataItemBody) GetFormat() NilMailboxThreadContentResponseDataItemBodyFormat {
-	return s.Format
-}
-
-// GetHTML returns the value of HTML.
-func (s *MailboxThreadContentResponseDataItemBody) GetHTML() NilString {
-	return s.HTML
-}
-
-// GetIsTruncated returns the value of IsTruncated.
-func (s *MailboxThreadContentResponseDataItemBody) GetIsTruncated() bool {
-	return s.IsTruncated
-}
-
-// GetQuotesStripped returns the value of QuotesStripped.
-func (s *MailboxThreadContentResponseDataItemBody) GetQuotesStripped() bool {
-	return s.QuotesStripped
-}
-
-// GetSignatureStripped returns the value of SignatureStripped.
-func (s *MailboxThreadContentResponseDataItemBody) GetSignatureStripped() bool {
-	return s.SignatureStripped
-}
-
-// GetText returns the value of Text.
-func (s *MailboxThreadContentResponseDataItemBody) GetText() NilString {
-	return s.Text
-}
-
-// GetTruncatedAtChars returns the value of TruncatedAtChars.
-func (s *MailboxThreadContentResponseDataItemBody) GetTruncatedAtChars() NilInt {
-	return s.TruncatedAtChars
-}
-
-// SetExtractedLinks sets the value of ExtractedLinks.
-func (s *MailboxThreadContentResponseDataItemBody) SetExtractedLinks(val []string) {
-	s.ExtractedLinks = val
-}
-
-// SetFormat sets the value of Format.
-func (s *MailboxThreadContentResponseDataItemBody) SetFormat(val NilMailboxThreadContentResponseDataItemBodyFormat) {
-	s.Format = val
-}
-
-// SetHTML sets the value of HTML.
-func (s *MailboxThreadContentResponseDataItemBody) SetHTML(val NilString) {
-	s.HTML = val
-}
-
-// SetIsTruncated sets the value of IsTruncated.
-func (s *MailboxThreadContentResponseDataItemBody) SetIsTruncated(val bool) {
-	s.IsTruncated = val
-}
-
-// SetQuotesStripped sets the value of QuotesStripped.
-func (s *MailboxThreadContentResponseDataItemBody) SetQuotesStripped(val bool) {
-	s.QuotesStripped = val
-}
-
-// SetSignatureStripped sets the value of SignatureStripped.
-func (s *MailboxThreadContentResponseDataItemBody) SetSignatureStripped(val bool) {
-	s.SignatureStripped = val
-}
-
-// SetText sets the value of Text.
-func (s *MailboxThreadContentResponseDataItemBody) SetText(val NilString) {
-	s.Text = val
-}
-
-// SetTruncatedAtChars sets the value of TruncatedAtChars.
-func (s *MailboxThreadContentResponseDataItemBody) SetTruncatedAtChars(val NilInt) {
-	s.TruncatedAtChars = val
-}
-
-type MailboxThreadContentResponseDataItemBodyFormat string
-
-const (
-	MailboxThreadContentResponseDataItemBodyFormatText MailboxThreadContentResponseDataItemBodyFormat = "text"
-	MailboxThreadContentResponseDataItemBodyFormatHTML MailboxThreadContentResponseDataItemBodyFormat = "html"
-)
-
-// AllValues returns all MailboxThreadContentResponseDataItemBodyFormat values.
-func (MailboxThreadContentResponseDataItemBodyFormat) AllValues() []MailboxThreadContentResponseDataItemBodyFormat {
-	return []MailboxThreadContentResponseDataItemBodyFormat{
-		MailboxThreadContentResponseDataItemBodyFormatText,
-		MailboxThreadContentResponseDataItemBodyFormatHTML,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s MailboxThreadContentResponseDataItemBodyFormat) MarshalText() ([]byte, error) {
-	switch s {
-	case MailboxThreadContentResponseDataItemBodyFormatText:
-		return []byte(s), nil
-	case MailboxThreadContentResponseDataItemBodyFormatHTML:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *MailboxThreadContentResponseDataItemBodyFormat) UnmarshalText(data []byte) error {
-	switch MailboxThreadContentResponseDataItemBodyFormat(data) {
-	case MailboxThreadContentResponseDataItemBodyFormatText:
-		*s = MailboxThreadContentResponseDataItemBodyFormatText
-		return nil
-	case MailboxThreadContentResponseDataItemBodyFormatHTML:
-		*s = MailboxThreadContentResponseDataItemBodyFormatHTML
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-type MailboxThreadContentResponseDataItemDates struct {
-	ReceivedAt NilString `json:"received_at"`
-	SentAt     NilString `json:"sent_at"`
-}
-
-// GetReceivedAt returns the value of ReceivedAt.
-func (s *MailboxThreadContentResponseDataItemDates) GetReceivedAt() NilString {
-	return s.ReceivedAt
-}
-
-// GetSentAt returns the value of SentAt.
-func (s *MailboxThreadContentResponseDataItemDates) GetSentAt() NilString {
-	return s.SentAt
-}
-
-// SetReceivedAt sets the value of ReceivedAt.
-func (s *MailboxThreadContentResponseDataItemDates) SetReceivedAt(val NilString) {
-	s.ReceivedAt = val
-}
-
-// SetSentAt sets the value of SentAt.
-func (s *MailboxThreadContentResponseDataItemDates) SetSentAt(val NilString) {
-	s.SentAt = val
-}
-
-type MailboxThreadContentResponseDataItemParticipants struct {
-	Bcc     []MailboxAddress  `json:"bcc"`
-	Cc      []MailboxAddress  `json:"cc"`
-	From    NilMailboxAddress `json:"from"`
-	ReplyTo []MailboxAddress  `json:"reply_to"`
-	To      []MailboxAddress  `json:"to"`
-}
-
-// GetBcc returns the value of Bcc.
-func (s *MailboxThreadContentResponseDataItemParticipants) GetBcc() []MailboxAddress {
-	return s.Bcc
-}
-
-// GetCc returns the value of Cc.
-func (s *MailboxThreadContentResponseDataItemParticipants) GetCc() []MailboxAddress {
-	return s.Cc
-}
-
-// GetFrom returns the value of From.
-func (s *MailboxThreadContentResponseDataItemParticipants) GetFrom() NilMailboxAddress {
-	return s.From
-}
-
-// GetReplyTo returns the value of ReplyTo.
-func (s *MailboxThreadContentResponseDataItemParticipants) GetReplyTo() []MailboxAddress {
-	return s.ReplyTo
-}
-
-// GetTo returns the value of To.
-func (s *MailboxThreadContentResponseDataItemParticipants) GetTo() []MailboxAddress {
-	return s.To
-}
-
-// SetBcc sets the value of Bcc.
-func (s *MailboxThreadContentResponseDataItemParticipants) SetBcc(val []MailboxAddress) {
-	s.Bcc = val
-}
-
-// SetCc sets the value of Cc.
-func (s *MailboxThreadContentResponseDataItemParticipants) SetCc(val []MailboxAddress) {
-	s.Cc = val
-}
-
-// SetFrom sets the value of From.
-func (s *MailboxThreadContentResponseDataItemParticipants) SetFrom(val NilMailboxAddress) {
-	s.From = val
-}
-
-// SetReplyTo sets the value of ReplyTo.
-func (s *MailboxThreadContentResponseDataItemParticipants) SetReplyTo(val []MailboxAddress) {
-	s.ReplyTo = val
-}
-
-// SetTo sets the value of To.
-func (s *MailboxThreadContentResponseDataItemParticipants) SetTo(val []MailboxAddress) {
-	s.To = val
-}
-
-type MailboxThreadContentResponseDataItemStates struct {
-	EmailState NilString `json:"email_state"`
-	OptionHash string    `json:"option_hash"`
-}
-
-// GetEmailState returns the value of EmailState.
-func (s *MailboxThreadContentResponseDataItemStates) GetEmailState() NilString {
-	return s.EmailState
-}
-
-// GetOptionHash returns the value of OptionHash.
-func (s *MailboxThreadContentResponseDataItemStates) GetOptionHash() string {
-	return s.OptionHash
-}
-
-// SetEmailState sets the value of EmailState.
-func (s *MailboxThreadContentResponseDataItemStates) SetEmailState(val NilString) {
-	s.EmailState = val
-}
-
-// SetOptionHash sets the value of OptionHash.
-func (s *MailboxThreadContentResponseDataItemStates) SetOptionHash(val string) {
-	s.OptionHash = val
-}
 
 // Merged schema.
 type MailboxThreadContentResponseMeta struct {
@@ -12052,96 +11206,6 @@ func (o NilMailboxMessageContentBodyFormat) Or(d MailboxMessageContentBodyFormat
 	return d
 }
 
-// NewNilMailboxMessageContentResponseData returns new NilMailboxMessageContentResponseData with value set to v.
-func NewNilMailboxMessageContentResponseData(v MailboxMessageContentResponseData) NilMailboxMessageContentResponseData {
-	return NilMailboxMessageContentResponseData{
-		Value: v,
-	}
-}
-
-// NilMailboxMessageContentResponseData is nullable MailboxMessageContentResponseData.
-type NilMailboxMessageContentResponseData struct {
-	Value MailboxMessageContentResponseData
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxMessageContentResponseData) SetTo(v MailboxMessageContentResponseData) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxMessageContentResponseData) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxMessageContentResponseData) SetToNull() {
-	o.Null = true
-	var v MailboxMessageContentResponseData
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxMessageContentResponseData) Get() (v MailboxMessageContentResponseData, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxMessageContentResponseData) Or(d MailboxMessageContentResponseData) MailboxMessageContentResponseData {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxMessageContentResponseDataBodyFormat returns new NilMailboxMessageContentResponseDataBodyFormat with value set to v.
-func NewNilMailboxMessageContentResponseDataBodyFormat(v MailboxMessageContentResponseDataBodyFormat) NilMailboxMessageContentResponseDataBodyFormat {
-	return NilMailboxMessageContentResponseDataBodyFormat{
-		Value: v,
-	}
-}
-
-// NilMailboxMessageContentResponseDataBodyFormat is nullable MailboxMessageContentResponseDataBodyFormat.
-type NilMailboxMessageContentResponseDataBodyFormat struct {
-	Value MailboxMessageContentResponseDataBodyFormat
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxMessageContentResponseDataBodyFormat) SetTo(v MailboxMessageContentResponseDataBodyFormat) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxMessageContentResponseDataBodyFormat) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxMessageContentResponseDataBodyFormat) SetToNull() {
-	o.Null = true
-	var v MailboxMessageContentResponseDataBodyFormat
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxMessageContentResponseDataBodyFormat) Get() (v MailboxMessageContentResponseDataBodyFormat, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxMessageContentResponseDataBodyFormat) Or(d MailboxMessageContentResponseDataBodyFormat) MailboxMessageContentResponseDataBodyFormat {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewNilMailboxMessageSummary returns new NilMailboxMessageSummary with value set to v.
 func NewNilMailboxMessageSummary(v MailboxMessageSummary) NilMailboxMessageSummary {
 	return NilMailboxMessageSummary{
@@ -12226,51 +11290,6 @@ func (o NilMailboxRawBody) Get() (v MailboxRawBody, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o NilMailboxRawBody) Or(d MailboxRawBody) MailboxRawBody {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxRawBodyResponseData returns new NilMailboxRawBodyResponseData with value set to v.
-func NewNilMailboxRawBodyResponseData(v MailboxRawBodyResponseData) NilMailboxRawBodyResponseData {
-	return NilMailboxRawBodyResponseData{
-		Value: v,
-	}
-}
-
-// NilMailboxRawBodyResponseData is nullable MailboxRawBodyResponseData.
-type NilMailboxRawBodyResponseData struct {
-	Value MailboxRawBodyResponseData
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxRawBodyResponseData) SetTo(v MailboxRawBodyResponseData) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxRawBodyResponseData) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxRawBodyResponseData) SetToNull() {
-	o.Null = true
-	var v MailboxRawBodyResponseData
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxRawBodyResponseData) Get() (v MailboxRawBodyResponseData, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxRawBodyResponseData) Or(d MailboxRawBodyResponseData) MailboxRawBodyResponseData {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12451,186 +11470,6 @@ func (o NilMailboxSubmissionEnvelopeAddressParameters) Get() (v MailboxSubmissio
 
 // Or returns value if set, or given parameter if does not.
 func (o NilMailboxSubmissionEnvelopeAddressParameters) Or(d MailboxSubmissionEnvelopeAddressParameters) MailboxSubmissionEnvelopeAddressParameters {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxSubmissionEnvelopeRcptToItem returns new NilMailboxSubmissionEnvelopeRcptToItem with value set to v.
-func NewNilMailboxSubmissionEnvelopeRcptToItem(v MailboxSubmissionEnvelopeRcptToItem) NilMailboxSubmissionEnvelopeRcptToItem {
-	return NilMailboxSubmissionEnvelopeRcptToItem{
-		Value: v,
-	}
-}
-
-// NilMailboxSubmissionEnvelopeRcptToItem is nullable MailboxSubmissionEnvelopeRcptToItem.
-type NilMailboxSubmissionEnvelopeRcptToItem struct {
-	Value MailboxSubmissionEnvelopeRcptToItem
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxSubmissionEnvelopeRcptToItem) SetTo(v MailboxSubmissionEnvelopeRcptToItem) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxSubmissionEnvelopeRcptToItem) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxSubmissionEnvelopeRcptToItem) SetToNull() {
-	o.Null = true
-	var v MailboxSubmissionEnvelopeRcptToItem
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxSubmissionEnvelopeRcptToItem) Get() (v MailboxSubmissionEnvelopeRcptToItem, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxSubmissionEnvelopeRcptToItem) Or(d MailboxSubmissionEnvelopeRcptToItem) MailboxSubmissionEnvelopeRcptToItem {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxSubmissionEnvelopeRcptToItemParameters returns new NilMailboxSubmissionEnvelopeRcptToItemParameters with value set to v.
-func NewNilMailboxSubmissionEnvelopeRcptToItemParameters(v MailboxSubmissionEnvelopeRcptToItemParameters) NilMailboxSubmissionEnvelopeRcptToItemParameters {
-	return NilMailboxSubmissionEnvelopeRcptToItemParameters{
-		Value: v,
-	}
-}
-
-// NilMailboxSubmissionEnvelopeRcptToItemParameters is nullable MailboxSubmissionEnvelopeRcptToItemParameters.
-type NilMailboxSubmissionEnvelopeRcptToItemParameters struct {
-	Value MailboxSubmissionEnvelopeRcptToItemParameters
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxSubmissionEnvelopeRcptToItemParameters) SetTo(v MailboxSubmissionEnvelopeRcptToItemParameters) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxSubmissionEnvelopeRcptToItemParameters) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxSubmissionEnvelopeRcptToItemParameters) SetToNull() {
-	o.Null = true
-	var v MailboxSubmissionEnvelopeRcptToItemParameters
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxSubmissionEnvelopeRcptToItemParameters) Get() (v MailboxSubmissionEnvelopeRcptToItemParameters, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxSubmissionEnvelopeRcptToItemParameters) Or(d MailboxSubmissionEnvelopeRcptToItemParameters) MailboxSubmissionEnvelopeRcptToItemParameters {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadContentResponseDataItem returns new NilMailboxThreadContentResponseDataItem with value set to v.
-func NewNilMailboxThreadContentResponseDataItem(v MailboxThreadContentResponseDataItem) NilMailboxThreadContentResponseDataItem {
-	return NilMailboxThreadContentResponseDataItem{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadContentResponseDataItem is nullable MailboxThreadContentResponseDataItem.
-type NilMailboxThreadContentResponseDataItem struct {
-	Value MailboxThreadContentResponseDataItem
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadContentResponseDataItem) SetTo(v MailboxThreadContentResponseDataItem) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadContentResponseDataItem) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadContentResponseDataItem) SetToNull() {
-	o.Null = true
-	var v MailboxThreadContentResponseDataItem
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadContentResponseDataItem) Get() (v MailboxThreadContentResponseDataItem, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadContentResponseDataItem) Or(d MailboxThreadContentResponseDataItem) MailboxThreadContentResponseDataItem {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxThreadContentResponseDataItemBodyFormat returns new NilMailboxThreadContentResponseDataItemBodyFormat with value set to v.
-func NewNilMailboxThreadContentResponseDataItemBodyFormat(v MailboxThreadContentResponseDataItemBodyFormat) NilMailboxThreadContentResponseDataItemBodyFormat {
-	return NilMailboxThreadContentResponseDataItemBodyFormat{
-		Value: v,
-	}
-}
-
-// NilMailboxThreadContentResponseDataItemBodyFormat is nullable MailboxThreadContentResponseDataItemBodyFormat.
-type NilMailboxThreadContentResponseDataItemBodyFormat struct {
-	Value MailboxThreadContentResponseDataItemBodyFormat
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxThreadContentResponseDataItemBodyFormat) SetTo(v MailboxThreadContentResponseDataItemBodyFormat) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxThreadContentResponseDataItemBodyFormat) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxThreadContentResponseDataItemBodyFormat) SetToNull() {
-	o.Null = true
-	var v MailboxThreadContentResponseDataItemBodyFormat
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxThreadContentResponseDataItemBodyFormat) Get() (v MailboxThreadContentResponseDataItemBodyFormat, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxThreadContentResponseDataItemBodyFormat) Or(d MailboxThreadContentResponseDataItemBodyFormat) MailboxThreadContentResponseDataItemBodyFormat {
 	if v, ok := o.Get(); ok {
 		return v
 	}

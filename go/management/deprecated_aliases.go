@@ -4,3 +4,156 @@ package management
 // Deprecated type names kept as aliases of their replacements until the next major release. The
 // table lives in scripts/generate-go.mjs; an alias appears once its former type has left the
 // generated output.
+
+// MailboxAppPasswordResultCredential is the former name of MailboxCredential.
+//
+// Deprecated: use MailboxCredential.
+type MailboxAppPasswordResultCredential = MailboxCredential
+
+// NilMailboxAppPasswordResultCredential is the former name of NilMailboxCredential.
+//
+// Deprecated: use NilMailboxCredential.
+type NilMailboxAppPasswordResultCredential = NilMailboxCredential
+
+// NewNilMailboxAppPasswordResultCredential is the former name of NewNilMailboxCredential.
+//
+// Deprecated: use NewNilMailboxCredential.
+func NewNilMailboxAppPasswordResultCredential(v MailboxCredential) NilMailboxCredential {
+	return NewNilMailboxCredential(v)
+}
+
+// ProviderCreateBodyQuotasPerDay1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderCreateBodyQuotasPerDay1 = ProviderQuotaRange
+
+// ProviderCreateBodyQuotasPerHour1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderCreateBodyQuotasPerHour1 = ProviderQuotaRange
+
+// ProviderCreateBodyQuotasPerMinute1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderCreateBodyQuotasPerMinute1 = ProviderQuotaRange
+
+// ProviderCreateBodyQuotasPerSecond1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderCreateBodyQuotasPerSecond1 = ProviderQuotaRange
+
+// ProviderUpdateBodyQuotasPerDay1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderUpdateBodyQuotasPerDay1 = ProviderQuotaRange
+
+// ProviderUpdateBodyQuotasPerHour1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderUpdateBodyQuotasPerHour1 = ProviderQuotaRange
+
+// ProviderUpdateBodyQuotasPerMinute1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderUpdateBodyQuotasPerMinute1 = ProviderQuotaRange
+
+// ProviderUpdateBodyQuotasPerSecond1 is the former name of ProviderQuotaRange.
+//
+// Deprecated: use ProviderQuotaRange.
+type ProviderUpdateBodyQuotasPerSecond1 = ProviderQuotaRange
+
+// NilProviderCreateBodyQuotasPerDay1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderCreateBodyQuotasPerDay1 = NilProviderQuotaRange
+
+// NewNilProviderCreateBodyQuotasPerDay1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderCreateBodyQuotasPerDay1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderCreateBodyQuotasPerHour1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderCreateBodyQuotasPerHour1 = NilProviderQuotaRange
+
+// NewNilProviderCreateBodyQuotasPerHour1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderCreateBodyQuotasPerHour1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderCreateBodyQuotasPerMinute1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderCreateBodyQuotasPerMinute1 = NilProviderQuotaRange
+
+// NewNilProviderCreateBodyQuotasPerMinute1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderCreateBodyQuotasPerMinute1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderCreateBodyQuotasPerSecond1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderCreateBodyQuotasPerSecond1 = NilProviderQuotaRange
+
+// NewNilProviderCreateBodyQuotasPerSecond1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderCreateBodyQuotasPerSecond1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderUpdateBodyQuotasPerDay1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderUpdateBodyQuotasPerDay1 = NilProviderQuotaRange
+
+// NewNilProviderUpdateBodyQuotasPerDay1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderUpdateBodyQuotasPerDay1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderUpdateBodyQuotasPerHour1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderUpdateBodyQuotasPerHour1 = NilProviderQuotaRange
+
+// NewNilProviderUpdateBodyQuotasPerHour1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderUpdateBodyQuotasPerHour1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderUpdateBodyQuotasPerMinute1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderUpdateBodyQuotasPerMinute1 = NilProviderQuotaRange
+
+// NewNilProviderUpdateBodyQuotasPerMinute1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderUpdateBodyQuotasPerMinute1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}
+
+// NilProviderUpdateBodyQuotasPerSecond1 is the former name of NilProviderQuotaRange.
+//
+// Deprecated: use NilProviderQuotaRange.
+type NilProviderUpdateBodyQuotasPerSecond1 = NilProviderQuotaRange
+
+// NewNilProviderUpdateBodyQuotasPerSecond1 is the former name of NewNilProviderQuotaRange.
+//
+// Deprecated: use NewNilProviderQuotaRange.
+func NewNilProviderUpdateBodyQuotasPerSecond1(v ProviderQuotaRange) NilProviderQuotaRange {
+	return NewNilProviderQuotaRange(v)
+}

@@ -4915,73 +4915,14 @@ func (s ProviderCreateBodyQuotasPerDay) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay:
-		if value, ok := s.NilProviderCreateBodyQuotasPerDay1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerDay:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderCreateBodyQuotasPerDay1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderCreateBodyQuotasPerHour) Validate() error {
@@ -5002,73 +4943,14 @@ func (s ProviderCreateBodyQuotasPerHour) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour:
-		if value, ok := s.NilProviderCreateBodyQuotasPerHour1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerHour:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderCreateBodyQuotasPerHour1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderCreateBodyQuotasPerMinute) Validate() error {
@@ -5089,73 +4971,14 @@ func (s ProviderCreateBodyQuotasPerMinute) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute:
-		if value, ok := s.NilProviderCreateBodyQuotasPerMinute1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerMinute:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderCreateBodyQuotasPerMinute1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderCreateBodyQuotasPerSecond) Validate() error {
@@ -5176,73 +4999,14 @@ func (s ProviderCreateBodyQuotasPerSecond) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond:
-		if value, ok := s.NilProviderCreateBodyQuotasPerSecond1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerSecond:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderCreateBodyQuotasPerSecond1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderCreateBodySMTPProtocol) Validate() error {
@@ -6610,73 +6374,14 @@ func (s ProviderUpdateBodyQuotasPerDay) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay:
-		if value, ok := s.NilProviderUpdateBodyQuotasPerDay1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerDay:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderUpdateBodyQuotasPerDay1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderUpdateBodyQuotasPerHour) Validate() error {
@@ -6697,73 +6402,14 @@ func (s ProviderUpdateBodyQuotasPerHour) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour:
-		if value, ok := s.NilProviderUpdateBodyQuotasPerHour1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerHour:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderUpdateBodyQuotasPerHour1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderUpdateBodyQuotasPerMinute) Validate() error {
@@ -6784,73 +6430,14 @@ func (s ProviderUpdateBodyQuotasPerMinute) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute:
-		if value, ok := s.NilProviderUpdateBodyQuotasPerMinute1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerMinute:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderUpdateBodyQuotasPerMinute1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderUpdateBodyQuotasPerSecond) Validate() error {
@@ -6871,73 +6458,14 @@ func (s ProviderUpdateBodyQuotasPerSecond) Validate() error {
 			return errors.Wrap(err, "int")
 		}
 		return nil
-	case NilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond:
-		if value, ok := s.NilProviderUpdateBodyQuotasPerSecond1.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerSecond:
+		if err := s.ProviderQuotaRange.Validate(); err != nil {
+			return err
 		}
 		return nil
 	default:
 		return errors.Errorf("invalid type %q", s.Type)
 	}
-}
-
-func (s *ProviderUpdateBodyQuotasPerSecond1) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Max)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "max",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           0,
-			MaxSet:        false,
-			Max:           0,
-			MinExclusive:  true,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-		}).Validate(int64(s.Min)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "min",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s ProviderUpdateBodySMTPProtocol) Validate() error {

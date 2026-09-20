@@ -3,9 +3,13 @@
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v2.0.0...ruby-mailbox/v2.0.1) (2026-09-20)
 
 
-### ⚠ BREAKING CHANGES
+### Deprecated
 
-* **ruby-mailbox:** `Sendmux::Mailbox::Generated::MailboxRealtimeMessageAllOfBody` is renamed to `Sendmux::Mailbox::Generated::MailboxRealtimeMessageBody` (the type of `MailboxRealtimeMessage#body`), and the unused
+* `Sendmux::Mailbox::Generated::MailboxRealtimeMessageAllOfBody` is now a deprecated constant aliasing `Sendmux::Mailbox::Generated::MailboxRealtimeMessageBody`, the class of `MailboxRealtimeMessage#body`. Referencing the old constant still works and, with `Warning[:deprecated]` enabled (`ruby -W:deprecated`), warns that it is deprecated; the alias is removed in the next major, 3.0 ([f1108bf](https://github.com/Sendmux/sendmux-sdk/commit/f1108bf40f6c1ff3f3948b49c9ae9dd22b33b3d9)).
+
+### Changed
+
+* Models are regenerated from the deployed flattened response schemas (docs 86b0f45): `MailboxMe`, `MailboxMessage`, `MailboxRealtimeMessage` and `MailboxThread` are flat objects instead of `allOf` compositions and carry the same attributes, so the wire format is unchanged, `MailboxRealtimeMessageBody` is the generated name of the realtime message body, and those four classes no longer define the generator's `openapi_all_of` introspection method. The `Sendmux::Mailbox::Generated::Mailbox` model, which no operation, README, guide or test referenced, is removed without a deprecation period; `mailbox_get_me` keeps returning `MailboxMe`, which carries the same attributes plus `quota_used_bytes` ([9c05be1](https://github.com/Sendmux/sendmux-sdk/commit/9c05be1bdad88fdcbbbeedf174adce01a6a48ae7)).
 
 ### Bug Fixes
 

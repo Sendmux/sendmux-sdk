@@ -24,9 +24,9 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ProviderCreateBodyQuotasPerDayAnyOf(BaseModel):
+class ProviderQuotaRangeOrNull(BaseModel):
     """
-    ProviderCreateBodyQuotasPerDayAnyOf
+    ProviderQuotaRangeOrNull
     """ # noqa: E501
     max: Annotated[int, Field(strict=True, gt=0)]
     min: Annotated[int, Field(strict=True, gt=0)]
@@ -50,7 +50,7 @@ class ProviderCreateBodyQuotasPerDayAnyOf(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ProviderCreateBodyQuotasPerDayAnyOf from a JSON string"""
+        """Create an instance of ProviderQuotaRangeOrNull from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ class ProviderCreateBodyQuotasPerDayAnyOf(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ProviderCreateBodyQuotasPerDayAnyOf from a dict"""
+        """Create an instance of ProviderQuotaRangeOrNull from a dict"""
         if obj is None:
             return None
 

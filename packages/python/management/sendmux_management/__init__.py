@@ -74,7 +74,6 @@ __all__ = [
     "IncomingLogItemResponse",
     "Mailbox",
     "MailboxAppPasswordResult",
-    "MailboxAppPasswordResultCredential",
     "MailboxAppPasswordResultResponse",
     "MailboxAvailabilityReason",
     "MailboxAvailabilityResponse",
@@ -82,6 +81,7 @@ __all__ = [
     "MailboxCreateResult",
     "MailboxCreateResultResponse",
     "MailboxCredential",
+    "MailboxCredentialOrNull",
     "MailboxDeletedResponse",
     "MailboxDomain",
     "MailboxDomainDnsRecords",
@@ -105,7 +105,6 @@ __all__ = [
     "ProviderCreateBody",
     "ProviderCreateBodyQuotas",
     "ProviderCreateBodyQuotasPerDay",
-    "ProviderCreateBodyQuotasPerDayAnyOf",
     "ProviderDeleted",
     "ProviderDeletedResponse",
     "ProviderItem",
@@ -115,6 +114,7 @@ __all__ = [
     "ProviderLimitsResponse",
     "ProviderListItem",
     "ProviderQuotaRange",
+    "ProviderQuotaRangeOrNull",
     "ProviderQuotas",
     "ProviderStats",
     "ProviderStatsResponse",
@@ -137,6 +137,7 @@ __all__ = [
     "SharedAmazonSesLimitRequestCancelResponse",
     "SharedAmazonSesLimitRequestCreate",
     "SharedAmazonSesLimitRequestCreateResponse",
+    "SharedAmazonSesLimitRequestOrNull",
     "SharedAmazonSesLimitRequestPage",
     "SharedAmazonSesLimitRequestPageResponse",
     "SpendSummary",
@@ -225,7 +226,6 @@ from sendmux_management.models.incoming_log_item_cursor_list_response import Inc
 from sendmux_management.models.incoming_log_item_response import IncomingLogItemResponse as IncomingLogItemResponse
 from sendmux_management.models.mailbox import Mailbox as Mailbox
 from sendmux_management.models.mailbox_app_password_result import MailboxAppPasswordResult as MailboxAppPasswordResult
-from sendmux_management.models.mailbox_app_password_result_credential import MailboxAppPasswordResultCredential as MailboxAppPasswordResultCredential
 from sendmux_management.models.mailbox_app_password_result_response import MailboxAppPasswordResultResponse as MailboxAppPasswordResultResponse
 from sendmux_management.models.mailbox_availability_reason import MailboxAvailabilityReason as MailboxAvailabilityReason
 from sendmux_management.models.mailbox_availability_response import MailboxAvailabilityResponse as MailboxAvailabilityResponse
@@ -233,6 +233,7 @@ from sendmux_management.models.mailbox_availability_result import MailboxAvailab
 from sendmux_management.models.mailbox_create_result import MailboxCreateResult as MailboxCreateResult
 from sendmux_management.models.mailbox_create_result_response import MailboxCreateResultResponse as MailboxCreateResultResponse
 from sendmux_management.models.mailbox_credential import MailboxCredential as MailboxCredential
+from sendmux_management.models.mailbox_credential_or_null import MailboxCredentialOrNull as MailboxCredentialOrNull
 from sendmux_management.models.mailbox_deleted_response import MailboxDeletedResponse as MailboxDeletedResponse
 from sendmux_management.models.mailbox_domain import MailboxDomain as MailboxDomain
 from sendmux_management.models.mailbox_domain_dns_records import MailboxDomainDnsRecords as MailboxDomainDnsRecords
@@ -256,7 +257,6 @@ from sendmux_management.models.provider_allowed_actions import ProviderAllowedAc
 from sendmux_management.models.provider_create_body import ProviderCreateBody as ProviderCreateBody
 from sendmux_management.models.provider_create_body_quotas import ProviderCreateBodyQuotas as ProviderCreateBodyQuotas
 from sendmux_management.models.provider_create_body_quotas_per_day import ProviderCreateBodyQuotasPerDay as ProviderCreateBodyQuotasPerDay
-from sendmux_management.models.provider_create_body_quotas_per_day_any_of import ProviderCreateBodyQuotasPerDayAnyOf as ProviderCreateBodyQuotasPerDayAnyOf
 from sendmux_management.models.provider_deleted import ProviderDeleted as ProviderDeleted
 from sendmux_management.models.provider_deleted_response import ProviderDeletedResponse as ProviderDeletedResponse
 from sendmux_management.models.provider_item import ProviderItem as ProviderItem
@@ -266,6 +266,7 @@ from sendmux_management.models.provider_limits import ProviderLimits as Provider
 from sendmux_management.models.provider_limits_response import ProviderLimitsResponse as ProviderLimitsResponse
 from sendmux_management.models.provider_list_item import ProviderListItem as ProviderListItem
 from sendmux_management.models.provider_quota_range import ProviderQuotaRange as ProviderQuotaRange
+from sendmux_management.models.provider_quota_range_or_null import ProviderQuotaRangeOrNull as ProviderQuotaRangeOrNull
 from sendmux_management.models.provider_quotas import ProviderQuotas as ProviderQuotas
 from sendmux_management.models.provider_stats import ProviderStats as ProviderStats
 from sendmux_management.models.provider_stats_response import ProviderStatsResponse as ProviderStatsResponse
@@ -288,6 +289,7 @@ from sendmux_management.models.shared_amazon_ses_limit_request_cancel import Sha
 from sendmux_management.models.shared_amazon_ses_limit_request_cancel_response import SharedAmazonSesLimitRequestCancelResponse as SharedAmazonSesLimitRequestCancelResponse
 from sendmux_management.models.shared_amazon_ses_limit_request_create import SharedAmazonSesLimitRequestCreate as SharedAmazonSesLimitRequestCreate
 from sendmux_management.models.shared_amazon_ses_limit_request_create_response import SharedAmazonSesLimitRequestCreateResponse as SharedAmazonSesLimitRequestCreateResponse
+from sendmux_management.models.shared_amazon_ses_limit_request_or_null import SharedAmazonSesLimitRequestOrNull as SharedAmazonSesLimitRequestOrNull
 from sendmux_management.models.shared_amazon_ses_limit_request_page import SharedAmazonSesLimitRequestPage as SharedAmazonSesLimitRequestPage
 from sendmux_management.models.shared_amazon_ses_limit_request_page_response import SharedAmazonSesLimitRequestPageResponse as SharedAmazonSesLimitRequestPageResponse
 from sendmux_management.models.spend_summary import SpendSummary as SpendSummary

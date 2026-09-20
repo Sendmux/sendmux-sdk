@@ -23,9 +23,9 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxAppPasswordResultCredential(BaseModel):
+class MailboxCredentialOrNull(BaseModel):
     """
-    MailboxAppPasswordResultCredential
+    Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.
     """ # noqa: E501
     imap_port: StrictInt = Field(description="IMAP retrieval port")
     key_prefix: StrictStr
@@ -55,7 +55,7 @@ class MailboxAppPasswordResultCredential(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxAppPasswordResultCredential from a JSON string"""
+        """Create an instance of MailboxCredentialOrNull from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,7 +80,7 @@ class MailboxAppPasswordResultCredential(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxAppPasswordResultCredential from a dict"""
+        """Create an instance of MailboxCredentialOrNull from a dict"""
         if obj is None:
             return None
 

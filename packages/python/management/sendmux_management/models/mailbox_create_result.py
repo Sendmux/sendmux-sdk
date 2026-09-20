@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_management.models.mailbox import Mailbox
-from sendmux_management.models.mailbox_credential import MailboxCredential
+from sendmux_management.models.mailbox_credential_or_null import MailboxCredentialOrNull
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -29,7 +29,7 @@ class MailboxCreateResult(BaseModel):
     """
     MailboxCreateResult
     """ # noqa: E501
-    credential: Optional[MailboxCredential]
+    credential: Optional[MailboxCredentialOrNull]
     mailbox: Mailbox
     warning: Optional[StrictStr] = Field(description="Optional warning string when the mailbox was created without an initial credential")
     __properties: ClassVar[List[str]] = ["credential", "mailbox", "warning"]
@@ -101,7 +101,7 @@ class MailboxCreateResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "credential": MailboxCredential.from_dict(obj["credential"]) if obj.get("credential") is not None else None,
+            "credential": MailboxCredentialOrNull.from_dict(obj["credential"]) if obj.get("credential") is not None else None,
             "mailbox": Mailbox.from_dict(obj["mailbox"]) if obj.get("mailbox") is not None else None,
             "warning": obj.get("warning")
         })

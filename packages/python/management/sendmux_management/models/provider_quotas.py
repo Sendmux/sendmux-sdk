@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List, Optional
-from sendmux_management.models.provider_quota_range import ProviderQuotaRange
+from sendmux_management.models.provider_quota_range_or_null import ProviderQuotaRangeOrNull
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,10 +28,10 @@ class ProviderQuotas(BaseModel):
     """
     ProviderQuotas
     """ # noqa: E501
-    per_day: Optional[ProviderQuotaRange]
-    per_hour: Optional[ProviderQuotaRange]
-    per_minute: Optional[ProviderQuotaRange]
-    per_second: Optional[ProviderQuotaRange]
+    per_day: Optional[ProviderQuotaRangeOrNull]
+    per_hour: Optional[ProviderQuotaRangeOrNull]
+    per_minute: Optional[ProviderQuotaRangeOrNull]
+    per_second: Optional[ProviderQuotaRangeOrNull]
     __properties: ClassVar[List[str]] = ["per_day", "per_hour", "per_minute", "per_second"]
 
     model_config = ConfigDict(
@@ -117,9 +117,9 @@ class ProviderQuotas(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "per_day": ProviderQuotaRange.from_dict(obj["per_day"]) if obj.get("per_day") is not None else None,
-            "per_hour": ProviderQuotaRange.from_dict(obj["per_hour"]) if obj.get("per_hour") is not None else None,
-            "per_minute": ProviderQuotaRange.from_dict(obj["per_minute"]) if obj.get("per_minute") is not None else None,
-            "per_second": ProviderQuotaRange.from_dict(obj["per_second"]) if obj.get("per_second") is not None else None
+            "per_day": ProviderQuotaRangeOrNull.from_dict(obj["per_day"]) if obj.get("per_day") is not None else None,
+            "per_hour": ProviderQuotaRangeOrNull.from_dict(obj["per_hour"]) if obj.get("per_hour") is not None else None,
+            "per_minute": ProviderQuotaRangeOrNull.from_dict(obj["per_minute"]) if obj.get("per_minute") is not None else None,
+            "per_second": ProviderQuotaRangeOrNull.from_dict(obj["per_second"]) if obj.get("per_second") is not None else None
         })
         return _obj

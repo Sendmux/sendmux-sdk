@@ -41,7 +41,7 @@ module Sendmux::Mailbox::Generated
     def self.openapi_types
       {
         :'mail_from' => :'MailboxSubmissionEnvelopeAddress',
-        :'rcpt_to' => :'Array<MailboxSubmissionEnvelopeRcptToInner>'
+        :'rcpt_to' => :'Array<MailboxSubmissionEnvelopeAddress>'
       }
     end
 

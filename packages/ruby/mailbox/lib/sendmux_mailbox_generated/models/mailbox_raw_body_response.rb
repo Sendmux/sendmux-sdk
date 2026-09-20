@@ -45,7 +45,7 @@ module Sendmux::Mailbox::Generated
       {
         :'meta' => :'ResponseMeta',
         :'ok' => :'Boolean',
-        :'data' => :'MailboxRawBodyResponseAllOfData'
+        :'data' => :'MailboxRawBody'
       }
     end
 

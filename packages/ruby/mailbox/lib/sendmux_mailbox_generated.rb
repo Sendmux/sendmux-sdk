@@ -78,7 +78,6 @@ require 'sendmux_mailbox_generated/models/mailbox_message_content_body'
 require 'sendmux_mailbox_generated/models/mailbox_message_content_dates'
 require 'sendmux_mailbox_generated/models/mailbox_message_content_participants'
 require 'sendmux_mailbox_generated/models/mailbox_message_content_response'
-require 'sendmux_mailbox_generated/models/mailbox_message_content_response_all_of_data'
 require 'sendmux_mailbox_generated/models/mailbox_message_content_states'
 require 'sendmux_mailbox_generated/models/mailbox_message_count'
 require 'sendmux_mailbox_generated/models/mailbox_message_count_response'
@@ -95,7 +94,6 @@ require 'sendmux_mailbox_generated/models/mailbox_quota_cursor_list_response'
 require 'sendmux_mailbox_generated/models/mailbox_raw_body'
 require 'sendmux_mailbox_generated/models/mailbox_raw_body_body'
 require 'sendmux_mailbox_generated/models/mailbox_raw_body_response'
-require 'sendmux_mailbox_generated/models/mailbox_raw_body_response_all_of_data'
 require 'sendmux_mailbox_generated/models/mailbox_realtime_event'
 require 'sendmux_mailbox_generated/models/mailbox_realtime_message'
 require 'sendmux_mailbox_generated/models/mailbox_realtime_message_body'
@@ -125,14 +123,12 @@ require 'sendmux_mailbox_generated/models/mailbox_submission_cursor_list_respons
 require 'sendmux_mailbox_generated/models/mailbox_submission_delivery_status'
 require 'sendmux_mailbox_generated/models/mailbox_submission_envelope'
 require 'sendmux_mailbox_generated/models/mailbox_submission_envelope_address'
-require 'sendmux_mailbox_generated/models/mailbox_submission_envelope_rcpt_to_inner'
 require 'sendmux_mailbox_generated/models/mailbox_submission_response'
 require 'sendmux_mailbox_generated/models/mailbox_sync_meta'
 require 'sendmux_mailbox_generated/models/mailbox_thread'
 require 'sendmux_mailbox_generated/models/mailbox_thread_content_meta'
 require 'sendmux_mailbox_generated/models/mailbox_thread_content_meta_states'
 require 'sendmux_mailbox_generated/models/mailbox_thread_content_response'
-require 'sendmux_mailbox_generated/models/mailbox_thread_content_response_all_of_data'
 require 'sendmux_mailbox_generated/models/mailbox_thread_detail_response'
 require 'sendmux_mailbox_generated/models/mailbox_thread_message_summary_cursor_list_response'
 require 'sendmux_mailbox_generated/models/mailbox_thread_messages_meta'
@@ -182,4 +178,12 @@ module Sendmux::Mailbox::Generated
   # Deprecated model constants kept as aliases of their replacements until the next major release.
   MailboxRealtimeMessageAllOfBody = MailboxRealtimeMessageBody
   deprecate_constant :MailboxRealtimeMessageAllOfBody
+  MailboxMessageContentResponseAllOfData = MailboxMessageContent
+  deprecate_constant :MailboxMessageContentResponseAllOfData
+  MailboxRawBodyResponseAllOfData = MailboxRawBody
+  deprecate_constant :MailboxRawBodyResponseAllOfData
+  MailboxSubmissionEnvelopeRcptToInner = MailboxSubmissionEnvelopeAddress
+  deprecate_constant :MailboxSubmissionEnvelopeRcptToInner
+  MailboxThreadContentResponseAllOfData = MailboxMessageContent
+  deprecate_constant :MailboxThreadContentResponseAllOfData
 end

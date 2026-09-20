@@ -3787,116 +3787,17 @@ func (s *Mailbox) SetStatus(val string) {
 
 // Ref: #/components/schemas/MailboxAppPasswordResult
 type MailboxAppPasswordResult struct {
-	Credential NilMailboxAppPasswordResultCredential `json:"credential"`
+	Credential MailboxCredential `json:"credential"`
 }
 
 // GetCredential returns the value of Credential.
-func (s *MailboxAppPasswordResult) GetCredential() NilMailboxAppPasswordResultCredential {
+func (s *MailboxAppPasswordResult) GetCredential() MailboxCredential {
 	return s.Credential
 }
 
 // SetCredential sets the value of Credential.
-func (s *MailboxAppPasswordResult) SetCredential(val NilMailboxAppPasswordResultCredential) {
+func (s *MailboxAppPasswordResult) SetCredential(val MailboxCredential) {
 	s.Credential = val
-}
-
-// Merged schema.
-type MailboxAppPasswordResultCredential struct {
-	// IMAP retrieval port.
-	ImapPort  int    `json:"imap_port"`
-	KeyPrefix string `json:"key_prefix"`
-	KeySuffix string `json:"key_suffix"`
-	// Credential public ID.
-	PublicID string `json:"public_id"`
-	// Mailbox credential — shown exactly once. Use as a Bearer token on the HTTP API and as the
-	// password for IMAP retrieval and SMTP submission.
-	Secret string `json:"secret"`
-	// Mailbox server name.
-	Server string `json:"server"`
-	// SMTP submission port.
-	SMTPPort int `json:"smtp_port"`
-	// Mailbox email address used as the login.
-	Username string `json:"username"`
-}
-
-// GetImapPort returns the value of ImapPort.
-func (s *MailboxAppPasswordResultCredential) GetImapPort() int {
-	return s.ImapPort
-}
-
-// GetKeyPrefix returns the value of KeyPrefix.
-func (s *MailboxAppPasswordResultCredential) GetKeyPrefix() string {
-	return s.KeyPrefix
-}
-
-// GetKeySuffix returns the value of KeySuffix.
-func (s *MailboxAppPasswordResultCredential) GetKeySuffix() string {
-	return s.KeySuffix
-}
-
-// GetPublicID returns the value of PublicID.
-func (s *MailboxAppPasswordResultCredential) GetPublicID() string {
-	return s.PublicID
-}
-
-// GetSecret returns the value of Secret.
-func (s *MailboxAppPasswordResultCredential) GetSecret() string {
-	return s.Secret
-}
-
-// GetServer returns the value of Server.
-func (s *MailboxAppPasswordResultCredential) GetServer() string {
-	return s.Server
-}
-
-// GetSMTPPort returns the value of SMTPPort.
-func (s *MailboxAppPasswordResultCredential) GetSMTPPort() int {
-	return s.SMTPPort
-}
-
-// GetUsername returns the value of Username.
-func (s *MailboxAppPasswordResultCredential) GetUsername() string {
-	return s.Username
-}
-
-// SetImapPort sets the value of ImapPort.
-func (s *MailboxAppPasswordResultCredential) SetImapPort(val int) {
-	s.ImapPort = val
-}
-
-// SetKeyPrefix sets the value of KeyPrefix.
-func (s *MailboxAppPasswordResultCredential) SetKeyPrefix(val string) {
-	s.KeyPrefix = val
-}
-
-// SetKeySuffix sets the value of KeySuffix.
-func (s *MailboxAppPasswordResultCredential) SetKeySuffix(val string) {
-	s.KeySuffix = val
-}
-
-// SetPublicID sets the value of PublicID.
-func (s *MailboxAppPasswordResultCredential) SetPublicID(val string) {
-	s.PublicID = val
-}
-
-// SetSecret sets the value of Secret.
-func (s *MailboxAppPasswordResultCredential) SetSecret(val string) {
-	s.Secret = val
-}
-
-// SetServer sets the value of Server.
-func (s *MailboxAppPasswordResultCredential) SetServer(val string) {
-	s.Server = val
-}
-
-// SetSMTPPort sets the value of SMTPPort.
-func (s *MailboxAppPasswordResultCredential) SetSMTPPort(val int) {
-	s.SMTPPort = val
-}
-
-// SetUsername sets the value of Username.
-func (s *MailboxAppPasswordResultCredential) SetUsername(val string) {
-	s.Username = val
 }
 
 // Merged schema.
@@ -4218,14 +4119,14 @@ func (s *MailboxAvailabilityResult) SetReason(val MailboxAvailabilityReason) {
 
 // Ref: #/components/schemas/MailboxCreateResult
 type MailboxCreateResult struct {
-	Credential NilMailboxCredential `json:"credential"`
-	Mailbox    Mailbox              `json:"mailbox"`
+	Credential NilMailboxCredentialOrNull `json:"credential"`
+	Mailbox    Mailbox                    `json:"mailbox"`
 	// Optional warning string when the mailbox was created without an initial credential.
 	Warning NilString `json:"warning"`
 }
 
 // GetCredential returns the value of Credential.
-func (s *MailboxCreateResult) GetCredential() NilMailboxCredential {
+func (s *MailboxCreateResult) GetCredential() NilMailboxCredentialOrNull {
 	return s.Credential
 }
 
@@ -4240,7 +4141,7 @@ func (s *MailboxCreateResult) GetWarning() NilString {
 }
 
 // SetCredential sets the value of Credential.
-func (s *MailboxCreateResult) SetCredential(val NilMailboxCredential) {
+func (s *MailboxCreateResult) SetCredential(val NilMailboxCredentialOrNull) {
 	s.Credential = val
 }
 
@@ -4371,8 +4272,6 @@ func (MailboxCreateResultResponseOk) AllValues() []MailboxCreateResultResponseOk
 	}
 }
 
-// Initial credential for the mailbox. `null` if credential generation failed — call POST
-// /mailboxes/{id}/keys to retry.
 // Ref: #/components/schemas/MailboxCredential
 type MailboxCredential struct {
 	// IMAP retrieval port.
@@ -4469,6 +4368,107 @@ func (s *MailboxCredential) SetSMTPPort(val int) {
 
 // SetUsername sets the value of Username.
 func (s *MailboxCredential) SetUsername(val string) {
+	s.Username = val
+}
+
+// Initial credential for the mailbox. `null` if credential generation failed — call POST
+// /mailboxes/{id}/keys to retry.
+// Ref: #/components/schemas/MailboxCredentialOrNull
+type MailboxCredentialOrNull struct {
+	// IMAP retrieval port.
+	ImapPort  int    `json:"imap_port"`
+	KeyPrefix string `json:"key_prefix"`
+	KeySuffix string `json:"key_suffix"`
+	// Credential public ID.
+	PublicID string `json:"public_id"`
+	// Mailbox credential — shown exactly once. Use as a Bearer token on the HTTP API and as the
+	// password for IMAP retrieval and SMTP submission.
+	Secret string `json:"secret"`
+	// Mailbox server name.
+	Server string `json:"server"`
+	// SMTP submission port.
+	SMTPPort int `json:"smtp_port"`
+	// Mailbox email address used as the login.
+	Username string `json:"username"`
+}
+
+// GetImapPort returns the value of ImapPort.
+func (s *MailboxCredentialOrNull) GetImapPort() int {
+	return s.ImapPort
+}
+
+// GetKeyPrefix returns the value of KeyPrefix.
+func (s *MailboxCredentialOrNull) GetKeyPrefix() string {
+	return s.KeyPrefix
+}
+
+// GetKeySuffix returns the value of KeySuffix.
+func (s *MailboxCredentialOrNull) GetKeySuffix() string {
+	return s.KeySuffix
+}
+
+// GetPublicID returns the value of PublicID.
+func (s *MailboxCredentialOrNull) GetPublicID() string {
+	return s.PublicID
+}
+
+// GetSecret returns the value of Secret.
+func (s *MailboxCredentialOrNull) GetSecret() string {
+	return s.Secret
+}
+
+// GetServer returns the value of Server.
+func (s *MailboxCredentialOrNull) GetServer() string {
+	return s.Server
+}
+
+// GetSMTPPort returns the value of SMTPPort.
+func (s *MailboxCredentialOrNull) GetSMTPPort() int {
+	return s.SMTPPort
+}
+
+// GetUsername returns the value of Username.
+func (s *MailboxCredentialOrNull) GetUsername() string {
+	return s.Username
+}
+
+// SetImapPort sets the value of ImapPort.
+func (s *MailboxCredentialOrNull) SetImapPort(val int) {
+	s.ImapPort = val
+}
+
+// SetKeyPrefix sets the value of KeyPrefix.
+func (s *MailboxCredentialOrNull) SetKeyPrefix(val string) {
+	s.KeyPrefix = val
+}
+
+// SetKeySuffix sets the value of KeySuffix.
+func (s *MailboxCredentialOrNull) SetKeySuffix(val string) {
+	s.KeySuffix = val
+}
+
+// SetPublicID sets the value of PublicID.
+func (s *MailboxCredentialOrNull) SetPublicID(val string) {
+	s.PublicID = val
+}
+
+// SetSecret sets the value of Secret.
+func (s *MailboxCredentialOrNull) SetSecret(val string) {
+	s.Secret = val
+}
+
+// SetServer sets the value of Server.
+func (s *MailboxCredentialOrNull) SetServer(val string) {
+	s.Server = val
+}
+
+// SetSMTPPort sets the value of SMTPPort.
+func (s *MailboxCredentialOrNull) SetSMTPPort(val int) {
+	s.SMTPPort = val
+}
+
+// SetUsername sets the value of Username.
+func (s *MailboxCredentialOrNull) SetUsername(val string) {
 	s.Username = val
 }
 
@@ -7684,37 +7684,37 @@ func (o NilInt) Or(d int) int {
 	return d
 }
 
-// NewNilMailboxAppPasswordResultCredential returns new NilMailboxAppPasswordResultCredential with value set to v.
-func NewNilMailboxAppPasswordResultCredential(v MailboxAppPasswordResultCredential) NilMailboxAppPasswordResultCredential {
-	return NilMailboxAppPasswordResultCredential{
+// NewNilMailboxCredentialOrNull returns new NilMailboxCredentialOrNull with value set to v.
+func NewNilMailboxCredentialOrNull(v MailboxCredentialOrNull) NilMailboxCredentialOrNull {
+	return NilMailboxCredentialOrNull{
 		Value: v,
 	}
 }
 
-// NilMailboxAppPasswordResultCredential is nullable MailboxAppPasswordResultCredential.
-type NilMailboxAppPasswordResultCredential struct {
-	Value MailboxAppPasswordResultCredential
+// NilMailboxCredentialOrNull is nullable MailboxCredentialOrNull.
+type NilMailboxCredentialOrNull struct {
+	Value MailboxCredentialOrNull
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilMailboxAppPasswordResultCredential) SetTo(v MailboxAppPasswordResultCredential) {
+func (o *NilMailboxCredentialOrNull) SetTo(v MailboxCredentialOrNull) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilMailboxAppPasswordResultCredential) IsNull() bool { return o.Null }
+func (o NilMailboxCredentialOrNull) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilMailboxAppPasswordResultCredential) SetToNull() {
+func (o *NilMailboxCredentialOrNull) SetToNull() {
 	o.Null = true
-	var v MailboxAppPasswordResultCredential
+	var v MailboxCredentialOrNull
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxAppPasswordResultCredential) Get() (v MailboxAppPasswordResultCredential, ok bool) {
+func (o NilMailboxCredentialOrNull) Get() (v MailboxCredentialOrNull, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -7722,52 +7722,7 @@ func (o NilMailboxAppPasswordResultCredential) Get() (v MailboxAppPasswordResult
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilMailboxAppPasswordResultCredential) Or(d MailboxAppPasswordResultCredential) MailboxAppPasswordResultCredential {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilMailboxCredential returns new NilMailboxCredential with value set to v.
-func NewNilMailboxCredential(v MailboxCredential) NilMailboxCredential {
-	return NilMailboxCredential{
-		Value: v,
-	}
-}
-
-// NilMailboxCredential is nullable MailboxCredential.
-type NilMailboxCredential struct {
-	Value MailboxCredential
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilMailboxCredential) SetTo(v MailboxCredential) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilMailboxCredential) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilMailboxCredential) SetToNull() {
-	o.Null = true
-	var v MailboxCredential
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilMailboxCredential) Get() (v MailboxCredential, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilMailboxCredential) Or(d MailboxCredential) MailboxCredential {
+func (o NilMailboxCredentialOrNull) Or(d MailboxCredentialOrNull) MailboxCredentialOrNull {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -7819,37 +7774,37 @@ func (o NilMailboxSendScope) Or(d MailboxSendScope) MailboxSendScope {
 	return d
 }
 
-// NewNilProviderCreateBodyQuotasPerDay1 returns new NilProviderCreateBodyQuotasPerDay1 with value set to v.
-func NewNilProviderCreateBodyQuotasPerDay1(v ProviderCreateBodyQuotasPerDay1) NilProviderCreateBodyQuotasPerDay1 {
-	return NilProviderCreateBodyQuotasPerDay1{
+// NewNilProviderQuotaRangeOrNull returns new NilProviderQuotaRangeOrNull with value set to v.
+func NewNilProviderQuotaRangeOrNull(v ProviderQuotaRangeOrNull) NilProviderQuotaRangeOrNull {
+	return NilProviderQuotaRangeOrNull{
 		Value: v,
 	}
 }
 
-// NilProviderCreateBodyQuotasPerDay1 is nullable ProviderCreateBodyQuotasPerDay1.
-type NilProviderCreateBodyQuotasPerDay1 struct {
-	Value ProviderCreateBodyQuotasPerDay1
+// NilProviderQuotaRangeOrNull is nullable ProviderQuotaRangeOrNull.
+type NilProviderQuotaRangeOrNull struct {
+	Value ProviderQuotaRangeOrNull
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilProviderCreateBodyQuotasPerDay1) SetTo(v ProviderCreateBodyQuotasPerDay1) {
+func (o *NilProviderQuotaRangeOrNull) SetTo(v ProviderQuotaRangeOrNull) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilProviderCreateBodyQuotasPerDay1) IsNull() bool { return o.Null }
+func (o NilProviderQuotaRangeOrNull) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilProviderCreateBodyQuotasPerDay1) SetToNull() {
+func (o *NilProviderQuotaRangeOrNull) SetToNull() {
 	o.Null = true
-	var v ProviderCreateBodyQuotasPerDay1
+	var v ProviderQuotaRangeOrNull
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilProviderCreateBodyQuotasPerDay1) Get() (v ProviderCreateBodyQuotasPerDay1, ok bool) {
+func (o NilProviderQuotaRangeOrNull) Get() (v ProviderQuotaRangeOrNull, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -7857,44 +7812,44 @@ func (o NilProviderCreateBodyQuotasPerDay1) Get() (v ProviderCreateBodyQuotasPer
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilProviderCreateBodyQuotasPerDay1) Or(d ProviderCreateBodyQuotasPerDay1) ProviderCreateBodyQuotasPerDay1 {
+func (o NilProviderQuotaRangeOrNull) Or(d ProviderQuotaRangeOrNull) ProviderQuotaRangeOrNull {
 	if v, ok := o.Get(); ok {
 		return v
 	}
 	return d
 }
 
-// NewNilProviderCreateBodyQuotasPerHour1 returns new NilProviderCreateBodyQuotasPerHour1 with value set to v.
-func NewNilProviderCreateBodyQuotasPerHour1(v ProviderCreateBodyQuotasPerHour1) NilProviderCreateBodyQuotasPerHour1 {
-	return NilProviderCreateBodyQuotasPerHour1{
+// NewNilSharedAmazonSesLimitRequestOrNull returns new NilSharedAmazonSesLimitRequestOrNull with value set to v.
+func NewNilSharedAmazonSesLimitRequestOrNull(v SharedAmazonSesLimitRequestOrNull) NilSharedAmazonSesLimitRequestOrNull {
+	return NilSharedAmazonSesLimitRequestOrNull{
 		Value: v,
 	}
 }
 
-// NilProviderCreateBodyQuotasPerHour1 is nullable ProviderCreateBodyQuotasPerHour1.
-type NilProviderCreateBodyQuotasPerHour1 struct {
-	Value ProviderCreateBodyQuotasPerHour1
+// NilSharedAmazonSesLimitRequestOrNull is nullable SharedAmazonSesLimitRequestOrNull.
+type NilSharedAmazonSesLimitRequestOrNull struct {
+	Value SharedAmazonSesLimitRequestOrNull
 	Null  bool
 }
 
 // SetTo sets value to v.
-func (o *NilProviderCreateBodyQuotasPerHour1) SetTo(v ProviderCreateBodyQuotasPerHour1) {
+func (o *NilSharedAmazonSesLimitRequestOrNull) SetTo(v SharedAmazonSesLimitRequestOrNull) {
 	o.Null = false
 	o.Value = v
 }
 
 // IsNull returns true if value is Null.
-func (o NilProviderCreateBodyQuotasPerHour1) IsNull() bool { return o.Null }
+func (o NilSharedAmazonSesLimitRequestOrNull) IsNull() bool { return o.Null }
 
 // SetToNull sets value to null.
-func (o *NilProviderCreateBodyQuotasPerHour1) SetToNull() {
+func (o *NilSharedAmazonSesLimitRequestOrNull) SetToNull() {
 	o.Null = true
-	var v ProviderCreateBodyQuotasPerHour1
+	var v SharedAmazonSesLimitRequestOrNull
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o NilProviderCreateBodyQuotasPerHour1) Get() (v ProviderCreateBodyQuotasPerHour1, ok bool) {
+func (o NilSharedAmazonSesLimitRequestOrNull) Get() (v SharedAmazonSesLimitRequestOrNull, ok bool) {
 	if o.Null {
 		return v, false
 	}
@@ -7902,367 +7857,7 @@ func (o NilProviderCreateBodyQuotasPerHour1) Get() (v ProviderCreateBodyQuotasPe
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o NilProviderCreateBodyQuotasPerHour1) Or(d ProviderCreateBodyQuotasPerHour1) ProviderCreateBodyQuotasPerHour1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderCreateBodyQuotasPerMinute1 returns new NilProviderCreateBodyQuotasPerMinute1 with value set to v.
-func NewNilProviderCreateBodyQuotasPerMinute1(v ProviderCreateBodyQuotasPerMinute1) NilProviderCreateBodyQuotasPerMinute1 {
-	return NilProviderCreateBodyQuotasPerMinute1{
-		Value: v,
-	}
-}
-
-// NilProviderCreateBodyQuotasPerMinute1 is nullable ProviderCreateBodyQuotasPerMinute1.
-type NilProviderCreateBodyQuotasPerMinute1 struct {
-	Value ProviderCreateBodyQuotasPerMinute1
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderCreateBodyQuotasPerMinute1) SetTo(v ProviderCreateBodyQuotasPerMinute1) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderCreateBodyQuotasPerMinute1) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderCreateBodyQuotasPerMinute1) SetToNull() {
-	o.Null = true
-	var v ProviderCreateBodyQuotasPerMinute1
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderCreateBodyQuotasPerMinute1) Get() (v ProviderCreateBodyQuotasPerMinute1, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderCreateBodyQuotasPerMinute1) Or(d ProviderCreateBodyQuotasPerMinute1) ProviderCreateBodyQuotasPerMinute1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderCreateBodyQuotasPerSecond1 returns new NilProviderCreateBodyQuotasPerSecond1 with value set to v.
-func NewNilProviderCreateBodyQuotasPerSecond1(v ProviderCreateBodyQuotasPerSecond1) NilProviderCreateBodyQuotasPerSecond1 {
-	return NilProviderCreateBodyQuotasPerSecond1{
-		Value: v,
-	}
-}
-
-// NilProviderCreateBodyQuotasPerSecond1 is nullable ProviderCreateBodyQuotasPerSecond1.
-type NilProviderCreateBodyQuotasPerSecond1 struct {
-	Value ProviderCreateBodyQuotasPerSecond1
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderCreateBodyQuotasPerSecond1) SetTo(v ProviderCreateBodyQuotasPerSecond1) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderCreateBodyQuotasPerSecond1) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderCreateBodyQuotasPerSecond1) SetToNull() {
-	o.Null = true
-	var v ProviderCreateBodyQuotasPerSecond1
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderCreateBodyQuotasPerSecond1) Get() (v ProviderCreateBodyQuotasPerSecond1, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderCreateBodyQuotasPerSecond1) Or(d ProviderCreateBodyQuotasPerSecond1) ProviderCreateBodyQuotasPerSecond1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderQuotaRange returns new NilProviderQuotaRange with value set to v.
-func NewNilProviderQuotaRange(v ProviderQuotaRange) NilProviderQuotaRange {
-	return NilProviderQuotaRange{
-		Value: v,
-	}
-}
-
-// NilProviderQuotaRange is nullable ProviderQuotaRange.
-type NilProviderQuotaRange struct {
-	Value ProviderQuotaRange
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderQuotaRange) SetTo(v ProviderQuotaRange) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderQuotaRange) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderQuotaRange) SetToNull() {
-	o.Null = true
-	var v ProviderQuotaRange
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderQuotaRange) Get() (v ProviderQuotaRange, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderQuotaRange) Or(d ProviderQuotaRange) ProviderQuotaRange {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderUpdateBodyQuotasPerDay1 returns new NilProviderUpdateBodyQuotasPerDay1 with value set to v.
-func NewNilProviderUpdateBodyQuotasPerDay1(v ProviderUpdateBodyQuotasPerDay1) NilProviderUpdateBodyQuotasPerDay1 {
-	return NilProviderUpdateBodyQuotasPerDay1{
-		Value: v,
-	}
-}
-
-// NilProviderUpdateBodyQuotasPerDay1 is nullable ProviderUpdateBodyQuotasPerDay1.
-type NilProviderUpdateBodyQuotasPerDay1 struct {
-	Value ProviderUpdateBodyQuotasPerDay1
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderUpdateBodyQuotasPerDay1) SetTo(v ProviderUpdateBodyQuotasPerDay1) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderUpdateBodyQuotasPerDay1) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderUpdateBodyQuotasPerDay1) SetToNull() {
-	o.Null = true
-	var v ProviderUpdateBodyQuotasPerDay1
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderUpdateBodyQuotasPerDay1) Get() (v ProviderUpdateBodyQuotasPerDay1, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderUpdateBodyQuotasPerDay1) Or(d ProviderUpdateBodyQuotasPerDay1) ProviderUpdateBodyQuotasPerDay1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderUpdateBodyQuotasPerHour1 returns new NilProviderUpdateBodyQuotasPerHour1 with value set to v.
-func NewNilProviderUpdateBodyQuotasPerHour1(v ProviderUpdateBodyQuotasPerHour1) NilProviderUpdateBodyQuotasPerHour1 {
-	return NilProviderUpdateBodyQuotasPerHour1{
-		Value: v,
-	}
-}
-
-// NilProviderUpdateBodyQuotasPerHour1 is nullable ProviderUpdateBodyQuotasPerHour1.
-type NilProviderUpdateBodyQuotasPerHour1 struct {
-	Value ProviderUpdateBodyQuotasPerHour1
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderUpdateBodyQuotasPerHour1) SetTo(v ProviderUpdateBodyQuotasPerHour1) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderUpdateBodyQuotasPerHour1) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderUpdateBodyQuotasPerHour1) SetToNull() {
-	o.Null = true
-	var v ProviderUpdateBodyQuotasPerHour1
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderUpdateBodyQuotasPerHour1) Get() (v ProviderUpdateBodyQuotasPerHour1, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderUpdateBodyQuotasPerHour1) Or(d ProviderUpdateBodyQuotasPerHour1) ProviderUpdateBodyQuotasPerHour1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderUpdateBodyQuotasPerMinute1 returns new NilProviderUpdateBodyQuotasPerMinute1 with value set to v.
-func NewNilProviderUpdateBodyQuotasPerMinute1(v ProviderUpdateBodyQuotasPerMinute1) NilProviderUpdateBodyQuotasPerMinute1 {
-	return NilProviderUpdateBodyQuotasPerMinute1{
-		Value: v,
-	}
-}
-
-// NilProviderUpdateBodyQuotasPerMinute1 is nullable ProviderUpdateBodyQuotasPerMinute1.
-type NilProviderUpdateBodyQuotasPerMinute1 struct {
-	Value ProviderUpdateBodyQuotasPerMinute1
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderUpdateBodyQuotasPerMinute1) SetTo(v ProviderUpdateBodyQuotasPerMinute1) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderUpdateBodyQuotasPerMinute1) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderUpdateBodyQuotasPerMinute1) SetToNull() {
-	o.Null = true
-	var v ProviderUpdateBodyQuotasPerMinute1
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderUpdateBodyQuotasPerMinute1) Get() (v ProviderUpdateBodyQuotasPerMinute1, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderUpdateBodyQuotasPerMinute1) Or(d ProviderUpdateBodyQuotasPerMinute1) ProviderUpdateBodyQuotasPerMinute1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilProviderUpdateBodyQuotasPerSecond1 returns new NilProviderUpdateBodyQuotasPerSecond1 with value set to v.
-func NewNilProviderUpdateBodyQuotasPerSecond1(v ProviderUpdateBodyQuotasPerSecond1) NilProviderUpdateBodyQuotasPerSecond1 {
-	return NilProviderUpdateBodyQuotasPerSecond1{
-		Value: v,
-	}
-}
-
-// NilProviderUpdateBodyQuotasPerSecond1 is nullable ProviderUpdateBodyQuotasPerSecond1.
-type NilProviderUpdateBodyQuotasPerSecond1 struct {
-	Value ProviderUpdateBodyQuotasPerSecond1
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilProviderUpdateBodyQuotasPerSecond1) SetTo(v ProviderUpdateBodyQuotasPerSecond1) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilProviderUpdateBodyQuotasPerSecond1) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilProviderUpdateBodyQuotasPerSecond1) SetToNull() {
-	o.Null = true
-	var v ProviderUpdateBodyQuotasPerSecond1
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilProviderUpdateBodyQuotasPerSecond1) Get() (v ProviderUpdateBodyQuotasPerSecond1, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilProviderUpdateBodyQuotasPerSecond1) Or(d ProviderUpdateBodyQuotasPerSecond1) ProviderUpdateBodyQuotasPerSecond1 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewNilSharedAmazonSesLimitRequest returns new NilSharedAmazonSesLimitRequest with value set to v.
-func NewNilSharedAmazonSesLimitRequest(v SharedAmazonSesLimitRequest) NilSharedAmazonSesLimitRequest {
-	return NilSharedAmazonSesLimitRequest{
-		Value: v,
-	}
-}
-
-// NilSharedAmazonSesLimitRequest is nullable SharedAmazonSesLimitRequest.
-type NilSharedAmazonSesLimitRequest struct {
-	Value SharedAmazonSesLimitRequest
-	Null  bool
-}
-
-// SetTo sets value to v.
-func (o *NilSharedAmazonSesLimitRequest) SetTo(v SharedAmazonSesLimitRequest) {
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o NilSharedAmazonSesLimitRequest) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *NilSharedAmazonSesLimitRequest) SetToNull() {
-	o.Null = true
-	var v SharedAmazonSesLimitRequest
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o NilSharedAmazonSesLimitRequest) Get() (v SharedAmazonSesLimitRequest, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o NilSharedAmazonSesLimitRequest) Or(d SharedAmazonSesLimitRequest) SharedAmazonSesLimitRequest {
+func (o NilSharedAmazonSesLimitRequestOrNull) Or(d SharedAmazonSesLimitRequestOrNull) SharedAmazonSesLimitRequestOrNull {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -10682,10 +10277,10 @@ func (s *ProviderCreateBodyQuotas) SetPerSecond(val OptProviderCreateBodyQuotasP
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderCreateBodyQuotasPerDay represents sum type.
 type ProviderCreateBodyQuotasPerDay struct {
-	Type                               ProviderCreateBodyQuotasPerDayType // switch on this field
-	Null                               struct{}
-	Int                                int
-	NilProviderCreateBodyQuotasPerDay1 NilProviderCreateBodyQuotasPerDay1
+	Type               ProviderCreateBodyQuotasPerDayType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderCreateBodyQuotasPerDayType is oneOf type of ProviderCreateBodyQuotasPerDay.
@@ -10693,9 +10288,9 @@ type ProviderCreateBodyQuotasPerDayType string
 
 // Possible values for ProviderCreateBodyQuotasPerDayType.
 const (
-	NullProviderCreateBodyQuotasPerDay                               ProviderCreateBodyQuotasPerDayType = "struct{}"
-	IntProviderCreateBodyQuotasPerDay                                ProviderCreateBodyQuotasPerDayType = "int"
-	NilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay ProviderCreateBodyQuotasPerDayType = "NilProviderCreateBodyQuotasPerDay1"
+	NullProviderCreateBodyQuotasPerDay               ProviderCreateBodyQuotasPerDayType = "struct{}"
+	IntProviderCreateBodyQuotasPerDay                ProviderCreateBodyQuotasPerDayType = "int"
+	ProviderQuotaRangeProviderCreateBodyQuotasPerDay ProviderCreateBodyQuotasPerDayType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderCreateBodyQuotasPerDay is struct{}.
@@ -10708,9 +10303,9 @@ func (s ProviderCreateBodyQuotasPerDay) IsInt() bool {
 	return s.Type == IntProviderCreateBodyQuotasPerDay
 }
 
-// IsNilProviderCreateBodyQuotasPerDay1 reports whether ProviderCreateBodyQuotasPerDay is NilProviderCreateBodyQuotasPerDay1.
-func (s ProviderCreateBodyQuotasPerDay) IsNilProviderCreateBodyQuotasPerDay1() bool {
-	return s.Type == NilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay
+// IsProviderQuotaRange reports whether ProviderCreateBodyQuotasPerDay is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerDay) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderCreateBodyQuotasPerDay
 }
 
 // SetNull sets ProviderCreateBodyQuotasPerDay to struct{}.
@@ -10755,60 +10350,34 @@ func NewIntProviderCreateBodyQuotasPerDay(v int) ProviderCreateBodyQuotasPerDay 
 	return s
 }
 
-// SetNilProviderCreateBodyQuotasPerDay1 sets ProviderCreateBodyQuotasPerDay to NilProviderCreateBodyQuotasPerDay1.
-func (s *ProviderCreateBodyQuotasPerDay) SetNilProviderCreateBodyQuotasPerDay1(v NilProviderCreateBodyQuotasPerDay1) {
-	s.Type = NilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay
-	s.NilProviderCreateBodyQuotasPerDay1 = v
+// SetProviderQuotaRange sets ProviderCreateBodyQuotasPerDay to ProviderQuotaRange.
+func (s *ProviderCreateBodyQuotasPerDay) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerDay
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderCreateBodyQuotasPerDay1 returns NilProviderCreateBodyQuotasPerDay1 and true boolean if ProviderCreateBodyQuotasPerDay is NilProviderCreateBodyQuotasPerDay1.
-func (s ProviderCreateBodyQuotasPerDay) GetNilProviderCreateBodyQuotasPerDay1() (v NilProviderCreateBodyQuotasPerDay1, ok bool) {
-	if !s.IsNilProviderCreateBodyQuotasPerDay1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderCreateBodyQuotasPerDay is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerDay) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderCreateBodyQuotasPerDay1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay returns new ProviderCreateBodyQuotasPerDay from NilProviderCreateBodyQuotasPerDay1.
-func NewNilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay(v NilProviderCreateBodyQuotasPerDay1) ProviderCreateBodyQuotasPerDay {
+// NewProviderQuotaRangeProviderCreateBodyQuotasPerDay returns new ProviderCreateBodyQuotasPerDay from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderCreateBodyQuotasPerDay(v ProviderQuotaRange) ProviderCreateBodyQuotasPerDay {
 	var s ProviderCreateBodyQuotasPerDay
-	s.SetNilProviderCreateBodyQuotasPerDay1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderCreateBodyQuotasPerDay1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderCreateBodyQuotasPerDay1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderCreateBodyQuotasPerDay1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderCreateBodyQuotasPerDay1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderCreateBodyQuotasPerDay1) SetMin(val int) {
-	s.Min = val
 }
 
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderCreateBodyQuotasPerHour represents sum type.
 type ProviderCreateBodyQuotasPerHour struct {
-	Type                                ProviderCreateBodyQuotasPerHourType // switch on this field
-	Null                                struct{}
-	Int                                 int
-	NilProviderCreateBodyQuotasPerHour1 NilProviderCreateBodyQuotasPerHour1
+	Type               ProviderCreateBodyQuotasPerHourType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderCreateBodyQuotasPerHourType is oneOf type of ProviderCreateBodyQuotasPerHour.
@@ -10816,9 +10385,9 @@ type ProviderCreateBodyQuotasPerHourType string
 
 // Possible values for ProviderCreateBodyQuotasPerHourType.
 const (
-	NullProviderCreateBodyQuotasPerHour                                ProviderCreateBodyQuotasPerHourType = "struct{}"
-	IntProviderCreateBodyQuotasPerHour                                 ProviderCreateBodyQuotasPerHourType = "int"
-	NilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour ProviderCreateBodyQuotasPerHourType = "NilProviderCreateBodyQuotasPerHour1"
+	NullProviderCreateBodyQuotasPerHour               ProviderCreateBodyQuotasPerHourType = "struct{}"
+	IntProviderCreateBodyQuotasPerHour                ProviderCreateBodyQuotasPerHourType = "int"
+	ProviderQuotaRangeProviderCreateBodyQuotasPerHour ProviderCreateBodyQuotasPerHourType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderCreateBodyQuotasPerHour is struct{}.
@@ -10831,9 +10400,9 @@ func (s ProviderCreateBodyQuotasPerHour) IsInt() bool {
 	return s.Type == IntProviderCreateBodyQuotasPerHour
 }
 
-// IsNilProviderCreateBodyQuotasPerHour1 reports whether ProviderCreateBodyQuotasPerHour is NilProviderCreateBodyQuotasPerHour1.
-func (s ProviderCreateBodyQuotasPerHour) IsNilProviderCreateBodyQuotasPerHour1() bool {
-	return s.Type == NilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour
+// IsProviderQuotaRange reports whether ProviderCreateBodyQuotasPerHour is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerHour) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderCreateBodyQuotasPerHour
 }
 
 // SetNull sets ProviderCreateBodyQuotasPerHour to struct{}.
@@ -10878,60 +10447,34 @@ func NewIntProviderCreateBodyQuotasPerHour(v int) ProviderCreateBodyQuotasPerHou
 	return s
 }
 
-// SetNilProviderCreateBodyQuotasPerHour1 sets ProviderCreateBodyQuotasPerHour to NilProviderCreateBodyQuotasPerHour1.
-func (s *ProviderCreateBodyQuotasPerHour) SetNilProviderCreateBodyQuotasPerHour1(v NilProviderCreateBodyQuotasPerHour1) {
-	s.Type = NilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour
-	s.NilProviderCreateBodyQuotasPerHour1 = v
+// SetProviderQuotaRange sets ProviderCreateBodyQuotasPerHour to ProviderQuotaRange.
+func (s *ProviderCreateBodyQuotasPerHour) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerHour
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderCreateBodyQuotasPerHour1 returns NilProviderCreateBodyQuotasPerHour1 and true boolean if ProviderCreateBodyQuotasPerHour is NilProviderCreateBodyQuotasPerHour1.
-func (s ProviderCreateBodyQuotasPerHour) GetNilProviderCreateBodyQuotasPerHour1() (v NilProviderCreateBodyQuotasPerHour1, ok bool) {
-	if !s.IsNilProviderCreateBodyQuotasPerHour1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderCreateBodyQuotasPerHour is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerHour) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderCreateBodyQuotasPerHour1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour returns new ProviderCreateBodyQuotasPerHour from NilProviderCreateBodyQuotasPerHour1.
-func NewNilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour(v NilProviderCreateBodyQuotasPerHour1) ProviderCreateBodyQuotasPerHour {
+// NewProviderQuotaRangeProviderCreateBodyQuotasPerHour returns new ProviderCreateBodyQuotasPerHour from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderCreateBodyQuotasPerHour(v ProviderQuotaRange) ProviderCreateBodyQuotasPerHour {
 	var s ProviderCreateBodyQuotasPerHour
-	s.SetNilProviderCreateBodyQuotasPerHour1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderCreateBodyQuotasPerHour1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderCreateBodyQuotasPerHour1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderCreateBodyQuotasPerHour1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderCreateBodyQuotasPerHour1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderCreateBodyQuotasPerHour1) SetMin(val int) {
-	s.Min = val
 }
 
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderCreateBodyQuotasPerMinute represents sum type.
 type ProviderCreateBodyQuotasPerMinute struct {
-	Type                                  ProviderCreateBodyQuotasPerMinuteType // switch on this field
-	Null                                  struct{}
-	Int                                   int
-	NilProviderCreateBodyQuotasPerMinute1 NilProviderCreateBodyQuotasPerMinute1
+	Type               ProviderCreateBodyQuotasPerMinuteType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderCreateBodyQuotasPerMinuteType is oneOf type of ProviderCreateBodyQuotasPerMinute.
@@ -10939,9 +10482,9 @@ type ProviderCreateBodyQuotasPerMinuteType string
 
 // Possible values for ProviderCreateBodyQuotasPerMinuteType.
 const (
-	NullProviderCreateBodyQuotasPerMinute                                  ProviderCreateBodyQuotasPerMinuteType = "struct{}"
-	IntProviderCreateBodyQuotasPerMinute                                   ProviderCreateBodyQuotasPerMinuteType = "int"
-	NilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute ProviderCreateBodyQuotasPerMinuteType = "NilProviderCreateBodyQuotasPerMinute1"
+	NullProviderCreateBodyQuotasPerMinute               ProviderCreateBodyQuotasPerMinuteType = "struct{}"
+	IntProviderCreateBodyQuotasPerMinute                ProviderCreateBodyQuotasPerMinuteType = "int"
+	ProviderQuotaRangeProviderCreateBodyQuotasPerMinute ProviderCreateBodyQuotasPerMinuteType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderCreateBodyQuotasPerMinute is struct{}.
@@ -10954,9 +10497,9 @@ func (s ProviderCreateBodyQuotasPerMinute) IsInt() bool {
 	return s.Type == IntProviderCreateBodyQuotasPerMinute
 }
 
-// IsNilProviderCreateBodyQuotasPerMinute1 reports whether ProviderCreateBodyQuotasPerMinute is NilProviderCreateBodyQuotasPerMinute1.
-func (s ProviderCreateBodyQuotasPerMinute) IsNilProviderCreateBodyQuotasPerMinute1() bool {
-	return s.Type == NilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute
+// IsProviderQuotaRange reports whether ProviderCreateBodyQuotasPerMinute is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerMinute) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderCreateBodyQuotasPerMinute
 }
 
 // SetNull sets ProviderCreateBodyQuotasPerMinute to struct{}.
@@ -11001,60 +10544,34 @@ func NewIntProviderCreateBodyQuotasPerMinute(v int) ProviderCreateBodyQuotasPerM
 	return s
 }
 
-// SetNilProviderCreateBodyQuotasPerMinute1 sets ProviderCreateBodyQuotasPerMinute to NilProviderCreateBodyQuotasPerMinute1.
-func (s *ProviderCreateBodyQuotasPerMinute) SetNilProviderCreateBodyQuotasPerMinute1(v NilProviderCreateBodyQuotasPerMinute1) {
-	s.Type = NilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute
-	s.NilProviderCreateBodyQuotasPerMinute1 = v
+// SetProviderQuotaRange sets ProviderCreateBodyQuotasPerMinute to ProviderQuotaRange.
+func (s *ProviderCreateBodyQuotasPerMinute) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerMinute
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderCreateBodyQuotasPerMinute1 returns NilProviderCreateBodyQuotasPerMinute1 and true boolean if ProviderCreateBodyQuotasPerMinute is NilProviderCreateBodyQuotasPerMinute1.
-func (s ProviderCreateBodyQuotasPerMinute) GetNilProviderCreateBodyQuotasPerMinute1() (v NilProviderCreateBodyQuotasPerMinute1, ok bool) {
-	if !s.IsNilProviderCreateBodyQuotasPerMinute1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderCreateBodyQuotasPerMinute is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerMinute) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderCreateBodyQuotasPerMinute1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute returns new ProviderCreateBodyQuotasPerMinute from NilProviderCreateBodyQuotasPerMinute1.
-func NewNilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute(v NilProviderCreateBodyQuotasPerMinute1) ProviderCreateBodyQuotasPerMinute {
+// NewProviderQuotaRangeProviderCreateBodyQuotasPerMinute returns new ProviderCreateBodyQuotasPerMinute from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderCreateBodyQuotasPerMinute(v ProviderQuotaRange) ProviderCreateBodyQuotasPerMinute {
 	var s ProviderCreateBodyQuotasPerMinute
-	s.SetNilProviderCreateBodyQuotasPerMinute1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderCreateBodyQuotasPerMinute1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderCreateBodyQuotasPerMinute1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderCreateBodyQuotasPerMinute1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderCreateBodyQuotasPerMinute1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderCreateBodyQuotasPerMinute1) SetMin(val int) {
-	s.Min = val
 }
 
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderCreateBodyQuotasPerSecond represents sum type.
 type ProviderCreateBodyQuotasPerSecond struct {
-	Type                                  ProviderCreateBodyQuotasPerSecondType // switch on this field
-	Null                                  struct{}
-	Int                                   int
-	NilProviderCreateBodyQuotasPerSecond1 NilProviderCreateBodyQuotasPerSecond1
+	Type               ProviderCreateBodyQuotasPerSecondType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderCreateBodyQuotasPerSecondType is oneOf type of ProviderCreateBodyQuotasPerSecond.
@@ -11062,9 +10579,9 @@ type ProviderCreateBodyQuotasPerSecondType string
 
 // Possible values for ProviderCreateBodyQuotasPerSecondType.
 const (
-	NullProviderCreateBodyQuotasPerSecond                                  ProviderCreateBodyQuotasPerSecondType = "struct{}"
-	IntProviderCreateBodyQuotasPerSecond                                   ProviderCreateBodyQuotasPerSecondType = "int"
-	NilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond ProviderCreateBodyQuotasPerSecondType = "NilProviderCreateBodyQuotasPerSecond1"
+	NullProviderCreateBodyQuotasPerSecond               ProviderCreateBodyQuotasPerSecondType = "struct{}"
+	IntProviderCreateBodyQuotasPerSecond                ProviderCreateBodyQuotasPerSecondType = "int"
+	ProviderQuotaRangeProviderCreateBodyQuotasPerSecond ProviderCreateBodyQuotasPerSecondType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderCreateBodyQuotasPerSecond is struct{}.
@@ -11077,9 +10594,9 @@ func (s ProviderCreateBodyQuotasPerSecond) IsInt() bool {
 	return s.Type == IntProviderCreateBodyQuotasPerSecond
 }
 
-// IsNilProviderCreateBodyQuotasPerSecond1 reports whether ProviderCreateBodyQuotasPerSecond is NilProviderCreateBodyQuotasPerSecond1.
-func (s ProviderCreateBodyQuotasPerSecond) IsNilProviderCreateBodyQuotasPerSecond1() bool {
-	return s.Type == NilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond
+// IsProviderQuotaRange reports whether ProviderCreateBodyQuotasPerSecond is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerSecond) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderCreateBodyQuotasPerSecond
 }
 
 // SetNull sets ProviderCreateBodyQuotasPerSecond to struct{}.
@@ -11124,51 +10641,25 @@ func NewIntProviderCreateBodyQuotasPerSecond(v int) ProviderCreateBodyQuotasPerS
 	return s
 }
 
-// SetNilProviderCreateBodyQuotasPerSecond1 sets ProviderCreateBodyQuotasPerSecond to NilProviderCreateBodyQuotasPerSecond1.
-func (s *ProviderCreateBodyQuotasPerSecond) SetNilProviderCreateBodyQuotasPerSecond1(v NilProviderCreateBodyQuotasPerSecond1) {
-	s.Type = NilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond
-	s.NilProviderCreateBodyQuotasPerSecond1 = v
+// SetProviderQuotaRange sets ProviderCreateBodyQuotasPerSecond to ProviderQuotaRange.
+func (s *ProviderCreateBodyQuotasPerSecond) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerSecond
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderCreateBodyQuotasPerSecond1 returns NilProviderCreateBodyQuotasPerSecond1 and true boolean if ProviderCreateBodyQuotasPerSecond is NilProviderCreateBodyQuotasPerSecond1.
-func (s ProviderCreateBodyQuotasPerSecond) GetNilProviderCreateBodyQuotasPerSecond1() (v NilProviderCreateBodyQuotasPerSecond1, ok bool) {
-	if !s.IsNilProviderCreateBodyQuotasPerSecond1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderCreateBodyQuotasPerSecond is ProviderQuotaRange.
+func (s ProviderCreateBodyQuotasPerSecond) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderCreateBodyQuotasPerSecond1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond returns new ProviderCreateBodyQuotasPerSecond from NilProviderCreateBodyQuotasPerSecond1.
-func NewNilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond(v NilProviderCreateBodyQuotasPerSecond1) ProviderCreateBodyQuotasPerSecond {
+// NewProviderQuotaRangeProviderCreateBodyQuotasPerSecond returns new ProviderCreateBodyQuotasPerSecond from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderCreateBodyQuotasPerSecond(v ProviderQuotaRange) ProviderCreateBodyQuotasPerSecond {
 	var s ProviderCreateBodyQuotasPerSecond
-	s.SetNilProviderCreateBodyQuotasPerSecond1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderCreateBodyQuotasPerSecond1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderCreateBodyQuotasPerSecond1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderCreateBodyQuotasPerSecond1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderCreateBodyQuotasPerSecond1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderCreateBodyQuotasPerSecond1) SetMin(val int) {
-	s.Min = val
 }
 
 type ProviderCreateBodySMTPProtocol string
@@ -12620,51 +12111,77 @@ func (s *ProviderQuotaRange) SetMin(val int) {
 	s.Min = val
 }
 
+// Ref: #/components/schemas/ProviderQuotaRangeOrNull
+type ProviderQuotaRangeOrNull struct {
+	Max int `json:"max"`
+	Min int `json:"min"`
+}
+
+// GetMax returns the value of Max.
+func (s *ProviderQuotaRangeOrNull) GetMax() int {
+	return s.Max
+}
+
+// GetMin returns the value of Min.
+func (s *ProviderQuotaRangeOrNull) GetMin() int {
+	return s.Min
+}
+
+// SetMax sets the value of Max.
+func (s *ProviderQuotaRangeOrNull) SetMax(val int) {
+	s.Max = val
+}
+
+// SetMin sets the value of Min.
+func (s *ProviderQuotaRangeOrNull) SetMin(val int) {
+	s.Min = val
+}
+
 // Ref: #/components/schemas/ProviderQuotas
 type ProviderQuotas struct {
-	PerDay    NilProviderQuotaRange `json:"per_day"`
-	PerHour   NilProviderQuotaRange `json:"per_hour"`
-	PerMinute NilProviderQuotaRange `json:"per_minute"`
-	PerSecond NilProviderQuotaRange `json:"per_second"`
+	PerDay    NilProviderQuotaRangeOrNull `json:"per_day"`
+	PerHour   NilProviderQuotaRangeOrNull `json:"per_hour"`
+	PerMinute NilProviderQuotaRangeOrNull `json:"per_minute"`
+	PerSecond NilProviderQuotaRangeOrNull `json:"per_second"`
 }
 
 // GetPerDay returns the value of PerDay.
-func (s *ProviderQuotas) GetPerDay() NilProviderQuotaRange {
+func (s *ProviderQuotas) GetPerDay() NilProviderQuotaRangeOrNull {
 	return s.PerDay
 }
 
 // GetPerHour returns the value of PerHour.
-func (s *ProviderQuotas) GetPerHour() NilProviderQuotaRange {
+func (s *ProviderQuotas) GetPerHour() NilProviderQuotaRangeOrNull {
 	return s.PerHour
 }
 
 // GetPerMinute returns the value of PerMinute.
-func (s *ProviderQuotas) GetPerMinute() NilProviderQuotaRange {
+func (s *ProviderQuotas) GetPerMinute() NilProviderQuotaRangeOrNull {
 	return s.PerMinute
 }
 
 // GetPerSecond returns the value of PerSecond.
-func (s *ProviderQuotas) GetPerSecond() NilProviderQuotaRange {
+func (s *ProviderQuotas) GetPerSecond() NilProviderQuotaRangeOrNull {
 	return s.PerSecond
 }
 
 // SetPerDay sets the value of PerDay.
-func (s *ProviderQuotas) SetPerDay(val NilProviderQuotaRange) {
+func (s *ProviderQuotas) SetPerDay(val NilProviderQuotaRangeOrNull) {
 	s.PerDay = val
 }
 
 // SetPerHour sets the value of PerHour.
-func (s *ProviderQuotas) SetPerHour(val NilProviderQuotaRange) {
+func (s *ProviderQuotas) SetPerHour(val NilProviderQuotaRangeOrNull) {
 	s.PerHour = val
 }
 
 // SetPerMinute sets the value of PerMinute.
-func (s *ProviderQuotas) SetPerMinute(val NilProviderQuotaRange) {
+func (s *ProviderQuotas) SetPerMinute(val NilProviderQuotaRangeOrNull) {
 	s.PerMinute = val
 }
 
 // SetPerSecond sets the value of PerSecond.
-func (s *ProviderQuotas) SetPerSecond(val NilProviderQuotaRange) {
+func (s *ProviderQuotas) SetPerSecond(val NilProviderQuotaRangeOrNull) {
 	s.PerSecond = val
 }
 
@@ -13298,10 +12815,10 @@ func (s *ProviderUpdateBodyQuotas) SetPerSecond(val OptProviderUpdateBodyQuotasP
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderUpdateBodyQuotasPerDay represents sum type.
 type ProviderUpdateBodyQuotasPerDay struct {
-	Type                               ProviderUpdateBodyQuotasPerDayType // switch on this field
-	Null                               struct{}
-	Int                                int
-	NilProviderUpdateBodyQuotasPerDay1 NilProviderUpdateBodyQuotasPerDay1
+	Type               ProviderUpdateBodyQuotasPerDayType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderUpdateBodyQuotasPerDayType is oneOf type of ProviderUpdateBodyQuotasPerDay.
@@ -13309,9 +12826,9 @@ type ProviderUpdateBodyQuotasPerDayType string
 
 // Possible values for ProviderUpdateBodyQuotasPerDayType.
 const (
-	NullProviderUpdateBodyQuotasPerDay                               ProviderUpdateBodyQuotasPerDayType = "struct{}"
-	IntProviderUpdateBodyQuotasPerDay                                ProviderUpdateBodyQuotasPerDayType = "int"
-	NilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay ProviderUpdateBodyQuotasPerDayType = "NilProviderUpdateBodyQuotasPerDay1"
+	NullProviderUpdateBodyQuotasPerDay               ProviderUpdateBodyQuotasPerDayType = "struct{}"
+	IntProviderUpdateBodyQuotasPerDay                ProviderUpdateBodyQuotasPerDayType = "int"
+	ProviderQuotaRangeProviderUpdateBodyQuotasPerDay ProviderUpdateBodyQuotasPerDayType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderUpdateBodyQuotasPerDay is struct{}.
@@ -13324,9 +12841,9 @@ func (s ProviderUpdateBodyQuotasPerDay) IsInt() bool {
 	return s.Type == IntProviderUpdateBodyQuotasPerDay
 }
 
-// IsNilProviderUpdateBodyQuotasPerDay1 reports whether ProviderUpdateBodyQuotasPerDay is NilProviderUpdateBodyQuotasPerDay1.
-func (s ProviderUpdateBodyQuotasPerDay) IsNilProviderUpdateBodyQuotasPerDay1() bool {
-	return s.Type == NilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay
+// IsProviderQuotaRange reports whether ProviderUpdateBodyQuotasPerDay is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerDay) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderUpdateBodyQuotasPerDay
 }
 
 // SetNull sets ProviderUpdateBodyQuotasPerDay to struct{}.
@@ -13371,60 +12888,34 @@ func NewIntProviderUpdateBodyQuotasPerDay(v int) ProviderUpdateBodyQuotasPerDay 
 	return s
 }
 
-// SetNilProviderUpdateBodyQuotasPerDay1 sets ProviderUpdateBodyQuotasPerDay to NilProviderUpdateBodyQuotasPerDay1.
-func (s *ProviderUpdateBodyQuotasPerDay) SetNilProviderUpdateBodyQuotasPerDay1(v NilProviderUpdateBodyQuotasPerDay1) {
-	s.Type = NilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay
-	s.NilProviderUpdateBodyQuotasPerDay1 = v
+// SetProviderQuotaRange sets ProviderUpdateBodyQuotasPerDay to ProviderQuotaRange.
+func (s *ProviderUpdateBodyQuotasPerDay) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerDay
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderUpdateBodyQuotasPerDay1 returns NilProviderUpdateBodyQuotasPerDay1 and true boolean if ProviderUpdateBodyQuotasPerDay is NilProviderUpdateBodyQuotasPerDay1.
-func (s ProviderUpdateBodyQuotasPerDay) GetNilProviderUpdateBodyQuotasPerDay1() (v NilProviderUpdateBodyQuotasPerDay1, ok bool) {
-	if !s.IsNilProviderUpdateBodyQuotasPerDay1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderUpdateBodyQuotasPerDay is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerDay) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderUpdateBodyQuotasPerDay1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay returns new ProviderUpdateBodyQuotasPerDay from NilProviderUpdateBodyQuotasPerDay1.
-func NewNilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay(v NilProviderUpdateBodyQuotasPerDay1) ProviderUpdateBodyQuotasPerDay {
+// NewProviderQuotaRangeProviderUpdateBodyQuotasPerDay returns new ProviderUpdateBodyQuotasPerDay from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderUpdateBodyQuotasPerDay(v ProviderQuotaRange) ProviderUpdateBodyQuotasPerDay {
 	var s ProviderUpdateBodyQuotasPerDay
-	s.SetNilProviderUpdateBodyQuotasPerDay1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderUpdateBodyQuotasPerDay1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderUpdateBodyQuotasPerDay1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderUpdateBodyQuotasPerDay1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderUpdateBodyQuotasPerDay1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderUpdateBodyQuotasPerDay1) SetMin(val int) {
-	s.Min = val
 }
 
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderUpdateBodyQuotasPerHour represents sum type.
 type ProviderUpdateBodyQuotasPerHour struct {
-	Type                                ProviderUpdateBodyQuotasPerHourType // switch on this field
-	Null                                struct{}
-	Int                                 int
-	NilProviderUpdateBodyQuotasPerHour1 NilProviderUpdateBodyQuotasPerHour1
+	Type               ProviderUpdateBodyQuotasPerHourType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderUpdateBodyQuotasPerHourType is oneOf type of ProviderUpdateBodyQuotasPerHour.
@@ -13432,9 +12923,9 @@ type ProviderUpdateBodyQuotasPerHourType string
 
 // Possible values for ProviderUpdateBodyQuotasPerHourType.
 const (
-	NullProviderUpdateBodyQuotasPerHour                                ProviderUpdateBodyQuotasPerHourType = "struct{}"
-	IntProviderUpdateBodyQuotasPerHour                                 ProviderUpdateBodyQuotasPerHourType = "int"
-	NilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour ProviderUpdateBodyQuotasPerHourType = "NilProviderUpdateBodyQuotasPerHour1"
+	NullProviderUpdateBodyQuotasPerHour               ProviderUpdateBodyQuotasPerHourType = "struct{}"
+	IntProviderUpdateBodyQuotasPerHour                ProviderUpdateBodyQuotasPerHourType = "int"
+	ProviderQuotaRangeProviderUpdateBodyQuotasPerHour ProviderUpdateBodyQuotasPerHourType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderUpdateBodyQuotasPerHour is struct{}.
@@ -13447,9 +12938,9 @@ func (s ProviderUpdateBodyQuotasPerHour) IsInt() bool {
 	return s.Type == IntProviderUpdateBodyQuotasPerHour
 }
 
-// IsNilProviderUpdateBodyQuotasPerHour1 reports whether ProviderUpdateBodyQuotasPerHour is NilProviderUpdateBodyQuotasPerHour1.
-func (s ProviderUpdateBodyQuotasPerHour) IsNilProviderUpdateBodyQuotasPerHour1() bool {
-	return s.Type == NilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour
+// IsProviderQuotaRange reports whether ProviderUpdateBodyQuotasPerHour is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerHour) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderUpdateBodyQuotasPerHour
 }
 
 // SetNull sets ProviderUpdateBodyQuotasPerHour to struct{}.
@@ -13494,60 +12985,34 @@ func NewIntProviderUpdateBodyQuotasPerHour(v int) ProviderUpdateBodyQuotasPerHou
 	return s
 }
 
-// SetNilProviderUpdateBodyQuotasPerHour1 sets ProviderUpdateBodyQuotasPerHour to NilProviderUpdateBodyQuotasPerHour1.
-func (s *ProviderUpdateBodyQuotasPerHour) SetNilProviderUpdateBodyQuotasPerHour1(v NilProviderUpdateBodyQuotasPerHour1) {
-	s.Type = NilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour
-	s.NilProviderUpdateBodyQuotasPerHour1 = v
+// SetProviderQuotaRange sets ProviderUpdateBodyQuotasPerHour to ProviderQuotaRange.
+func (s *ProviderUpdateBodyQuotasPerHour) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerHour
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderUpdateBodyQuotasPerHour1 returns NilProviderUpdateBodyQuotasPerHour1 and true boolean if ProviderUpdateBodyQuotasPerHour is NilProviderUpdateBodyQuotasPerHour1.
-func (s ProviderUpdateBodyQuotasPerHour) GetNilProviderUpdateBodyQuotasPerHour1() (v NilProviderUpdateBodyQuotasPerHour1, ok bool) {
-	if !s.IsNilProviderUpdateBodyQuotasPerHour1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderUpdateBodyQuotasPerHour is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerHour) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderUpdateBodyQuotasPerHour1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour returns new ProviderUpdateBodyQuotasPerHour from NilProviderUpdateBodyQuotasPerHour1.
-func NewNilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour(v NilProviderUpdateBodyQuotasPerHour1) ProviderUpdateBodyQuotasPerHour {
+// NewProviderQuotaRangeProviderUpdateBodyQuotasPerHour returns new ProviderUpdateBodyQuotasPerHour from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderUpdateBodyQuotasPerHour(v ProviderQuotaRange) ProviderUpdateBodyQuotasPerHour {
 	var s ProviderUpdateBodyQuotasPerHour
-	s.SetNilProviderUpdateBodyQuotasPerHour1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderUpdateBodyQuotasPerHour1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderUpdateBodyQuotasPerHour1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderUpdateBodyQuotasPerHour1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderUpdateBodyQuotasPerHour1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderUpdateBodyQuotasPerHour1) SetMin(val int) {
-	s.Min = val
 }
 
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderUpdateBodyQuotasPerMinute represents sum type.
 type ProviderUpdateBodyQuotasPerMinute struct {
-	Type                                  ProviderUpdateBodyQuotasPerMinuteType // switch on this field
-	Null                                  struct{}
-	Int                                   int
-	NilProviderUpdateBodyQuotasPerMinute1 NilProviderUpdateBodyQuotasPerMinute1
+	Type               ProviderUpdateBodyQuotasPerMinuteType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderUpdateBodyQuotasPerMinuteType is oneOf type of ProviderUpdateBodyQuotasPerMinute.
@@ -13555,9 +13020,9 @@ type ProviderUpdateBodyQuotasPerMinuteType string
 
 // Possible values for ProviderUpdateBodyQuotasPerMinuteType.
 const (
-	NullProviderUpdateBodyQuotasPerMinute                                  ProviderUpdateBodyQuotasPerMinuteType = "struct{}"
-	IntProviderUpdateBodyQuotasPerMinute                                   ProviderUpdateBodyQuotasPerMinuteType = "int"
-	NilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute ProviderUpdateBodyQuotasPerMinuteType = "NilProviderUpdateBodyQuotasPerMinute1"
+	NullProviderUpdateBodyQuotasPerMinute               ProviderUpdateBodyQuotasPerMinuteType = "struct{}"
+	IntProviderUpdateBodyQuotasPerMinute                ProviderUpdateBodyQuotasPerMinuteType = "int"
+	ProviderQuotaRangeProviderUpdateBodyQuotasPerMinute ProviderUpdateBodyQuotasPerMinuteType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderUpdateBodyQuotasPerMinute is struct{}.
@@ -13570,9 +13035,9 @@ func (s ProviderUpdateBodyQuotasPerMinute) IsInt() bool {
 	return s.Type == IntProviderUpdateBodyQuotasPerMinute
 }
 
-// IsNilProviderUpdateBodyQuotasPerMinute1 reports whether ProviderUpdateBodyQuotasPerMinute is NilProviderUpdateBodyQuotasPerMinute1.
-func (s ProviderUpdateBodyQuotasPerMinute) IsNilProviderUpdateBodyQuotasPerMinute1() bool {
-	return s.Type == NilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute
+// IsProviderQuotaRange reports whether ProviderUpdateBodyQuotasPerMinute is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerMinute) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderUpdateBodyQuotasPerMinute
 }
 
 // SetNull sets ProviderUpdateBodyQuotasPerMinute to struct{}.
@@ -13617,60 +13082,34 @@ func NewIntProviderUpdateBodyQuotasPerMinute(v int) ProviderUpdateBodyQuotasPerM
 	return s
 }
 
-// SetNilProviderUpdateBodyQuotasPerMinute1 sets ProviderUpdateBodyQuotasPerMinute to NilProviderUpdateBodyQuotasPerMinute1.
-func (s *ProviderUpdateBodyQuotasPerMinute) SetNilProviderUpdateBodyQuotasPerMinute1(v NilProviderUpdateBodyQuotasPerMinute1) {
-	s.Type = NilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute
-	s.NilProviderUpdateBodyQuotasPerMinute1 = v
+// SetProviderQuotaRange sets ProviderUpdateBodyQuotasPerMinute to ProviderQuotaRange.
+func (s *ProviderUpdateBodyQuotasPerMinute) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerMinute
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderUpdateBodyQuotasPerMinute1 returns NilProviderUpdateBodyQuotasPerMinute1 and true boolean if ProviderUpdateBodyQuotasPerMinute is NilProviderUpdateBodyQuotasPerMinute1.
-func (s ProviderUpdateBodyQuotasPerMinute) GetNilProviderUpdateBodyQuotasPerMinute1() (v NilProviderUpdateBodyQuotasPerMinute1, ok bool) {
-	if !s.IsNilProviderUpdateBodyQuotasPerMinute1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderUpdateBodyQuotasPerMinute is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerMinute) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderUpdateBodyQuotasPerMinute1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute returns new ProviderUpdateBodyQuotasPerMinute from NilProviderUpdateBodyQuotasPerMinute1.
-func NewNilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute(v NilProviderUpdateBodyQuotasPerMinute1) ProviderUpdateBodyQuotasPerMinute {
+// NewProviderQuotaRangeProviderUpdateBodyQuotasPerMinute returns new ProviderUpdateBodyQuotasPerMinute from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderUpdateBodyQuotasPerMinute(v ProviderQuotaRange) ProviderUpdateBodyQuotasPerMinute {
 	var s ProviderUpdateBodyQuotasPerMinute
-	s.SetNilProviderUpdateBodyQuotasPerMinute1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderUpdateBodyQuotasPerMinute1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderUpdateBodyQuotasPerMinute1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderUpdateBodyQuotasPerMinute1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderUpdateBodyQuotasPerMinute1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderUpdateBodyQuotasPerMinute1) SetMin(val int) {
-	s.Min = val
 }
 
 // Quota value. Use a number for a fixed cap, a min/max range, or null to clear on PATCH.
 // ProviderUpdateBodyQuotasPerSecond represents sum type.
 type ProviderUpdateBodyQuotasPerSecond struct {
-	Type                                  ProviderUpdateBodyQuotasPerSecondType // switch on this field
-	Null                                  struct{}
-	Int                                   int
-	NilProviderUpdateBodyQuotasPerSecond1 NilProviderUpdateBodyQuotasPerSecond1
+	Type               ProviderUpdateBodyQuotasPerSecondType // switch on this field
+	Null               struct{}
+	Int                int
+	ProviderQuotaRange ProviderQuotaRange
 }
 
 // ProviderUpdateBodyQuotasPerSecondType is oneOf type of ProviderUpdateBodyQuotasPerSecond.
@@ -13678,9 +13117,9 @@ type ProviderUpdateBodyQuotasPerSecondType string
 
 // Possible values for ProviderUpdateBodyQuotasPerSecondType.
 const (
-	NullProviderUpdateBodyQuotasPerSecond                                  ProviderUpdateBodyQuotasPerSecondType = "struct{}"
-	IntProviderUpdateBodyQuotasPerSecond                                   ProviderUpdateBodyQuotasPerSecondType = "int"
-	NilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond ProviderUpdateBodyQuotasPerSecondType = "NilProviderUpdateBodyQuotasPerSecond1"
+	NullProviderUpdateBodyQuotasPerSecond               ProviderUpdateBodyQuotasPerSecondType = "struct{}"
+	IntProviderUpdateBodyQuotasPerSecond                ProviderUpdateBodyQuotasPerSecondType = "int"
+	ProviderQuotaRangeProviderUpdateBodyQuotasPerSecond ProviderUpdateBodyQuotasPerSecondType = "ProviderQuotaRange"
 )
 
 // IsNull reports whether ProviderUpdateBodyQuotasPerSecond is struct{}.
@@ -13693,9 +13132,9 @@ func (s ProviderUpdateBodyQuotasPerSecond) IsInt() bool {
 	return s.Type == IntProviderUpdateBodyQuotasPerSecond
 }
 
-// IsNilProviderUpdateBodyQuotasPerSecond1 reports whether ProviderUpdateBodyQuotasPerSecond is NilProviderUpdateBodyQuotasPerSecond1.
-func (s ProviderUpdateBodyQuotasPerSecond) IsNilProviderUpdateBodyQuotasPerSecond1() bool {
-	return s.Type == NilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond
+// IsProviderQuotaRange reports whether ProviderUpdateBodyQuotasPerSecond is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerSecond) IsProviderQuotaRange() bool {
+	return s.Type == ProviderQuotaRangeProviderUpdateBodyQuotasPerSecond
 }
 
 // SetNull sets ProviderUpdateBodyQuotasPerSecond to struct{}.
@@ -13740,51 +13179,25 @@ func NewIntProviderUpdateBodyQuotasPerSecond(v int) ProviderUpdateBodyQuotasPerS
 	return s
 }
 
-// SetNilProviderUpdateBodyQuotasPerSecond1 sets ProviderUpdateBodyQuotasPerSecond to NilProviderUpdateBodyQuotasPerSecond1.
-func (s *ProviderUpdateBodyQuotasPerSecond) SetNilProviderUpdateBodyQuotasPerSecond1(v NilProviderUpdateBodyQuotasPerSecond1) {
-	s.Type = NilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond
-	s.NilProviderUpdateBodyQuotasPerSecond1 = v
+// SetProviderQuotaRange sets ProviderUpdateBodyQuotasPerSecond to ProviderQuotaRange.
+func (s *ProviderUpdateBodyQuotasPerSecond) SetProviderQuotaRange(v ProviderQuotaRange) {
+	s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerSecond
+	s.ProviderQuotaRange = v
 }
 
-// GetNilProviderUpdateBodyQuotasPerSecond1 returns NilProviderUpdateBodyQuotasPerSecond1 and true boolean if ProviderUpdateBodyQuotasPerSecond is NilProviderUpdateBodyQuotasPerSecond1.
-func (s ProviderUpdateBodyQuotasPerSecond) GetNilProviderUpdateBodyQuotasPerSecond1() (v NilProviderUpdateBodyQuotasPerSecond1, ok bool) {
-	if !s.IsNilProviderUpdateBodyQuotasPerSecond1() {
+// GetProviderQuotaRange returns ProviderQuotaRange and true boolean if ProviderUpdateBodyQuotasPerSecond is ProviderQuotaRange.
+func (s ProviderUpdateBodyQuotasPerSecond) GetProviderQuotaRange() (v ProviderQuotaRange, ok bool) {
+	if !s.IsProviderQuotaRange() {
 		return v, false
 	}
-	return s.NilProviderUpdateBodyQuotasPerSecond1, true
+	return s.ProviderQuotaRange, true
 }
 
-// NewNilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond returns new ProviderUpdateBodyQuotasPerSecond from NilProviderUpdateBodyQuotasPerSecond1.
-func NewNilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond(v NilProviderUpdateBodyQuotasPerSecond1) ProviderUpdateBodyQuotasPerSecond {
+// NewProviderQuotaRangeProviderUpdateBodyQuotasPerSecond returns new ProviderUpdateBodyQuotasPerSecond from ProviderQuotaRange.
+func NewProviderQuotaRangeProviderUpdateBodyQuotasPerSecond(v ProviderQuotaRange) ProviderUpdateBodyQuotasPerSecond {
 	var s ProviderUpdateBodyQuotasPerSecond
-	s.SetNilProviderUpdateBodyQuotasPerSecond1(v)
+	s.SetProviderQuotaRange(v)
 	return s
-}
-
-// Merged schema.
-type ProviderUpdateBodyQuotasPerSecond1 struct {
-	Max int `json:"max"`
-	Min int `json:"min"`
-}
-
-// GetMax returns the value of Max.
-func (s *ProviderUpdateBodyQuotasPerSecond1) GetMax() int {
-	return s.Max
-}
-
-// GetMin returns the value of Min.
-func (s *ProviderUpdateBodyQuotasPerSecond1) GetMin() int {
-	return s.Min
-}
-
-// SetMax sets the value of Max.
-func (s *ProviderUpdateBodyQuotasPerSecond1) SetMax(val int) {
-	s.Max = val
-}
-
-// SetMin sets the value of Min.
-func (s *ProviderUpdateBodyQuotasPerSecond1) SetMin(val int) {
-	s.Min = val
 }
 
 type ProviderUpdateBodySMTPProtocol string
@@ -14791,10 +14204,157 @@ func (SharedAmazonSesLimitRequestCreateResponseOk) AllValues() []SharedAmazonSes
 	}
 }
 
+// Ref: #/components/schemas/SharedAmazonSesLimitRequestOrNull
+type SharedAmazonSesLimitRequestOrNull struct {
+	ApprovedDailyLimit NilInt                                  `json:"approved_daily_limit"`
+	CreatedAt          string                                  `json:"created_at"`
+	CurrentDailyLimit  int                                     `json:"current_daily_limit"`
+	CurrentDailySent   int                                     `json:"current_daily_sent"`
+	DecidedAt          NilString                               `json:"decided_at"`
+	DecisionNote       NilString                               `json:"decision_note"`
+	ID                 string                                  `json:"id"`
+	Status             SharedAmazonSesLimitRequestOrNullStatus `json:"status"`
+}
+
+// GetApprovedDailyLimit returns the value of ApprovedDailyLimit.
+func (s *SharedAmazonSesLimitRequestOrNull) GetApprovedDailyLimit() NilInt {
+	return s.ApprovedDailyLimit
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *SharedAmazonSesLimitRequestOrNull) GetCreatedAt() string {
+	return s.CreatedAt
+}
+
+// GetCurrentDailyLimit returns the value of CurrentDailyLimit.
+func (s *SharedAmazonSesLimitRequestOrNull) GetCurrentDailyLimit() int {
+	return s.CurrentDailyLimit
+}
+
+// GetCurrentDailySent returns the value of CurrentDailySent.
+func (s *SharedAmazonSesLimitRequestOrNull) GetCurrentDailySent() int {
+	return s.CurrentDailySent
+}
+
+// GetDecidedAt returns the value of DecidedAt.
+func (s *SharedAmazonSesLimitRequestOrNull) GetDecidedAt() NilString {
+	return s.DecidedAt
+}
+
+// GetDecisionNote returns the value of DecisionNote.
+func (s *SharedAmazonSesLimitRequestOrNull) GetDecisionNote() NilString {
+	return s.DecisionNote
+}
+
+// GetID returns the value of ID.
+func (s *SharedAmazonSesLimitRequestOrNull) GetID() string {
+	return s.ID
+}
+
+// GetStatus returns the value of Status.
+func (s *SharedAmazonSesLimitRequestOrNull) GetStatus() SharedAmazonSesLimitRequestOrNullStatus {
+	return s.Status
+}
+
+// SetApprovedDailyLimit sets the value of ApprovedDailyLimit.
+func (s *SharedAmazonSesLimitRequestOrNull) SetApprovedDailyLimit(val NilInt) {
+	s.ApprovedDailyLimit = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *SharedAmazonSesLimitRequestOrNull) SetCreatedAt(val string) {
+	s.CreatedAt = val
+}
+
+// SetCurrentDailyLimit sets the value of CurrentDailyLimit.
+func (s *SharedAmazonSesLimitRequestOrNull) SetCurrentDailyLimit(val int) {
+	s.CurrentDailyLimit = val
+}
+
+// SetCurrentDailySent sets the value of CurrentDailySent.
+func (s *SharedAmazonSesLimitRequestOrNull) SetCurrentDailySent(val int) {
+	s.CurrentDailySent = val
+}
+
+// SetDecidedAt sets the value of DecidedAt.
+func (s *SharedAmazonSesLimitRequestOrNull) SetDecidedAt(val NilString) {
+	s.DecidedAt = val
+}
+
+// SetDecisionNote sets the value of DecisionNote.
+func (s *SharedAmazonSesLimitRequestOrNull) SetDecisionNote(val NilString) {
+	s.DecisionNote = val
+}
+
+// SetID sets the value of ID.
+func (s *SharedAmazonSesLimitRequestOrNull) SetID(val string) {
+	s.ID = val
+}
+
+// SetStatus sets the value of Status.
+func (s *SharedAmazonSesLimitRequestOrNull) SetStatus(val SharedAmazonSesLimitRequestOrNullStatus) {
+	s.Status = val
+}
+
+type SharedAmazonSesLimitRequestOrNullStatus string
+
+const (
+	SharedAmazonSesLimitRequestOrNullStatusPending   SharedAmazonSesLimitRequestOrNullStatus = "pending"
+	SharedAmazonSesLimitRequestOrNullStatusApproved  SharedAmazonSesLimitRequestOrNullStatus = "approved"
+	SharedAmazonSesLimitRequestOrNullStatusDenied    SharedAmazonSesLimitRequestOrNullStatus = "denied"
+	SharedAmazonSesLimitRequestOrNullStatusCancelled SharedAmazonSesLimitRequestOrNullStatus = "cancelled"
+)
+
+// AllValues returns all SharedAmazonSesLimitRequestOrNullStatus values.
+func (SharedAmazonSesLimitRequestOrNullStatus) AllValues() []SharedAmazonSesLimitRequestOrNullStatus {
+	return []SharedAmazonSesLimitRequestOrNullStatus{
+		SharedAmazonSesLimitRequestOrNullStatusPending,
+		SharedAmazonSesLimitRequestOrNullStatusApproved,
+		SharedAmazonSesLimitRequestOrNullStatusDenied,
+		SharedAmazonSesLimitRequestOrNullStatusCancelled,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s SharedAmazonSesLimitRequestOrNullStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case SharedAmazonSesLimitRequestOrNullStatusPending:
+		return []byte(s), nil
+	case SharedAmazonSesLimitRequestOrNullStatusApproved:
+		return []byte(s), nil
+	case SharedAmazonSesLimitRequestOrNullStatusDenied:
+		return []byte(s), nil
+	case SharedAmazonSesLimitRequestOrNullStatusCancelled:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *SharedAmazonSesLimitRequestOrNullStatus) UnmarshalText(data []byte) error {
+	switch SharedAmazonSesLimitRequestOrNullStatus(data) {
+	case SharedAmazonSesLimitRequestOrNullStatusPending:
+		*s = SharedAmazonSesLimitRequestOrNullStatusPending
+		return nil
+	case SharedAmazonSesLimitRequestOrNullStatusApproved:
+		*s = SharedAmazonSesLimitRequestOrNullStatusApproved
+		return nil
+	case SharedAmazonSesLimitRequestOrNullStatusDenied:
+		*s = SharedAmazonSesLimitRequestOrNullStatusDenied
+		return nil
+	case SharedAmazonSesLimitRequestOrNullStatusCancelled:
+		*s = SharedAmazonSesLimitRequestOrNullStatusCancelled
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/SharedAmazonSesLimitRequestPage
 type SharedAmazonSesLimitRequestPage struct {
-	Limit          SharedAmazonSesLimit           `json:"limit"`
-	PendingRequest NilSharedAmazonSesLimitRequest `json:"pending_request"`
+	Limit          SharedAmazonSesLimit                 `json:"limit"`
+	PendingRequest NilSharedAmazonSesLimitRequestOrNull `json:"pending_request"`
 }
 
 // GetLimit returns the value of Limit.
@@ -14803,7 +14363,7 @@ func (s *SharedAmazonSesLimitRequestPage) GetLimit() SharedAmazonSesLimit {
 }
 
 // GetPendingRequest returns the value of PendingRequest.
-func (s *SharedAmazonSesLimitRequestPage) GetPendingRequest() NilSharedAmazonSesLimitRequest {
+func (s *SharedAmazonSesLimitRequestPage) GetPendingRequest() NilSharedAmazonSesLimitRequestOrNull {
 	return s.PendingRequest
 }
 
@@ -14813,7 +14373,7 @@ func (s *SharedAmazonSesLimitRequestPage) SetLimit(val SharedAmazonSesLimit) {
 }
 
 // SetPendingRequest sets the value of PendingRequest.
-func (s *SharedAmazonSesLimitRequestPage) SetPendingRequest(val NilSharedAmazonSesLimitRequest) {
+func (s *SharedAmazonSesLimitRequestPage) SetPendingRequest(val NilSharedAmazonSesLimitRequestOrNull) {
 	s.PendingRequest = val
 }
 

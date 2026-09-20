@@ -228,6 +228,41 @@ Use a bare REST access token with the operation's required scopes and mailbox ac
 
 To roll back, restore the v1 module requirement, imports, constructed response types, and lock or vendor state together.
 
+## Version 3 migration
+
+Version 3 regenerates the mailbox and management packages from the API schema that publishes every nullable object field as a dedicated `…OrNull` component and adds the message header fields the API already returned. The wire format is unchanged: each `…OrNull` type carries the same fields as its base type, every field that was nullable is still nullable, and no operation, path or request shape changes. Because Go types are nominal, generated type names change:
+
+1. **Mailbox nullable fields.** Each removed `Nil…` wrapper is replaced by the matching `Nil…OrNull` wrapper, which has the same `Get`, `Or`, `IsNull`, `SetTo` and `SetToNull` methods:
+
+   | Field | v2 | v3 |
+   | --- | --- | --- |
+   | `MailboxMessage.From`, `MailboxMessageSummary.From`, `MailboxMessageContentParticipants.From` | `NilMailboxAddress` | `NilMailboxAddressOrNull` |
+   | `MailboxThread.LastMessage`, `MailboxThreadSummary.LastMessage` | `NilMailboxMessageSummary` | `NilMailboxMessageSummaryOrNull` |
+   | `MailboxBatchGetItem.Content` | `NilMailboxMessageContent` | `NilMailboxMessageContentOrNull` |
+   | `MailboxBatchGetItem.RawBody` | `NilMailboxRawBody` | `NilMailboxRawBodyOrNull` |
+   | `MailboxSubmissionEnvelope.MailFrom` | `NilMailboxSubmissionEnvelopeAddress` | `NilMailboxSubmissionEnvelopeAddressOrNull` |
+   | `MailboxSubmissionEnvelope.RcptTo` | `[]NilMailboxSubmissionEnvelopeRcptToItem` | `[]MailboxSubmissionEnvelopeAddress` |
+   | `MailboxMessageContentResponse.Data` | `NilMailboxMessageContentResponseData` | `MailboxMessageContent` |
+   | `MailboxRawBodyResponse.Data` | `NilMailboxRawBodyResponseData` | `MailboxRawBody` |
+   | `MailboxThreadContentResponse.Data` | `[]NilMailboxThreadContentResponseDataItem` | `[]MailboxMessageContent` |
+
+   Nested enum types follow their parent: `Content.Value.Body.Format` is `MailboxMessageContentOrNullBodyFormat` (`Text`, `HTML`) and `RawBody.Value.Part` is `MailboxRawBodyOrNullPart` (`Text`, `HTML`, `Both`). The message content and raw body responses no longer wrap their data: read `response.Data` directly instead of `response.Data.Get()`.
+
+2. **Mailbox message headers (additive).** `MailboxMessage` gains `MessageID`, `InReplyTo` and `References` (`[]string`, angle brackets removed) and `ReplyTo` (`[]MailboxAddress`), with `GetMessageID`, `GetInReplyTo`, `GetReferences`, `GetReplyTo` and the matching setters. Address replies to `ReplyTo` whenever it is non-empty.
+
+3. **Management.**
+
+   | Field | v2 | v3 |
+   | --- | --- | --- |
+   | `MailboxCreateResult.Credential` | `NilMailboxCredential` | `NilMailboxCredentialOrNull` |
+   | `MailboxAppPasswordResult.Credential` | `NilMailboxAppPasswordResultCredential` | `MailboxCredential` |
+   | `ProviderQuotas.PerSecond`, `.PerMinute`, `.PerHour`, `.PerDay` | `NilProviderQuotaRange` | `NilProviderQuotaRangeOrNull` |
+   | `SharedAmazonSesLimitRequestPage.PendingRequest` | `NilSharedAmazonSesLimitRequest` | `NilSharedAmazonSesLimitRequestOrNull` |
+
+   `PendingRequest.Value.Status` is `SharedAmazonSesLimitRequestOrNullStatus`, with the same `Pending`, `Approved`, `Denied` and `Cancelled` constants. `MailboxAppPasswordResult.Credential` is no longer wrapped: read it directly instead of calling `Get()`. Provider quota inputs hold a `ProviderQuotaRange` instead of the removed `ProviderCreateBodyQuotasPerDay1`-style types: build a range with `management.NewProviderQuotaRangeProviderCreateBodyQuotasPerDay(management.ProviderQuotaRange{Min: 60, Max: 60})` (and the `PerHour`, `PerMinute`, `PerSecond` and `ProviderUpdateBody…` counterparts) instead of `NewNilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay`; the `Int` and `Null` members are unchanged.
+
+To roll back, restore the previous module requirement together with the code that referenced the renamed types.
+
 ## Runtime behaviour
 
 - `sending.New` accepts send-capable `smx_mbx_` keys or owner-approved Sending-resource `smx_agent_` tokens.

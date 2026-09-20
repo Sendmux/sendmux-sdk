@@ -9294,221 +9294,6 @@ func (s *MailboxAppPasswordResult) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *MailboxAppPasswordResultCredential) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *MailboxAppPasswordResultCredential) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("imap_port")
-		e.Int(s.ImapPort)
-	}
-	{
-		e.FieldStart("key_prefix")
-		e.Str(s.KeyPrefix)
-	}
-	{
-		e.FieldStart("key_suffix")
-		e.Str(s.KeySuffix)
-	}
-	{
-		e.FieldStart("public_id")
-		e.Str(s.PublicID)
-	}
-	{
-		e.FieldStart("secret")
-		e.Str(s.Secret)
-	}
-	{
-		e.FieldStart("server")
-		e.Str(s.Server)
-	}
-	{
-		e.FieldStart("smtp_port")
-		e.Int(s.SMTPPort)
-	}
-	{
-		e.FieldStart("username")
-		e.Str(s.Username)
-	}
-}
-
-var jsonFieldsNameOfMailboxAppPasswordResultCredential = [8]string{
-	0: "imap_port",
-	1: "key_prefix",
-	2: "key_suffix",
-	3: "public_id",
-	4: "secret",
-	5: "server",
-	6: "smtp_port",
-	7: "username",
-}
-
-// Decode decodes MailboxAppPasswordResultCredential from json.
-func (s *MailboxAppPasswordResultCredential) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode MailboxAppPasswordResultCredential to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "imap_port":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.ImapPort = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"imap_port\"")
-			}
-		case "key_prefix":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Str()
-				s.KeyPrefix = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"key_prefix\"")
-			}
-		case "key_suffix":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := d.Str()
-				s.KeySuffix = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"key_suffix\"")
-			}
-		case "public_id":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Str()
-				s.PublicID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"public_id\"")
-			}
-		case "secret":
-			requiredBitSet[0] |= 1 << 4
-			if err := func() error {
-				v, err := d.Str()
-				s.Secret = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"secret\"")
-			}
-		case "server":
-			requiredBitSet[0] |= 1 << 5
-			if err := func() error {
-				v, err := d.Str()
-				s.Server = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"server\"")
-			}
-		case "smtp_port":
-			requiredBitSet[0] |= 1 << 6
-			if err := func() error {
-				v, err := d.Int()
-				s.SMTPPort = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"smtp_port\"")
-			}
-		case "username":
-			requiredBitSet[0] |= 1 << 7
-			if err := func() error {
-				v, err := d.Str()
-				s.Username = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"username\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode MailboxAppPasswordResultCredential")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b11111111,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfMailboxAppPasswordResultCredential) {
-					name = jsonFieldsNameOfMailboxAppPasswordResultCredential[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *MailboxAppPasswordResultCredential) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *MailboxAppPasswordResultCredential) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
 func (s *MailboxAppPasswordResultResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -11006,6 +10791,221 @@ func (s *MailboxCredential) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxCredential) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *MailboxCredentialOrNull) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *MailboxCredentialOrNull) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("imap_port")
+		e.Int(s.ImapPort)
+	}
+	{
+		e.FieldStart("key_prefix")
+		e.Str(s.KeyPrefix)
+	}
+	{
+		e.FieldStart("key_suffix")
+		e.Str(s.KeySuffix)
+	}
+	{
+		e.FieldStart("public_id")
+		e.Str(s.PublicID)
+	}
+	{
+		e.FieldStart("secret")
+		e.Str(s.Secret)
+	}
+	{
+		e.FieldStart("server")
+		e.Str(s.Server)
+	}
+	{
+		e.FieldStart("smtp_port")
+		e.Int(s.SMTPPort)
+	}
+	{
+		e.FieldStart("username")
+		e.Str(s.Username)
+	}
+}
+
+var jsonFieldsNameOfMailboxCredentialOrNull = [8]string{
+	0: "imap_port",
+	1: "key_prefix",
+	2: "key_suffix",
+	3: "public_id",
+	4: "secret",
+	5: "server",
+	6: "smtp_port",
+	7: "username",
+}
+
+// Decode decodes MailboxCredentialOrNull from json.
+func (s *MailboxCredentialOrNull) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxCredentialOrNull to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "imap_port":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Int()
+				s.ImapPort = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"imap_port\"")
+			}
+		case "key_prefix":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.KeyPrefix = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key_prefix\"")
+			}
+		case "key_suffix":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.KeySuffix = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key_suffix\"")
+			}
+		case "public_id":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.PublicID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"public_id\"")
+			}
+		case "secret":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := d.Str()
+				s.Secret = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"secret\"")
+			}
+		case "server":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.Server = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"server\"")
+			}
+		case "smtp_port":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Int()
+				s.SMTPPort = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"smtp_port\"")
+			}
+		case "username":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				v, err := d.Str()
+				s.Username = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"username\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode MailboxCredentialOrNull")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b11111111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfMailboxCredentialOrNull) {
+					name = jsonFieldsNameOfMailboxCredentialOrNull[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *MailboxCredentialOrNull) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxCredentialOrNull) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -15881,8 +15881,8 @@ func (s *NilInt) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes MailboxAppPasswordResultCredential as json.
-func (o NilMailboxAppPasswordResultCredential) Encode(e *jx.Encoder) {
+// Encode encodes MailboxCredentialOrNull as json.
+func (o NilMailboxCredentialOrNull) Encode(e *jx.Encoder) {
 	if o.Null {
 		e.Null()
 		return
@@ -15890,17 +15890,17 @@ func (o NilMailboxAppPasswordResultCredential) Encode(e *jx.Encoder) {
 	o.Value.Encode(e)
 }
 
-// Decode decodes MailboxAppPasswordResultCredential from json.
-func (o *NilMailboxAppPasswordResultCredential) Decode(d *jx.Decoder) error {
+// Decode decodes MailboxCredentialOrNull from json.
+func (o *NilMailboxCredentialOrNull) Decode(d *jx.Decoder) error {
 	if o == nil {
-		return errors.New("invalid: unable to decode NilMailboxAppPasswordResultCredential to nil")
+		return errors.New("invalid: unable to decode NilMailboxCredentialOrNull to nil")
 	}
 	if d.Next() == jx.Null {
 		if err := d.Null(); err != nil {
 			return err
 		}
 
-		var v MailboxAppPasswordResultCredential
+		var v MailboxCredentialOrNull
 		o.Value = v
 		o.Null = true
 		return nil
@@ -15913,58 +15913,14 @@ func (o *NilMailboxAppPasswordResultCredential) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s NilMailboxAppPasswordResultCredential) MarshalJSON() ([]byte, error) {
+func (s NilMailboxCredentialOrNull) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilMailboxAppPasswordResultCredential) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes MailboxCredential as json.
-func (o NilMailboxCredential) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes MailboxCredential from json.
-func (o *NilMailboxCredential) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilMailboxCredential to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v MailboxCredential
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilMailboxCredential) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilMailboxCredential) UnmarshalJSON(data []byte) error {
+func (s *NilMailboxCredentialOrNull) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -16013,8 +15969,8 @@ func (s *NilMailboxSendScope) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes ProviderCreateBodyQuotasPerDay1 as json.
-func (o NilProviderCreateBodyQuotasPerDay1) Encode(e *jx.Encoder) {
+// Encode encodes ProviderQuotaRangeOrNull as json.
+func (o NilProviderQuotaRangeOrNull) Encode(e *jx.Encoder) {
 	if o.Null {
 		e.Null()
 		return
@@ -16022,17 +15978,17 @@ func (o NilProviderCreateBodyQuotasPerDay1) Encode(e *jx.Encoder) {
 	o.Value.Encode(e)
 }
 
-// Decode decodes ProviderCreateBodyQuotasPerDay1 from json.
-func (o *NilProviderCreateBodyQuotasPerDay1) Decode(d *jx.Decoder) error {
+// Decode decodes ProviderQuotaRangeOrNull from json.
+func (o *NilProviderQuotaRangeOrNull) Decode(d *jx.Decoder) error {
 	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderCreateBodyQuotasPerDay1 to nil")
+		return errors.New("invalid: unable to decode NilProviderQuotaRangeOrNull to nil")
 	}
 	if d.Next() == jx.Null {
 		if err := d.Null(); err != nil {
 			return err
 		}
 
-		var v ProviderCreateBodyQuotasPerDay1
+		var v ProviderQuotaRangeOrNull
 		o.Value = v
 		o.Null = true
 		return nil
@@ -16045,20 +16001,20 @@ func (o *NilProviderCreateBodyQuotasPerDay1) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderCreateBodyQuotasPerDay1) MarshalJSON() ([]byte, error) {
+func (s NilProviderQuotaRangeOrNull) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderCreateBodyQuotasPerDay1) UnmarshalJSON(data []byte) error {
+func (s *NilProviderQuotaRangeOrNull) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
-// Encode encodes ProviderCreateBodyQuotasPerHour1 as json.
-func (o NilProviderCreateBodyQuotasPerHour1) Encode(e *jx.Encoder) {
+// Encode encodes SharedAmazonSesLimitRequestOrNull as json.
+func (o NilSharedAmazonSesLimitRequestOrNull) Encode(e *jx.Encoder) {
 	if o.Null {
 		e.Null()
 		return
@@ -16066,17 +16022,17 @@ func (o NilProviderCreateBodyQuotasPerHour1) Encode(e *jx.Encoder) {
 	o.Value.Encode(e)
 }
 
-// Decode decodes ProviderCreateBodyQuotasPerHour1 from json.
-func (o *NilProviderCreateBodyQuotasPerHour1) Decode(d *jx.Decoder) error {
+// Decode decodes SharedAmazonSesLimitRequestOrNull from json.
+func (o *NilSharedAmazonSesLimitRequestOrNull) Decode(d *jx.Decoder) error {
 	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderCreateBodyQuotasPerHour1 to nil")
+		return errors.New("invalid: unable to decode NilSharedAmazonSesLimitRequestOrNull to nil")
 	}
 	if d.Next() == jx.Null {
 		if err := d.Null(); err != nil {
 			return err
 		}
 
-		var v ProviderCreateBodyQuotasPerHour1
+		var v SharedAmazonSesLimitRequestOrNull
 		o.Value = v
 		o.Null = true
 		return nil
@@ -16089,366 +16045,14 @@ func (o *NilProviderCreateBodyQuotasPerHour1) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderCreateBodyQuotasPerHour1) MarshalJSON() ([]byte, error) {
+func (s NilSharedAmazonSesLimitRequestOrNull) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderCreateBodyQuotasPerHour1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderCreateBodyQuotasPerMinute1 as json.
-func (o NilProviderCreateBodyQuotasPerMinute1) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderCreateBodyQuotasPerMinute1 from json.
-func (o *NilProviderCreateBodyQuotasPerMinute1) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderCreateBodyQuotasPerMinute1 to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderCreateBodyQuotasPerMinute1
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderCreateBodyQuotasPerMinute1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderCreateBodyQuotasPerMinute1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderCreateBodyQuotasPerSecond1 as json.
-func (o NilProviderCreateBodyQuotasPerSecond1) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderCreateBodyQuotasPerSecond1 from json.
-func (o *NilProviderCreateBodyQuotasPerSecond1) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderCreateBodyQuotasPerSecond1 to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderCreateBodyQuotasPerSecond1
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderCreateBodyQuotasPerSecond1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderCreateBodyQuotasPerSecond1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderQuotaRange as json.
-func (o NilProviderQuotaRange) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderQuotaRange from json.
-func (o *NilProviderQuotaRange) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderQuotaRange to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderQuotaRange
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderQuotaRange) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderQuotaRange) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderUpdateBodyQuotasPerDay1 as json.
-func (o NilProviderUpdateBodyQuotasPerDay1) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerDay1 from json.
-func (o *NilProviderUpdateBodyQuotasPerDay1) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderUpdateBodyQuotasPerDay1 to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderUpdateBodyQuotasPerDay1
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderUpdateBodyQuotasPerDay1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderUpdateBodyQuotasPerDay1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderUpdateBodyQuotasPerHour1 as json.
-func (o NilProviderUpdateBodyQuotasPerHour1) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerHour1 from json.
-func (o *NilProviderUpdateBodyQuotasPerHour1) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderUpdateBodyQuotasPerHour1 to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderUpdateBodyQuotasPerHour1
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderUpdateBodyQuotasPerHour1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderUpdateBodyQuotasPerHour1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderUpdateBodyQuotasPerMinute1 as json.
-func (o NilProviderUpdateBodyQuotasPerMinute1) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerMinute1 from json.
-func (o *NilProviderUpdateBodyQuotasPerMinute1) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderUpdateBodyQuotasPerMinute1 to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderUpdateBodyQuotasPerMinute1
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderUpdateBodyQuotasPerMinute1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderUpdateBodyQuotasPerMinute1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes ProviderUpdateBodyQuotasPerSecond1 as json.
-func (o NilProviderUpdateBodyQuotasPerSecond1) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerSecond1 from json.
-func (o *NilProviderUpdateBodyQuotasPerSecond1) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilProviderUpdateBodyQuotasPerSecond1 to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v ProviderUpdateBodyQuotasPerSecond1
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilProviderUpdateBodyQuotasPerSecond1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilProviderUpdateBodyQuotasPerSecond1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes SharedAmazonSesLimitRequest as json.
-func (o NilSharedAmazonSesLimitRequest) Encode(e *jx.Encoder) {
-	if o.Null {
-		e.Null()
-		return
-	}
-	o.Value.Encode(e)
-}
-
-// Decode decodes SharedAmazonSesLimitRequest from json.
-func (o *NilSharedAmazonSesLimitRequest) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode NilSharedAmazonSesLimitRequest to nil")
-	}
-	if d.Next() == jx.Null {
-		if err := d.Null(); err != nil {
-			return err
-		}
-
-		var v SharedAmazonSesLimitRequest
-		o.Value = v
-		o.Null = true
-		return nil
-	}
-	o.Null = false
-	if err := o.Value.Decode(d); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s NilSharedAmazonSesLimitRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *NilSharedAmazonSesLimitRequest) UnmarshalJSON(data []byte) error {
+func (s *NilSharedAmazonSesLimitRequestOrNull) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -18289,8 +17893,8 @@ func (s ProviderCreateBodyQuotasPerDay) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderCreateBodyQuotasPerDay:
 		e.Int(s.Int)
-	case NilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay:
-		s.NilProviderCreateBodyQuotasPerDay1.Encode(e)
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerDay:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -18314,10 +17918,10 @@ func (s *ProviderCreateBodyQuotasPerDay) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderCreateBodyQuotasPerDay
 	case jx.Object:
-		if err := s.NilProviderCreateBodyQuotasPerDay1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderCreateBodyQuotasPerDay1ProviderCreateBodyQuotasPerDay
+		s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerDay
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -18337,119 +17941,6 @@ func (s *ProviderCreateBodyQuotasPerDay) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *ProviderCreateBodyQuotasPerDay1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderCreateBodyQuotasPerDay1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderCreateBodyQuotasPerDay1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderCreateBodyQuotasPerDay1 from json.
-func (s *ProviderCreateBodyQuotasPerDay1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderCreateBodyQuotasPerDay1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderCreateBodyQuotasPerDay1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderCreateBodyQuotasPerDay1) {
-					name = jsonFieldsNameOfProviderCreateBodyQuotasPerDay1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderCreateBodyQuotasPerDay1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderCreateBodyQuotasPerDay1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes ProviderCreateBodyQuotasPerHour as json.
 func (s ProviderCreateBodyQuotasPerHour) Encode(e *jx.Encoder) {
 	switch s.Type {
@@ -18458,8 +17949,8 @@ func (s ProviderCreateBodyQuotasPerHour) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderCreateBodyQuotasPerHour:
 		e.Int(s.Int)
-	case NilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour:
-		s.NilProviderCreateBodyQuotasPerHour1.Encode(e)
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerHour:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -18483,10 +17974,10 @@ func (s *ProviderCreateBodyQuotasPerHour) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderCreateBodyQuotasPerHour
 	case jx.Object:
-		if err := s.NilProviderCreateBodyQuotasPerHour1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderCreateBodyQuotasPerHour1ProviderCreateBodyQuotasPerHour
+		s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerHour
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -18506,119 +17997,6 @@ func (s *ProviderCreateBodyQuotasPerHour) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *ProviderCreateBodyQuotasPerHour1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderCreateBodyQuotasPerHour1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderCreateBodyQuotasPerHour1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderCreateBodyQuotasPerHour1 from json.
-func (s *ProviderCreateBodyQuotasPerHour1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderCreateBodyQuotasPerHour1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderCreateBodyQuotasPerHour1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderCreateBodyQuotasPerHour1) {
-					name = jsonFieldsNameOfProviderCreateBodyQuotasPerHour1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderCreateBodyQuotasPerHour1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderCreateBodyQuotasPerHour1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes ProviderCreateBodyQuotasPerMinute as json.
 func (s ProviderCreateBodyQuotasPerMinute) Encode(e *jx.Encoder) {
 	switch s.Type {
@@ -18627,8 +18005,8 @@ func (s ProviderCreateBodyQuotasPerMinute) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderCreateBodyQuotasPerMinute:
 		e.Int(s.Int)
-	case NilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute:
-		s.NilProviderCreateBodyQuotasPerMinute1.Encode(e)
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerMinute:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -18652,10 +18030,10 @@ func (s *ProviderCreateBodyQuotasPerMinute) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderCreateBodyQuotasPerMinute
 	case jx.Object:
-		if err := s.NilProviderCreateBodyQuotasPerMinute1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderCreateBodyQuotasPerMinute1ProviderCreateBodyQuotasPerMinute
+		s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerMinute
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -18675,119 +18053,6 @@ func (s *ProviderCreateBodyQuotasPerMinute) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *ProviderCreateBodyQuotasPerMinute1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderCreateBodyQuotasPerMinute1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderCreateBodyQuotasPerMinute1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderCreateBodyQuotasPerMinute1 from json.
-func (s *ProviderCreateBodyQuotasPerMinute1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderCreateBodyQuotasPerMinute1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderCreateBodyQuotasPerMinute1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderCreateBodyQuotasPerMinute1) {
-					name = jsonFieldsNameOfProviderCreateBodyQuotasPerMinute1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderCreateBodyQuotasPerMinute1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderCreateBodyQuotasPerMinute1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes ProviderCreateBodyQuotasPerSecond as json.
 func (s ProviderCreateBodyQuotasPerSecond) Encode(e *jx.Encoder) {
 	switch s.Type {
@@ -18796,8 +18061,8 @@ func (s ProviderCreateBodyQuotasPerSecond) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderCreateBodyQuotasPerSecond:
 		e.Int(s.Int)
-	case NilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond:
-		s.NilProviderCreateBodyQuotasPerSecond1.Encode(e)
+	case ProviderQuotaRangeProviderCreateBodyQuotasPerSecond:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -18821,10 +18086,10 @@ func (s *ProviderCreateBodyQuotasPerSecond) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderCreateBodyQuotasPerSecond
 	case jx.Object:
-		if err := s.NilProviderCreateBodyQuotasPerSecond1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderCreateBodyQuotasPerSecond1ProviderCreateBodyQuotasPerSecond
+		s.Type = ProviderQuotaRangeProviderCreateBodyQuotasPerSecond
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -18840,119 +18105,6 @@ func (s ProviderCreateBodyQuotasPerSecond) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ProviderCreateBodyQuotasPerSecond) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *ProviderCreateBodyQuotasPerSecond1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderCreateBodyQuotasPerSecond1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderCreateBodyQuotasPerSecond1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderCreateBodyQuotasPerSecond1 from json.
-func (s *ProviderCreateBodyQuotasPerSecond1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderCreateBodyQuotasPerSecond1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderCreateBodyQuotasPerSecond1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderCreateBodyQuotasPerSecond1) {
-					name = jsonFieldsNameOfProviderCreateBodyQuotasPerSecond1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderCreateBodyQuotasPerSecond1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderCreateBodyQuotasPerSecond1) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -21911,6 +21063,119 @@ func (s *ProviderQuotaRange) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *ProviderQuotaRangeOrNull) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *ProviderQuotaRangeOrNull) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("max")
+		e.Int(s.Max)
+	}
+	{
+		e.FieldStart("min")
+		e.Int(s.Min)
+	}
+}
+
+var jsonFieldsNameOfProviderQuotaRangeOrNull = [2]string{
+	0: "max",
+	1: "min",
+}
+
+// Decode decodes ProviderQuotaRangeOrNull from json.
+func (s *ProviderQuotaRangeOrNull) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ProviderQuotaRangeOrNull to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "max":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Int()
+				s.Max = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"max\"")
+			}
+		case "min":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Int()
+				s.Min = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"min\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode ProviderQuotaRangeOrNull")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfProviderQuotaRangeOrNull) {
+					name = jsonFieldsNameOfProviderQuotaRangeOrNull[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ProviderQuotaRangeOrNull) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ProviderQuotaRangeOrNull) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *ProviderQuotas) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -23748,8 +23013,8 @@ func (s ProviderUpdateBodyQuotasPerDay) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderUpdateBodyQuotasPerDay:
 		e.Int(s.Int)
-	case NilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay:
-		s.NilProviderUpdateBodyQuotasPerDay1.Encode(e)
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerDay:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -23773,10 +23038,10 @@ func (s *ProviderUpdateBodyQuotasPerDay) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderUpdateBodyQuotasPerDay
 	case jx.Object:
-		if err := s.NilProviderUpdateBodyQuotasPerDay1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderUpdateBodyQuotasPerDay1ProviderUpdateBodyQuotasPerDay
+		s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerDay
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -23796,119 +23061,6 @@ func (s *ProviderUpdateBodyQuotasPerDay) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerDay1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderUpdateBodyQuotasPerDay1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderUpdateBodyQuotasPerDay1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerDay1 from json.
-func (s *ProviderUpdateBodyQuotasPerDay1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderUpdateBodyQuotasPerDay1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderUpdateBodyQuotasPerDay1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderUpdateBodyQuotasPerDay1) {
-					name = jsonFieldsNameOfProviderUpdateBodyQuotasPerDay1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerDay1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderUpdateBodyQuotasPerDay1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes ProviderUpdateBodyQuotasPerHour as json.
 func (s ProviderUpdateBodyQuotasPerHour) Encode(e *jx.Encoder) {
 	switch s.Type {
@@ -23917,8 +23069,8 @@ func (s ProviderUpdateBodyQuotasPerHour) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderUpdateBodyQuotasPerHour:
 		e.Int(s.Int)
-	case NilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour:
-		s.NilProviderUpdateBodyQuotasPerHour1.Encode(e)
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerHour:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -23942,10 +23094,10 @@ func (s *ProviderUpdateBodyQuotasPerHour) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderUpdateBodyQuotasPerHour
 	case jx.Object:
-		if err := s.NilProviderUpdateBodyQuotasPerHour1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderUpdateBodyQuotasPerHour1ProviderUpdateBodyQuotasPerHour
+		s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerHour
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -23965,119 +23117,6 @@ func (s *ProviderUpdateBodyQuotasPerHour) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerHour1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderUpdateBodyQuotasPerHour1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderUpdateBodyQuotasPerHour1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerHour1 from json.
-func (s *ProviderUpdateBodyQuotasPerHour1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderUpdateBodyQuotasPerHour1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderUpdateBodyQuotasPerHour1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderUpdateBodyQuotasPerHour1) {
-					name = jsonFieldsNameOfProviderUpdateBodyQuotasPerHour1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerHour1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderUpdateBodyQuotasPerHour1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes ProviderUpdateBodyQuotasPerMinute as json.
 func (s ProviderUpdateBodyQuotasPerMinute) Encode(e *jx.Encoder) {
 	switch s.Type {
@@ -24086,8 +23125,8 @@ func (s ProviderUpdateBodyQuotasPerMinute) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderUpdateBodyQuotasPerMinute:
 		e.Int(s.Int)
-	case NilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute:
-		s.NilProviderUpdateBodyQuotasPerMinute1.Encode(e)
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerMinute:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -24111,10 +23150,10 @@ func (s *ProviderUpdateBodyQuotasPerMinute) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderUpdateBodyQuotasPerMinute
 	case jx.Object:
-		if err := s.NilProviderUpdateBodyQuotasPerMinute1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderUpdateBodyQuotasPerMinute1ProviderUpdateBodyQuotasPerMinute
+		s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerMinute
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -24134,119 +23173,6 @@ func (s *ProviderUpdateBodyQuotasPerMinute) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerMinute1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderUpdateBodyQuotasPerMinute1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderUpdateBodyQuotasPerMinute1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerMinute1 from json.
-func (s *ProviderUpdateBodyQuotasPerMinute1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderUpdateBodyQuotasPerMinute1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderUpdateBodyQuotasPerMinute1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderUpdateBodyQuotasPerMinute1) {
-					name = jsonFieldsNameOfProviderUpdateBodyQuotasPerMinute1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerMinute1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderUpdateBodyQuotasPerMinute1) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes ProviderUpdateBodyQuotasPerSecond as json.
 func (s ProviderUpdateBodyQuotasPerSecond) Encode(e *jx.Encoder) {
 	switch s.Type {
@@ -24255,8 +23181,8 @@ func (s ProviderUpdateBodyQuotasPerSecond) Encode(e *jx.Encoder) {
 		e.Null()
 	case IntProviderUpdateBodyQuotasPerSecond:
 		e.Int(s.Int)
-	case NilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond:
-		s.NilProviderUpdateBodyQuotasPerSecond1.Encode(e)
+	case ProviderQuotaRangeProviderUpdateBodyQuotasPerSecond:
+		s.ProviderQuotaRange.Encode(e)
 	}
 }
 
@@ -24280,10 +23206,10 @@ func (s *ProviderUpdateBodyQuotasPerSecond) Decode(d *jx.Decoder) error {
 		}
 		s.Type = IntProviderUpdateBodyQuotasPerSecond
 	case jx.Object:
-		if err := s.NilProviderUpdateBodyQuotasPerSecond1.Decode(d); err != nil {
+		if err := s.ProviderQuotaRange.Decode(d); err != nil {
 			return err
 		}
-		s.Type = NilProviderUpdateBodyQuotasPerSecond1ProviderUpdateBodyQuotasPerSecond
+		s.Type = ProviderQuotaRangeProviderUpdateBodyQuotasPerSecond
 	default:
 		return errors.Errorf("unexpected json type %q", t)
 	}
@@ -24299,119 +23225,6 @@ func (s ProviderUpdateBodyQuotasPerSecond) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ProviderUpdateBodyQuotasPerSecond) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerSecond1) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProviderUpdateBodyQuotasPerSecond1) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("max")
-		e.Int(s.Max)
-	}
-	{
-		e.FieldStart("min")
-		e.Int(s.Min)
-	}
-}
-
-var jsonFieldsNameOfProviderUpdateBodyQuotasPerSecond1 = [2]string{
-	0: "max",
-	1: "min",
-}
-
-// Decode decodes ProviderUpdateBodyQuotasPerSecond1 from json.
-func (s *ProviderUpdateBodyQuotasPerSecond1) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProviderUpdateBodyQuotasPerSecond1 to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "max":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Int()
-				s.Max = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"max\"")
-			}
-		case "min":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Int()
-				s.Min = int(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"min\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode ProviderUpdateBodyQuotasPerSecond1")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfProviderUpdateBodyQuotasPerSecond1) {
-					name = jsonFieldsNameOfProviderUpdateBodyQuotasPerSecond1[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProviderUpdateBodyQuotasPerSecond1) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProviderUpdateBodyQuotasPerSecond1) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -27342,6 +26155,257 @@ func (s SharedAmazonSesLimitRequestCreateResponseOk) MarshalJSON() ([]byte, erro
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *SharedAmazonSesLimitRequestCreateResponseOk) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *SharedAmazonSesLimitRequestOrNull) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *SharedAmazonSesLimitRequestOrNull) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("approved_daily_limit")
+		s.ApprovedDailyLimit.Encode(e)
+	}
+	{
+		e.FieldStart("created_at")
+		e.Str(s.CreatedAt)
+	}
+	{
+		e.FieldStart("current_daily_limit")
+		e.Int(s.CurrentDailyLimit)
+	}
+	{
+		e.FieldStart("current_daily_sent")
+		e.Int(s.CurrentDailySent)
+	}
+	{
+		e.FieldStart("decided_at")
+		s.DecidedAt.Encode(e)
+	}
+	{
+		e.FieldStart("decision_note")
+		s.DecisionNote.Encode(e)
+	}
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		e.FieldStart("status")
+		s.Status.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfSharedAmazonSesLimitRequestOrNull = [8]string{
+	0: "approved_daily_limit",
+	1: "created_at",
+	2: "current_daily_limit",
+	3: "current_daily_sent",
+	4: "decided_at",
+	5: "decision_note",
+	6: "id",
+	7: "status",
+}
+
+// Decode decodes SharedAmazonSesLimitRequestOrNull from json.
+func (s *SharedAmazonSesLimitRequestOrNull) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode SharedAmazonSesLimitRequestOrNull to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "approved_daily_limit":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.ApprovedDailyLimit.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"approved_daily_limit\"")
+			}
+		case "created_at":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.CreatedAt = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_at\"")
+			}
+		case "current_daily_limit":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Int()
+				s.CurrentDailyLimit = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"current_daily_limit\"")
+			}
+		case "current_daily_sent":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Int()
+				s.CurrentDailySent = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"current_daily_sent\"")
+			}
+		case "decided_at":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.DecidedAt.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"decided_at\"")
+			}
+		case "decision_note":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.DecisionNote.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"decision_note\"")
+			}
+		case "id":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "status":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode SharedAmazonSesLimitRequestOrNull")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b11111111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfSharedAmazonSesLimitRequestOrNull) {
+					name = jsonFieldsNameOfSharedAmazonSesLimitRequestOrNull[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *SharedAmazonSesLimitRequestOrNull) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *SharedAmazonSesLimitRequestOrNull) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes SharedAmazonSesLimitRequestOrNullStatus as json.
+func (s SharedAmazonSesLimitRequestOrNullStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes SharedAmazonSesLimitRequestOrNullStatus from json.
+func (s *SharedAmazonSesLimitRequestOrNullStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode SharedAmazonSesLimitRequestOrNullStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch SharedAmazonSesLimitRequestOrNullStatus(v) {
+	case SharedAmazonSesLimitRequestOrNullStatusPending:
+		*s = SharedAmazonSesLimitRequestOrNullStatusPending
+	case SharedAmazonSesLimitRequestOrNullStatusApproved:
+		*s = SharedAmazonSesLimitRequestOrNullStatusApproved
+	case SharedAmazonSesLimitRequestOrNullStatusDenied:
+		*s = SharedAmazonSesLimitRequestOrNullStatusDenied
+	case SharedAmazonSesLimitRequestOrNullStatusCancelled:
+		*s = SharedAmazonSesLimitRequestOrNullStatusCancelled
+	default:
+		*s = SharedAmazonSesLimitRequestOrNullStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s SharedAmazonSesLimitRequestOrNullStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *SharedAmazonSesLimitRequestOrNullStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

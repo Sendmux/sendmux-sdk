@@ -46,10 +46,10 @@ module Sendmux::Management::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'per_day' => :'ProviderQuotaRange',
-        :'per_hour' => :'ProviderQuotaRange',
-        :'per_minute' => :'ProviderQuotaRange',
-        :'per_second' => :'ProviderQuotaRange'
+        :'per_day' => :'ProviderQuotaRangeOrNull',
+        :'per_hour' => :'ProviderQuotaRangeOrNull',
+        :'per_minute' => :'ProviderQuotaRangeOrNull',
+        :'per_second' => :'ProviderQuotaRangeOrNull'
       }
     end
 

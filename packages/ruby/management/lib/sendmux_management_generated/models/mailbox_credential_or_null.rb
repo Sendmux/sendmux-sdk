@@ -14,7 +14,8 @@ require 'date'
 require 'time'
 
 module Sendmux::Management::Generated
-  class MailboxAppPasswordResultCredential < ApiModelBase
+  # Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.
+  class MailboxCredentialOrNull < ApiModelBase
     # IMAP retrieval port
     attr_accessor :imap_port
 
@@ -81,25 +82,18 @@ module Sendmux::Management::Generated
       ])
     end
 
-    # List of class defined in allOf (OpenAPI v3)
-    def self.openapi_all_of
-      [
-      :'MailboxCredential'
-      ]
-    end
-
     # Initializes the object
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Management::Generated::MailboxAppPasswordResultCredential` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Management::Generated::MailboxCredentialOrNull` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Management::Generated::MailboxAppPasswordResultCredential`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Management::Generated::MailboxCredentialOrNull`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }

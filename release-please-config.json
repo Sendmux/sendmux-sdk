@@ -72,7 +72,6 @@
       "component": "python-mailbox",
       "package-name": "sendmux-mailbox",
       "release-type": "python",
-      "release-as": "2.0.1",
       "initial-version": "1.0.0"
     },
     "packages/python/management": {
@@ -109,7 +108,6 @@
       "component": "go",
       "package-name": "sendmux.ai/go/v2",
       "release-type": "go",
-      "release-as": "2.0.0",
       "include-component-in-tag": true,
       "include-v-in-tag": true,
       "tag-separator": "/",
@@ -147,7 +145,6 @@
       "package-name": "sendmux-mailbox",
       "release-type": "ruby",
       "version-file": "lib/sendmux/mailbox/version.rb",
-      "release-as": "2.0.1",
       "initial-version": "1.0.0"
     },
     "packages/ruby/management": {

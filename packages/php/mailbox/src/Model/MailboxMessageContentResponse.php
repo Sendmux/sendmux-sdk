@@ -61,7 +61,7 @@ class MailboxMessageContentResponse implements ModelInterface, ArrayAccess, Json
     protected static array $openAPITypes = [
         'meta' => '\Sendmux\Mailbox\Model\ResponseMeta',
         'ok' => 'bool',
-        'data' => '\Sendmux\Mailbox\Model\MailboxMessageContentResponseAllOfData'
+        'data' => '\Sendmux\Mailbox\Model\MailboxMessageContent'
     ];
 
     /**
@@ -344,9 +344,9 @@ class MailboxMessageContentResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Sendmux\Mailbox\Model\MailboxMessageContentResponseAllOfData
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContent
      */
-    public function getData(): \Sendmux\Mailbox\Model\MailboxMessageContentResponseAllOfData
+    public function getData(): \Sendmux\Mailbox\Model\MailboxMessageContent
     {
         return $this->container['data'];
     }
@@ -354,11 +354,11 @@ class MailboxMessageContentResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Sendmux\Mailbox\Model\MailboxMessageContentResponseAllOfData $data data
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContent $data data
      *
      * @return $this
      */
-    public function setData(\Sendmux\Mailbox\Model\MailboxMessageContentResponseAllOfData $data): static
+    public function setData(\Sendmux\Mailbox\Model\MailboxMessageContent $data): static
     {
         if (is_null($data)) {
             throw new InvalidArgumentException('non-nullable data cannot be null');

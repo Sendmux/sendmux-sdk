@@ -60,7 +60,7 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      */
     protected static array $openAPITypes = [
         'mail_from' => '\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress',
-        'rcpt_to' => '\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeRcptToInner[]'
+        'rcpt_to' => '\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress[]'
     ];
 
     /**
@@ -314,7 +314,7 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Gets rcpt_to
      *
-     * @return \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeRcptToInner[]
+     * @return \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress[]
      */
     public function getRcptTo(): array
     {
@@ -324,7 +324,7 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets rcpt_to
      *
-     * @param \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeRcptToInner[] $rcpt_to rcpt_to
+     * @param \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress[] $rcpt_to rcpt_to
      *
      * @return $this
      */

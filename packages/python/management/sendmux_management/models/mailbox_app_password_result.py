@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
-from sendmux_management.models.mailbox_app_password_result_credential import MailboxAppPasswordResultCredential
+from sendmux_management.models.mailbox_credential import MailboxCredential
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,7 +28,7 @@ class MailboxAppPasswordResult(BaseModel):
     """
     MailboxAppPasswordResult
     """ # noqa: E501
-    credential: MailboxAppPasswordResultCredential
+    credential: MailboxCredential
     __properties: ClassVar[List[str]] = ["credential"]
 
     model_config = ConfigDict(
@@ -85,6 +85,6 @@ class MailboxAppPasswordResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "credential": MailboxAppPasswordResultCredential.from_dict(obj["credential"]) if obj.get("credential") is not None else None
+            "credential": MailboxCredential.from_dict(obj["credential"]) if obj.get("credential") is not None else None
         })
         return _obj

@@ -50,7 +50,6 @@ from sendmux_management.models.incoming_log_item_cursor_list_response import Inc
 from sendmux_management.models.incoming_log_item_response import IncomingLogItemResponse
 from sendmux_management.models.mailbox import Mailbox
 from sendmux_management.models.mailbox_app_password_result import MailboxAppPasswordResult
-from sendmux_management.models.mailbox_app_password_result_credential import MailboxAppPasswordResultCredential
 from sendmux_management.models.mailbox_app_password_result_response import MailboxAppPasswordResultResponse
 from sendmux_management.models.mailbox_availability_reason import MailboxAvailabilityReason
 from sendmux_management.models.mailbox_availability_response import MailboxAvailabilityResponse
@@ -81,7 +80,6 @@ from sendmux_management.models.provider_allowed_actions import ProviderAllowedAc
 from sendmux_management.models.provider_create_body import ProviderCreateBody
 from sendmux_management.models.provider_create_body_quotas import ProviderCreateBodyQuotas
 from sendmux_management.models.provider_create_body_quotas_per_day import ProviderCreateBodyQuotasPerDay
-from sendmux_management.models.provider_create_body_quotas_per_day_any_of import ProviderCreateBodyQuotasPerDayAnyOf
 from sendmux_management.models.provider_deleted import ProviderDeleted
 from sendmux_management.models.provider_deleted_response import ProviderDeletedResponse
 from sendmux_management.models.provider_item import ProviderItem
@@ -138,3 +136,26 @@ from sendmux_management.models.webhook_subscription_with_secret import WebhookSu
 from sendmux_management.models.webhook_subscription_with_secret_response import WebhookSubscriptionWithSecretResponse
 from sendmux_management.models.webhook_test_response import WebhookTestResponse
 from sendmux_management.models.webhook_update_body import WebhookUpdateBody
+
+import warnings as _warnings
+
+from typing import Any as _Any
+
+# Deprecated model names kept as aliases of their replacements until the release named here.
+_DEPRECATED_MODEL_ALIASES = {
+    "MailboxAppPasswordResultCredential": ("MailboxCredential", "sendmux-management 3.0"),
+    "ProviderCreateBodyQuotasPerDayAnyOf": ("ProviderQuotaRange", "sendmux-management 3.0"),
+}
+
+
+def __getattr__(name: str) -> _Any:
+    alias = _DEPRECATED_MODEL_ALIASES.get(name)
+    if alias is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    replacement, removed_in = alias
+    _warnings.warn(
+        f"{name} is deprecated; use {replacement}. It will be removed in {removed_in}.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return globals()[replacement]

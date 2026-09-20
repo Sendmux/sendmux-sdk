@@ -59,7 +59,7 @@ class MailboxCreateResult implements ModelInterface, ArrayAccess, JsonSerializab
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'credential' => '\Sendmux\Management\Model\MailboxCredential',
+        'credential' => '\Sendmux\Management\Model\MailboxCredentialOrNull',
         'mailbox' => '\Sendmux\Management\Model\Mailbox',
         'warning' => 'string'
     ];
@@ -290,9 +290,9 @@ class MailboxCreateResult implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets credential
      *
-     * @return \Sendmux\Management\Model\MailboxCredential|null
+     * @return \Sendmux\Management\Model\MailboxCredentialOrNull|null
      */
-    public function getCredential(): ?\Sendmux\Management\Model\MailboxCredential
+    public function getCredential(): ?\Sendmux\Management\Model\MailboxCredentialOrNull
     {
         return $this->container['credential'];
     }
@@ -300,11 +300,11 @@ class MailboxCreateResult implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets credential
      *
-     * @param \Sendmux\Management\Model\MailboxCredential|null $credential credential
+     * @param \Sendmux\Management\Model\MailboxCredentialOrNull|null $credential credential
      *
      * @return $this
      */
-    public function setCredential(?\Sendmux\Management\Model\MailboxCredential $credential): static
+    public function setCredential(?\Sendmux\Management\Model\MailboxCredentialOrNull $credential): static
     {
         if (is_null($credential)) {
             array_push($this->openAPINullablesSetToNull, 'credential');

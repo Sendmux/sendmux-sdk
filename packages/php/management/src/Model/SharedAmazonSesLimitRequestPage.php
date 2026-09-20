@@ -60,7 +60,7 @@ class SharedAmazonSesLimitRequestPage implements ModelInterface, ArrayAccess, Js
      */
     protected static array $openAPITypes = [
         'limit' => '\Sendmux\Management\Model\SharedAmazonSesLimit',
-        'pending_request' => '\Sendmux\Management\Model\SharedAmazonSesLimitRequest'
+        'pending_request' => '\Sendmux\Management\Model\SharedAmazonSesLimitRequestOrNull'
     ];
 
     /**
@@ -307,9 +307,9 @@ class SharedAmazonSesLimitRequestPage implements ModelInterface, ArrayAccess, Js
     /**
      * Gets pending_request
      *
-     * @return \Sendmux\Management\Model\SharedAmazonSesLimitRequest|null
+     * @return \Sendmux\Management\Model\SharedAmazonSesLimitRequestOrNull|null
      */
-    public function getPendingRequest(): ?\Sendmux\Management\Model\SharedAmazonSesLimitRequest
+    public function getPendingRequest(): ?\Sendmux\Management\Model\SharedAmazonSesLimitRequestOrNull
     {
         return $this->container['pending_request'];
     }
@@ -317,11 +317,11 @@ class SharedAmazonSesLimitRequestPage implements ModelInterface, ArrayAccess, Js
     /**
      * Sets pending_request
      *
-     * @param \Sendmux\Management\Model\SharedAmazonSesLimitRequest|null $pending_request pending_request
+     * @param \Sendmux\Management\Model\SharedAmazonSesLimitRequestOrNull|null $pending_request pending_request
      *
      * @return $this
      */
-    public function setPendingRequest(?\Sendmux\Management\Model\SharedAmazonSesLimitRequest $pending_request): static
+    public function setPendingRequest(?\Sendmux\Management\Model\SharedAmazonSesLimitRequestOrNull $pending_request): static
     {
         if (is_null($pending_request)) {
             array_push($this->openAPINullablesSetToNull, 'pending_request');

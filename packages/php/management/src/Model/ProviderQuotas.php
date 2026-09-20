@@ -59,10 +59,10 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'per_day' => '\Sendmux\Management\Model\ProviderQuotaRange',
-        'per_hour' => '\Sendmux\Management\Model\ProviderQuotaRange',
-        'per_minute' => '\Sendmux\Management\Model\ProviderQuotaRange',
-        'per_second' => '\Sendmux\Management\Model\ProviderQuotaRange'
+        'per_day' => '\Sendmux\Management\Model\ProviderQuotaRangeOrNull',
+        'per_hour' => '\Sendmux\Management\Model\ProviderQuotaRangeOrNull',
+        'per_minute' => '\Sendmux\Management\Model\ProviderQuotaRangeOrNull',
+        'per_second' => '\Sendmux\Management\Model\ProviderQuotaRangeOrNull'
     ];
 
     /**
@@ -300,9 +300,9 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets per_day
      *
-     * @return \Sendmux\Management\Model\ProviderQuotaRange|null
+     * @return \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null
      */
-    public function getPerDay(): ?\Sendmux\Management\Model\ProviderQuotaRange
+    public function getPerDay(): ?\Sendmux\Management\Model\ProviderQuotaRangeOrNull
     {
         return $this->container['per_day'];
     }
@@ -310,11 +310,11 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets per_day
      *
-     * @param \Sendmux\Management\Model\ProviderQuotaRange|null $per_day per_day
+     * @param \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null $per_day per_day
      *
      * @return $this
      */
-    public function setPerDay(?\Sendmux\Management\Model\ProviderQuotaRange $per_day): static
+    public function setPerDay(?\Sendmux\Management\Model\ProviderQuotaRangeOrNull $per_day): static
     {
         if (is_null($per_day)) {
             array_push($this->openAPINullablesSetToNull, 'per_day');
@@ -334,9 +334,9 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets per_hour
      *
-     * @return \Sendmux\Management\Model\ProviderQuotaRange|null
+     * @return \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null
      */
-    public function getPerHour(): ?\Sendmux\Management\Model\ProviderQuotaRange
+    public function getPerHour(): ?\Sendmux\Management\Model\ProviderQuotaRangeOrNull
     {
         return $this->container['per_hour'];
     }
@@ -344,11 +344,11 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets per_hour
      *
-     * @param \Sendmux\Management\Model\ProviderQuotaRange|null $per_hour per_hour
+     * @param \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null $per_hour per_hour
      *
      * @return $this
      */
-    public function setPerHour(?\Sendmux\Management\Model\ProviderQuotaRange $per_hour): static
+    public function setPerHour(?\Sendmux\Management\Model\ProviderQuotaRangeOrNull $per_hour): static
     {
         if (is_null($per_hour)) {
             array_push($this->openAPINullablesSetToNull, 'per_hour');
@@ -368,9 +368,9 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets per_minute
      *
-     * @return \Sendmux\Management\Model\ProviderQuotaRange|null
+     * @return \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null
      */
-    public function getPerMinute(): ?\Sendmux\Management\Model\ProviderQuotaRange
+    public function getPerMinute(): ?\Sendmux\Management\Model\ProviderQuotaRangeOrNull
     {
         return $this->container['per_minute'];
     }
@@ -378,11 +378,11 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets per_minute
      *
-     * @param \Sendmux\Management\Model\ProviderQuotaRange|null $per_minute per_minute
+     * @param \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null $per_minute per_minute
      *
      * @return $this
      */
-    public function setPerMinute(?\Sendmux\Management\Model\ProviderQuotaRange $per_minute): static
+    public function setPerMinute(?\Sendmux\Management\Model\ProviderQuotaRangeOrNull $per_minute): static
     {
         if (is_null($per_minute)) {
             array_push($this->openAPINullablesSetToNull, 'per_minute');
@@ -402,9 +402,9 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets per_second
      *
-     * @return \Sendmux\Management\Model\ProviderQuotaRange|null
+     * @return \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null
      */
-    public function getPerSecond(): ?\Sendmux\Management\Model\ProviderQuotaRange
+    public function getPerSecond(): ?\Sendmux\Management\Model\ProviderQuotaRangeOrNull
     {
         return $this->container['per_second'];
     }
@@ -412,11 +412,11 @@ class ProviderQuotas implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets per_second
      *
-     * @param \Sendmux\Management\Model\ProviderQuotaRange|null $per_second per_second
+     * @param \Sendmux\Management\Model\ProviderQuotaRangeOrNull|null $per_second per_second
      *
      * @return $this
      */
-    public function setPerSecond(?\Sendmux\Management\Model\ProviderQuotaRange $per_second): static
+    public function setPerSecond(?\Sendmux\Management\Model\ProviderQuotaRangeOrNull $per_second): static
     {
         if (is_null($per_second)) {
             array_push($this->openAPINullablesSetToNull, 'per_second');

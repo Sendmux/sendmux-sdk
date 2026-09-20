@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxAppPasswordResultCredential
+ * ProviderQuotaRangeOrNull
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Management\ObjectSerializer;
 
 /**
- * MailboxAppPasswordResultCredential Class Doc Comment
+ * ProviderQuotaRangeOrNull Class Doc Comment
  *
  * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess, JsonSerializable
+class ProviderQuotaRangeOrNull implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxAppPasswordResult_credential';
+    protected static string $openAPIModelName = 'ProviderQuotaRangeOrNull';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,14 +59,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'imap_port' => 'int',
-        'key_prefix' => 'string',
-        'key_suffix' => 'string',
-        'public_id' => 'string',
-        'secret' => 'string',
-        'server' => 'string',
-        'smtp_port' => 'int',
-        'username' => 'string'
+        'max' => 'int',
+        'min' => 'int'
     ];
 
     /**
@@ -75,14 +69,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'imap_port' => null,
-        'key_prefix' => null,
-        'key_suffix' => null,
-        'public_id' => null,
-        'secret' => null,
-        'server' => null,
-        'smtp_port' => null,
-        'username' => null
+        'max' => null,
+        'min' => null
     ];
 
     /**
@@ -91,14 +79,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'imap_port' => false,
-        'key_prefix' => false,
-        'key_suffix' => false,
-        'public_id' => false,
-        'secret' => false,
-        'server' => false,
-        'smtp_port' => false,
-        'username' => false
+        'max' => false,
+        'min' => false
     ];
 
     /**
@@ -177,14 +159,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'imap_port' => 'imap_port',
-        'key_prefix' => 'key_prefix',
-        'key_suffix' => 'key_suffix',
-        'public_id' => 'public_id',
-        'secret' => 'secret',
-        'server' => 'server',
-        'smtp_port' => 'smtp_port',
-        'username' => 'username'
+        'max' => 'max',
+        'min' => 'min'
     ];
 
     /**
@@ -193,14 +169,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      * @var array<string, string>
      */
     protected static array $setters = [
-        'imap_port' => 'setImapPort',
-        'key_prefix' => 'setKeyPrefix',
-        'key_suffix' => 'setKeySuffix',
-        'public_id' => 'setPublicId',
-        'secret' => 'setSecret',
-        'server' => 'setServer',
-        'smtp_port' => 'setSmtpPort',
-        'username' => 'setUsername'
+        'max' => 'setMax',
+        'min' => 'setMin'
     ];
 
     /**
@@ -209,14 +179,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      * @var array<string, string>
      */
     protected static array $getters = [
-        'imap_port' => 'getImapPort',
-        'key_prefix' => 'getKeyPrefix',
-        'key_suffix' => 'getKeySuffix',
-        'public_id' => 'getPublicId',
-        'secret' => 'getSecret',
-        'server' => 'getServer',
-        'smtp_port' => 'getSmtpPort',
-        'username' => 'getUsername'
+        'max' => 'getMax',
+        'min' => 'getMin'
     ];
 
     /**
@@ -266,14 +230,8 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('imap_port', $data ?? [], null);
-        $this->setIfExists('key_prefix', $data ?? [], null);
-        $this->setIfExists('key_suffix', $data ?? [], null);
-        $this->setIfExists('public_id', $data ?? [], null);
-        $this->setIfExists('secret', $data ?? [], null);
-        $this->setIfExists('server', $data ?? [], null);
-        $this->setIfExists('smtp_port', $data ?? [], null);
-        $this->setIfExists('username', $data ?? [], null);
+        $this->setIfExists('max', $data ?? [], null);
+        $this->setIfExists('min', $data ?? [], null);
     }
 
     /**
@@ -301,30 +259,20 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
     {
         $invalidProperties = [];
 
-        if ($this->container['imap_port'] === null) {
-            $invalidProperties[] = "'imap_port' can't be null";
+        if ($this->container['max'] === null) {
+            $invalidProperties[] = "'max' can't be null";
         }
-        if ($this->container['key_prefix'] === null) {
-            $invalidProperties[] = "'key_prefix' can't be null";
+        if (!is_null($this->container['max']) && ($this->container['max'] <= 0)) {
+            $invalidProperties[] = "invalid value for 'max', must be bigger than 0.";
         }
-        if ($this->container['key_suffix'] === null) {
-            $invalidProperties[] = "'key_suffix' can't be null";
+
+        if ($this->container['min'] === null) {
+            $invalidProperties[] = "'min' can't be null";
         }
-        if ($this->container['public_id'] === null) {
-            $invalidProperties[] = "'public_id' can't be null";
+        if (!is_null($this->container['min']) && ($this->container['min'] <= 0)) {
+            $invalidProperties[] = "invalid value for 'min', must be bigger than 0.";
         }
-        if ($this->container['secret'] === null) {
-            $invalidProperties[] = "'secret' can't be null";
-        }
-        if ($this->container['server'] === null) {
-            $invalidProperties[] = "'server' can't be null";
-        }
-        if ($this->container['smtp_port'] === null) {
-            $invalidProperties[] = "'smtp_port' can't be null";
-        }
-        if ($this->container['username'] === null) {
-            $invalidProperties[] = "'username' can't be null";
-        }
+
         return $invalidProperties;
     }
 
@@ -338,217 +286,65 @@ class MailboxAppPasswordResultCredential implements ModelInterface, ArrayAccess,
 
 
     /**
-     * Gets imap_port
+     * Gets max
      *
      * @return int
      */
-    public function getImapPort(): int
+    public function getMax(): int
     {
-        return $this->container['imap_port'];
+        return $this->container['max'];
     }
 
     /**
-     * Sets imap_port
+     * Sets max
      *
-     * @param int $imap_port IMAP retrieval port
+     * @param int $max max
      *
      * @return $this
      */
-    public function setImapPort(int $imap_port): static
+    public function setMax(int $max): static
     {
-        if (is_null($imap_port)) {
-            throw new InvalidArgumentException('non-nullable imap_port cannot be null');
+        if (is_null($max)) {
+            throw new InvalidArgumentException('non-nullable max cannot be null');
         }
-        $this->container['imap_port'] = $imap_port;
+
+        if (($max <= 0)) {
+            throw new InvalidArgumentException('invalid value for $max when calling ProviderQuotaRangeOrNull., must be bigger than 0.');
+        }
+
+        $this->container['max'] = $max;
 
         return $this;
     }
 
     /**
-     * Gets key_prefix
-     *
-     * @return string
-     */
-    public function getKeyPrefix(): string
-    {
-        return $this->container['key_prefix'];
-    }
-
-    /**
-     * Sets key_prefix
-     *
-     * @param string $key_prefix key_prefix
-     *
-     * @return $this
-     */
-    public function setKeyPrefix(string $key_prefix): static
-    {
-        if (is_null($key_prefix)) {
-            throw new InvalidArgumentException('non-nullable key_prefix cannot be null');
-        }
-        $this->container['key_prefix'] = $key_prefix;
-
-        return $this;
-    }
-
-    /**
-     * Gets key_suffix
-     *
-     * @return string
-     */
-    public function getKeySuffix(): string
-    {
-        return $this->container['key_suffix'];
-    }
-
-    /**
-     * Sets key_suffix
-     *
-     * @param string $key_suffix key_suffix
-     *
-     * @return $this
-     */
-    public function setKeySuffix(string $key_suffix): static
-    {
-        if (is_null($key_suffix)) {
-            throw new InvalidArgumentException('non-nullable key_suffix cannot be null');
-        }
-        $this->container['key_suffix'] = $key_suffix;
-
-        return $this;
-    }
-
-    /**
-     * Gets public_id
-     *
-     * @return string
-     */
-    public function getPublicId(): string
-    {
-        return $this->container['public_id'];
-    }
-
-    /**
-     * Sets public_id
-     *
-     * @param string $public_id Credential public ID
-     *
-     * @return $this
-     */
-    public function setPublicId(string $public_id): static
-    {
-        if (is_null($public_id)) {
-            throw new InvalidArgumentException('non-nullable public_id cannot be null');
-        }
-        $this->container['public_id'] = $public_id;
-
-        return $this;
-    }
-
-    /**
-     * Gets secret
-     *
-     * @return string
-     */
-    public function getSecret(): string
-    {
-        return $this->container['secret'];
-    }
-
-    /**
-     * Sets secret
-     *
-     * @param string $secret Mailbox credential — shown exactly once. Use as a Bearer token on the HTTP API and as the password for IMAP retrieval and SMTP submission.
-     *
-     * @return $this
-     */
-    public function setSecret(string $secret): static
-    {
-        if (is_null($secret)) {
-            throw new InvalidArgumentException('non-nullable secret cannot be null');
-        }
-        $this->container['secret'] = $secret;
-
-        return $this;
-    }
-
-    /**
-     * Gets server
-     *
-     * @return string
-     */
-    public function getServer(): string
-    {
-        return $this->container['server'];
-    }
-
-    /**
-     * Sets server
-     *
-     * @param string $server Mailbox server name
-     *
-     * @return $this
-     */
-    public function setServer(string $server): static
-    {
-        if (is_null($server)) {
-            throw new InvalidArgumentException('non-nullable server cannot be null');
-        }
-        $this->container['server'] = $server;
-
-        return $this;
-    }
-
-    /**
-     * Gets smtp_port
+     * Gets min
      *
      * @return int
      */
-    public function getSmtpPort(): int
+    public function getMin(): int
     {
-        return $this->container['smtp_port'];
+        return $this->container['min'];
     }
 
     /**
-     * Sets smtp_port
+     * Sets min
      *
-     * @param int $smtp_port SMTP submission port
+     * @param int $min min
      *
      * @return $this
      */
-    public function setSmtpPort(int $smtp_port): static
+    public function setMin(int $min): static
     {
-        if (is_null($smtp_port)) {
-            throw new InvalidArgumentException('non-nullable smtp_port cannot be null');
+        if (is_null($min)) {
+            throw new InvalidArgumentException('non-nullable min cannot be null');
         }
-        $this->container['smtp_port'] = $smtp_port;
 
-        return $this;
-    }
-
-    /**
-     * Gets username
-     *
-     * @return string
-     */
-    public function getUsername(): string
-    {
-        return $this->container['username'];
-    }
-
-    /**
-     * Sets username
-     *
-     * @param string $username Mailbox email address used as the login
-     *
-     * @return $this
-     */
-    public function setUsername(string $username): static
-    {
-        if (is_null($username)) {
-            throw new InvalidArgumentException('non-nullable username cannot be null');
+        if (($min <= 0)) {
+            throw new InvalidArgumentException('invalid value for $min when calling ProviderQuotaRangeOrNull., must be bigger than 0.');
         }
-        $this->container['username'] = $username;
+
+        $this->container['min'] = $min;
 
         return $this;
     }

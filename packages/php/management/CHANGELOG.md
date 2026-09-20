@@ -6,6 +6,10 @@
 
 - Add provider variable management fields and delivery-group fields to delivery logs.
 
+### Changed
+
+- Breaking: `MailboxAppPasswordResult::getCredential()` returns `MailboxCredential` and `setCredential()` accepts it; the `MailboxAppPasswordResultCredential` class is removed. `MailboxCreateResult::getCredential()` returns `?MailboxCredentialOrNull`; `ProviderQuotas::getPerSecond()`, `getPerMinute()`, `getPerHour()` and `getPerDay()` return `?ProviderQuotaRangeOrNull`; `SharedAmazonSesLimitRequestPage::getPendingRequest()` returns `?SharedAmazonSesLimitRequestOrNull`. Each `…OrNull` model carries the same properties, getters and setters as its base model, the matching setters accept the new types and the wire format is unchanged. The unreferenced `ProviderCreateBodyQuotasPerDayAnyOf` class is removed.
+
 ### Security
 
 - Require Guzzle `^7.15.5`, PSR7 `^2.13.1`, and core `^2.1.1` for HTTP security fixes. If you use a custom persistent cookie jar, follow the [upgrade warning](README.md#installation) before updating.

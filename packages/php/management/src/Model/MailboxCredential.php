@@ -37,7 +37,6 @@ use Sendmux\Management\ObjectSerializer;
 /**
  * MailboxCredential Class Doc Comment
  *
- * @description Initial credential for the mailbox. &#x60;null&#x60; if credential generation failed — call POST /mailboxes/{id}/keys to retry.
  * @package  Sendmux\Management
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech

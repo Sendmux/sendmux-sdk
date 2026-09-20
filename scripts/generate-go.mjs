@@ -1,6 +1,7 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { planDeprecatedModelAliases, reportPendingAliases } from "./deprecated-model-aliases.mjs";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "go-codegen");
@@ -39,6 +40,38 @@ const surfaces = [
       "models, conditional request helpers, retry configuration, and API error",
       "mapping through APIErrorFromResponse.",
     ],
+    // Generated type names dropped by a schema regeneration that still compile, as deprecated
+    // aliases in deprecated_aliases.go, until the next planned major. An entry may land ahead of
+    // the regeneration that drops its type: the alias is written once the name has left the
+    // generated output (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
+    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
+    deprecatedTypeAliases: [
+      { deprecated: "MailboxMessageContentResponseData", replacement: "MailboxMessageContent" },
+      { deprecated: "MailboxMessageContentResponseDataBody", replacement: "MailboxMessageContentBody" },
+      { deprecated: "MailboxMessageContentResponseDataBodyFormat", replacement: "MailboxMessageContentBodyFormat" },
+      { deprecated: "MailboxMessageContentResponseDataDates", replacement: "MailboxMessageContentDates" },
+      { deprecated: "MailboxMessageContentResponseDataParticipants", replacement: "MailboxMessageContentParticipants" },
+      { deprecated: "MailboxMessageContentResponseDataStates", replacement: "MailboxMessageContentStates" },
+      { deprecated: "MailboxRawBodyResponseData", replacement: "MailboxRawBody" },
+      { deprecated: "MailboxRawBodyResponseDataBody", replacement: "MailboxRawBodyBody" },
+      { deprecated: "MailboxRawBodyResponseDataPart", replacement: "MailboxRawBodyPart" },
+      { deprecated: "MailboxRawBodyResponseDataStates", replacement: "MailboxRawBodyStates" },
+      { deprecated: "MailboxSubmissionEnvelopeRcptToItem", replacement: "MailboxSubmissionEnvelopeAddress" },
+      { deprecated: "MailboxSubmissionEnvelopeRcptToItemParameters", replacement: "MailboxSubmissionEnvelopeAddressParameters" },
+      { deprecated: "MailboxThreadContentResponseDataItem", replacement: "MailboxMessageContent" },
+      { deprecated: "MailboxThreadContentResponseDataItemBody", replacement: "MailboxMessageContentBody" },
+      { deprecated: "MailboxThreadContentResponseDataItemBodyFormat", replacement: "MailboxMessageContentBodyFormat" },
+      { deprecated: "MailboxThreadContentResponseDataItemDates", replacement: "MailboxMessageContentDates" },
+      { deprecated: "MailboxThreadContentResponseDataItemParticipants", replacement: "MailboxMessageContentParticipants" },
+      { deprecated: "MailboxThreadContentResponseDataItemStates", replacement: "MailboxMessageContentStates" },
+      { deprecated: "NilMailboxMessageContentResponseData", replacement: "NilMailboxMessageContent" },
+      { deprecated: "NilMailboxMessageContentResponseDataBodyFormat", replacement: "NilMailboxMessageContentBodyFormat" },
+      { deprecated: "NilMailboxRawBodyResponseData", replacement: "NilMailboxRawBody" },
+      { deprecated: "NilMailboxSubmissionEnvelopeRcptToItem", replacement: "NilMailboxSubmissionEnvelopeAddress" },
+      { deprecated: "NilMailboxSubmissionEnvelopeRcptToItemParameters", replacement: "NilMailboxSubmissionEnvelopeAddressParameters" },
+      { deprecated: "NilMailboxThreadContentResponseDataItem", replacement: "NilMailboxMessageContent" },
+      { deprecated: "NilMailboxThreadContentResponseDataItemBodyFormat", replacement: "NilMailboxMessageContentBodyFormat" },
+    ],
   },
   {
     name: "management",
@@ -66,6 +99,28 @@ const surfaces = [
       "billing, logs, and webhooks, plus typed request and response models,",
       "idempotency and conditional request helpers, retry configuration, and API",
       "error mapping through APIErrorFromResponse.",
+    ],
+    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }];
+    // see the mailbox table for the mechanism.
+    deprecatedTypeAliases: [
+      { deprecated: "MailboxAppPasswordResultCredential", replacement: "MailboxCredential" },
+      { deprecated: "NilMailboxAppPasswordResultCredential", replacement: "NilMailboxCredential" },
+      { deprecated: "ProviderCreateBodyQuotasPerDay1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderCreateBodyQuotasPerHour1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderCreateBodyQuotasPerMinute1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderCreateBodyQuotasPerSecond1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderUpdateBodyQuotasPerDay1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderUpdateBodyQuotasPerHour1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderUpdateBodyQuotasPerMinute1", replacement: "ProviderQuotaRange" },
+      { deprecated: "ProviderUpdateBodyQuotasPerSecond1", replacement: "ProviderQuotaRange" },
+      { deprecated: "NilProviderCreateBodyQuotasPerDay1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderCreateBodyQuotasPerHour1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderCreateBodyQuotasPerMinute1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderCreateBodyQuotasPerSecond1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderUpdateBodyQuotasPerDay1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderUpdateBodyQuotasPerHour1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderUpdateBodyQuotasPerMinute1", replacement: "NilProviderQuotaRange" },
+      { deprecated: "NilProviderUpdateBodyQuotasPerSecond1", replacement: "NilProviderQuotaRange" },
     ],
   },
 ];
@@ -542,6 +597,77 @@ func APIErrorFromResponse(response any, status int) (*core.APIError, bool) {
   );
 
   writeFileSync(join(packageDir, "error_methods.go"), buildErrorMethods(surface.name, packageDir));
+  writeDeprecatedTypeAliases(surface, packageDir);
+}
+
+function writeDeprecatedTypeAliases(surface, packageDir) {
+  const aliases = surface.deprecatedTypeAliases ?? [];
+  const aliasPath = join(packageDir, "deprecated_aliases.go");
+  if (aliases.length === 0) {
+    rmSync(aliasPath, { force: true });
+    return;
+  }
+
+  const generated = readdirSync(packageDir)
+    .filter((file) => file.endsWith("_gen.go"))
+    .sort()
+    .map((file) => readFileSync(join(packageDir, file), "utf8"))
+    .join("\n");
+  const label = `go/${surface.name}`;
+  const { active, pending } = planDeprecatedModelAliases({
+    aliases,
+    isGenerated: (typeName) => new RegExp(`^type ${typeName}\\b`, "m").test(generated),
+    label,
+  });
+  reportPendingAliases({ label, pending });
+
+  const blocks = active.map((alias) => renderDeprecatedTypeAlias(alias, generated));
+  writeFileSync(
+    aliasPath,
+    `// Code generated by scripts/generate-go.mjs. DO NOT EDIT.
+package ${surface.name}
+
+// Deprecated type names kept as aliases of their replacements until the next major release. The
+// table lives in scripts/generate-go.mjs; an alias appears once its former type has left the
+// generated output.
+${blocks.join("\n")}`,
+  );
+}
+
+function renderDeprecatedTypeAlias({ deprecated, replacement }, generated) {
+  const lines = [
+    "",
+    `// ${deprecated} is the former name of ${replacement}.`,
+    "//",
+    `// Deprecated: use ${replacement}.`,
+    `type ${deprecated} = ${replacement}`,
+  ];
+
+  const constructor = generated.match(new RegExp(`^func New${replacement}\\(v ([^)]+)\\) ${replacement} \\{$`, "m"));
+  if (constructor) {
+    lines.push(
+      "",
+      `// New${deprecated} is the former name of New${replacement}.`,
+      "//",
+      `// Deprecated: use New${replacement}.`,
+      `func New${deprecated}(v ${constructor[1]}) ${replacement} {`,
+      `\treturn New${replacement}(v)`,
+      "}",
+    );
+  }
+
+  for (const [, constant] of generated.matchAll(new RegExp(`^\\t(${replacement}\\w+) ${replacement} = "[^"]*"$`, "gm"))) {
+    const member = constant.slice(replacement.length);
+    lines.push(
+      "",
+      `// ${deprecated}${member} is the former name of ${constant}.`,
+      "//",
+      `// Deprecated: use ${constant}.`,
+      `const ${deprecated}${member} = ${constant}`,
+    );
+  }
+
+  return `${lines.join("\n")}\n`;
 }
 
 function patchConnectionInterfaceCompatibility(surface, packageDir) {

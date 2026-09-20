@@ -6,6 +6,17 @@ require 'sendmux/mailbox'
 class SendmuxRubyMailboxDeprecatedAliasesTest < Minitest::Test
   DEPRECATION_WARNING = 'warning: constant Sendmux::Mailbox::Generated::MailboxRealtimeMessageAllOfBody is deprecated'
 
+  # Names the nullable-reference schema shape drops from the generated gem. Each is a real generated
+  # class until that regeneration lands and a deprecated alias of the class that types the same
+  # attribute afterwards; either way the constant keeps resolving.
+  COMPAT_MODEL_NAMES = {
+    'MailboxMessageContentResponseAllOfData' => ['MailboxMessageContent', 'MailboxMessageContentResponse', :data],
+    'MailboxRawBodyResponseAllOfData' => ['MailboxRawBody', 'MailboxRawBodyResponse', :data],
+    'MailboxSubmissionEnvelopeRcptToInner' =>
+      ['MailboxSubmissionEnvelopeAddress', 'MailboxSubmissionEnvelope', :rcpt_to],
+    'MailboxThreadContentResponseAllOfData' => ['MailboxMessageContent', 'MailboxThreadContentResponse', :data]
+  }.freeze
+
   def setup
     @deprecated_warnings_enabled = Warning[:deprecated]
     Warning[:deprecated] = true
@@ -39,6 +50,32 @@ class SendmuxRubyMailboxDeprecatedAliasesTest < Minitest::Test
 
     assert_instance_of Sendmux::Mailbox::Generated::MailboxRealtimeMessageBody, message.body
     assert_equal 'hello', message.body.text
+  end
+
+  def test_compat_model_names_keep_resolving
+    COMPAT_MODEL_NAMES.each do |name, (replacement, _owner, _attribute)|
+      resolved = nil
+      _stdout, stderr = capture_io { resolved = Sendmux::Mailbox::Generated.const_get(name) }
+
+      if stderr.empty?
+        assert_equal "Sendmux::Mailbox::Generated::#{name}", resolved.name
+      else
+        assert_same Sendmux::Mailbox::Generated.const_get(replacement), resolved
+        assert_equal 1, stderr.lines.length, stderr
+        assert_includes stderr, "warning: constant Sendmux::Mailbox::Generated::#{name} is deprecated"
+      end
+    end
+  end
+
+  def test_compat_model_names_are_the_classes_typing_their_attributes
+    COMPAT_MODEL_NAMES.each do |name, (_replacement, owner, attribute)|
+      resolved = nil
+      capture_io { resolved = Sendmux::Mailbox::Generated.const_get(name) }
+      declared = Sendmux::Mailbox::Generated.const_get(owner).openapi_types.fetch(attribute).to_s
+      declared = declared.delete_prefix('Array<').delete_suffix('>')
+
+      assert_same Sendmux::Mailbox::Generated.const_get(declared), resolved
+    end
   end
 
   private

@@ -20,6 +20,7 @@ const sharedTests = [
   "test_mailbox_deprecated_aliases.py",
   "test_mailbox_events.py",
   "test_mailbox_stream_arguments.py",
+  "test_management_deprecated_aliases.py",
   "test_management_validation.py",
   "test_mcp.py",
   "test_mcp_retry.py",

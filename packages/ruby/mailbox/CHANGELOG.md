@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v2.0.0...ruby-mailbox/v2.0.1) (2026-09-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ruby-mailbox:** `Sendmux::Mailbox::Generated::MailboxRealtimeMessageAllOfBody` is renamed to `Sendmux::Mailbox::Generated::MailboxRealtimeMessageBody` (the type of `MailboxRealtimeMessage#body`), and the unused
+
+### Bug Fixes
+
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+* **ruby-mailbox:** keep MailboxRealtimeMessageAllOfBody as a deprecated constant ([f1108bf](https://github.com/Sendmux/sendmux-sdk/commit/f1108bf40f6c1ff3f3948b49c9ae9dd22b33b3d9))
+* **ruby-mailbox:** regenerate flattened mailbox response models ([9c05be1](https://github.com/Sendmux/sendmux-sdk/commit/9c05be1bdad88fdcbbbeedf174adce01a6a48ae7))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v1.4.0...ruby-mailbox/v2.0.0) (2026-09-19)
 
 ### Changed

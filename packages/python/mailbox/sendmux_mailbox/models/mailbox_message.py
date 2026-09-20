@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
+from sendmux_mailbox.models.mailbox_address_or_null import MailboxAddressOrNull
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment
 from sendmux_mailbox.models.mailbox_message_flags import MailboxMessageFlags
 from typing import Optional, Set
@@ -35,20 +36,24 @@ class MailboxMessage(BaseModel):
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
     folder_ids: List[StrictStr]
-    var_from: Optional[MailboxAddress] = Field(alias="from")
+    var_from: Optional[MailboxAddressOrNull] = Field(alias="from")
     has_attachments: StrictBool
     html_body: Optional[StrictStr]
     id: StrictStr = Field(description="Message ID")
+    in_reply_to: List[StrictStr] = Field(description="`In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.")
     keywords: List[StrictStr] = Field(description="Active message keywords, including system flags and custom labels.")
+    message_id: List[StrictStr] = Field(description="`Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.")
     preview: Optional[StrictStr]
     received_at: Optional[StrictStr]
+    references: List[StrictStr] = Field(description="`References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.")
+    reply_to: List[MailboxAddress] = Field(description="`Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.")
     sent_at: Optional[StrictStr]
     size_bytes: Optional[StrictInt]
     subject: Optional[StrictStr]
     text_body: Optional[StrictStr]
     thread_id: Optional[StrictStr]
     to: List[MailboxAddress]
-    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "html_body", "id", "keywords", "preview", "received_at", "sent_at", "size_bytes", "subject", "text_body", "thread_id", "to"]
+    __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "flags", "folder_ids", "from", "has_attachments", "html_body", "id", "in_reply_to", "keywords", "message_id", "preview", "received_at", "references", "reply_to", "sent_at", "size_bytes", "subject", "text_body", "thread_id", "to"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -116,6 +121,13 @@ class MailboxMessage(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of var_from
         if self.var_from:
             _dict['from'] = self.var_from.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in reply_to (list)
+        _items = []
+        if self.reply_to:
+            for _item_reply_to in self.reply_to:
+                if _item_reply_to:
+                    _items.append(_item_reply_to.to_dict())
+            _dict['reply_to'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in to (list)
         _items = []
         if self.to:
@@ -185,13 +197,17 @@ class MailboxMessage(BaseModel):
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "flags": MailboxMessageFlags.from_dict(obj["flags"]) if obj.get("flags") is not None else None,
             "folder_ids": obj.get("folder_ids"),
-            "from": MailboxAddress.from_dict(obj["from"]) if obj.get("from") is not None else None,
+            "from": MailboxAddressOrNull.from_dict(obj["from"]) if obj.get("from") is not None else None,
             "has_attachments": obj.get("has_attachments"),
             "html_body": obj.get("html_body"),
             "id": obj.get("id"),
+            "in_reply_to": obj.get("in_reply_to"),
             "keywords": obj.get("keywords"),
+            "message_id": obj.get("message_id"),
             "preview": obj.get("preview"),
             "received_at": obj.get("received_at"),
+            "references": obj.get("references"),
+            "reply_to": [MailboxAddress.from_dict(_item) for _item in obj["reply_to"]] if obj.get("reply_to") is not None else None,
             "sent_at": obj.get("sent_at"),
             "size_bytes": obj.get("size_bytes"),
             "subject": obj.get("subject"),

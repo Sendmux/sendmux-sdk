@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
+from sendmux_mailbox.models.mailbox_address_or_null import MailboxAddressOrNull
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment
 from sendmux_mailbox.models.mailbox_message_flags import MailboxMessageFlags
 from typing import Optional, Set
@@ -35,7 +36,7 @@ class MailboxMessageSummary(BaseModel):
     cc: List[MailboxAddress]
     flags: MailboxMessageFlags
     folder_ids: List[StrictStr]
-    var_from: Optional[MailboxAddress] = Field(alias="from")
+    var_from: Optional[MailboxAddressOrNull] = Field(alias="from")
     has_attachments: StrictBool
     id: StrictStr = Field(description="Message ID")
     keywords: List[StrictStr] = Field(description="Active message keywords, including system flags and custom labels.")
@@ -173,7 +174,7 @@ class MailboxMessageSummary(BaseModel):
             "cc": [MailboxAddress.from_dict(_item) for _item in obj["cc"]] if obj.get("cc") is not None else None,
             "flags": MailboxMessageFlags.from_dict(obj["flags"]) if obj.get("flags") is not None else None,
             "folder_ids": obj.get("folder_ids"),
-            "from": MailboxAddress.from_dict(obj["from"]) if obj.get("from") is not None else None,
+            "from": MailboxAddressOrNull.from_dict(obj["from"]) if obj.get("from") is not None else None,
             "has_attachments": obj.get("has_attachments"),
             "id": obj.get("id"),
             "keywords": obj.get("keywords"),

@@ -23,13 +23,13 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxSubmissionEnvelopeRcptToInner(BaseModel):
+class MailboxAddressOrNull(BaseModel):
     """
-    MailboxSubmissionEnvelopeRcptToInner
+    MailboxAddressOrNull
     """ # noqa: E501
     email: StrictStr
-    parameters: Optional[Dict[str, Optional[StrictStr]]]
-    __properties: ClassVar[List[str]] = ["email", "parameters"]
+    name: Optional[StrictStr]
+    __properties: ClassVar[List[str]] = ["email", "name"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +49,7 @@ class MailboxSubmissionEnvelopeRcptToInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxSubmissionEnvelopeRcptToInner from a JSON string"""
+        """Create an instance of MailboxAddressOrNull from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,16 +70,16 @@ class MailboxSubmissionEnvelopeRcptToInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if parameters (nullable) is None
+        # set to None if name (nullable) is None
         # and model_fields_set contains the field
-        if self.parameters is None and "parameters" in self.model_fields_set:
-            _dict['parameters'] = None
+        if self.name is None and "name" in self.model_fields_set:
+            _dict['name'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxSubmissionEnvelopeRcptToInner from a dict"""
+        """Create an instance of MailboxAddressOrNull from a dict"""
         if obj is None:
             return None
 
@@ -88,6 +88,6 @@ class MailboxSubmissionEnvelopeRcptToInner(BaseModel):
 
         _obj = cls.model_validate({
             "email": obj.get("email"),
-            "parameters": obj.get("parameters")
+            "name": obj.get("name")
         })
         return _obj

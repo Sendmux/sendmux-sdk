@@ -17,31 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from sendmux_mailbox.models.mailbox_batch_get_result_states import MailboxBatchGetResultStates
-from sendmux_mailbox.models.mailbox_raw_body_body import MailboxRawBodyBody
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxRawBodyResponseAllOfData(BaseModel):
+class MailboxSubmissionEnvelopeAddressOrNull(BaseModel):
     """
-    MailboxRawBodyResponseAllOfData
+    MailboxSubmissionEnvelopeAddressOrNull
     """ # noqa: E501
-    body: MailboxRawBodyBody
-    id: StrictStr = Field(description="Message ID")
-    part: StrictStr
-    states: MailboxBatchGetResultStates
-    thread_id: Optional[StrictStr]
-    __properties: ClassVar[List[str]] = ["body", "id", "part", "states", "thread_id"]
-
-    @field_validator('part')
-    def part_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['text', 'html', 'both']):
-            raise ValueError("must be one of enum values ('text', 'html', 'both')")
-        return value
+    email: StrictStr
+    parameters: Optional[Dict[str, Optional[StrictStr]]]
+    __properties: ClassVar[List[str]] = ["email", "parameters"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -61,7 +49,7 @@ class MailboxRawBodyResponseAllOfData(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxRawBodyResponseAllOfData from a JSON string"""
+        """Create an instance of MailboxSubmissionEnvelopeAddressOrNull from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -82,22 +70,16 @@ class MailboxRawBodyResponseAllOfData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of body
-        if self.body:
-            _dict['body'] = self.body.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of states
-        if self.states:
-            _dict['states'] = self.states.to_dict()
-        # set to None if thread_id (nullable) is None
+        # set to None if parameters (nullable) is None
         # and model_fields_set contains the field
-        if self.thread_id is None and "thread_id" in self.model_fields_set:
-            _dict['thread_id'] = None
+        if self.parameters is None and "parameters" in self.model_fields_set:
+            _dict['parameters'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxRawBodyResponseAllOfData from a dict"""
+        """Create an instance of MailboxSubmissionEnvelopeAddressOrNull from a dict"""
         if obj is None:
             return None
 
@@ -105,10 +87,7 @@ class MailboxRawBodyResponseAllOfData(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "body": MailboxRawBodyBody.from_dict(obj["body"]) if obj.get("body") is not None else None,
-            "id": obj.get("id"),
-            "part": obj.get("part"),
-            "states": MailboxBatchGetResultStates.from_dict(obj["states"]) if obj.get("states") is not None else None,
-            "thread_id": obj.get("thread_id")
+            "email": obj.get("email"),
+            "parameters": obj.get("parameters")
         })
         return _obj

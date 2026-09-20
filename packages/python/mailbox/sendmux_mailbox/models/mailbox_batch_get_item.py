@@ -19,9 +19,9 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List, Optional
-from sendmux_mailbox.models.mailbox_message_content import MailboxMessageContent
+from sendmux_mailbox.models.mailbox_message_content_or_null import MailboxMessageContentOrNull
 from sendmux_mailbox.models.mailbox_message_summary import MailboxMessageSummary
-from sendmux_mailbox.models.mailbox_raw_body import MailboxRawBody
+from sendmux_mailbox.models.mailbox_raw_body_or_null import MailboxRawBodyOrNull
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,9 +30,9 @@ class MailboxBatchGetItem(BaseModel):
     """
     MailboxBatchGetItem
     """ # noqa: E501
-    content: Optional[MailboxMessageContent]
+    content: Optional[MailboxMessageContentOrNull]
     message: MailboxMessageSummary
-    raw_body: Optional[MailboxRawBody]
+    raw_body: Optional[MailboxRawBodyOrNull]
     __properties: ClassVar[List[str]] = ["content", "message", "raw_body"]
 
     model_config = ConfigDict(
@@ -105,8 +105,8 @@ class MailboxBatchGetItem(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "content": MailboxMessageContent.from_dict(obj["content"]) if obj.get("content") is not None else None,
+            "content": MailboxMessageContentOrNull.from_dict(obj["content"]) if obj.get("content") is not None else None,
             "message": MailboxMessageSummary.from_dict(obj["message"]) if obj.get("message") is not None else None,
-            "raw_body": MailboxRawBody.from_dict(obj["raw_body"]) if obj.get("raw_body") is not None else None
+            "raw_body": MailboxRawBodyOrNull.from_dict(obj["raw_body"]) if obj.get("raw_body") is not None else None
         })
         return _obj

@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_submission_envelope_address import MailboxSubmissionEnvelopeAddress
-from sendmux_mailbox.models.mailbox_submission_envelope_rcpt_to_inner import MailboxSubmissionEnvelopeRcptToInner
+from sendmux_mailbox.models.mailbox_submission_envelope_address_or_null import MailboxSubmissionEnvelopeAddressOrNull
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -29,8 +29,8 @@ class MailboxSubmissionEnvelope(BaseModel):
     """
     MailboxSubmissionEnvelope
     """ # noqa: E501
-    mail_from: Optional[MailboxSubmissionEnvelopeAddress]
-    rcpt_to: List[MailboxSubmissionEnvelopeRcptToInner]
+    mail_from: Optional[MailboxSubmissionEnvelopeAddressOrNull]
+    rcpt_to: List[MailboxSubmissionEnvelopeAddress]
     __properties: ClassVar[List[str]] = ["mail_from", "rcpt_to"]
 
     model_config = ConfigDict(
@@ -99,7 +99,7 @@ class MailboxSubmissionEnvelope(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "mail_from": MailboxSubmissionEnvelopeAddress.from_dict(obj["mail_from"]) if obj.get("mail_from") is not None else None,
-            "rcpt_to": [MailboxSubmissionEnvelopeRcptToInner.from_dict(_item) for _item in obj["rcpt_to"]] if obj.get("rcpt_to") is not None else None
+            "mail_from": MailboxSubmissionEnvelopeAddressOrNull.from_dict(obj["mail_from"]) if obj.get("mail_from") is not None else None,
+            "rcpt_to": [MailboxSubmissionEnvelopeAddress.from_dict(_item) for _item in obj["rcpt_to"]] if obj.get("rcpt_to") is not None else None
         })
         return _obj

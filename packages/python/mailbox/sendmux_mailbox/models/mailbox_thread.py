@@ -20,7 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from sendmux_mailbox.models.mailbox_address import MailboxAddress
-from sendmux_mailbox.models.mailbox_message_summary import MailboxMessageSummary
+from sendmux_mailbox.models.mailbox_message_summary_or_null import MailboxMessageSummaryOrNull
 from sendmux_mailbox.models.mailbox_thread_summary_states import MailboxThreadSummaryStates
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,7 +33,7 @@ class MailboxThread(BaseModel):
     folder_ids: List[StrictStr]
     has_attachments: StrictBool
     id: StrictStr = Field(description="Thread ID")
-    last_message: Optional[MailboxMessageSummary]
+    last_message: Optional[MailboxMessageSummaryOrNull]
     message_count: StrictInt
     message_ids: List[StrictStr]
     participants: List[MailboxAddress]
@@ -119,7 +119,7 @@ class MailboxThread(BaseModel):
             "folder_ids": obj.get("folder_ids"),
             "has_attachments": obj.get("has_attachments"),
             "id": obj.get("id"),
-            "last_message": MailboxMessageSummary.from_dict(obj["last_message"]) if obj.get("last_message") is not None else None,
+            "last_message": MailboxMessageSummaryOrNull.from_dict(obj["last_message"]) if obj.get("last_message") is not None else None,
             "message_count": obj.get("message_count"),
             "message_ids": obj.get("message_ids"),
             "participants": [MailboxAddress.from_dict(_item) for _item in obj["participants"]] if obj.get("participants") is not None else None,

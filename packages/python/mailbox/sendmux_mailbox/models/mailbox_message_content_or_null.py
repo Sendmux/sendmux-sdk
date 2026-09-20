@@ -29,9 +29,9 @@ from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxThreadContentResponseAllOfData(BaseModel):
+class MailboxMessageContentOrNull(BaseModel):
     """
-    MailboxThreadContentResponseAllOfData
+    MailboxMessageContentOrNull
     """ # noqa: E501
     attachments: List[MailboxAttachment] = Field(description="Attachment metadata only. Attachment contents are not parsed by this endpoint.")
     body: MailboxMessageContentBody
@@ -62,7 +62,7 @@ class MailboxThreadContentResponseAllOfData(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxThreadContentResponseAllOfData from a JSON string"""
+        """Create an instance of MailboxMessageContentOrNull from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -119,7 +119,7 @@ class MailboxThreadContentResponseAllOfData(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxThreadContentResponseAllOfData from a dict"""
+        """Create an instance of MailboxMessageContentOrNull from a dict"""
         if obj is None:
             return None
 

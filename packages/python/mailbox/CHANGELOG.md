@@ -3,9 +3,13 @@
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.0...python-mailbox-v2.0.1) (2026-09-20)
 
 
-### ⚠ BREAKING CHANGES
+### Deprecated
 
-* **python-mailbox:** `sendmux_mailbox.MailboxRealtimeMessageAllOfBody` is renamed to `sendmux_mailbox.MailboxRealtimeMessageBody` (the type of `MailboxRealtimeMessage.body`), and the unused `sendmux_mailbox.Mailbox` model (`sendmux_mailbox.models.mailbox`) is removed.
+* `sendmux_mailbox.MailboxRealtimeMessageAllOfBody` and `sendmux_mailbox.models.MailboxRealtimeMessageAllOfBody` are now aliases of `MailboxRealtimeMessageBody`, the type of `MailboxRealtimeMessage.body`. Reading the old name still works and emits a `DeprecationWarning` naming the replacement; the alias is removed in the next major, 3.0 ([e0b3456](https://github.com/Sendmux/sendmux-sdk/commit/e0b3456a0a5a1e09d7a5bc98142605177e3c819b)).
+
+### Changed
+
+* Models are regenerated from the deployed flattened response schemas (docs 86b0f45): `MailboxMe`, `MailboxMessage`, `MailboxRealtimeMessage` and `MailboxThread` are flat objects instead of `allOf` compositions and carry the same fields, so the wire format is unchanged and `MailboxRealtimeMessageBody` is the generated name of the realtime message body. The `sendmux_mailbox.Mailbox` model (`sendmux_mailbox.models.mailbox`), which no operation, README, guide or test referenced, is removed without a deprecation period; `mailbox_get_me` keeps returning `MailboxMe`, which carries the same fields plus `quota_used_bytes` ([1a57997](https://github.com/Sendmux/sendmux-sdk/commit/1a57997bef97d065f24aa0b6cfec2acceb191744)).
 
 ### Bug Fixes
 

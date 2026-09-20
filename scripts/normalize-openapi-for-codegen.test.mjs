@@ -104,3 +104,15 @@ await test("a nullable reference to a component without one OAS 3.0 type fails n
     assert.match(result.stderr, /OAS 3\.0 type/);
   });
 });
+
+await test("a nullable reference to a null-only component fails naming the reference", async () => {
+  await workspace("normalize-nullable-reference-null-only", async (directory) => {
+    const result = normalize(directory, "null-only-target", fixture({
+      from: { anyOf: [{ $ref: addressRef }, { type: "null" }] },
+      target: { type: "null" },
+    }));
+    assert.notEqual(result.status, 0, "a null-only target has no OAS 3.0 type and must not normalise silently");
+    assert.match(result.stderr, /#\/components\/schemas\/Address/);
+    assert.match(result.stderr, /OAS 3\.0 type/);
+  });
+});

@@ -205,7 +205,8 @@ function referencedComponentType(document, ref) {
   const target = ref.startsWith(prefix)
     ? document.components?.schemas?.[decodeURIComponent(ref.slice(prefix.length))]
     : undefined;
-  if (typeof target?.type !== "string") {
+  const openApi30Types = new Set(["array", "boolean", "integer", "number", "object", "string"]);
+  if (!openApi30Types.has(target?.type)) {
     throw new Error(`Cannot normalize nullable reference ${ref} because the referenced component has no single OAS 3.0 type`);
   }
 

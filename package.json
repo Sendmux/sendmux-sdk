@@ -28,7 +28,7 @@
     "generate:ruby": "node scripts/generate-ruby.mjs",
     "generate:ts": "openapi-ts",
     "hooks:install": "git config core.hooksPath .githooks",
-    "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && node scripts/test-redocly-merge-budget.mjs && redocly lint --extends=spec .codegen/*.json",
+    "normalize:check": "pnpm normalize:codegen && pnpm verify:codegen && node --test scripts/normalize-openapi-for-codegen.test.mjs && node scripts/test-redocly-merge-budget.mjs && redocly lint --extends=spec .codegen/*.json",
     "normalize:codegen": "node scripts/normalize-openapi-for-codegen.mjs",
     "smoke:mcp-staging": "node scripts/smoke-mcp-staging.mjs",
     "smoke:ts-staging": "node scripts/smoke-ts-staging.mjs",

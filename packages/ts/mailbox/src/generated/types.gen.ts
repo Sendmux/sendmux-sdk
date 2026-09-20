@@ -185,6 +185,11 @@ export type MailboxQueryMeta = {
     request_id: string;
 };
 
+export type MailboxAddressOrNull = {
+    email: string;
+    name: string | null;
+} | null;
+
 export type MailboxMessageFlags = {
     answered: boolean;
     draft: boolean;
@@ -211,7 +216,7 @@ export type MailboxAttachment = {
     size_bytes: number | null;
 };
 
-export type MailboxMessageSummary = {
+export type MailboxMessageSummaryOrNull = {
     /**
      * Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
      */
@@ -220,7 +225,7 @@ export type MailboxMessageSummary = {
     cc: Array<MailboxAddress>;
     flags: MailboxMessageFlags;
     folder_ids: Array<string>;
-    from: MailboxAddress | null;
+    from: MailboxAddressOrNull;
     has_attachments: boolean;
     /**
      * Message ID
@@ -237,7 +242,7 @@ export type MailboxMessageSummary = {
     subject: string | null;
     thread_id: string | null;
     to: Array<MailboxAddress>;
-};
+} | null;
 
 export type MailboxThreadSummary = {
     folder_ids: Array<string>;
@@ -246,7 +251,7 @@ export type MailboxThreadSummary = {
      * Thread ID
      */
     id: string;
-    last_message: MailboxMessageSummary | null;
+    last_message: MailboxMessageSummaryOrNull;
     message_count: number;
     participants: Array<MailboxAddress>;
     states: {
@@ -269,6 +274,34 @@ export type MailboxThreadMessagesMeta = {
     thread_id: string;
 };
 
+export type MailboxMessageSummary = {
+    /**
+     * Attachment metadata for this message. Each item includes a short-lived `download_url`; if it expires, fetch message metadata again.
+     */
+    attachments?: Array<MailboxAttachment>;
+    bcc: Array<MailboxAddress>;
+    cc: Array<MailboxAddress>;
+    flags: MailboxMessageFlags;
+    folder_ids: Array<string>;
+    from: MailboxAddressOrNull;
+    has_attachments: boolean;
+    /**
+     * Message ID
+     */
+    id: string;
+    /**
+     * Active message keywords, including system flags and custom labels.
+     */
+    keywords: Array<string>;
+    preview: string | null;
+    received_at: string | null;
+    sent_at: string | null;
+    size_bytes: number | null;
+    subject: string | null;
+    thread_id: string | null;
+    to: Array<MailboxAddress>;
+};
+
 export type MailboxThreadDetailResponse = SuccessEnvelope & {
     data: MailboxThread;
     meta?: ResponseMeta;
@@ -281,7 +314,7 @@ export type MailboxThread = {
      * Thread ID
      */
     id: string;
-    last_message: MailboxMessageSummary | null;
+    last_message: MailboxMessageSummaryOrNull;
     message_count: number;
     message_ids: Array<string>;
     participants: Array<MailboxAddress>;
@@ -294,9 +327,7 @@ export type MailboxThread = {
 };
 
 export type MailboxThreadContentResponse = SuccessEnvelope & {
-    data: Array<MailboxMessageContent & {
-        [key: string]: unknown;
-    }>;
+    data: Array<MailboxMessageContent>;
     meta?: MailboxThreadContentMeta;
     pagination: CursorPagination;
 };
@@ -356,7 +387,7 @@ export type MailboxMessageContent = {
     participants: {
         bcc: Array<MailboxAddress>;
         cc: Array<MailboxAddress>;
-        from: MailboxAddress | null;
+        from: MailboxAddressOrNull;
         reply_to: Array<MailboxAddress>;
         to: Array<MailboxAddress>;
     };
@@ -366,7 +397,7 @@ export type MailboxMessageContent = {
     };
     subject: string | null;
     thread_id: string | null;
-} | null;
+};
 
 export type MailboxSyncMeta = {
     request_id: string;
@@ -383,13 +414,18 @@ export type MailboxSubmissionEnvelopeAddress = {
     parameters: {
         [key: string]: string | null;
     } | null;
+};
+
+export type MailboxSubmissionEnvelopeAddressOrNull = {
+    email: string;
+    parameters: {
+        [key: string]: string | null;
+    } | null;
 } | null;
 
 export type MailboxSubmissionEnvelope = {
-    mail_from: MailboxSubmissionEnvelopeAddress;
-    rcpt_to: Array<MailboxSubmissionEnvelopeAddress & {
-        [key: string]: unknown;
-    }>;
+    mail_from: MailboxSubmissionEnvelopeAddressOrNull;
+    rcpt_to: Array<MailboxSubmissionEnvelopeAddress>;
 } | null;
 
 export type MailboxSubmissionDeliveryStatus = {
@@ -607,7 +643,7 @@ export type MailboxRealtimeMessage = {
     cc: Array<MailboxAddress>;
     flags: MailboxMessageFlags;
     folder_ids: Array<string>;
-    from: MailboxAddress | null;
+    from: MailboxAddressOrNull;
     has_attachments: boolean;
     /**
      * Message ID
@@ -641,13 +677,29 @@ export type MailboxRealtimeEvent = {
 };
 
 export type MailboxRawBodyResponse = SuccessEnvelope & {
-    data: MailboxRawBody & {
-        [key: string]: unknown;
-    };
+    data: MailboxRawBody;
     meta?: ResponseMeta;
 };
 
 export type MailboxRawBody = {
+    body: {
+        html: string | null;
+        is_truncated: boolean;
+        text: string | null;
+        truncated_at_chars: number | null;
+    };
+    /**
+     * Message ID
+     */
+    id: string;
+    part: 'text' | 'html' | 'both';
+    states: {
+        email_state: string | null;
+    };
+    thread_id: string | null;
+};
+
+export type MailboxRawBodyOrNull = {
     body: {
         html: string | null;
         is_truncated: boolean;
@@ -724,7 +776,7 @@ export type MailboxMessage = {
     cc: Array<MailboxAddress>;
     flags: MailboxMessageFlags;
     folder_ids: Array<string>;
-    from: MailboxAddress | null;
+    from: MailboxAddressOrNull;
     has_attachments: boolean;
     html_body: string | null;
     /**
@@ -732,11 +784,27 @@ export type MailboxMessage = {
      */
     id: string;
     /**
+     * `In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.
+     */
+    in_reply_to: Array<string>;
+    /**
      * Active message keywords, including system flags and custom labels.
      */
     keywords: Array<string>;
+    /**
+     * `Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.
+     */
+    message_id: Array<string>;
     preview: string | null;
     received_at: string | null;
+    /**
+     * `References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.
+     */
+    references: Array<string>;
+    /**
+     * `Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.
+     */
+    reply_to: Array<MailboxAddress>;
     sent_at: string | null;
     size_bytes: number | null;
     subject: string | null;
@@ -764,11 +832,51 @@ export type MailboxMessageCount = {
 };
 
 export type MailboxMessageContentResponse = SuccessEnvelope & {
-    data: MailboxMessageContent & {
-        [key: string]: unknown;
-    };
+    data: MailboxMessageContent;
     meta?: ResponseMeta;
 };
+
+export type MailboxMessageContentOrNull = {
+    /**
+     * Attachment metadata only. Attachment contents are not parsed by this endpoint.
+     */
+    attachments: Array<MailboxAttachment>;
+    body: {
+        extracted_links: Array<string>;
+        format: 'text' | 'html' | null;
+        /**
+         * HTML body when requested. Returned as a JSON string and not as rendered content.
+         */
+        html: string | null;
+        is_truncated: boolean;
+        quotes_stripped: boolean;
+        signature_stripped: boolean;
+        text: string | null;
+        truncated_at_chars: number | null;
+    };
+    dates: {
+        received_at: string | null;
+        sent_at: string | null;
+    };
+    headers: MailboxContentHeaders;
+    /**
+     * Message ID
+     */
+    id: string;
+    participants: {
+        bcc: Array<MailboxAddress>;
+        cc: Array<MailboxAddress>;
+        from: MailboxAddressOrNull;
+        reply_to: Array<MailboxAddress>;
+        to: Array<MailboxAddress>;
+    };
+    states: {
+        email_state: string | null;
+        option_hash: string;
+    };
+    subject: string | null;
+    thread_id: string | null;
+} | null;
 
 export type MailboxMeItemResponse = SuccessEnvelope & {
     data: MailboxMe;
@@ -930,9 +1038,9 @@ export type MailboxBatchGetResultResponse = SuccessEnvelope & {
 };
 
 export type MailboxBatchGetItem = {
-    content: MailboxMessageContent;
+    content: MailboxMessageContentOrNull;
     message: MailboxMessageSummary;
-    raw_body: MailboxRawBody;
+    raw_body: MailboxRawBodyOrNull;
 };
 
 export type MailboxBatchGetResult = {

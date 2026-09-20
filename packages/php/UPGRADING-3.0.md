@@ -199,6 +199,29 @@ constraints for maintained HTTP security fixes. They remain on 2.x.
    `Sendmux\Mailbox\Model\Mailbox`, which no mailbox operation returned;
    `mailboxGetMe()` still returns `MailboxMeItemResponse` with `MailboxMe` data.
 
+6. Replace the four removed mailbox data classes and update type declarations
+   for nullable object properties, which use dedicated `…OrNull` models with
+   the same getters and setters as their base models:
+
+   | Method | 2.x type | 3.0 type |
+   | --- | --- | --- |
+   | `MailboxMessage::getFrom()`, `MailboxMessageSummary::getFrom()`, `MailboxRealtimeMessage::getFrom()`, `MailboxMessageContentParticipants::getFrom()` | `?MailboxAddress` | `?MailboxAddressOrNull` |
+   | `MailboxThread::getLastMessage()`, `MailboxThreadSummary::getLastMessage()` | `?MailboxMessageSummary` | `?MailboxMessageSummaryOrNull` |
+   | `MailboxBatchGetItem::getContent()` | `?MailboxMessageContent` | `?MailboxMessageContentOrNull` |
+   | `MailboxBatchGetItem::getRawBody()` | `?MailboxRawBody` | `?MailboxRawBodyOrNull` |
+   | `MailboxSubmissionEnvelope::getMailFrom()` | `?MailboxSubmissionEnvelopeAddress` | `?MailboxSubmissionEnvelopeAddressOrNull` |
+   | `MailboxSubmissionEnvelope::getRcptTo()` | `MailboxSubmissionEnvelopeRcptToInner[]` | `MailboxSubmissionEnvelopeAddress[]` |
+   | `MailboxMessageContentResponse::getData()` | `MailboxMessageContentResponseAllOfData` | `MailboxMessageContent` |
+   | `MailboxThreadContentResponse::getData()` | `MailboxThreadContentResponseAllOfData[]` | `MailboxMessageContent[]` |
+   | `MailboxRawBodyResponse::getData()` | `MailboxRawBodyResponseAllOfData` | `MailboxRawBody` |
+
+   Code that only reads nested values keeps working, because each `…OrNull`
+   model exposes the same getters as its base model. Update `use` statements,
+   parameter and return type declarations, `instanceof` checks and manually
+   constructed fixtures. The wire format is unchanged. `MailboxMessage` also
+   gains `getMessageId()`, `getInReplyTo()`, `getReferences()` and
+   `getReplyTo()`, which the API already returned.
+
 ## Verify the migration
 
 Run this command in your application directory:

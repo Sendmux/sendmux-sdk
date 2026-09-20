@@ -61,7 +61,7 @@ class MailboxMessageContentParticipants implements ModelInterface, ArrayAccess, 
     protected static array $openAPITypes = [
         'bcc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'cc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
-        'from' => '\Sendmux\Mailbox\Model\MailboxAddress',
+        'from' => '\Sendmux\Mailbox\Model\MailboxAddressOrNull',
         'reply_to' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'to' => '\Sendmux\Mailbox\Model\MailboxAddress[]'
     ];
@@ -364,9 +364,9 @@ class MailboxMessageContentParticipants implements ModelInterface, ArrayAccess, 
     /**
      * Gets from
      *
-     * @return \Sendmux\Mailbox\Model\MailboxAddress|null
+     * @return \Sendmux\Mailbox\Model\MailboxAddressOrNull|null
      */
-    public function getFrom(): ?\Sendmux\Mailbox\Model\MailboxAddress
+    public function getFrom(): ?\Sendmux\Mailbox\Model\MailboxAddressOrNull
     {
         return $this->container['from'];
     }
@@ -374,11 +374,11 @@ class MailboxMessageContentParticipants implements ModelInterface, ArrayAccess, 
     /**
      * Sets from
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress|null $from from
+     * @param \Sendmux\Mailbox\Model\MailboxAddressOrNull|null $from from
      *
      * @return $this
      */
-    public function setFrom(?\Sendmux\Mailbox\Model\MailboxAddress $from): static
+    public function setFrom(?\Sendmux\Mailbox\Model\MailboxAddressOrNull $from): static
     {
         if (is_null($from)) {
             array_push($this->openAPINullablesSetToNull, 'from');

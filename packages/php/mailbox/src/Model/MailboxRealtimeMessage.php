@@ -65,7 +65,7 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
         'cc' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'flags' => '\Sendmux\Mailbox\Model\MailboxMessageFlags',
         'folder_ids' => 'string[]',
-        'from' => '\Sendmux\Mailbox\Model\MailboxAddress',
+        'from' => '\Sendmux\Mailbox\Model\MailboxAddressOrNull',
         'has_attachments' => 'bool',
         'id' => 'string',
         'keywords' => 'string[]',
@@ -599,9 +599,9 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets from
      *
-     * @return \Sendmux\Mailbox\Model\MailboxAddress|null
+     * @return \Sendmux\Mailbox\Model\MailboxAddressOrNull|null
      */
-    public function getFrom(): ?\Sendmux\Mailbox\Model\MailboxAddress
+    public function getFrom(): ?\Sendmux\Mailbox\Model\MailboxAddressOrNull
     {
         return $this->container['from'];
     }
@@ -609,11 +609,11 @@ class MailboxRealtimeMessage implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets from
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress|null $from from
+     * @param \Sendmux\Mailbox\Model\MailboxAddressOrNull|null $from from
      *
      * @return $this
      */
-    public function setFrom(?\Sendmux\Mailbox\Model\MailboxAddress $from): static
+    public function setFrom(?\Sendmux\Mailbox\Model\MailboxAddressOrNull $from): static
     {
         if (is_null($from)) {
             array_push($this->openAPINullablesSetToNull, 'from');

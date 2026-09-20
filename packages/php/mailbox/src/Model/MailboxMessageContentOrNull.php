@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxRawBodyResponseAllOfData
+ * MailboxMessageContentOrNull
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * MailboxRawBodyResponseAllOfData Class Doc Comment
+ * MailboxMessageContentOrNull Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxMessageContentOrNull implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxRawBodyResponse_allOf_data';
+    protected static string $openAPIModelName = 'MailboxMessageContentOrNull';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,10 +59,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'body' => '\Sendmux\Mailbox\Model\MailboxRawBodyBody',
+        'attachments' => '\Sendmux\Mailbox\Model\MailboxAttachment[]',
+        'body' => '\Sendmux\Mailbox\Model\MailboxMessageContentBody',
+        'dates' => '\Sendmux\Mailbox\Model\MailboxMessageContentDates',
+        'headers' => '\Sendmux\Mailbox\Model\MailboxContentHeaders',
         'id' => 'string',
-        'part' => 'string',
-        'states' => '\Sendmux\Mailbox\Model\MailboxBatchGetResultStates',
+        'participants' => '\Sendmux\Mailbox\Model\MailboxMessageContentParticipants',
+        'states' => '\Sendmux\Mailbox\Model\MailboxMessageContentStates',
+        'subject' => 'string',
         'thread_id' => 'string'
     ];
 
@@ -72,10 +76,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
+        'attachments' => null,
         'body' => null,
+        'dates' => null,
+        'headers' => null,
         'id' => null,
-        'part' => null,
+        'participants' => null,
         'states' => null,
+        'subject' => null,
         'thread_id' => null
     ];
 
@@ -85,10 +93,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
+        'attachments' => false,
         'body' => false,
+        'dates' => false,
+        'headers' => false,
         'id' => false,
-        'part' => false,
+        'participants' => false,
         'states' => false,
+        'subject' => true,
         'thread_id' => true
     ];
 
@@ -168,10 +180,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      * @var array<string, string>
      */
     protected static array $attributeMap = [
+        'attachments' => 'attachments',
         'body' => 'body',
+        'dates' => 'dates',
+        'headers' => 'headers',
         'id' => 'id',
-        'part' => 'part',
+        'participants' => 'participants',
         'states' => 'states',
+        'subject' => 'subject',
         'thread_id' => 'thread_id'
     ];
 
@@ -181,10 +197,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      * @var array<string, string>
      */
     protected static array $setters = [
+        'attachments' => 'setAttachments',
         'body' => 'setBody',
+        'dates' => 'setDates',
+        'headers' => 'setHeaders',
         'id' => 'setId',
-        'part' => 'setPart',
+        'participants' => 'setParticipants',
         'states' => 'setStates',
+        'subject' => 'setSubject',
         'thread_id' => 'setThreadId'
     ];
 
@@ -194,10 +214,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      * @var array<string, string>
      */
     protected static array $getters = [
+        'attachments' => 'getAttachments',
         'body' => 'getBody',
+        'dates' => 'getDates',
+        'headers' => 'getHeaders',
         'id' => 'getId',
-        'part' => 'getPart',
+        'participants' => 'getParticipants',
         'states' => 'getStates',
+        'subject' => 'getSubject',
         'thread_id' => 'getThreadId'
     ];
 
@@ -233,25 +257,6 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
         return self::$openAPIModelName;
     }
 
-    public const PART_TEXT = 'text';
-    public const PART_HTML = 'html';
-    public const PART_BOTH = 'both';
-    public const PART_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
-
-    /**
-     * Gets allowable values of the enum
-     *
-     * @return string[]
-     */
-    public static function getPartAllowableValues()
-    {
-        return [
-            self::PART_TEXT,
-            self::PART_HTML,
-            self::PART_BOTH,
-            self::PART_UNKNOWN_DEFAULT_OPEN_API,
-        ];
-    }
 
     /**
      * Associative array for storing property values
@@ -267,10 +272,14 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
      */
     public function __construct(?array $data = null)
     {
+        $this->setIfExists('attachments', $data ?? [], null);
         $this->setIfExists('body', $data ?? [], null);
+        $this->setIfExists('dates', $data ?? [], null);
+        $this->setIfExists('headers', $data ?? [], null);
         $this->setIfExists('id', $data ?? [], null);
-        $this->setIfExists('part', $data ?? [], null);
+        $this->setIfExists('participants', $data ?? [], null);
         $this->setIfExists('states', $data ?? [], null);
+        $this->setIfExists('subject', $data ?? [], null);
         $this->setIfExists('thread_id', $data ?? [], null);
     }
 
@@ -299,26 +308,29 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
     {
         $invalidProperties = [];
 
+        if ($this->container['attachments'] === null) {
+            $invalidProperties[] = "'attachments' can't be null";
+        }
         if ($this->container['body'] === null) {
             $invalidProperties[] = "'body' can't be null";
+        }
+        if ($this->container['dates'] === null) {
+            $invalidProperties[] = "'dates' can't be null";
+        }
+        if ($this->container['headers'] === null) {
+            $invalidProperties[] = "'headers' can't be null";
         }
         if ($this->container['id'] === null) {
             $invalidProperties[] = "'id' can't be null";
         }
-        if ($this->container['part'] === null) {
-            $invalidProperties[] = "'part' can't be null";
+        if ($this->container['participants'] === null) {
+            $invalidProperties[] = "'participants' can't be null";
         }
-        $allowedValues = self::getPartAllowableValues();
-        if (!is_null($this->container['part']) && !in_array($this->container['part'], $allowedValues, true)) {
-            $invalidProperties[] = sprintf(
-                "invalid value '%s' for 'part', must be one of '%s'",
-                $this->container['part'],
-                implode("', '", $allowedValues)
-            );
-        }
-
         if ($this->container['states'] === null) {
             $invalidProperties[] = "'states' can't be null";
+        }
+        if ($this->container['subject'] === null && !$this->isNullableSetToNull('subject')) {
+            $invalidProperties[] = "'subject' is required";
         }
         if ($this->container['thread_id'] === null && !$this->isNullableSetToNull('thread_id')) {
             $invalidProperties[] = "'thread_id' is required";
@@ -336,11 +348,38 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
 
 
     /**
+     * Gets attachments
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxAttachment[]
+     */
+    public function getAttachments(): array
+    {
+        return $this->container['attachments'];
+    }
+
+    /**
+     * Sets attachments
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxAttachment[] $attachments Attachment metadata only. Attachment contents are not parsed by this endpoint.
+     *
+     * @return $this
+     */
+    public function setAttachments(array $attachments): static
+    {
+        if (is_null($attachments)) {
+            throw new InvalidArgumentException('non-nullable attachments cannot be null');
+        }
+        $this->container['attachments'] = $attachments;
+
+        return $this;
+    }
+
+    /**
      * Gets body
      *
-     * @return \Sendmux\Mailbox\Model\MailboxRawBodyBody
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContentBody
      */
-    public function getBody(): \Sendmux\Mailbox\Model\MailboxRawBodyBody
+    public function getBody(): \Sendmux\Mailbox\Model\MailboxMessageContentBody
     {
         return $this->container['body'];
     }
@@ -348,16 +387,70 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
     /**
      * Sets body
      *
-     * @param \Sendmux\Mailbox\Model\MailboxRawBodyBody $body body
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContentBody $body body
      *
      * @return $this
      */
-    public function setBody(\Sendmux\Mailbox\Model\MailboxRawBodyBody $body): static
+    public function setBody(\Sendmux\Mailbox\Model\MailboxMessageContentBody $body): static
     {
         if (is_null($body)) {
             throw new InvalidArgumentException('non-nullable body cannot be null');
         }
         $this->container['body'] = $body;
+
+        return $this;
+    }
+
+    /**
+     * Gets dates
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContentDates
+     */
+    public function getDates(): \Sendmux\Mailbox\Model\MailboxMessageContentDates
+    {
+        return $this->container['dates'];
+    }
+
+    /**
+     * Sets dates
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContentDates $dates dates
+     *
+     * @return $this
+     */
+    public function setDates(\Sendmux\Mailbox\Model\MailboxMessageContentDates $dates): static
+    {
+        if (is_null($dates)) {
+            throw new InvalidArgumentException('non-nullable dates cannot be null');
+        }
+        $this->container['dates'] = $dates;
+
+        return $this;
+    }
+
+    /**
+     * Gets headers
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxContentHeaders
+     */
+    public function getHeaders(): \Sendmux\Mailbox\Model\MailboxContentHeaders
+    {
+        return $this->container['headers'];
+    }
+
+    /**
+     * Sets headers
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxContentHeaders $headers headers
+     *
+     * @return $this
+     */
+    public function setHeaders(\Sendmux\Mailbox\Model\MailboxContentHeaders $headers): static
+    {
+        if (is_null($headers)) {
+            throw new InvalidArgumentException('non-nullable headers cannot be null');
+        }
+        $this->container['headers'] = $headers;
 
         return $this;
     }
@@ -390,32 +483,28 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
     }
 
     /**
-     * Gets part
+     * Gets participants
      *
-     * @return string
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContentParticipants
      */
-    public function getPart(): string
+    public function getParticipants(): \Sendmux\Mailbox\Model\MailboxMessageContentParticipants
     {
-        return $this->container['part'];
+        return $this->container['participants'];
     }
 
     /**
-     * Sets part
+     * Sets participants
      *
-     * @param string $part part
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContentParticipants $participants participants
      *
      * @return $this
      */
-    public function setPart(string $part): static
+    public function setParticipants(\Sendmux\Mailbox\Model\MailboxMessageContentParticipants $participants): static
     {
-        if (is_null($part)) {
-            throw new InvalidArgumentException('non-nullable part cannot be null');
+        if (is_null($participants)) {
+            throw new InvalidArgumentException('non-nullable participants cannot be null');
         }
-        $allowedValues = self::getPartAllowableValues();
-        if (!in_array($part, $allowedValues, true)) {
-            $part = self::PART_UNKNOWN_DEFAULT_OPEN_API;
-        }
-        $this->container['part'] = $part;
+        $this->container['participants'] = $participants;
 
         return $this;
     }
@@ -423,9 +512,9 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
     /**
      * Gets states
      *
-     * @return \Sendmux\Mailbox\Model\MailboxBatchGetResultStates
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContentStates
      */
-    public function getStates(): \Sendmux\Mailbox\Model\MailboxBatchGetResultStates
+    public function getStates(): \Sendmux\Mailbox\Model\MailboxMessageContentStates
     {
         return $this->container['states'];
     }
@@ -433,16 +522,50 @@ class MailboxRawBodyResponseAllOfData implements ModelInterface, ArrayAccess, Js
     /**
      * Sets states
      *
-     * @param \Sendmux\Mailbox\Model\MailboxBatchGetResultStates $states states
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContentStates $states states
      *
      * @return $this
      */
-    public function setStates(\Sendmux\Mailbox\Model\MailboxBatchGetResultStates $states): static
+    public function setStates(\Sendmux\Mailbox\Model\MailboxMessageContentStates $states): static
     {
         if (is_null($states)) {
             throw new InvalidArgumentException('non-nullable states cannot be null');
         }
         $this->container['states'] = $states;
+
+        return $this;
+    }
+
+    /**
+     * Gets subject
+     *
+     * @return string|null
+     */
+    public function getSubject(): ?string
+    {
+        return $this->container['subject'];
+    }
+
+    /**
+     * Sets subject
+     *
+     * @param string|null $subject subject
+     *
+     * @return $this
+     */
+    public function setSubject(?string $subject): static
+    {
+        if (is_null($subject)) {
+            array_push($this->openAPINullablesSetToNull, 'subject');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('subject', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['subject'] = $subject;
 
         return $this;
     }

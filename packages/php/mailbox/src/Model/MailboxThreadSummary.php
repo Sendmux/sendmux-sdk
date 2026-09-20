@@ -62,7 +62,7 @@ class MailboxThreadSummary implements ModelInterface, ArrayAccess, JsonSerializa
         'folder_ids' => 'string[]',
         'has_attachments' => 'bool',
         'id' => 'string',
-        'last_message' => '\Sendmux\Mailbox\Model\MailboxMessageSummary',
+        'last_message' => '\Sendmux\Mailbox\Model\MailboxMessageSummaryOrNull',
         'message_count' => 'int',
         'participants' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'states' => '\Sendmux\Mailbox\Model\MailboxThreadSummaryStates',
@@ -431,9 +431,9 @@ class MailboxThreadSummary implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Gets last_message
      *
-     * @return \Sendmux\Mailbox\Model\MailboxMessageSummary|null
+     * @return \Sendmux\Mailbox\Model\MailboxMessageSummaryOrNull|null
      */
-    public function getLastMessage(): ?\Sendmux\Mailbox\Model\MailboxMessageSummary
+    public function getLastMessage(): ?\Sendmux\Mailbox\Model\MailboxMessageSummaryOrNull
     {
         return $this->container['last_message'];
     }
@@ -441,11 +441,11 @@ class MailboxThreadSummary implements ModelInterface, ArrayAccess, JsonSerializa
     /**
      * Sets last_message
      *
-     * @param \Sendmux\Mailbox\Model\MailboxMessageSummary|null $last_message last_message
+     * @param \Sendmux\Mailbox\Model\MailboxMessageSummaryOrNull|null $last_message last_message
      *
      * @return $this
      */
-    public function setLastMessage(?\Sendmux\Mailbox\Model\MailboxMessageSummary $last_message): static
+    public function setLastMessage(?\Sendmux\Mailbox\Model\MailboxMessageSummaryOrNull $last_message): static
     {
         if (is_null($last_message)) {
             array_push($this->openAPINullablesSetToNull, 'last_message');

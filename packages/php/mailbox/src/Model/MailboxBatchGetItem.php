@@ -59,9 +59,9 @@ class MailboxBatchGetItem implements ModelInterface, ArrayAccess, JsonSerializab
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'content' => '\Sendmux\Mailbox\Model\MailboxMessageContent',
+        'content' => '\Sendmux\Mailbox\Model\MailboxMessageContentOrNull',
         'message' => '\Sendmux\Mailbox\Model\MailboxMessageSummary',
-        'raw_body' => '\Sendmux\Mailbox\Model\MailboxRawBody'
+        'raw_body' => '\Sendmux\Mailbox\Model\MailboxRawBodyOrNull'
     ];
 
     /**
@@ -290,9 +290,9 @@ class MailboxBatchGetItem implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets content
      *
-     * @return \Sendmux\Mailbox\Model\MailboxMessageContent|null
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContentOrNull|null
      */
-    public function getContent(): ?\Sendmux\Mailbox\Model\MailboxMessageContent
+    public function getContent(): ?\Sendmux\Mailbox\Model\MailboxMessageContentOrNull
     {
         return $this->container['content'];
     }
@@ -300,11 +300,11 @@ class MailboxBatchGetItem implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets content
      *
-     * @param \Sendmux\Mailbox\Model\MailboxMessageContent|null $content content
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContentOrNull|null $content content
      *
      * @return $this
      */
-    public function setContent(?\Sendmux\Mailbox\Model\MailboxMessageContent $content): static
+    public function setContent(?\Sendmux\Mailbox\Model\MailboxMessageContentOrNull $content): static
     {
         if (is_null($content)) {
             array_push($this->openAPINullablesSetToNull, 'content');
@@ -351,9 +351,9 @@ class MailboxBatchGetItem implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Gets raw_body
      *
-     * @return \Sendmux\Mailbox\Model\MailboxRawBody|null
+     * @return \Sendmux\Mailbox\Model\MailboxRawBodyOrNull|null
      */
-    public function getRawBody(): ?\Sendmux\Mailbox\Model\MailboxRawBody
+    public function getRawBody(): ?\Sendmux\Mailbox\Model\MailboxRawBodyOrNull
     {
         return $this->container['raw_body'];
     }
@@ -361,11 +361,11 @@ class MailboxBatchGetItem implements ModelInterface, ArrayAccess, JsonSerializab
     /**
      * Sets raw_body
      *
-     * @param \Sendmux\Mailbox\Model\MailboxRawBody|null $raw_body raw_body
+     * @param \Sendmux\Mailbox\Model\MailboxRawBodyOrNull|null $raw_body raw_body
      *
      * @return $this
      */
-    public function setRawBody(?\Sendmux\Mailbox\Model\MailboxRawBody $raw_body): static
+    public function setRawBody(?\Sendmux\Mailbox\Model\MailboxRawBodyOrNull $raw_body): static
     {
         if (is_null($raw_body)) {
             array_push($this->openAPINullablesSetToNull, 'raw_body');

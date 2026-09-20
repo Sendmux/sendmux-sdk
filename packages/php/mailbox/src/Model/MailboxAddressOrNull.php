@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxSubmissionEnvelope
+ * MailboxAddressOrNull
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * MailboxSubmissionEnvelope Class Doc Comment
+ * MailboxAddressOrNull Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxAddressOrNull implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxSubmissionEnvelope';
+    protected static string $openAPIModelName = 'MailboxAddressOrNull';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -59,8 +59,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'mail_from' => '\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddressOrNull',
-        'rcpt_to' => '\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress[]'
+        'email' => 'string',
+        'name' => 'string'
     ];
 
     /**
@@ -69,8 +69,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
-        'mail_from' => null,
-        'rcpt_to' => null
+        'email' => 'email',
+        'name' => null
     ];
 
     /**
@@ -79,8 +79,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
-        'mail_from' => true,
-        'rcpt_to' => false
+        'email' => false,
+        'name' => true
     ];
 
     /**
@@ -159,8 +159,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $attributeMap = [
-        'mail_from' => 'mail_from',
-        'rcpt_to' => 'rcpt_to'
+        'email' => 'email',
+        'name' => 'name'
     ];
 
     /**
@@ -169,8 +169,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $setters = [
-        'mail_from' => 'setMailFrom',
-        'rcpt_to' => 'setRcptTo'
+        'email' => 'setEmail',
+        'name' => 'setName'
     ];
 
     /**
@@ -179,8 +179,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $getters = [
-        'mail_from' => 'getMailFrom',
-        'rcpt_to' => 'getRcptTo'
+        'email' => 'getEmail',
+        'name' => 'getName'
     ];
 
     /**
@@ -230,8 +230,8 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
      */
     public function __construct(?array $data = null)
     {
-        $this->setIfExists('mail_from', $data ?? [], null);
-        $this->setIfExists('rcpt_to', $data ?? [], null);
+        $this->setIfExists('email', $data ?? [], null);
+        $this->setIfExists('name', $data ?? [], null);
     }
 
     /**
@@ -259,11 +259,11 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
-        if ($this->container['mail_from'] === null && !$this->isNullableSetToNull('mail_from')) {
-            $invalidProperties[] = "'mail_from' is required";
+        if ($this->container['email'] === null) {
+            $invalidProperties[] = "'email' can't be null";
         }
-        if ($this->container['rcpt_to'] === null) {
-            $invalidProperties[] = "'rcpt_to' can't be null";
+        if ($this->container['name'] === null && !$this->isNullableSetToNull('name')) {
+            $invalidProperties[] = "'name' is required";
         }
         return $invalidProperties;
     }
@@ -278,62 +278,62 @@ class MailboxSubmissionEnvelope implements ModelInterface, ArrayAccess, JsonSeri
 
 
     /**
-     * Gets mail_from
+     * Gets email
      *
-     * @return \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddressOrNull|null
+     * @return string
      */
-    public function getMailFrom(): ?\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddressOrNull
+    public function getEmail(): string
     {
-        return $this->container['mail_from'];
+        return $this->container['email'];
     }
 
     /**
-     * Sets mail_from
+     * Sets email
      *
-     * @param \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddressOrNull|null $mail_from mail_from
+     * @param string $email email
      *
      * @return $this
      */
-    public function setMailFrom(?\Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddressOrNull $mail_from): static
+    public function setEmail(string $email): static
     {
-        if (is_null($mail_from)) {
-            array_push($this->openAPINullablesSetToNull, 'mail_from');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('mail_from', $nullablesSetToNull);
-            if ($index !== false) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
+        if (is_null($email)) {
+            throw new InvalidArgumentException('non-nullable email cannot be null');
         }
-        $this->container['mail_from'] = $mail_from;
+        $this->container['email'] = $email;
 
         return $this;
     }
 
     /**
-     * Gets rcpt_to
+     * Gets name
      *
-     * @return \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress[]
+     * @return string|null
      */
-    public function getRcptTo(): array
+    public function getName(): ?string
     {
-        return $this->container['rcpt_to'];
+        return $this->container['name'];
     }
 
     /**
-     * Sets rcpt_to
+     * Sets name
      *
-     * @param \Sendmux\Mailbox\Model\MailboxSubmissionEnvelopeAddress[] $rcpt_to rcpt_to
+     * @param string|null $name name
      *
      * @return $this
      */
-    public function setRcptTo(array $rcpt_to): static
+    public function setName(?string $name): static
     {
-        if (is_null($rcpt_to)) {
-            throw new InvalidArgumentException('non-nullable rcpt_to cannot be null');
+        if (is_null($name)) {
+            array_push($this->openAPINullablesSetToNull, 'name');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('name', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
         }
-        $this->container['rcpt_to'] = $rcpt_to;
+        $this->container['name'] = $name;
 
         return $this;
     }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxSubmissionEnvelopeRcptToInner
+ * MailboxSubmissionEnvelopeAddressOrNull
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * MailboxSubmissionEnvelopeRcptToInner Class Doc Comment
+ * MailboxSubmissionEnvelopeAddressOrNull Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxSubmissionEnvelopeRcptToInner implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxSubmissionEnvelopeAddressOrNull implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxSubmissionEnvelopeRcptToInner implements ModelInterface, ArrayAcces
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxSubmissionEnvelope_rcpt_to_inner';
+    protected static string $openAPIModelName = 'MailboxSubmissionEnvelopeAddressOrNull';
 
     /**
      * Array of property to type mappings. Used for (de)serialization

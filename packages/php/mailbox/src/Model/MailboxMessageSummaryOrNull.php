@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MailboxMessage
+ * MailboxMessageSummaryOrNull
  *
  * PHP version 8.1
  *
@@ -35,14 +35,14 @@ use ReturnTypeWillChange;
 use Sendmux\Mailbox\ObjectSerializer;
 
 /**
- * MailboxMessage Class Doc Comment
+ * MailboxMessageSummaryOrNull Class Doc Comment
  *
  * @package  Sendmux\Mailbox
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  * @implements ArrayAccess<string, mixed>
  */
-class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
+class MailboxMessageSummaryOrNull implements ModelInterface, ArrayAccess, JsonSerializable
 {
     public const DISCRIMINATOR = null;
 
@@ -51,7 +51,7 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
      *
      * @var string
      */
-    protected static string $openAPIModelName = 'MailboxMessage';
+    protected static string $openAPIModelName = 'MailboxMessageSummaryOrNull';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -66,19 +66,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         'folder_ids' => 'string[]',
         'from' => '\Sendmux\Mailbox\Model\MailboxAddressOrNull',
         'has_attachments' => 'bool',
-        'html_body' => 'string',
         'id' => 'string',
-        'in_reply_to' => 'string[]',
         'keywords' => 'string[]',
-        'message_id' => 'string[]',
         'preview' => 'string',
         'received_at' => 'string',
-        'references' => 'string[]',
-        'reply_to' => '\Sendmux\Mailbox\Model\MailboxAddress[]',
         'sent_at' => 'string',
         'size_bytes' => 'int',
         'subject' => 'string',
-        'text_body' => 'string',
         'thread_id' => 'string',
         'to' => '\Sendmux\Mailbox\Model\MailboxAddress[]'
     ];
@@ -96,19 +90,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         'folder_ids' => null,
         'from' => null,
         'has_attachments' => null,
-        'html_body' => null,
         'id' => null,
-        'in_reply_to' => null,
         'keywords' => null,
-        'message_id' => null,
         'preview' => null,
         'received_at' => null,
-        'references' => null,
-        'reply_to' => null,
         'sent_at' => null,
         'size_bytes' => null,
         'subject' => null,
-        'text_body' => null,
         'thread_id' => null,
         'to' => null
     ];
@@ -126,19 +114,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         'folder_ids' => false,
         'from' => true,
         'has_attachments' => false,
-        'html_body' => true,
         'id' => false,
-        'in_reply_to' => false,
         'keywords' => false,
-        'message_id' => false,
         'preview' => true,
         'received_at' => true,
-        'references' => false,
-        'reply_to' => false,
         'sent_at' => true,
         'size_bytes' => true,
         'subject' => true,
-        'text_body' => true,
         'thread_id' => true,
         'to' => false
     ];
@@ -226,19 +208,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         'folder_ids' => 'folder_ids',
         'from' => 'from',
         'has_attachments' => 'has_attachments',
-        'html_body' => 'html_body',
         'id' => 'id',
-        'in_reply_to' => 'in_reply_to',
         'keywords' => 'keywords',
-        'message_id' => 'message_id',
         'preview' => 'preview',
         'received_at' => 'received_at',
-        'references' => 'references',
-        'reply_to' => 'reply_to',
         'sent_at' => 'sent_at',
         'size_bytes' => 'size_bytes',
         'subject' => 'subject',
-        'text_body' => 'text_body',
         'thread_id' => 'thread_id',
         'to' => 'to'
     ];
@@ -256,19 +232,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         'folder_ids' => 'setFolderIds',
         'from' => 'setFrom',
         'has_attachments' => 'setHasAttachments',
-        'html_body' => 'setHtmlBody',
         'id' => 'setId',
-        'in_reply_to' => 'setInReplyTo',
         'keywords' => 'setKeywords',
-        'message_id' => 'setMessageId',
         'preview' => 'setPreview',
         'received_at' => 'setReceivedAt',
-        'references' => 'setReferences',
-        'reply_to' => 'setReplyTo',
         'sent_at' => 'setSentAt',
         'size_bytes' => 'setSizeBytes',
         'subject' => 'setSubject',
-        'text_body' => 'setTextBody',
         'thread_id' => 'setThreadId',
         'to' => 'setTo'
     ];
@@ -286,19 +256,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         'folder_ids' => 'getFolderIds',
         'from' => 'getFrom',
         'has_attachments' => 'getHasAttachments',
-        'html_body' => 'getHtmlBody',
         'id' => 'getId',
-        'in_reply_to' => 'getInReplyTo',
         'keywords' => 'getKeywords',
-        'message_id' => 'getMessageId',
         'preview' => 'getPreview',
         'received_at' => 'getReceivedAt',
-        'references' => 'getReferences',
-        'reply_to' => 'getReplyTo',
         'sent_at' => 'getSentAt',
         'size_bytes' => 'getSizeBytes',
         'subject' => 'getSubject',
-        'text_body' => 'getTextBody',
         'thread_id' => 'getThreadId',
         'to' => 'getTo'
     ];
@@ -357,19 +321,13 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         $this->setIfExists('folder_ids', $data ?? [], null);
         $this->setIfExists('from', $data ?? [], null);
         $this->setIfExists('has_attachments', $data ?? [], null);
-        $this->setIfExists('html_body', $data ?? [], null);
         $this->setIfExists('id', $data ?? [], null);
-        $this->setIfExists('in_reply_to', $data ?? [], null);
         $this->setIfExists('keywords', $data ?? [], null);
-        $this->setIfExists('message_id', $data ?? [], null);
         $this->setIfExists('preview', $data ?? [], null);
         $this->setIfExists('received_at', $data ?? [], null);
-        $this->setIfExists('references', $data ?? [], null);
-        $this->setIfExists('reply_to', $data ?? [], null);
         $this->setIfExists('sent_at', $data ?? [], null);
         $this->setIfExists('size_bytes', $data ?? [], null);
         $this->setIfExists('subject', $data ?? [], null);
-        $this->setIfExists('text_body', $data ?? [], null);
         $this->setIfExists('thread_id', $data ?? [], null);
         $this->setIfExists('to', $data ?? [], null);
     }
@@ -417,32 +375,17 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['has_attachments'] === null) {
             $invalidProperties[] = "'has_attachments' can't be null";
         }
-        if ($this->container['html_body'] === null && !$this->isNullableSetToNull('html_body')) {
-            $invalidProperties[] = "'html_body' is required";
-        }
         if ($this->container['id'] === null) {
             $invalidProperties[] = "'id' can't be null";
         }
-        if ($this->container['in_reply_to'] === null) {
-            $invalidProperties[] = "'in_reply_to' can't be null";
-        }
         if ($this->container['keywords'] === null) {
             $invalidProperties[] = "'keywords' can't be null";
-        }
-        if ($this->container['message_id'] === null) {
-            $invalidProperties[] = "'message_id' can't be null";
         }
         if ($this->container['preview'] === null && !$this->isNullableSetToNull('preview')) {
             $invalidProperties[] = "'preview' is required";
         }
         if ($this->container['received_at'] === null && !$this->isNullableSetToNull('received_at')) {
             $invalidProperties[] = "'received_at' is required";
-        }
-        if ($this->container['references'] === null) {
-            $invalidProperties[] = "'references' can't be null";
-        }
-        if ($this->container['reply_to'] === null) {
-            $invalidProperties[] = "'reply_to' can't be null";
         }
         if ($this->container['sent_at'] === null && !$this->isNullableSetToNull('sent_at')) {
             $invalidProperties[] = "'sent_at' is required";
@@ -452,9 +395,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
         }
         if ($this->container['subject'] === null && !$this->isNullableSetToNull('subject')) {
             $invalidProperties[] = "'subject' is required";
-        }
-        if ($this->container['text_body'] === null && !$this->isNullableSetToNull('text_body')) {
-            $invalidProperties[] = "'text_body' is required";
         }
         if ($this->container['thread_id'] === null && !$this->isNullableSetToNull('thread_id')) {
             $invalidProperties[] = "'thread_id' is required";
@@ -671,40 +611,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Gets html_body
-     *
-     * @return string|null
-     */
-    public function getHtmlBody(): ?string
-    {
-        return $this->container['html_body'];
-    }
-
-    /**
-     * Sets html_body
-     *
-     * @param string|null $html_body html_body
-     *
-     * @return $this
-     */
-    public function setHtmlBody(?string $html_body): static
-    {
-        if (is_null($html_body)) {
-            array_push($this->openAPINullablesSetToNull, 'html_body');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('html_body', $nullablesSetToNull);
-            if ($index !== false) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
-        }
-        $this->container['html_body'] = $html_body;
-
-        return $this;
-    }
-
-    /**
      * Gets id
      *
      * @return string
@@ -732,33 +638,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Gets in_reply_to
-     *
-     * @return string[]
-     */
-    public function getInReplyTo(): array
-    {
-        return $this->container['in_reply_to'];
-    }
-
-    /**
-     * Sets in_reply_to
-     *
-     * @param string[] $in_reply_to `In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.
-     *
-     * @return $this
-     */
-    public function setInReplyTo(array $in_reply_to): static
-    {
-        if (is_null($in_reply_to)) {
-            throw new InvalidArgumentException('non-nullable in_reply_to cannot be null');
-        }
-        $this->container['in_reply_to'] = $in_reply_to;
-
-        return $this;
-    }
-
-    /**
      * Gets keywords
      *
      * @return string[]
@@ -781,33 +660,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
             throw new InvalidArgumentException('non-nullable keywords cannot be null');
         }
         $this->container['keywords'] = $keywords;
-
-        return $this;
-    }
-
-    /**
-     * Gets message_id
-     *
-     * @return string[]
-     */
-    public function getMessageId(): array
-    {
-        return $this->container['message_id'];
-    }
-
-    /**
-     * Sets message_id
-     *
-     * @param string[] $message_id `Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.
-     *
-     * @return $this
-     */
-    public function setMessageId(array $message_id): static
-    {
-        if (is_null($message_id)) {
-            throw new InvalidArgumentException('non-nullable message_id cannot be null');
-        }
-        $this->container['message_id'] = $message_id;
 
         return $this;
     }
@@ -876,60 +728,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
             }
         }
         $this->container['received_at'] = $received_at;
-
-        return $this;
-    }
-
-    /**
-     * Gets references
-     *
-     * @return string[]
-     */
-    public function getReferences(): array
-    {
-        return $this->container['references'];
-    }
-
-    /**
-     * Sets references
-     *
-     * @param string[] $references `References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.
-     *
-     * @return $this
-     */
-    public function setReferences(array $references): static
-    {
-        if (is_null($references)) {
-            throw new InvalidArgumentException('non-nullable references cannot be null');
-        }
-        $this->container['references'] = $references;
-
-        return $this;
-    }
-
-    /**
-     * Gets reply_to
-     *
-     * @return \Sendmux\Mailbox\Model\MailboxAddress[]
-     */
-    public function getReplyTo(): array
-    {
-        return $this->container['reply_to'];
-    }
-
-    /**
-     * Sets reply_to
-     *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[] $reply_to `Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.
-     *
-     * @return $this
-     */
-    public function setReplyTo(array $reply_to): static
-    {
-        if (is_null($reply_to)) {
-            throw new InvalidArgumentException('non-nullable reply_to cannot be null');
-        }
-        $this->container['reply_to'] = $reply_to;
 
         return $this;
     }
@@ -1032,40 +830,6 @@ class MailboxMessage implements ModelInterface, ArrayAccess, JsonSerializable
             }
         }
         $this->container['subject'] = $subject;
-
-        return $this;
-    }
-
-    /**
-     * Gets text_body
-     *
-     * @return string|null
-     */
-    public function getTextBody(): ?string
-    {
-        return $this->container['text_body'];
-    }
-
-    /**
-     * Sets text_body
-     *
-     * @param string|null $text_body text_body
-     *
-     * @return $this
-     */
-    public function setTextBody(?string $text_body): static
-    {
-        if (is_null($text_body)) {
-            array_push($this->openAPINullablesSetToNull, 'text_body');
-        } else {
-            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
-            $index = array_search('text_body', $nullablesSetToNull);
-            if ($index !== false) {
-                unset($nullablesSetToNull[$index]);
-                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
-            }
-        }
-        $this->container['text_body'] = $text_body;
 
         return $this;
     }

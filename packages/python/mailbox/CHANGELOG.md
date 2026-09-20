@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.0...python-mailbox-v2.0.1) (2026-09-20)
+
+
+### Deprecated
+
+* `sendmux_mailbox.MailboxRealtimeMessageAllOfBody` and `sendmux_mailbox.models.MailboxRealtimeMessageAllOfBody` are now aliases of `MailboxRealtimeMessageBody`, the type of `MailboxRealtimeMessage.body`. Reading the old name still works and emits a `DeprecationWarning` naming the replacement; the alias is removed in the next major, 3.0 ([e0b3456](https://github.com/Sendmux/sendmux-sdk/commit/e0b3456a0a5a1e09d7a5bc98142605177e3c819b)).
+
+### Changed
+
+* Models are regenerated from the deployed flattened response schemas (docs 86b0f45): `MailboxMe`, `MailboxMessage`, `MailboxRealtimeMessage` and `MailboxThread` are flat objects instead of `allOf` compositions and carry the same fields, so the wire format is unchanged and `MailboxRealtimeMessageBody` is the generated name of the realtime message body. The `sendmux_mailbox.Mailbox` model (`sendmux_mailbox.models.mailbox`), which no operation, README, guide or test referenced, is removed without a deprecation period; `mailbox_get_me` keeps returning `MailboxMe`, which carries the same fields plus `quota_used_bytes` ([1a57997](https://github.com/Sendmux/sendmux-sdk/commit/1a57997bef97d065f24aa0b6cfec2acceb191744)).
+
+### Bug Fixes
+
+* **python-mailbox:** regenerate flattened mailbox response models ([1a57997](https://github.com/Sendmux/sendmux-sdk/commit/1a57997bef97d065f24aa0b6cfec2acceb191744))
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+
+
+### Documentation
+
+* **python-mailbox:** replace the pre-release migration note with the 1.x to 2.0 guide ([1ed2c23](https://github.com/Sendmux/sendmux-sdk/commit/1ed2c23aff0c79d7810f7230decf73e79c71e0df))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v1.5.1...python-mailbox-v2.0.0) (2026-09-15)
 
 

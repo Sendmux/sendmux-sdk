@@ -1,6 +1,6 @@
 package management
 
-import "sendmux.ai/go/v2/core"
+import "sendmux.ai/go/v3/core"
 
 // APIError maps ManagementActivateProviderConflict into the shared typed API error.
 func (r *ManagementActivateProviderConflict) APIError() *core.APIError {

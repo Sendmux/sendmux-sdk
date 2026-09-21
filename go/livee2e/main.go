@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"sendmux.ai/go/v2/core"
-	"sendmux.ai/go/v2/mailbox"
-	"sendmux.ai/go/v2/management"
-	"sendmux.ai/go/v2/sending"
+	"sendmux.ai/go/v3/core"
+	"sendmux.ai/go/v3/mailbox"
+	"sendmux.ai/go/v3/management"
+	"sendmux.ai/go/v3/sending"
 )
 
 type plan struct {

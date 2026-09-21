@@ -1,19 +1,19 @@
 # Sendmux Go mailbox client
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2/mailbox.svg)](https://pkg.go.dev/sendmux.ai/go/v2/mailbox)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v3/mailbox.svg)](https://pkg.go.dev/sendmux.ai/go/v3/mailbox)
 
 Go client for reading and managing granted mailbox data.
 
 ## Install
 
 ```sh
-go get sendmux.ai/go/v2@v2.0.0
+go get sendmux.ai/go/v3@v3.0.0
 ```
 
 ## Import
 
 ```go
-import "sendmux.ai/go/v2/mailbox"
+import "sendmux.ai/go/v3/mailbox"
 ```
 
 ## Authentication
@@ -42,7 +42,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/v2/mailbox"
+	"sendmux.ai/go/v3/mailbox"
 )
 
 func main() {
@@ -82,13 +82,17 @@ params := mailbox.MailboxListMessagesParams{
 }
 ```
 
-## Version 2 migration
+## Version 3 migration
 
-Require `sendmux.ai/go/v2` and import `sendmux.ai/go/v2/mailbox` in the same commit; the [module migration](../README.md#version-2-migration) lists every change across the surface packages.
+Require `sendmux.ai/go/v3` and import `sendmux.ai/go/v3/mailbox` in the same commit; the [module migration](../README.md#version-3-migration) lists every change across the surface packages.
+
+`MailboxMessageContentResponse.Data` is `MailboxMessageContent`, `MailboxRawBodyResponse.Data` is `MailboxRawBody`, `MailboxThreadContentResponse.Data` is `[]MailboxMessageContent` and `MailboxSubmissionEnvelope.RcptTo` is `[]MailboxSubmissionEnvelopeAddress`. None of them carries a `Nil…` wrapper any more because the API never returns `null` there: read `resp.Data.Body` instead of `resp.Data.Value.Body` and drop `IsNull` checks on those fields. The former wrapper and artefact names stay as deprecated aliases in `deprecated_aliases.go`.
+
+To roll back, stay on `sendmux.ai/go/v2` v2.0.0 and restore the previous module requirement, imports, response fixtures, and lock or vendor state together.
+
+### Coming from v1
 
 `MailboxListThreadMessages` returns `*MailboxThreadMessageSummaryCursorListResponse`; its thread-specific metadata requires `ThreadID` and exposes optional `SyncState`. Constructed thread results must use `MailboxThreadMessageSummaryCursorListResponseMeta` and `MailboxThreadMessageSummaryCursorListResponseOk`. `MailboxListMessages` remains `*MailboxMessageSummaryCursorListResponse`, with optional `SyncState` and no thread identity. Identity, submission, quota, and thread list responses expose their API state through typed metadata fields rather than additional properties.
-
-To roll back, restore the previous module requirement, imports, response fixtures, and lock or vendor state together.
 
 ## Attachments And Events
 
@@ -110,4 +114,4 @@ Use `MailboxUploadAttachment` to upload bytes and pass the returned `blob_id` in
 
 - Mailbox guide: <https://sendmux.ai/docs/guides/mailboxes>
 - Mailbox API: <https://sendmux.ai/docs/mailbox-api/introduction>
-- Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/mailbox>
+- Go reference: <https://pkg.go.dev/sendmux.ai/go/v3/mailbox>

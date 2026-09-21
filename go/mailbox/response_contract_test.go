@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"sendmux.ai/go/v2/mailbox"
+	"sendmux.ai/go/v3/mailbox"
 )
 
 func TestListResponseMetadataContracts(t *testing.T) {

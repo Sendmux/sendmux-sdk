@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"sendmux.ai/go/v2/core"
+	"sendmux.ai/go/v3/core"
 )
 
 func TestRetryableFalsePreservesResponse(t *testing.T) {

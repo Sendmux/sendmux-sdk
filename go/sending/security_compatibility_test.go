@@ -3,9 +3,9 @@ package sending_test
 import (
 	"context"
 
-	"sendmux.ai/go/v2/mailbox"
-	"sendmux.ai/go/v2/management"
-	"sendmux.ai/go/v2/sending"
+	"sendmux.ai/go/v3/mailbox"
+	"sendmux.ai/go/v3/management"
+	"sendmux.ai/go/v3/sending"
 )
 
 type legacySendingSecurity struct{}

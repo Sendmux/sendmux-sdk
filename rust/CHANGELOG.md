@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.5.0...rust-v0.5.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
+
 ## [0.5.0](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.4.0...rust-v0.5.0) (2026-09-19)
 
 

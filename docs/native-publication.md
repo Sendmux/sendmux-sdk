@@ -18,6 +18,8 @@ Recovery restores the immutable control-revision guard after checking out the ca
 
 These are point-in-time checks, not a transaction with GitHub or a permanent certificate. Keep release PRs sequential; a queued event superseded by a newer main head must fail. Advertised-schema equality does not prove every authenticated response, every replica, or a future rollback. Existing affected-response and published-consumer acceptance still apply.
 
+Release Please assigns a commit that carries no files to every package (`CommitSplit.split` with `includeEmpty`), so a conventional type or `BREAKING CHANGE` footer on an empty commit proposes a release for all of them. Every package except `go` therefore declares `exclude-paths: ["evidence"]`: `CommitExclude.shouldInclude` skips a commit whose in-package file set is empty, and real commits are unaffected because evidence-only commits never map to a package. `go` keeps the zero-file `fix(go)!` commit 628561d, whose breaking note is true for Go, until go 3.0.0 ships; add the same fence to `go` after that release. Never carry a `Release-As` or `BREAKING CHANGE` marker on `git commit --allow-empty`; put it on a commit that touches the package. Verified with `release-please@17.6.0 release-pr --dry-run` against the fenced branch (see `evidence/rp-empty-commit-fence-20260921.md`).
+
 ## PHP split publication
 
 Use the current SDK guard checkout to publish a reviewed split. Supply full immutable SHAs, the exact package and intended version, and clean split checkout with its expected `origin` repository:

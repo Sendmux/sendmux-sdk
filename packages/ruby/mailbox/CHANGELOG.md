@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v2.0.1...ruby-mailbox/v2.0.2) (2026-09-21)
+
+
+### Fixed
+
+* **Regenerated models:** `mailbox_get_message` and `mailbox_update_message` results (`MailboxMessageDetailResponse#data`, a `Sendmux::Mailbox::Generated::MailboxMessage`) now carry `message_id`, `in_reply_to` and `references` (`Array<String>`, angle brackets removed) and `reply_to` (`Array<MailboxAddress>`), matching the deployed app schema; 2.0.1 had no attributes for those four fields, so they were dropped on deserialisation and reply and threading headers were unreachable from the typed result. `mailbox_list_content` returns `data` typed as the canonical `MailboxMessageContent`, `mailbox_get_thread_content` returns `data` typed as `Array<MailboxMessageContent>`, `mailbox_list_body` returns `data` typed as `MailboxRawBody`, and `MailboxSubmissionEnvelope#rcpt_to` (`mailbox_get_submission`, `mailbox_list_submissions`) is `Array<MailboxSubmissionEnvelopeAddress>`, instead of the generator's `…AllOfData` and `…RcptToInner` copies of those classes. The wire format is unchanged, and `from`, `raw_body` and `send_scope` are unchanged. The four new attributes are required, so a `MailboxMessage` you construct yourself (fixtures, mocks, wrappers) must now supply them — assigning `nil` or omitting one raises `ArgumentError` — while reading API results is unaffected ([ea211b7](https://github.com/Sendmux/sendmux-sdk/commit/ea211b70ecc1d22404c441ee5fa0d791c7c14e1d)).
+
+### Deprecated
+
+* `Sendmux::Mailbox::Generated::MailboxMessageContentResponseAllOfData` and `MailboxThreadContentResponseAllOfData` are now deprecated constants aliasing `MailboxMessageContent`, `MailboxRawBodyResponseAllOfData` aliases `MailboxRawBody`, and `MailboxSubmissionEnvelopeRcptToInner` aliases `MailboxSubmissionEnvelopeAddress`. Referencing an old constant still works and, with `Warning[:deprecated]` enabled (`ruby -W:deprecated`), warns that it is deprecated; the aliases are removed in the next major, 3.0 ([ea211b7](https://github.com/Sendmux/sendmux-sdk/commit/ea211b70ecc1d22404c441ee5fa0d791c7c14e1d)).
+
+## Verification behind each claim
+
+- Operation → model mapping from `packages/ruby/mailbox/lib/sendmux_mailbox_generated/api/*.rb` at f6629095: `mailbox_get_message`/`mailbox_update_message` → `MailboxMessageDetailResponse` (`data: MailboxMessage`, `models/mailbox_message_detail_response.rb:48`); `mailbox_list_content` → `MailboxMessageContentResponse`; `mailbox_get_thread_content` → `MailboxThreadContentResponse`; `mailbox_list_body` → `MailboxRawBodyResponse`; `mailbox_get_submission`/`mailbox_list_submissions` → `MailboxSubmission#envelope` (`models/mailbox_submission.rb:71`).
+- ea211b7 diff: `models/mailbox_message.rb` +118 (four `attr_accessor`s, `Array<String>`/`Array<MailboxAddress>` types, `cannot be nil` validators and writers); `models/mailbox_thread_content_response.rb` `Array<MailboxThreadContentResponseAllOfData>` → `Array<MailboxMessageContent>`; four `…all_of_data.rb`/`…rcpt_to_inner.rb` files deleted (1190 lines); `sendmux_mailbox_generated.rb` adds the four `deprecate_constant` aliases.
+- Isolated install of the built gem (`.claude/artifacts/l22/ruby-mailbox/smoke.log`): types and aliases as stated, 4 deprecation warnings under `-W:deprecated`, `m.message_id = nil` → `ArgumentError: message_id cannot be nil`, `MailboxMessage.new({})` → `ArgumentError: bcc cannot be nil` (first required attribute in order; the four new ones are required too — `openapi_nullable` excludes them).
+- Published `sendmux-mailbox-2.0.1.gem` vs the candidate: 12 member differences, exactly `CHANGELOG.md`, `version.rb`, the five regenerated models, the loader and the four removed copies (`diff-published-2.0.1-vs-candidate-2.0.2.txt`).
+
+### Bug Fixes
+
+* **ruby-mailbox:** regenerate mailbox models from the deployed v1.8.250 schema ([ea211b7](https://github.com/Sendmux/sendmux-sdk/commit/ea211b70ecc1d22404c441ee5fa0d791c7c14e1d))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v2.0.0...ruby-mailbox/v2.0.1) (2026-09-20)
 
 

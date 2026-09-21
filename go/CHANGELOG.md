@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.0.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v2.0.0...go/v3.0.0) (2026-09-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **go:** the module path is sendmux.ai/go/v3 (tag go/v3.0.0). Change the go.mod requirement and every sendmux.ai/go/v2/... import to sendmux.ai/go/v3/... together, then run go mod tidy; sendmux.ai/go/v2 v2.0.0 and sendmux.ai/go v1.6.1 keep working unchanged and are not retracted. See the README section "Version 3 migration".
+* **go:** the Go mailbox and management packages drop the Nil<Union>1 member fields of the eight provider quota unions and de-wrap five nullable fields to their canonical types; see the evidence file for the full list.
+
+### Bug Fixes
+
+* **go:** keep the quota union member API of v2.0.0 as deprecated shims ([a1bbfdb](https://github.com/Sendmux/sendmux-sdk/commit/a1bbfdb1900fe0b86b87d74c1ba55cf9ca445e64))
+* **go:** move the module path to sendmux.ai/go/v3 ([312ec46](https://github.com/Sendmux/sendmux-sdk/commit/312ec469a2c411ce092ea756bf1dcc5d1cb4a42b))
+* **go:** regenerate against the deployed v1.8.250 schema removes the quota union member fields and de-wraps five nullable fields ([628561d](https://github.com/Sendmux/sendmux-sdk/commit/628561d72e4094163b742923211140a6618755e2))
+* **go:** regenerate mailbox and management types from the deployed v1.8.250 schema ([99bf0b1](https://github.com/Sendmux/sendmux-sdk/commit/99bf0b15b521cba5889346ef1c3a283d74c9e617))
+
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/go/v1.6.1...go/v2.0.0) (2026-09-19)
 
 

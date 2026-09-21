@@ -50,13 +50,6 @@ def test_deprecated_alias_resolves_to_the_new_model_with_one_warning(module_name
     assert str(captured[0].message) == DEPRECATION_MESSAGE
 
 
-def test_deprecated_alias_is_importable_by_name() -> None:
-    with pytest.warns(DeprecationWarning, match="MailboxRealtimeMessageAllOfBody is deprecated"):
-        from sendmux_mailbox import MailboxRealtimeMessageAllOfBody
-
-    assert MailboxRealtimeMessageAllOfBody is sendmux_mailbox.MailboxRealtimeMessageBody
-
-
 @pytest.mark.parametrize("module_name", ["sendmux_mailbox", "sendmux_mailbox.models"])
 def test_unknown_attributes_still_raise_attribute_error(module_name: str) -> None:
     module = importlib.import_module(module_name)

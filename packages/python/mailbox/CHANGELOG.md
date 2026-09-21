@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.1...python-mailbox-v2.0.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **python-mailbox:** regenerate mailbox models from the deployed v1.8.250 schema ([88c40fa](https://github.com/Sendmux/sendmux-sdk/commit/88c40fa582602016f6e585d9102da26b29048ae0))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.0...python-mailbox-v2.0.1) (2026-09-20)
 
 

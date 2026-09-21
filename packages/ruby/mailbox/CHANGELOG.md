@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v2.0.1...ruby-mailbox/v2.0.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ruby-mailbox:** regenerate mailbox models from the deployed v1.8.250 schema ([ea211b7](https://github.com/Sendmux/sendmux-sdk/commit/ea211b70ecc1d22404c441ee5fa0d791c7c14e1d))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-mailbox/v2.0.0...ruby-mailbox/v2.0.1) (2026-09-20)
 
 

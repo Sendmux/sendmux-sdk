@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v2.0.1...ts-mailbox-v2.0.2) (2026-09-21)
+
+
+### Fixed
+
+* **Nullable references and threading headers:** `MailboxMessageContent`, `MailboxRawBody` and `MailboxSubmissionEnvelopeAddress` were declared nullable at the type itself while the responses wrapped them in `& { [key: string]: unknown }` intersections, a composition a `null` value can never satisfy, so a `null` `content`, `raw_body` or `mail_from` was invisible to the compiler; nullability now sits on the properties that carry it — `MailboxBatchGetItem.content: MailboxMessageContent | null`, `MailboxBatchGetItem.raw_body: MailboxRawBody | null` and `MailboxSubmissionEnvelope.mail_from: MailboxSubmissionEnvelopeAddress | null` — and `MailboxMessageContentResponse.data`, `MailboxThreadContentResponse.data`, `MailboxRawBodyResponse.data` and `MailboxSubmissionEnvelope.rcpt_to` are the plain named types. `MailboxMessage` now declares `message_id`, `in_reply_to` and `references` (`Array<string>`, angle brackets removed) and `reply_to` (`Array<MailboxAddress>`), matching the deployed app schema. No operation was added, removed or renamed, and no request type changed.
+
+### Bug Fixes
+
+* **ts-mailbox:** regenerate mailbox types from the deployed v1.8.250 schema ([3c7ca7e](https://github.com/Sendmux/sendmux-sdk/commit/3c7ca7ecfc044b76fd06a43d662cddb921d6649a))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v2.0.0...ts-mailbox-v2.0.1) (2026-09-19)
 
 

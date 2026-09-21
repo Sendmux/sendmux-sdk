@@ -1,10 +1,17 @@
 # Changelog
 
-## Unreleased
+## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v2.0.0...python-management-v2.0.1) (2026-09-21)
 
-### Features
 
-* Add provider variable management fields and delivery-group fields to delivery logs.
+### Fixed
+
+* **Management models:** `MailboxAppPasswordResult.credential` is typed `MailboxCredential`, the class `MailboxCreateResult.credential` already used, and `ProviderCreateBodyQuotasPerDay` holds a `ProviderQuotaRange` or an `int`, so app-password results and provider quota ranges share one class with the rest of the package and `isinstance` checks or type annotations written against those classes now hold. The former `MailboxAppPasswordResultCredential` and `ProviderCreateBodyQuotasPerDayAnyOf` names keep working as deprecated aliases of those classes (one `DeprecationWarning` naming the replacement; removed in sendmux-management 3.0). `WebhookSubscriptionWithSecret` now declares `secret` in schema order, so `to_dict()` and `to_json()` emit it before `updated_at` instead of last. The wire format is unchanged, and no operation was added, removed or renamed.
+
+### Bug Fixes
+
+* **python-management:** regenerate management models from the deployed v1.8.250 schema ([d726a98](https://github.com/Sendmux/sendmux-sdk/commit/d726a98554bd166dd1a695c9d13c258299498b0f))
+* **python-management:** regenerate the flattened webhook secret response model ([88a4c0b](https://github.com/Sendmux/sendmux-sdk/commit/88a4c0b8e35a0b704b0cd16f213bfa7cfe55887f))
+* regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))
 
 ## [2.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v1.4.1...python-management-v2.0.0) (2026-09-17)
 

@@ -7,6 +7,11 @@
 ## [2.1.3](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.1.2...python-mcp-v2.1.3) (2026-09-21)
 
 
+### Fixed
+
+* **Tool result schemas:** ten tools (`mailbox_batch_get_messages`, `mailbox_get_message`, `mailbox_get_thread`, `mailbox_list_body`, `mailbox_list_content`, `mailbox_list_messages`, `mailbox_list_thread_messages`, `mailbox_list_threads`, `management_create_mailbox`, `management_create_mailbox_key`) advertised nullable references as an `allOf` composition that a JSON `null` could never satisfy, so MCP clients that validate structured results rejected valid responses; each now uses `anyOf: [{ object }, { type: "null" }]`. `mailbox_get_message` result data now declares `message_id`, `in_reply_to`, `references` and `reply_to`, matching the deployed app schema. No tool was added, removed or renamed, and no input schema changed.
+
+
 ### Bug Fixes
 
 * **python-mcp:** publish the deployed v1.8.250 app schema and tool result schemas ([2b9b2a5](https://github.com/Sendmux/sendmux-sdk/commit/2b9b2a53fdf75dbc0f2be240bffa54146319e940))

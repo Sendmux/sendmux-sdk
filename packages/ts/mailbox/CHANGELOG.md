@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v2.0.1...ts-mailbox-v2.0.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ts-mailbox:** regenerate mailbox types from the deployed v1.8.250 schema ([3c7ca7e](https://github.com/Sendmux/sendmux-sdk/commit/3c7ca7ecfc044b76fd06a43d662cddb921d6649a))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-mailbox-v2.0.0...ts-mailbox-v2.0.1) (2026-09-19)
 
 

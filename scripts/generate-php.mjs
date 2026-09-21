@@ -1,6 +1,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { planDeprecatedModelAliases, reportPendingAliases } from "./deprecated-model-aliases.mjs";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "php-codegen");
@@ -27,6 +28,17 @@ const surfaces = [
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
     tags: ["Mailbox API"],
     keySurface: "Mailbox",
+    // Generated model classes dropped by a schema regeneration that keep loading, as deprecated
+    // class aliases under src/Model, until the next planned major. An entry may land ahead of the
+    // regeneration that drops its class: the alias is written once the class has left the generated
+    // output (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
+    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
+    deprecatedModelAliases: [
+      { deprecated: "MailboxMessageContentResponseAllOfData", replacement: "MailboxMessageContent", removedIn: "sendmux/mailbox 4.0" },
+      { deprecated: "MailboxRawBodyResponseAllOfData", replacement: "MailboxRawBody", removedIn: "sendmux/mailbox 4.0" },
+      { deprecated: "MailboxSubmissionEnvelopeRcptToInner", replacement: "MailboxSubmissionEnvelopeAddress", removedIn: "sendmux/mailbox 4.0" },
+      { deprecated: "MailboxThreadContentResponseAllOfData", replacement: "MailboxMessageContent", removedIn: "sendmux/mailbox 4.0" },
+    ],
   },
   {
     name: "management",
@@ -47,6 +59,12 @@ const surfaces = [
       "Webhooks",
     ],
     keySurface: "Root",
+    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }];
+    // see the mailbox table for the mechanism.
+    deprecatedModelAliases: [
+      { deprecated: "MailboxAppPasswordResultCredential", replacement: "MailboxCredential", removedIn: "sendmux/management 3.0" },
+      { deprecated: "ProviderCreateBodyQuotasPerDayAnyOf", replacement: "ProviderQuotaRange", removedIn: "sendmux/management 3.0" },
+    ],
   },
 ];
 
@@ -85,6 +103,7 @@ for (const surface of surfaces) {
   rmSync(join(packageDir, "src"), { force: true, recursive: true });
   cpSync(join(generatedRoot, "src"), join(packageDir, "src"), { recursive: true });
   patchPrimitiveUnionSerializer(surface, packageDir);
+  writeDeprecatedModelAliases(surface, packageDir);
   writeClientFactory(surface, packageDir);
 }
 
@@ -352,6 +371,55 @@ function replaceOnce(source, from, to, filePath) {
     throw new Error(`Could not find expected generated snippet in ${filePath}`);
   }
   return source.replace(from, to);
+}
+
+function writeDeprecatedModelAliases(surface, packageDir) {
+  const aliases = surface.deprecatedModelAliases ?? [];
+  if (aliases.length === 0) {
+    return;
+  }
+
+  const modelDir = join(packageDir, "src", "Model");
+  const { active, pending } = planDeprecatedModelAliases({
+    aliases,
+    isGenerated: (modelName) => existsSync(join(modelDir, `${modelName}.php`)),
+    label: modelDir,
+  });
+  reportPendingAliases({ label: modelDir, pending });
+
+  const namespace = `${surface.namespace}\\Model`;
+  for (const { deprecated, replacement, removedIn } of active) {
+    writeFileSync(
+      join(modelDir, `${deprecated}.php`),
+      `<?php
+
+declare(strict_types=1);
+
+// phpcs:disable PSR1.Files.SideEffects
+
+namespace ${namespace};
+
+/*
+ * Deprecated name of ${replacement}, kept as a class alias until ${removedIn}.
+ */
+@trigger_error(
+    '${namespace}\\${deprecated} is deprecated; use '
+    . '${namespace}\\${replacement}. It will be removed in ${removedIn}.',
+    E_USER_DEPRECATED
+);
+class_alias(${replacement}::class, __NAMESPACE__ . '\\${deprecated}');
+
+if (false) {
+    /**
+     * @deprecated use ${replacement}
+     */
+    class ${deprecated} extends ${replacement}
+    {
+    }
+}
+`,
+    );
+  }
 }
 
 function writeClientFactory(surface, packageDir) {

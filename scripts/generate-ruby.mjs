@@ -1,6 +1,7 @@
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { planDeprecatedModelAliases, reportPendingAliases } from "./deprecated-model-aliases.mjs";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "ruby-codegen");
@@ -29,8 +30,17 @@ const surfaces = [
     defaultBaseUrl: "https://app.sendmux.ai/api/v1",
     modelNameMappings: ["ApiError=ApiErrorResponse"],
     // Generated constants dropped by a schema regeneration that still resolve, as deprecated constants,
-    // until the next planned major. Remove an entry when that major ships.
-    deprecatedModelAliases: [{ deprecated: "MailboxRealtimeMessageAllOfBody", replacement: "MailboxRealtimeMessageBody" }],
+    // until the next planned major. An entry may land ahead of the regeneration that drops its
+    // class: the alias is written once the name has left the generated requires
+    // (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
+    deprecatedModelAliases: [
+      { deprecated: "MailboxRealtimeMessageAllOfBody", replacement: "MailboxRealtimeMessageBody" },
+      // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
+      { deprecated: "MailboxMessageContentResponseAllOfData", replacement: "MailboxMessageContent" },
+      { deprecated: "MailboxRawBodyResponseAllOfData", replacement: "MailboxRawBody" },
+      { deprecated: "MailboxSubmissionEnvelopeRcptToInner", replacement: "MailboxSubmissionEnvelopeAddress" },
+      { deprecated: "MailboxThreadContentResponseAllOfData", replacement: "MailboxMessageContent" },
+    ],
   },
   {
     name: "management",
@@ -53,6 +63,11 @@ const surfaces = [
     keySurface: "ROOT",
     defaultBaseUrl: "https://app.sendmux.ai/api/v1",
     modelNameMappings: ["ApiError=ApiErrorResponse"],
+    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
+    deprecatedModelAliases: [
+      { deprecated: "MailboxAppPasswordResultCredential", replacement: "MailboxCredential" },
+      { deprecated: "ProviderCreateBodyQuotasPerDayAnyOf", replacement: "ProviderQuotaRange" },
+    ],
   },
 ];
 
@@ -365,16 +380,17 @@ function writeDeprecatedModelAliases(surface, entryPath) {
   }
 
   const generated = readFileSync(entryPath, "utf8");
-  for (const { deprecated, replacement } of aliases) {
-    if (!generated.includes(modelRequireLine(surface, replacement))) {
-      throw new Error(`${entryPath} no longer requires ${replacement}; update the ${deprecated} alias in generate-ruby.mjs`);
-    }
-    if (generated.includes(modelRequireLine(surface, deprecated))) {
-      throw new Error(`${entryPath} requires ${deprecated} again; drop its alias from generate-ruby.mjs`);
-    }
+  const { active, pending } = planDeprecatedModelAliases({
+    aliases,
+    isGenerated: (modelName) => generated.includes(modelRequireLine(surface, modelName)),
+    label: entryPath,
+  });
+  reportPendingAliases({ label: entryPath, pending });
+  if (active.length === 0) {
+    return;
   }
 
-  const constants = aliases
+  const constants = active
     .map(
       ({ deprecated, replacement }) => `  ${deprecated} = ${replacement}
   deprecate_constant :${deprecated}`,

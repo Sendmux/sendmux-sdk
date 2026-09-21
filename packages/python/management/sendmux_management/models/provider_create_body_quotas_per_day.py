@@ -20,12 +20,12 @@ import re  # noqa: F401
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Optional
 from typing_extensions import Annotated
-from sendmux_management.models.provider_create_body_quotas_per_day_any_of import ProviderCreateBodyQuotasPerDayAnyOf
+from sendmux_management.models.provider_quota_range import ProviderQuotaRange
 from typing import Union, Any, List, Set, TYPE_CHECKING, Optional, Dict
 from typing_extensions import Literal, Self
 from pydantic import Field
 
-PROVIDERCREATEBODYQUOTASPERDAY_ANY_OF_SCHEMAS = ["ProviderCreateBodyQuotasPerDayAnyOf", "int"]
+PROVIDERCREATEBODYQUOTASPERDAY_ANY_OF_SCHEMAS = ["ProviderQuotaRange", "int"]
 
 class ProviderCreateBodyQuotasPerDay(BaseModel):
     """
@@ -34,13 +34,13 @@ class ProviderCreateBodyQuotasPerDay(BaseModel):
 
     # data type: int
     anyof_schema_1_validator: Optional[Annotated[int, Field(strict=True, gt=0)]] = None
-    # data type: ProviderCreateBodyQuotasPerDayAnyOf
-    anyof_schema_2_validator: Optional[ProviderCreateBodyQuotasPerDayAnyOf] = None
+    # data type: ProviderQuotaRange
+    anyof_schema_2_validator: Optional[ProviderQuotaRange] = None
     if TYPE_CHECKING:
-        actual_instance: Optional[Union[ProviderCreateBodyQuotasPerDayAnyOf, int]] = None
+        actual_instance: Optional[Union[ProviderQuotaRange, int]] = None
     else:
         actual_instance: Any = None
-    any_of_schemas: Set[str] = { "ProviderCreateBodyQuotasPerDayAnyOf", "int" }
+    any_of_schemas: Set[str] = { "ProviderQuotaRange", "int" }
 
     model_config = {
         "validate_assignment": True,
@@ -67,15 +67,15 @@ class ProviderCreateBodyQuotasPerDay(BaseModel):
             return v
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # validate data type: ProviderCreateBodyQuotasPerDayAnyOf
-        if not isinstance(v, ProviderCreateBodyQuotasPerDayAnyOf):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `ProviderCreateBodyQuotasPerDayAnyOf`")
+        # validate data type: ProviderQuotaRange
+        if not isinstance(v, ProviderQuotaRange):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `ProviderQuotaRange`")
         else:
             return v
 
         if error_messages:
             # no match
-            raise ValueError("No match found when setting the actual_instance in ProviderCreateBodyQuotasPerDay with anyOf schemas: ProviderCreateBodyQuotasPerDayAnyOf, int. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting the actual_instance in ProviderCreateBodyQuotasPerDay with anyOf schemas: ProviderQuotaRange, int. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -97,16 +97,16 @@ class ProviderCreateBodyQuotasPerDay(BaseModel):
             return instance
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # anyof_schema_2_validator: Optional[ProviderCreateBodyQuotasPerDayAnyOf] = None
+        # anyof_schema_2_validator: Optional[ProviderQuotaRange] = None
         try:
-            instance.actual_instance = ProviderCreateBodyQuotasPerDayAnyOf.from_json(json_str)
+            instance.actual_instance = ProviderQuotaRange.from_json(json_str)
             return instance
         except (ValidationError, ValueError) as e:
              error_messages.append(str(e))
 
         if error_messages:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into ProviderCreateBodyQuotasPerDay with anyOf schemas: ProviderCreateBodyQuotasPerDayAnyOf, int. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into ProviderCreateBodyQuotasPerDay with anyOf schemas: ProviderQuotaRange, int. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -120,7 +120,7 @@ class ProviderCreateBodyQuotasPerDay(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], ProviderCreateBodyQuotasPerDayAnyOf, int]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], ProviderQuotaRange, int]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

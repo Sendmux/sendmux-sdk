@@ -1,6 +1,7 @@
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { planDeprecatedModelAliases, reportPendingAliases } from "./deprecated-model-aliases.mjs";
 
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "python-codegen");
@@ -21,11 +22,34 @@ const surfaces = [
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",
     tags: ["Mailbox API"],
     // Generated names dropped by a schema regeneration that still resolve, with a DeprecationWarning,
-    // until the next planned major. Remove an entry when that major ships.
+    // until the next planned major. An entry may land ahead of the regeneration that drops its
+    // class: the alias is written once the name has left the generated exports
+    // (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
     deprecatedModelAliases: [
       {
         deprecated: "MailboxRealtimeMessageAllOfBody",
         replacement: "MailboxRealtimeMessageBody",
+        removedIn: "sendmux-mailbox 3.0",
+      },
+      // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
+      {
+        deprecated: "MailboxMessageContentResponseAllOfData",
+        replacement: "MailboxMessageContent",
+        removedIn: "sendmux-mailbox 3.0",
+      },
+      {
+        deprecated: "MailboxRawBodyResponseAllOfData",
+        replacement: "MailboxRawBody",
+        removedIn: "sendmux-mailbox 3.0",
+      },
+      {
+        deprecated: "MailboxSubmissionEnvelopeRcptToInner",
+        replacement: "MailboxSubmissionEnvelopeAddress",
+        removedIn: "sendmux-mailbox 3.0",
+      },
+      {
+        deprecated: "MailboxThreadContentResponseAllOfData",
+        replacement: "MailboxMessageContent",
         removedIn: "sendmux-mailbox 3.0",
       },
     ],
@@ -46,6 +70,19 @@ const surfaces = [
       "Mailboxes",
       "Sending accounts",
       "Webhooks",
+    ],
+    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
+    deprecatedModelAliases: [
+      {
+        deprecated: "MailboxAppPasswordResultCredential",
+        replacement: "MailboxCredential",
+        removedIn: "sendmux-management 3.0",
+      },
+      {
+        deprecated: "ProviderCreateBodyQuotasPerDayAnyOf",
+        replacement: "ProviderQuotaRange",
+        removedIn: "sendmux-management 3.0",
+      },
     ],
   },
 ];
@@ -403,18 +440,22 @@ function writeDeprecatedModelAliases(surface, packageDir) {
   }
 
   const packageRoot = join(packageDir, surface.packageName);
-  for (const initPath of [join(packageRoot, "__init__.py"), join(packageRoot, "models", "__init__.py")]) {
+  const initPaths = [join(packageRoot, "__init__.py"), join(packageRoot, "models", "__init__.py")];
+  for (const initPath of initPaths) {
     const generated = readFileSync(initPath, "utf8");
-    for (const { deprecated, replacement } of aliases) {
-      if (!modelImportPattern(replacement).test(generated)) {
-        throw new Error(`${initPath} no longer exports ${replacement}; update the ${deprecated} alias in generate-python.mjs`);
-      }
-      if (modelImportPattern(deprecated).test(generated)) {
-        throw new Error(`${initPath} exports ${deprecated} again; drop its alias from generate-python.mjs`);
-      }
+    const { active, pending } = planDeprecatedModelAliases({
+      aliases,
+      isGenerated: (modelName) => modelImportPattern(modelName).test(generated),
+      label: initPath,
+    });
+    if (initPath === initPaths[0]) {
+      reportPendingAliases({ label: initPath, pending });
+    }
+    if (active.length === 0) {
+      continue;
     }
 
-    const table = aliases
+    const table = active
       .map(({ deprecated, replacement, removedIn }) => `    "${deprecated}": ("${replacement}", "${removedIn}"),`)
       .join("\n");
     writeFileSync(

@@ -59,7 +59,7 @@ class MailboxAppPasswordResult implements ModelInterface, ArrayAccess, JsonSeria
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
-        'credential' => '\Sendmux\Management\Model\MailboxAppPasswordResultCredential'
+        'credential' => '\Sendmux\Management\Model\MailboxCredential'
     ];
 
     /**
@@ -270,9 +270,9 @@ class MailboxAppPasswordResult implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Gets credential
      *
-     * @return \Sendmux\Management\Model\MailboxAppPasswordResultCredential
+     * @return \Sendmux\Management\Model\MailboxCredential
      */
-    public function getCredential(): \Sendmux\Management\Model\MailboxAppPasswordResultCredential
+    public function getCredential(): \Sendmux\Management\Model\MailboxCredential
     {
         return $this->container['credential'];
     }
@@ -280,11 +280,11 @@ class MailboxAppPasswordResult implements ModelInterface, ArrayAccess, JsonSeria
     /**
      * Sets credential
      *
-     * @param \Sendmux\Management\Model\MailboxAppPasswordResultCredential $credential credential
+     * @param \Sendmux\Management\Model\MailboxCredential $credential credential
      *
      * @return $this
      */
-    public function setCredential(\Sendmux\Management\Model\MailboxAppPasswordResultCredential $credential): static
+    public function setCredential(\Sendmux\Management\Model\MailboxCredential $credential): static
     {
         if (is_null($credential)) {
             throw new InvalidArgumentException('non-nullable credential cannot be null');

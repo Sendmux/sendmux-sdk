@@ -55,7 +55,6 @@ require 'sendmux_management_generated/models/incoming_log_item_cursor_list_respo
 require 'sendmux_management_generated/models/incoming_log_item_response'
 require 'sendmux_management_generated/models/mailbox'
 require 'sendmux_management_generated/models/mailbox_app_password_result'
-require 'sendmux_management_generated/models/mailbox_app_password_result_credential'
 require 'sendmux_management_generated/models/mailbox_app_password_result_response'
 require 'sendmux_management_generated/models/mailbox_availability_reason'
 require 'sendmux_management_generated/models/mailbox_availability_response'
@@ -86,7 +85,6 @@ require 'sendmux_management_generated/models/provider_allowed_actions'
 require 'sendmux_management_generated/models/provider_create_body'
 require 'sendmux_management_generated/models/provider_create_body_quotas'
 require 'sendmux_management_generated/models/provider_create_body_quotas_per_day'
-require 'sendmux_management_generated/models/provider_create_body_quotas_per_day_any_of'
 require 'sendmux_management_generated/models/provider_deleted'
 require 'sendmux_management_generated/models/provider_deleted_response'
 require 'sendmux_management_generated/models/provider_item'
@@ -172,4 +170,12 @@ module Sendmux::Management::Generated
       end
     end
   end
+end
+
+module Sendmux::Management::Generated
+  # Deprecated model constants kept as aliases of their replacements until the next major release.
+  MailboxAppPasswordResultCredential = MailboxCredential
+  deprecate_constant :MailboxAppPasswordResultCredential
+  ProviderCreateBodyQuotasPerDayAnyOf = ProviderQuotaRange
+  deprecate_constant :ProviderCreateBodyQuotasPerDayAnyOf
 end

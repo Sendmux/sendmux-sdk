@@ -61,7 +61,7 @@ class MailboxThreadContentResponse implements ModelInterface, ArrayAccess, JsonS
     protected static array $openAPITypes = [
         'meta' => '\Sendmux\Mailbox\Model\MailboxThreadContentMeta',
         'ok' => 'bool',
-        'data' => '\Sendmux\Mailbox\Model\MailboxThreadContentResponseAllOfData[]',
+        'data' => '\Sendmux\Mailbox\Model\MailboxMessageContent[]',
         'pagination' => '\Sendmux\Mailbox\Model\CursorPagination'
     ];
 
@@ -354,7 +354,7 @@ class MailboxThreadContentResponse implements ModelInterface, ArrayAccess, JsonS
     /**
      * Gets data
      *
-     * @return \Sendmux\Mailbox\Model\MailboxThreadContentResponseAllOfData[]
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContent[]
      */
     public function getData(): array
     {
@@ -364,7 +364,7 @@ class MailboxThreadContentResponse implements ModelInterface, ArrayAccess, JsonS
     /**
      * Sets data
      *
-     * @param \Sendmux\Mailbox\Model\MailboxThreadContentResponseAllOfData[] $data data
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContent[] $data data
      *
      * @return $this
      */

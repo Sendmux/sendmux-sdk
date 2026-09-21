@@ -14,7 +14,6 @@ require 'date'
 require 'time'
 
 module Sendmux::Management::Generated
-  # Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.
   class MailboxCredential < ApiModelBase
     # IMAP retrieval port
     attr_accessor :imap_port

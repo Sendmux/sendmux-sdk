@@ -35,12 +35,24 @@ module Sendmux::Mailbox::Generated
     # Message ID
     attr_accessor :id
 
+    # `In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.
+    attr_accessor :in_reply_to
+
     # Active message keywords, including system flags and custom labels.
     attr_accessor :keywords
+
+    # `Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.
+    attr_accessor :message_id
 
     attr_accessor :preview
 
     attr_accessor :received_at
+
+    # `References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.
+    attr_accessor :references
+
+    # `Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.
+    attr_accessor :reply_to
 
     attr_accessor :sent_at
 
@@ -66,9 +78,13 @@ module Sendmux::Mailbox::Generated
         :'has_attachments' => :'has_attachments',
         :'html_body' => :'html_body',
         :'id' => :'id',
+        :'in_reply_to' => :'in_reply_to',
         :'keywords' => :'keywords',
+        :'message_id' => :'message_id',
         :'preview' => :'preview',
         :'received_at' => :'received_at',
+        :'references' => :'references',
+        :'reply_to' => :'reply_to',
         :'sent_at' => :'sent_at',
         :'size_bytes' => :'size_bytes',
         :'subject' => :'subject',
@@ -100,9 +116,13 @@ module Sendmux::Mailbox::Generated
         :'has_attachments' => :'Boolean',
         :'html_body' => :'String',
         :'id' => :'String',
+        :'in_reply_to' => :'Array<String>',
         :'keywords' => :'Array<String>',
+        :'message_id' => :'Array<String>',
         :'preview' => :'String',
         :'received_at' => :'String',
+        :'references' => :'Array<String>',
+        :'reply_to' => :'Array<MailboxAddress>',
         :'sent_at' => :'String',
         :'size_bytes' => :'Integer',
         :'subject' => :'String',
@@ -203,12 +223,28 @@ module Sendmux::Mailbox::Generated
         self.id = nil
       end
 
+      if attributes.key?(:'in_reply_to')
+        if (value = attributes[:'in_reply_to']).is_a?(Array)
+          self.in_reply_to = value
+        end
+      else
+        self.in_reply_to = nil
+      end
+
       if attributes.key?(:'keywords')
         if (value = attributes[:'keywords']).is_a?(Array)
           self.keywords = value
         end
       else
         self.keywords = nil
+      end
+
+      if attributes.key?(:'message_id')
+        if (value = attributes[:'message_id']).is_a?(Array)
+          self.message_id = value
+        end
+      else
+        self.message_id = nil
       end
 
       if attributes.key?(:'preview')
@@ -221,6 +257,22 @@ module Sendmux::Mailbox::Generated
         self.received_at = attributes[:'received_at']
       else
         self.received_at = nil
+      end
+
+      if attributes.key?(:'references')
+        if (value = attributes[:'references']).is_a?(Array)
+          self.references = value
+        end
+      else
+        self.references = nil
+      end
+
+      if attributes.key?(:'reply_to')
+        if (value = attributes[:'reply_to']).is_a?(Array)
+          self.reply_to = value
+        end
+      else
+        self.reply_to = nil
       end
 
       if attributes.key?(:'sent_at')
@@ -291,8 +343,24 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "id", id cannot be nil.')
       end
 
+      if @in_reply_to.nil?
+        invalid_properties.push('invalid value for "in_reply_to", in_reply_to cannot be nil.')
+      end
+
       if @keywords.nil?
         invalid_properties.push('invalid value for "keywords", keywords cannot be nil.')
+      end
+
+      if @message_id.nil?
+        invalid_properties.push('invalid value for "message_id", message_id cannot be nil.')
+      end
+
+      if @references.nil?
+        invalid_properties.push('invalid value for "references", references cannot be nil.')
+      end
+
+      if @reply_to.nil?
+        invalid_properties.push('invalid value for "reply_to", reply_to cannot be nil.')
       end
 
       if @to.nil?
@@ -312,7 +380,11 @@ module Sendmux::Mailbox::Generated
       return false if @folder_ids.nil?
       return false if @has_attachments.nil?
       return false if @id.nil?
+      return false if @in_reply_to.nil?
       return false if @keywords.nil?
+      return false if @message_id.nil?
+      return false if @references.nil?
+      return false if @reply_to.nil?
       return false if @to.nil?
       true
     end
@@ -378,6 +450,16 @@ module Sendmux::Mailbox::Generated
     end
 
     # Custom attribute writer method with validation
+    # @param [Object] in_reply_to Value to be assigned
+    def in_reply_to=(in_reply_to)
+      if in_reply_to.nil?
+        fail ArgumentError, 'in_reply_to cannot be nil'
+      end
+
+      @in_reply_to = in_reply_to
+    end
+
+    # Custom attribute writer method with validation
     # @param [Object] keywords Value to be assigned
     def keywords=(keywords)
       if keywords.nil?
@@ -385,6 +467,36 @@ module Sendmux::Mailbox::Generated
       end
 
       @keywords = keywords
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] message_id Value to be assigned
+    def message_id=(message_id)
+      if message_id.nil?
+        fail ArgumentError, 'message_id cannot be nil'
+      end
+
+      @message_id = message_id
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] references Value to be assigned
+    def references=(references)
+      if references.nil?
+        fail ArgumentError, 'references cannot be nil'
+      end
+
+      @references = references
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] reply_to Value to be assigned
+    def reply_to=(reply_to)
+      if reply_to.nil?
+        fail ArgumentError, 'reply_to cannot be nil'
+      end
+
+      @reply_to = reply_to
     end
 
     # Custom attribute writer method with validation
@@ -411,9 +523,13 @@ module Sendmux::Mailbox::Generated
           has_attachments == o.has_attachments &&
           html_body == o.html_body &&
           id == o.id &&
+          in_reply_to == o.in_reply_to &&
           keywords == o.keywords &&
+          message_id == o.message_id &&
           preview == o.preview &&
           received_at == o.received_at &&
+          references == o.references &&
+          reply_to == o.reply_to &&
           sent_at == o.sent_at &&
           size_bytes == o.size_bytes &&
           subject == o.subject &&
@@ -431,7 +547,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, html_body, id, keywords, preview, received_at, sent_at, size_bytes, subject, text_body, thread_id, to].hash
+      [attachments, bcc, cc, flags, folder_ids, from, has_attachments, html_body, id, in_reply_to, keywords, message_id, preview, received_at, references, reply_to, sent_at, size_bytes, subject, text_body, thread_id, to].hash
     end
 
     # Builds the object from hash

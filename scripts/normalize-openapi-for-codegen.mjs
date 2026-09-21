@@ -136,7 +136,7 @@ function preserveMailboxStreamParameterOrder(document) {
 function normalizeOpenApiGeneratorDocument(document) {
   return walkSchemaLikeObjects(document, (schema) => {
     normalizeExclusiveBounds(schema);
-    normalizeComposedNullBranches(schema);
+    normalizeComposedNullBranches(schema, document);
     return schema;
   });
 }
@@ -161,20 +161,56 @@ function normalizeExclusiveBounds(schema) {
   }
 }
 
-function normalizeComposedNullBranches(schema) {
+function normalizeComposedNullBranches(schema, document) {
   for (const keyword of ["anyOf", "oneOf"]) {
     if (!Array.isArray(schema[keyword])) {
       continue;
     }
 
     const withoutNull = schema[keyword].filter((item) => !isNullSchema(item));
-    if (withoutNull.length !== schema[keyword].length) {
-      schema[keyword] = withoutNull;
-      markComposedSchemaNullable(schema);
+    if (withoutNull.length === schema[keyword].length) {
+      continue;
     }
+
+    if (!schema.type && isBareReference(withoutNull)) {
+      // A nullable reference (anyOf: [{ $ref }, { type: "null" }]) has no sibling that can carry
+      // the OAS 3.0 nullable marker, so it becomes allOf: [{ $ref }] + nullable + the referenced
+      // component's type — the form the allOf + null-typed branch shape normalised to.
+      delete schema[keyword];
+      schema.allOf = withoutNull;
+      schema.nullable = true;
+      schema.type = referencedComponentType(document, withoutNull[0].$ref);
+      continue;
+    }
+
+    schema[keyword] = withoutNull;
+    markComposedSchemaNullable(schema);
   }
 
   normalizeNullableAllOfBranches(schema);
+}
+
+function isBareReference(branches) {
+  return (
+    branches.length === 1 &&
+    branches[0] &&
+    typeof branches[0] === "object" &&
+    typeof branches[0].$ref === "string" &&
+    Object.keys(branches[0]).length === 1
+  );
+}
+
+function referencedComponentType(document, ref) {
+  const prefix = "#/components/schemas/";
+  const target = ref.startsWith(prefix)
+    ? document.components?.schemas?.[decodeURIComponent(ref.slice(prefix.length))]
+    : undefined;
+  const openApi30Types = new Set(["array", "boolean", "integer", "number", "object", "string"]);
+  if (!openApi30Types.has(target?.type)) {
+    throw new Error(`Cannot normalize nullable reference ${ref} because the referenced component has no single OAS 3.0 type`);
+  }
+
+  return target.type;
 }
 
 function markComposedSchemaNullable(schema) {

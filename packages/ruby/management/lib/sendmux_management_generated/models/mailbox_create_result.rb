@@ -15,6 +15,7 @@ require 'time'
 
 module Sendmux::Management::Generated
   class MailboxCreateResult < ApiModelBase
+    # Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.
     attr_accessor :credential
 
     attr_accessor :mailbox

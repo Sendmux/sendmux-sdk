@@ -25,7 +25,7 @@ from pydantic_core import to_jsonable_python
 
 class MailboxCredential(BaseModel):
     """
-    Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.
+    MailboxCredential
     """ # noqa: E501
     imap_port: StrictInt = Field(description="IMAP retrieval port")
     key_prefix: StrictStr

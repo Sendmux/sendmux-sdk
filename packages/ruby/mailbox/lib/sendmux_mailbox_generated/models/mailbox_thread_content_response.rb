@@ -48,7 +48,7 @@ module Sendmux::Mailbox::Generated
       {
         :'meta' => :'MailboxThreadContentMeta',
         :'ok' => :'Boolean',
-        :'data' => :'Array<MailboxThreadContentResponseAllOfData>',
+        :'data' => :'Array<MailboxMessageContent>',
         :'pagination' => :'CursorPagination'
       }
     end

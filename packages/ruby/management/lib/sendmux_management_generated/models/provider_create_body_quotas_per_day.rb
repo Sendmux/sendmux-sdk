@@ -21,7 +21,7 @@ module Sendmux::Management::Generated
       def openapi_any_of
         [
           :'Integer',
-          :'ProviderCreateBodyQuotasPerDayAnyOf'
+          :'ProviderQuotaRange'
         ]
       end
 

@@ -1477,14 +1477,7 @@
         "additionalProperties": false,
         "properties": {
           "credential": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MailboxCredential"
-              },
-              {
-                "type": "object"
-              }
-            ]
+            "$ref": "#/components/schemas/MailboxCredential"
           }
         },
         "required": [
@@ -1913,13 +1906,27 @@
         "additionalProperties": false,
         "properties": {
           "content": {
-            "$ref": "#/components/schemas/MailboxMessageContent"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MailboxMessageContent"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "message": {
             "$ref": "#/components/schemas/MailboxMessageSummary"
           },
           "raw_body": {
-            "$ref": "#/components/schemas/MailboxRawBody"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MailboxRawBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -2245,7 +2252,15 @@
         "additionalProperties": false,
         "properties": {
           "credential": {
-            "$ref": "#/components/schemas/MailboxCredential"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MailboxCredential"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry."
           },
           "mailbox": {
             "$ref": "#/components/schemas/Mailbox"
@@ -2289,7 +2304,6 @@
       },
       "MailboxCredential": {
         "additionalProperties": false,
-        "description": "Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.",
         "properties": {
           "imap_port": {
             "description": "IMAP retrieval port",
@@ -2336,10 +2350,7 @@
           "smtp_port",
           "username"
         ],
-        "type": [
-          "object",
-          "null"
-        ]
+        "type": "object"
       },
       "MailboxDeletedResponse": {
         "allOf": [
@@ -3253,15 +3264,12 @@
             "type": "array"
           },
           "from": {
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/MailboxAddress"
               },
               {
-                "type": [
-                  "object",
-                  "null"
-                ]
+                "type": "null"
               }
             ]
           },
@@ -3278,12 +3286,32 @@
             "description": "Message ID",
             "type": "string"
           },
+          "in_reply_to": {
+            "description": "`In-Reply-To` header values, with the surrounding angle brackets removed — the message this one replies to. Empty when the message is not a reply.",
+            "example": [
+              "20260918.0009@example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "keywords": {
             "description": "Active message keywords, including system flags and custom labels.",
             "example": [
               "$seen",
               "$flagged",
               "agent_triaged"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "message_id": {
+            "description": "`Message-ID` header values for this message, with the surrounding angle brackets removed. Empty when the message carries no `Message-ID`.",
+            "example": [
+              "20260919.0001@example.com"
             ],
             "items": {
               "type": "string"
@@ -3301,6 +3329,24 @@
               "string",
               "null"
             ]
+          },
+          "references": {
+            "description": "`References` header values, with the surrounding angle brackets removed — the ancestor chain of this message, oldest first. Empty when the message starts a conversation.",
+            "example": [
+              "20260917.0001@example.com",
+              "20260918.0009@example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reply_to": {
+            "description": "`Reply-To` addresses. Address replies here rather than to `from` whenever this is non-empty. Empty when the message carries no `Reply-To`.",
+            "items": {
+              "$ref": "#/components/schemas/MailboxAddress"
+            },
+            "type": "array"
           },
           "sent_at": {
             "type": [
@@ -3356,7 +3402,11 @@
           "keywords",
           "flags",
           "text_body",
-          "html_body"
+          "html_body",
+          "message_id",
+          "in_reply_to",
+          "references",
+          "reply_to"
         ],
         "type": "object"
       },
@@ -3475,15 +3525,12 @@
                 "type": "array"
               },
               "from": {
-                "allOf": [
+                "anyOf": [
                   {
                     "$ref": "#/components/schemas/MailboxAddress"
                   },
                   {
-                    "type": [
-                      "object",
-                      "null"
-                    ]
+                    "type": "null"
                   }
                 ]
               },
@@ -3552,10 +3599,7 @@
           "attachments",
           "states"
         ],
-        "type": [
-          "object",
-          "null"
-        ]
+        "type": "object"
       },
       "MailboxMessageContentResponse": {
         "allOf": [
@@ -3565,14 +3609,7 @@
           {
             "properties": {
               "data": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MailboxMessageContent"
-                  },
-                  {
-                    "type": "object"
-                  }
-                ]
+                "$ref": "#/components/schemas/MailboxMessageContent"
               },
               "meta": {
                 "$ref": "#/components/schemas/ResponseMeta"
@@ -3822,15 +3859,12 @@
             "type": "array"
           },
           "from": {
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/MailboxAddress"
               },
               {
-                "type": [
-                  "object",
-                  "null"
-                ]
+                "type": "null"
               }
             ]
           },
@@ -4128,10 +4162,7 @@
           "body",
           "states"
         ],
-        "type": [
-          "object",
-          "null"
-        ]
+        "type": "object"
       },
       "MailboxRawBodyResponse": {
         "allOf": [
@@ -4141,14 +4172,7 @@
           {
             "properties": {
               "data": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/MailboxRawBody"
-                  },
-                  {
-                    "type": "object"
-                  }
-                ]
+                "$ref": "#/components/schemas/MailboxRawBody"
               },
               "meta": {
                 "$ref": "#/components/schemas/ResponseMeta"
@@ -4296,15 +4320,12 @@
             "type": "array"
           },
           "from": {
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/MailboxAddress"
               },
               {
-                "type": [
-                  "object",
-                  "null"
-                ]
+                "type": "null"
               }
             ]
           },
@@ -5231,18 +5252,18 @@
         "additionalProperties": false,
         "properties": {
           "mail_from": {
-            "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "rcpt_to": {
             "items": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
-                },
-                {
-                  "type": "object"
-                }
-              ]
+              "$ref": "#/components/schemas/MailboxSubmissionEnvelopeAddress"
             },
             "type": "array"
           }
@@ -5280,10 +5301,7 @@
           "email",
           "parameters"
         ],
-        "type": [
-          "object",
-          "null"
-        ]
+        "type": "object"
       },
       "MailboxSubmissionResponse": {
         "allOf": [
@@ -5339,15 +5357,12 @@
             "type": "string"
           },
           "last_message": {
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/MailboxMessageSummary"
               },
               {
-                "type": [
-                  "object",
-                  "null"
-                ]
+                "type": "null"
               }
             ]
           },
@@ -5471,14 +5486,7 @@
             "properties": {
               "data": {
                 "items": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/MailboxMessageContent"
-                    },
-                    {
-                      "type": "object"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/MailboxMessageContent"
                 },
                 "type": "array"
               },
@@ -5585,15 +5593,12 @@
             "type": "string"
           },
           "last_message": {
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/MailboxMessageSummary"
               },
               {
-                "type": [
-                  "object",
-                  "null"
-                ]
+                "type": "null"
               }
             ]
           },
@@ -5976,14 +5981,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -5998,14 +5996,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6020,14 +6011,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6042,14 +6026,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6689,25 +6666,50 @@
           "min",
           "max"
         ],
-        "type": [
-          "object",
-          "null"
-        ]
+        "type": "object"
       },
       "ProviderQuotas": {
         "additionalProperties": false,
         "properties": {
           "per_day": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderQuotaRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "per_hour": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderQuotaRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "per_minute": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderQuotaRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "per_second": {
-            "$ref": "#/components/schemas/ProviderQuotaRange"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderQuotaRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -6940,14 +6942,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6962,14 +6957,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -6984,14 +6972,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -7006,14 +6987,7 @@
                     "type": "integer"
                   },
                   {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/ProviderQuotaRange"
-                      },
-                      {
-                        "type": "object"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/ProviderQuotaRange"
                   },
                   {
                     "type": "null"
@@ -7663,15 +7637,12 @@
             "$ref": "#/components/schemas/SharedAmazonSesLimit"
           },
           "pending_request": {
-            "allOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/SharedAmazonSesLimitRequest"
               },
               {
-                "type": [
-                  "object",
-                  "null"
-                ]
+                "type": "null"
               }
             ]
           }

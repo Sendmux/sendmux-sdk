@@ -29,7 +29,7 @@ class MailboxCreateResult(BaseModel):
     """
     MailboxCreateResult
     """ # noqa: E501
-    credential: Optional[MailboxCredential]
+    credential: Optional[MailboxCredential] = Field(description="Initial credential for the mailbox. `null` if credential generation failed — call POST /mailboxes/{id}/keys to retry.")
     mailbox: Mailbox
     warning: Optional[StrictStr] = Field(description="Optional warning string when the mailbox was created without an initial credential")
     __properties: ClassVar[List[str]] = ["credential", "mailbox", "warning"]

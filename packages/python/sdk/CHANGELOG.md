@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v3.0.0...python-sdk-v3.0.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* **python-sdk:** raise the mailbox and management floors to 2.0.2 and 2.0.1 ([466f5e4](https://github.com/Sendmux/sendmux-sdk/commit/466f5e44a4d9bfb71c7d5bd0bf0f6a0e7ab5c60c))
+
+
+### Documentation
+
+* **python-sdk:** drop stale Unreleased changelog block shipped in 3.0.0 ([912dfcf](https://github.com/Sendmux/sendmux-sdk/commit/912dfcf3372df43449fdcd75f5d4ea211ab94754))
+
 ## [3.0.0](https://github.com/Sendmux/sendmux-sdk/compare/python-sdk-v2.0.0...python-sdk-v3.0.0) (2026-09-18)
 
 

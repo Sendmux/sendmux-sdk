@@ -3,6 +3,12 @@
 ## [0.5.1](https://github.com/Sendmux/sendmux-sdk/compare/rust-v0.5.0...rust-v0.5.1) (2026-09-21)
 
 
+### Changed
+
+* **OpenAPI provenance:** `sendmux::generated::APP_OPENAPI_SHA256` is now `b42ce87003ae8d4ac80024ce9796cd96db97c5439c5e99d957682f6b6a1f5999`, the SHA-256 of the app OpenAPI snapshot deployed as v1.8.250, instead of `09b00ae13c88fe4ecc1bb3fd965bb30efd79447d5ea68b5334816a7452d40b58`. That public constant is the only source change since 0.5.0: no client, request, response, model, error, feature flag or dependency changed, and the packaged file list is the same 13 files ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83)).
+
+Decision for ROOT: ship 0.5.1 with this lead (recommended — release-please will keep re-proposing 0.5.1 while the `fix:` merge 628b161 sits in the Rust window, and docs.rs then advertises the constant the repo actually pins), or close #261 as bot noise and accept that the published constant stays `09b00ae1…` until the next real Rust change.
+
 ### Bug Fixes
 
 * regenerate SDKs from the deployed flattened response schemas (docs 86b0f45) ([628b161](https://github.com/Sendmux/sendmux-sdk/commit/628b161d2692775ac1f4830c1d64c024ba04ed83))

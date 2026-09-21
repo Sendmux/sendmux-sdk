@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.7.1...ts-cli-v1.7.2) (2026-09-21)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/sdk bumped to 2.0.2
+
 ## [1.7.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-cli-v1.7.0...ts-cli-v1.7.1) (2026-09-19)
 
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.1...python-mailbox-v2.0.2) (2026-09-21)
+
+
+### Fixed
+
+* **Mailbox models:** `MailboxMessage` now carries `message_id`, `in_reply_to` and `references` (`List[str]`, the header values with the surrounding angle brackets removed) and `reply_to` (`List[MailboxAddress]`), which the deployed app schema declares as required on every message; 2.0.1 did not know these fields, so `from_dict` dropped them and message lists, thread messages and `mailbox_get_message` results could not expose the threading headers. Response payloads are typed with the canonical models instead of generated copies: `MailboxMessageContentResponse.data` and each `MailboxThreadContentResponse.data` item are `MailboxMessageContent`, `MailboxRawBodyResponse.data` is `MailboxRawBody`, and `MailboxSubmissionEnvelope.rcpt_to` is `List[MailboxSubmissionEnvelopeAddress]`, so `isinstance` checks and type annotations written against those classes now hold. The former `MailboxMessageContentResponseAllOfData`, `MailboxThreadContentResponseAllOfData`, `MailboxRawBodyResponseAllOfData` and `MailboxSubmissionEnvelopeRcptToInner` names keep working as deprecated aliases of those classes (one `DeprecationWarning` naming the replacement; removed in sendmux-mailbox 3.0). The wire format is unchanged, and no operation was added, removed or renamed.
+
+### Bug Fixes
+
+* **python-mailbox:** regenerate mailbox models from the deployed v1.8.250 schema ([88c40fa](https://github.com/Sendmux/sendmux-sdk/commit/88c40fa582602016f6e585d9102da26b29048ae0))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.0...python-mailbox-v2.0.1) (2026-09-20)
 
 

@@ -1,13 +1,23 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* Add provider variable management fields and delivery-group fields to delivery logs.
-
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ruby-management/v2.0.0...ruby-management/v2.0.1) (2026-09-21)
 
+
+### Fixed
+
+* **Regenerated models:** `management_create_mailbox_key` results (`MailboxAppPasswordResultResponse#data`, a `Sendmux::Management::Generated::MailboxAppPasswordResult`) type `credential` as the canonical `MailboxCredential` — the class `management_create_mailbox` already returns in `MailboxCreateResult#credential`, with the same eight attributes (`imap_port`, `key_prefix`, `key_suffix`, `public_id`, `secret`, `server`, `smtp_port`, `username`) — instead of the generator's `MailboxAppPasswordResultCredential` copy. The per-period quotas on `management_create_provider` and `management_update_provider` bodies (`ProviderCreateBodyQuotas#per_second`, `#per_minute`, `#per_hour`, `#per_day`) accept an `Integer` or a `ProviderQuotaRange` (`min`/`max`) instead of the `ProviderCreateBodyQuotasPerDayAnyOf` copy. `WebhookSubscriptionWithSecret` (`management_create_webhook`, `management_rotate_webhook_secret`) is generated from the flat deployed schema: `secret` now sits in alphabetical attribute order (between `name` and `updated_at`, which only changes `to_hash` key order) and the class no longer defines the generator's `openapi_all_of` introspection method; no public class or accessor is added or removed. The wire format is unchanged, and `pending_request`, `MailboxCreateResult#credential` and `ProviderQuotas#per_*` are unchanged ([ab2af52](https://github.com/Sendmux/sendmux-sdk/commit/ab2af52629e73b42862aae2f40c6b60248dccf95), [b002849](https://github.com/Sendmux/sendmux-sdk/commit/b00284908ee07980f25badafaba90f4bd4eb6b25)).
+
+### Deprecated
+
+* `Sendmux::Management::Generated::MailboxAppPasswordResultCredential` is now a deprecated constant aliasing `MailboxCredential`, and `ProviderCreateBodyQuotasPerDayAnyOf` aliases `ProviderQuotaRange`. Referencing an old constant still works and, with `Warning[:deprecated]` enabled (`ruby -W:deprecated`), warns that it is deprecated; the aliases are removed in the next major, 3.0 ([ab2af52](https://github.com/Sendmux/sendmux-sdk/commit/ab2af52629e73b42862aae2f40c6b60248dccf95)).
+
+## Verification behind each claim
+
+- Operation → model mapping from `packages/ruby/management/lib/sendmux_management_generated/api/*.rb` at 67ea1c15: `management_create_mailbox_key` → `MailboxAppPasswordResultResponse` (`data: MailboxAppPasswordResult`, `models/mailbox_app_password_result_response.rb:48`); `management_create_mailbox` → `MailboxCreateResultResponse`; `management_create_provider` body `provider_create_body`, `management_update_provider` body `provider_update_body`, both with `quotas: ProviderCreateBodyQuotas` whose four periods are `ProviderCreateBodyQuotasPerDay` (`models/provider_create_body_quotas.rb:49-52`); `management_create_webhook`/`management_rotate_webhook_secret` → `WebhookSubscriptionWithSecretResponse`.
+- ab2af52 diff: `mailbox_app_password_result.rb` `:'MailboxAppPasswordResultCredential'` → `:'MailboxCredential'`; `provider_create_body_quotas_per_day.rb` any-of `ProviderCreateBodyQuotasPerDayAnyOf` → `ProviderQuotaRange`; two copies deleted (574 lines); `sendmux_management_generated.rb` adds the two `deprecate_constant` aliases; a doc comment moves from `mailbox_credential.rb` to `mailbox_create_result.rb`. The 2.0.0 `MailboxAppPasswordResultCredential` had the same eight `attr_accessor`s as `MailboxCredential` (checked at tag ruby-management/v2.0.0).
+- b002849 (the management part of merge 628b161): `webhook_subscription_with_secret.rb` only reorders `secret` and removes `openapi_all_of` (+31/−38).
+- Isolated install of the built gem (`.claude/artifacts/l22/ruby-management/smoke.log`): `credential => MailboxCredential`, `openapi_any_of => [:Integer, :ProviderQuotaRange]`, `build(250) => 250`, `secret` at index 7 of 10 attributes, `openapi_all_of` absent, 2/2 aliases resolve with 2 deprecation warnings.
+- Published `sendmux-management-2.0.0.gem` (sha256 fddae3c5…, the L5 receipt) vs the candidate: 10 member differences, exactly `CHANGELOG.md`, `version.rb`, the five regenerated models, the loader and the two removed copies (`diff-published-2.0.0-vs-candidate-2.0.1.txt`).
 
 ### Bug Fixes
 

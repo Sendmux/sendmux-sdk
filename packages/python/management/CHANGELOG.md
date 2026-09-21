@@ -1,13 +1,11 @@
 # Changelog
 
-## Unreleased
-
-### Features
-
-* Add provider variable management fields and delivery-group fields to delivery logs.
-
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/python-management-v2.0.0...python-management-v2.0.1) (2026-09-21)
 
+
+### Fixed
+
+* **Management models:** `MailboxAppPasswordResult.credential` is typed `MailboxCredential`, the class `MailboxCreateResult.credential` already used, and `ProviderCreateBodyQuotasPerDay` holds a `ProviderQuotaRange` or an `int`, so app-password results and provider quota ranges share one class with the rest of the package and `isinstance` checks or type annotations written against those classes now hold. The former `MailboxAppPasswordResultCredential` and `ProviderCreateBodyQuotasPerDayAnyOf` names keep working as deprecated aliases of those classes (one `DeprecationWarning` naming the replacement; removed in sendmux-management 3.0). `WebhookSubscriptionWithSecret` now declares `secret` in schema order, so `to_dict()` and `to_json()` emit it before `updated_at` instead of last. The wire format is unchanged, and no operation was added, removed or renamed.
 
 ### Bug Fixes
 

@@ -1,19 +1,19 @@
 # Sendmux Go management client
 
-[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v2/management.svg)](https://pkg.go.dev/sendmux.ai/go/v2/management)
+[![Go Reference](https://pkg.go.dev/badge/sendmux.ai/go/v3/management.svg)](https://pkg.go.dev/sendmux.ai/go/v3/management)
 
 Go client for managing domains, mailboxes, sending accounts, billing, logs, and webhooks.
 
 ## Install
 
 ```sh
-go get sendmux.ai/go/v2@v2.0.0
+go get sendmux.ai/go/v3@v3.0.0
 ```
 
 ## Import
 
 ```go
-import "sendmux.ai/go/v2/management"
+import "sendmux.ai/go/v3/management"
 ```
 
 ## Authentication
@@ -42,7 +42,7 @@ import (
 	"fmt"
 	"os"
 
-	"sendmux.ai/go/v2/management"
+	"sendmux.ai/go/v3/management"
 )
 
 func main() {
@@ -84,4 +84,4 @@ func main() {
 
 - Management API: <https://sendmux.ai/docs/api/introduction>
 - Domain guide: <https://sendmux.ai/docs/guides/domain-management>
-- Go reference: <https://pkg.go.dev/sendmux.ai/go/v2/management>
+- Go reference: <https://pkg.go.dev/sendmux.ai/go/v3/management>

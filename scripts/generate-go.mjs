@@ -6,6 +6,7 @@ import { planDeprecatedModelAliases, planDeprecatedUnionMembers, reportPendingAl
 const root = process.cwd();
 const outputRoot = join(root, ".tmp", "go-codegen");
 const ogenVersion = "v1.14.0";
+const goModulePath = "sendmux.ai/go/v3";
 
 const surfaces = [
   {
@@ -494,7 +495,7 @@ import (
 \t"errors"
 \t"net/http"
 
-\t"sendmux.ai/go/v2/core"
+\t"${goModulePath}/core"
 )
 
 type securitySource struct {
@@ -1183,7 +1184,7 @@ func (r *${typeName}) APIError() *core.APIError {
 
   return `package ${packageName}
 
-import "sendmux.ai/go/v2/core"
+import "${goModulePath}/core"
 
 ${methods}`;
 }

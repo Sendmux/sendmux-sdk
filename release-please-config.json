@@ -106,7 +106,7 @@
     },
     "go": {
       "component": "go",
-      "package-name": "sendmux.ai/go/v2",
+      "package-name": "sendmux.ai/go/v3",
       "release-type": "go",
       "include-component-in-tag": true,
       "include-v-in-tag": true,

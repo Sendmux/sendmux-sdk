@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"sendmux.ai/go/v2/core"
+	"sendmux.ai/go/v3/core"
 )
 
 type securitySource struct {

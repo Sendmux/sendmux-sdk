@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v2.0.1...ts-management-v2.0.2) (2026-09-21)
+
+
+### Fixed
+
+* **Nullable quota ranges and credentials:** `ProviderQuotaRange` and `MailboxCredential` were declared nullable at the type itself while the responses wrapped them in `& { [key: string]: unknown }` intersections, a composition a `null` value can never satisfy, so a `null` quota range or credential was invisible to the compiler; nullability now sits on the properties that carry it — `ProviderQuotas.per_second`, `per_minute`, `per_hour` and `per_day` are `ProviderQuotaRange | null`, and `MailboxCreateResult.credential` is `MailboxCredential | null` (`null` when credential generation failed; call `POST /mailboxes/{id}/keys` to retry) — while `MailboxAppPasswordResult.credential` is a plain `MailboxCredential` and the `ProviderCreateBody` and `ProviderUpdateBody` quota fields accept `number | ProviderQuotaRange | null`. No operation was added, removed or renamed.
+
+### Bug Fixes
+
+* **ts-management:** regenerate management types from the deployed v1.8.250 schema ([2f4a156](https://github.com/Sendmux/sendmux-sdk/commit/2f4a15669e445a0cabf60974e96684f6f8dd8745))
+
 ## [2.0.1](https://github.com/Sendmux/sendmux-sdk/compare/ts-management-v2.0.0...ts-management-v2.0.1) (2026-09-19)
 
 

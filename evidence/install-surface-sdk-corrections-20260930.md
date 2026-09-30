@@ -22,4 +22,4 @@ Node: v24.21.0. pnpm: 10.22.0. Lockfile SHA-256: `b131f7dcdf4bfeed7454ec8df011c1
 
 Evidence artifacts: `/Users/rj/Desktop/GIT-REPOS/sendmux-sdk/.claude/artifacts/install-surface/pr304-review/approved-batch-*`.
 
-Python source, PyPI 2.1.3, registry metadata 2.1.4, npm package version 1.0.0, and approved README bytes are unchanged. The missing public skills acceptance asset remains a release prerequisite. npm authentication/trust and live OAuth/publication checks remain pending. No provider calls or public writes were made in this batch. The earlier broad SDK result of 636/722 remains disclosed; it was not repeated for these focused corrections.
+Python source, PyPI 2.1.3, registry metadata 2.1.4, npm package version 1.0.0, and approved README bytes are unchanged. The missing public skills acceptance asset remains a release prerequisite. npm authentication/trust and live OAuth/publication checks remain pending. No provider calls or public writes were made in this batch. The earlier broad infrastructure result of 636/722 remains disclosed; it was not repeated for these focused corrections.

@@ -76,8 +76,6 @@ jobs:
       - name: Prepare pinned skill acceptance source
         if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish_edge == true) && env.SNAPCRAFT_STORE_CREDENTIALS != '' }}
         uses: ./.github/actions/skill-release-checks
-        with:
-          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard producer before Snap publication
         timeout-minutes: 2

@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { test } from "node:test";
+import { runInNewContext } from "node:vm";
 import { gitEnvironment } from "./publication-guard.mjs";
 
 const executeFile = promisify(execFile);
@@ -457,6 +458,49 @@ for (const [workflow, job, guardName] of [
   ["snap", "build", "Guard producer before Snap publication"],
   ["chocolatey", "package", "Guard candidate before first publication"],
 ]) {
+  test(`${workflow}/${job}: released skills receipt is required even with a proposed revision variable`, () => {
+    const workflowSource = readFileSync(join(process.env.SENDMUX_TEST_WORKFLOW_ROOT ?? resolve(".github/workflows"), `${workflow}.yml`), "utf8");
+    const jobSource = workflowSource.split(new RegExp(`^  ${job}:`, "m"))[1]?.split(/^  [\w-]+:/m)[0] ?? "";
+    const step = jobSource.split(/^      - /m).find((source) => /uses: .*\/\.github\/actions\/skill-release-checks\n/.test(source));
+    assert.equal(typeof step, "string", "publication requires skills preparation");
+    const proposed = "a".repeat(40);
+    const revision = (step.match(/^          revision: (.+)$/m)?.[1] ?? "").replace("${{ vars.SENDMUX_SKILLS_REVISION }}", proposed);
+    const action = readFileSync(resolve(".github/actions/skill-release-checks/action.yml"), "utf8");
+    const source = action.match(/        node --input-type=module <<'JS'\n([\s\S]+?)\n        JS/)?.[1]?.replace(/^        /gm, "").replace(/^import .*;\n/gm, "");
+    assert.equal(typeof source, "string", "skills preparation must retain its executable resolver");
+    for (const state of ["approved", "missing", "rejected"]) {
+      const releases = [];
+      const outputs = [];
+      const run = () => runInNewContext(source, {
+        process: { env: { SKILLS_REVISION: revision, RUNNER_TEMP: "/fixture", GITHUB_OUTPUT: "/fixture/output" } },
+        join,
+        mkdtempSync: () => "/fixture/receipt",
+        appendFileSync: (_path, content) => outputs.push(content),
+        readFileSync: () => JSON.stringify({ accepted: state !== "rejected", skills: { proposed: { revision: proposed } } }),
+        execFileSync: (command, args) => {
+          if (command === "git" && args[0] === "check-ref-format") return "";
+          if (command === "gh" && args[0] === "release") {
+            releases.push(args[1]);
+            if (args[1] === "view") return "v1.6.0\n";
+            if (args[1] === "download") {
+              if (state === "missing") throw new Error("no assets to download");
+              return "";
+            }
+          }
+          throw new Error(`Unexpected command ${command}`);
+        },
+      });
+      if (state === "approved") {
+        run();
+        assert.ok(releases.includes("download"), "Publishing skipped released acceptance asset");
+        assert.equal(outputs.join(""), `revision=${proposed}\ntag=v1.6.0\nacceptance=/fixture/receipt/acceptance.json\n`);
+      } else {
+        assert.throws(run, state === "missing" ? /no assets to download/ : /no approved acceptance receipt/);
+        assert.deepEqual(outputs, []);
+      }
+    }
+  });
+
   test(`${workflow}/${job}: actual gate stops the next writer on drift and allows equality`, async (t) => {
     const workflowSource = readFileSync(process.env.SENDMUX_TEST_WORKFLOW_FILE ?? resolve(`.github/workflows/${workflow}.yml`), "utf8");
     const jobSource = workflowSource.split(new RegExp(`^  ${job}:`, "m"))[1]?.split(/^  [\w-]+:/m)[0] ?? "";

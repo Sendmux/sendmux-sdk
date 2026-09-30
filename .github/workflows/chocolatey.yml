@@ -192,8 +192,6 @@ jobs:
       - name: Prepare pinned skill acceptance source
         if: ${{ github.event_name == 'release' || inputs.push == true }}
         uses: ./.publication-guard/.github/actions/skill-release-checks
-        with:
-          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         if: ${{ github.event_name == 'release' || inputs.push == true }}

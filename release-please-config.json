@@ -220,7 +220,6 @@
       "component": "ts-mcp",
       "package-name": "sendmux-mcp",
       "initial-version": "1.0.0",
-      "release-as": "1.0.0",
       "extra-files": [
         {
           "type": "json",

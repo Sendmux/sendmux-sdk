@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
+import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -14,13 +15,65 @@ const guard = process.env.SENDMUX_TEST_PUBLICATION_GUARD ?? resolve("scripts/pub
 const specPath = "packages/python/mcp/sendmux_mcp/openapi";
 const repository = "Sendmux/sendmux-sdk";
 const repositoryId = 1253958043;
-const document = { openapi: "3.1.0", paths: {}, components: { schemas: { Provider: { required: ["variables", "delivery_group"] } } } };
+const document = { openapi: "3.1.0", paths: { "/mailbox/messages": { get: { operationId: "mailboxList", responses: { 200: { description: "Listed" } } } } }, components: { schemas: { Provider: { required: ["variables", "delivery_group"] } } } };
+const skillsControl = process.env.SENDMUX_TEST_SKILLS_ROOT ?? process.env.SENDMUX_SKILLS_ROOT ?? resolve("../sendmux-skills");
+const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+function seedFreshnessSources(repo) {
+  const write = (file, value) => { mkdirSync(resolve(repo, file, ".."), { recursive: true }); writeFileSync(join(repo, file), value); };
+  write("packages/python/mcp/sendmux_mcp/server.py", "fixture-server");
+  write("packages/python/mcp/sendmux_mcp/mcp-contract.json", JSON.stringify({ tools: { by_surface: { mailbox: [{ name: "mailbox_list", input_schema: { type: "object" }, description: "List messages" }] } }, provenance: { sources: { "server.py": hash("fixture-server") } } }));
+  write("packages/ts/cli/src/generated/operations.ts", 'export const operations = {\n  mailboxList: {"command":"mailbox:list","operationId":"mailboxList","surface":"mailbox"}\n} as const satisfies Record<string, OperationDefinition>;\n');
+  write("packages/ts/cli/src/base-command.ts", 'export const authFlags = { "api-key": "Sendmux API key" };\n');
+}
+
+async function freshnessFixture(directory, sdk, revision) {
+  const root = join(directory, `skills-${revision}`);
+  const write = (file, value) => { mkdirSync(resolve(root, file, ".."), { recursive: true }); writeFileSync(join(root, file), typeof value === "string" ? value : `${JSON.stringify(value)}\n`); };
+  const git = async (...args) => {
+    assert.ok(resolve(root).startsWith(`${directory}/`), "freshness Git fixture escaped mkdtemp");
+    return (await execute("git", ["-C", root, ...args])).stdout.trim();
+  };
+  const commit = async () => { await git("add", "."); await git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "reviewed fixture"); return git("rev-parse", "HEAD"); };
+  write("scripts/skill-compatibility.mjs", readFileSync(join(skillsControl, "scripts/skill-compatibility.mjs"), "utf8"));
+  const names = ["agent-email-inbox", "email-for-ai-agents", "sendmux-attachments", "sendmux-cli", "sendmux-email-for-agents", "sendmux-getting-started", "sendmux-mailbox-agent", "sendmux-management", "sendmux-mcp-setup", "sendmux-send-email", "sendmux-token-efficient-usage"];
+  const dependencies = Object.fromEntries(names.map((name) => [name, { app: ["mailboxList"], sending: ["mailboxList"], mcp: ["mailbox_list"], cli: ["mailbox:list"] }]));
+  const releaseInputs = {};
+  for (const producer of ["app", "sending"]) {
+    const openapi = `contracts/${producer}.json`;
+    const exportReceipt = `contracts/${producer}-export.json`;
+    write(openapi, document);
+    const sourceRevision = producer === "app" ? "a".repeat(40) : "b".repeat(40);
+    write(exportReceipt, { schemaVersion: 1, producer, revision: sourceRevision, sourceTree: "c".repeat(40), lockfileSha256: "d".repeat(64), openapiSha256: hash(readFileSync(join(root, openapi))), exporter: producer === "app" ? "scripts/emit-openapi-spec.ts" : "app/http-api/v1/schemas/registry.js" });
+    releaseInputs[producer] = { revision: sourceRevision, openapi, exportReceipt };
+  }
+  const policy = { schemaVersion: 1, dependencies, releaseInputs, reviews: [] };
+  for (const name of names) write(`skills/${name}/SKILL.md`, `Use ${name} for authorised email.\n`);
+  write("skill-compatibility.json", policy);
+  await git("init", "-q");
+  const published = await commit();
+  const descriptor = { schemaVersion: 1, sources: { ...Object.fromEntries(Object.entries(releaseInputs).map(([key, source]) => [key, { ...source, openapi: join(root, source.openapi), exportReceipt: join(root, source.exportReceipt) }])), sdk: { root: sdk, revision } }, skills: { root, publishedRevision: published, proposedRevision: published } };
+  const candidate = join(directory, `inspect-${revision}.json`);
+  writeFileSync(candidate, JSON.stringify(descriptor));
+  const checker = join(root, "scripts/skill-compatibility.mjs");
+  const inspected = JSON.parse((await execute(process.execPath, [checker, "--inspect-candidate", candidate])).stdout);
+  for (const item of inspected.skills.proposed.entries) {
+    const record = `reviews/${item.name}.json`;
+    const evidence = `skills/${item.name}/SKILL.md`;
+    write(record, { schemaVersion: 1, kind: "compatibility", skill: item.name, skillDigest: item.skillDigest, contractDigest: item.contractDigest, sourceRevisions: inspected.sourceRevisions, reviewer: "Fixture reviewer", rationale: "Reviewed this exact fixture contract and its instruction bytes.", evidence: [{ path: evidence, sha256: hash(readFileSync(join(root, evidence))) }] });
+    policy.reviews.push({ skill: item.name, skillDigest: item.skillDigest, contractDigest: item.contractDigest, record, sha256: hash(readFileSync(join(root, record))) });
+  }
+  releaseInputs.publishedRevision = published;
+  write("skill-compatibility.json", policy);
+  return { SENDMUX_SKILLS_ROOT: root, SENDMUX_SKILLS_REVISION: await commit(), SENDMUX_SKILL_RECEIPT_DIR: join(directory, `receipts-${revision}`) };
+}
 
 async function foreignGitFixture(t) {
   const directory = mkdtempSync(join(tmpdir(), "sendmux-foreign-git-"));
   const env = { ...process.env };
   for (const key of execFileSync("git", ["rev-parse", "--local-env-vars"], { encoding: "utf8" }).trim().split("\n")) delete env[key];
   const run = (command, args, options = {}) => {
+    if (command === "git" && args.some((arg) => ["init", "config", "worktree"].includes(arg))) assert.ok(resolve(args[args.indexOf("-C") + 1]).startsWith(`${directory}/`), "Git fixture escaped mkdtemp");
     const child = execute(command, args, { env, timeout: 10_000, ...options });
     t.diagnostic(JSON.stringify({ child: child.child.pid }));
     return child.finally(() => assert.throws(() => process.kill(child.child.pid, 0), { code: "ESRCH" }));
@@ -84,7 +137,8 @@ async function fixture(t, live = document) {
   const repo = join(directory, "sdk");
   mkdirSync(join(repo, specPath), { recursive: true });
   for (const name of ["app", "sending"]) writeFileSync(join(repo, specPath, `openapi-${name}.json`), JSON.stringify(document));
-  const git = (...args) => execute("git", ["-C", repo, ...args]);
+  seedFreshnessSources(repo);
+  const git = (...args) => { assert.ok(resolve(repo).startsWith(`${directory}/`), "Git fixture escaped mkdtemp"); return execute("git", ["-C", repo, ...args]); };
   await git("init", "--quiet");
   await git("add", ".");
   await git("-c", "user.name=Guard Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "candidate");
@@ -104,8 +158,9 @@ async function fixture(t, live = document) {
     rmSync(directory, { recursive: true, force: true });
     assert.equal(existsSync(directory), false);
   });
-  const run = (args = []) => execute(process.execPath, [guard, "candidate", "--repo", repo, "--sha", sha, ...args], {
-    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` }, timeout: 10_000,
+  const skills = await freshnessFixture(directory, repo, sha);
+  const run = (args = [], overrides = {}) => execute(process.execPath, [guard, "candidate", "--repo", repo, "--sha", sha, ...args], {
+    env: { ...process.env, ...skills, NODE_OPTIONS: `--import=${preload}`, ...overrides }, timeout: 10_000,
   });
   return { repo, sha, directory, run, git };
 }
@@ -123,11 +178,18 @@ for (const missing of ["variables", "delivery_group"]) {
 }
 
 test("strict parity accepts reordered object keys and reaches the writer", async (t) => {
-  const candidate = await fixture(t, { components: document.components, paths: {}, openapi: "3.1.0" });
+  const candidate = await fixture(t, { components: document.components, paths: document.paths, openapi: "3.1.0" });
   let writes = 0;
   const result = await candidate.run().then((value) => { writes += 1; return value; });
   assert.equal(writes, 1);
   assert.match(result.stdout, new RegExp(candidate.sha));
+});
+
+test("publication fails before its writer when pinned skill inputs are absent", async (t) => {
+  const candidate = await fixture(t);
+  let writes = 0;
+  await assert.rejects(candidate.run([], { SENDMUX_SKILLS_ROOT: "", SENDMUX_SKILLS_REVISION: "", SENDMUX_SKILL_RECEIPT_DIR: "" }).then(() => { writes += 1; }), (error) => /Missing pinned skill release inputs/.test(error.stderr));
+  assert.equal(writes, 0);
 });
 
 test("description-only drift is conservatively blocked", async (t) => {
@@ -168,6 +230,7 @@ async function releaseFixture(t, options = {}) {
   await local.git("add", ".");
   await local.git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "release metadata");
   const sha = (await local.git("rev-parse", "HEAD")).stdout.trim();
+  const skills = await freshnessFixture(local.directory, local.repo, sha);
   const other = "b".repeat(40);
   const pull = (number, overrides = {}) => ({ number, merged_at: "2026-09-16T00:00:00Z", updated_at: "2026-09-17T00:00:00Z",
     merge_commit_sha: sha, head: { ref: "release-please--branches--main--components--ts-cli" }, base: { ref: "main" },
@@ -266,10 +329,10 @@ async function releaseFixture(t, options = {}) {
     return transport('http://127.0.0.1:${server.address().port}' + url.pathname + url.search, {...options, headers});
   };`);
   const runCommand = (args, env = {}) => execute(process.execPath, [guard, ...args], {
-    env: { ...process.env, GITHUB_REPOSITORY: "Sendmux/sendmux-sdk", NODE_OPTIONS: `--import=${preload}`, ...env }, timeout: 20_000,
+    env: { ...process.env, ...skills, GITHUB_REPOSITORY: "Sendmux/sendmux-sdk", NODE_OPTIONS: `--import=${preload}`, ...env }, timeout: 20_000,
   });
   const runBoundary = (command, env = {}, cwd = local.repo) => execute("bash", ["-euo", "pipefail", "-c", `${command}\nprintf writer-reached`], {
-    cwd, env: { ...process.env, GITHUB_REPOSITORY: "Sendmux/sendmux-sdk", NODE_OPTIONS: `--import=${preload}`, CANDIDATE_SHA: sha, CONTROL_SHA: sha,
+    cwd, env: { ...process.env, ...skills, GITHUB_REPOSITORY: "Sendmux/sendmux-sdk", NODE_OPTIONS: `--import=${preload}`, CANDIDATE_SHA: sha, CONTROL_SHA: sha,
       PUBLICATION_RELEASES: "[]", RUNNER_TEMP: local.directory, PRODUCER_TAG: "ts-cli-v1.2.3", ...env }, timeout: 20_000,
   });
   const run = () => runCommand(["preflight", "--repo", local.repo, "--sha", sha, "--receipt", join(local.directory, "receipt.json")]);

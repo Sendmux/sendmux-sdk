@@ -45,6 +45,8 @@ jobs:
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
       - name: Build snap
         id: build
@@ -70,6 +72,12 @@ jobs:
         run: |
           echo "::error::SNAPCRAFT_STORE_CREDENTIALS is required to publish Sendmux snap builds to edge."
           exit 1
+
+      - name: Prepare pinned skill acceptance source
+        if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish_edge == true) && env.SNAPCRAFT_STORE_CREDENTIALS != '' }}
+        uses: ./.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard producer before Snap publication
         timeout-minutes: 2

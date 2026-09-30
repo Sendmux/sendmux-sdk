@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFile, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { appendFileSync, readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { appendFileSync, readFileSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -36,7 +36,7 @@ export function immutableSha(value) {
 }
 
 // Read the immutable source, never substitute newer docs for missing snapshots.
-export async function checkSource({ sha, read }) {
+export async function checkSource({ sha, read, repo = controlRoot }) {
   immutableSha(sha);
   const directory = mkdtempSync(join(tmpdir(), "sendmux-publication-specs-"));
   const hashes = {};
@@ -51,10 +51,32 @@ export async function checkSource({ sha, read }) {
       timeout: 40_000, signal: invocation.signal, maxBuffer: 1024 * 1024,
     });
     console.log(stdout.trim());
-    return { sha, hashes };
+    const skills = await checkSkillAcceptance({ repo, sha, hashes });
+    return { sha, hashes, skills };
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+}
+
+async function checkSkillAcceptance({ repo, sha, hashes }) {
+  const root = process.env.SENDMUX_SKILLS_ROOT;
+  const revision = process.env.SENDMUX_SKILLS_REVISION;
+  const receipts = process.env.SENDMUX_SKILL_RECEIPT_DIR;
+  if (!root || !revision || !receipts) throw new Error("Missing pinned skill release inputs: SENDMUX_SKILLS_ROOT, SENDMUX_SKILLS_REVISION, SENDMUX_SKILL_RECEIPT_DIR");
+  immutableSha(revision);
+  const checker = join(root, "scripts/skill-compatibility.mjs");
+  if (digest(readFileSync(checker)) !== digest(await git({ repo: root, args: ["show", `${revision}:scripts/skill-compatibility.mjs`] }))) throw new Error("Skill checker differs from pinned revision");
+  await git({ repo, args: ["cat-file", "-e", `${sha}^{commit}`] });
+  mkdirSync(receipts, { recursive: true });
+  const candidate = join(receipts, `${sha}.candidate.json`);
+  const receipt = join(receipts, `${sha}.acceptance.json`);
+  const options = { timeout: 45_000, signal: invocation.signal, maxBuffer: 2 * 1024 * 1024 };
+  await execute(process.execPath, [checker, "--prepare-candidate", candidate, "--skills-root", root, "--revision", revision, "--sdk-root", repo, "--sdk-revision", sha], options);
+  await execute(process.execPath, [checker, "--candidate", candidate, "--receipt", receipt, "--source", "sdk", "--revision", sha], options);
+  const accepted = JSON.parse(readFileSync(receipt, "utf8"));
+  if (accepted.accepted !== true || accepted.sourceRevisions?.sdk !== sha
+    || snapshots.some((name) => accepted.sources?.sdk?.snapshots?.[name] !== hashes[name])) throw new Error("Skill acceptance does not bind the publishing source");
+  return { candidateDigest: accepted.candidateDigest, skillsRevision: revision, receipt };
 }
 
 export async function checkCandidate({ repo, sha, releases = [] }) {
@@ -70,7 +92,7 @@ export async function checkCandidate({ repo, sha, releases = [] }) {
     if (release.sha !== sha || await resolveTag(release.tag) !== sha) throw new Error(`Release tag does not identify candidate: ${release.tag}`);
     await assertNativeVersion({ release, read });
   }
-  const receipt = await checkSource({ sha, read });
+  const receipt = await checkSource({ sha, read, repo });
   console.log(JSON.stringify({ control: (await git({ repo: controlRoot, args: ["rev-parse", "HEAD"] })).trim(), candidate: receipt, checkedAt: new Date().toISOString() }));
   return receipt;
 }
@@ -248,7 +270,7 @@ async function preflight({ repo, sha, receipt }) {
   immutableSha(sha);
   const before = await releaseState({ repo, sha });
   const checked = [];
-  for (const source of new Set([sha, ...before.candidates])) checked.push(await checkSource({ sha: source, read: (file) => remoteFile({ sha: source, file }) }));
+  for (const source of new Set([sha, ...before.candidates])) checked.push(await checkSource({ sha: source, read: (file) => remoteFile({ sha: source, file }), repo }));
   const after = await releaseState({ repo, sha });
   if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error("Release candidate set changed during preflight");
   const result = { ...after, checked, checkedAt: new Date().toISOString() };
@@ -259,9 +281,9 @@ async function preflight({ repo, sha, receipt }) {
 }
 
 async function resolveProducer(tag) {
-  const producers = { "ts-cli": "packages/ts/cli", "ts-management": "packages/ts/management" };
+  const producers = { "ts-cli": "packages/ts/cli", "ts-management": "packages/ts/management", "ts-mcp": "packages/ts/mcp" };
   for (const component of ["core", "sending", "mailbox", "management", "sdk", "mcp", "langchain"]) producers[`python-${component}`] = `packages/python/${component}`;
-  const match = /^(ts-cli|ts-management|python-(?:core|sending|mailbox|management|sdk|mcp|langchain))-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(tag ?? "");
+  const match = /^(ts-cli|ts-management|ts-mcp|python-(?:core|sending|mailbox|management|sdk|mcp|langchain))-v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(tag ?? "");
   if (!match) throw new Error("Expected an immutable CLI, Management, MCP or Python package release tag");
   const sha = await resolveTag(tag);
   if (!sha) throw new Error(`Missing producer release tag: ${tag}`);
@@ -323,7 +345,7 @@ async function checkSnap(repo) {
     || definition?.externalParameters?.workflow?.repository !== "https://github.com/Sendmux/sendmux-sdk"
     || definition.externalParameters.workflow.path !== ".github/workflows/release-please.yml"
     || !definition.resolvedDependencies?.some((item) => item.uri.startsWith("git+https://github.com/Sendmux/sendmux-sdk@") && item.digest?.gitCommit === release.sha)) throw new Error("Snap npm provenance does not identify the CLI producer commit");
-  const checked = await checkSource({ sha: release.sha, read: (file) => remoteFile({ sha: release.sha, file }) });
+  const checked = await checkSource({ sha: release.sha, read: (file) => remoteFile({ sha: release.sha, file }), repo });
   console.log(JSON.stringify({ release, checksum, checked, checkedAt: new Date().toISOString() }));
 }
 

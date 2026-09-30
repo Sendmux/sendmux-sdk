@@ -1,0 +1,31 @@
+{
+  "name": "sendmux-mcp",
+  "version": "1.0.0",
+  "description": "Connect stdio MCP clients to Sendmux's hosted email tools with OAuth.",
+  "license": "MIT",
+  "type": "module",
+  "mcpName": "io.github.Sendmux/sendmux-mcp",
+  "bin": {
+    "sendmux-mcp": "./bin/sendmux-mcp.js"
+  },
+  "files": ["bin"],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node --check bin/sendmux-mcp.js",
+    "test": "node --test ../../../scripts/mcp-bridge.test.mjs"
+  },
+  "dependencies": {
+    "mcp-remote": "0.14.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sendmux/sendmux-sdk.git",
+    "directory": "packages/ts/mcp"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

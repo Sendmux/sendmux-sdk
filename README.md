@@ -26,6 +26,7 @@ Official SDK, CLI, and MCP workspace for Sendmux.
 | npm | `@sendmux/management` | Management API | `smx_root_*` | `npm install @sendmux/management` | [`packages/ts/management`](packages/ts/management) |
 | npm | `@sendmux/sdk` | TypeScript umbrella package | surface-specific | `npm install @sendmux/sdk` | [`packages/ts/sdk`](packages/ts/sdk) |
 | npm | `@sendmux/cli` | `sendmux` CLI | command/profile-specific | `npm install -g @sendmux/cli` | [`packages/ts/cli`](packages/ts/cli) |
+| npm | `sendmux-mcp` | stdio bridge to hosted MCP | OAuth | `npx -y sendmux-mcp` | [`packages/ts/mcp`](packages/ts/mcp) |
 | npm | `@sendmux/ai-sdk` | Vercel AI SDK tools (agent inbox + sending) | send + receive `smx_mbx_*` or `smx_agent_*` | `npm install @sendmux/ai-sdk` | [`packages/ts/ai-sdk`](packages/ts/ai-sdk) |
 | Homebrew | `sendmux` | `sendmux` CLI | command/profile-specific | `brew install sendmux/tap/sendmux` | [`Sendmux/homebrew-tap`](https://github.com/Sendmux/homebrew-tap) |
 | PyPI | `sendmux-core` | Shared Python helpers | n/a | `pip install sendmux-core` | [`packages/python/core`](packages/python/core) |
@@ -98,7 +99,15 @@ sendmux agent:register my-agent --mailbox-local-part my-agent --default --json
 
 Agent registration does not require an existing account or API key. It creates a local profile with a durable, revocable credential for reading and receiving mail. To send, invite the owner with `sendmux agent:invite-owner owner@example.com --profile my-agent`; after the owner accepts and approves sending, Sending API commands exchange and cache a one-hour delegated token automatically.
 
-For MCP clients, install `sendmux-mcp` or connect to the hosted MCP endpoint:
+For stdio MCP clients, run the hosted OAuth bridge with Node.js 22 or later:
+
+```sh
+npx -y sendmux-mcp
+```
+
+Complete the browser sign-in on first connection. The [npm bridge configuration](packages/ts/mcp/README.md) forwards the hosted tools without a Python installation.
+
+For local MCP with API keys, install the Python package:
 
 ```sh
 pip install sendmux-mcp

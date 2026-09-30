@@ -86,7 +86,7 @@ async function publish() {
     || (await candidate.run(["cat-file", "-t", `refs/tags/${tag}`])).trim() !== "tag")) throw new Error("Existing local tag conflicts with exact annotated split target");
   const remote = await candidate.run(["ls-remote", candidate.remote, `refs/tags/${tag}`, `refs/tags/${tag}^{}`]);
   if (remote && !remote.split("\n").includes(`${candidate.target}\trefs/tags/${tag}^{}`)) throw new Error("Existing remote tag conflicts with exact annotated split target");
-  const receipt = await checkSource({ sha: candidate.source, read: (file) => git({ repo: candidate.sdk, args: ["show", `${candidate.source}:${file}`] }) });
+  const receipt = await checkSource({ sha: candidate.source, repo: candidate.sdk, read: (file) => git({ repo: candidate.sdk, args: ["show", `${candidate.source}:${file}`] }) });
   console.log(JSON.stringify({ package: input.package, version: input.version, split: candidate.target, source: receipt, checkedAt: new Date().toISOString() }));
   if (remote) return; // A retry still checked live parity; the exact remote tag already exists.
   if (!local) await candidate.run(["tag", "-a", tag, candidate.target, "-m", `Release ${input.package} ${input.version}\nSDK source ${candidate.source}\nSnapshots ${JSON.stringify(receipt.hashes)}`]);

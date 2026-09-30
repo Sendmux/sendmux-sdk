@@ -10,6 +10,7 @@ const defaultPackages = [
   "packages/ts/sdk",
   "packages/ts/ai-sdk",
   "packages/ts/cli",
+  "packages/ts/mcp",
 ];
 
 const dryRun = process.env.NPM_PUBLISH_DRY_RUN === "true";

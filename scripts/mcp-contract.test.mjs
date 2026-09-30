@@ -39,6 +39,35 @@ test("registry matches the actual package contract", () => {
   verifyRegistryVersion(join(repository, "packages/python/mcp"));
 });
 
+function withRegistry(edit, check) {
+  const artifacts = join(repository, ".claude/artifacts/install-surface");
+  mkdirSync(artifacts, { recursive: true });
+  const root = mkdtempSync(join(artifacts, "registry-"));
+  try {
+    cpSync(join(repository, "packages/python/mcp"), root, { recursive: true, filter: (path) => !path.includes("__pycache__") });
+    const path = join(root, "server.json");
+    const registry = JSON.parse(readFileSync(path, "utf8"));
+    edit(registry);
+    writeFileSync(path, JSON.stringify(registry));
+    check(() => verifyRegistryVersion(root));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test("registry versions independently and matches repeated names by registry type", () => withRegistry((registry) => {
+  registry.version = "2.1.4";
+  registry.packages.reverse();
+}, (check) => assert.doesNotThrow(check)));
+
+test("registry rejects npm version drift even when the PyPI entry is correct", () => withRegistry((registry) => {
+  registry.packages.find((entry) => entry.registryType === "npm").version = "9.0.0";
+}, (check) => assert.throws(check, /npm.*version/i)));
+
+test("registry rejects duplicate package identities", () => withRegistry((registry) => {
+  registry.packages.push(registry.packages[0]);
+}, (check) => assert.throws(check, /exactly one/i)));
+
 test("workspace drift gate rejects changed generated MCP contract", () => {
   const root = mkdtempSync(join(tmpdir(), "sendmux-contract-git-"));
   const child = (command, args) => {

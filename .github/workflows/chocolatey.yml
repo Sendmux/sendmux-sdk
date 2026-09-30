@@ -98,6 +98,7 @@ jobs:
         with:
           ref: ${{ steps.producer.outputs.sha }}
           clean: false
+          fetch-depth: 0
 
       - name: Check out OpenAPI snapshots
         if: ${{ github.event_name != 'release' && inputs.push != true }}
@@ -187,6 +188,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           choco pack .tmp/chocolatey/sendmux/sendmux.nuspec --output-directory .tmp/chocolatey/pkg
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Prepare pinned skill acceptance source
+        if: ${{ github.event_name == 'release' || inputs.push == true }}
+        uses: ./.publication-guard/.github/actions/skill-release-checks
 
       - name: Guard candidate before first publication
         if: ${{ github.event_name == 'release' || inputs.push == true }}

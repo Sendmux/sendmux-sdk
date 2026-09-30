@@ -134,12 +134,7 @@
         {
           "type": "json",
           "path": "server.json",
-          "jsonpath": "$.version"
-        },
-        {
-          "type": "json",
-          "path": "server.json",
-          "jsonpath": "$.packages[0].version"
+          "jsonpath": "$.packages[?(@.registryType==\"pypi\" && @.identifier==\"sendmux-mcp\")].version"
         }
       ],
       "exclude-paths": [
@@ -217,6 +212,22 @@
       "release-type": "ruby",
       "version-file": "lib/sendmux/sdk/version.rb",
       "initial-version": "1.0.0",
+      "exclude-paths": [
+        "evidence"
+      ]
+    },
+    "packages/ts/mcp": {
+      "component": "ts-mcp",
+      "package-name": "sendmux-mcp",
+      "initial-version": "1.0.0",
+      "release-as": "1.0.0",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "/packages/python/mcp/server.json",
+          "jsonpath": "$.packages[?(@.registryType==\"npm\" && @.identifier==\"sendmux-mcp\")].version"
+        }
+      ],
       "exclude-paths": [
         "evidence"
       ]

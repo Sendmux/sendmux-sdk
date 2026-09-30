@@ -38,12 +38,18 @@ function run(command, args, options = {}) {
   }
 }
 
-export function verifyRegistryVersion(packageDir = mcpPackageDir) {
+export function verifyRegistryVersion(packageDir = mcpPackageDir, npmPackageDir = join(root, "packages/ts/mcp")) {
   const pyprojectPath = join(packageDir, "pyproject.toml");
   const registryPath = join(packageDir, "server.json");
   const packageVersion = readProjectVersion(pyprojectPath);
   const registry = JSON.parse(readFileSync(registryPath, "utf8"));
-  const packageEntry = registry.packages?.find((entry) => entry.identifier === "sendmux-mcp");
+  const packageEntries = registry.packages?.filter((entry) => entry.registryType === "pypi" && entry.identifier === "sendmux-mcp") ?? [];
+  const npmEntries = registry.packages?.filter((entry) => entry.registryType === "npm" && entry.identifier === "sendmux-mcp") ?? [];
+  assert.equal(packageEntries.length, 1, "MCP Registry must contain exactly one PyPI sendmux-mcp entry");
+  assert.equal(npmEntries.length, 1, "MCP Registry must contain exactly one npm sendmux-mcp entry");
+  const [packageEntry] = packageEntries;
+  const [npmEntry] = npmEntries;
+  const npmPackage = JSON.parse(readFileSync(join(npmPackageDir, "package.json"), "utf8"));
   const contract = JSON.parse(readFileSync(join(packageDir, "sendmux_mcp/mcp-contract.json"), "utf8"));
 
   assert.equal(contract.package.version, packageVersion, "MCP contract version must match native project version");
@@ -53,9 +59,12 @@ export function verifyRegistryVersion(packageDir = mcpPackageDir) {
   assert.equal(packageEntry?.identifier, contract.package.identity, "MCP Registry package identity");
   assert.equal(packageEntry?.transport?.type, contract.local.default_transport, "MCP Registry local transport");
 
-  if (registry.version !== packageVersion) {
-    throw new Error(`packages/python/mcp/server.json version ${registry.version} must match pyproject.toml version ${packageVersion}`);
-  }
+  assert.match(registry.version, /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/, "MCP Registry metadata version must be a semantic version");
+  assert.notEqual(registry.version, "0.0.0", "MCP Registry metadata version must not be a bootstrap version");
+  assert.equal(npmEntry.identifier, npmPackage.name, "MCP Registry npm package identity");
+  assert.equal(npmEntry.version, npmPackage.version, "MCP Registry npm version must match package.json version");
+  assert.equal(npmEntry.transport?.type, "stdio", "MCP Registry npm bridge transport");
+  assert.equal(npmPackage.mcpName, registry.name, "MCP Registry npm ownership marker");
 
   if (packageEntry?.version !== packageVersion) {
     throw new Error(`packages/python/mcp/server.json package version ${packageEntry?.version ?? "<missing>"} must match pyproject.toml version ${packageVersion}`);
@@ -68,6 +77,7 @@ export function verifyRegistryVersion(packageDir = mcpPackageDir) {
   if (registry.description.length > mcpRegistryDescriptionMaxLength) {
     throw new Error(`packages/python/mcp/server.json description length ${registry.description.length} exceeds MCP Registry limit ${mcpRegistryDescriptionMaxLength}`);
   }
+  return registry;
 }
 
 function readProjectVersion(pyprojectPath) {

@@ -90,6 +90,35 @@ test("does not retry unrelated MCP publisher failures", () => {
   assert.equal(isRetryableMcpPublisherError(output), false);
 });
 
+test("an existing metadata version must retain both exact package identities and the remote", async (t) => {
+  const expectedServer = {
+    name, version,
+    packages: [
+      { registryType: "npm", identifier: "sendmux-mcp", version: "1.0.0", transport: { type: "stdio" } },
+      { registryType: "pypi", identifier: "sendmux-mcp", version: "2.1.3", transport: { type: "stdio" } },
+    ],
+    remotes: [{ type: "streamable-http", url: "https://mcp.sendmux.ai/mcp" }],
+  };
+  let actual = structuredClone(expectedServer);
+  actual.packages.reverse();
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "application/json" });
+    response.end(JSON.stringify({ server: actual }));
+  });
+  t.after(() => server.close());
+  const registryBaseUrl = await listen(server);
+  const check = () => waitForMcpRegistryVersion({ attempts: 1, name, registryBaseUrl, version, expectedServer });
+  await check();
+  actual.packages.find((entry) => entry.registryType === "pypi").version = "2.1.2";
+  await assert.rejects(check(), /metadata differs/);
+  actual = structuredClone(expectedServer);
+  actual.packages = actual.packages.filter((entry) => entry.registryType !== "npm");
+  await assert.rejects(check(), /metadata differs/);
+  actual = structuredClone(expectedServer);
+  actual.remotes[0].url = "https://wrong.invalid/mcp";
+  await assert.rejects(check(), /metadata differs/);
+});
+
 async function listen(server) {
   server.listen(0, "127.0.0.1");
   await new Promise((resolve, reject) => {

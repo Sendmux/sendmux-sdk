@@ -1,0 +1,69 @@
+name: Prepare skill release checks
+description: Check out reviewed skills for release checks.
+inputs:
+  revision:
+    description: Optional proposed Sendmux/skills commit SHA; defaults to the latest approved release.
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Resolve the reviewed skills revision
+      id: source
+      shell: bash
+      env:
+        SKILLS_REVISION: ${{ inputs.revision }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        node --input-type=module <<'JS'
+        import { execFileSync } from "node:child_process";
+        import { appendFileSync, mkdtempSync, readFileSync } from "node:fs";
+        import { join } from "node:path";
+        let revision = process.env.SKILLS_REVISION;
+        let tag = "";
+        let acceptance = "";
+        if (!revision) {
+          const options = { encoding: "utf8", timeout: 20_000, maxBuffer: 2 * 1024 * 1024 };
+          tag = execFileSync("gh", ["release", "view", "--repo", "Sendmux/skills", "--json", "tagName", "--jq", ".tagName"], options).trim();
+          execFileSync("git", ["check-ref-format", `refs/tags/${tag}`], options);
+          const directory = mkdtempSync(join(process.env.RUNNER_TEMP, "sendmux-approved-skills-"));
+          execFileSync("gh", ["release", "download", tag, "--repo", "Sendmux/skills", "--pattern", "acceptance.json", "--dir", directory], options);
+          acceptance = join(directory, "acceptance.json");
+          const receipt = JSON.parse(readFileSync(acceptance, "utf8"));
+          if (receipt.accepted !== true) throw new Error("Latest skills release has no approved acceptance receipt");
+          revision = receipt.skills?.proposed?.revision;
+        }
+        if (!/^[a-f0-9]{40}$/.test(revision ?? "")) throw new Error("Skills revision must be a 40-character commit SHA");
+        appendFileSync(process.env.GITHUB_OUTPUT, `revision=${revision}\ntag=${tag}\nacceptance=${acceptance}\n`);
+        JS
+
+    - name: Check out reviewed skills
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        repository: Sendmux/skills
+        ref: ${{ steps.source.outputs.revision }}
+        path: _skills
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: Bind release checks to the skills checkout
+      shell: bash
+      env:
+        SKILLS_REVISION: ${{ steps.source.outputs.revision }}
+        APPROVED_TAG: ${{ steps.source.outputs.tag }}
+        ACCEPTANCE_FILE: ${{ steps.source.outputs.acceptance }}
+      run: |
+        node --input-type=module <<'JS'
+        import { execFileSync } from "node:child_process";
+        import { appendFileSync } from "node:fs";
+        import { join } from "node:path";
+        const root = join(process.env.GITHUB_WORKSPACE, "_skills");
+        const revision = execFileSync("git", ["-C", root, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+        if (revision !== process.env.SKILLS_REVISION) throw new Error("Skills checkout differs from the reviewed revision");
+        if (process.env.APPROVED_TAG) {
+          const tagged = execFileSync("git", ["-C", root, "rev-parse", "--verify", `refs/tags/${process.env.APPROVED_TAG}^{commit}`], { encoding: "utf8" }).trim();
+          if (tagged !== revision) throw new Error("Approved skills tag differs from the acceptance receipt");
+          execFileSync(process.execPath, [join(root, "scripts/skill-compatibility.mjs"), "--verify-skills-receipt", process.env.ACCEPTANCE_FILE, "--skills-root", root, "--revision", revision], { stdio: "inherit", timeout: 45_000 });
+        }
+        appendFileSync(process.env.GITHUB_ENV, `SENDMUX_SKILLS_ROOT=${root}\nSENDMUX_SKILLS_REVISION=${revision}\nSENDMUX_SKILL_RECEIPT_DIR=${join(process.env.RUNNER_TEMP, "sendmux-skill-receipts")}\n`);
+        JS

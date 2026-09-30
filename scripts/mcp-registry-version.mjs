@@ -2,6 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 
 const defaultRegistryBaseUrl = "https://registry.modelcontextprotocol.io";
 
@@ -19,6 +20,7 @@ export async function checkMcpRegistryVersion({
   name,
   registryBaseUrl = defaultRegistryBaseUrl,
   version,
+  expectedServer,
 }) {
   const endpoint = new URL(
     `/v0.1/servers/${encodeURIComponent(name)}/versions/${encodeURIComponent(version)}`,
@@ -26,6 +28,7 @@ export async function checkMcpRegistryVersion({
   );
   const response = await fetchImpl(endpoint, {
     headers: { accept: "application/json" },
+    signal: AbortSignal.timeout(20_000),
   });
 
   if (response.status === 404) {
@@ -45,7 +48,24 @@ export async function checkMcpRegistryVersion({
       `MCP Registry returned ${actualName ?? "<missing name>"} ${actualVersion ?? "<missing version>"}, expected ${name} ${version}`,
     );
   }
+  if (expectedServer && !isDeepStrictEqual(normalizeManifest(data.server), normalizeManifest(expectedServer))) {
+    throw new Error(`MCP Registry metadata differs for ${name} ${version}; publish a new metadata version`);
+  }
   return data;
+}
+
+function normalizeManifest(value, key) {
+  if (Array.isArray(value)) {
+    const items = value.map((item) => normalizeManifest(item));
+    return ["packages", "remotes", "environmentVariables"].includes(key)
+      ? items.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)))
+      : items;
+  }
+  if (value && typeof value === "object") {
+    // The registry omits optional false booleans in its response.
+    return Object.fromEntries(Object.entries(value).filter(([, field]) => field !== false).sort(([a], [b]) => a.localeCompare(b)).map(([fieldName, field]) => [fieldName, normalizeManifest(field, fieldName)]));
+  }
+  return value;
 }
 
 export async function waitForMcpRegistryVersion({
@@ -57,10 +77,11 @@ export async function waitForMcpRegistryVersion({
   retryNotFound = true,
   sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
   version,
+  expectedServer,
 }) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const data = await checkMcpRegistryVersion({ fetchImpl, name, registryBaseUrl, version });
+      const data = await checkMcpRegistryVersion({ fetchImpl, name, registryBaseUrl, version, expectedServer });
       if (data) {
         return data;
       }
@@ -95,25 +116,18 @@ async function main() {
     return;
   }
 
-  const name = requiredEnvironmentVariable("MCP_SERVER_NAME");
-  const version = requiredEnvironmentVariable("MCP_SERVER_VERSION");
+  const expectedServer = JSON.parse(readFileSync(process.env.MCP_SERVER_MANIFEST ?? "packages/python/mcp/server.json", "utf8"));
+  const name = process.env.MCP_SERVER_NAME ?? expectedServer.name;
+  const version = process.env.MCP_SERVER_VERSION ?? expectedServer.version;
 
   if (process.argv.includes("--check")) {
-    const data = await waitForMcpRegistryVersion({ name, retryNotFound: false, version });
+    const data = await waitForMcpRegistryVersion({ name, retryNotFound: false, version, expectedServer });
     process.stdout.write(`${data ? "true" : "false"}\n`);
     return;
   }
 
-  await waitForMcpRegistryVersion({ name, version });
+  await waitForMcpRegistryVersion({ name, version, expectedServer });
   process.stdout.write(`Verified ${name} ${version}\n`);
-}
-
-function requiredEnvironmentVariable(name) {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} is required`);
-  }
-  return value;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

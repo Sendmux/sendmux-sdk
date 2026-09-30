@@ -15,7 +15,11 @@ on:
         required: false
         type: string
       recover_mcp_registry_version:
-        description: Existing sendmux-mcp version to publish to the MCP Registry; leave empty for no-op.
+        description: Committed MCP metadata version to publish to the MCP Registry; leave empty for no-op.
+        required: false
+        type: string
+      recover_mcp_producer_tag:
+        description: Exact SDK release tag containing the MCP manifest; defaults to python-mcp-v<metadata version> for older releases.
         required: false
         type: string
       recover_python_release_tag:
@@ -48,6 +52,7 @@ jobs:
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
 
       - name: Set up pnpm
@@ -63,6 +68,11 @@ jobs:
 
       - name: Install pinned read-only release constructor
         run: pnpm install --frozen-lockfile
+
+      - name: Prepare skill compatibility checks
+        uses: ./.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard exact pending release candidates before tags
         id: preflight
@@ -99,7 +109,8 @@ jobs:
           contains(needs.release-please.outputs.paths_released, 'packages/ts/management') ||
           contains(needs.release-please.outputs.paths_released, 'packages/ts/sdk') ||
           contains(needs.release-please.outputs.paths_released, 'packages/ts/ai-sdk') ||
-          contains(needs.release-please.outputs.paths_released, 'packages/ts/cli')
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/cli') ||
+          contains(needs.release-please.outputs.paths_released, 'packages/ts/mcp')
         )
       }}
     runs-on: ubuntu-latest
@@ -116,11 +127,13 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ needs.release-please.outputs.candidate_sha }}
 
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -157,11 +170,20 @@ jobs:
       - name: Build and verify
         run: pnpm build
 
+      - name: Prepare skill compatibility checks
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
+
       - name: Guard candidate before first publication
         timeout-minutes: 2
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
+
+      - name: Check MCP metadata version before npm publication
+        if: ${{ contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/ts/mcp') }}
+        run: node scripts/mcp-registry-version.mjs --check
 
       - name: Publish TypeScript packages to npm
         # Every write below uses this candidate and remains downstream of this fresh check.
@@ -213,11 +235,13 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ needs.release-please.outputs.candidate_sha }}
 
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -228,6 +252,11 @@ jobs:
 
       - name: Verify crates.io package
         run: cargo publish --dry-run --locked
+
+      - name: Prepare skill compatibility checks
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         timeout-minutes: 2
@@ -258,6 +287,7 @@ jobs:
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -272,12 +302,14 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ steps.producer.outputs.sha }}
           clean: false
 
       - name: Restore immutable guard source after candidate checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -326,6 +358,11 @@ jobs:
 
       - name: Build and verify
         run: pnpm build
+
+      - name: Prepare skill compatibility checks
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         timeout-minutes: 2
@@ -378,6 +415,7 @@ jobs:
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
           persist-credentials: false
@@ -393,6 +431,7 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ steps.producer.outputs.sha }}
           clean: false
           persist-credentials: false
@@ -400,6 +439,7 @@ jobs:
       - name: Restore immutable guard source after candidate checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
           persist-credentials: false
@@ -450,6 +490,11 @@ jobs:
       - name: Build and verify
         run: pnpm build
 
+      - name: Prepare skill compatibility checks
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
+
       - name: Guard candidate before first publication
         timeout-minutes: 2
         env:
@@ -473,6 +518,7 @@ jobs:
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -482,26 +528,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           REQUESTED_VERSION: ${{ inputs.recover_mcp_registry_version }}
-        run: node .publication-guard/scripts/publication-guard.mjs resolve --tag "python-mcp-v${REQUESTED_VERSION}"
+          REQUESTED_TAG: ${{ inputs.recover_mcp_producer_tag }}
+        run: node .publication-guard/scripts/publication-guard.mjs resolve --tag "${REQUESTED_TAG:-python-mcp-v${REQUESTED_VERSION}}"
 
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ steps.producer.outputs.sha }}
           clean: false
 
       - name: Restore immutable guard source after candidate checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 22
+          package-manager-cache: false
 
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
         with:
           python-version: "3.12"
 
-      - name: Prepare MCP Registry recovery manifest
+      - name: Verify committed MCP Registry recovery manifest
         id: mcp-manifest
         env:
           RECOVER_MCP_REGISTRY_VERSION: ${{ inputs.recover_mcp_registry_version }}
@@ -515,13 +570,13 @@ jobs:
 
           root = Path.cwd()
           pyproject = tomllib.loads((root / "packages/python/mcp/pyproject.toml").read_text())
-          version = pyproject["project"]["version"]
+          pypi_version = pyproject["project"]["version"]
           requested_version = os.environ["RECOVER_MCP_REGISTRY_VERSION"]
-          if requested_version != version:
-            raise SystemExit(f"Recovery version {requested_version} does not match sendmux-mcp package version {version}")
 
           server_path = root / "packages/python/mcp/server.json"
           server = json.loads(server_path.read_text())
+          if requested_version != server["version"]:
+            raise SystemExit(f"Recovery version {requested_version} does not match committed metadata version {server['version']}")
 
           if server["name"] != "io.github.Sendmux/sendmux-mcp":
             raise SystemExit(f"Unexpected MCP Registry name: {server['name']}")
@@ -531,25 +586,28 @@ jobs:
           if expected_marker not in marker:
             raise SystemExit(f"Missing README marker: {expected_marker}")
 
-          server["version"] = version
-          for package in server.get("packages", []):
-            if package.get("registryType") == "pypi" and package.get("identifier") == "sendmux-mcp":
-              package["version"] = version
-              break
-          else:
-            raise SystemExit("Missing PyPI package entry for sendmux-mcp")
+          pypi_entries = [entry for entry in server.get("packages", []) if entry.get("registryType") == "pypi" and entry.get("identifier") == "sendmux-mcp"]
+          if len(pypi_entries) != 1 or pypi_entries[0]["version"] != pypi_version:
+            raise SystemExit("PyPI entry does not match committed sendmux-mcp package version")
+          npm_entries = [entry for entry in server.get("packages", []) if entry.get("registryType") == "npm" and entry.get("identifier") == "sendmux-mcp"]
+          npm_version = ""
+          if npm_entries:
+            npm = json.loads((root / "packages/ts/mcp/package.json").read_text())
+            if len(npm_entries) != 1 or npm_entries[0]["version"] != npm["version"] or npm.get("mcpName") != server["name"]:
+              raise SystemExit("npm entry does not match committed sendmux-mcp package version or ownership marker")
+            npm_version = npm["version"]
 
-          server_path.write_text(json.dumps(server, indent=2) + "\n")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
             output.write(f"name={server['name']}\n")
-            output.write(f"version={version}\n")
-          print(f"Prepared {server['name']} {version}")
+            output.write(f"version={server['version']}\n")
+            output.write(f"pypi_version={pypi_version}\n")
+            output.write(f"npm_version={npm_version}\n")
           PY
 
       - name: Verify released package marker
         env:
           MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
-          MCP_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.version }}
+          MCP_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.pypi_version }}
         run: |
           set -euo pipefail
           curl -fsSL "https://pypi.org/pypi/sendmux-mcp/${MCP_PACKAGE_VERSION}/json" -o /tmp/sendmux-mcp.json
@@ -584,8 +642,14 @@ jobs:
           MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
         run: |
           set -euo pipefail
-          already_published="$(node scripts/mcp-registry-version.mjs --check)"
+          already_published="$(node .publication-guard/scripts/mcp-registry-version.mjs --check)"
           echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare skill compatibility checks
+        if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
@@ -607,7 +671,7 @@ jobs:
         env:
           MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
           MCP_SERVER_VERSION: ${{ steps.mcp-manifest.outputs.version }}
-        run: node scripts/mcp-registry-version.mjs
+        run: node .publication-guard/scripts/mcp-registry-version.mjs
 
   recover-python-release:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.recover_python_release_tag != '' }}
@@ -622,6 +686,7 @@ jobs:
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
           persist-credentials: false
@@ -637,6 +702,7 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ steps.producer.outputs.sha }}
           clean: false
           persist-credentials: false
@@ -644,6 +710,7 @@ jobs:
       - name: Restore immutable guard source after candidate checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
           persist-credentials: false
@@ -683,6 +750,12 @@ jobs:
         env:
           PYTHON_PATHS_RELEASED: ${{ steps.producer.outputs.paths_released }}
         run: node .publication-guard/scripts/prepare-pypi-publish.mjs
+
+      - name: Prepare skill compatibility checks
+        if: ${{ steps.python-publish.outputs.has_files == 'true' }}
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         if: ${{ steps.python-publish.outputs.has_files == 'true' }}
@@ -728,11 +801,13 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ needs.release-please.outputs.candidate_sha }}
 
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -772,12 +847,22 @@ jobs:
           PYTHON_PATHS_RELEASED: ${{ needs.release-please.outputs.paths_released }}
         run: node .publication-guard/scripts/prepare-pypi-publish.mjs
 
+      - name: Prepare skill compatibility checks
+        if: ${{ steps.python-publish.outputs.has_files == 'true' }}
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
+
       - name: Guard candidate before first publication
         if: ${{ steps.python-publish.outputs.has_files == 'true' }}
         timeout-minutes: 2
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node .publication-guard/scripts/publication-guard.mjs candidate --sha "$CANDIDATE_SHA"
+
+      - name: Check MCP metadata version before PyPI publication
+        if: ${{ contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/python/mcp') }}
+        run: node scripts/mcp-registry-version.mjs --check
 
       - name: Publish Python packages to PyPI
         if: ${{ steps.python-publish.outputs.has_files == 'true' }}
@@ -789,11 +874,18 @@ jobs:
     needs:
       - release-please
       - publish-pypi
+      - publish-npm
     if: >-
       ${{
+        always() && !cancelled() &&
+        needs.release-please.result == 'success' &&
         needs.release-please.outputs.releases_created == 'true' &&
-        contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/python/mcp') &&
-        needs.publish-pypi.result == 'success'
+        (
+          contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/python/mcp') ||
+          contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/ts/mcp')
+        ) &&
+        (needs.publish-pypi.result == 'success' || !contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/python/mcp')) &&
+        (needs.publish-npm.result == 'success' || !contains(fromJSON(needs.release-please.outputs.paths_released), 'packages/ts/mcp'))
       }}
     runs-on: ubuntu-latest
     environment: release
@@ -807,62 +899,42 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ needs.release-please.outputs.candidate_sha }}
 
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
+
+      - name: Set up Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 22
+          package-manager-cache: false
 
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
         with:
           python-version: "3.12"
 
-      - name: Prepare MCP Registry manifest
+      - name: Verify committed MCP Registry manifest
         id: mcp-manifest
         run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import json
-          import os
-          import tomllib
-          from pathlib import Path
-
-          root = Path.cwd()
-          pyproject = tomllib.loads((root / "packages/python/mcp/pyproject.toml").read_text())
-          version = pyproject["project"]["version"]
-          server_path = root / "packages/python/mcp/server.json"
-          server = json.loads(server_path.read_text())
-
-          if server["name"] != "io.github.Sendmux/sendmux-mcp":
-            raise SystemExit(f"Unexpected MCP Registry name: {server['name']}")
-
-          marker = (root / "packages/python/mcp/README.md").read_text()
-          expected_marker = f"mcp-name: {server['name']}"
-          if expected_marker not in marker:
-            raise SystemExit(f"Missing README marker: {expected_marker}")
-
-          server["version"] = version
-          for package in server.get("packages", []):
-            if package.get("registryType") == "pypi" and package.get("identifier") == "sendmux-mcp":
-              package["version"] = version
-              break
-          else:
-            raise SystemExit("Missing PyPI package entry for sendmux-mcp")
-
-          server_path.write_text(json.dumps(server, indent=2) + "\n")
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-            output.write(f"name={server['name']}\n")
-            output.write(f"version={version}\n")
-          print(f"Prepared {server['name']} {version}")
-          PY
+          node --input-type=module <<'JS'
+          import { appendFileSync } from "node:fs";
+          import { verifyRegistryVersion } from "./scripts/check-mcp.mjs";
+          const server = verifyRegistryVersion();
+          const packageVersion = (type) => server.packages.find((entry) => entry.registryType === type && entry.identifier === "sendmux-mcp").version;
+          appendFileSync(process.env.GITHUB_OUTPUT, `name=${server.name}\nversion=${server.version}\npypi_version=${packageVersion("pypi")}\nnpm_version=${packageVersion("npm")}\n`);
+          JS
 
       - name: Wait for PyPI MCP package marker
         env:
           MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
-          MCP_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.version }}
+          MCP_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.pypi_version }}
         run: |
           set -euo pipefail
           for attempt in {1..30}; do
@@ -890,6 +962,30 @@ jobs:
           echo "Timed out waiting for PyPI sendmux-mcp ${MCP_PACKAGE_VERSION} marker" >&2
           exit 1
 
+      - name: Wait for npm MCP ownership marker
+        env:
+          MCP_SERVER_NAME: ${{ steps.mcp-manifest.outputs.name }}
+          MCP_NPM_PACKAGE_VERSION: ${{ steps.mcp-manifest.outputs.npm_version }}
+        run: |
+          node --input-type=module <<'JS'
+          const version = process.env.MCP_NPM_PACKAGE_VERSION;
+          for (let attempt = 1; attempt <= 30; attempt += 1) {
+            const response = await fetch(`https://registry.npmjs.org/sendmux-mcp/${version}`, { signal: AbortSignal.timeout(20_000) });
+            if (response.ok) {
+              const metadata = await response.json();
+              if (metadata.name !== "sendmux-mcp" || metadata.version !== version || metadata.mcpName !== process.env.MCP_SERVER_NAME) {
+                throw new Error("npm MCP package identity, version or ownership marker differs");
+              }
+              process.exit(0);
+            }
+            if (response.status !== 404 && response.status !== 429 && response.status < 500) {
+              throw new Error(`npm returned HTTP ${response.status}`);
+            }
+            if (attempt < 30) await new Promise((resolve) => setTimeout(resolve, 10_000));
+          }
+          throw new Error(`Timed out waiting for npm sendmux-mcp ${version}`);
+          JS
+
       - name: Install MCP Registry publisher
         run: |
           set -euo pipefail
@@ -908,6 +1004,12 @@ jobs:
           set -euo pipefail
           already_published="$(node scripts/mcp-registry-version.mjs --check)"
           echo "already_published=${already_published}" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare skill compatibility checks
+        if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         if: ${{ steps.mcp-registry-status.outputs.already_published != 'true' }}
@@ -975,11 +1077,13 @@ jobs:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ needs.release-please.outputs.candidate_sha }}
 
       - name: Check out immutable guard source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           ref: ${{ github.sha }}
           path: .publication-guard
 
@@ -1007,6 +1111,11 @@ jobs:
         run: pnpm build:ruby
         env:
           RUBY_PATHS_RELEASED: ${{ needs.release-please.outputs.paths_released }}
+
+      - name: Prepare skill compatibility checks
+        uses: ./.publication-guard/.github/actions/skill-release-checks
+        with:
+          revision: ${{ vars.SENDMUX_SKILLS_REVISION }}
 
       - name: Guard candidate before first publication
         timeout-minutes: 2

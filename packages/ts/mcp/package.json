@@ -8,7 +8,9 @@
   "bin": {
     "sendmux-mcp": "./bin/sendmux-mcp.js"
   },
-  "files": ["bin"],
+  "files": [
+    "bin"
+  ],
   "engines": {
     "node": ">=22"
   },

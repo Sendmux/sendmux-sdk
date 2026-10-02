@@ -27,7 +27,7 @@ class MailboxDomainVerifyChecks(BaseModel):
     """
     MailboxDomainVerifyChecks
     """ # noqa: E501
-    dmarc: StrictBool = Field(description="Published DMARC policy provides at least the required enforcement level.")
+    dmarc: StrictBool = Field(description="A DMARC record containing v=DMARC1 is present.")
     mail_from_mx: StrictBool = Field(description="Custom MAIL FROM MX record matches expected value")
     mail_from_spf: StrictBool = Field(description="Custom MAIL FROM SPF policy is compatible with the required Amazon SES sender authorisation.")
     mx: StrictBool = Field(description="MX record present when the domain is configured for receiving. Always true for send-only domains.")

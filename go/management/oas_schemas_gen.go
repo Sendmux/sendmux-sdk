@@ -5036,7 +5036,7 @@ func (s *MailboxDomainVerificationStatus) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/MailboxDomainVerifyChecks
 type MailboxDomainVerifyChecks struct {
-	// Published DMARC policy provides at least the required enforcement level.
+	// A DMARC record containing v=DMARC1 is present.
 	Dmarc bool `json:"dmarc"`
 	// Custom MAIL FROM MX record matches expected value.
 	MailFromMx bool `json:"mail_from_mx"`

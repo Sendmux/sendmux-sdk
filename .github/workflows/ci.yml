@@ -71,11 +71,13 @@ jobs:
 
       - name: Build and verify core
         run: pnpm verify:core
-      # The live E2E harness tests load the PHP, Ruby and MCP SDKs; drift:check already built the MCP venv.
-      - name: Install PHP and Ruby dependencies for the live E2E harness
+      # The live E2E harness loads the PHP (vendor/), Ruby (bundle) and Python SDKs; check:python
+      # installs the native Python packages into the .tmp/python-venv that drift:check created for MCP.
+      - name: Prepare live E2E harness runtimes
         run: |
           composer install --no-interaction --no-progress
           bundle install
+          pnpm check:python
       - name: Live E2E harness and connection adapters
         run: pnpm check:live-e2e && pnpm test:connection-adapters
 

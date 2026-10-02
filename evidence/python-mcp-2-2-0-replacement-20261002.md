@@ -13,3 +13,7 @@ Verification: `pnpm canary:openapi` with candidate inputs exited 0; `pnpm verify
 Run logs: MAIN `.claude/artifacts/release-python-mcp-2-2-0/replacement-{drift,canary,python-dists,release-state,pypi-selection}.log`. Publication preparation and replacement PR CI remain gates before merge. Publication remains pending until GitHub tag, PyPI artifacts and MCP Registry metadata are read back.
 
 Tests: none added or removed; existing contract and installed-artifact checks cover the generated refresh. Journeys: no browser surface changed.
+
+Replacement PR #309 CI exposed `Rust openapi-app.json provenance hash drift` in `check:surface-coverage`; the same command with candidate inputs reproduced locally (exit 1). `scripts/check-surface-coverage.mjs:84-90` compares the raw snapshot hash with both `rust/operation-decisions.json` and `rust/src/generated/mod.rs`. These two source-of-truth metadata fields are maintained in the existing provenance shape; neither changes a Rust client or version. Updated both to the candidate's `719639bbca7830d3291aed3540d0fa62a4ed56adfc00273966c0a7bb0a9d1c7e`. No current-source sibling retained the old hash.
+
+After the metadata update, `check:surface-coverage` exited 0 for 104 operations and `node --test scripts/rust-surface-coverage.test.mjs` exited 0. No guard or assertion weakened.

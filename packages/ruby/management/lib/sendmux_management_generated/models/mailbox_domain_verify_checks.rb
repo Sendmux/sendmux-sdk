@@ -15,7 +15,7 @@ require 'time'
 
 module Sendmux::Management::Generated
   class MailboxDomainVerifyChecks < ApiModelBase
-    # Published DMARC policy provides at least the required enforcement level.
+    # A DMARC record containing v=DMARC1 is present.
     attr_accessor :dmarc
 
     # Custom MAIL FROM MX record matches expected value

@@ -330,7 +330,7 @@ class MailboxDomainVerifyChecks implements ModelInterface, ArrayAccess, JsonSeri
     /**
      * Sets dmarc
      *
-     * @param bool $dmarc Published DMARC policy provides at least the required enforcement level.
+     * @param bool $dmarc A DMARC record containing v=DMARC1 is present.
      *
      * @return $this
      */

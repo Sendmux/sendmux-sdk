@@ -2645,7 +2645,7 @@
         "additionalProperties": false,
         "properties": {
           "dmarc": {
-            "description": "Published DMARC policy provides at least the required enforcement level.",
+            "description": "A DMARC record containing v=DMARC1 is present.",
             "type": "boolean"
           },
           "mail_from_mx": {

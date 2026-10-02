@@ -4,8 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.22.0",
   "scripts": {
-    "build": "pnpm verify:core && pnpm check:languages",
-    "verify:core": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:release-state && pnpm test:openapi-canary && pnpm test:deprecated-model-aliases && pnpm test:connections && pnpm test:ts-helpers && pnpm test:ts-ai-sdk && pnpm test:python-release-guardrails && pnpm test:mcp-bridge && pnpm test:mcp-registry-version && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:snap-workflow && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage && pnpm check:live-e2e && pnpm test:connection-adapters",
+    "build": "pnpm verify:core && pnpm check:languages && pnpm check:live-e2e && pnpm test:connection-adapters",
+    "verify:core": "pnpm drift:check && pnpm -r --if-present build && pnpm verify:layout && pnpm verify:ts-public-api && pnpm verify:tree-shaking && pnpm test:release-state && pnpm test:openapi-canary && pnpm test:deprecated-model-aliases && pnpm test:connections && pnpm test:ts-helpers && pnpm test:ts-ai-sdk && pnpm test:python-release-guardrails && pnpm test:mcp-bridge && pnpm test:mcp-registry-version && pnpm test:windows-command-shims && pnpm test:chocolatey-asset-tools && pnpm test:chocolatey-workflow-order && pnpm test:snap-workflow && pnpm test:cli-tarball-tools && pnpm check:cli && pnpm check:surface-coverage",
     "check:languages": "pnpm check:go && pnpm check:python && pnpm check:php && pnpm check:ruby && pnpm check:mcp",
     "build:go": "pnpm generate:go && pnpm check:go",
     "check:go": "node scripts/check-go.mjs && cd go && go test ./... && go vet ./... && go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2 run",

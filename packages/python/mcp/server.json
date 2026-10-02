@@ -10,7 +10,7 @@
     "id": "1253958043",
     "subfolder": "packages/python/mcp"
   },
-  "version": "2.1.4",
+  "version": "2.2.0",
   "remotes": [
     {
       "type": "streamable-http",

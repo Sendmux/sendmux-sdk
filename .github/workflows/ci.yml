@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOTOOLCHAIN: local
+      OPENAPI_INPUT_DIR: >-
+        ${{ (startsWith(github.head_ref, 'release-please--') || startsWith(github.event.head_commit.message, 'chore(main): release ')) && 'packages/python/mcp/sendmux_mcp/openapi' || 'sendmux-docs' }}
     steps:
       - name: Check out SDK
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

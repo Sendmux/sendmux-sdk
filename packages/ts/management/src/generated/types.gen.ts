@@ -1065,7 +1065,7 @@ export type MailboxDomainVerifyResult = {
 
 export type MailboxDomainVerifyChecks = {
     /**
-     * Published DMARC policy provides at least the required enforcement level.
+     * A DMARC record containing v=DMARC1 is present.
      */
     dmarc: boolean;
     /**

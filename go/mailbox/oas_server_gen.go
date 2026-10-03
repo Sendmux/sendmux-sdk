@@ -29,6 +29,12 @@ type Handler interface {
 	//
 	// POST /mailbox/messages:batch-update
 	MailboxBatchUpdateMessages(ctx context.Context, req OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (MailboxBatchUpdateMessagesRes, error)
+	// MailboxControlDraftSchedule implements mailboxControlDraftSchedule operation.
+	//
+	// Reschedule or cancel a saved draft send.
+	//
+	// PATCH /mailbox/drafts/{draftId}/schedule
+	MailboxControlDraftSchedule(ctx context.Context, req *ControlMailboxDraftSchedule, params MailboxControlDraftScheduleParams) (MailboxControlDraftScheduleRes, error)
 	// MailboxCountMessages implements mailboxCountMessages operation.
 	//
 	// Returns a count for the supplied mailbox message filters without returning message rows.
@@ -44,12 +50,24 @@ type Handler interface {
 	//
 	// POST /mailbox/attachment-uploads
 	MailboxCreateAttachmentUpload(ctx context.Context, req OptMailboxAttachmentUploadIntentBody, params MailboxCreateAttachmentUploadParams) (MailboxCreateAttachmentUploadRes, error)
+	// MailboxCreateDraft implements mailboxCreateDraft operation.
+	//
+	// Create a saved draft.
+	//
+	// POST /mailbox/drafts
+	MailboxCreateDraft(ctx context.Context, req *CreateMailboxDraft, params MailboxCreateDraftParams) (MailboxCreateDraftRes, error)
 	// MailboxCreateFolder implements mailboxCreateFolder operation.
 	//
 	// Creates a folder in the authenticated mailbox.
 	//
 	// POST /mailbox/folders
 	MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (MailboxCreateFolderRes, error)
+	// MailboxDeleteDraft implements mailboxDeleteDraft operation.
+	//
+	// Delete a saved draft.
+	//
+	// DELETE /mailbox/drafts/{draftId}
+	MailboxDeleteDraft(ctx context.Context, params MailboxDeleteDraftParams) (MailboxDeleteDraftRes, error)
 	// MailboxDeleteFolder implements mailboxDeleteFolder operation.
 	//
 	// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
@@ -65,6 +83,21 @@ type Handler interface {
 	//
 	// DELETE /mailbox/messages/{message_id}
 	MailboxDeleteMessage(ctx context.Context, params MailboxDeleteMessageParams) (MailboxDeleteMessageRes, error)
+	// MailboxDownloadRawMessage implements mailboxDownloadRawMessage operation.
+	//
+	// Downloads the stored message as an .eml file, including its original headers, body and attachments.
+	//  Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+	//
+	// GET /mailbox/messages/{message_id}/raw
+	MailboxDownloadRawMessage(ctx context.Context, params MailboxDownloadRawMessageParams) (MailboxDownloadRawMessageRes, error)
+	// MailboxGetAttachmentText implements mailboxGetAttachmentText operation.
+	//
+	// Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current
+	// access and source availability are checked even with If-None-Match. This request does not start a
+	// conversion.
+	//
+	// GET /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+	MailboxGetAttachmentText(ctx context.Context, params MailboxGetAttachmentTextParams) (MailboxGetAttachmentTextRes, error)
 	// MailboxGetChanges implements mailboxGetChanges operation.
 	//
 	// Returns message changes in the legacy shape when `types` is omitted. Pass a comma-separated
@@ -72,6 +105,12 @@ type Handler interface {
 	//
 	// GET /mailbox/changes
 	MailboxGetChanges(ctx context.Context, params MailboxGetChangesParams) (MailboxGetChangesRes, error)
+	// MailboxGetDraft implements mailboxGetDraft operation.
+	//
+	// Read a saved draft.
+	//
+	// GET /mailbox/drafts/{draftId}
+	MailboxGetDraft(ctx context.Context, params MailboxGetDraftParams) (MailboxGetDraftRes, error)
 	// MailboxGetFolder implements mailboxGetFolder operation.
 	//
 	// Returns one folder from the authenticated mailbox. Responses include a weak `ETag` header.
@@ -169,6 +208,12 @@ type Handler interface {
 	//
 	// GET /mailbox/messages/{message_id}/content
 	MailboxListContent(ctx context.Context, params MailboxListContentParams) (MailboxListContentRes, error)
+	// MailboxListDrafts implements mailboxListDrafts operation.
+	//
+	// List saved drafts.
+	//
+	// GET /mailbox/drafts
+	MailboxListDrafts(ctx context.Context, params MailboxListDraftsParams) (MailboxListDraftsRes, error)
 	// MailboxListFolders implements mailboxListFolders operation.
 	//
 	// Returns a cursor-paginated list of folders for the authenticated mailbox.
@@ -243,6 +288,16 @@ type Handler interface {
 	//
 	// GET /mailbox/messages/query-changes
 	MailboxQueryMessageChanges(ctx context.Context, params MailboxQueryMessageChangesParams) (MailboxQueryMessageChangesRes, error)
+	// MailboxRequestAttachmentText implements mailboxRequestAttachmentText operation.
+	//
+	// Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this
+	// request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key
+	// is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and
+	// the source attachment are checked before serving cached text. If extraction cannot complete, use
+	// the original attachment download.
+	//
+	// POST /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+	MailboxRequestAttachmentText(ctx context.Context, params MailboxRequestAttachmentTextParams) (MailboxRequestAttachmentTextRes, error)
 	// MailboxSearchMessageSnippets implements mailboxSearchMessageSnippets operation.
 	//
 	// Returns subject and preview snippets for a text search. Provide `message_ids` to snippet exact
@@ -250,6 +305,12 @@ type Handler interface {
 	//
 	// GET /mailbox/messages/search-snippets
 	MailboxSearchMessageSnippets(ctx context.Context, params MailboxSearchMessageSnippetsParams) (MailboxSearchMessageSnippetsRes, error)
+	// MailboxSendDraft implements mailboxSendDraft operation.
+	//
+	// Send a saved draft revision.
+	//
+	// POST /mailbox/drafts/{draftId}/send
+	MailboxSendDraft(ctx context.Context, req *SendMailboxDraft, params MailboxSendDraftParams) (MailboxSendDraftRes, error)
 	// MailboxSendMessage implements mailboxSendMessage operation.
 	//
 	// Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
@@ -266,6 +327,12 @@ type Handler interface {
 	//
 	// GET /mailbox/events
 	MailboxStreamEvents(ctx context.Context, params MailboxStreamEventsParams) (MailboxStreamEventsRes, error)
+	// MailboxUpdateDraft implements mailboxUpdateDraft operation.
+	//
+	// Edit a saved draft.
+	//
+	// PATCH /mailbox/drafts/{draftId}
+	MailboxUpdateDraft(ctx context.Context, req *UpdateMailboxDraft, params MailboxUpdateDraftParams) (MailboxUpdateDraftRes, error)
 	// MailboxUpdateFolder implements mailboxUpdateFolder operation.
 	//
 	// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag

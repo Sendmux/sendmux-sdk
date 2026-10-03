@@ -79,6 +79,15 @@ const customMcpOperations = [
   },
 ];
 const operationRequestFactories = {
+  mailboxControlDraftSchedule: prepareOwnedDraftSchedule,
+  mailboxCreateDraft: prepareMailboxCreateDraft,
+  mailboxDeleteDraft: prepareOwnedDraftDelete,
+  mailboxDownloadRawMessage: prepareMailboxRawMessage,
+  mailboxGetAttachmentText: prepareMailboxAttachmentText,
+  mailboxRequestAttachmentText: prepareMailboxAttachmentText,
+  mailboxSendDraft: prepareOwnedDraftSend,
+  mailboxUpdateDraft: prepareOwnedDraftUpdate,
+  managementReplaceMailboxSendPolicy: prepareOwnedMailboxSendPolicy,
   mailboxBatchDeleteMessages: prepareOwnedMailboxBatchDelete,
   mailboxBatchGetMessages: prepareOwnedMailboxBatchGet,
   mailboxBatchUpdateMessages: prepareOwnedMailboxBatchUpdate,
@@ -1358,6 +1367,152 @@ async function prepareMailboxSendMessage({ adapter, fixtureRuntime }) {
   };
 }
 
+async function prepareMailboxCreateDraft({ fixtureRuntime }) {
+  return {
+    cleanupSelectors: ["data.id"],
+    request: {
+      body: {
+        subject: `Sendmux live E2E draft ${fixtureRuntime.runId} ${fixtureRuntime.resourceLabel("create-draft")}`,
+        text_body: `Automated Sendmux live E2E draft ${fixtureRuntime.runId}.`,
+      },
+      headers: { "Idempotency-Key": fixtureRuntime.idempotencyKey("create-draft") },
+    },
+  };
+}
+
+async function createOwnedMailboxDraft(fixtureRuntime, label, send = false) {
+  const prepared = await prepareMailboxCreateDraft({ fixtureRuntime });
+  if (send) {
+    const recipient = await fixtureRuntime.resolveSource("mailboxSelfEmail");
+    assertFixtureRecipientAllowed({ recipient, sourceName: label });
+    prepared.request.body.to = [{ email: recipient }];
+  }
+  const created = await fixtureRuntime.runOperation("mailboxCreateDraft", prepared.request);
+  const draftId = requireSelectedValue(created, ["data.id"], `${label} draft ID`);
+  return pollForMailboxDraft({ fixtureRuntime, draftId, status: "ready" });
+}
+
+async function pollForMailboxDraft({ fixtureRuntime, draftId, status }) {
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    const response = await fixtureRuntime.runOperation("mailboxGetDraft", { path: { draftId } });
+    if (response.data.status === status) return response.data;
+    assert.ok(!["uncertain", "failed", "deleted"].includes(response.data.status), "Owned draft cannot reach the expected state");
+    await sleep(1_000);
+  }
+  throw new Error(`Owned draft did not reach ${status} within 30s`);
+}
+
+async function prepareOwnedDraftUpdate({ fixtureRuntime }) {
+  const draft = await createOwnedMailboxDraft(fixtureRuntime, "update-draft");
+  const text = `Edited live E2E draft ${fixtureRuntime.runId}.`;
+  return {
+    request: { path: { draftId: draft.id }, body: { expected_revision: draft.revision, text_body: text } },
+    afterResult: async (value) => {
+      assert.equal(value.data.revision, draft.revision + 1);
+      assert.equal(value.data.text_body, text);
+    },
+  };
+}
+
+async function prepareOwnedDraftDelete({ fixtureRuntime }) {
+  const draft = await createOwnedMailboxDraft(fixtureRuntime, "delete-draft");
+  return {
+    request: { path: { draftId: draft.id } },
+    afterResult: async (value) => {
+      assert.equal(value.data.deleted, true);
+      assert.equal(value.data.id, draft.id);
+    },
+  };
+}
+
+async function prepareOwnedDraftSend({ fixtureRuntime }) {
+  const draft = await createOwnedMailboxDraft(fixtureRuntime, "send-draft", true);
+  return {
+    request: {
+      path: { draftId: draft.id },
+      body: { expected_revision: draft.revision, expected_schedule_version: draft.schedule_version },
+      fixtureDraft: draft,
+    },
+    afterResult: async () => {
+      const queued = await pollForMailboxDraft({ fixtureRuntime, draftId: draft.id, status: "queued" });
+      fixtureRuntime.observeResult("mailboxSendMessage", {}, { data: { message_id: queued.message_id } });
+    },
+  };
+}
+
+async function prepareOwnedDraftSchedule({ fixtureRuntime }) {
+  const draft = await createOwnedMailboxDraft(fixtureRuntime, "schedule-draft", true);
+  const scheduled = await fixtureRuntime.runOperation("mailboxSendDraft", {
+    path: { draftId: draft.id },
+    body: {
+      expected_revision: draft.revision,
+      expected_schedule_version: draft.schedule_version,
+      scheduled_for: new Date(Date.now() + 86_400_000).toISOString(),
+    },
+    fixtureDraft: draft,
+  });
+  assert.equal(scheduled.data.status, "scheduled");
+  return {
+    request: {
+      path: { draftId: draft.id },
+      body: {
+        expected_revision: scheduled.data.revision,
+        expected_schedule_version: scheduled.data.schedule_version,
+        scheduled_for: null,
+      },
+    },
+    afterResult: async (value) => {
+      assert.equal(value.data.status, "ready");
+      assert.equal(value.data.scheduled_for, null);
+    },
+  };
+}
+
+async function prepareMailboxRawMessage({ fixtureRuntime }) {
+  const owned = await createOwnedMailboxMessage(fixtureRuntime, { label: "raw-message" });
+  return { request: { path: { message_id: owned.messageId } } };
+}
+
+async function prepareMailboxAttachmentText({ fixtureRuntime, operation }) {
+  const owned = await createOwnedMailboxMessage(fixtureRuntime, { attachment: true, label: "attachment-text" });
+  const request = { path: { message_id: owned.messageId, attachment_id: owned.attachmentId }, query: { max_bytes: 1024 } };
+  if (operation.operationId === "mailboxGetAttachmentText") {
+    await fixtureRuntime.runOperation("mailboxRequestAttachmentText", request);
+  }
+  return {
+    request,
+    afterResult: async () => {
+      const deadline = Date.now() + 30_000;
+      while (Date.now() < deadline) {
+        const value = await fixtureRuntime.runOperation("mailboxGetAttachmentText", request);
+        if (value.data.status === "complete") {
+          assert.equal(value.data.outcome, "ready");
+          assert.ok(value.data.text.includes(fixtureRuntime.runId));
+          return;
+        }
+        await sleep(1_000);
+      }
+      throw new Error("Attachment text did not complete within 30s");
+    },
+  };
+}
+
+async function prepareOwnedMailboxSendPolicy({ fixtureRuntime }) {
+  const mailboxId = await createOwnedManagementMailbox(fixtureRuntime, "send-policy");
+  const path = { scope: "mailbox", public_id: mailboxId };
+  const original = await fixtureRuntime.runOperation("managementGetMailboxSendPolicy", { path });
+  const policy = { ...original.data.policy, allowed_from: { ...original.data.policy.allowed_from, own_address: false } };
+  return {
+    request: { path, body: { policy }, headers: { "If-Match": `W/"${original.data.version}"`, "Idempotency-Key": fixtureRuntime.idempotencyKey("replace-send-policy") } },
+    afterResult: async (value) => {
+      assert.equal(value.data.policy.allowed_from.own_address, false);
+      const readback = await fixtureRuntime.runOperation("managementGetMailboxSendPolicy", { path });
+      assert.equal(readback.data.version, value.data.version);
+    },
+  };
+}
+
 async function prepareOwnedMailboxBatchGet({ fixtureRuntime }) {
   const owned = await createOwnedMailboxMessage(fixtureRuntime, { label: "batch-get" });
   return {
@@ -1588,6 +1743,21 @@ async function cleanupMailboxFolder(fixtureRuntime, folderId) {
 
 async function cleanupMailboxMessage(fixtureRuntime, messageId) {
   await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxDeleteMessage", { path: { message_id: messageId }, query: { permanent: true } }));
+}
+
+async function cleanupMailboxDraft(fixtureRuntime, draftId) {
+  const deadline = Date.now() + 25_000;
+  while (Date.now() < deadline) {
+    try {
+      await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxDeleteDraft", { path: { draftId } }));
+      const value = await ignoreCleanupErrors(() => fixtureRuntime.runOperation("mailboxGetDraft", { path: { draftId } }));
+      if (value === undefined || isDeletedTombstone(value, draftId)) return value;
+    } catch (error) {
+      if (error?.status !== 409 || error?.body?.error?.code !== "conflict") throw error;
+    }
+    await sleep(1_000);
+  }
+  throw new Error("Owned draft remains after 25s cleanup deadline");
 }
 
 async function pollForMailboxMessageVisible({ fixtureRuntime, messageId }) {
@@ -2550,8 +2720,9 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, s
     get ledger() { return cloneJson(ledger); },
     beginOperation(operationId, request) {
       assertSendRequestAllowed(operationId, request);
-      if (!["mailboxSendMessage", "sendingSendEmail", "sendingSendEmailBatch"].includes(operationId)) return;
-      const messages = operationId === "sendingSendEmailBatch" ? request.body.messages : [request.body];
+      if (!["mailboxSendMessage", "mailboxSendDraft", "sendingSendEmail", "sendingSendEmailBatch"].includes(operationId)) return;
+      if (operationId === "mailboxSendDraft" && request.body.scheduled_for) return;
+      const messages = operationId === "sendingSendEmailBatch" ? request.body.messages : [operationId === "mailboxSendDraft" ? request.fixtureDraft : request.body];
       for (const message of messages) {
         assert.ok(proof?.mailboxEmail, "Self-delivery cleanup requires a verified mailbox");
         assert.ok(typeof message.subject === "string" && message.subject.includes(runId), "Self-delivery cleanup requires the exact run-labelled subject");
@@ -2687,6 +2858,7 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, s
         return;
       }
       const resources = {
+        mailboxCreateDraft: ["data.id", "mailboxDeleteDraft", "mailboxGetDraft", "draftId"],
         mailboxCreateFolder: ["data.id", "mailboxDeleteFolder", "mailboxGetFolder", "folder_id"],
         mailboxSendMessage: ["data.message_id", "mailboxDeleteMessage", "mailboxGetMessage", "message_id"],
         managementCreateProvider: ["data.id", "managementDeleteProvider", "managementGetProvider", "public_id"],
@@ -2707,7 +2879,9 @@ function createFixtureRuntime({ credentials, fixtures, operations, runId, sdk, s
       persist();
       teardowns.push(async () => {
         try {
-          const receipt = await ignoreCleanupErrors(() => this.runOperation(remove, { path, ...(remove === "mailboxDeleteMessage" ? { query: { permanent: true } } : {}) }));
+          const receipt = remove === "mailboxDeleteDraft"
+            ? await cleanupMailboxDraft(this, id)
+            : await ignoreCleanupErrors(() => this.runOperation(remove, { path, ...(remove === "mailboxDeleteMessage" ? { query: { permanent: true } } : {}) }));
           if (remove === "managementDeleteMailboxKey") {
             if (receipt !== undefined) assert.ok(receipt.data?.deleted === true && receipt.data?.id === id, "Invalid exact mailbox key revocation receipt");
             entry.verification = receipt === undefined ? "structured_not_found" : "exact_revocation_receipt";
@@ -3070,8 +3244,12 @@ function assertFixtureRecipientAllowed({ recipient, sourceName }) {
 }
 
 function assertSendRequestAllowed(operationId, request) {
-  if (!["mailboxSendMessage", "sendingSendEmail", "sendingSendEmailBatch"].includes(operationId)) return;
-  const messages = operationId === "sendingSendEmailBatch" ? request.body?.messages : [request.body];
+  if (!["mailboxSendMessage", "mailboxSendDraft", "sendingSendEmail", "sendingSendEmailBatch"].includes(operationId)) return;
+  if (operationId === "mailboxSendDraft") {
+    assert.equal(request.fixtureDraft?.id, request.path?.draftId, "Draft send requires the exact owned draft");
+    assert.equal(request.fixtureDraft?.revision, request.body?.expected_revision, "Draft send requires the reviewed owned revision");
+  }
+  const messages = operationId === "sendingSendEmailBatch" ? request.body?.messages : [operationId === "mailboxSendDraft" ? request.fixtureDraft : request.body];
   assert.ok(Array.isArray(messages) && messages.length > 0, "Send requires at least one message");
   for (const message of messages) {
     const recipients = [message?.to, message?.cc, message?.bcc].flat().filter(Boolean);

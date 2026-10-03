@@ -36,6 +36,15 @@ from sendmux_mcp.verification import structured_result
 
 EXPECTED_TOOL_NAMES_BY_SURFACE = {
     "mailbox": {
+        "mailbox_list_drafts",
+        "mailbox_get_draft",
+        "mailbox_create_draft",
+        "mailbox_update_draft",
+        "mailbox_delete_draft",
+        "mailbox_send_draft",
+        "mailbox_control_draft_schedule",
+        "mailbox_request_attachment_text",
+        "mailbox_get_attachment_text",
         "mailbox_get_connection",
         "mailbox_batch_delete_messages",
         "mailbox_batch_get_messages",
@@ -64,6 +73,7 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "mailbox_wait_for_message",
     },
     "management": {
+        "management_get_mailbox_cost_usage",
         "management_get_connection",
         "management_check_mailbox_availability",
         "management_create_domain",
@@ -126,6 +136,10 @@ class CancellingResponseStream(httpx.AsyncByteStream):
 
 
 READ_ONLY_TOOL_NAMES = {
+    "mailbox_list_drafts",
+    "mailbox_get_draft",
+    "mailbox_get_attachment_text",
+    "management_get_mailbox_cost_usage",
     "mailbox_get_connection",
     "management_get_connection",
     "sending_get_connection",
@@ -164,11 +178,14 @@ READ_ONLY_TOOL_NAMES = {
 }
 
 DESTRUCTIVE_TOOL_NAMES = {
+    "mailbox_delete_draft",
     "mailbox_batch_delete_messages",
     "management_delete_mailbox_key",
 }
 
 IDEMPOTENT_WRITE_TOOL_NAMES = {
+    "mailbox_control_draft_schedule",
+    "mailbox_request_attachment_text",
     "mailbox_batch_update_messages",
     "mailbox_update_identity",
     "management_delete_mailbox_key",
@@ -238,7 +255,7 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
             async with Client(server) as client:
                 tools.extend(await client.list_tools())
 
-        assert len(tools) == 54
+        assert len(tools) == 64
         assert {tool.name for tool in tools if tool.output_schema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
 
         for tool in tools:

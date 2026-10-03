@@ -256,7 +256,7 @@ test("leader exit retains ownership until same-group descendants are gone", asyn
 test("all-gates default selects custom MCP operations with mailbox credential requirements", async () => {
   await withEnv({ SENDMUX_STAGING_SEND: "1", SENDMUX_LIVE_E2E_MUTATIONS: "1", SENDMUX_LIVE_E2E_BINARY: "1", SENDMUX_LIVE_E2E_STREAM: "1" }, () => {
     const selected = selectOperations(buildOperationPlan(operations, scenarios, fixtures), []);
-    assert.equal(selected.length, 106);
+    assert.equal(selected.length, 119);
     for (const id of ["mailboxReadAttachment", "mailboxWaitForMessage"]) assert.equal(selected.find(item => item.operationId === id)?.requiredKeyKind, "mailbox");
   });
 });
@@ -1299,7 +1299,7 @@ test("JSON plans bind explicit selection to exactly its applicable pairs", () =>
   const plan = JSON.parse(result.stdout);
   assert.deepEqual(plan.selectedOperationIds, ["managementGetConnection"]);
   assert.deepEqual(plan.applicablePairs, [{ adapter: "typescript", operationId: "managementGetConnection" }]);
-  assert.equal(plan.summary.total, 106);
+  assert.equal(plan.summary.total, 119);
 });
 
 test("mailbox key cleanup verifies the exact revocation receipt without inventing a read endpoint", async () => {

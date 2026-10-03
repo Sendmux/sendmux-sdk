@@ -27,6 +27,11 @@ const surfaces = [
     // (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
     deprecatedModelAliases: [
       {
+        deprecated: "MailboxFolderDeletedResponseAllOfData",
+        replacement: "MailboxDraftDeleteResponseAllOfData",
+        removedIn: "sendmux-mailbox 3.0",
+      },
+      {
         deprecated: "MailboxRealtimeMessageAllOfBody",
         replacement: "MailboxRealtimeMessageBody",
         removedIn: "sendmux-mailbox 3.0",

@@ -54,6 +54,12 @@ def test_authorised_tools_are_filtered_per_surface() -> None:
     granted = ("mailbox.read", "email.send")
 
     assert authorised_tool_names("mailbox", granted) == {
+        "mailbox_list_drafts",
+        "mailbox_get_draft",
+        "mailbox_get_attachment_text",
+        "mailbox_request_attachment_text",
+        "mailbox_send_draft",
+        "mailbox_control_draft_schedule",
         "mailbox_get_connection",
         "mailbox_get_me",
         "mailbox_list_granted_mailboxes",
@@ -84,6 +90,7 @@ def test_authorised_tools_respect_management_wildcards() -> None:
     granted = ("domain.*", "mailbox.admin.read")
 
     assert authorised_tool_names("management", granted) == {
+        "management_get_mailbox_cost_usage",
         "management_get_connection",
         "management_list_domains",
         "management_create_domain",

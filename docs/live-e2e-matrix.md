@@ -32,16 +32,16 @@ Available successful CLI JSON records selective resource ownership even when int
 
 ## Summary
 
-- Operations: 106 total; 104 OpenAPI operations and 2 custom MCP operation.
-- OpenAPI operations by surface: management 54, mailbox 42, sending 8.
+- Operations: 119 total; 117 OpenAPI operations and 2 custom MCP operation.
+- OpenAPI operations by surface: management 57, mailbox 52, sending 8.
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
-- Applicable MCP operation pairs: 55 (not a unique tool count).
-- Default executable live operations: 57.
-- Blocked behind safety gates: 49.
+- Applicable MCP operation pairs: 65 (not a unique tool count).
+- Default executable live operations: 61.
+- Blocked behind safety gates: 58.
 - Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
-- Risks: binary 8, destructive 8, mutation 29, read 57, send 3, stream 1.
-- Modes: binary_fixture 8, create_cleanup 7, destructive_cleanup_only 8, mutation_fixture 14, read 36, read_fixture 21, send 3, stream 1, update_restore 8.
+- Risks: binary 11, destructive 9, mutation 32, read 61, send 5, stream 1.
+- Modes: binary_fixture 11, create_cleanup 8, destructive_cleanup_only 9, mutation_fixture 14, read 37, read_fixture 24, send 5, stream 1, update_restore 10.
 
 ## Matrix
 
@@ -50,13 +50,19 @@ Available successful CLI JSON records selective resource ownership even when int
 | mailbox | `mailboxBatchDeleteMessages` | POST | `/mailbox/messages:batch-delete` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_delete_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxBatchGetMessages` | POST | `/mailbox/messages:batch-get` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_get_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxBatchUpdateMessages` | POST | `/mailbox/messages:batch-update` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | mailbox_batch_update_messages | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
+| mailbox | `mailboxControlDraftSchedule` | PATCH | `/mailbox/drafts/{draftId}/schedule` | send | send | typescript, python, go, php, ruby | yes | mailbox_control_draft_schedule | SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist | restore-original |
 | mailbox | `mailboxCountMessages` | GET | `/mailbox/messages/count` | read | read | typescript, python, go, php, ruby | yes | mailbox_count_messages | none | fixture |
 | mailbox | `mailboxCreateAttachmentUpload` | POST | `/mailbox/attachment-uploads` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_upload_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry | e2e-created |
+| mailbox | `mailboxCreateDraft` | POST | `/mailbox/drafts` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | mailbox_create_draft | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
 | mailbox | `mailboxCreateFolder` | POST | `/mailbox/folders` | create_cleanup | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-created |
+| mailbox | `mailboxDeleteDraft` | DELETE | `/mailbox/drafts/{draftId}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | mailbox_delete_draft | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | mailbox | `mailboxDeleteFolder` | DELETE | `/mailbox/folders/{folder_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | e2e-owned |
 | mailbox | `mailboxDeleteMessage` | DELETE | `/mailbox/messages/{message_id}` | destructive_cleanup_only | destructive | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | e2e-owned |
+| mailbox | `mailboxDownloadRawMessage` | GET | `/mailbox/messages/{message_id}/raw` | binary_fixture | binary | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
+| mailbox | `mailboxGetAttachmentText` | GET | `/mailbox/messages/{message_id}/attachments/{attachment_id}/text` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_get_attachment_text | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxGetChanges` | GET | `/mailbox/changes` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_changes | none | fixture |
 | mailbox | `mailboxGetConnection` | GET | `/mailbox/connection` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_connection | none | fixture |
+| mailbox | `mailboxGetDraft` | GET | `/mailbox/drafts/{draftId}` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_get_draft | none | fixture |
 | mailbox | `mailboxGetFolder` | GET | `/mailbox/folders/{folder_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetFolderChanges` | GET | `/mailbox/folders/changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetIdentity` | GET | `/mailbox/identity` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_identity | none | fixture |
@@ -71,6 +77,7 @@ Available successful CLI JSON records selective resource ownership even when int
 | mailbox | `mailboxGetThreadContent` | GET | `/mailbox/threads/{thread_id}/content` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxListBody` | GET | `/mailbox/messages/{message_id}/body` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_list_body | none | fixture |
 | mailbox | `mailboxListContent` | GET | `/mailbox/messages/{message_id}/content` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_list_content | none | fixture |
+| mailbox | `mailboxListDrafts` | GET | `/mailbox/drafts` | read | read | typescript, python, go, php, ruby | yes | mailbox_list_drafts | none | fixture |
 | mailbox | `mailboxListFolders` | GET | `/mailbox/folders` | read | read | typescript, python, go, php, ruby | yes | mailbox_list_folders | none | fixture |
 | mailbox | `mailboxListGrantedMailboxes` | GET | `/mailbox/mailboxes` | read | read | typescript, python, go, php, ruby | yes | mailbox_list_granted_mailboxes | none | fixture |
 | mailbox | `mailboxListIdentities` | GET | `/mailbox/identities` | read | read | typescript, python, go, php, ruby | yes | mailbox_list_identities | none | fixture |
@@ -83,9 +90,12 @@ Available successful CLI JSON records selective resource ownership even when int
 | mailbox | `mailboxQueryFolderChanges` | GET | `/mailbox/folders/query-changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxQueryMessageChanges` | GET | `/mailbox/messages/query-changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxReadAttachment` | MCP | `mcp://mailbox_read_attachment` | binary_fixture | binary | n/a | n/a | mailbox_read_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
+| mailbox | `mailboxRequestAttachmentText` | POST | `/mailbox/messages/{message_id}/attachments/{attachment_id}/text` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_request_attachment_text | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxSearchMessageSnippets` | GET | `/mailbox/messages/search-snippets` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_search_message_snippets | none | fixture |
+| mailbox | `mailboxSendDraft` | POST | `/mailbox/drafts/{draftId}/send` | send | send | typescript, python, go, php, ruby | yes | mailbox_send_draft | SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist | fixture |
 | mailbox | `mailboxSendMessage` | POST | `/mailbox/messages/send` | send | send | typescript, python, go, php, ruby | yes | mailbox_send_message | SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist | fixture |
 | mailbox | `mailboxStreamEvents` | GET | `/mailbox/events` | stream | stream | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_STREAM=1 | fixture |
+| mailbox | `mailboxUpdateDraft` | PATCH | `/mailbox/drafts/{draftId}` | update_restore | mutation | typescript, python, go, php, ruby | yes | mailbox_update_draft | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | mailbox | `mailboxUpdateFolder` | PATCH | `/mailbox/folders/{folder_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | mailbox | `mailboxUpdateIdentity` | PATCH | `/mailbox/identity` | update_restore | mutation | typescript, python, go, php, ruby | yes | mailbox_update_identity | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | mailbox | `mailboxUpdateMessage` | PATCH | `/mailbox/messages/{message_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | restore-original |
@@ -115,7 +125,9 @@ Available successful CLI JSON records selective resource ownership even when int
 | management | `managementGetEmailMetrics` | GET | `/emails/metrics` | read | read | typescript, python, go, php, ruby | yes | management_get_email_metrics | none | fixture |
 | management | `managementGetInboxLog` | GET | `/inboxes/logs/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetMailbox` | GET | `/mailboxes/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | management_get_mailbox | none | fixture |
+| management | `managementGetMailboxCostUsage` | GET | `/mailboxes/{public_id}/usage` | read_fixture | read | typescript, python, go, php, ruby | yes | management_get_mailbox_cost_usage | none | fixture |
 | management | `managementGetMailboxFilters` | GET | `/mailboxes/{public_id}/filters` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
+| management | `managementGetMailboxSendPolicy` | GET | `/mailbox-send-policies/{scope}/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetProvider` | GET | `/providers/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetProviderLimits` | GET | `/providers/limits` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetProviderStats` | GET | `/providers/stats` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
@@ -132,6 +144,7 @@ Available successful CLI JSON records selective resource ownership even when int
 | management | `managementListProviders` | GET | `/providers` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementListTransactions` | GET | `/billing/transactions` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementListWebhooks` | GET | `/webhooks` | read | read | typescript, python, go, php, ruby | yes | management_list_webhooks | none | fixture |
+| management | `managementReplaceMailboxSendPolicy` | PUT | `/mailbox-send-policies/{scope}/{public_id}` | update_restore | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | restore-original |
 | management | `managementRequestSendingAccountLimitIncrease` | POST | `/providers/limits/sending-accounts/request-increase` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | management | `managementResumeMailbox` | POST | `/mailboxes/{public_id}/resume` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | management_resume_mailbox | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |
 | management | `managementRotateWebhookSecret` | POST | `/webhooks/{public_id}/rotate-secret` | mutation_fixture | mutation | typescript, python, go, php, ruby | yes | not curated | SENDMUX_LIVE_E2E_MUTATIONS=1; E2E resource ownership registry | fixture |

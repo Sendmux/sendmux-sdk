@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
-from sendmux_mailbox.models.mailbox_folder_deleted_response_all_of_data import MailboxFolderDeletedResponseAllOfData
+from sendmux_mailbox.models.mailbox_draft_delete_response_all_of_data import MailboxDraftDeleteResponseAllOfData
 from sendmux_mailbox.models.response_meta import ResponseMeta
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,7 @@ class MailboxFolderDeletedResponse(BaseModel):
     """ # noqa: E501
     meta: ResponseMeta
     ok: StrictBool
-    data: MailboxFolderDeletedResponseAllOfData
+    data: MailboxDraftDeleteResponseAllOfData
     __properties: ClassVar[List[str]] = ["meta", "ok", "data"]
 
     model_config = ConfigDict(
@@ -93,6 +93,6 @@ class MailboxFolderDeletedResponse(BaseModel):
         _obj = cls.model_validate({
             "meta": ResponseMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
             "ok": obj.get("ok"),
-            "data": MailboxFolderDeletedResponseAllOfData.from_dict(obj["data"]) if obj.get("data") is not None else None
+            "data": MailboxDraftDeleteResponseAllOfData.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj

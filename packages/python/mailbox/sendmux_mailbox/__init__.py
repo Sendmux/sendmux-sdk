@@ -39,12 +39,20 @@ __all__ = [
     "ConnectionMailboxesInner",
     "ConnectionResponse",
     "ConnectionTeam",
+    "ControlMailboxDraftSchedule",
+    "CreateMailboxDraft",
+    "CreateMailboxDraftAttachmentsInner",
+    "CreateMailboxDraftBccInner",
+    "CreateMailboxDraftFrom",
+    "CreateMailboxDraftSource",
     "CreateMailboxFolderBody",
     "CursorPagination",
     "GrantedMailbox",
     "GrantedMailboxListResponse",
     "MailboxAddress",
     "MailboxAttachment",
+    "MailboxAttachmentText",
+    "MailboxAttachmentTextResponse",
     "MailboxAttachmentUploadIntentBody",
     "MailboxAttachmentUploadIntentResult",
     "MailboxAttachmentUploadIntentResultHeaders",
@@ -67,10 +75,14 @@ __all__ = [
     "MailboxContentHeaders",
     "MailboxContentHeadersFullInner",
     "MailboxContentHeadersSelected",
+    "MailboxDraft",
+    "MailboxDraftDeleteResponse",
+    "MailboxDraftDeleteResponseAllOfData",
+    "MailboxDraftListResponse",
+    "MailboxDraftResponse",
     "MailboxFolder",
     "MailboxFolderCursorListResponse",
     "MailboxFolderDeletedResponse",
-    "MailboxFolderDeletedResponseAllOfData",
     "MailboxFolderQueryChanges",
     "MailboxFolderQueryChangesAddedInner",
     "MailboxFolderQueryChangesResponse",
@@ -85,6 +97,7 @@ __all__ = [
     "MailboxMessage",
     "MailboxMessageContent",
     "MailboxMessageContentBody",
+    "MailboxMessageContentBodyHtmlCleaning",
     "MailboxMessageContentDates",
     "MailboxMessageContentParticipants",
     "MailboxMessageContentResponse",
@@ -155,12 +168,14 @@ __all__ = [
     "PatchMailboxFolderBody",
     "PatchMailboxMessageBody",
     "ResponseMeta",
+    "SendMailboxDraft",
     "SendMailboxMessageBody",
     "SendMailboxMessageBodyAttachmentsInner",
     "SendMailboxMessageBodyAttachmentsInnerAnyOf",
     "SendMailboxMessageBodyAttachmentsInnerAnyOf1",
     "SendMailboxMessageResult",
     "SuccessEnvelope",
+    "UpdateMailboxDraft",
     "UpdateMailboxIdentityBody",
 ]
 
@@ -190,12 +205,20 @@ from sendmux_mailbox.models.connection_credential import ConnectionCredential as
 from sendmux_mailbox.models.connection_mailboxes_inner import ConnectionMailboxesInner as ConnectionMailboxesInner
 from sendmux_mailbox.models.connection_response import ConnectionResponse as ConnectionResponse
 from sendmux_mailbox.models.connection_team import ConnectionTeam as ConnectionTeam
+from sendmux_mailbox.models.control_mailbox_draft_schedule import ControlMailboxDraftSchedule as ControlMailboxDraftSchedule
+from sendmux_mailbox.models.create_mailbox_draft import CreateMailboxDraft as CreateMailboxDraft
+from sendmux_mailbox.models.create_mailbox_draft_attachments_inner import CreateMailboxDraftAttachmentsInner as CreateMailboxDraftAttachmentsInner
+from sendmux_mailbox.models.create_mailbox_draft_bcc_inner import CreateMailboxDraftBccInner as CreateMailboxDraftBccInner
+from sendmux_mailbox.models.create_mailbox_draft_from import CreateMailboxDraftFrom as CreateMailboxDraftFrom
+from sendmux_mailbox.models.create_mailbox_draft_source import CreateMailboxDraftSource as CreateMailboxDraftSource
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody as CreateMailboxFolderBody
 from sendmux_mailbox.models.cursor_pagination import CursorPagination as CursorPagination
 from sendmux_mailbox.models.granted_mailbox import GrantedMailbox as GrantedMailbox
 from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse as GrantedMailboxListResponse
 from sendmux_mailbox.models.mailbox_address import MailboxAddress as MailboxAddress
 from sendmux_mailbox.models.mailbox_attachment import MailboxAttachment as MailboxAttachment
+from sendmux_mailbox.models.mailbox_attachment_text import MailboxAttachmentText as MailboxAttachmentText
+from sendmux_mailbox.models.mailbox_attachment_text_response import MailboxAttachmentTextResponse as MailboxAttachmentTextResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody as MailboxAttachmentUploadIntentBody
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_result import MailboxAttachmentUploadIntentResult as MailboxAttachmentUploadIntentResult
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_headers import MailboxAttachmentUploadIntentResultHeaders as MailboxAttachmentUploadIntentResultHeaders
@@ -218,10 +241,14 @@ from sendmux_mailbox.models.mailbox_changes_response import MailboxChangesRespon
 from sendmux_mailbox.models.mailbox_content_headers import MailboxContentHeaders as MailboxContentHeaders
 from sendmux_mailbox.models.mailbox_content_headers_full_inner import MailboxContentHeadersFullInner as MailboxContentHeadersFullInner
 from sendmux_mailbox.models.mailbox_content_headers_selected import MailboxContentHeadersSelected as MailboxContentHeadersSelected
+from sendmux_mailbox.models.mailbox_draft import MailboxDraft as MailboxDraft
+from sendmux_mailbox.models.mailbox_draft_delete_response import MailboxDraftDeleteResponse as MailboxDraftDeleteResponse
+from sendmux_mailbox.models.mailbox_draft_delete_response_all_of_data import MailboxDraftDeleteResponseAllOfData as MailboxDraftDeleteResponseAllOfData
+from sendmux_mailbox.models.mailbox_draft_list_response import MailboxDraftListResponse as MailboxDraftListResponse
+from sendmux_mailbox.models.mailbox_draft_response import MailboxDraftResponse as MailboxDraftResponse
 from sendmux_mailbox.models.mailbox_folder import MailboxFolder as MailboxFolder
 from sendmux_mailbox.models.mailbox_folder_cursor_list_response import MailboxFolderCursorListResponse as MailboxFolderCursorListResponse
 from sendmux_mailbox.models.mailbox_folder_deleted_response import MailboxFolderDeletedResponse as MailboxFolderDeletedResponse
-from sendmux_mailbox.models.mailbox_folder_deleted_response_all_of_data import MailboxFolderDeletedResponseAllOfData as MailboxFolderDeletedResponseAllOfData
 from sendmux_mailbox.models.mailbox_folder_query_changes import MailboxFolderQueryChanges as MailboxFolderQueryChanges
 from sendmux_mailbox.models.mailbox_folder_query_changes_added_inner import MailboxFolderQueryChangesAddedInner as MailboxFolderQueryChangesAddedInner
 from sendmux_mailbox.models.mailbox_folder_query_changes_response import MailboxFolderQueryChangesResponse as MailboxFolderQueryChangesResponse
@@ -236,6 +263,7 @@ from sendmux_mailbox.models.mailbox_me_item_response import MailboxMeItemRespons
 from sendmux_mailbox.models.mailbox_message import MailboxMessage as MailboxMessage
 from sendmux_mailbox.models.mailbox_message_content import MailboxMessageContent as MailboxMessageContent
 from sendmux_mailbox.models.mailbox_message_content_body import MailboxMessageContentBody as MailboxMessageContentBody
+from sendmux_mailbox.models.mailbox_message_content_body_html_cleaning import MailboxMessageContentBodyHtmlCleaning as MailboxMessageContentBodyHtmlCleaning
 from sendmux_mailbox.models.mailbox_message_content_dates import MailboxMessageContentDates as MailboxMessageContentDates
 from sendmux_mailbox.models.mailbox_message_content_participants import MailboxMessageContentParticipants as MailboxMessageContentParticipants
 from sendmux_mailbox.models.mailbox_message_content_response import MailboxMessageContentResponse as MailboxMessageContentResponse
@@ -306,12 +334,14 @@ from sendmux_mailbox.models.mailbox_usage_states import MailboxUsageStates as Ma
 from sendmux_mailbox.models.patch_mailbox_folder_body import PatchMailboxFolderBody as PatchMailboxFolderBody
 from sendmux_mailbox.models.patch_mailbox_message_body import PatchMailboxMessageBody as PatchMailboxMessageBody
 from sendmux_mailbox.models.response_meta import ResponseMeta as ResponseMeta
+from sendmux_mailbox.models.send_mailbox_draft import SendMailboxDraft as SendMailboxDraft
 from sendmux_mailbox.models.send_mailbox_message_body import SendMailboxMessageBody as SendMailboxMessageBody
 from sendmux_mailbox.models.send_mailbox_message_body_attachments_inner import SendMailboxMessageBodyAttachmentsInner as SendMailboxMessageBodyAttachmentsInner
 from sendmux_mailbox.models.send_mailbox_message_body_attachments_inner_any_of import SendMailboxMessageBodyAttachmentsInnerAnyOf as SendMailboxMessageBodyAttachmentsInnerAnyOf
 from sendmux_mailbox.models.send_mailbox_message_body_attachments_inner_any_of1 import SendMailboxMessageBodyAttachmentsInnerAnyOf1 as SendMailboxMessageBodyAttachmentsInnerAnyOf1
 from sendmux_mailbox.models.send_mailbox_message_result import SendMailboxMessageResult as SendMailboxMessageResult
 from sendmux_mailbox.models.success_envelope import SuccessEnvelope as SuccessEnvelope
+from sendmux_mailbox.models.update_mailbox_draft import UpdateMailboxDraft as UpdateMailboxDraft
 from sendmux_mailbox.models.update_mailbox_identity_body import UpdateMailboxIdentityBody as UpdateMailboxIdentityBody
 
 
@@ -338,6 +368,7 @@ from typing import Any as _Any
 
 # Deprecated model names kept as aliases of their replacements until the release named here.
 _DEPRECATED_MODEL_ALIASES = {
+    "MailboxFolderDeletedResponseAllOfData": ("MailboxDraftDeleteResponseAllOfData", "sendmux-mailbox 3.0"),
     "MailboxRealtimeMessageAllOfBody": ("MailboxRealtimeMessageBody", "sendmux-mailbox 3.0"),
     "MailboxMessageContentResponseAllOfData": ("MailboxMessageContent", "sendmux-mailbox 3.0"),
     "MailboxRawBodyResponseAllOfData": ("MailboxRawBody", "sendmux-mailbox 3.0"),

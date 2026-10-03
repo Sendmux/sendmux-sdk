@@ -35,6 +35,125 @@ export type UpdateMailboxIdentityBody = {
     text_signature?: string | null;
 };
 
+export type UpdateMailboxDraft = {
+    /**
+     * Attachments and inline images.
+     */
+    attachments?: Array<{
+        /**
+         * An attachment uploaded to this mailbox.
+         */
+        blob_id: string;
+        /**
+         * Content ID referenced by an inline image.
+         */
+        content_id?: string;
+        /**
+         * Attachment media type.
+         */
+        content_type: string;
+        /**
+         * Whether the attachment appears within the message.
+         */
+        disposition?: 'attachment' | 'inline';
+        /**
+         * Attachment filename.
+         */
+        filename: string;
+        /**
+         * Attachment size in bytes; verified when saved.
+         */
+        size_bytes: number;
+    }>;
+    /**
+     * Hidden copied recipients.
+     */
+    bcc?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Visible copied recipients.
+     */
+    cc?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Custom X- headers preserved with this revision.
+     */
+    custom_headers?: {
+        [key: string]: string;
+    };
+    /**
+     * The revision that was reviewed; a stale value returns conflict.
+     */
+    expected_revision: number;
+    /**
+     * Authorised sender; defaults to this inbox.
+     */
+    from?: {
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    };
+    /**
+     * HTML body, preserved when saved.
+     */
+    html_body?: string;
+    /**
+     * Authorised reply addresses; defaults to this inbox.
+     */
+    reply_to?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Subject; may be empty.
+     */
+    subject?: string;
+    /**
+     * Plain-text body.
+     */
+    text_body?: string;
+    /**
+     * Primary recipients; at most 50 total across To, Cc and Bcc.
+     */
+    to?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+};
+
 export type SendMailboxMessageResult = {
     message_id: string;
     status: 'queued';
@@ -60,11 +179,11 @@ export type SendMailboxMessageBody = {
         filename: string;
     }>;
     /**
-     * BCC recipients.
+     * Hidden copied recipients.
      */
     bcc?: Array<MailboxAddress>;
     /**
-     * CC recipients.
+     * Visible copied recipients.
      */
     cc?: Array<MailboxAddress>;
     /**
@@ -83,22 +202,37 @@ export type SendMailboxMessageBody = {
      */
     reply_to?: Array<MailboxAddress>;
     /**
-     * Subject line for the outgoing email.
+     * Subject line; defaults to empty.
      */
-    subject: string;
+    subject?: string;
     /**
      * Plain text body.
      */
     text_body?: string;
     /**
-     * Primary recipients.
+     * Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.
      */
-    to: Array<MailboxAddress>;
+    to?: Array<MailboxAddress>;
 };
 
 export type MailboxAddress = {
     email: string;
     name: string | null;
+};
+
+export type SendMailboxDraft = {
+    /**
+     * Exact saved revision to send. A stale revision returns conflict.
+     */
+    expected_revision: number;
+    /**
+     * Current schedule version. Required for scheduling and after cancelling a schedule.
+     */
+    expected_schedule_version?: number;
+    /**
+     * Send no earlier than this future time, within 30 days. Include a timezone and at most millisecond precision. Omit to send now.
+     */
+    scheduled_for?: string;
 };
 
 export type PatchMailboxMessageBody = {
@@ -330,12 +464,24 @@ export type MailboxMessageContent = {
      */
     attachments: Array<MailboxAttachment>;
     body: {
+        /**
+         * HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.
+         */
+        cleaned_html: string | null;
         extracted_links: Array<string>;
         format: 'text' | 'html' | null;
         /**
          * HTML body when requested. Returned as a JSON string and not as rendered content.
          */
         html: string | null;
+        /**
+         * HTML cleaning outcome; null when HTML is absent or not requested. Cleaning accepts at most 20,000 elements and 128 nested elements. Unrecognised quote and signature formats remain unchanged.
+         */
+        html_cleaning: {
+            quotes_stripped: boolean;
+            signature_stripped: boolean;
+            status: 'complete' | 'source_truncated' | 'limit_exceeded';
+        } | null;
         is_truncated: boolean;
         quotes_stripped: boolean;
         signature_stripped: boolean;
@@ -904,6 +1050,180 @@ export type MailboxFolderCursorListResponse = SuccessEnvelope & {
     pagination: CursorPagination;
 };
 
+export type MailboxDraftResponse = SuccessEnvelope & {
+    data: MailboxDraft;
+    meta?: ResponseMeta;
+};
+
+export type MailboxDraft = {
+    /**
+     * Attachments and inline images.
+     */
+    attachments?: Array<{
+        /**
+         * An attachment uploaded to this mailbox.
+         */
+        blob_id: string;
+        /**
+         * Content ID referenced by an inline image.
+         */
+        content_id?: string;
+        /**
+         * Attachment media type.
+         */
+        content_type: string;
+        /**
+         * Whether the attachment appears within the message.
+         */
+        disposition?: 'attachment' | 'inline';
+        /**
+         * Attachment filename.
+         */
+        filename: string;
+        /**
+         * Attachment size in bytes; verified when saved.
+         */
+        size_bytes: number;
+    }>;
+    /**
+     * Hidden copied recipients.
+     */
+    bcc?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Visible copied recipients.
+     */
+    cc?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Custom X- headers preserved with this revision.
+     */
+    custom_headers?: {
+        [key: string]: string;
+    };
+    /**
+     * Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.
+     */
+    failure_code: 'preparation_failed' | 'authorisation_revoked' | 'send_rejected' | null;
+    /**
+     * Authorised sender; defaults to this inbox.
+     */
+    from?: {
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    };
+    /**
+     * HTML body, preserved when saved.
+     */
+    html_body?: string;
+    /**
+     * Stable draft ID.
+     */
+    id: string;
+    /**
+     * Snapshotted parent message identifiers.
+     */
+    in_reply_to: Array<string>;
+    /**
+     * Saved message ID; absent until saving finishes.
+     */
+    message_id: string | null;
+    /**
+     * Snapshotted conversation identifiers.
+     */
+    references: Array<string>;
+    /**
+     * Authorised reply addresses; defaults to this inbox.
+     */
+    reply_to?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Original message this draft replies to.
+     */
+    reply_to_message_id?: string;
+    /**
+     * Current draft revision.
+     */
+    revision: number;
+    /**
+     * Schedule control version. Changes whenever a schedule is created, moved or cancelled.
+     */
+    schedule_version: number;
+    /**
+     * Requested earliest send time, retained after sending. Null when no schedule is set.
+     */
+    scheduled_for: string | null;
+    /**
+     * Saving or sending state.
+     */
+    status: 'preparing' | 'ready' | 'scheduled' | 'sending' | 'queued' | 'uncertain' | 'failed' | 'deleted';
+    /**
+     * Subject; may be empty.
+     */
+    subject?: string;
+    /**
+     * Plain-text body.
+     */
+    text_body?: string;
+    /**
+     * Primary recipients; at most 50 total across To, Cc and Bcc.
+     */
+    to?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+};
+
+export type MailboxDraftListResponse = SuccessEnvelope & {
+    data: Array<MailboxDraft>;
+    meta?: ResponseMeta;
+    pagination: CursorPagination;
+};
+
+export type MailboxDraftDeleteResponse = SuccessEnvelope & {
+    data: {
+        deleted: true;
+        id: string;
+    };
+    meta?: ResponseMeta;
+};
+
 export type MailboxChangesResponse = SuccessEnvelope & {
     data: MailboxChanges;
     meta?: ResponseMeta;
@@ -1071,6 +1391,42 @@ export type MailboxAttachmentUploadIntentBody = {
     size_bytes: number;
 };
 
+export type MailboxAttachmentTextResponse = SuccessEnvelope & {
+    data: MailboxAttachmentText;
+    meta?: ResponseMeta;
+};
+
+export type MailboxAttachmentText = {
+    /**
+     * Cache expiry. A new POST is needed after expiry.
+     */
+    expires_at: string;
+    /**
+     * Extracted text format.
+     */
+    format: 'markdown';
+    /**
+     * Extraction ID.
+     */
+    id: string;
+    /**
+     * Null while pending or running. Only ready contains extracted text; other outcomes contain an empty string.
+     */
+    outcome: 'ready' | 'unsupported' | 'encrypted' | 'malformed' | 'ocr_required' | 'resource_limit' | 'source_unavailable' | 'failed' | null;
+    /**
+     * Poll until complete to read the outcome.
+     */
+    status: 'pending' | 'running' | 'complete';
+    /**
+     * Markdown text, or null until complete. Limited to max_bytes in UTF-8.
+     */
+    text: string | null;
+    /**
+     * True when conversion or the requested output bound omitted text.
+     */
+    truncated: boolean;
+};
+
 export type GrantedMailboxListResponse = SuccessEnvelope & {
     data: Array<GrantedMailbox>;
     meta?: ResponseMeta;
@@ -1092,6 +1448,153 @@ export type CreateMailboxFolderBody = {
     name: string;
     parent_id?: string | null;
     sort_order?: number;
+};
+
+export type CreateMailboxDraft = {
+    /**
+     * Attachments and inline images.
+     */
+    attachments?: Array<{
+        /**
+         * An attachment uploaded to this mailbox.
+         */
+        blob_id: string;
+        /**
+         * Content ID referenced by an inline image.
+         */
+        content_id?: string;
+        /**
+         * Attachment media type.
+         */
+        content_type: string;
+        /**
+         * Whether the attachment appears within the message.
+         */
+        disposition?: 'attachment' | 'inline';
+        /**
+         * Attachment filename.
+         */
+        filename: string;
+        /**
+         * Attachment size in bytes; verified when saved.
+         */
+        size_bytes: number;
+    }>;
+    /**
+     * Hidden copied recipients.
+     */
+    bcc?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Visible copied recipients.
+     */
+    cc?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Custom X- headers preserved with this revision.
+     */
+    custom_headers?: {
+        [key: string]: string;
+    };
+    /**
+     * Authorised sender; defaults to this inbox.
+     */
+    from?: {
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    };
+    /**
+     * HTML body, preserved when saved.
+     */
+    html_body?: string;
+    /**
+     * Authorised reply addresses; defaults to this inbox.
+     */
+    reply_to?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+    /**
+     * Message in this inbox to reply to; thread headers are snapshotted.
+     */
+    reply_to_message_id?: string;
+    /**
+     * Source for this draft. Adoption requires Idempotency-Key. Explicit content fields override prepared defaults.
+     */
+    source?: {
+        /**
+         * Prepare a reply, reply-all, forward or adopt an existing draft. Source content and attachments are saved with the draft.
+         */
+        action: 'reply' | 'reply_all' | 'forward' | 'adopt';
+        /**
+         * Source message in this inbox.
+         */
+        message_id: string;
+    };
+    /**
+     * Subject; may be empty.
+     */
+    subject?: string;
+    /**
+     * Plain-text body.
+     */
+    text_body?: string;
+    /**
+     * Primary recipients; at most 50 total across To, Cc and Bcc.
+     */
+    to?: Array<{
+        /**
+         * Email address.
+         */
+        email: string;
+        /**
+         * Display name.
+         */
+        name?: string | null;
+    }>;
+};
+
+export type ControlMailboxDraftSchedule = {
+    /**
+     * Exact saved content revision.
+     */
+    expected_revision: number;
+    /**
+     * Current schedule version; stale requests return conflict. Repeating the last identical request returns its current result.
+     */
+    expected_schedule_version: number;
+    /**
+     * New future time within 30 days, or null to cancel and make the draft editable. Cancellation fails once sending has begun.
+     */
+    scheduled_for: string | null;
 };
 
 export type ConnectionResponse = SuccessEnvelope & {
@@ -1403,6 +1906,537 @@ export type MailboxGetConnectionResponses = {
 };
 
 export type MailboxGetConnectionResponse = MailboxGetConnectionResponses[keyof MailboxGetConnectionResponses];
+
+export type MailboxListDraftsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Page size; default 50, maximum 100.
+         */
+        limit?: number;
+        /**
+         * Cursor returned by the previous page.
+         */
+        cursor?: string;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts';
+};
+
+export type MailboxListDraftsErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxListDraftsError = MailboxListDraftsErrors[keyof MailboxListDraftsErrors];
+
+export type MailboxListDraftsResponses = {
+    /**
+     * Saved drafts, newest first.
+     */
+    200: MailboxDraftListResponse;
+};
+
+export type MailboxListDraftsResponse = MailboxListDraftsResponses[keyof MailboxListDraftsResponses];
+
+export type MailboxCreateDraftData = {
+    body: CreateMailboxDraft;
+    headers?: {
+        /**
+         * Reuse this key when retrying the same create request.
+         */
+        'Idempotency-Key'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts';
+};
+
+export type MailboxCreateDraftErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxCreateDraftError = MailboxCreateDraftErrors[keyof MailboxCreateDraftErrors];
+
+export type MailboxCreateDraftResponses = {
+    /**
+     * Saved draft and its revision.
+     */
+    201: MailboxDraftResponse;
+};
+
+export type MailboxCreateDraftResponse = MailboxCreateDraftResponses[keyof MailboxCreateDraftResponses];
+
+export type MailboxDeleteDraftData = {
+    body?: never;
+    headers?: {
+        /**
+         * Delete only if this is still the current draft.
+         */
+        'If-Match'?: string;
+    };
+    path: {
+        /**
+         * Stable draft ID.
+         */
+        draftId: string;
+    };
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts/{draftId}';
+};
+
+export type MailboxDeleteDraftErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxDeleteDraftError = MailboxDeleteDraftErrors[keyof MailboxDeleteDraftErrors];
+
+export type MailboxDeleteDraftResponses = {
+    /**
+     * Deletion recorded; removal finishes in the background. A send already in progress cannot be deleted.
+     */
+    200: MailboxDraftDeleteResponse;
+};
+
+export type MailboxDeleteDraftResponse = MailboxDeleteDraftResponses[keyof MailboxDeleteDraftResponses];
+
+export type MailboxGetDraftData = {
+    body?: never;
+    headers?: {
+        /**
+         * Return 304 if this draft has not changed.
+         */
+        'If-None-Match'?: string;
+    };
+    path: {
+        /**
+         * Stable draft ID.
+         */
+        draftId: string;
+    };
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts/{draftId}';
+};
+
+export type MailboxGetDraftErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxGetDraftError = MailboxGetDraftErrors[keyof MailboxGetDraftErrors];
+
+export type MailboxGetDraftResponses = {
+    /**
+     * Saved draft and its revision.
+     */
+    200: MailboxDraftResponse;
+};
+
+export type MailboxGetDraftResponse = MailboxGetDraftResponses[keyof MailboxGetDraftResponses];
+
+export type MailboxUpdateDraftData = {
+    body: UpdateMailboxDraft;
+    headers?: {
+        /**
+         * Current draft ETag; expected_revision is also required.
+         */
+        'If-Match'?: string;
+    };
+    path: {
+        /**
+         * Stable draft ID.
+         */
+        draftId: string;
+    };
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts/{draftId}';
+};
+
+export type MailboxUpdateDraftErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxUpdateDraftError = MailboxUpdateDraftErrors[keyof MailboxUpdateDraftErrors];
+
+export type MailboxUpdateDraftResponses = {
+    /**
+     * Saved draft and its revision.
+     */
+    200: MailboxDraftResponse;
+};
+
+export type MailboxUpdateDraftResponse = MailboxUpdateDraftResponses[keyof MailboxUpdateDraftResponses];
+
+export type MailboxControlDraftScheduleData = {
+    body: ControlMailboxDraftSchedule;
+    headers?: {
+        /**
+         * Current draft ETag; both revision and schedule version remain required.
+         */
+        'If-Match'?: string;
+    };
+    path: {
+        /**
+         * Stable draft ID.
+         */
+        draftId: string;
+    };
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts/{draftId}/schedule';
+};
+
+export type MailboxControlDraftScheduleErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxControlDraftScheduleError = MailboxControlDraftScheduleErrors[keyof MailboxControlDraftScheduleErrors];
+
+export type MailboxControlDraftScheduleResponses = {
+    /**
+     * Saved draft and its revision.
+     */
+    200: MailboxDraftResponse;
+};
+
+export type MailboxControlDraftScheduleResponse = MailboxControlDraftScheduleResponses[keyof MailboxControlDraftScheduleResponses];
+
+export type MailboxSendDraftData = {
+    body: SendMailboxDraft;
+    headers?: {
+        /**
+         * Current draft ETag; expected_revision is required.
+         */
+        'If-Match'?: string;
+    };
+    path: {
+        /**
+         * Stable draft ID.
+         */
+        draftId: string;
+    };
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/drafts/{draftId}/send';
+};
+
+export type MailboxSendDraftErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    409: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    413: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    422: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxSendDraftError = MailboxSendDraftErrors[keyof MailboxSendDraftErrors];
+
+export type MailboxSendDraftResponses = {
+    /**
+     * Saved draft and its revision.
+     */
+    200: MailboxDraftResponse;
+};
+
+export type MailboxSendDraftResponse = MailboxSendDraftResponses[keyof MailboxSendDraftResponses];
 
 export type MailboxStreamEventsData = {
     body?: never;
@@ -2349,6 +3383,154 @@ export type MailboxGetMessageAttachmentResponses = {
     206: unknown;
 };
 
+export type MailboxGetAttachmentTextData = {
+    body?: never;
+    headers?: {
+        /**
+         * Return 304 when the authorised response is unchanged.
+         */
+        'If-None-Match'?: string;
+    };
+    path: {
+        /**
+         * Message ID in the selected mailbox.
+         */
+        message_id: string;
+        /**
+         * Attachment ID from that message.
+         */
+        attachment_id: string;
+    };
+    query?: {
+        /**
+         * Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+         */
+        max_bytes?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/messages/{message_id}/attachments/{attachment_id}/text';
+};
+
+export type MailboxGetAttachmentTextErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Source attachment or unexpired extraction not found.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxGetAttachmentTextError = MailboxGetAttachmentTextErrors[keyof MailboxGetAttachmentTextErrors];
+
+export type MailboxGetAttachmentTextResponses = {
+    /**
+     * Conversion completed. Check outcome before using text; original attachment downloads remain available.
+     */
+    200: MailboxAttachmentTextResponse;
+    /**
+     * Extraction is pending or running. Poll GET on this same URL.
+     */
+    202: MailboxAttachmentTextResponse;
+};
+
+export type MailboxGetAttachmentTextResponse = MailboxGetAttachmentTextResponses[keyof MailboxGetAttachmentTextResponses];
+
+export type MailboxRequestAttachmentTextData = {
+    body?: never;
+    path: {
+        /**
+         * Message ID in the selected mailbox.
+         */
+        message_id: string;
+        /**
+         * Attachment ID from that message.
+         */
+        attachment_id: string;
+    };
+    query?: {
+        /**
+         * Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+         */
+        max_bytes?: number;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/messages/{message_id}/attachments/{attachment_id}/text';
+};
+
+export type MailboxRequestAttachmentTextErrors = {
+    /**
+     * Request could not be completed.
+     */
+    400: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    401: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    403: ApiError;
+    /**
+     * Source attachment or unexpired extraction not found.
+     */
+    404: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    429: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    500: ApiError;
+    /**
+     * Request could not be completed.
+     */
+    503: ApiError;
+};
+
+export type MailboxRequestAttachmentTextError = MailboxRequestAttachmentTextErrors[keyof MailboxRequestAttachmentTextErrors];
+
+export type MailboxRequestAttachmentTextResponses = {
+    /**
+     * Conversion completed. Check outcome before using text; original attachment downloads remain available.
+     */
+    200: MailboxAttachmentTextResponse;
+    /**
+     * Extraction is pending or running. Poll GET on this same URL.
+     */
+    202: MailboxAttachmentTextResponse;
+};
+
+export type MailboxRequestAttachmentTextResponse = MailboxRequestAttachmentTextResponses[keyof MailboxRequestAttachmentTextResponses];
+
 export type MailboxListBodyData = {
     body?: never;
     headers?: {
@@ -2478,6 +3660,67 @@ export type MailboxListContentResponses = {
 };
 
 export type MailboxListContentResponse = MailboxListContentResponses[keyof MailboxListContentResponses];
+
+export type MailboxDownloadRawMessageData = {
+    body?: never;
+    headers?: {
+        /**
+         * Weak ETag from a previous response. Returns 304 when unchanged.
+         */
+        'If-None-Match'?: string;
+    };
+    path: {
+        /**
+         * Message ID.
+         */
+        message_id: string;
+    };
+    query?: {
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/messages/{message_id}/raw';
+};
+
+export type MailboxDownloadRawMessageErrors = {
+    /**
+     * Authentication required
+     */
+    401: ApiError;
+    /**
+     * Mailbox read permission required
+     */
+    403: ApiError;
+    /**
+     * Message not found
+     */
+    404: ApiError;
+    /**
+     * Rate limit exceeded
+     */
+    429: ApiError;
+    /**
+     * Unexpected error
+     */
+    500: ApiError;
+    /**
+     * Message download unavailable
+     */
+    503: ApiError;
+};
+
+export type MailboxDownloadRawMessageError = MailboxDownloadRawMessageErrors[keyof MailboxDownloadRawMessageErrors];
+
+export type MailboxDownloadRawMessageResponses = {
+    /**
+     * Original message file
+     */
+    200: Blob | File;
+};
+
+export type MailboxDownloadRawMessageResponse = MailboxDownloadRawMessageResponses[keyof MailboxDownloadRawMessageResponses];
 
 export type MailboxCountMessagesData = {
     body?: never;

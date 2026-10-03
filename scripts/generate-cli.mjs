@@ -267,7 +267,7 @@ function responseKindForOperation(operation) {
   if (contentTypes.includes("text/plain")) {
     return "text";
   }
-  if (contentTypes.includes("application/octet-stream")) {
+  if (contentTypes.includes("application/octet-stream") || contentTypes.includes("message/rfc822")) {
     return "binary";
   }
   return "json";

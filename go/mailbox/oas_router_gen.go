@@ -169,6 +169,127 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'd': // Prefix: "drafts"
+
+				if l := len("drafts"); len(elem) >= l && elem[0:l] == "drafts" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleMailboxListDraftsRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleMailboxCreateDraftRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "draftId"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "DELETE":
+							s.handleMailboxDeleteDraftRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleMailboxGetDraftRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PATCH":
+							s.handleMailboxUpdateDraftRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PATCH")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/s"
+
+						if l := len("/s"); len(elem) >= l && elem[0:l] == "/s" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'c': // Prefix: "chedule"
+
+							if l := len("chedule"); len(elem) >= l && elem[0:l] == "chedule" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PATCH":
+									s.handleMailboxControlDraftScheduleRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PATCH")
+								}
+
+								return
+							}
+
+						case 'e': // Prefix: "end"
+
+							if l := len("end"); len(elem) >= l && elem[0:l] == "end" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleMailboxSendDraftRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
+						}
+
+					}
+
+				}
+
 			case 'e': // Prefix: "events"
 
 				if l := len("events"); len(elem) >= l && elem[0:l] == "events" {
@@ -585,16 +706,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									}
 
 									// Param: "attachment_id"
-									// Leaf parameter, slashes are prohibited
+									// Match until "/"
 									idx := strings.IndexByte(elem, '/')
-									if idx >= 0 {
-										break
+									if idx < 0 {
+										idx = len(elem)
 									}
-									args[1] = elem
-									elem = ""
+									args[1] = elem[:idx]
+									elem = elem[idx:]
 
 									if len(elem) == 0 {
-										// Leaf node.
 										switch r.Method {
 										case "GET":
 											s.handleMailboxGetMessageAttachmentRequest([2]string{
@@ -606,6 +726,36 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										}
 
 										return
+									}
+									switch elem[0] {
+									case '/': // Prefix: "/text"
+
+										if l := len("/text"); len(elem) >= l && elem[0:l] == "/text" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch r.Method {
+											case "GET":
+												s.handleMailboxGetAttachmentTextRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											case "POST":
+												s.handleMailboxRequestAttachmentTextRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "GET,POST")
+											}
+
+											return
+										}
+
 									}
 
 								case 'b': // Prefix: "body"
@@ -643,6 +793,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										switch r.Method {
 										case "GET":
 											s.handleMailboxListContentRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								case 'r': // Prefix: "raw"
+
+									if l := len("raw"); len(elem) >= l && elem[0:l] == "raw" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleMailboxDownloadRawMessageRequest([1]string{
 												args[0],
 											}, elemIsEscaped, w, r)
 										default:
@@ -1238,6 +1410,151 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
+			case 'd': // Prefix: "drafts"
+
+				if l := len("drafts"); len(elem) >= l && elem[0:l] == "drafts" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = MailboxListDraftsOperation
+						r.summary = "List saved drafts"
+						r.operationID = "mailboxListDrafts"
+						r.pathPattern = "/mailbox/drafts"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = MailboxCreateDraftOperation
+						r.summary = "Create a saved draft"
+						r.operationID = "mailboxCreateDraft"
+						r.pathPattern = "/mailbox/drafts"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "draftId"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch method {
+						case "DELETE":
+							r.name = MailboxDeleteDraftOperation
+							r.summary = "Delete a saved draft"
+							r.operationID = "mailboxDeleteDraft"
+							r.pathPattern = "/mailbox/drafts/{draftId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = MailboxGetDraftOperation
+							r.summary = "Read a saved draft"
+							r.operationID = "mailboxGetDraft"
+							r.pathPattern = "/mailbox/drafts/{draftId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PATCH":
+							r.name = MailboxUpdateDraftOperation
+							r.summary = "Edit a saved draft"
+							r.operationID = "mailboxUpdateDraft"
+							r.pathPattern = "/mailbox/drafts/{draftId}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/s"
+
+						if l := len("/s"); len(elem) >= l && elem[0:l] == "/s" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'c': // Prefix: "chedule"
+
+							if l := len("chedule"); len(elem) >= l && elem[0:l] == "chedule" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "PATCH":
+									r.name = MailboxControlDraftScheduleOperation
+									r.summary = "Reschedule or cancel a saved draft send"
+									r.operationID = "mailboxControlDraftSchedule"
+									r.pathPattern = "/mailbox/drafts/{draftId}/schedule"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 'e': // Prefix: "end"
+
+							if l := len("end"); len(elem) >= l && elem[0:l] == "end" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = MailboxSendDraftOperation
+									r.summary = "Send a saved draft revision"
+									r.operationID = "mailboxSendDraft"
+									r.pathPattern = "/mailbox/drafts/{draftId}/send"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					}
+
+				}
+
 			case 'e': // Prefix: "events"
 
 				if l := len("events"); len(elem) >= l && elem[0:l] == "events" {
@@ -1738,16 +2055,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									}
 
 									// Param: "attachment_id"
-									// Leaf parameter, slashes are prohibited
+									// Match until "/"
 									idx := strings.IndexByte(elem, '/')
-									if idx >= 0 {
-										break
+									if idx < 0 {
+										idx = len(elem)
 									}
-									args[1] = elem
-									elem = ""
+									args[1] = elem[:idx]
+									elem = elem[idx:]
 
 									if len(elem) == 0 {
-										// Leaf node.
 										switch method {
 										case "GET":
 											r.name = MailboxGetMessageAttachmentOperation
@@ -1760,6 +2076,40 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										default:
 											return
 										}
+									}
+									switch elem[0] {
+									case '/': // Prefix: "/text"
+
+										if l := len("/text"); len(elem) >= l && elem[0:l] == "/text" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch method {
+											case "GET":
+												r.name = MailboxGetAttachmentTextOperation
+												r.summary = "Read attachment text"
+												r.operationID = "mailboxGetAttachmentText"
+												r.pathPattern = "/mailbox/messages/{message_id}/attachments/{attachment_id}/text"
+												r.args = args
+												r.count = 2
+												return r, true
+											case "POST":
+												r.name = MailboxRequestAttachmentTextOperation
+												r.summary = "Request attachment text"
+												r.operationID = "mailboxRequestAttachmentText"
+												r.pathPattern = "/mailbox/messages/{message_id}/attachments/{attachment_id}/text"
+												r.args = args
+												r.count = 2
+												return r, true
+											default:
+												return
+											}
+										}
+
 									}
 
 								case 'b': // Prefix: "body"
@@ -1802,6 +2152,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 											r.summary = "Get clean message content"
 											r.operationID = "mailboxListContent"
 											r.pathPattern = "/mailbox/messages/{message_id}/content"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'r': // Prefix: "raw"
+
+									if l := len("raw"); len(elem) >= l && elem[0:l] == "raw" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = MailboxDownloadRawMessageOperation
+											r.summary = "Download the original message"
+											r.operationID = "mailboxDownloadRawMessage"
+											r.pathPattern = "/mailbox/messages/{message_id}/raw"
 											r.args = args
 											r.count = 1
 											return r, true

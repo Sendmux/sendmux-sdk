@@ -34,6 +34,7 @@ const surfaces = [
     // class: the alias is written once the name has left the generated requires
     // (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
     deprecatedModelAliases: [
+      { deprecated: "MailboxFolderDeletedResponseAllOfData", replacement: "MailboxDraftDeleteResponseAllOfData" },
       { deprecated: "MailboxRealtimeMessageAllOfBody", replacement: "MailboxRealtimeMessageBody" },
       // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
       { deprecated: "MailboxMessageContentResponseAllOfData", replacement: "MailboxMessageContent" },

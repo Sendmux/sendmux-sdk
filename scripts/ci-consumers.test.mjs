@@ -134,7 +134,7 @@ test("installed package checks reject missing artifact bytes without falling bac
     const archives = readdirSync(packs);
     assert.equal(archives.length, 1);
     writeFileSync(join(directory, "package.json"), '{"name":"artifact-fixture","private":true,"type":"module"}');
-    await run("pnpm", ["add", join(packs, archives[0])], { cwd: directory });
+    await run("pnpm", ["--ignore-workspace", "add", join(packs, archives[0])], { cwd: directory });
     await nodeProvenance(directory, ["core"]);
     const entry = realpathSync(join(directory, "node_modules/@sendmux/core/dist/index.js"));
     const original = readFileSync(entry);
@@ -302,7 +302,7 @@ test("packed dependents resolve an unpublished sibling candidate from its tarbal
     const candidates = [await packFixture(join(directory, "leaf"), packs), await packFixture(join(directory, "dependent"), packs)];
     const consumer = join(directory, "consumer");
     newNodeConsumer(consumer, candidates);
-    await run("pnpm", ["add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer });
+    await run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer });
     await nodeProvenance(consumer, candidates.map(({ name }) => name));
   });
 });
@@ -317,7 +317,13 @@ test("a packed dependent whose range excludes the candidate is not masked", asyn
     assert.deepEqual(Object.keys(candidateOverrides(candidates)), ["@sendmux-ci-fixture/leaf@0.0.0-fixture", "@sendmux-ci-fixture/dependent@1.0.0"]);
     const consumer = join(directory, "consumer");
     newNodeConsumer(consumer, candidates);
-    await assert.rejects(run("pnpm", ["add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer }), /exit 1/);
+    await assert.rejects(run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer, captureOutput: true }), (error) => {
+      assert.match(error.message, /pnpm failed: exit 1, interrupted=false/);
+      const missingPackage = /ERR_PNPM_FETCH_404[^\n]*GET https?:\/\/[^\s]*@sendmux-ci-fixture(?:%2[fF]|\/)leaf: [^\n]* - 404/.test(error.message);
+      const excludedVersion = /ERR_PNPM_NO_MATCHING_VERSION[^\n]*No matching version found for @sendmux-ci-fixture\/leaf@0\.0\.1 while fetching it from https?:\/\//.test(error.message);
+      assert(missingPackage || excludedVersion, "Expected excluded leaf candidate to reach registry resolution");
+      return true;
+    });
     console.log("Expected negative: dependent range 0.0.1 excludes candidate 0.0.0-fixture and reaches the registry");
   });
 });
@@ -333,7 +339,7 @@ test("nested candidate edges must be the tarball instance, not a registry copy",
     const registryEdge = [core, await packFixture(dependent, packs)];
     const registryConsumer = join(directory, "registry-edge");
     newNodeConsumer(registryConsumer, registryEdge);
-    await run("pnpm", ["add", "--save-exact", ...registryEdge.map(({ archive }) => archive)], { cwd: registryConsumer });
+    await run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...registryEdge.map(({ archive }) => archive)], { cwd: registryConsumer });
     await assert.rejects(nodeProvenance(registryConsumer, registryEdge.map(({ name }) => name)), /exit 1/);
     console.log("Expected negative: dependent pinned to published @sendmux/core 1.1.0 resolved a registry copy");
     const candidatePacks = join(directory, "candidate-packs");
@@ -342,7 +348,7 @@ test("nested candidate edges must be the tarball instance, not a registry copy",
     const candidateEdge = [core, await packFixture(dependent, candidatePacks)];
     const candidateConsumer = join(directory, "candidate-edge");
     newNodeConsumer(candidateConsumer, candidateEdge);
-    await run("pnpm", ["add", "--save-exact", ...candidateEdge.map(({ archive }) => archive)], { cwd: candidateConsumer });
+    await run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...candidateEdge.map(({ archive }) => archive)], { cwd: candidateConsumer });
     await nodeProvenance(candidateConsumer, candidateEdge.map(({ name }) => name));
   });
 });

@@ -32,8 +32,9 @@ const surfaces = [
     // class aliases under src/Model, until the next planned major. An entry may land ahead of the
     // regeneration that drops its class: the alias is written once the class has left the generated
     // output (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
-    // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
     deprecatedModelAliases: [
+      { deprecated: "MailboxFolderDeletedResponseAllOfData", replacement: "MailboxDraftDeleteResponseAllOfData", removedIn: "sendmux/mailbox 4.0" },
+      // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
       { deprecated: "MailboxMessageContentResponseAllOfData", replacement: "MailboxMessageContent", removedIn: "sendmux/mailbox 4.0" },
       { deprecated: "MailboxRawBodyResponseAllOfData", replacement: "MailboxRawBody", removedIn: "sendmux/mailbox 4.0" },
       { deprecated: "MailboxSubmissionEnvelopeRcptToInner", replacement: "MailboxSubmissionEnvelopeAddress", removedIn: "sendmux/mailbox 4.0" },

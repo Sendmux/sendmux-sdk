@@ -220,6 +220,84 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # Reschedule or cancel a saved draft send
+    # @param draft_id [String] Stable draft ID.
+    # @param control_mailbox_draft_schedule [ControlMailboxDraftSchedule]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Current draft ETag; both revision and schedule version remain required.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftResponse]
+    def mailbox_control_draft_schedule(draft_id, control_mailbox_draft_schedule, opts = {})
+      data, _status_code, _headers = mailbox_control_draft_schedule_with_http_info(draft_id, control_mailbox_draft_schedule, opts)
+      data
+    end
+
+    # Reschedule or cancel a saved draft send
+    # @param draft_id [String] Stable draft ID.
+    # @param control_mailbox_draft_schedule [ControlMailboxDraftSchedule]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Current draft ETag; both revision and schedule version remain required.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftResponse, Integer, Hash)>] MailboxDraftResponse data, response status code and response headers
+    def mailbox_control_draft_schedule_with_http_info(draft_id, control_mailbox_draft_schedule, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_control_draft_schedule ...'
+      end
+      # verify the required parameter 'draft_id' is set
+      if @api_client.config.client_side_validation && draft_id.nil?
+        fail ArgumentError, "Missing the required parameter 'draft_id' when calling MailboxAPIApi.mailbox_control_draft_schedule"
+      end
+      # verify the required parameter 'control_mailbox_draft_schedule' is set
+      if @api_client.config.client_side_validation && control_mailbox_draft_schedule.nil?
+        fail ArgumentError, "Missing the required parameter 'control_mailbox_draft_schedule' when calling MailboxAPIApi.mailbox_control_draft_schedule"
+      end
+      # resource path
+      local_var_path = '/mailbox/drafts/{draftId}/schedule'.sub('{draftId}', CGI.escape(draft_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+      header_params[:'If-Match'] = opts[:'if_match'] if !opts[:'if_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(control_mailbox_draft_schedule)
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_control_draft_schedule",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:PATCH, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_control_draft_schedule\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Count mailbox messages
     # Returns a count for the supplied mailbox message filters without returning message rows.
     # @param [Hash] opts the optional parameters
@@ -412,6 +490,82 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # Create a saved draft
+    # @param create_mailbox_draft [CreateMailboxDraft]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :idempotency_key Reuse this key when retrying the same create request.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftResponse]
+    def mailbox_create_draft(create_mailbox_draft, opts = {})
+      data, _status_code, _headers = mailbox_create_draft_with_http_info(create_mailbox_draft, opts)
+      data
+    end
+
+    # Create a saved draft
+    # @param create_mailbox_draft [CreateMailboxDraft]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :idempotency_key Reuse this key when retrying the same create request.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftResponse, Integer, Hash)>] MailboxDraftResponse data, response status code and response headers
+    def mailbox_create_draft_with_http_info(create_mailbox_draft, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_create_draft ...'
+      end
+      # verify the required parameter 'create_mailbox_draft' is set
+      if @api_client.config.client_side_validation && create_mailbox_draft.nil?
+        fail ArgumentError, "Missing the required parameter 'create_mailbox_draft' when calling MailboxAPIApi.mailbox_create_draft"
+      end
+      if @api_client.config.client_side_validation && !opts[:'idempotency_key'].nil? && opts[:'idempotency_key'].to_s.length > 255
+        fail ArgumentError, 'invalid value for "opts[:"idempotency_key"]" when calling MailboxAPIApi.mailbox_create_draft, the character length must be smaller than or equal to 255.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox/drafts'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+      header_params[:'Idempotency-Key'] = opts[:'idempotency_key'] if !opts[:'idempotency_key'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(create_mailbox_draft)
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_create_draft",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_create_draft\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Create a mailbox folder
     # Creates a folder in the authenticated mailbox.
     # @param [Hash] opts the optional parameters
@@ -475,6 +629,73 @@ module Sendmux::Mailbox::Generated
       data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
       if @api_client.config.debugging
         @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_create_folder\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Delete a saved draft
+    # @param draft_id [String] Stable draft ID.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Delete only if this is still the current draft.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftDeleteResponse]
+    def mailbox_delete_draft(draft_id, opts = {})
+      data, _status_code, _headers = mailbox_delete_draft_with_http_info(draft_id, opts)
+      data
+    end
+
+    # Delete a saved draft
+    # @param draft_id [String] Stable draft ID.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Delete only if this is still the current draft.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftDeleteResponse, Integer, Hash)>] MailboxDraftDeleteResponse data, response status code and response headers
+    def mailbox_delete_draft_with_http_info(draft_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_delete_draft ...'
+      end
+      # verify the required parameter 'draft_id' is set
+      if @api_client.config.client_side_validation && draft_id.nil?
+        fail ArgumentError, "Missing the required parameter 'draft_id' when calling MailboxAPIApi.mailbox_delete_draft"
+      end
+      # resource path
+      local_var_path = '/mailbox/drafts/{draftId}'.sub('{draftId}', CGI.escape(draft_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-Match'] = opts[:'if_match'] if !opts[:'if_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftDeleteResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_delete_draft",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:DELETE, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_delete_draft\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end
@@ -616,6 +837,161 @@ module Sendmux::Mailbox::Generated
       data, status_code, headers = @api_client.call_api(:DELETE, local_var_path, new_options)
       if @api_client.config.debugging
         @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_delete_message\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Download the original message
+    # Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+    # @param message_id [String]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [File]
+    def mailbox_download_raw_message(message_id, opts = {})
+      data, _status_code, _headers = mailbox_download_raw_message_with_http_info(message_id, opts)
+      data
+    end
+
+    # Download the original message
+    # Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+    # @param message_id [String]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(File, Integer, Hash)>] File data, response status code and response headers
+    def mailbox_download_raw_message_with_http_info(message_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_download_raw_message ...'
+      end
+      # verify the required parameter 'message_id' is set
+      if @api_client.config.client_side_validation && message_id.nil?
+        fail ArgumentError, "Missing the required parameter 'message_id' when calling MailboxAPIApi.mailbox_download_raw_message"
+      end
+      # resource path
+      local_var_path = '/mailbox/messages/{message_id}/raw'.sub('{message_id}', CGI.escape(message_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['message/rfc822', 'application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'File'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_download_raw_message",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_download_raw_message\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Read attachment text
+    # Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.
+    # @param message_id [String] Message ID in the selected mailbox.
+    # @param attachment_id [String] Attachment ID from that message.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+    # @option opts [String] :if_none_match Return 304 when the authorised response is unchanged.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxAttachmentTextResponse]
+    def mailbox_get_attachment_text(message_id, attachment_id, opts = {})
+      data, _status_code, _headers = mailbox_get_attachment_text_with_http_info(message_id, attachment_id, opts)
+      data
+    end
+
+    # Read attachment text
+    # Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.
+    # @param message_id [String] Message ID in the selected mailbox.
+    # @param attachment_id [String] Attachment ID from that message.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+    # @option opts [String] :if_none_match Return 304 when the authorised response is unchanged.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxAttachmentTextResponse, Integer, Hash)>] MailboxAttachmentTextResponse data, response status code and response headers
+    def mailbox_get_attachment_text_with_http_info(message_id, attachment_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_get_attachment_text ...'
+      end
+      # verify the required parameter 'message_id' is set
+      if @api_client.config.client_side_validation && message_id.nil?
+        fail ArgumentError, "Missing the required parameter 'message_id' when calling MailboxAPIApi.mailbox_get_attachment_text"
+      end
+      # verify the required parameter 'attachment_id' is set
+      if @api_client.config.client_side_validation && attachment_id.nil?
+        fail ArgumentError, "Missing the required parameter 'attachment_id' when calling MailboxAPIApi.mailbox_get_attachment_text"
+      end
+      if @api_client.config.client_side_validation && !opts[:'max_bytes'].nil? && opts[:'max_bytes'] > 1048576
+        fail ArgumentError, 'invalid value for "opts[:"max_bytes"]" when calling MailboxAPIApi.mailbox_get_attachment_text, must be smaller than or equal to 1048576.'
+      end
+
+      if @api_client.config.client_side_validation && !opts[:'max_bytes'].nil? && opts[:'max_bytes'] < 1
+        fail ArgumentError, 'invalid value for "opts[:"max_bytes"]" when calling MailboxAPIApi.mailbox_get_attachment_text, must be greater than or equal to 1.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox/messages/{message_id}/attachments/{attachment_id}/text'.sub('{message_id}', CGI.escape(message_id.to_s)).sub('{attachment_id}', CGI.escape(attachment_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'max_bytes'] = opts[:'max_bytes'] if !opts[:'max_bytes'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxAttachmentTextResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_get_attachment_text",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_get_attachment_text\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end
@@ -771,6 +1147,73 @@ module Sendmux::Mailbox::Generated
       data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
       if @api_client.config.debugging
         @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_get_connection\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Read a saved draft
+    # @param draft_id [String] Stable draft ID.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match Return 304 if this draft has not changed.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftResponse]
+    def mailbox_get_draft(draft_id, opts = {})
+      data, _status_code, _headers = mailbox_get_draft_with_http_info(draft_id, opts)
+      data
+    end
+
+    # Read a saved draft
+    # @param draft_id [String] Stable draft ID.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match Return 304 if this draft has not changed.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftResponse, Integer, Hash)>] MailboxDraftResponse data, response status code and response headers
+    def mailbox_get_draft_with_http_info(draft_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_get_draft ...'
+      end
+      # verify the required parameter 'draft_id' is set
+      if @api_client.config.client_side_validation && draft_id.nil?
+        fail ArgumentError, "Missing the required parameter 'draft_id' when calling MailboxAPIApi.mailbox_get_draft"
+      end
+      # resource path
+      local_var_path = '/mailbox/drafts/{draftId}'.sub('{draftId}', CGI.escape(draft_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_get_draft",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_get_draft\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end
@@ -1871,6 +2314,78 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # List saved drafts
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :limit Page size; default 50, maximum 100.
+    # @option opts [String] :cursor Cursor returned by the previous page.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftListResponse]
+    def mailbox_list_drafts(opts = {})
+      data, _status_code, _headers = mailbox_list_drafts_with_http_info(opts)
+      data
+    end
+
+    # List saved drafts
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :limit Page size; default 50, maximum 100.
+    # @option opts [String] :cursor Cursor returned by the previous page.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftListResponse, Integer, Hash)>] MailboxDraftListResponse data, response status code and response headers
+    def mailbox_list_drafts_with_http_info(opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_list_drafts ...'
+      end
+      if @api_client.config.client_side_validation && !opts[:'limit'].nil? && opts[:'limit'] > 100
+        fail ArgumentError, 'invalid value for "opts[:"limit"]" when calling MailboxAPIApi.mailbox_list_drafts, must be smaller than or equal to 100.'
+      end
+
+      if @api_client.config.client_side_validation && !opts[:'limit'].nil? && opts[:'limit'] < 1
+        fail ArgumentError, 'invalid value for "opts[:"limit"]" when calling MailboxAPIApi.mailbox_list_drafts, must be greater than or equal to 1.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox/drafts'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'limit'] = opts[:'limit'] if !opts[:'limit'].nil?
+      query_params[:'cursor'] = opts[:'cursor'] if !opts[:'cursor'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftListResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_list_drafts",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_list_drafts\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # List mailbox folders
     # Returns a cursor-paginated list of folders for the authenticated mailbox.
     # @param [Hash] opts the optional parameters
@@ -2946,6 +3461,89 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # Request attachment text
+    # Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.
+    # @param message_id [String] Message ID in the selected mailbox.
+    # @param attachment_id [String] Attachment ID from that message.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxAttachmentTextResponse]
+    def mailbox_request_attachment_text(message_id, attachment_id, opts = {})
+      data, _status_code, _headers = mailbox_request_attachment_text_with_http_info(message_id, attachment_id, opts)
+      data
+    end
+
+    # Request attachment text
+    # Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.
+    # @param message_id [String] Message ID in the selected mailbox.
+    # @param attachment_id [String] Attachment ID from that message.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxAttachmentTextResponse, Integer, Hash)>] MailboxAttachmentTextResponse data, response status code and response headers
+    def mailbox_request_attachment_text_with_http_info(message_id, attachment_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_request_attachment_text ...'
+      end
+      # verify the required parameter 'message_id' is set
+      if @api_client.config.client_side_validation && message_id.nil?
+        fail ArgumentError, "Missing the required parameter 'message_id' when calling MailboxAPIApi.mailbox_request_attachment_text"
+      end
+      # verify the required parameter 'attachment_id' is set
+      if @api_client.config.client_side_validation && attachment_id.nil?
+        fail ArgumentError, "Missing the required parameter 'attachment_id' when calling MailboxAPIApi.mailbox_request_attachment_text"
+      end
+      if @api_client.config.client_side_validation && !opts[:'max_bytes'].nil? && opts[:'max_bytes'] > 1048576
+        fail ArgumentError, 'invalid value for "opts[:"max_bytes"]" when calling MailboxAPIApi.mailbox_request_attachment_text, must be smaller than or equal to 1048576.'
+      end
+
+      if @api_client.config.client_side_validation && !opts[:'max_bytes'].nil? && opts[:'max_bytes'] < 1
+        fail ArgumentError, 'invalid value for "opts[:"max_bytes"]" when calling MailboxAPIApi.mailbox_request_attachment_text, must be greater than or equal to 1.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox/messages/{message_id}/attachments/{attachment_id}/text'.sub('{message_id}', CGI.escape(message_id.to_s)).sub('{attachment_id}', CGI.escape(attachment_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'max_bytes'] = opts[:'max_bytes'] if !opts[:'max_bytes'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxAttachmentTextResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_request_attachment_text",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_request_attachment_text\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Get message search snippets
     # Returns subject and preview snippets for a text search. Provide `message_ids` to snippet exact messages, or omit it to snippet the first filtered results.
     # @param q [String]
@@ -3082,6 +3680,84 @@ module Sendmux::Mailbox::Generated
       data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
       if @api_client.config.debugging
         @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_search_message_snippets\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Send a saved draft revision
+    # @param draft_id [String] Stable draft ID.
+    # @param send_mailbox_draft [SendMailboxDraft]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Current draft ETag; expected_revision is required.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftResponse]
+    def mailbox_send_draft(draft_id, send_mailbox_draft, opts = {})
+      data, _status_code, _headers = mailbox_send_draft_with_http_info(draft_id, send_mailbox_draft, opts)
+      data
+    end
+
+    # Send a saved draft revision
+    # @param draft_id [String] Stable draft ID.
+    # @param send_mailbox_draft [SendMailboxDraft]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Current draft ETag; expected_revision is required.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftResponse, Integer, Hash)>] MailboxDraftResponse data, response status code and response headers
+    def mailbox_send_draft_with_http_info(draft_id, send_mailbox_draft, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_send_draft ...'
+      end
+      # verify the required parameter 'draft_id' is set
+      if @api_client.config.client_side_validation && draft_id.nil?
+        fail ArgumentError, "Missing the required parameter 'draft_id' when calling MailboxAPIApi.mailbox_send_draft"
+      end
+      # verify the required parameter 'send_mailbox_draft' is set
+      if @api_client.config.client_side_validation && send_mailbox_draft.nil?
+        fail ArgumentError, "Missing the required parameter 'send_mailbox_draft' when calling MailboxAPIApi.mailbox_send_draft"
+      end
+      # resource path
+      local_var_path = '/mailbox/drafts/{draftId}/send'.sub('{draftId}', CGI.escape(draft_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+      header_params[:'If-Match'] = opts[:'if_match'] if !opts[:'if_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(send_mailbox_draft)
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_send_draft",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_send_draft\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end
@@ -3247,6 +3923,84 @@ module Sendmux::Mailbox::Generated
       data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
       if @api_client.config.debugging
         @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_stream_events\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Edit a saved draft
+    # @param draft_id [String] Stable draft ID.
+    # @param update_mailbox_draft [UpdateMailboxDraft]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Current draft ETag; expected_revision is also required.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxDraftResponse]
+    def mailbox_update_draft(draft_id, update_mailbox_draft, opts = {})
+      data, _status_code, _headers = mailbox_update_draft_with_http_info(draft_id, update_mailbox_draft, opts)
+      data
+    end
+
+    # Edit a saved draft
+    # @param draft_id [String] Stable draft ID.
+    # @param update_mailbox_draft [UpdateMailboxDraft]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_match Current draft ETag; expected_revision is also required.
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxDraftResponse, Integer, Hash)>] MailboxDraftResponse data, response status code and response headers
+    def mailbox_update_draft_with_http_info(draft_id, update_mailbox_draft, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_update_draft ...'
+      end
+      # verify the required parameter 'draft_id' is set
+      if @api_client.config.client_side_validation && draft_id.nil?
+        fail ArgumentError, "Missing the required parameter 'draft_id' when calling MailboxAPIApi.mailbox_update_draft"
+      end
+      # verify the required parameter 'update_mailbox_draft' is set
+      if @api_client.config.client_side_validation && update_mailbox_draft.nil?
+        fail ArgumentError, "Missing the required parameter 'update_mailbox_draft' when calling MailboxAPIApi.mailbox_update_draft"
+      end
+      # resource path
+      local_var_path = '/mailbox/drafts/{draftId}'.sub('{draftId}', CGI.escape(draft_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+      header_params[:'If-Match'] = opts[:'if_match'] if !opts[:'if_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(update_mailbox_draft)
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxDraftResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_update_draft",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:PATCH, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_update_draft\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end

@@ -18,10 +18,10 @@ module Sendmux::Mailbox::Generated
     # Attachments to send with the message.
     attr_accessor :attachments
 
-    # BCC recipients.
+    # Hidden copied recipients.
     attr_accessor :bcc
 
-    # CC recipients.
+    # Visible copied recipients.
     attr_accessor :cc
 
     # Custom headers to include.
@@ -36,13 +36,13 @@ module Sendmux::Mailbox::Generated
     # Reply-To recipients.
     attr_accessor :reply_to
 
-    # Subject line for the outgoing email.
+    # Subject line; defaults to empty.
     attr_accessor :subject
 
     # Plain text body.
     attr_accessor :text_body
 
-    # Primary recipients.
+    # Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.
     attr_accessor :to
 
     # Attribute mapping from ruby-style variable name to JSON key.
@@ -149,8 +149,6 @@ module Sendmux::Mailbox::Generated
 
       if attributes.key?(:'subject')
         self.subject = attributes[:'subject']
-      else
-        self.subject = nil
       end
 
       if attributes.key?(:'text_body')
@@ -161,8 +159,6 @@ module Sendmux::Mailbox::Generated
         if (value = attributes[:'to']).is_a?(Array)
           self.to = value
         end
-      else
-        self.to = nil
       end
     end
 
@@ -171,16 +167,20 @@ module Sendmux::Mailbox::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @subject.nil?
-        invalid_properties.push('invalid value for "subject", subject cannot be nil.')
+      if !@bcc.nil? && @bcc.length > 50
+        invalid_properties.push('invalid value for "bcc", number of items must be less than or equal to 50.')
       end
 
-      if @to.nil?
-        invalid_properties.push('invalid value for "to", to cannot be nil.')
+      if !@cc.nil? && @cc.length > 50
+        invalid_properties.push('invalid value for "cc", number of items must be less than or equal to 50.')
       end
 
-      if @to.length < 1
-        invalid_properties.push('invalid value for "to", number of items must be greater than or equal to 1.')
+      if !@subject.nil? && @subject.to_s.length > 998
+        invalid_properties.push('invalid value for "subject", the character length must be smaller than or equal to 998.')
+      end
+
+      if !@to.nil? && @to.length > 50
+        invalid_properties.push('invalid value for "to", number of items must be less than or equal to 50.')
       end
 
       invalid_properties
@@ -190,10 +190,39 @@ module Sendmux::Mailbox::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @subject.nil?
-      return false if @to.nil?
-      return false if @to.length < 1
+      return false if !@bcc.nil? && @bcc.length > 50
+      return false if !@cc.nil? && @cc.length > 50
+      return false if !@subject.nil? && @subject.to_s.length > 998
+      return false if !@to.nil? && @to.length > 50
       true
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] bcc Value to be assigned
+    def bcc=(bcc)
+      if bcc.nil?
+        fail ArgumentError, 'bcc cannot be nil'
+      end
+
+      if bcc.length > 50
+        fail ArgumentError, 'invalid value for "bcc", number of items must be less than or equal to 50.'
+      end
+
+      @bcc = bcc
+    end
+
+    # Custom attribute writer method with validation
+    # @param [Object] cc Value to be assigned
+    def cc=(cc)
+      if cc.nil?
+        fail ArgumentError, 'cc cannot be nil'
+      end
+
+      if cc.length > 50
+        fail ArgumentError, 'invalid value for "cc", number of items must be less than or equal to 50.'
+      end
+
+      @cc = cc
     end
 
     # Custom attribute writer method with validation
@@ -201,6 +230,10 @@ module Sendmux::Mailbox::Generated
     def subject=(subject)
       if subject.nil?
         fail ArgumentError, 'subject cannot be nil'
+      end
+
+      if subject.to_s.length > 998
+        fail ArgumentError, 'invalid value for "subject", the character length must be smaller than or equal to 998.'
       end
 
       @subject = subject
@@ -213,8 +246,8 @@ module Sendmux::Mailbox::Generated
         fail ArgumentError, 'to cannot be nil'
       end
 
-      if to.length < 1
-        fail ArgumentError, 'invalid value for "to", number of items must be greater than or equal to 1.'
+      if to.length > 50
+        fail ArgumentError, 'invalid value for "to", number of items must be less than or equal to 50.'
       end
 
       @to = to

@@ -722,7 +722,7 @@ function renderMatrix({ curatedMcp, fixtures, operations, scenarios }) {
 }
 
 function isExecutableByDefault(operation, scenario, fixtures) {
-  if (scenario?.risk !== "read") {
+  if (scenario?.risk !== "read" || (scenario.gates?.length ?? 0) > 0) {
     return false;
   }
   if (scenario.mode === "read") {

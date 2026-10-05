@@ -34,6 +34,18 @@ assert.equal(plan.summary.gatedByRisk.send, 5);
 assert.equal(plan.summary.gatedByRisk.stream, 1);
 assert.equal(plan.summary.gatedByRisk.read, 2);
 
+const matrix = readFileSync("docs/live-e2e-matrix.md", "utf8");
+assert.equal(
+  Number(matrix.match(/^- Default executable live operations: (\d+)\.$/m)?.[1]),
+  plan.summary.executable,
+  "Generated matrix must count environment-gated reads consistently with the default runner plan",
+);
+assert.equal(
+  Number(matrix.match(/^- Blocked behind safety gates: (\d+)\.$/m)?.[1]),
+  plan.summary.gated,
+  "Generated matrix safety-gated count must match the default runner plan",
+);
+
 const byOperation = new Map(plan.operations.map((operation) => [operation.operationId, operation]));
 const bySource = new Map(plan.sources.map((source) => [source.name, source]));
 assert.equal(byOperation.get("mailboxGetMessage")?.status, "executable");

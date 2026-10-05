@@ -3,19 +3,23 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { booleanGates } from "./live-e2e-contract.mjs";
+
+const fixtureEnv = {
+  ...process.env,
+  ...Object.fromEntries(booleanGates.map((name) => [name, ""])),
+  SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
+  SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
+  SENDMUX_STAGING_ROOT_API_KEY: "",
+  SENDMUX_STAGING_MAILBOX_API_KEY: "",
+  SENDMUX_LIVE_E2E_DRAFT_ID: "",
+  SENDMUX_LIVE_E2E_USAGE_START: "",
+  SENDMUX_LIVE_E2E_USAGE_END: "",
+};
 
 const result = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--plan", "--json"], {
   encoding: "utf8",
-  env: {
-    ...process.env,
-    SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
-    SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
-    SENDMUX_STAGING_ROOT_API_KEY: "",
-    SENDMUX_STAGING_MAILBOX_API_KEY: "",
-    SENDMUX_LIVE_E2E_DRAFT_ID: "",
-    SENDMUX_LIVE_E2E_USAGE_START: "",
-    SENDMUX_LIVE_E2E_USAGE_END: "",
-  },
+  env: fixtureEnv,
 });
 
 assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -86,12 +90,8 @@ assert.deepEqual(bySource.get("managementWebhookDeliveryId")?.setupGates, [
 const unsafeResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--operation", "sendingSendEmail"], {
   encoding: "utf8",
   env: {
-    ...process.env,
+    ...fixtureEnv,
     SENDMUX_LIVE_E2E: "1",
-    SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
-    SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
-    SENDMUX_STAGING_ROOT_API_KEY: "",
-    SENDMUX_STAGING_MAILBOX_API_KEY: "",
   },
 });
 
@@ -101,7 +101,7 @@ assert.match(unsafeResult.stderr, /sendingSendEmail is gated/);
 const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--plan", "--json"], {
   encoding: "utf8",
   env: {
-    ...process.env,
+    ...fixtureEnv,
     SENDMUX_LIVE_E2E_BINARY: "1",
     SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
     SENDMUX_LIVE_E2E_MUTATIONS: "1",
@@ -327,8 +327,12 @@ assert.match(
   /const fixtureTeardownTimeoutMs = 30_000;/,
   "live E2E runner must bound fixture teardown cleanup calls",
 );
-const safety = spawnSync(process.execPath, ["--test", "scripts/test-live-e2e-safety.mjs"], { encoding: "utf8" });
+const safety = spawnSync(process.execPath, ["--test", "scripts/test-live-e2e-safety.mjs"], {
+  encoding: "utf8",
+  env: fixtureEnv,
+});
 assert.equal(safety.status, 0, safety.stderr || safety.stdout);
+assert.match(safety.stdout, /^# tests [1-9]\d*$/m, "Safety subprocess must execute its tests");
 assert.match(
   runnerSource,
   /function fetchWithTimeout\(input, label, init = \{\}\)[\s\S]*?withAbortSignal\([\s\S]*?fetch\(input, \{ \.\.\.init, signal \}\)[\s\S]*?presignedFetchTimeoutMs/,

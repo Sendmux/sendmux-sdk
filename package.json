@@ -24,7 +24,7 @@
     "canary:openapi": "node scripts/check-openapi-canary.mjs",
     "check:cli": "node scripts/check-cli.mjs",
     "check:cli-tarballs": "node scripts/check-cli-tarballs.mjs",
-    "check:live-e2e": "node scripts/check-live-e2e-coverage.mjs && node scripts/check-live-e2e-runner.mjs && node scripts/write-live-e2e-audit-manifest.mjs --check docs/live-e2e-audit-manifest.json",
+    "check:live-e2e": "node scripts/check-live-e2e-coverage.mjs && node scripts/check-live-e2e-runner-environment.test.mjs && node scripts/write-live-e2e-audit-manifest.mjs --check docs/live-e2e-audit-manifest.json",
     "check:surface-coverage": "node scripts/check-surface-coverage.mjs",
     "drift:check": "pnpm normalize:check && pnpm generate:ts && pnpm generate:go && pnpm generate:php && pnpm generate:python && pnpm generate:ruby && pnpm generate:mcp && pnpm generate:cli && pnpm verify:sdk-staleness",
     "generate:cli": "node scripts/generate-cli.mjs",

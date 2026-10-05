@@ -15,6 +15,7 @@ const python = join(venv, "bin", "python");
 const sharedTests = [
   "test_attachment_helpers.py",
   "test_core.py",
+  "test_datetime_contract.py",
   "test_generated_runtime_versions.py",
   "test_langchain.py",
   "test_mailbox_deprecated_aliases.py",

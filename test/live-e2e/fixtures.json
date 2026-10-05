@@ -2,6 +2,7 @@
   "version": 1,
   "sources": {
     "mailboxDraftId": {
+      "env": "SENDMUX_LIVE_E2E_DRAFT_ID",
       "operationId": "mailboxListDrafts",
       "request": {
         "query": {

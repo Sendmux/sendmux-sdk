@@ -367,6 +367,12 @@ function buildExpectedScenarios(operations, cliOperations, curatedMcp) {
       mode: classification.mode,
       risk: classification.risk,
     };
+    if (operation.operationId === "mailboxGetDraft") {
+      out[operation.operationId].gates.push("SENDMUX_LIVE_E2E_DRAFT_ID");
+    }
+    if (operation.operationId === "managementGetMailboxCostUsage") {
+      out[operation.operationId].gates.push("SENDMUX_LIVE_E2E_USAGE_START", "SENDMUX_LIVE_E2E_USAGE_END");
+    }
   }
   return out;
 }

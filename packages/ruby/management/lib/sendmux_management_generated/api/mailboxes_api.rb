@@ -471,8 +471,13 @@ module Sendmux::Management::Generated
 
       # query parameters
       query_params = opts[:query_params] || {}
-      query_params[:'start'] = start
-      query_params[:'end'] = _end
+      [['start', start], ['end', _end]].each do |name, value|
+        if value.is_a?(Time) && (value.subsec * 1000).denominator != 1
+          raise ArgumentError, "#{name} must use at most millisecond precision"
+        end
+      end
+      query_params[:'start'] = start.is_a?(Time) ? start.getutc.iso8601(3) : start
+      query_params[:'end'] = _end.is_a?(Time) ? _end.getutc.iso8601(3) : _end
 
       # header parameters
       header_params = opts[:header_params] || {}

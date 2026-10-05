@@ -48,3 +48,16 @@ raise 'Old model no longer round-trips' unless data.to_hash == { deleted: true, 
 raise 'Response field changed type' unless models::MailboxFolderDeletedResponse.openapi_types[:data].to_s == data.class.name.split('::').last
 `]);
 });
+
+test("Python preserves the deprecated folder-delete model deep import", () => {
+  runImport(".tmp/python-venv/bin/python", ["-c", String.raw`
+import warnings
+with warnings.catch_warnings(record=True) as captured:
+    warnings.simplefilter('always', DeprecationWarning)
+    from sendmux_mailbox.models.mailbox_folder_deleted_response_all_of_data import MailboxFolderDeletedResponseAllOfData
+from sendmux_mailbox import MailboxDraftDeleteResponseAllOfData
+assert MailboxFolderDeletedResponseAllOfData is MailboxDraftDeleteResponseAllOfData
+assert any(issubclass(item.category, DeprecationWarning) for item in captured)
+assert MailboxFolderDeletedResponseAllOfData.from_dict({'deleted': True, 'id': 'fld_compat'}).to_dict() == {'deleted': True, 'id': 'fld_compat'}
+`], { ...process.env, PYTHONPATH: "packages/python/mailbox" });
+});

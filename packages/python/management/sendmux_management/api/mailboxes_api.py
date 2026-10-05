@@ -15,7 +15,9 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from datetime import datetime
+from datetime import datetime, timezone
+import re
+from pydantic import BeforeValidator
 from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
@@ -36,6 +38,20 @@ from sendmux_management.models.update_mailbox_body import UpdateMailboxBody
 from sendmux_management.api_client import ApiClient, RequestSerialized
 from sendmux_management.api_response import ApiResponse
 from sendmux_management.rest import RESTResponseType
+
+
+def _validate_cost_usage_bound(value: Any) -> Any:
+    if isinstance(value, datetime):
+        if value.utcoffset() is None:
+            raise ValueError("Cost usage timestamps must include a timezone")
+        if value.microsecond % 1000 or value.astimezone(timezone.utc).microsecond % 1000:
+            raise ValueError("Cost usage timestamps must use at most millisecond precision")
+    elif isinstance(value, str):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})", value):
+            raise ValueError("Cost usage timestamps must include a timezone and use at most millisecond precision")
+    else:
+        raise ValueError("Cost usage timestamps must be datetimes or date-time strings")
+    return value
 
 
 class MailboxesApi:
@@ -1784,8 +1800,8 @@ class MailboxesApi:
     def management_get_mailbox_cost_usage(
         self,
         public_id: Annotated[StrictStr, Field(description="Mailbox public ID.")],
-        start: Annotated[datetime, Field(description="Inclusive start. At most millisecond precision.")],
-        end: Annotated[datetime, Field(description="Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.")],
+        start: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(description="Inclusive start. At most millisecond precision.")],
+        end: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(description="Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.")],
         if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when the authorised response is unchanged.")] = None,
         _request_timeout: Union[
             None,
@@ -1870,8 +1886,8 @@ class MailboxesApi:
     def management_get_mailbox_cost_usage_with_http_info(
         self,
         public_id: Annotated[StrictStr, Field(description="Mailbox public ID.")],
-        start: Annotated[datetime, Field(description="Inclusive start. At most millisecond precision.")],
-        end: Annotated[datetime, Field(description="Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.")],
+        start: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(description="Inclusive start. At most millisecond precision.")],
+        end: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(description="Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.")],
         if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when the authorised response is unchanged.")] = None,
         _request_timeout: Union[
             None,
@@ -1956,8 +1972,8 @@ class MailboxesApi:
     def management_get_mailbox_cost_usage_without_preload_content(
         self,
         public_id: Annotated[StrictStr, Field(description="Mailbox public ID.")],
-        start: Annotated[datetime, Field(description="Inclusive start. At most millisecond precision.")],
-        end: Annotated[datetime, Field(description="Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.")],
+        start: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(description="Inclusive start. At most millisecond precision.")],
+        end: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(description="Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.")],
         if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when the authorised response is unchanged.")] = None,
         _request_timeout: Union[
             None,
@@ -2069,9 +2085,7 @@ class MailboxesApi:
                 _query_params.append(
                     (
                         'start',
-                        start.strftime(
-                            self.api_client.configuration.datetime_format
-                        )
+                        start.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
                     )
                 )
             else:
@@ -2082,9 +2096,7 @@ class MailboxesApi:
                 _query_params.append(
                     (
                         'end',
-                        end.strftime(
-                            self.api_client.configuration.datetime_format
-                        )
+                        end.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
                     )
                 )
             else:

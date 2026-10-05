@@ -120,6 +120,7 @@ for (const surface of surfaces) {
   rmSync(join(packageDir, surface.packageName), { force: true, recursive: true });
   cpSync(join(generatedRoot, surface.packageName), join(packageDir, surface.packageName), { recursive: true });
   correctPrimitiveUnionAnnotations(surface, packageDir);
+  correctManagementCostUsageTimestamps(surface, packageDir);
   writeSurfaceClient(surface);
   writeDeprecatedModelAliases(surface, packageDir);
   linkGeneratedRuntimeVersion(surface, packageDir);
@@ -127,6 +128,56 @@ for (const surface of surfaces) {
 }
 
 console.log("Generated Python SDK packages");
+
+function correctManagementCostUsageTimestamps(surface, packageDir) {
+  if (surface.name !== "management") {
+    return;
+  }
+
+  const apiPath = join(packageDir, surface.packageName, "api", "mailboxes_api.py");
+  let source = readFileSync(apiPath, "utf8");
+  source = replaceOnce({
+    source,
+    filePath: apiPath,
+    from: "from datetime import datetime\n",
+    to: "from datetime import datetime, timezone\nimport re\nfrom pydantic import BeforeValidator\n",
+  });
+  source = replaceOnce({
+    source,
+    filePath: apiPath,
+    from: "class MailboxesApi:\n",
+    to: `def _validate_cost_usage_bound(value: Any) -> Any:
+    if isinstance(value, datetime):
+        if value.utcoffset() is None:
+            raise ValueError("Cost usage timestamps must include a timezone")
+        if value.microsecond % 1000 or value.astimezone(timezone.utc).microsecond % 1000:
+            raise ValueError("Cost usage timestamps must use at most millisecond precision")
+    elif isinstance(value, str):
+        if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?(?:Z|[+-]\\d{2}:\\d{2})", value):
+            raise ValueError("Cost usage timestamps must include a timezone and use at most millisecond precision")
+    else:
+        raise ValueError("Cost usage timestamps must be datetimes or date-time strings")
+    return value
+
+
+class MailboxesApi:
+`,
+  });
+  for (const name of ["start", "end"]) {
+    const annotation = `${name}: Annotated[datetime, Field(`;
+    if (source.split(annotation).length !== 4) {
+      throw new Error(`Expected three generated cost-usage ${name} annotations in ${apiPath}`);
+    }
+    source = source.replaceAll(annotation, `${name}: Annotated[datetime, BeforeValidator(_validate_cost_usage_bound), Field(`);
+    source = replaceOnce({
+      source,
+      filePath: apiPath,
+      from: `${name}.strftime(\n                            self.api_client.configuration.datetime_format\n                        )`,
+      to: `${name}.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")`,
+    });
+  }
+  writeFileSync(apiPath, source);
+}
 
 function correctPrimitiveUnionAnnotations(surface, packageDir) {
   if (surface.name !== "sending") {
@@ -490,6 +541,18 @@ def __getattr__(name: str) -> _Any:
     return globals()[replacement]
 `,
     );
+    if (initPath === initPaths[1]) {
+      for (const { deprecated } of active) {
+        const moduleName = deprecated.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+        writeFileSync(
+          join(packageRoot, "models", `${moduleName}.py`),
+          `from ${surface.packageName}.models import __getattr__ as _model_alias
+
+${deprecated} = _model_alias("${deprecated}")
+`,
+        );
+      }
+    }
   }
 }
 

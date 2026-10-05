@@ -62,7 +62,7 @@ Available successful CLI JSON records selective resource ownership even when int
 | mailbox | `mailboxGetAttachmentText` | GET | `/mailbox/messages/{message_id}/attachments/{attachment_id}/text` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_get_attachment_text | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxGetChanges` | GET | `/mailbox/changes` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_changes | none | fixture |
 | mailbox | `mailboxGetConnection` | GET | `/mailbox/connection` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_connection | none | fixture |
-| mailbox | `mailboxGetDraft` | GET | `/mailbox/drafts/{draftId}` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_get_draft | none | fixture |
+| mailbox | `mailboxGetDraft` | GET | `/mailbox/drafts/{draftId}` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_get_draft | SENDMUX_LIVE_E2E_DRAFT_ID | fixture |
 | mailbox | `mailboxGetFolder` | GET | `/mailbox/folders/{folder_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetFolderChanges` | GET | `/mailbox/folders/changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetIdentity` | GET | `/mailbox/identity` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_identity | none | fixture |
@@ -125,7 +125,7 @@ Available successful CLI JSON records selective resource ownership even when int
 | management | `managementGetEmailMetrics` | GET | `/emails/metrics` | read | read | typescript, python, go, php, ruby | yes | management_get_email_metrics | none | fixture |
 | management | `managementGetInboxLog` | GET | `/inboxes/logs/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetMailbox` | GET | `/mailboxes/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | management_get_mailbox | none | fixture |
-| management | `managementGetMailboxCostUsage` | GET | `/mailboxes/{public_id}/usage` | read_fixture | read | typescript, python, go, php, ruby | yes | management_get_mailbox_cost_usage | none | fixture |
+| management | `managementGetMailboxCostUsage` | GET | `/mailboxes/{public_id}/usage` | read_fixture | read | typescript, python, go, php, ruby | yes | management_get_mailbox_cost_usage | SENDMUX_LIVE_E2E_USAGE_START; SENDMUX_LIVE_E2E_USAGE_END | fixture |
 | management | `managementGetMailboxFilters` | GET | `/mailboxes/{public_id}/filters` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetMailboxSendPolicy` | GET | `/mailbox-send-policies/{scope}/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | management | `managementGetProvider` | GET | `/providers/{public_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |

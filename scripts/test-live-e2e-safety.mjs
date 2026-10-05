@@ -253,8 +253,23 @@ test("leader exit retains ownership until same-group descendants are gone", asyn
   assert.deepEqual(observed, ["closed_stdio", "held_stdio", "term_resistant"].map(mode => ({ mode, descendantAlive: false, timedOut: false })));
 });
 
+test("draft and usage reads require explicit existing fixtures before selection", async () => {
+  const ids = ["mailboxGetDraft", "managementGetMailboxCostUsage"];
+  const selectedPlan = () => buildOperationPlan(operations.filter(operation => ids.includes(operation.operationId)), scenarios, fixtures);
+  await withEnv({ SENDMUX_LIVE_E2E_DRAFT_ID: "", SENDMUX_LIVE_E2E_USAGE_START: "", SENDMUX_LIVE_E2E_USAGE_END: "" }, async () => {
+    const plan = selectedPlan();
+    assert.deepEqual(plan.map(entry => entry.status), ["gated", "gated"]);
+    assert.deepEqual(plan[0].missingGates, ["SENDMUX_LIVE_E2E_DRAFT_ID"]);
+    assert.deepEqual(plan[1].missingGates, ["SENDMUX_LIVE_E2E_USAGE_START", "SENDMUX_LIVE_E2E_USAGE_END"]);
+    assert.deepEqual(selectOperations(plan, []), []);
+  });
+  await withEnv({ SENDMUX_LIVE_E2E_DRAFT_ID: "draft_existing", SENDMUX_LIVE_E2E_USAGE_START: "2026-10-01T00:00:00.000Z", SENDMUX_LIVE_E2E_USAGE_END: "2026-10-02T00:00:00.000Z" }, async () => {
+    assert.deepEqual(selectedPlan().map(entry => entry.status), ["executable", "executable"]);
+  });
+});
+
 test("all-gates default selects custom MCP operations with mailbox credential requirements", async () => {
-  await withEnv({ SENDMUX_STAGING_SEND: "1", SENDMUX_LIVE_E2E_MUTATIONS: "1", SENDMUX_LIVE_E2E_BINARY: "1", SENDMUX_LIVE_E2E_STREAM: "1" }, () => {
+  await withEnv({ SENDMUX_STAGING_SEND: "1", SENDMUX_LIVE_E2E_MUTATIONS: "1", SENDMUX_LIVE_E2E_BINARY: "1", SENDMUX_LIVE_E2E_STREAM: "1", SENDMUX_LIVE_E2E_DRAFT_ID: "draft_existing", SENDMUX_LIVE_E2E_USAGE_START: "2026-10-01T00:00:00.000Z", SENDMUX_LIVE_E2E_USAGE_END: "2026-10-02T00:00:00.000Z" }, () => {
     const selected = selectOperations(buildOperationPlan(operations, scenarios, fixtures), []);
     assert.equal(selected.length, 119);
     for (const id of ["mailboxReadAttachment", "mailboxWaitForMessage"]) assert.equal(selected.find(item => item.operationId === id)?.requiredKeyKind, "mailbox");

@@ -496,13 +496,15 @@ function blockedReasonFor({ operation, scenario }) {
 }
 
 function missingExecutionGates(scenario) {
-  return gateEnvRequirements(scenario).filter(({ name, value }) => process.env[name] !== value).map(formatGate);
+  return gateEnvRequirements(scenario)
+    .filter(({ name, value }) => value === undefined ? !process.env[name]?.trim() : process.env[name] !== value)
+    .map(formatGate);
 }
 
 function gateEnvRequirements(scenario) {
   const requirements = new Map();
   for (const gate of scenario?.gates ?? []) {
-    const match = gate.match(/^([A-Z0-9_]+)=(.+)$/);
+    const match = gate.match(/^([A-Z0-9_]+)(?:=(.+))?$/);
     if (match) {
       requirements.set(match[1], match[2]);
     }
@@ -523,7 +525,7 @@ function gateEnvRequirements(scenario) {
 }
 
 function formatGate({ name, value }) {
-  return `${name}=${value}`;
+  return value === undefined ? name : `${name}=${value}`;
 }
 
 function operationHasExecutableFixture(operationId) {

@@ -519,7 +519,9 @@
         "queryParams": [],
         "resourceOwnership": "fixture"
       },
-      "gates": [],
+      "gates": [
+        "SENDMUX_LIVE_E2E_DRAFT_ID"
+      ],
       "mode": "read_fixture",
       "risk": "read"
     },
@@ -2492,7 +2494,10 @@
         ],
         "resourceOwnership": "fixture"
       },
-      "gates": [],
+      "gates": [
+        "SENDMUX_LIVE_E2E_USAGE_START",
+        "SENDMUX_LIVE_E2E_USAGE_END"
+      ],
       "mode": "read_fixture",
       "risk": "read"
     },

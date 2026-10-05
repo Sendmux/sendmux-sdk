@@ -12,6 +12,9 @@ const result = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--plan"
     SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
     SENDMUX_STAGING_ROOT_API_KEY: "",
     SENDMUX_STAGING_MAILBOX_API_KEY: "",
+    SENDMUX_LIVE_E2E_DRAFT_ID: "",
+    SENDMUX_LIVE_E2E_USAGE_START: "",
+    SENDMUX_LIVE_E2E_USAGE_END: "",
   },
 });
 
@@ -21,14 +24,15 @@ const plan = JSON.parse(result.stdout);
 assert.equal(plan.ok, true);
 assert.deepEqual(plan.adapters, ["typescript", "python", "go", "php", "ruby", "cli", "mcp"]);
 assert.equal(plan.summary.total, 119);
-assert.equal(plan.summary.executable, 61);
-assert.equal(plan.summary.gated, 58);
+assert.equal(plan.summary.executable, 59);
+assert.equal(plan.summary.gated, 60);
 assert.equal(plan.summary.blocked, 0);
 assert.equal(plan.summary.gatedByRisk.mutation, 32);
 assert.equal(plan.summary.gatedByRisk.destructive, 9);
 assert.equal(plan.summary.gatedByRisk.binary, 11);
 assert.equal(plan.summary.gatedByRisk.send, 5);
 assert.equal(plan.summary.gatedByRisk.stream, 1);
+assert.equal(plan.summary.gatedByRisk.read, 2);
 
 const byOperation = new Map(plan.operations.map((operation) => [operation.operationId, operation]));
 const bySource = new Map(plan.sources.map((source) => [source.name, source]));
@@ -91,6 +95,9 @@ const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--
     SENDMUX_LIVE_E2E_MUTATIONS: "1",
     SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
     SENDMUX_LIVE_E2E_STREAM: "1",
+    SENDMUX_LIVE_E2E_DRAFT_ID: "draft_existing",
+    SENDMUX_LIVE_E2E_USAGE_START: "2026-10-01T00:00:00.000Z",
+    SENDMUX_LIVE_E2E_USAGE_END: "2026-10-02T00:00:00.000Z",
     SENDMUX_STAGING_MAILBOX_API_KEY: "",
     SENDMUX_STAGING_ROOT_API_KEY: "",
     SENDMUX_STAGING_SEND: "1",

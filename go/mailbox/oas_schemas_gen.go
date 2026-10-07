@@ -1086,6 +1086,549 @@ func (s *ConnectionTeam) SetName(val string) {
 	s.Name = val
 }
 
+// Ref: #/components/schemas/ControlMailboxDraftSchedule
+type ControlMailboxDraftSchedule struct {
+	// Exact saved content revision.
+	ExpectedRevision int `json:"expected_revision"`
+	// Current schedule version; stale requests return conflict. Repeating the last identical request
+	// returns its current result.
+	ExpectedScheduleVersion int `json:"expected_schedule_version"`
+	// New future time within 30 days, or null to cancel and make the draft editable. Cancellation fails
+	// once sending has begun.
+	ScheduledFor NilDateTime `json:"scheduled_for"`
+}
+
+// GetExpectedRevision returns the value of ExpectedRevision.
+func (s *ControlMailboxDraftSchedule) GetExpectedRevision() int {
+	return s.ExpectedRevision
+}
+
+// GetExpectedScheduleVersion returns the value of ExpectedScheduleVersion.
+func (s *ControlMailboxDraftSchedule) GetExpectedScheduleVersion() int {
+	return s.ExpectedScheduleVersion
+}
+
+// GetScheduledFor returns the value of ScheduledFor.
+func (s *ControlMailboxDraftSchedule) GetScheduledFor() NilDateTime {
+	return s.ScheduledFor
+}
+
+// SetExpectedRevision sets the value of ExpectedRevision.
+func (s *ControlMailboxDraftSchedule) SetExpectedRevision(val int) {
+	s.ExpectedRevision = val
+}
+
+// SetExpectedScheduleVersion sets the value of ExpectedScheduleVersion.
+func (s *ControlMailboxDraftSchedule) SetExpectedScheduleVersion(val int) {
+	s.ExpectedScheduleVersion = val
+}
+
+// SetScheduledFor sets the value of ScheduledFor.
+func (s *ControlMailboxDraftSchedule) SetScheduledFor(val NilDateTime) {
+	s.ScheduledFor = val
+}
+
+// Ref: #/components/schemas/CreateMailboxDraft
+type CreateMailboxDraft struct {
+	// Attachments and inline images.
+	Attachments []CreateMailboxDraftAttachmentsItem `json:"attachments"`
+	// Hidden copied recipients.
+	Bcc []CreateMailboxDraftBccItem `json:"bcc"`
+	// Visible copied recipients.
+	Cc []CreateMailboxDraftCcItem `json:"cc"`
+	// Custom X- headers preserved with this revision.
+	CustomHeaders OptCreateMailboxDraftCustomHeaders `json:"custom_headers"`
+	// Authorised sender; defaults to this inbox.
+	From OptCreateMailboxDraftFrom `json:"from"`
+	// HTML body, preserved when saved.
+	HTMLBody OptString `json:"html_body"`
+	// Authorised reply addresses; defaults to this inbox.
+	ReplyTo []CreateMailboxDraftReplyToItem `json:"reply_to"`
+	// Message in this inbox to reply to; thread headers are snapshotted.
+	ReplyToMessageID OptString `json:"reply_to_message_id"`
+	// Source for this draft. Adoption requires Idempotency-Key. Explicit content fields override
+	// prepared defaults.
+	Source OptCreateMailboxDraftSource `json:"source"`
+	// Subject; may be empty.
+	Subject OptString `json:"subject"`
+	// Plain-text body.
+	TextBody OptString `json:"text_body"`
+	// Primary recipients; at most 50 total across To, Cc and Bcc.
+	To []CreateMailboxDraftToItem `json:"to"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *CreateMailboxDraft) GetAttachments() []CreateMailboxDraftAttachmentsItem {
+	return s.Attachments
+}
+
+// GetBcc returns the value of Bcc.
+func (s *CreateMailboxDraft) GetBcc() []CreateMailboxDraftBccItem {
+	return s.Bcc
+}
+
+// GetCc returns the value of Cc.
+func (s *CreateMailboxDraft) GetCc() []CreateMailboxDraftCcItem {
+	return s.Cc
+}
+
+// GetCustomHeaders returns the value of CustomHeaders.
+func (s *CreateMailboxDraft) GetCustomHeaders() OptCreateMailboxDraftCustomHeaders {
+	return s.CustomHeaders
+}
+
+// GetFrom returns the value of From.
+func (s *CreateMailboxDraft) GetFrom() OptCreateMailboxDraftFrom {
+	return s.From
+}
+
+// GetHTMLBody returns the value of HTMLBody.
+func (s *CreateMailboxDraft) GetHTMLBody() OptString {
+	return s.HTMLBody
+}
+
+// GetReplyTo returns the value of ReplyTo.
+func (s *CreateMailboxDraft) GetReplyTo() []CreateMailboxDraftReplyToItem {
+	return s.ReplyTo
+}
+
+// GetReplyToMessageID returns the value of ReplyToMessageID.
+func (s *CreateMailboxDraft) GetReplyToMessageID() OptString {
+	return s.ReplyToMessageID
+}
+
+// GetSource returns the value of Source.
+func (s *CreateMailboxDraft) GetSource() OptCreateMailboxDraftSource {
+	return s.Source
+}
+
+// GetSubject returns the value of Subject.
+func (s *CreateMailboxDraft) GetSubject() OptString {
+	return s.Subject
+}
+
+// GetTextBody returns the value of TextBody.
+func (s *CreateMailboxDraft) GetTextBody() OptString {
+	return s.TextBody
+}
+
+// GetTo returns the value of To.
+func (s *CreateMailboxDraft) GetTo() []CreateMailboxDraftToItem {
+	return s.To
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *CreateMailboxDraft) SetAttachments(val []CreateMailboxDraftAttachmentsItem) {
+	s.Attachments = val
+}
+
+// SetBcc sets the value of Bcc.
+func (s *CreateMailboxDraft) SetBcc(val []CreateMailboxDraftBccItem) {
+	s.Bcc = val
+}
+
+// SetCc sets the value of Cc.
+func (s *CreateMailboxDraft) SetCc(val []CreateMailboxDraftCcItem) {
+	s.Cc = val
+}
+
+// SetCustomHeaders sets the value of CustomHeaders.
+func (s *CreateMailboxDraft) SetCustomHeaders(val OptCreateMailboxDraftCustomHeaders) {
+	s.CustomHeaders = val
+}
+
+// SetFrom sets the value of From.
+func (s *CreateMailboxDraft) SetFrom(val OptCreateMailboxDraftFrom) {
+	s.From = val
+}
+
+// SetHTMLBody sets the value of HTMLBody.
+func (s *CreateMailboxDraft) SetHTMLBody(val OptString) {
+	s.HTMLBody = val
+}
+
+// SetReplyTo sets the value of ReplyTo.
+func (s *CreateMailboxDraft) SetReplyTo(val []CreateMailboxDraftReplyToItem) {
+	s.ReplyTo = val
+}
+
+// SetReplyToMessageID sets the value of ReplyToMessageID.
+func (s *CreateMailboxDraft) SetReplyToMessageID(val OptString) {
+	s.ReplyToMessageID = val
+}
+
+// SetSource sets the value of Source.
+func (s *CreateMailboxDraft) SetSource(val OptCreateMailboxDraftSource) {
+	s.Source = val
+}
+
+// SetSubject sets the value of Subject.
+func (s *CreateMailboxDraft) SetSubject(val OptString) {
+	s.Subject = val
+}
+
+// SetTextBody sets the value of TextBody.
+func (s *CreateMailboxDraft) SetTextBody(val OptString) {
+	s.TextBody = val
+}
+
+// SetTo sets the value of To.
+func (s *CreateMailboxDraft) SetTo(val []CreateMailboxDraftToItem) {
+	s.To = val
+}
+
+type CreateMailboxDraftAttachmentsItem struct {
+	// An attachment uploaded to this mailbox.
+	BlobID string `json:"blob_id"`
+	// Content ID referenced by an inline image.
+	ContentID OptString `json:"content_id"`
+	// Attachment media type.
+	ContentType string `json:"content_type"`
+	// Whether the attachment appears within the message.
+	Disposition OptCreateMailboxDraftAttachmentsItemDisposition `json:"disposition"`
+	// Attachment filename.
+	Filename string `json:"filename"`
+	// Attachment size in bytes; verified when saved.
+	SizeBytes int `json:"size_bytes"`
+}
+
+// GetBlobID returns the value of BlobID.
+func (s *CreateMailboxDraftAttachmentsItem) GetBlobID() string {
+	return s.BlobID
+}
+
+// GetContentID returns the value of ContentID.
+func (s *CreateMailboxDraftAttachmentsItem) GetContentID() OptString {
+	return s.ContentID
+}
+
+// GetContentType returns the value of ContentType.
+func (s *CreateMailboxDraftAttachmentsItem) GetContentType() string {
+	return s.ContentType
+}
+
+// GetDisposition returns the value of Disposition.
+func (s *CreateMailboxDraftAttachmentsItem) GetDisposition() OptCreateMailboxDraftAttachmentsItemDisposition {
+	return s.Disposition
+}
+
+// GetFilename returns the value of Filename.
+func (s *CreateMailboxDraftAttachmentsItem) GetFilename() string {
+	return s.Filename
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *CreateMailboxDraftAttachmentsItem) GetSizeBytes() int {
+	return s.SizeBytes
+}
+
+// SetBlobID sets the value of BlobID.
+func (s *CreateMailboxDraftAttachmentsItem) SetBlobID(val string) {
+	s.BlobID = val
+}
+
+// SetContentID sets the value of ContentID.
+func (s *CreateMailboxDraftAttachmentsItem) SetContentID(val OptString) {
+	s.ContentID = val
+}
+
+// SetContentType sets the value of ContentType.
+func (s *CreateMailboxDraftAttachmentsItem) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetDisposition sets the value of Disposition.
+func (s *CreateMailboxDraftAttachmentsItem) SetDisposition(val OptCreateMailboxDraftAttachmentsItemDisposition) {
+	s.Disposition = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *CreateMailboxDraftAttachmentsItem) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *CreateMailboxDraftAttachmentsItem) SetSizeBytes(val int) {
+	s.SizeBytes = val
+}
+
+// Whether the attachment appears within the message.
+type CreateMailboxDraftAttachmentsItemDisposition string
+
+const (
+	CreateMailboxDraftAttachmentsItemDispositionAttachment CreateMailboxDraftAttachmentsItemDisposition = "attachment"
+	CreateMailboxDraftAttachmentsItemDispositionInline     CreateMailboxDraftAttachmentsItemDisposition = "inline"
+)
+
+// AllValues returns all CreateMailboxDraftAttachmentsItemDisposition values.
+func (CreateMailboxDraftAttachmentsItemDisposition) AllValues() []CreateMailboxDraftAttachmentsItemDisposition {
+	return []CreateMailboxDraftAttachmentsItemDisposition{
+		CreateMailboxDraftAttachmentsItemDispositionAttachment,
+		CreateMailboxDraftAttachmentsItemDispositionInline,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateMailboxDraftAttachmentsItemDisposition) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateMailboxDraftAttachmentsItemDispositionAttachment:
+		return []byte(s), nil
+	case CreateMailboxDraftAttachmentsItemDispositionInline:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateMailboxDraftAttachmentsItemDisposition) UnmarshalText(data []byte) error {
+	switch CreateMailboxDraftAttachmentsItemDisposition(data) {
+	case CreateMailboxDraftAttachmentsItemDispositionAttachment:
+		*s = CreateMailboxDraftAttachmentsItemDispositionAttachment
+		return nil
+	case CreateMailboxDraftAttachmentsItemDispositionInline:
+		*s = CreateMailboxDraftAttachmentsItemDispositionInline
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type CreateMailboxDraftBccItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateMailboxDraftBccItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *CreateMailboxDraftBccItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateMailboxDraftBccItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateMailboxDraftBccItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+type CreateMailboxDraftCcItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateMailboxDraftCcItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *CreateMailboxDraftCcItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateMailboxDraftCcItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateMailboxDraftCcItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+// Custom X- headers preserved with this revision.
+type CreateMailboxDraftCustomHeaders map[string]string
+
+func (s *CreateMailboxDraftCustomHeaders) init() CreateMailboxDraftCustomHeaders {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
+
+// Authorised sender; defaults to this inbox.
+type CreateMailboxDraftFrom struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateMailboxDraftFrom) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *CreateMailboxDraftFrom) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateMailboxDraftFrom) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateMailboxDraftFrom) SetName(val OptNilString) {
+	s.Name = val
+}
+
+type CreateMailboxDraftReplyToItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateMailboxDraftReplyToItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *CreateMailboxDraftReplyToItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateMailboxDraftReplyToItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateMailboxDraftReplyToItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+// Source for this draft. Adoption requires Idempotency-Key. Explicit content fields override
+// prepared defaults.
+type CreateMailboxDraftSource struct {
+	// Prepare a reply, reply-all, forward or adopt an existing draft. Source content and attachments are
+	// saved with the draft.
+	Action CreateMailboxDraftSourceAction `json:"action"`
+	// Source message in this inbox.
+	MessageID string `json:"message_id"`
+}
+
+// GetAction returns the value of Action.
+func (s *CreateMailboxDraftSource) GetAction() CreateMailboxDraftSourceAction {
+	return s.Action
+}
+
+// GetMessageID returns the value of MessageID.
+func (s *CreateMailboxDraftSource) GetMessageID() string {
+	return s.MessageID
+}
+
+// SetAction sets the value of Action.
+func (s *CreateMailboxDraftSource) SetAction(val CreateMailboxDraftSourceAction) {
+	s.Action = val
+}
+
+// SetMessageID sets the value of MessageID.
+func (s *CreateMailboxDraftSource) SetMessageID(val string) {
+	s.MessageID = val
+}
+
+// Prepare a reply, reply-all, forward or adopt an existing draft. Source content and attachments are
+// saved with the draft.
+type CreateMailboxDraftSourceAction string
+
+const (
+	CreateMailboxDraftSourceActionReply    CreateMailboxDraftSourceAction = "reply"
+	CreateMailboxDraftSourceActionReplyAll CreateMailboxDraftSourceAction = "reply_all"
+	CreateMailboxDraftSourceActionForward  CreateMailboxDraftSourceAction = "forward"
+	CreateMailboxDraftSourceActionAdopt    CreateMailboxDraftSourceAction = "adopt"
+)
+
+// AllValues returns all CreateMailboxDraftSourceAction values.
+func (CreateMailboxDraftSourceAction) AllValues() []CreateMailboxDraftSourceAction {
+	return []CreateMailboxDraftSourceAction{
+		CreateMailboxDraftSourceActionReply,
+		CreateMailboxDraftSourceActionReplyAll,
+		CreateMailboxDraftSourceActionForward,
+		CreateMailboxDraftSourceActionAdopt,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateMailboxDraftSourceAction) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateMailboxDraftSourceActionReply:
+		return []byte(s), nil
+	case CreateMailboxDraftSourceActionReplyAll:
+		return []byte(s), nil
+	case CreateMailboxDraftSourceActionForward:
+		return []byte(s), nil
+	case CreateMailboxDraftSourceActionAdopt:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateMailboxDraftSourceAction) UnmarshalText(data []byte) error {
+	switch CreateMailboxDraftSourceAction(data) {
+	case CreateMailboxDraftSourceActionReply:
+		*s = CreateMailboxDraftSourceActionReply
+		return nil
+	case CreateMailboxDraftSourceActionReplyAll:
+		*s = CreateMailboxDraftSourceActionReplyAll
+		return nil
+	case CreateMailboxDraftSourceActionForward:
+		*s = CreateMailboxDraftSourceActionForward
+		return nil
+	case CreateMailboxDraftSourceActionAdopt:
+		*s = CreateMailboxDraftSourceActionAdopt
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type CreateMailboxDraftToItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateMailboxDraftToItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *CreateMailboxDraftToItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateMailboxDraftToItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateMailboxDraftToItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
 // Ref: #/components/schemas/CreateMailboxFolderBody
 type CreateMailboxFolderBody struct {
 	Name      string       `json:"name"`
@@ -1388,6 +1931,447 @@ func (s *MailboxAttachment) SetID(val string) {
 // SetSizeBytes sets the value of SizeBytes.
 func (s *MailboxAttachment) SetSizeBytes(val NilInt) {
 	s.SizeBytes = val
+}
+
+// Ref: #/components/schemas/MailboxAttachmentText
+type MailboxAttachmentText struct {
+	// Cache expiry. A new POST is needed after expiry.
+	ExpiresAt time.Time `json:"expires_at"`
+	// Extracted text format.
+	Format MailboxAttachmentTextFormat `json:"format"`
+	// Extraction ID.
+	ID string `json:"id"`
+	// Null while pending or running. Only ready contains extracted text; other outcomes contain an empty
+	// string.
+	Outcome MailboxAttachmentTextOutcome `json:"outcome"`
+	// Poll until complete to read the outcome.
+	Status MailboxAttachmentTextStatus `json:"status"`
+	// Markdown text, or null until complete. Limited to max_bytes in UTF-8.
+	Text NilString `json:"text"`
+	// True when conversion or the requested output bound omitted text.
+	Truncated bool `json:"truncated"`
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *MailboxAttachmentText) GetExpiresAt() time.Time {
+	return s.ExpiresAt
+}
+
+// GetFormat returns the value of Format.
+func (s *MailboxAttachmentText) GetFormat() MailboxAttachmentTextFormat {
+	return s.Format
+}
+
+// GetID returns the value of ID.
+func (s *MailboxAttachmentText) GetID() string {
+	return s.ID
+}
+
+// GetOutcome returns the value of Outcome.
+func (s *MailboxAttachmentText) GetOutcome() MailboxAttachmentTextOutcome {
+	return s.Outcome
+}
+
+// GetStatus returns the value of Status.
+func (s *MailboxAttachmentText) GetStatus() MailboxAttachmentTextStatus {
+	return s.Status
+}
+
+// GetText returns the value of Text.
+func (s *MailboxAttachmentText) GetText() NilString {
+	return s.Text
+}
+
+// GetTruncated returns the value of Truncated.
+func (s *MailboxAttachmentText) GetTruncated() bool {
+	return s.Truncated
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *MailboxAttachmentText) SetExpiresAt(val time.Time) {
+	s.ExpiresAt = val
+}
+
+// SetFormat sets the value of Format.
+func (s *MailboxAttachmentText) SetFormat(val MailboxAttachmentTextFormat) {
+	s.Format = val
+}
+
+// SetID sets the value of ID.
+func (s *MailboxAttachmentText) SetID(val string) {
+	s.ID = val
+}
+
+// SetOutcome sets the value of Outcome.
+func (s *MailboxAttachmentText) SetOutcome(val MailboxAttachmentTextOutcome) {
+	s.Outcome = val
+}
+
+// SetStatus sets the value of Status.
+func (s *MailboxAttachmentText) SetStatus(val MailboxAttachmentTextStatus) {
+	s.Status = val
+}
+
+// SetText sets the value of Text.
+func (s *MailboxAttachmentText) SetText(val NilString) {
+	s.Text = val
+}
+
+// SetTruncated sets the value of Truncated.
+func (s *MailboxAttachmentText) SetTruncated(val bool) {
+	s.Truncated = val
+}
+
+// Extracted text format.
+type MailboxAttachmentTextFormat string
+
+const (
+	MailboxAttachmentTextFormatMarkdown MailboxAttachmentTextFormat = "markdown"
+)
+
+// AllValues returns all MailboxAttachmentTextFormat values.
+func (MailboxAttachmentTextFormat) AllValues() []MailboxAttachmentTextFormat {
+	return []MailboxAttachmentTextFormat{
+		MailboxAttachmentTextFormatMarkdown,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxAttachmentTextFormat) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxAttachmentTextFormatMarkdown:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxAttachmentTextFormat) UnmarshalText(data []byte) error {
+	switch MailboxAttachmentTextFormat(data) {
+	case MailboxAttachmentTextFormatMarkdown:
+		*s = MailboxAttachmentTextFormatMarkdown
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Null while pending or running. Only ready contains extracted text; other outcomes contain an empty
+// string.
+// MailboxAttachmentTextOutcome represents sum type.
+type MailboxAttachmentTextOutcome struct {
+	Type                          MailboxAttachmentTextOutcomeType // switch on this field
+	Null                          struct{}
+	MailboxAttachmentTextOutcome0 MailboxAttachmentTextOutcome0
+}
+
+// MailboxAttachmentTextOutcomeType is oneOf type of MailboxAttachmentTextOutcome.
+type MailboxAttachmentTextOutcomeType string
+
+// Possible values for MailboxAttachmentTextOutcomeType.
+const (
+	NullMailboxAttachmentTextOutcome                          MailboxAttachmentTextOutcomeType = "struct{}"
+	MailboxAttachmentTextOutcome0MailboxAttachmentTextOutcome MailboxAttachmentTextOutcomeType = "MailboxAttachmentTextOutcome0"
+)
+
+// IsNull reports whether MailboxAttachmentTextOutcome is struct{}.
+func (s MailboxAttachmentTextOutcome) IsNull() bool {
+	return s.Type == NullMailboxAttachmentTextOutcome
+}
+
+// IsMailboxAttachmentTextOutcome0 reports whether MailboxAttachmentTextOutcome is MailboxAttachmentTextOutcome0.
+func (s MailboxAttachmentTextOutcome) IsMailboxAttachmentTextOutcome0() bool {
+	return s.Type == MailboxAttachmentTextOutcome0MailboxAttachmentTextOutcome
+}
+
+// SetNull sets MailboxAttachmentTextOutcome to struct{}.
+func (s *MailboxAttachmentTextOutcome) SetNull(v struct{}) {
+	s.Type = NullMailboxAttachmentTextOutcome
+	s.Null = v
+}
+
+// GetNull returns struct{} and true boolean if MailboxAttachmentTextOutcome is struct{}.
+func (s MailboxAttachmentTextOutcome) GetNull() (v struct{}, ok bool) {
+	if !s.IsNull() {
+		return v, false
+	}
+	return s.Null, true
+}
+
+// NewNullMailboxAttachmentTextOutcome returns new MailboxAttachmentTextOutcome from struct{}.
+func NewNullMailboxAttachmentTextOutcome(v struct{}) MailboxAttachmentTextOutcome {
+	var s MailboxAttachmentTextOutcome
+	s.SetNull(v)
+	return s
+}
+
+// SetMailboxAttachmentTextOutcome0 sets MailboxAttachmentTextOutcome to MailboxAttachmentTextOutcome0.
+func (s *MailboxAttachmentTextOutcome) SetMailboxAttachmentTextOutcome0(v MailboxAttachmentTextOutcome0) {
+	s.Type = MailboxAttachmentTextOutcome0MailboxAttachmentTextOutcome
+	s.MailboxAttachmentTextOutcome0 = v
+}
+
+// GetMailboxAttachmentTextOutcome0 returns MailboxAttachmentTextOutcome0 and true boolean if MailboxAttachmentTextOutcome is MailboxAttachmentTextOutcome0.
+func (s MailboxAttachmentTextOutcome) GetMailboxAttachmentTextOutcome0() (v MailboxAttachmentTextOutcome0, ok bool) {
+	if !s.IsMailboxAttachmentTextOutcome0() {
+		return v, false
+	}
+	return s.MailboxAttachmentTextOutcome0, true
+}
+
+// NewMailboxAttachmentTextOutcome0MailboxAttachmentTextOutcome returns new MailboxAttachmentTextOutcome from MailboxAttachmentTextOutcome0.
+func NewMailboxAttachmentTextOutcome0MailboxAttachmentTextOutcome(v MailboxAttachmentTextOutcome0) MailboxAttachmentTextOutcome {
+	var s MailboxAttachmentTextOutcome
+	s.SetMailboxAttachmentTextOutcome0(v)
+	return s
+}
+
+type MailboxAttachmentTextOutcome0 string
+
+const (
+	MailboxAttachmentTextOutcome0Ready             MailboxAttachmentTextOutcome0 = "ready"
+	MailboxAttachmentTextOutcome0Unsupported       MailboxAttachmentTextOutcome0 = "unsupported"
+	MailboxAttachmentTextOutcome0Encrypted         MailboxAttachmentTextOutcome0 = "encrypted"
+	MailboxAttachmentTextOutcome0Malformed         MailboxAttachmentTextOutcome0 = "malformed"
+	MailboxAttachmentTextOutcome0OcrRequired       MailboxAttachmentTextOutcome0 = "ocr_required"
+	MailboxAttachmentTextOutcome0ResourceLimit     MailboxAttachmentTextOutcome0 = "resource_limit"
+	MailboxAttachmentTextOutcome0SourceUnavailable MailboxAttachmentTextOutcome0 = "source_unavailable"
+	MailboxAttachmentTextOutcome0Failed            MailboxAttachmentTextOutcome0 = "failed"
+)
+
+// AllValues returns all MailboxAttachmentTextOutcome0 values.
+func (MailboxAttachmentTextOutcome0) AllValues() []MailboxAttachmentTextOutcome0 {
+	return []MailboxAttachmentTextOutcome0{
+		MailboxAttachmentTextOutcome0Ready,
+		MailboxAttachmentTextOutcome0Unsupported,
+		MailboxAttachmentTextOutcome0Encrypted,
+		MailboxAttachmentTextOutcome0Malformed,
+		MailboxAttachmentTextOutcome0OcrRequired,
+		MailboxAttachmentTextOutcome0ResourceLimit,
+		MailboxAttachmentTextOutcome0SourceUnavailable,
+		MailboxAttachmentTextOutcome0Failed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxAttachmentTextOutcome0) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxAttachmentTextOutcome0Ready:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0Unsupported:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0Encrypted:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0Malformed:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0OcrRequired:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0ResourceLimit:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0SourceUnavailable:
+		return []byte(s), nil
+	case MailboxAttachmentTextOutcome0Failed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxAttachmentTextOutcome0) UnmarshalText(data []byte) error {
+	switch MailboxAttachmentTextOutcome0(data) {
+	case MailboxAttachmentTextOutcome0Ready:
+		*s = MailboxAttachmentTextOutcome0Ready
+		return nil
+	case MailboxAttachmentTextOutcome0Unsupported:
+		*s = MailboxAttachmentTextOutcome0Unsupported
+		return nil
+	case MailboxAttachmentTextOutcome0Encrypted:
+		*s = MailboxAttachmentTextOutcome0Encrypted
+		return nil
+	case MailboxAttachmentTextOutcome0Malformed:
+		*s = MailboxAttachmentTextOutcome0Malformed
+		return nil
+	case MailboxAttachmentTextOutcome0OcrRequired:
+		*s = MailboxAttachmentTextOutcome0OcrRequired
+		return nil
+	case MailboxAttachmentTextOutcome0ResourceLimit:
+		*s = MailboxAttachmentTextOutcome0ResourceLimit
+		return nil
+	case MailboxAttachmentTextOutcome0SourceUnavailable:
+		*s = MailboxAttachmentTextOutcome0SourceUnavailable
+		return nil
+	case MailboxAttachmentTextOutcome0Failed:
+		*s = MailboxAttachmentTextOutcome0Failed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxAttachmentTextResponse
+type MailboxAttachmentTextResponse struct {
+	// Merged property.
+	Meta MailboxAttachmentTextResponseMeta `json:"meta"`
+	Ok   MailboxAttachmentTextResponseOk   `json:"ok"`
+	Data MailboxAttachmentText             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxAttachmentTextResponse) GetMeta() MailboxAttachmentTextResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxAttachmentTextResponse) GetOk() MailboxAttachmentTextResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxAttachmentTextResponse) GetData() MailboxAttachmentText {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxAttachmentTextResponse) SetMeta(val MailboxAttachmentTextResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxAttachmentTextResponse) SetOk(val MailboxAttachmentTextResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxAttachmentTextResponse) SetData(val MailboxAttachmentText) {
+	s.Data = val
+}
+
+// MailboxAttachmentTextResponseHeaders wraps MailboxAttachmentTextResponse with response headers.
+type MailboxAttachmentTextResponseHeaders struct {
+	ETag     OptString
+	Response MailboxAttachmentTextResponse
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxAttachmentTextResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxAttachmentTextResponseHeaders) GetResponse() MailboxAttachmentTextResponse {
+	return s.Response
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxAttachmentTextResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxAttachmentTextResponseHeaders) SetResponse(val MailboxAttachmentTextResponse) {
+	s.Response = val
+}
+
+// Merged schema.
+type MailboxAttachmentTextResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxAttachmentTextResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxAttachmentTextResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxAttachmentTextResponseMeta) GetAdditionalProps() MailboxAttachmentTextResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxAttachmentTextResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxAttachmentTextResponseMeta) SetAdditionalProps(val MailboxAttachmentTextResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxAttachmentTextResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxAttachmentTextResponseMetaAdditional) init() MailboxAttachmentTextResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxAttachmentTextResponseOk bool
+
+const (
+	MailboxAttachmentTextResponseOkTrue MailboxAttachmentTextResponseOk = true
+)
+
+// AllValues returns all MailboxAttachmentTextResponseOk values.
+func (MailboxAttachmentTextResponseOk) AllValues() []MailboxAttachmentTextResponseOk {
+	return []MailboxAttachmentTextResponseOk{
+		MailboxAttachmentTextResponseOkTrue,
+	}
+}
+
+// Poll until complete to read the outcome.
+type MailboxAttachmentTextStatus string
+
+const (
+	MailboxAttachmentTextStatusPending  MailboxAttachmentTextStatus = "pending"
+	MailboxAttachmentTextStatusRunning  MailboxAttachmentTextStatus = "running"
+	MailboxAttachmentTextStatusComplete MailboxAttachmentTextStatus = "complete"
+)
+
+// AllValues returns all MailboxAttachmentTextStatus values.
+func (MailboxAttachmentTextStatus) AllValues() []MailboxAttachmentTextStatus {
+	return []MailboxAttachmentTextStatus{
+		MailboxAttachmentTextStatusPending,
+		MailboxAttachmentTextStatusRunning,
+		MailboxAttachmentTextStatusComplete,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxAttachmentTextStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxAttachmentTextStatusPending:
+		return []byte(s), nil
+	case MailboxAttachmentTextStatusRunning:
+		return []byte(s), nil
+	case MailboxAttachmentTextStatusComplete:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxAttachmentTextStatus) UnmarshalText(data []byte) error {
+	switch MailboxAttachmentTextStatus(data) {
+	case MailboxAttachmentTextStatusPending:
+		*s = MailboxAttachmentTextStatusPending
+		return nil
+	case MailboxAttachmentTextStatusRunning:
+		*s = MailboxAttachmentTextStatusRunning
+		return nil
+	case MailboxAttachmentTextStatusComplete:
+		*s = MailboxAttachmentTextStatusComplete
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/MailboxAttachmentUploadIntentBody
@@ -3018,6 +4002,46 @@ func (s *MailboxContentHeadersSelected) SetReplyTo(val []MailboxAddress) {
 	s.ReplyTo = val
 }
 
+type MailboxControlDraftScheduleBadRequest ApiError
+
+func (*MailboxControlDraftScheduleBadRequest) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleConflict ApiError
+
+func (*MailboxControlDraftScheduleConflict) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleForbidden ApiError
+
+func (*MailboxControlDraftScheduleForbidden) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleInternalServerError ApiError
+
+func (*MailboxControlDraftScheduleInternalServerError) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleNotFound ApiError
+
+func (*MailboxControlDraftScheduleNotFound) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleRequestEntityTooLarge ApiError
+
+func (*MailboxControlDraftScheduleRequestEntityTooLarge) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleServiceUnavailable ApiError
+
+func (*MailboxControlDraftScheduleServiceUnavailable) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleTooManyRequests ApiError
+
+func (*MailboxControlDraftScheduleTooManyRequests) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleUnauthorized ApiError
+
+func (*MailboxControlDraftScheduleUnauthorized) mailboxControlDraftScheduleRes() {}
+
+type MailboxControlDraftScheduleUnprocessableEntity ApiError
+
+func (*MailboxControlDraftScheduleUnprocessableEntity) mailboxControlDraftScheduleRes() {}
+
 type MailboxCreateAttachmentUploadBadRequest ApiError
 
 func (*MailboxCreateAttachmentUploadBadRequest) mailboxCreateAttachmentUploadRes() {}
@@ -3029,6 +4053,46 @@ func (*MailboxCreateAttachmentUploadRequestEntityTooLarge) mailboxCreateAttachme
 type MailboxCreateAttachmentUploadServiceUnavailable ApiError
 
 func (*MailboxCreateAttachmentUploadServiceUnavailable) mailboxCreateAttachmentUploadRes() {}
+
+type MailboxCreateDraftBadRequest ApiError
+
+func (*MailboxCreateDraftBadRequest) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftConflict ApiError
+
+func (*MailboxCreateDraftConflict) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftForbidden ApiError
+
+func (*MailboxCreateDraftForbidden) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftInternalServerError ApiError
+
+func (*MailboxCreateDraftInternalServerError) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftNotFound ApiError
+
+func (*MailboxCreateDraftNotFound) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftRequestEntityTooLarge ApiError
+
+func (*MailboxCreateDraftRequestEntityTooLarge) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftServiceUnavailable ApiError
+
+func (*MailboxCreateDraftServiceUnavailable) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftTooManyRequests ApiError
+
+func (*MailboxCreateDraftTooManyRequests) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftUnauthorized ApiError
+
+func (*MailboxCreateDraftUnauthorized) mailboxCreateDraftRes() {}
+
+type MailboxCreateDraftUnprocessableEntity ApiError
+
+func (*MailboxCreateDraftUnprocessableEntity) mailboxCreateDraftRes() {}
 
 type MailboxCreateFolderBadRequest ApiError
 
@@ -3042,6 +4106,46 @@ type MailboxCreateFolderUnprocessableEntity ApiError
 
 func (*MailboxCreateFolderUnprocessableEntity) mailboxCreateFolderRes() {}
 
+type MailboxDeleteDraftBadRequest ApiError
+
+func (*MailboxDeleteDraftBadRequest) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftConflict ApiError
+
+func (*MailboxDeleteDraftConflict) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftForbidden ApiError
+
+func (*MailboxDeleteDraftForbidden) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftInternalServerError ApiError
+
+func (*MailboxDeleteDraftInternalServerError) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftNotFound ApiError
+
+func (*MailboxDeleteDraftNotFound) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftRequestEntityTooLarge ApiError
+
+func (*MailboxDeleteDraftRequestEntityTooLarge) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftServiceUnavailable ApiError
+
+func (*MailboxDeleteDraftServiceUnavailable) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftTooManyRequests ApiError
+
+func (*MailboxDeleteDraftTooManyRequests) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftUnauthorized ApiError
+
+func (*MailboxDeleteDraftUnauthorized) mailboxDeleteDraftRes() {}
+
+type MailboxDeleteDraftUnprocessableEntity ApiError
+
+func (*MailboxDeleteDraftUnprocessableEntity) mailboxDeleteDraftRes() {}
+
 type MailboxDeleteMessageConflict ApiError
 
 func (*MailboxDeleteMessageConflict) mailboxDeleteMessageRes() {}
@@ -3049,6 +4153,1095 @@ func (*MailboxDeleteMessageConflict) mailboxDeleteMessageRes() {}
 type MailboxDeleteMessageNotFound ApiError
 
 func (*MailboxDeleteMessageNotFound) mailboxDeleteMessageRes() {}
+
+type MailboxDownloadRawMessageForbidden ApiError
+
+func (*MailboxDownloadRawMessageForbidden) mailboxDownloadRawMessageRes() {}
+
+type MailboxDownloadRawMessageInternalServerError ApiError
+
+func (*MailboxDownloadRawMessageInternalServerError) mailboxDownloadRawMessageRes() {}
+
+type MailboxDownloadRawMessageNotFound ApiError
+
+func (*MailboxDownloadRawMessageNotFound) mailboxDownloadRawMessageRes() {}
+
+// MailboxDownloadRawMessageNotModified is response for MailboxDownloadRawMessage operation.
+type MailboxDownloadRawMessageNotModified struct{}
+
+func (*MailboxDownloadRawMessageNotModified) mailboxDownloadRawMessageRes() {}
+
+type MailboxDownloadRawMessageOK struct {
+	Data io.Reader
+}
+
+// Read reads data from the Data reader.
+//
+// Kept to satisfy the io.Reader interface.
+func (s MailboxDownloadRawMessageOK) Read(p []byte) (n int, err error) {
+	if s.Data == nil {
+		return 0, io.EOF
+	}
+	return s.Data.Read(p)
+}
+
+// MailboxDownloadRawMessageOKHeaders wraps MailboxDownloadRawMessageOK with response headers.
+type MailboxDownloadRawMessageOKHeaders struct {
+	ContentDisposition OptString
+	ContentLength      OptString
+	ETag               OptString
+	Response           MailboxDownloadRawMessageOK
+}
+
+// GetContentDisposition returns the value of ContentDisposition.
+func (s *MailboxDownloadRawMessageOKHeaders) GetContentDisposition() OptString {
+	return s.ContentDisposition
+}
+
+// GetContentLength returns the value of ContentLength.
+func (s *MailboxDownloadRawMessageOKHeaders) GetContentLength() OptString {
+	return s.ContentLength
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxDownloadRawMessageOKHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxDownloadRawMessageOKHeaders) GetResponse() MailboxDownloadRawMessageOK {
+	return s.Response
+}
+
+// SetContentDisposition sets the value of ContentDisposition.
+func (s *MailboxDownloadRawMessageOKHeaders) SetContentDisposition(val OptString) {
+	s.ContentDisposition = val
+}
+
+// SetContentLength sets the value of ContentLength.
+func (s *MailboxDownloadRawMessageOKHeaders) SetContentLength(val OptString) {
+	s.ContentLength = val
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxDownloadRawMessageOKHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxDownloadRawMessageOKHeaders) SetResponse(val MailboxDownloadRawMessageOK) {
+	s.Response = val
+}
+
+func (*MailboxDownloadRawMessageOKHeaders) mailboxDownloadRawMessageRes() {}
+
+type MailboxDownloadRawMessageServiceUnavailable ApiError
+
+func (*MailboxDownloadRawMessageServiceUnavailable) mailboxDownloadRawMessageRes() {}
+
+type MailboxDownloadRawMessageTooManyRequests ApiError
+
+func (*MailboxDownloadRawMessageTooManyRequests) mailboxDownloadRawMessageRes() {}
+
+type MailboxDownloadRawMessageUnauthorized ApiError
+
+func (*MailboxDownloadRawMessageUnauthorized) mailboxDownloadRawMessageRes() {}
+
+// Ref: #/components/schemas/MailboxDraft
+type MailboxDraft struct {
+	// Attachments and inline images.
+	Attachments []MailboxDraftAttachmentsItem `json:"attachments"`
+	// Hidden copied recipients.
+	Bcc []MailboxDraftBccItem `json:"bcc"`
+	// Visible copied recipients.
+	Cc []MailboxDraftCcItem `json:"cc"`
+	// Custom X- headers preserved with this revision.
+	CustomHeaders OptMailboxDraftCustomHeaders `json:"custom_headers"`
+	// Safe failure reason. Correct failed draft content or current permissions before retrying. Never
+	// retry an uncertain send as a new message.
+	FailureCode NilMailboxDraftFailureCode `json:"failure_code"`
+	// Authorised sender; defaults to this inbox.
+	From OptMailboxDraftFrom `json:"from"`
+	// HTML body, preserved when saved.
+	HTMLBody OptString `json:"html_body"`
+	// Stable draft ID.
+	ID string `json:"id"`
+	// Snapshotted parent message identifiers.
+	InReplyTo []string `json:"in_reply_to"`
+	// Saved message ID; absent until saving finishes.
+	MessageID NilString `json:"message_id"`
+	// Snapshotted conversation identifiers.
+	References []string `json:"references"`
+	// Authorised reply addresses; defaults to this inbox.
+	ReplyTo []MailboxDraftReplyToItem `json:"reply_to"`
+	// Original message this draft replies to.
+	ReplyToMessageID OptString `json:"reply_to_message_id"`
+	// Current draft revision.
+	Revision int `json:"revision"`
+	// Schedule control version. Changes whenever a schedule is created, moved or cancelled.
+	ScheduleVersion int `json:"schedule_version"`
+	// Requested earliest send time, retained after sending. Null when no schedule is set.
+	ScheduledFor NilDateTime `json:"scheduled_for"`
+	// Saving or sending state.
+	Status MailboxDraftStatus `json:"status"`
+	// Subject; may be empty.
+	Subject OptString `json:"subject"`
+	// Plain-text body.
+	TextBody OptString `json:"text_body"`
+	// Primary recipients; at most 50 total across To, Cc and Bcc.
+	To []MailboxDraftToItem `json:"to"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *MailboxDraft) GetAttachments() []MailboxDraftAttachmentsItem {
+	return s.Attachments
+}
+
+// GetBcc returns the value of Bcc.
+func (s *MailboxDraft) GetBcc() []MailboxDraftBccItem {
+	return s.Bcc
+}
+
+// GetCc returns the value of Cc.
+func (s *MailboxDraft) GetCc() []MailboxDraftCcItem {
+	return s.Cc
+}
+
+// GetCustomHeaders returns the value of CustomHeaders.
+func (s *MailboxDraft) GetCustomHeaders() OptMailboxDraftCustomHeaders {
+	return s.CustomHeaders
+}
+
+// GetFailureCode returns the value of FailureCode.
+func (s *MailboxDraft) GetFailureCode() NilMailboxDraftFailureCode {
+	return s.FailureCode
+}
+
+// GetFrom returns the value of From.
+func (s *MailboxDraft) GetFrom() OptMailboxDraftFrom {
+	return s.From
+}
+
+// GetHTMLBody returns the value of HTMLBody.
+func (s *MailboxDraft) GetHTMLBody() OptString {
+	return s.HTMLBody
+}
+
+// GetID returns the value of ID.
+func (s *MailboxDraft) GetID() string {
+	return s.ID
+}
+
+// GetInReplyTo returns the value of InReplyTo.
+func (s *MailboxDraft) GetInReplyTo() []string {
+	return s.InReplyTo
+}
+
+// GetMessageID returns the value of MessageID.
+func (s *MailboxDraft) GetMessageID() NilString {
+	return s.MessageID
+}
+
+// GetReferences returns the value of References.
+func (s *MailboxDraft) GetReferences() []string {
+	return s.References
+}
+
+// GetReplyTo returns the value of ReplyTo.
+func (s *MailboxDraft) GetReplyTo() []MailboxDraftReplyToItem {
+	return s.ReplyTo
+}
+
+// GetReplyToMessageID returns the value of ReplyToMessageID.
+func (s *MailboxDraft) GetReplyToMessageID() OptString {
+	return s.ReplyToMessageID
+}
+
+// GetRevision returns the value of Revision.
+func (s *MailboxDraft) GetRevision() int {
+	return s.Revision
+}
+
+// GetScheduleVersion returns the value of ScheduleVersion.
+func (s *MailboxDraft) GetScheduleVersion() int {
+	return s.ScheduleVersion
+}
+
+// GetScheduledFor returns the value of ScheduledFor.
+func (s *MailboxDraft) GetScheduledFor() NilDateTime {
+	return s.ScheduledFor
+}
+
+// GetStatus returns the value of Status.
+func (s *MailboxDraft) GetStatus() MailboxDraftStatus {
+	return s.Status
+}
+
+// GetSubject returns the value of Subject.
+func (s *MailboxDraft) GetSubject() OptString {
+	return s.Subject
+}
+
+// GetTextBody returns the value of TextBody.
+func (s *MailboxDraft) GetTextBody() OptString {
+	return s.TextBody
+}
+
+// GetTo returns the value of To.
+func (s *MailboxDraft) GetTo() []MailboxDraftToItem {
+	return s.To
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *MailboxDraft) SetAttachments(val []MailboxDraftAttachmentsItem) {
+	s.Attachments = val
+}
+
+// SetBcc sets the value of Bcc.
+func (s *MailboxDraft) SetBcc(val []MailboxDraftBccItem) {
+	s.Bcc = val
+}
+
+// SetCc sets the value of Cc.
+func (s *MailboxDraft) SetCc(val []MailboxDraftCcItem) {
+	s.Cc = val
+}
+
+// SetCustomHeaders sets the value of CustomHeaders.
+func (s *MailboxDraft) SetCustomHeaders(val OptMailboxDraftCustomHeaders) {
+	s.CustomHeaders = val
+}
+
+// SetFailureCode sets the value of FailureCode.
+func (s *MailboxDraft) SetFailureCode(val NilMailboxDraftFailureCode) {
+	s.FailureCode = val
+}
+
+// SetFrom sets the value of From.
+func (s *MailboxDraft) SetFrom(val OptMailboxDraftFrom) {
+	s.From = val
+}
+
+// SetHTMLBody sets the value of HTMLBody.
+func (s *MailboxDraft) SetHTMLBody(val OptString) {
+	s.HTMLBody = val
+}
+
+// SetID sets the value of ID.
+func (s *MailboxDraft) SetID(val string) {
+	s.ID = val
+}
+
+// SetInReplyTo sets the value of InReplyTo.
+func (s *MailboxDraft) SetInReplyTo(val []string) {
+	s.InReplyTo = val
+}
+
+// SetMessageID sets the value of MessageID.
+func (s *MailboxDraft) SetMessageID(val NilString) {
+	s.MessageID = val
+}
+
+// SetReferences sets the value of References.
+func (s *MailboxDraft) SetReferences(val []string) {
+	s.References = val
+}
+
+// SetReplyTo sets the value of ReplyTo.
+func (s *MailboxDraft) SetReplyTo(val []MailboxDraftReplyToItem) {
+	s.ReplyTo = val
+}
+
+// SetReplyToMessageID sets the value of ReplyToMessageID.
+func (s *MailboxDraft) SetReplyToMessageID(val OptString) {
+	s.ReplyToMessageID = val
+}
+
+// SetRevision sets the value of Revision.
+func (s *MailboxDraft) SetRevision(val int) {
+	s.Revision = val
+}
+
+// SetScheduleVersion sets the value of ScheduleVersion.
+func (s *MailboxDraft) SetScheduleVersion(val int) {
+	s.ScheduleVersion = val
+}
+
+// SetScheduledFor sets the value of ScheduledFor.
+func (s *MailboxDraft) SetScheduledFor(val NilDateTime) {
+	s.ScheduledFor = val
+}
+
+// SetStatus sets the value of Status.
+func (s *MailboxDraft) SetStatus(val MailboxDraftStatus) {
+	s.Status = val
+}
+
+// SetSubject sets the value of Subject.
+func (s *MailboxDraft) SetSubject(val OptString) {
+	s.Subject = val
+}
+
+// SetTextBody sets the value of TextBody.
+func (s *MailboxDraft) SetTextBody(val OptString) {
+	s.TextBody = val
+}
+
+// SetTo sets the value of To.
+func (s *MailboxDraft) SetTo(val []MailboxDraftToItem) {
+	s.To = val
+}
+
+type MailboxDraftAttachmentsItem struct {
+	// An attachment uploaded to this mailbox.
+	BlobID string `json:"blob_id"`
+	// Content ID referenced by an inline image.
+	ContentID OptString `json:"content_id"`
+	// Attachment media type.
+	ContentType string `json:"content_type"`
+	// Whether the attachment appears within the message.
+	Disposition OptMailboxDraftAttachmentsItemDisposition `json:"disposition"`
+	// Attachment filename.
+	Filename string `json:"filename"`
+	// Attachment size in bytes; verified when saved.
+	SizeBytes int `json:"size_bytes"`
+}
+
+// GetBlobID returns the value of BlobID.
+func (s *MailboxDraftAttachmentsItem) GetBlobID() string {
+	return s.BlobID
+}
+
+// GetContentID returns the value of ContentID.
+func (s *MailboxDraftAttachmentsItem) GetContentID() OptString {
+	return s.ContentID
+}
+
+// GetContentType returns the value of ContentType.
+func (s *MailboxDraftAttachmentsItem) GetContentType() string {
+	return s.ContentType
+}
+
+// GetDisposition returns the value of Disposition.
+func (s *MailboxDraftAttachmentsItem) GetDisposition() OptMailboxDraftAttachmentsItemDisposition {
+	return s.Disposition
+}
+
+// GetFilename returns the value of Filename.
+func (s *MailboxDraftAttachmentsItem) GetFilename() string {
+	return s.Filename
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *MailboxDraftAttachmentsItem) GetSizeBytes() int {
+	return s.SizeBytes
+}
+
+// SetBlobID sets the value of BlobID.
+func (s *MailboxDraftAttachmentsItem) SetBlobID(val string) {
+	s.BlobID = val
+}
+
+// SetContentID sets the value of ContentID.
+func (s *MailboxDraftAttachmentsItem) SetContentID(val OptString) {
+	s.ContentID = val
+}
+
+// SetContentType sets the value of ContentType.
+func (s *MailboxDraftAttachmentsItem) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetDisposition sets the value of Disposition.
+func (s *MailboxDraftAttachmentsItem) SetDisposition(val OptMailboxDraftAttachmentsItemDisposition) {
+	s.Disposition = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *MailboxDraftAttachmentsItem) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *MailboxDraftAttachmentsItem) SetSizeBytes(val int) {
+	s.SizeBytes = val
+}
+
+// Whether the attachment appears within the message.
+type MailboxDraftAttachmentsItemDisposition string
+
+const (
+	MailboxDraftAttachmentsItemDispositionAttachment MailboxDraftAttachmentsItemDisposition = "attachment"
+	MailboxDraftAttachmentsItemDispositionInline     MailboxDraftAttachmentsItemDisposition = "inline"
+)
+
+// AllValues returns all MailboxDraftAttachmentsItemDisposition values.
+func (MailboxDraftAttachmentsItemDisposition) AllValues() []MailboxDraftAttachmentsItemDisposition {
+	return []MailboxDraftAttachmentsItemDisposition{
+		MailboxDraftAttachmentsItemDispositionAttachment,
+		MailboxDraftAttachmentsItemDispositionInline,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxDraftAttachmentsItemDisposition) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxDraftAttachmentsItemDispositionAttachment:
+		return []byte(s), nil
+	case MailboxDraftAttachmentsItemDispositionInline:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxDraftAttachmentsItemDisposition) UnmarshalText(data []byte) error {
+	switch MailboxDraftAttachmentsItemDisposition(data) {
+	case MailboxDraftAttachmentsItemDispositionAttachment:
+		*s = MailboxDraftAttachmentsItemDispositionAttachment
+		return nil
+	case MailboxDraftAttachmentsItemDispositionInline:
+		*s = MailboxDraftAttachmentsItemDispositionInline
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type MailboxDraftBccItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *MailboxDraftBccItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDraftBccItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *MailboxDraftBccItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDraftBccItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+type MailboxDraftCcItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *MailboxDraftCcItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDraftCcItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *MailboxDraftCcItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDraftCcItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+// Custom X- headers preserved with this revision.
+type MailboxDraftCustomHeaders map[string]string
+
+func (s *MailboxDraftCustomHeaders) init() MailboxDraftCustomHeaders {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxDraftDeleteResponse
+type MailboxDraftDeleteResponse struct {
+	// Merged property.
+	Meta MailboxDraftDeleteResponseMeta `json:"meta"`
+	Ok   MailboxDraftDeleteResponseOk   `json:"ok"`
+	Data MailboxDraftDeleteResponseData `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxDraftDeleteResponse) GetMeta() MailboxDraftDeleteResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxDraftDeleteResponse) GetOk() MailboxDraftDeleteResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxDraftDeleteResponse) GetData() MailboxDraftDeleteResponseData {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxDraftDeleteResponse) SetMeta(val MailboxDraftDeleteResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxDraftDeleteResponse) SetOk(val MailboxDraftDeleteResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxDraftDeleteResponse) SetData(val MailboxDraftDeleteResponseData) {
+	s.Data = val
+}
+
+func (*MailboxDraftDeleteResponse) mailboxDeleteDraftRes() {}
+
+type MailboxDraftDeleteResponseData struct {
+	Deleted MailboxDraftDeleteResponseDataDeleted `json:"deleted"`
+	ID      string                                `json:"id"`
+}
+
+// GetDeleted returns the value of Deleted.
+func (s *MailboxDraftDeleteResponseData) GetDeleted() MailboxDraftDeleteResponseDataDeleted {
+	return s.Deleted
+}
+
+// GetID returns the value of ID.
+func (s *MailboxDraftDeleteResponseData) GetID() string {
+	return s.ID
+}
+
+// SetDeleted sets the value of Deleted.
+func (s *MailboxDraftDeleteResponseData) SetDeleted(val MailboxDraftDeleteResponseDataDeleted) {
+	s.Deleted = val
+}
+
+// SetID sets the value of ID.
+func (s *MailboxDraftDeleteResponseData) SetID(val string) {
+	s.ID = val
+}
+
+type MailboxDraftDeleteResponseDataDeleted bool
+
+const (
+	MailboxDraftDeleteResponseDataDeletedTrue MailboxDraftDeleteResponseDataDeleted = true
+)
+
+// AllValues returns all MailboxDraftDeleteResponseDataDeleted values.
+func (MailboxDraftDeleteResponseDataDeleted) AllValues() []MailboxDraftDeleteResponseDataDeleted {
+	return []MailboxDraftDeleteResponseDataDeleted{
+		MailboxDraftDeleteResponseDataDeletedTrue,
+	}
+}
+
+// Merged schema.
+type MailboxDraftDeleteResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxDraftDeleteResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxDraftDeleteResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxDraftDeleteResponseMeta) GetAdditionalProps() MailboxDraftDeleteResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxDraftDeleteResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxDraftDeleteResponseMeta) SetAdditionalProps(val MailboxDraftDeleteResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxDraftDeleteResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxDraftDeleteResponseMetaAdditional) init() MailboxDraftDeleteResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxDraftDeleteResponseOk bool
+
+const (
+	MailboxDraftDeleteResponseOkTrue MailboxDraftDeleteResponseOk = true
+)
+
+// AllValues returns all MailboxDraftDeleteResponseOk values.
+func (MailboxDraftDeleteResponseOk) AllValues() []MailboxDraftDeleteResponseOk {
+	return []MailboxDraftDeleteResponseOk{
+		MailboxDraftDeleteResponseOkTrue,
+	}
+}
+
+// Safe failure reason. Correct failed draft content or current permissions before retrying. Never
+// retry an uncertain send as a new message.
+type MailboxDraftFailureCode string
+
+const (
+	MailboxDraftFailureCodePreparationFailed    MailboxDraftFailureCode = "preparation_failed"
+	MailboxDraftFailureCodeAuthorisationRevoked MailboxDraftFailureCode = "authorisation_revoked"
+	MailboxDraftFailureCodeSendRejected         MailboxDraftFailureCode = "send_rejected"
+)
+
+// AllValues returns all MailboxDraftFailureCode values.
+func (MailboxDraftFailureCode) AllValues() []MailboxDraftFailureCode {
+	return []MailboxDraftFailureCode{
+		MailboxDraftFailureCodePreparationFailed,
+		MailboxDraftFailureCodeAuthorisationRevoked,
+		MailboxDraftFailureCodeSendRejected,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxDraftFailureCode) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxDraftFailureCodePreparationFailed:
+		return []byte(s), nil
+	case MailboxDraftFailureCodeAuthorisationRevoked:
+		return []byte(s), nil
+	case MailboxDraftFailureCodeSendRejected:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxDraftFailureCode) UnmarshalText(data []byte) error {
+	switch MailboxDraftFailureCode(data) {
+	case MailboxDraftFailureCodePreparationFailed:
+		*s = MailboxDraftFailureCodePreparationFailed
+		return nil
+	case MailboxDraftFailureCodeAuthorisationRevoked:
+		*s = MailboxDraftFailureCodeAuthorisationRevoked
+		return nil
+	case MailboxDraftFailureCodeSendRejected:
+		*s = MailboxDraftFailureCodeSendRejected
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Authorised sender; defaults to this inbox.
+type MailboxDraftFrom struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *MailboxDraftFrom) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDraftFrom) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *MailboxDraftFrom) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDraftFrom) SetName(val OptNilString) {
+	s.Name = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxDraftListResponse
+type MailboxDraftListResponse struct {
+	// Merged property.
+	Meta       MailboxDraftListResponseMeta `json:"meta"`
+	Ok         MailboxDraftListResponseOk   `json:"ok"`
+	Data       []MailboxDraft               `json:"data"`
+	Pagination CursorPagination             `json:"pagination"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxDraftListResponse) GetMeta() MailboxDraftListResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxDraftListResponse) GetOk() MailboxDraftListResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxDraftListResponse) GetData() []MailboxDraft {
+	return s.Data
+}
+
+// GetPagination returns the value of Pagination.
+func (s *MailboxDraftListResponse) GetPagination() CursorPagination {
+	return s.Pagination
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxDraftListResponse) SetMeta(val MailboxDraftListResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxDraftListResponse) SetOk(val MailboxDraftListResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxDraftListResponse) SetData(val []MailboxDraft) {
+	s.Data = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *MailboxDraftListResponse) SetPagination(val CursorPagination) {
+	s.Pagination = val
+}
+
+func (*MailboxDraftListResponse) mailboxListDraftsRes() {}
+
+// Merged schema.
+type MailboxDraftListResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxDraftListResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxDraftListResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxDraftListResponseMeta) GetAdditionalProps() MailboxDraftListResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxDraftListResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxDraftListResponseMeta) SetAdditionalProps(val MailboxDraftListResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxDraftListResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxDraftListResponseMetaAdditional) init() MailboxDraftListResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxDraftListResponseOk bool
+
+const (
+	MailboxDraftListResponseOkTrue MailboxDraftListResponseOk = true
+)
+
+// AllValues returns all MailboxDraftListResponseOk values.
+func (MailboxDraftListResponseOk) AllValues() []MailboxDraftListResponseOk {
+	return []MailboxDraftListResponseOk{
+		MailboxDraftListResponseOkTrue,
+	}
+}
+
+type MailboxDraftReplyToItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *MailboxDraftReplyToItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDraftReplyToItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *MailboxDraftReplyToItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDraftReplyToItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxDraftResponse
+type MailboxDraftResponse struct {
+	// Merged property.
+	Meta MailboxDraftResponseMeta `json:"meta"`
+	Ok   MailboxDraftResponseOk   `json:"ok"`
+	Data MailboxDraft             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxDraftResponse) GetMeta() MailboxDraftResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxDraftResponse) GetOk() MailboxDraftResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxDraftResponse) GetData() MailboxDraft {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxDraftResponse) SetMeta(val MailboxDraftResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxDraftResponse) SetOk(val MailboxDraftResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxDraftResponse) SetData(val MailboxDraft) {
+	s.Data = val
+}
+
+// MailboxDraftResponseHeaders wraps MailboxDraftResponse with response headers.
+type MailboxDraftResponseHeaders struct {
+	Location OptString
+	Response MailboxDraftResponse
+}
+
+// GetLocation returns the value of Location.
+func (s *MailboxDraftResponseHeaders) GetLocation() OptString {
+	return s.Location
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxDraftResponseHeaders) GetResponse() MailboxDraftResponse {
+	return s.Response
+}
+
+// SetLocation sets the value of Location.
+func (s *MailboxDraftResponseHeaders) SetLocation(val OptString) {
+	s.Location = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxDraftResponseHeaders) SetResponse(val MailboxDraftResponse) {
+	s.Response = val
+}
+
+func (*MailboxDraftResponseHeaders) mailboxControlDraftScheduleRes() {}
+func (*MailboxDraftResponseHeaders) mailboxCreateDraftRes()          {}
+func (*MailboxDraftResponseHeaders) mailboxGetDraftRes()             {}
+func (*MailboxDraftResponseHeaders) mailboxSendDraftRes()            {}
+func (*MailboxDraftResponseHeaders) mailboxUpdateDraftRes()          {}
+
+// Merged schema.
+type MailboxDraftResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxDraftResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxDraftResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxDraftResponseMeta) GetAdditionalProps() MailboxDraftResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxDraftResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxDraftResponseMeta) SetAdditionalProps(val MailboxDraftResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxDraftResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxDraftResponseMetaAdditional) init() MailboxDraftResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxDraftResponseOk bool
+
+const (
+	MailboxDraftResponseOkTrue MailboxDraftResponseOk = true
+)
+
+// AllValues returns all MailboxDraftResponseOk values.
+func (MailboxDraftResponseOk) AllValues() []MailboxDraftResponseOk {
+	return []MailboxDraftResponseOk{
+		MailboxDraftResponseOkTrue,
+	}
+}
+
+// Saving or sending state.
+type MailboxDraftStatus string
+
+const (
+	MailboxDraftStatusPreparing MailboxDraftStatus = "preparing"
+	MailboxDraftStatusReady     MailboxDraftStatus = "ready"
+	MailboxDraftStatusScheduled MailboxDraftStatus = "scheduled"
+	MailboxDraftStatusSending   MailboxDraftStatus = "sending"
+	MailboxDraftStatusQueued    MailboxDraftStatus = "queued"
+	MailboxDraftStatusUncertain MailboxDraftStatus = "uncertain"
+	MailboxDraftStatusFailed    MailboxDraftStatus = "failed"
+	MailboxDraftStatusDeleted   MailboxDraftStatus = "deleted"
+)
+
+// AllValues returns all MailboxDraftStatus values.
+func (MailboxDraftStatus) AllValues() []MailboxDraftStatus {
+	return []MailboxDraftStatus{
+		MailboxDraftStatusPreparing,
+		MailboxDraftStatusReady,
+		MailboxDraftStatusScheduled,
+		MailboxDraftStatusSending,
+		MailboxDraftStatusQueued,
+		MailboxDraftStatusUncertain,
+		MailboxDraftStatusFailed,
+		MailboxDraftStatusDeleted,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxDraftStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxDraftStatusPreparing:
+		return []byte(s), nil
+	case MailboxDraftStatusReady:
+		return []byte(s), nil
+	case MailboxDraftStatusScheduled:
+		return []byte(s), nil
+	case MailboxDraftStatusSending:
+		return []byte(s), nil
+	case MailboxDraftStatusQueued:
+		return []byte(s), nil
+	case MailboxDraftStatusUncertain:
+		return []byte(s), nil
+	case MailboxDraftStatusFailed:
+		return []byte(s), nil
+	case MailboxDraftStatusDeleted:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxDraftStatus) UnmarshalText(data []byte) error {
+	switch MailboxDraftStatus(data) {
+	case MailboxDraftStatusPreparing:
+		*s = MailboxDraftStatusPreparing
+		return nil
+	case MailboxDraftStatusReady:
+		*s = MailboxDraftStatusReady
+		return nil
+	case MailboxDraftStatusScheduled:
+		*s = MailboxDraftStatusScheduled
+		return nil
+	case MailboxDraftStatusSending:
+		*s = MailboxDraftStatusSending
+		return nil
+	case MailboxDraftStatusQueued:
+		*s = MailboxDraftStatusQueued
+		return nil
+	case MailboxDraftStatusUncertain:
+		*s = MailboxDraftStatusUncertain
+		return nil
+	case MailboxDraftStatusFailed:
+		*s = MailboxDraftStatusFailed
+		return nil
+	case MailboxDraftStatusDeleted:
+		*s = MailboxDraftStatusDeleted
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type MailboxDraftToItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *MailboxDraftToItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *MailboxDraftToItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *MailboxDraftToItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *MailboxDraftToItem) SetName(val OptNilString) {
+	s.Name = val
+}
 
 // Ref: #/components/schemas/MailboxFolder
 type MailboxFolder struct {
@@ -3653,6 +5846,59 @@ func (MailboxFolderResponseOk) AllValues() []MailboxFolderResponseOk {
 	}
 }
 
+type MailboxGetAttachmentTextAccepted MailboxAttachmentTextResponseHeaders
+
+func (*MailboxGetAttachmentTextAccepted) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextBadRequest ApiError
+
+func (*MailboxGetAttachmentTextBadRequest) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextForbidden ApiError
+
+func (*MailboxGetAttachmentTextForbidden) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextInternalServerError ApiError
+
+func (*MailboxGetAttachmentTextInternalServerError) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextNotFound ApiError
+
+func (*MailboxGetAttachmentTextNotFound) mailboxGetAttachmentTextRes() {}
+
+// MailboxGetAttachmentTextNotModified is response for MailboxGetAttachmentText operation.
+type MailboxGetAttachmentTextNotModified struct {
+	ETag OptString
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxGetAttachmentTextNotModified) GetETag() OptString {
+	return s.ETag
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxGetAttachmentTextNotModified) SetETag(val OptString) {
+	s.ETag = val
+}
+
+func (*MailboxGetAttachmentTextNotModified) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextOK MailboxAttachmentTextResponseHeaders
+
+func (*MailboxGetAttachmentTextOK) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextServiceUnavailable ApiError
+
+func (*MailboxGetAttachmentTextServiceUnavailable) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextTooManyRequests ApiError
+
+func (*MailboxGetAttachmentTextTooManyRequests) mailboxGetAttachmentTextRes() {}
+
+type MailboxGetAttachmentTextUnauthorized ApiError
+
+func (*MailboxGetAttachmentTextUnauthorized) mailboxGetAttachmentTextRes() {}
+
 // Merged schema.
 type MailboxGetChangesOK struct {
 	// Merged property.
@@ -3790,6 +6036,51 @@ func (*MailboxGetConnectionTooManyRequests) mailboxGetConnectionRes() {}
 type MailboxGetConnectionUnauthorized ConnectionErrorResponseHeaders
 
 func (*MailboxGetConnectionUnauthorized) mailboxGetConnectionRes() {}
+
+type MailboxGetDraftBadRequest ApiError
+
+func (*MailboxGetDraftBadRequest) mailboxGetDraftRes() {}
+
+type MailboxGetDraftConflict ApiError
+
+func (*MailboxGetDraftConflict) mailboxGetDraftRes() {}
+
+type MailboxGetDraftForbidden ApiError
+
+func (*MailboxGetDraftForbidden) mailboxGetDraftRes() {}
+
+type MailboxGetDraftInternalServerError ApiError
+
+func (*MailboxGetDraftInternalServerError) mailboxGetDraftRes() {}
+
+type MailboxGetDraftNotFound ApiError
+
+func (*MailboxGetDraftNotFound) mailboxGetDraftRes() {}
+
+// MailboxGetDraftNotModified is response for MailboxGetDraft operation.
+type MailboxGetDraftNotModified struct{}
+
+func (*MailboxGetDraftNotModified) mailboxGetDraftRes() {}
+
+type MailboxGetDraftRequestEntityTooLarge ApiError
+
+func (*MailboxGetDraftRequestEntityTooLarge) mailboxGetDraftRes() {}
+
+type MailboxGetDraftServiceUnavailable ApiError
+
+func (*MailboxGetDraftServiceUnavailable) mailboxGetDraftRes() {}
+
+type MailboxGetDraftTooManyRequests ApiError
+
+func (*MailboxGetDraftTooManyRequests) mailboxGetDraftRes() {}
+
+type MailboxGetDraftUnauthorized ApiError
+
+func (*MailboxGetDraftUnauthorized) mailboxGetDraftRes() {}
+
+type MailboxGetDraftUnprocessableEntity ApiError
+
+func (*MailboxGetDraftUnprocessableEntity) mailboxGetDraftRes() {}
 
 // MailboxGetFolderNotModified is response for MailboxGetFolder operation.
 type MailboxGetFolderNotModified struct{}
@@ -4594,6 +6885,46 @@ func (s *MailboxListContentPart) UnmarshalText(data []byte) error {
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+type MailboxListDraftsBadRequest ApiError
+
+func (*MailboxListDraftsBadRequest) mailboxListDraftsRes() {}
+
+type MailboxListDraftsConflict ApiError
+
+func (*MailboxListDraftsConflict) mailboxListDraftsRes() {}
+
+type MailboxListDraftsForbidden ApiError
+
+func (*MailboxListDraftsForbidden) mailboxListDraftsRes() {}
+
+type MailboxListDraftsInternalServerError ApiError
+
+func (*MailboxListDraftsInternalServerError) mailboxListDraftsRes() {}
+
+type MailboxListDraftsNotFound ApiError
+
+func (*MailboxListDraftsNotFound) mailboxListDraftsRes() {}
+
+type MailboxListDraftsRequestEntityTooLarge ApiError
+
+func (*MailboxListDraftsRequestEntityTooLarge) mailboxListDraftsRes() {}
+
+type MailboxListDraftsServiceUnavailable ApiError
+
+func (*MailboxListDraftsServiceUnavailable) mailboxListDraftsRes() {}
+
+type MailboxListDraftsTooManyRequests ApiError
+
+func (*MailboxListDraftsTooManyRequests) mailboxListDraftsRes() {}
+
+type MailboxListDraftsUnauthorized ApiError
+
+func (*MailboxListDraftsUnauthorized) mailboxListDraftsRes() {}
+
+type MailboxListDraftsUnprocessableEntity ApiError
+
+func (*MailboxListDraftsUnprocessableEntity) mailboxListDraftsRes() {}
 
 type MailboxListGrantedMailboxesForbidden ApiError
 
@@ -5736,15 +8067,27 @@ func (s *MailboxMessageContent) SetThreadID(val NilString) {
 }
 
 type MailboxMessageContentBody struct {
+	// HTML with recognised quotes and signatures removed according to the stripping options. Original
+	// HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested,
+	// truncated, or exceeds cleaning limits.
+	CleanedHTML    NilString                          `json:"cleaned_html"`
 	ExtractedLinks []string                           `json:"extracted_links"`
 	Format         NilMailboxMessageContentBodyFormat `json:"format"`
 	// HTML body when requested. Returned as a JSON string and not as rendered content.
-	HTML              NilString `json:"html"`
-	IsTruncated       bool      `json:"is_truncated"`
-	QuotesStripped    bool      `json:"quotes_stripped"`
-	SignatureStripped bool      `json:"signature_stripped"`
-	Text              NilString `json:"text"`
-	TruncatedAtChars  NilInt    `json:"truncated_at_chars"`
+	HTML NilString `json:"html"`
+	// HTML cleaning outcome; null when HTML is absent or not requested. Cleaning accepts at most 20,000
+	// elements and 128 nested elements. Unrecognised quote and signature formats remain unchanged.
+	HTMLCleaning      NilMailboxMessageContentBodyHTMLCleaning `json:"html_cleaning"`
+	IsTruncated       bool                                     `json:"is_truncated"`
+	QuotesStripped    bool                                     `json:"quotes_stripped"`
+	SignatureStripped bool                                     `json:"signature_stripped"`
+	Text              NilString                                `json:"text"`
+	TruncatedAtChars  NilInt                                   `json:"truncated_at_chars"`
+}
+
+// GetCleanedHTML returns the value of CleanedHTML.
+func (s *MailboxMessageContentBody) GetCleanedHTML() NilString {
+	return s.CleanedHTML
 }
 
 // GetExtractedLinks returns the value of ExtractedLinks.
@@ -5760,6 +8103,11 @@ func (s *MailboxMessageContentBody) GetFormat() NilMailboxMessageContentBodyForm
 // GetHTML returns the value of HTML.
 func (s *MailboxMessageContentBody) GetHTML() NilString {
 	return s.HTML
+}
+
+// GetHTMLCleaning returns the value of HTMLCleaning.
+func (s *MailboxMessageContentBody) GetHTMLCleaning() NilMailboxMessageContentBodyHTMLCleaning {
+	return s.HTMLCleaning
 }
 
 // GetIsTruncated returns the value of IsTruncated.
@@ -5787,6 +8135,11 @@ func (s *MailboxMessageContentBody) GetTruncatedAtChars() NilInt {
 	return s.TruncatedAtChars
 }
 
+// SetCleanedHTML sets the value of CleanedHTML.
+func (s *MailboxMessageContentBody) SetCleanedHTML(val NilString) {
+	s.CleanedHTML = val
+}
+
 // SetExtractedLinks sets the value of ExtractedLinks.
 func (s *MailboxMessageContentBody) SetExtractedLinks(val []string) {
 	s.ExtractedLinks = val
@@ -5800,6 +8153,11 @@ func (s *MailboxMessageContentBody) SetFormat(val NilMailboxMessageContentBodyFo
 // SetHTML sets the value of HTML.
 func (s *MailboxMessageContentBody) SetHTML(val NilString) {
 	s.HTML = val
+}
+
+// SetHTMLCleaning sets the value of HTMLCleaning.
+func (s *MailboxMessageContentBody) SetHTMLCleaning(val NilMailboxMessageContentBodyHTMLCleaning) {
+	s.HTMLCleaning = val
 }
 
 // SetIsTruncated sets the value of IsTruncated.
@@ -5862,6 +8220,92 @@ func (s *MailboxMessageContentBodyFormat) UnmarshalText(data []byte) error {
 		return nil
 	case MailboxMessageContentBodyFormatHTML:
 		*s = MailboxMessageContentBodyFormatHTML
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// HTML cleaning outcome; null when HTML is absent or not requested. Cleaning accepts at most 20,000
+// elements and 128 nested elements. Unrecognised quote and signature formats remain unchanged.
+type MailboxMessageContentBodyHTMLCleaning struct {
+	QuotesStripped    bool                                        `json:"quotes_stripped"`
+	SignatureStripped bool                                        `json:"signature_stripped"`
+	Status            MailboxMessageContentBodyHTMLCleaningStatus `json:"status"`
+}
+
+// GetQuotesStripped returns the value of QuotesStripped.
+func (s *MailboxMessageContentBodyHTMLCleaning) GetQuotesStripped() bool {
+	return s.QuotesStripped
+}
+
+// GetSignatureStripped returns the value of SignatureStripped.
+func (s *MailboxMessageContentBodyHTMLCleaning) GetSignatureStripped() bool {
+	return s.SignatureStripped
+}
+
+// GetStatus returns the value of Status.
+func (s *MailboxMessageContentBodyHTMLCleaning) GetStatus() MailboxMessageContentBodyHTMLCleaningStatus {
+	return s.Status
+}
+
+// SetQuotesStripped sets the value of QuotesStripped.
+func (s *MailboxMessageContentBodyHTMLCleaning) SetQuotesStripped(val bool) {
+	s.QuotesStripped = val
+}
+
+// SetSignatureStripped sets the value of SignatureStripped.
+func (s *MailboxMessageContentBodyHTMLCleaning) SetSignatureStripped(val bool) {
+	s.SignatureStripped = val
+}
+
+// SetStatus sets the value of Status.
+func (s *MailboxMessageContentBodyHTMLCleaning) SetStatus(val MailboxMessageContentBodyHTMLCleaningStatus) {
+	s.Status = val
+}
+
+type MailboxMessageContentBodyHTMLCleaningStatus string
+
+const (
+	MailboxMessageContentBodyHTMLCleaningStatusComplete        MailboxMessageContentBodyHTMLCleaningStatus = "complete"
+	MailboxMessageContentBodyHTMLCleaningStatusSourceTruncated MailboxMessageContentBodyHTMLCleaningStatus = "source_truncated"
+	MailboxMessageContentBodyHTMLCleaningStatusLimitExceeded   MailboxMessageContentBodyHTMLCleaningStatus = "limit_exceeded"
+)
+
+// AllValues returns all MailboxMessageContentBodyHTMLCleaningStatus values.
+func (MailboxMessageContentBodyHTMLCleaningStatus) AllValues() []MailboxMessageContentBodyHTMLCleaningStatus {
+	return []MailboxMessageContentBodyHTMLCleaningStatus{
+		MailboxMessageContentBodyHTMLCleaningStatusComplete,
+		MailboxMessageContentBodyHTMLCleaningStatusSourceTruncated,
+		MailboxMessageContentBodyHTMLCleaningStatusLimitExceeded,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxMessageContentBodyHTMLCleaningStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxMessageContentBodyHTMLCleaningStatusComplete:
+		return []byte(s), nil
+	case MailboxMessageContentBodyHTMLCleaningStatusSourceTruncated:
+		return []byte(s), nil
+	case MailboxMessageContentBodyHTMLCleaningStatusLimitExceeded:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxMessageContentBodyHTMLCleaningStatus) UnmarshalText(data []byte) error {
+	switch MailboxMessageContentBodyHTMLCleaningStatus(data) {
+	case MailboxMessageContentBodyHTMLCleaningStatusComplete:
+		*s = MailboxMessageContentBodyHTMLCleaningStatusComplete
+		return nil
+	case MailboxMessageContentBodyHTMLCleaningStatusSourceTruncated:
+		*s = MailboxMessageContentBodyHTMLCleaningStatusSourceTruncated
+		return nil
+	case MailboxMessageContentBodyHTMLCleaningStatusLimitExceeded:
+		*s = MailboxMessageContentBodyHTMLCleaningStatusLimitExceeded
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -7534,6 +9978,42 @@ func (s *MailboxRawBodyStates) SetEmailState(val NilString) {
 	s.EmailState = val
 }
 
+type MailboxRequestAttachmentTextAccepted MailboxAttachmentTextResponseHeaders
+
+func (*MailboxRequestAttachmentTextAccepted) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextBadRequest ApiError
+
+func (*MailboxRequestAttachmentTextBadRequest) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextForbidden ApiError
+
+func (*MailboxRequestAttachmentTextForbidden) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextInternalServerError ApiError
+
+func (*MailboxRequestAttachmentTextInternalServerError) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextNotFound ApiError
+
+func (*MailboxRequestAttachmentTextNotFound) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextOK MailboxAttachmentTextResponseHeaders
+
+func (*MailboxRequestAttachmentTextOK) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextServiceUnavailable ApiError
+
+func (*MailboxRequestAttachmentTextServiceUnavailable) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextTooManyRequests ApiError
+
+func (*MailboxRequestAttachmentTextTooManyRequests) mailboxRequestAttachmentTextRes() {}
+
+type MailboxRequestAttachmentTextUnauthorized ApiError
+
+func (*MailboxRequestAttachmentTextUnauthorized) mailboxRequestAttachmentTextRes() {}
+
 // Ref: #/components/schemas/MailboxSearchSnippet
 type MailboxSearchSnippet struct {
 	MessageID string `json:"message_id"`
@@ -7700,6 +10180,46 @@ func (MailboxSearchSnippetsResultResponseOk) AllValues() []MailboxSearchSnippets
 		MailboxSearchSnippetsResultResponseOkTrue,
 	}
 }
+
+type MailboxSendDraftBadRequest ApiError
+
+func (*MailboxSendDraftBadRequest) mailboxSendDraftRes() {}
+
+type MailboxSendDraftConflict ApiError
+
+func (*MailboxSendDraftConflict) mailboxSendDraftRes() {}
+
+type MailboxSendDraftForbidden ApiError
+
+func (*MailboxSendDraftForbidden) mailboxSendDraftRes() {}
+
+type MailboxSendDraftInternalServerError ApiError
+
+func (*MailboxSendDraftInternalServerError) mailboxSendDraftRes() {}
+
+type MailboxSendDraftNotFound ApiError
+
+func (*MailboxSendDraftNotFound) mailboxSendDraftRes() {}
+
+type MailboxSendDraftRequestEntityTooLarge ApiError
+
+func (*MailboxSendDraftRequestEntityTooLarge) mailboxSendDraftRes() {}
+
+type MailboxSendDraftServiceUnavailable ApiError
+
+func (*MailboxSendDraftServiceUnavailable) mailboxSendDraftRes() {}
+
+type MailboxSendDraftTooManyRequests ApiError
+
+func (*MailboxSendDraftTooManyRequests) mailboxSendDraftRes() {}
+
+type MailboxSendDraftUnauthorized ApiError
+
+func (*MailboxSendDraftUnauthorized) mailboxSendDraftRes() {}
+
+type MailboxSendDraftUnprocessableEntity ApiError
+
+func (*MailboxSendDraftUnprocessableEntity) mailboxSendDraftRes() {}
 
 type MailboxSendMessageBadRequest ApiError
 
@@ -10535,6 +13055,46 @@ func (s *MailboxThreadSummaryStates) SetThreadState(val NilString) {
 	s.ThreadState = val
 }
 
+type MailboxUpdateDraftBadRequest ApiError
+
+func (*MailboxUpdateDraftBadRequest) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftConflict ApiError
+
+func (*MailboxUpdateDraftConflict) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftForbidden ApiError
+
+func (*MailboxUpdateDraftForbidden) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftInternalServerError ApiError
+
+func (*MailboxUpdateDraftInternalServerError) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftNotFound ApiError
+
+func (*MailboxUpdateDraftNotFound) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftRequestEntityTooLarge ApiError
+
+func (*MailboxUpdateDraftRequestEntityTooLarge) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftServiceUnavailable ApiError
+
+func (*MailboxUpdateDraftServiceUnavailable) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftTooManyRequests ApiError
+
+func (*MailboxUpdateDraftTooManyRequests) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftUnauthorized ApiError
+
+func (*MailboxUpdateDraftUnauthorized) mailboxUpdateDraftRes() {}
+
+type MailboxUpdateDraftUnprocessableEntity ApiError
+
+func (*MailboxUpdateDraftUnprocessableEntity) mailboxUpdateDraftRes() {}
+
 type MailboxUpdateFolderBadRequest ApiError
 
 func (*MailboxUpdateFolderBadRequest) mailboxUpdateFolderRes() {}
@@ -10936,6 +13496,51 @@ func (s *MailboxUsageStates) SetQuotaState(val NilString) {
 	s.QuotaState = val
 }
 
+// NewNilDateTime returns new NilDateTime with value set to v.
+func NewNilDateTime(v time.Time) NilDateTime {
+	return NilDateTime{
+		Value: v,
+	}
+}
+
+// NilDateTime is nullable time.Time.
+type NilDateTime struct {
+	Value time.Time
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilDateTime) SetTo(v time.Time) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilDateTime) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilDateTime) SetToNull() {
+	o.Null = true
+	var v time.Time
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilDateTime) Get() (v time.Time, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewNilFloat64 returns new NilFloat64 with value set to v.
 func NewNilFloat64(v float64) NilFloat64 {
 	return NilFloat64{
@@ -11116,6 +13721,51 @@ func (o NilMailboxContentHeadersSelected) Or(d MailboxContentHeadersSelected) Ma
 	return d
 }
 
+// NewNilMailboxDraftFailureCode returns new NilMailboxDraftFailureCode with value set to v.
+func NewNilMailboxDraftFailureCode(v MailboxDraftFailureCode) NilMailboxDraftFailureCode {
+	return NilMailboxDraftFailureCode{
+		Value: v,
+	}
+}
+
+// NilMailboxDraftFailureCode is nullable MailboxDraftFailureCode.
+type NilMailboxDraftFailureCode struct {
+	Value MailboxDraftFailureCode
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilMailboxDraftFailureCode) SetTo(v MailboxDraftFailureCode) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilMailboxDraftFailureCode) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilMailboxDraftFailureCode) SetToNull() {
+	o.Null = true
+	var v MailboxDraftFailureCode
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilMailboxDraftFailureCode) Get() (v MailboxDraftFailureCode, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilMailboxDraftFailureCode) Or(d MailboxDraftFailureCode) MailboxDraftFailureCode {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewNilMailboxMessageContent returns new NilMailboxMessageContent with value set to v.
 func NewNilMailboxMessageContent(v MailboxMessageContent) NilMailboxMessageContent {
 	return NilMailboxMessageContent{
@@ -11200,6 +13850,51 @@ func (o NilMailboxMessageContentBodyFormat) Get() (v MailboxMessageContentBodyFo
 
 // Or returns value if set, or given parameter if does not.
 func (o NilMailboxMessageContentBodyFormat) Or(d MailboxMessageContentBodyFormat) MailboxMessageContentBodyFormat {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilMailboxMessageContentBodyHTMLCleaning returns new NilMailboxMessageContentBodyHTMLCleaning with value set to v.
+func NewNilMailboxMessageContentBodyHTMLCleaning(v MailboxMessageContentBodyHTMLCleaning) NilMailboxMessageContentBodyHTMLCleaning {
+	return NilMailboxMessageContentBodyHTMLCleaning{
+		Value: v,
+	}
+}
+
+// NilMailboxMessageContentBodyHTMLCleaning is nullable MailboxMessageContentBodyHTMLCleaning.
+type NilMailboxMessageContentBodyHTMLCleaning struct {
+	Value MailboxMessageContentBodyHTMLCleaning
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilMailboxMessageContentBodyHTMLCleaning) SetTo(v MailboxMessageContentBodyHTMLCleaning) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilMailboxMessageContentBodyHTMLCleaning) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilMailboxMessageContentBodyHTMLCleaning) SetToNull() {
+	o.Null = true
+	var v MailboxMessageContentBodyHTMLCleaning
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilMailboxMessageContentBodyHTMLCleaning) Get() (v MailboxMessageContentBodyHTMLCleaning, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilMailboxMessageContentBodyHTMLCleaning) Or(d MailboxMessageContentBodyHTMLCleaning) MailboxMessageContentBodyHTMLCleaning {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -11705,6 +14400,190 @@ func (o OptBool) Or(d bool) bool {
 	return d
 }
 
+// NewOptCreateMailboxDraftAttachmentsItemDisposition returns new OptCreateMailboxDraftAttachmentsItemDisposition with value set to v.
+func NewOptCreateMailboxDraftAttachmentsItemDisposition(v CreateMailboxDraftAttachmentsItemDisposition) OptCreateMailboxDraftAttachmentsItemDisposition {
+	return OptCreateMailboxDraftAttachmentsItemDisposition{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateMailboxDraftAttachmentsItemDisposition is optional CreateMailboxDraftAttachmentsItemDisposition.
+type OptCreateMailboxDraftAttachmentsItemDisposition struct {
+	Value CreateMailboxDraftAttachmentsItemDisposition
+	Set   bool
+}
+
+// IsSet returns true if OptCreateMailboxDraftAttachmentsItemDisposition was set.
+func (o OptCreateMailboxDraftAttachmentsItemDisposition) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateMailboxDraftAttachmentsItemDisposition) Reset() {
+	var v CreateMailboxDraftAttachmentsItemDisposition
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateMailboxDraftAttachmentsItemDisposition) SetTo(v CreateMailboxDraftAttachmentsItemDisposition) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateMailboxDraftAttachmentsItemDisposition) Get() (v CreateMailboxDraftAttachmentsItemDisposition, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateMailboxDraftAttachmentsItemDisposition) Or(d CreateMailboxDraftAttachmentsItemDisposition) CreateMailboxDraftAttachmentsItemDisposition {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateMailboxDraftCustomHeaders returns new OptCreateMailboxDraftCustomHeaders with value set to v.
+func NewOptCreateMailboxDraftCustomHeaders(v CreateMailboxDraftCustomHeaders) OptCreateMailboxDraftCustomHeaders {
+	return OptCreateMailboxDraftCustomHeaders{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateMailboxDraftCustomHeaders is optional CreateMailboxDraftCustomHeaders.
+type OptCreateMailboxDraftCustomHeaders struct {
+	Value CreateMailboxDraftCustomHeaders
+	Set   bool
+}
+
+// IsSet returns true if OptCreateMailboxDraftCustomHeaders was set.
+func (o OptCreateMailboxDraftCustomHeaders) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateMailboxDraftCustomHeaders) Reset() {
+	var v CreateMailboxDraftCustomHeaders
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateMailboxDraftCustomHeaders) SetTo(v CreateMailboxDraftCustomHeaders) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateMailboxDraftCustomHeaders) Get() (v CreateMailboxDraftCustomHeaders, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateMailboxDraftCustomHeaders) Or(d CreateMailboxDraftCustomHeaders) CreateMailboxDraftCustomHeaders {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateMailboxDraftFrom returns new OptCreateMailboxDraftFrom with value set to v.
+func NewOptCreateMailboxDraftFrom(v CreateMailboxDraftFrom) OptCreateMailboxDraftFrom {
+	return OptCreateMailboxDraftFrom{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateMailboxDraftFrom is optional CreateMailboxDraftFrom.
+type OptCreateMailboxDraftFrom struct {
+	Value CreateMailboxDraftFrom
+	Set   bool
+}
+
+// IsSet returns true if OptCreateMailboxDraftFrom was set.
+func (o OptCreateMailboxDraftFrom) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateMailboxDraftFrom) Reset() {
+	var v CreateMailboxDraftFrom
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateMailboxDraftFrom) SetTo(v CreateMailboxDraftFrom) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateMailboxDraftFrom) Get() (v CreateMailboxDraftFrom, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateMailboxDraftFrom) Or(d CreateMailboxDraftFrom) CreateMailboxDraftFrom {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCreateMailboxDraftSource returns new OptCreateMailboxDraftSource with value set to v.
+func NewOptCreateMailboxDraftSource(v CreateMailboxDraftSource) OptCreateMailboxDraftSource {
+	return OptCreateMailboxDraftSource{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCreateMailboxDraftSource is optional CreateMailboxDraftSource.
+type OptCreateMailboxDraftSource struct {
+	Value CreateMailboxDraftSource
+	Set   bool
+}
+
+// IsSet returns true if OptCreateMailboxDraftSource was set.
+func (o OptCreateMailboxDraftSource) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCreateMailboxDraftSource) Reset() {
+	var v CreateMailboxDraftSource
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCreateMailboxDraftSource) SetTo(v CreateMailboxDraftSource) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCreateMailboxDraftSource) Get() (v CreateMailboxDraftSource, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCreateMailboxDraftSource) Or(d CreateMailboxDraftSource) CreateMailboxDraftSource {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptCreateMailboxFolderBody returns new OptCreateMailboxFolderBody with value set to v.
 func NewOptCreateMailboxFolderBody(v CreateMailboxFolderBody) OptCreateMailboxFolderBody {
 	return OptCreateMailboxFolderBody{
@@ -11745,6 +14624,52 @@ func (o OptCreateMailboxFolderBody) Get() (v CreateMailboxFolderBody, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptCreateMailboxFolderBody) Or(d CreateMailboxFolderBody) CreateMailboxFolderBody {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDateTime returns new OptDateTime with value set to v.
+func NewOptDateTime(v time.Time) OptDateTime {
+	return OptDateTime{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDateTime is optional time.Time.
+type OptDateTime struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDateTime was set.
+func (o OptDateTime) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDateTime) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDateTime) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDateTime) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDateTime) Or(d time.Time) time.Time {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -12067,6 +14992,144 @@ func (o OptMailboxBatchGetBodyPart) Get() (v MailboxBatchGetBodyPart, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptMailboxBatchGetBodyPart) Or(d MailboxBatchGetBodyPart) MailboxBatchGetBodyPart {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxDraftAttachmentsItemDisposition returns new OptMailboxDraftAttachmentsItemDisposition with value set to v.
+func NewOptMailboxDraftAttachmentsItemDisposition(v MailboxDraftAttachmentsItemDisposition) OptMailboxDraftAttachmentsItemDisposition {
+	return OptMailboxDraftAttachmentsItemDisposition{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxDraftAttachmentsItemDisposition is optional MailboxDraftAttachmentsItemDisposition.
+type OptMailboxDraftAttachmentsItemDisposition struct {
+	Value MailboxDraftAttachmentsItemDisposition
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxDraftAttachmentsItemDisposition was set.
+func (o OptMailboxDraftAttachmentsItemDisposition) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxDraftAttachmentsItemDisposition) Reset() {
+	var v MailboxDraftAttachmentsItemDisposition
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxDraftAttachmentsItemDisposition) SetTo(v MailboxDraftAttachmentsItemDisposition) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxDraftAttachmentsItemDisposition) Get() (v MailboxDraftAttachmentsItemDisposition, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxDraftAttachmentsItemDisposition) Or(d MailboxDraftAttachmentsItemDisposition) MailboxDraftAttachmentsItemDisposition {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxDraftCustomHeaders returns new OptMailboxDraftCustomHeaders with value set to v.
+func NewOptMailboxDraftCustomHeaders(v MailboxDraftCustomHeaders) OptMailboxDraftCustomHeaders {
+	return OptMailboxDraftCustomHeaders{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxDraftCustomHeaders is optional MailboxDraftCustomHeaders.
+type OptMailboxDraftCustomHeaders struct {
+	Value MailboxDraftCustomHeaders
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxDraftCustomHeaders was set.
+func (o OptMailboxDraftCustomHeaders) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxDraftCustomHeaders) Reset() {
+	var v MailboxDraftCustomHeaders
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxDraftCustomHeaders) SetTo(v MailboxDraftCustomHeaders) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxDraftCustomHeaders) Get() (v MailboxDraftCustomHeaders, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxDraftCustomHeaders) Or(d MailboxDraftCustomHeaders) MailboxDraftCustomHeaders {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxDraftFrom returns new OptMailboxDraftFrom with value set to v.
+func NewOptMailboxDraftFrom(v MailboxDraftFrom) OptMailboxDraftFrom {
+	return OptMailboxDraftFrom{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxDraftFrom is optional MailboxDraftFrom.
+type OptMailboxDraftFrom struct {
+	Value MailboxDraftFrom
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxDraftFrom was set.
+func (o OptMailboxDraftFrom) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxDraftFrom) Reset() {
+	var v MailboxDraftFrom
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxDraftFrom) SetTo(v MailboxDraftFrom) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxDraftFrom) Get() (v MailboxDraftFrom, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxDraftFrom) Or(d MailboxDraftFrom) MailboxDraftFrom {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -13424,6 +16487,144 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
+// NewOptUpdateMailboxDraftAttachmentsItemDisposition returns new OptUpdateMailboxDraftAttachmentsItemDisposition with value set to v.
+func NewOptUpdateMailboxDraftAttachmentsItemDisposition(v UpdateMailboxDraftAttachmentsItemDisposition) OptUpdateMailboxDraftAttachmentsItemDisposition {
+	return OptUpdateMailboxDraftAttachmentsItemDisposition{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateMailboxDraftAttachmentsItemDisposition is optional UpdateMailboxDraftAttachmentsItemDisposition.
+type OptUpdateMailboxDraftAttachmentsItemDisposition struct {
+	Value UpdateMailboxDraftAttachmentsItemDisposition
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateMailboxDraftAttachmentsItemDisposition was set.
+func (o OptUpdateMailboxDraftAttachmentsItemDisposition) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateMailboxDraftAttachmentsItemDisposition) Reset() {
+	var v UpdateMailboxDraftAttachmentsItemDisposition
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateMailboxDraftAttachmentsItemDisposition) SetTo(v UpdateMailboxDraftAttachmentsItemDisposition) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateMailboxDraftAttachmentsItemDisposition) Get() (v UpdateMailboxDraftAttachmentsItemDisposition, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateMailboxDraftAttachmentsItemDisposition) Or(d UpdateMailboxDraftAttachmentsItemDisposition) UpdateMailboxDraftAttachmentsItemDisposition {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateMailboxDraftCustomHeaders returns new OptUpdateMailboxDraftCustomHeaders with value set to v.
+func NewOptUpdateMailboxDraftCustomHeaders(v UpdateMailboxDraftCustomHeaders) OptUpdateMailboxDraftCustomHeaders {
+	return OptUpdateMailboxDraftCustomHeaders{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateMailboxDraftCustomHeaders is optional UpdateMailboxDraftCustomHeaders.
+type OptUpdateMailboxDraftCustomHeaders struct {
+	Value UpdateMailboxDraftCustomHeaders
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateMailboxDraftCustomHeaders was set.
+func (o OptUpdateMailboxDraftCustomHeaders) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateMailboxDraftCustomHeaders) Reset() {
+	var v UpdateMailboxDraftCustomHeaders
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateMailboxDraftCustomHeaders) SetTo(v UpdateMailboxDraftCustomHeaders) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateMailboxDraftCustomHeaders) Get() (v UpdateMailboxDraftCustomHeaders, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateMailboxDraftCustomHeaders) Or(d UpdateMailboxDraftCustomHeaders) UpdateMailboxDraftCustomHeaders {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUpdateMailboxDraftFrom returns new OptUpdateMailboxDraftFrom with value set to v.
+func NewOptUpdateMailboxDraftFrom(v UpdateMailboxDraftFrom) OptUpdateMailboxDraftFrom {
+	return OptUpdateMailboxDraftFrom{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateMailboxDraftFrom is optional UpdateMailboxDraftFrom.
+type OptUpdateMailboxDraftFrom struct {
+	Value UpdateMailboxDraftFrom
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateMailboxDraftFrom was set.
+func (o OptUpdateMailboxDraftFrom) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateMailboxDraftFrom) Reset() {
+	var v UpdateMailboxDraftFrom
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateMailboxDraftFrom) SetTo(v UpdateMailboxDraftFrom) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateMailboxDraftFrom) Get() (v UpdateMailboxDraftFrom, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateMailboxDraftFrom) Or(d UpdateMailboxDraftFrom) UpdateMailboxDraftFrom {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptUpdateMailboxIdentityBody returns new OptUpdateMailboxIdentityBody with value set to v.
 func NewOptUpdateMailboxIdentityBody(v UpdateMailboxIdentityBody) OptUpdateMailboxIdentityBody {
 	return OptUpdateMailboxIdentityBody{
@@ -13559,13 +16760,54 @@ func (s *PatchMailboxMessageBodyKeywords) init() PatchMailboxMessageBodyKeywords
 	return m
 }
 
+// Ref: #/components/schemas/SendMailboxDraft
+type SendMailboxDraft struct {
+	// Exact saved revision to send. A stale revision returns conflict.
+	ExpectedRevision int `json:"expected_revision"`
+	// Current schedule version. Required for scheduling and after cancelling a schedule.
+	ExpectedScheduleVersion OptInt `json:"expected_schedule_version"`
+	// Send no earlier than this future time, within 30 days. Include a timezone and at most millisecond
+	// precision. Omit to send now.
+	ScheduledFor OptDateTime `json:"scheduled_for"`
+}
+
+// GetExpectedRevision returns the value of ExpectedRevision.
+func (s *SendMailboxDraft) GetExpectedRevision() int {
+	return s.ExpectedRevision
+}
+
+// GetExpectedScheduleVersion returns the value of ExpectedScheduleVersion.
+func (s *SendMailboxDraft) GetExpectedScheduleVersion() OptInt {
+	return s.ExpectedScheduleVersion
+}
+
+// GetScheduledFor returns the value of ScheduledFor.
+func (s *SendMailboxDraft) GetScheduledFor() OptDateTime {
+	return s.ScheduledFor
+}
+
+// SetExpectedRevision sets the value of ExpectedRevision.
+func (s *SendMailboxDraft) SetExpectedRevision(val int) {
+	s.ExpectedRevision = val
+}
+
+// SetExpectedScheduleVersion sets the value of ExpectedScheduleVersion.
+func (s *SendMailboxDraft) SetExpectedScheduleVersion(val OptInt) {
+	s.ExpectedScheduleVersion = val
+}
+
+// SetScheduledFor sets the value of ScheduledFor.
+func (s *SendMailboxDraft) SetScheduledFor(val OptDateTime) {
+	s.ScheduledFor = val
+}
+
 // Ref: #/components/schemas/SendMailboxMessageBody
 type SendMailboxMessageBody struct {
 	// Attachments to send with the message.
 	Attachments []SendMailboxMessageBodyAttachmentsItem `json:"attachments"`
-	// BCC recipients.
+	// Hidden copied recipients.
 	Bcc []MailboxAddress `json:"bcc"`
-	// CC recipients.
+	// Visible copied recipients.
 	Cc []MailboxAddress `json:"cc"`
 	// Custom headers to include.
 	CustomHeaders OptSendMailboxMessageBodyCustomHeaders `json:"custom_headers"`
@@ -13574,11 +16816,11 @@ type SendMailboxMessageBody struct {
 	HTMLBody OptString `json:"html_body"`
 	// Reply-To recipients.
 	ReplyTo []MailboxAddress `json:"reply_to"`
-	// Subject line for the outgoing email.
-	Subject string `json:"subject"`
+	// Subject line; defaults to empty.
+	Subject OptString `json:"subject"`
 	// Plain text body.
 	TextBody OptString `json:"text_body"`
-	// Primary recipients.
+	// Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.
 	To []MailboxAddress `json:"to"`
 }
 
@@ -13618,7 +16860,7 @@ func (s *SendMailboxMessageBody) GetReplyTo() []MailboxAddress {
 }
 
 // GetSubject returns the value of Subject.
-func (s *SendMailboxMessageBody) GetSubject() string {
+func (s *SendMailboxMessageBody) GetSubject() OptString {
 	return s.Subject
 }
 
@@ -13668,7 +16910,7 @@ func (s *SendMailboxMessageBody) SetReplyTo(val []MailboxAddress) {
 }
 
 // SetSubject sets the value of Subject.
-func (s *SendMailboxMessageBody) SetSubject(val string) {
+func (s *SendMailboxMessageBody) SetSubject(val OptString) {
 	s.Subject = val
 }
 
@@ -13827,6 +17069,407 @@ func (s *SendMailboxMessageResultStatus) UnmarshalText(data []byte) error {
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
+}
+
+// Ref: #/components/schemas/UpdateMailboxDraft
+type UpdateMailboxDraft struct {
+	// Attachments and inline images.
+	Attachments []UpdateMailboxDraftAttachmentsItem `json:"attachments"`
+	// Hidden copied recipients.
+	Bcc []UpdateMailboxDraftBccItem `json:"bcc"`
+	// Visible copied recipients.
+	Cc []UpdateMailboxDraftCcItem `json:"cc"`
+	// Custom X- headers preserved with this revision.
+	CustomHeaders OptUpdateMailboxDraftCustomHeaders `json:"custom_headers"`
+	// The revision that was reviewed; a stale value returns conflict.
+	ExpectedRevision int `json:"expected_revision"`
+	// Authorised sender; defaults to this inbox.
+	From OptUpdateMailboxDraftFrom `json:"from"`
+	// HTML body, preserved when saved.
+	HTMLBody OptString `json:"html_body"`
+	// Authorised reply addresses; defaults to this inbox.
+	ReplyTo []UpdateMailboxDraftReplyToItem `json:"reply_to"`
+	// Subject; may be empty.
+	Subject OptString `json:"subject"`
+	// Plain-text body.
+	TextBody OptString `json:"text_body"`
+	// Primary recipients; at most 50 total across To, Cc and Bcc.
+	To []UpdateMailboxDraftToItem `json:"to"`
+}
+
+// GetAttachments returns the value of Attachments.
+func (s *UpdateMailboxDraft) GetAttachments() []UpdateMailboxDraftAttachmentsItem {
+	return s.Attachments
+}
+
+// GetBcc returns the value of Bcc.
+func (s *UpdateMailboxDraft) GetBcc() []UpdateMailboxDraftBccItem {
+	return s.Bcc
+}
+
+// GetCc returns the value of Cc.
+func (s *UpdateMailboxDraft) GetCc() []UpdateMailboxDraftCcItem {
+	return s.Cc
+}
+
+// GetCustomHeaders returns the value of CustomHeaders.
+func (s *UpdateMailboxDraft) GetCustomHeaders() OptUpdateMailboxDraftCustomHeaders {
+	return s.CustomHeaders
+}
+
+// GetExpectedRevision returns the value of ExpectedRevision.
+func (s *UpdateMailboxDraft) GetExpectedRevision() int {
+	return s.ExpectedRevision
+}
+
+// GetFrom returns the value of From.
+func (s *UpdateMailboxDraft) GetFrom() OptUpdateMailboxDraftFrom {
+	return s.From
+}
+
+// GetHTMLBody returns the value of HTMLBody.
+func (s *UpdateMailboxDraft) GetHTMLBody() OptString {
+	return s.HTMLBody
+}
+
+// GetReplyTo returns the value of ReplyTo.
+func (s *UpdateMailboxDraft) GetReplyTo() []UpdateMailboxDraftReplyToItem {
+	return s.ReplyTo
+}
+
+// GetSubject returns the value of Subject.
+func (s *UpdateMailboxDraft) GetSubject() OptString {
+	return s.Subject
+}
+
+// GetTextBody returns the value of TextBody.
+func (s *UpdateMailboxDraft) GetTextBody() OptString {
+	return s.TextBody
+}
+
+// GetTo returns the value of To.
+func (s *UpdateMailboxDraft) GetTo() []UpdateMailboxDraftToItem {
+	return s.To
+}
+
+// SetAttachments sets the value of Attachments.
+func (s *UpdateMailboxDraft) SetAttachments(val []UpdateMailboxDraftAttachmentsItem) {
+	s.Attachments = val
+}
+
+// SetBcc sets the value of Bcc.
+func (s *UpdateMailboxDraft) SetBcc(val []UpdateMailboxDraftBccItem) {
+	s.Bcc = val
+}
+
+// SetCc sets the value of Cc.
+func (s *UpdateMailboxDraft) SetCc(val []UpdateMailboxDraftCcItem) {
+	s.Cc = val
+}
+
+// SetCustomHeaders sets the value of CustomHeaders.
+func (s *UpdateMailboxDraft) SetCustomHeaders(val OptUpdateMailboxDraftCustomHeaders) {
+	s.CustomHeaders = val
+}
+
+// SetExpectedRevision sets the value of ExpectedRevision.
+func (s *UpdateMailboxDraft) SetExpectedRevision(val int) {
+	s.ExpectedRevision = val
+}
+
+// SetFrom sets the value of From.
+func (s *UpdateMailboxDraft) SetFrom(val OptUpdateMailboxDraftFrom) {
+	s.From = val
+}
+
+// SetHTMLBody sets the value of HTMLBody.
+func (s *UpdateMailboxDraft) SetHTMLBody(val OptString) {
+	s.HTMLBody = val
+}
+
+// SetReplyTo sets the value of ReplyTo.
+func (s *UpdateMailboxDraft) SetReplyTo(val []UpdateMailboxDraftReplyToItem) {
+	s.ReplyTo = val
+}
+
+// SetSubject sets the value of Subject.
+func (s *UpdateMailboxDraft) SetSubject(val OptString) {
+	s.Subject = val
+}
+
+// SetTextBody sets the value of TextBody.
+func (s *UpdateMailboxDraft) SetTextBody(val OptString) {
+	s.TextBody = val
+}
+
+// SetTo sets the value of To.
+func (s *UpdateMailboxDraft) SetTo(val []UpdateMailboxDraftToItem) {
+	s.To = val
+}
+
+type UpdateMailboxDraftAttachmentsItem struct {
+	// An attachment uploaded to this mailbox.
+	BlobID string `json:"blob_id"`
+	// Content ID referenced by an inline image.
+	ContentID OptString `json:"content_id"`
+	// Attachment media type.
+	ContentType string `json:"content_type"`
+	// Whether the attachment appears within the message.
+	Disposition OptUpdateMailboxDraftAttachmentsItemDisposition `json:"disposition"`
+	// Attachment filename.
+	Filename string `json:"filename"`
+	// Attachment size in bytes; verified when saved.
+	SizeBytes int `json:"size_bytes"`
+}
+
+// GetBlobID returns the value of BlobID.
+func (s *UpdateMailboxDraftAttachmentsItem) GetBlobID() string {
+	return s.BlobID
+}
+
+// GetContentID returns the value of ContentID.
+func (s *UpdateMailboxDraftAttachmentsItem) GetContentID() OptString {
+	return s.ContentID
+}
+
+// GetContentType returns the value of ContentType.
+func (s *UpdateMailboxDraftAttachmentsItem) GetContentType() string {
+	return s.ContentType
+}
+
+// GetDisposition returns the value of Disposition.
+func (s *UpdateMailboxDraftAttachmentsItem) GetDisposition() OptUpdateMailboxDraftAttachmentsItemDisposition {
+	return s.Disposition
+}
+
+// GetFilename returns the value of Filename.
+func (s *UpdateMailboxDraftAttachmentsItem) GetFilename() string {
+	return s.Filename
+}
+
+// GetSizeBytes returns the value of SizeBytes.
+func (s *UpdateMailboxDraftAttachmentsItem) GetSizeBytes() int {
+	return s.SizeBytes
+}
+
+// SetBlobID sets the value of BlobID.
+func (s *UpdateMailboxDraftAttachmentsItem) SetBlobID(val string) {
+	s.BlobID = val
+}
+
+// SetContentID sets the value of ContentID.
+func (s *UpdateMailboxDraftAttachmentsItem) SetContentID(val OptString) {
+	s.ContentID = val
+}
+
+// SetContentType sets the value of ContentType.
+func (s *UpdateMailboxDraftAttachmentsItem) SetContentType(val string) {
+	s.ContentType = val
+}
+
+// SetDisposition sets the value of Disposition.
+func (s *UpdateMailboxDraftAttachmentsItem) SetDisposition(val OptUpdateMailboxDraftAttachmentsItemDisposition) {
+	s.Disposition = val
+}
+
+// SetFilename sets the value of Filename.
+func (s *UpdateMailboxDraftAttachmentsItem) SetFilename(val string) {
+	s.Filename = val
+}
+
+// SetSizeBytes sets the value of SizeBytes.
+func (s *UpdateMailboxDraftAttachmentsItem) SetSizeBytes(val int) {
+	s.SizeBytes = val
+}
+
+// Whether the attachment appears within the message.
+type UpdateMailboxDraftAttachmentsItemDisposition string
+
+const (
+	UpdateMailboxDraftAttachmentsItemDispositionAttachment UpdateMailboxDraftAttachmentsItemDisposition = "attachment"
+	UpdateMailboxDraftAttachmentsItemDispositionInline     UpdateMailboxDraftAttachmentsItemDisposition = "inline"
+)
+
+// AllValues returns all UpdateMailboxDraftAttachmentsItemDisposition values.
+func (UpdateMailboxDraftAttachmentsItemDisposition) AllValues() []UpdateMailboxDraftAttachmentsItemDisposition {
+	return []UpdateMailboxDraftAttachmentsItemDisposition{
+		UpdateMailboxDraftAttachmentsItemDispositionAttachment,
+		UpdateMailboxDraftAttachmentsItemDispositionInline,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateMailboxDraftAttachmentsItemDisposition) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateMailboxDraftAttachmentsItemDispositionAttachment:
+		return []byte(s), nil
+	case UpdateMailboxDraftAttachmentsItemDispositionInline:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateMailboxDraftAttachmentsItemDisposition) UnmarshalText(data []byte) error {
+	switch UpdateMailboxDraftAttachmentsItemDisposition(data) {
+	case UpdateMailboxDraftAttachmentsItemDispositionAttachment:
+		*s = UpdateMailboxDraftAttachmentsItemDispositionAttachment
+		return nil
+	case UpdateMailboxDraftAttachmentsItemDispositionInline:
+		*s = UpdateMailboxDraftAttachmentsItemDispositionInline
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type UpdateMailboxDraftBccItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *UpdateMailboxDraftBccItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *UpdateMailboxDraftBccItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *UpdateMailboxDraftBccItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateMailboxDraftBccItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+type UpdateMailboxDraftCcItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *UpdateMailboxDraftCcItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *UpdateMailboxDraftCcItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *UpdateMailboxDraftCcItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateMailboxDraftCcItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+// Custom X- headers preserved with this revision.
+type UpdateMailboxDraftCustomHeaders map[string]string
+
+func (s *UpdateMailboxDraftCustomHeaders) init() UpdateMailboxDraftCustomHeaders {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
+
+// Authorised sender; defaults to this inbox.
+type UpdateMailboxDraftFrom struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *UpdateMailboxDraftFrom) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *UpdateMailboxDraftFrom) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *UpdateMailboxDraftFrom) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateMailboxDraftFrom) SetName(val OptNilString) {
+	s.Name = val
+}
+
+type UpdateMailboxDraftReplyToItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *UpdateMailboxDraftReplyToItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *UpdateMailboxDraftReplyToItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *UpdateMailboxDraftReplyToItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateMailboxDraftReplyToItem) SetName(val OptNilString) {
+	s.Name = val
+}
+
+type UpdateMailboxDraftToItem struct {
+	// Email address.
+	Email string `json:"email"`
+	// Display name.
+	Name OptNilString `json:"name"`
+}
+
+// GetEmail returns the value of Email.
+func (s *UpdateMailboxDraftToItem) GetEmail() string {
+	return s.Email
+}
+
+// GetName returns the value of Name.
+func (s *UpdateMailboxDraftToItem) GetName() OptNilString {
+	return s.Name
+}
+
+// SetEmail sets the value of Email.
+func (s *UpdateMailboxDraftToItem) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetName sets the value of Name.
+func (s *UpdateMailboxDraftToItem) SetName(val OptNilString) {
+	s.Name = val
 }
 
 // Ref: #/components/schemas/UpdateMailboxIdentityBody

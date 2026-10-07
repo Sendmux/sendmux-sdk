@@ -213,6 +213,177 @@ func decodeMailboxBatchUpdateMessagesParams(args [0]string, argsEscaped bool, r 
 	return params, nil
 }
 
+// MailboxControlDraftScheduleParams is parameters of mailboxControlDraftSchedule operation.
+type MailboxControlDraftScheduleParams struct {
+	// Stable draft ID.
+	DraftId string
+	// Current draft ETag; both revision and schedule version remain required.
+	IfMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxControlDraftScheduleParams(packed middleware.Parameters) (params MailboxControlDraftScheduleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "draftId",
+			In:   "path",
+		}
+		params.DraftId = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxControlDraftScheduleParams(args [1]string, argsEscaped bool, r *http.Request) (params MailboxControlDraftScheduleParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: draftId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "draftId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DraftId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "draftId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfMatch.SetTo(paramsDotIfMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // MailboxCountMessagesParams is parameters of mailboxCountMessages operation.
 type MailboxCountMessagesParams struct {
 	FolderID      OptString
@@ -1362,6 +1533,146 @@ func decodeMailboxCreateAttachmentUploadParams(args [0]string, argsEscaped bool,
 	return params, nil
 }
 
+// MailboxCreateDraftParams is parameters of mailboxCreateDraft operation.
+type MailboxCreateDraftParams struct {
+	// Reuse this key when retrying the same create request.
+	IdempotencyKey OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxCreateDraftParams(packed middleware.Parameters) (params MailboxCreateDraftParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "Idempotency-Key",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IdempotencyKey = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxCreateDraftParams(args [0]string, argsEscaped bool, r *http.Request) (params MailboxCreateDraftParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode header: Idempotency-Key.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "Idempotency-Key",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIdempotencyKeyVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIdempotencyKeyVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IdempotencyKey.SetTo(paramsDotIdempotencyKeyVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.IdempotencyKey.Get(); ok {
+					if err := func() error {
+						if err := (validate.String{
+							MinLength:    0,
+							MinLengthSet: false,
+							MaxLength:    255,
+							MaxLengthSet: true,
+							Email:        false,
+							Hostname:     false,
+							Regex:        nil,
+						}).Validate(string(value)); err != nil {
+							return errors.Wrap(err, "string")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "Idempotency-Key",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // MailboxCreateFolderParams is parameters of mailboxCreateFolder operation.
 type MailboxCreateFolderParams struct {
 	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
@@ -1384,6 +1695,177 @@ func unpackMailboxCreateFolderParams(packed middleware.Parameters) (params Mailb
 
 func decodeMailboxCreateFolderParams(args [0]string, argsEscaped bool, r *http.Request) (params MailboxCreateFolderParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MailboxDeleteDraftParams is parameters of mailboxDeleteDraft operation.
+type MailboxDeleteDraftParams struct {
+	// Stable draft ID.
+	DraftId string
+	// Delete only if this is still the current draft.
+	IfMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxDeleteDraftParams(packed middleware.Parameters) (params MailboxDeleteDraftParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "draftId",
+			In:   "path",
+		}
+		params.DraftId = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxDeleteDraftParams(args [1]string, argsEscaped bool, r *http.Request) (params MailboxDeleteDraftParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: draftId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "draftId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DraftId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "draftId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfMatch.SetTo(paramsDotIfMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
 	// Decode query: mailbox_id.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
@@ -1769,6 +2251,476 @@ func decodeMailboxDeleteMessageParams(args [1]string, argsEscaped bool, r *http.
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "If-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MailboxDownloadRawMessageParams is parameters of mailboxDownloadRawMessage operation.
+type MailboxDownloadRawMessageParams struct {
+	MessageID   string
+	IfNoneMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxDownloadRawMessageParams(packed middleware.Parameters) (params MailboxDownloadRawMessageParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "message_id",
+			In:   "path",
+		}
+		params.MessageID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-None-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfNoneMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxDownloadRawMessageParams(args [1]string, argsEscaped bool, r *http.Request) (params MailboxDownloadRawMessageParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: message_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "message_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.MessageID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "message_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-None-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfNoneMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfNoneMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfNoneMatch.SetTo(paramsDotIfNoneMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-None-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MailboxGetAttachmentTextParams is parameters of mailboxGetAttachmentText operation.
+type MailboxGetAttachmentTextParams struct {
+	// Message ID in the selected mailbox.
+	MessageID string
+	// Attachment ID from that message.
+	AttachmentID string
+	// Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+	MaxBytes OptInt
+	// Return 304 when the authorised response is unchanged.
+	IfNoneMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxGetAttachmentTextParams(packed middleware.Parameters) (params MailboxGetAttachmentTextParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "message_id",
+			In:   "path",
+		}
+		params.MessageID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "attachment_id",
+			In:   "path",
+		}
+		params.AttachmentID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "max_bytes",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MaxBytes = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-None-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfNoneMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxGetAttachmentTextParams(args [2]string, argsEscaped bool, r *http.Request) (params MailboxGetAttachmentTextParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: message_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "message_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.MessageID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "message_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: attachment_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "attachment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.AttachmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "attachment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: max_bytes.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "max_bytes",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMaxBytesVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMaxBytesVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MaxBytes.SetTo(paramsDotMaxBytesVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.MaxBytes.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        true,
+							Max:           1048576,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "max_bytes",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode header: If-None-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfNoneMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfNoneMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfNoneMatch.SetTo(paramsDotIfNoneMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-None-Match",
 			In:   "header",
 			Err:  err,
 		}
@@ -2423,6 +3375,177 @@ func decodeMailboxGetConnectionParams(args [0]string, argsEscaped bool, r *http.
 		return params, &ogenerrors.DecodeParamError{
 			Name: "If-None-Match",
 			In:   "header",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MailboxGetDraftParams is parameters of mailboxGetDraft operation.
+type MailboxGetDraftParams struct {
+	// Stable draft ID.
+	DraftId string
+	// Return 304 if this draft has not changed.
+	IfNoneMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxGetDraftParams(packed middleware.Parameters) (params MailboxGetDraftParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "draftId",
+			In:   "path",
+		}
+		params.DraftId = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-None-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfNoneMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxGetDraftParams(args [1]string, argsEscaped bool, r *http.Request) (params MailboxGetDraftParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: draftId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "draftId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DraftId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "draftId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-None-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfNoneMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfNoneMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfNoneMatch.SetTo(paramsDotIfNoneMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-None-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -5999,6 +7122,200 @@ func decodeMailboxListContentParams(args [1]string, argsEscaped bool, r *http.Re
 		return params, &ogenerrors.DecodeParamError{
 			Name: "If-None-Match",
 			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MailboxListDraftsParams is parameters of mailboxListDrafts operation.
+type MailboxListDraftsParams struct {
+	// Page size; default 50, maximum 100.
+	Limit OptInt
+	// Cursor returned by the previous page.
+	Cursor OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxListDraftsParams(packed middleware.Parameters) (params MailboxListDraftsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "limit",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Limit = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "cursor",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Cursor = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxListDraftsParams(args [0]string, argsEscaped bool, r *http.Request) (params MailboxListDraftsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: limit.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "limit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotLimitVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotLimitVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Limit.SetTo(paramsDotLimitVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.Limit.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        true,
+							Max:           100,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "limit",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: cursor.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "cursor",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotCursorVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotCursorVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Cursor.SetTo(paramsDotCursorVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "cursor",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -11790,6 +13107,256 @@ func decodeMailboxQueryMessageChangesParams(args [0]string, argsEscaped bool, r 
 	return params, nil
 }
 
+// MailboxRequestAttachmentTextParams is parameters of mailboxRequestAttachmentText operation.
+type MailboxRequestAttachmentTextParams struct {
+	// Message ID in the selected mailbox.
+	MessageID string
+	// Attachment ID from that message.
+	AttachmentID string
+	// Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+	MaxBytes OptInt
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxRequestAttachmentTextParams(packed middleware.Parameters) (params MailboxRequestAttachmentTextParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "message_id",
+			In:   "path",
+		}
+		params.MessageID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "attachment_id",
+			In:   "path",
+		}
+		params.AttachmentID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "max_bytes",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MaxBytes = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxRequestAttachmentTextParams(args [2]string, argsEscaped bool, r *http.Request) (params MailboxRequestAttachmentTextParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: message_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "message_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.MessageID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "message_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: attachment_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "attachment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.AttachmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "attachment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: max_bytes.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "max_bytes",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMaxBytesVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMaxBytesVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MaxBytes.SetTo(paramsDotMaxBytesVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.MaxBytes.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        true,
+							Max:           1048576,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "max_bytes",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // MailboxSearchMessageSnippetsParams is parameters of mailboxSearchMessageSnippets operation.
 type MailboxSearchMessageSnippetsParams struct {
 	FolderID      OptString
@@ -12941,6 +14508,177 @@ func decodeMailboxSearchMessageSnippetsParams(args [0]string, argsEscaped bool, 
 	return params, nil
 }
 
+// MailboxSendDraftParams is parameters of mailboxSendDraft operation.
+type MailboxSendDraftParams struct {
+	// Stable draft ID.
+	DraftId string
+	// Current draft ETag; expected_revision is required.
+	IfMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxSendDraftParams(packed middleware.Parameters) (params MailboxSendDraftParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "draftId",
+			In:   "path",
+		}
+		params.DraftId = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxSendDraftParams(args [1]string, argsEscaped bool, r *http.Request) (params MailboxSendDraftParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: draftId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "draftId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DraftId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "draftId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfMatch.SetTo(paramsDotIfMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-Match",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // MailboxSendMessageParams is parameters of mailboxSendMessage operation.
 type MailboxSendMessageParams struct {
 	IdempotencyKey OptString
@@ -13398,6 +15136,177 @@ func decodeMailboxStreamEventsParams(args [0]string, argsEscaped bool, r *http.R
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "Last-Event-ID",
+			In:   "header",
+			Err:  err,
+		}
+	}
+	// Decode query: mailbox_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotMailboxIDVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotMailboxIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.MailboxID.SetTo(paramsDotMailboxIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "mailbox_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MailboxUpdateDraftParams is parameters of mailboxUpdateDraft operation.
+type MailboxUpdateDraftParams struct {
+	// Stable draft ID.
+	DraftId string
+	// Current draft ETag; expected_revision is also required.
+	IfMatch OptString
+	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
+	// the credential is scoped to exactly one mailbox.
+	MailboxID OptString
+}
+
+func unpackMailboxUpdateDraftParams(packed middleware.Parameters) (params MailboxUpdateDraftParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "draftId",
+			In:   "path",
+		}
+		params.DraftId = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "If-Match",
+			In:   "header",
+		}
+		if v, ok := packed[key]; ok {
+			params.IfMatch = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "mailbox_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.MailboxID = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeMailboxUpdateDraftParams(args [1]string, argsEscaped bool, r *http.Request) (params MailboxUpdateDraftParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	h := uri.NewHeaderDecoder(r.Header)
+	// Decode path: draftId.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "draftId",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.DraftId = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "draftId",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode header: If-Match.
+	if err := func() error {
+		cfg := uri.HeaderParameterDecodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.HasParam(cfg); err == nil {
+			if err := h.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotIfMatchVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIfMatchVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.IfMatch.SetTo(paramsDotIfMatchVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "If-Match",
 			In:   "header",
 			Err:  err,
 		}

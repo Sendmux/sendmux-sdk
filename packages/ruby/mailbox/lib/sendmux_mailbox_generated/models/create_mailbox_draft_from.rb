@@ -14,16 +14,19 @@ require 'date'
 require 'time'
 
 module Sendmux::Mailbox::Generated
-  class MailboxFolderDeletedResponseAllOfData < ApiModelBase
-    attr_accessor :deleted
+  # Authorised sender; defaults to this inbox.
+  class CreateMailboxDraftFrom < ApiModelBase
+    # Email address.
+    attr_accessor :email
 
-    attr_accessor :id
+    # Display name.
+    attr_accessor :name
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'deleted' => :'deleted',
-        :'id' => :'id'
+        :'email' => :'email',
+        :'name' => :'name'
       }
     end
 
@@ -40,14 +43,15 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'deleted' => :'Boolean',
-        :'id' => :'String'
+        :'email' => :'String',
+        :'name' => :'String'
       }
     end
 
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
+        :'name'
       ])
     end
 
@@ -55,28 +59,26 @@ module Sendmux::Mailbox::Generated
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::MailboxFolderDeletedResponseAllOfData` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `Sendmux::Mailbox::Generated::CreateMailboxDraftFrom` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       acceptable_attribute_map = self.class.acceptable_attribute_map
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!acceptable_attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::MailboxFolderDeletedResponseAllOfData`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `Sendmux::Mailbox::Generated::CreateMailboxDraftFrom`. Please check the name to make sure it's valid. List of attributes: " + acceptable_attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
 
-      if attributes.key?(:'deleted')
-        self.deleted = attributes[:'deleted']
+      if attributes.key?(:'email')
+        self.email = attributes[:'email']
       else
-        self.deleted = nil
+        self.email = nil
       end
 
-      if attributes.key?(:'id')
-        self.id = attributes[:'id']
-      else
-        self.id = nil
+      if attributes.key?(:'name')
+        self.name = attributes[:'name']
       end
     end
 
@@ -85,12 +87,16 @@ module Sendmux::Mailbox::Generated
     def list_invalid_properties
       warn '[DEPRECATED] the `list_invalid_properties` method is obsolete'
       invalid_properties = Array.new
-      if @deleted.nil?
-        invalid_properties.push('invalid value for "deleted", deleted cannot be nil.')
+      if @email.nil?
+        invalid_properties.push('invalid value for "email", email cannot be nil.')
       end
 
-      if @id.nil?
-        invalid_properties.push('invalid value for "id", id cannot be nil.')
+      if @email.to_s.length > 254
+        invalid_properties.push('invalid value for "email", the character length must be smaller than or equal to 254.')
+      end
+
+      if !@name.nil? && @name.to_s.length > 255
+        invalid_properties.push('invalid value for "name", the character length must be smaller than or equal to 255.')
       end
 
       invalid_properties
@@ -100,29 +106,34 @@ module Sendmux::Mailbox::Generated
     # @return true if the model is valid
     def valid?
       warn '[DEPRECATED] the `valid?` method is obsolete'
-      return false if @deleted.nil?
-      return false if @id.nil?
+      return false if @email.nil?
+      return false if @email.to_s.length > 254
+      return false if !@name.nil? && @name.to_s.length > 255
       true
     end
 
     # Custom attribute writer method with validation
-    # @param [Object] deleted Value to be assigned
-    def deleted=(deleted)
-      if deleted.nil?
-        fail ArgumentError, 'deleted cannot be nil'
+    # @param [Object] email Value to be assigned
+    def email=(email)
+      if email.nil?
+        fail ArgumentError, 'email cannot be nil'
       end
 
-      @deleted = deleted
+      if email.to_s.length > 254
+        fail ArgumentError, 'invalid value for "email", the character length must be smaller than or equal to 254.'
+      end
+
+      @email = email
     end
 
     # Custom attribute writer method with validation
-    # @param [Object] id Value to be assigned
-    def id=(id)
-      if id.nil?
-        fail ArgumentError, 'id cannot be nil'
+    # @param [Object] name Value to be assigned
+    def name=(name)
+      if !name.nil? && name.to_s.length > 255
+        fail ArgumentError, 'invalid value for "name", the character length must be smaller than or equal to 255.'
       end
 
-      @id = id
+      @name = name
     end
 
     # Checks equality by comparing each attribute.
@@ -130,8 +141,8 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          deleted == o.deleted &&
-          id == o.id
+          email == o.email &&
+          name == o.name
     end
 
     # @see the `==` method
@@ -143,7 +154,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [deleted, id].hash
+      [email, name].hash
     end
 
     # Builds the object from hash

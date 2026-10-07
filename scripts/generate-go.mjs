@@ -141,6 +141,10 @@ const surfaces = [
 run("pnpm", ["normalize:codegen"]);
 rmSync(outputRoot, { force: true, recursive: true });
 mkdirSync(outputRoot, { recursive: true });
+// ogen generates the full schema but cannot synthesise object/array defaults;
+// omitted policy objects retain the API's server-side defaults.
+const ogenConfig = join(outputRoot, "ogen.yml");
+writeFileSync(ogenConfig, "generator:\n  ignore_not_implemented: [\"object defaults\", \"array defaults\"]\n");
 
 for (const surface of surfaces) {
   const packageDir = join(root, "go", surface.name);
@@ -149,6 +153,8 @@ for (const surface of surfaces) {
   run("go", [
     "run",
     `github.com/ogen-go/ogen/cmd/ogen@${ogenVersion}`,
+    "--config",
+    ogenConfig,
     "--target",
     packageDir,
     "--package",
@@ -224,8 +230,9 @@ function normalizeGoBearerSecurity(document) {
     const security = owner?.security;
     if (!security?.some((requirement) => oauth in requirement)) continue;
     if (
-      security.length !== 2 ||
-      !security.every((requirement) => Object.keys(requirement).length === 1) ||
+      security.length < 2 ||
+      !security.every((requirement) => Object.keys(requirement).length === 1 &&
+        Object.keys(requirement).every((name) => name === bearer || name === oauth)) ||
       !security.some((requirement) => Array.isArray(requirement[bearer]) && requirement[bearer].length === 0)
     ) {
       throw new Error("Go OAuth compatibility requires an alternative HTTP Bearer scheme.");
@@ -245,8 +252,8 @@ function harmonizeResponseHeaders(document) {
     }
 
     headersBySchemaRef.set(ref, {
-      ...(headersBySchemaRef.get(ref) ?? {}),
       ...response.headers,
+      ...(headersBySchemaRef.get(ref) ?? {}),
     });
   });
 
@@ -258,8 +265,8 @@ function harmonizeResponseHeaders(document) {
     }
 
     response.headers = {
-      ...headers,
       ...(response.headers ?? {}),
+      ...headers,
     };
   });
 

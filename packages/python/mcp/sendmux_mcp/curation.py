@@ -22,6 +22,60 @@ class ToolSpec:
 
 OPENAPI_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
     ToolSpec(
+        operation_id="mailboxListDrafts",
+        name="mailbox_list_drafts",
+        title="List Saved Drafts",
+        description="List saved drafts in the selected inbox, newest first. Requires mailbox.read. Use a small limit and continue with the returned cursor.",
+    ),
+    ToolSpec(
+        operation_id="mailboxGetDraft",
+        name="mailbox_get_draft",
+        title="Read Saved Draft",
+        description="Read a saved draft and its current revision before editing or sending. Requires mailbox.read. Keep the revision and schedule version for later changes.",
+    ),
+    ToolSpec(
+        operation_id="mailboxCreateDraft",
+        name="mailbox_create_draft",
+        title="Create Saved Draft",
+        description="Save a message for review without sending it. Requires mailbox.read and mailbox.drafts.write. Use source.action for reply, reply_all, forward or adopt; explicit content overrides prepared defaults. Adoption requires Idempotency-Key; reuse it when retrying the same create request.",
+    ),
+    ToolSpec(
+        operation_id="mailboxUpdateDraft",
+        name="mailbox_update_draft",
+        title="Edit Saved Draft",
+        description="Edit a saved draft without sending it. Requires mailbox.read and mailbox.drafts.write. Pass the reviewed expected_revision; reload after a conflict before making another edit.",
+    ),
+    ToolSpec(
+        operation_id="mailboxDeleteDraft",
+        name="mailbox_delete_draft",
+        title="Delete Saved Draft",
+        description="Delete a saved draft only when the user asks. Requires mailbox.read and mailbox.drafts.write. Deletion finishes in the background; a send already in progress cannot be deleted.",
+    ),
+    ToolSpec(
+        operation_id="mailboxSendDraft",
+        name="mailbox_send_draft",
+        title="Send Saved Draft",
+        description="Send only the saved revision the user approved. Requires mailbox.read and email.send. Pass expected_revision; to schedule within 30 days also pass scheduled_for and expected_schedule_version. After cancelling a schedule, include the current schedule version.",
+    ),
+    ToolSpec(
+        operation_id="mailboxControlDraftSchedule",
+        name="mailbox_control_draft_schedule",
+        title="Change Draft Schedule",
+        description="Reschedule or cancel a saved draft send only when the user asks. Requires mailbox.read and email.send. Pass the current expected_revision and expected_schedule_version; scheduled_for=null cancels. Cancellation fails once sending has begun.",
+    ),
+    ToolSpec(
+        operation_id="mailboxRequestAttachmentText",
+        name="mailbox_request_attachment_text",
+        title="Request Attachment Text",
+        description="Extract readable text from an attachment up to 7500000 bytes at no extra charge. Requires mailbox.read. Repeated requests reuse the current extraction for 24 hours. OCR is unavailable; check status and outcome, and use the original download if extraction cannot complete.",
+    ),
+    ToolSpec(
+        operation_id="mailboxGetAttachmentText",
+        name="mailbox_get_attachment_text",
+        title="Read Attachment Text",
+        description="Read or poll a previously requested attachment extraction. Requires mailbox.read. This does not start conversion; cache expiry or source removal returns not_found. Check status and outcome before using text.",
+    ),
+    ToolSpec(
         operation_id="mailboxGetConnection",
         name="mailbox_get_connection",
         title="Get Mailbox Connection",
@@ -200,6 +254,12 @@ CUSTOM_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
 MAILBOX_TOOLS: tuple[ToolSpec, ...] = OPENAPI_MAILBOX_TOOLS + CUSTOM_MAILBOX_TOOLS
 
 MANAGEMENT_TOOLS: tuple[ToolSpec, ...] = (
+    ToolSpec(
+        operation_id="managementGetMailboxCostUsage",
+        name="management_get_mailbox_cost_usage",
+        title="Read Mailbox Costs",
+        description="Read inbox costs for a window including start and excluding end. Requires mailbox.admin.read and team-wide mailbox access. Quantities and USD amounts are decimal strings; posted, incurred and unbillable amounts differ. Settle only a final window; this read does not start settlement. Retained usage can remain readable after inbox deletion.",
+    ),
     ToolSpec(
         operation_id="managementGetConnection",
         name="management_get_connection",
@@ -413,6 +473,10 @@ TOOL_BY_OPERATION_ID = {
 
 READ_ONLY_OPERATION_IDS = frozenset(
     {
+        "mailboxListDrafts",
+        "mailboxGetDraft",
+        "mailboxGetAttachmentText",
+        "managementGetMailboxCostUsage",
         "managementGetConnection",
         "mailboxGetConnection",
         "sendingGetConnection",
@@ -450,6 +514,7 @@ READ_ONLY_OPERATION_IDS = frozenset(
 
 DESTRUCTIVE_OPERATION_IDS = frozenset(
     {
+        "mailboxDeleteDraft",
         "mailboxBatchDeleteMessages",
         "managementDeleteMailboxKey",
     }
@@ -457,6 +522,8 @@ DESTRUCTIVE_OPERATION_IDS = frozenset(
 
 IDEMPOTENT_WRITE_OPERATION_IDS = frozenset(
     {
+        "mailboxControlDraftSchedule",
+        "mailboxRequestAttachmentText",
         "mailboxUpdateIdentity",
         "mailboxBatchUpdateMessages",
         "managementVerifyDomain",

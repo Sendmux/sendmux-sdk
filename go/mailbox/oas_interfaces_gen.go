@@ -13,6 +13,10 @@ type MailboxBatchUpdateMessagesRes interface {
 	mailboxBatchUpdateMessagesRes()
 }
 
+type MailboxControlDraftScheduleRes interface {
+	mailboxControlDraftScheduleRes()
+}
+
 type MailboxCountMessagesRes interface {
 	mailboxCountMessagesRes()
 }
@@ -21,8 +25,16 @@ type MailboxCreateAttachmentUploadRes interface {
 	mailboxCreateAttachmentUploadRes()
 }
 
+type MailboxCreateDraftRes interface {
+	mailboxCreateDraftRes()
+}
+
 type MailboxCreateFolderRes interface {
 	mailboxCreateFolderRes()
+}
+
+type MailboxDeleteDraftRes interface {
+	mailboxDeleteDraftRes()
 }
 
 type MailboxDeleteFolderRes interface {
@@ -33,12 +45,24 @@ type MailboxDeleteMessageRes interface {
 	mailboxDeleteMessageRes()
 }
 
+type MailboxDownloadRawMessageRes interface {
+	mailboxDownloadRawMessageRes()
+}
+
+type MailboxGetAttachmentTextRes interface {
+	mailboxGetAttachmentTextRes()
+}
+
 type MailboxGetChangesRes interface {
 	mailboxGetChangesRes()
 }
 
 type MailboxGetConnectionRes interface {
 	mailboxGetConnectionRes()
+}
+
+type MailboxGetDraftRes interface {
+	mailboxGetDraftRes()
 }
 
 type MailboxGetFolderChangesRes interface {
@@ -97,6 +121,10 @@ type MailboxListContentRes interface {
 	mailboxListContentRes()
 }
 
+type MailboxListDraftsRes interface {
+	mailboxListDraftsRes()
+}
+
 type MailboxListGrantedMailboxesRes interface {
 	mailboxListGrantedMailboxesRes()
 }
@@ -137,8 +165,16 @@ type MailboxQueryMessageChangesRes interface {
 	mailboxQueryMessageChangesRes()
 }
 
+type MailboxRequestAttachmentTextRes interface {
+	mailboxRequestAttachmentTextRes()
+}
+
 type MailboxSearchMessageSnippetsRes interface {
 	mailboxSearchMessageSnippetsRes()
+}
+
+type MailboxSendDraftRes interface {
+	mailboxSendDraftRes()
 }
 
 type MailboxSendMessageRes interface {
@@ -147,6 +183,10 @@ type MailboxSendMessageRes interface {
 
 type MailboxStreamEventsRes interface {
 	mailboxStreamEventsRes()
+}
+
+type MailboxUpdateDraftRes interface {
+	mailboxUpdateDraftRes()
 }
 
 type MailboxUpdateFolderRes interface {

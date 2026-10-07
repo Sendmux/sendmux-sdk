@@ -385,6 +385,288 @@
         ],
         "unevaluatedProperties": false
       },
+      "ControlMailboxDraftSchedule": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "description": "Exact saved content revision.",
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "expected_schedule_version": {
+            "description": "Current schedule version; stale requests return conflict. Repeating the last identical request returns its current result.",
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "scheduled_for": {
+            "description": "New future time within 30 days, or null to cancel and make the draft editable. Cancellation fails once sending has begun.",
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "expected_revision",
+          "expected_schedule_version",
+          "scheduled_for"
+        ],
+        "type": "object"
+      },
+      "CreateMailboxDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachments and inline images.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "blob_id": {
+                  "description": "An attachment uploaded to this mailbox.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "content_id": {
+                  "description": "Content ID referenced by an inline image.",
+                  "maxLength": 998,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "content_type": {
+                  "description": "Attachment media type.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "disposition": {
+                  "description": "Whether the attachment appears within the message.",
+                  "enum": [
+                    "attachment",
+                    "inline"
+                  ],
+                  "type": "string"
+                },
+                "filename": {
+                  "description": "Attachment filename.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "size_bytes": {
+                  "description": "Attachment size in bytes; verified when saved.",
+                  "maximum": 7500000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "blob_id",
+                "filename",
+                "content_type",
+                "size_bytes"
+              ],
+              "type": "object"
+            },
+            "maxItems": 10,
+            "type": "array"
+          },
+          "bcc": {
+            "description": "Hidden copied recipients.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "cc": {
+            "description": "Visible copied recipients.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "custom_headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Custom X- headers preserved with this revision.",
+            "type": "object"
+          },
+          "from": {
+            "additionalProperties": false,
+            "description": "Authorised sender; defaults to this inbox.",
+            "properties": {
+              "email": {
+                "description": "Email address.",
+                "format": "email",
+                "maxLength": 254,
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name.",
+                "maxLength": 255,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          },
+          "html_body": {
+            "description": "HTML body, preserved when saved.",
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "reply_to": {
+            "description": "Authorised reply addresses; defaults to this inbox.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "reply_to_message_id": {
+            "description": "Message in this inbox to reply to; thread headers are snapshotted.",
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": false,
+            "description": "Source for this draft. Adoption requires Idempotency-Key. Explicit content fields override prepared defaults.",
+            "properties": {
+              "action": {
+                "description": "Prepare a reply, reply-all, forward or adopt an existing draft. Source content and attachments are saved with the draft.",
+                "enum": [
+                  "reply",
+                  "reply_all",
+                  "forward",
+                  "adopt"
+                ],
+                "type": "string"
+              },
+              "message_id": {
+                "description": "Source message in this inbox.",
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "message_id",
+              "action"
+            ],
+            "type": "object"
+          },
+          "subject": {
+            "description": "Subject; may be empty.",
+            "maxLength": 998,
+            "type": "string"
+          },
+          "text_body": {
+            "description": "Plain-text body.",
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "to": {
+            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "CreateMailboxFolderBody": {
         "additionalProperties": false,
         "properties": {
@@ -1562,6 +1844,101 @@
         ],
         "type": "object"
       },
+      "MailboxAttachmentText": {
+        "additionalProperties": false,
+        "properties": {
+          "expires_at": {
+            "description": "Cache expiry. A new POST is needed after expiry.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "format": {
+            "description": "Extracted text format.",
+            "enum": [
+              "markdown"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "description": "Extraction ID.",
+            "example": "ext_example",
+            "type": "string"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ready",
+                  "unsupported",
+                  "encrypted",
+                  "malformed",
+                  "ocr_required",
+                  "resource_limit",
+                  "source_unavailable",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null while pending or running. Only ready contains extracted text; other outcomes contain an empty string."
+          },
+          "status": {
+            "description": "Poll until complete to read the outcome.",
+            "enum": [
+              "pending",
+              "running",
+              "complete"
+            ],
+            "type": "string"
+          },
+          "text": {
+            "description": "Markdown text, or null until complete. Limited to max_bytes in UTF-8.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "truncated": {
+            "description": "True when conversion or the requested output bound omitted text.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "outcome",
+          "text",
+          "format",
+          "truncated",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "MailboxAttachmentTextResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxAttachmentText"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
       "MailboxAttachmentUploadIntentBody": {
         "additionalProperties": false,
         "properties": {
@@ -2248,6 +2625,212 @@
         ],
         "type": "object"
       },
+      "MailboxCostUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "enum": [
+              "USD"
+            ],
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "incoming": {
+            "additionalProperties": false,
+            "properties": {
+              "coverage_started_at": {
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "incurred_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "posted_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "posted_quantity": {
+                "pattern": "^\\d+$",
+                "type": "string"
+              },
+              "quantity": {
+                "pattern": "^\\d+$",
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "pending",
+                  "final"
+                ],
+                "type": "string"
+              },
+              "unbillable_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "unbillable_quantity": {
+                "pattern": "^\\d+$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "quantity",
+              "incurred_amount",
+              "posted_quantity",
+              "posted_amount",
+              "unbillable_quantity",
+              "unbillable_amount",
+              "coverage_started_at",
+              "state"
+            ],
+            "type": "object"
+          },
+          "mailbox_id": {
+            "type": "string"
+          },
+          "outgoing": {
+            "additionalProperties": false,
+            "properties": {
+              "coverage_started_at": {
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "incurred_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "posted_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "posted_quantity": {
+                "pattern": "^\\d+$",
+                "type": "string"
+              },
+              "quantity": {
+                "pattern": "^\\d+$",
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "pending",
+                  "final"
+                ],
+                "type": "string"
+              },
+              "unbillable_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "unbillable_quantity": {
+                "pattern": "^\\d+$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "quantity",
+              "incurred_amount",
+              "posted_quantity",
+              "posted_amount",
+              "unbillable_quantity",
+              "unbillable_amount",
+              "coverage_started_at",
+              "state"
+            ],
+            "type": "object"
+          },
+          "posted_amount": {
+            "pattern": "^\\d+\\.\\d{6}$",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "final"
+            ],
+            "type": "string"
+          },
+          "storage": {
+            "additionalProperties": false,
+            "properties": {
+              "allocated_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "posted_amount": {
+                "pattern": "^\\d+\\.\\d{6}$",
+                "type": "string"
+              },
+              "raw_amount": {
+                "pattern": "^\\d+\\.\\d{18}$",
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "pending",
+                  "final"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "raw_amount",
+              "allocated_amount",
+              "posted_amount",
+              "state"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "mailbox_id",
+          "start",
+          "end",
+          "currency",
+          "state",
+          "posted_amount",
+          "incoming",
+          "outgoing",
+          "storage"
+        ],
+        "type": "object"
+      },
+      "MailboxCostUsageResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxCostUsage"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
       "MailboxCreateResult": {
         "additionalProperties": false,
         "properties": {
@@ -2730,6 +3313,398 @@
           "checks"
         ],
         "type": "object"
+      },
+      "MailboxDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachments and inline images.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "blob_id": {
+                  "description": "An attachment uploaded to this mailbox.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "content_id": {
+                  "description": "Content ID referenced by an inline image.",
+                  "maxLength": 998,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "content_type": {
+                  "description": "Attachment media type.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "disposition": {
+                  "description": "Whether the attachment appears within the message.",
+                  "enum": [
+                    "attachment",
+                    "inline"
+                  ],
+                  "type": "string"
+                },
+                "filename": {
+                  "description": "Attachment filename.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "size_bytes": {
+                  "description": "Attachment size in bytes; verified when saved.",
+                  "maximum": 7500000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "blob_id",
+                "filename",
+                "content_type",
+                "size_bytes"
+              ],
+              "type": "object"
+            },
+            "maxItems": 10,
+            "type": "array"
+          },
+          "bcc": {
+            "description": "Hidden copied recipients.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "cc": {
+            "description": "Visible copied recipients.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "custom_headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Custom X- headers preserved with this revision.",
+            "type": "object"
+          },
+          "failure_code": {
+            "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+            "enum": [
+              "preparation_failed",
+              "authorisation_revoked",
+              "send_rejected"
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "from": {
+            "additionalProperties": false,
+            "description": "Authorised sender; defaults to this inbox.",
+            "properties": {
+              "email": {
+                "description": "Email address.",
+                "format": "email",
+                "maxLength": 254,
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name.",
+                "maxLength": 255,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          },
+          "html_body": {
+            "description": "HTML body, preserved when saved.",
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "id": {
+            "description": "Stable draft ID.",
+            "type": "string"
+          },
+          "in_reply_to": {
+            "description": "Snapshotted parent message identifiers.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "message_id": {
+            "description": "Saved message ID; absent until saving finishes.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "references": {
+            "description": "Snapshotted conversation identifiers.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reply_to": {
+            "description": "Authorised reply addresses; defaults to this inbox.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "reply_to_message_id": {
+            "description": "Original message this draft replies to.",
+            "type": "string"
+          },
+          "revision": {
+            "description": "Current draft revision.",
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "schedule_version": {
+            "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "scheduled_for": {
+            "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "description": "Saving or sending state.",
+            "enum": [
+              "preparing",
+              "ready",
+              "scheduled",
+              "sending",
+              "queued",
+              "uncertain",
+              "failed",
+              "deleted"
+            ],
+            "type": "string"
+          },
+          "subject": {
+            "description": "Subject; may be empty.",
+            "maxLength": 998,
+            "type": "string"
+          },
+          "text_body": {
+            "description": "Plain-text body.",
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "to": {
+            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "status",
+          "message_id",
+          "scheduled_for",
+          "schedule_version",
+          "failure_code",
+          "in_reply_to",
+          "references"
+        ],
+        "type": "object"
+      },
+      "MailboxDraftDeleteResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "additionalProperties": false,
+                "properties": {
+                  "deleted": {
+                    "enum": [
+                      true
+                    ],
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "deleted",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "MailboxDraftListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "items": {
+                  "$ref": "#/components/schemas/MailboxDraft"
+                },
+                "type": "array"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              },
+              "pagination": {
+                "$ref": "#/components/schemas/CursorPagination"
+              }
+            },
+            "required": [
+              "data",
+              "pagination"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "MailboxDraftResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxDraft"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
       },
       "MailboxFolder": {
         "additionalProperties": false,
@@ -3423,6 +4398,13 @@
           "body": {
             "additionalProperties": false,
             "properties": {
+              "cleaned_html": {
+                "description": "HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "extracted_links": {
                 "items": {
                   "type": "string"
@@ -3443,6 +4425,35 @@
                 "description": "HTML body when requested. Returned as a JSON string and not as rendered content.",
                 "type": [
                   "string",
+                  "null"
+                ]
+              },
+              "html_cleaning": {
+                "additionalProperties": false,
+                "description": "HTML cleaning outcome; null when HTML is absent or not requested. Cleaning accepts at most 20,000 elements and 128 nested elements. Unrecognised quote and signature formats remain unchanged.",
+                "properties": {
+                  "quotes_stripped": {
+                    "type": "boolean"
+                  },
+                  "signature_stripped": {
+                    "type": "boolean"
+                  },
+                  "status": {
+                    "enum": [
+                      "complete",
+                      "source_truncated",
+                      "limit_exceeded"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "signature_stripped",
+                  "quotes_stripped"
+                ],
+                "type": [
+                  "object",
                   "null"
                 ]
               },
@@ -3472,6 +4483,8 @@
               "format",
               "text",
               "html",
+              "cleaned_html",
+              "html_cleaning",
               "is_truncated",
               "truncated_at_chars",
               "signature_stripped",
@@ -4499,6 +5512,204 @@
           }
         ],
         "unevaluatedProperties": false
+      },
+      "MailboxSendPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_from": {
+            "additionalProperties": false,
+            "default": {},
+            "description": "Allowed From addresses at this policy level.",
+            "properties": {
+              "addresses": {
+                "default": [],
+                "description": "Exact email addresses matched by this rule.",
+                "items": {
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "domains": {
+                "default": [],
+                "description": "Exact domains; subdomains are not included automatically.",
+                "items": {
+                  "maxLength": 253,
+                  "pattern": "^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\\.(?!-)[a-z0-9-]{1,63}(?<!-))+$",
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "own_address": {
+                "default": true,
+                "description": "Allow the originating inbox address.",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "allowed_reply_to": {
+            "additionalProperties": false,
+            "default": {},
+            "description": "Allowed Reply-To addresses at this policy level.",
+            "properties": {
+              "addresses": {
+                "default": [],
+                "description": "Exact email addresses matched by this rule.",
+                "items": {
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "domains": {
+                "default": [],
+                "description": "Exact domains; subdomains are not included automatically.",
+                "items": {
+                  "maxLength": 253,
+                  "pattern": "^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\\.(?!-)[a-z0-9-]{1,63}(?<!-))+$",
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "type": "array"
+              },
+              "own_address": {
+                "default": true,
+                "description": "Allow the originating inbox address.",
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "alternate_from": {
+            "default": [],
+            "description": "Ordered fallback From addresses; every policy level must explicitly allow each alternative.",
+            "items": {
+              "format": "email",
+              "maxLength": 254,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "recipients": {
+            "additionalProperties": false,
+            "default": {},
+            "description": "Recipient restrictions applied to every To, Cc and Bcc address.",
+            "properties": {
+              "allow": {
+                "additionalProperties": false,
+                "default": null,
+                "description": "Allowed recipients, or null for no allow-list restriction. An empty rule allows no recipients.",
+                "properties": {
+                  "addresses": {
+                    "default": [],
+                    "description": "Exact email addresses matched by this rule.",
+                    "items": {
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "maxItems": 100,
+                    "type": "array"
+                  },
+                  "domains": {
+                    "default": [],
+                    "description": "Exact domains; subdomains are not included automatically.",
+                    "items": {
+                      "maxLength": 253,
+                      "pattern": "^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\\.(?!-)[a-z0-9-]{1,63}(?<!-))+$",
+                      "type": "string"
+                    },
+                    "maxItems": 100,
+                    "type": "array"
+                  }
+                },
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "deny": {
+                "additionalProperties": false,
+                "default": {},
+                "description": "Blocked recipients; deny rules always take precedence.",
+                "properties": {
+                  "addresses": {
+                    "default": [],
+                    "description": "Exact email addresses matched by this rule.",
+                    "items": {
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "maxItems": 100,
+                    "type": "array"
+                  },
+                  "domains": {
+                    "default": [],
+                    "description": "Exact domains; subdomains are not included automatically.",
+                    "items": {
+                      "maxLength": 253,
+                      "pattern": "^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\\.(?!-)[a-z0-9-]{1,63}(?<!-))+$",
+                      "type": "string"
+                    },
+                    "maxItems": 100,
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "MailboxSendPolicyResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxSendPolicySnapshot"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
+      "MailboxSendPolicySnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/MailboxSendPolicy"
+          },
+          "version": {
+            "description": "Current policy version; also returned in ETag.",
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "policy",
+          "version"
+        ],
+        "type": "object"
       },
       "MailboxSendResultResponse": {
         "allOf": [
@@ -7166,6 +8377,25 @@
         },
         "type": "object"
       },
+      "ReplaceMailboxSendPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "policy": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MailboxSendPolicy"
+              },
+              {
+                "description": "Complete replacement policy; omitted settings return to their defaults."
+              }
+            ]
+          }
+        },
+        "required": [
+          "policy"
+        ],
+        "type": "object"
+      },
       "ResourceLimitSnapshot": {
         "additionalProperties": false,
         "properties": {
@@ -7274,6 +8504,31 @@
         ],
         "unevaluatedProperties": false
       },
+      "SendMailboxDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "description": "Exact saved revision to send. A stale revision returns conflict.",
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "expected_schedule_version": {
+            "description": "Current schedule version. Required for scheduling and after cancelling a schedule.",
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "scheduled_for": {
+            "description": "Send no earlier than this future time, within 30 days. Include a timezone and at most millisecond precision. Omit to send now.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision"
+        ],
+        "type": "object"
+      },
       "SendMailboxMessageBody": {
         "additionalProperties": false,
         "properties": {
@@ -7328,17 +8583,19 @@
             "type": "array"
           },
           "bcc": {
-            "description": "BCC recipients.",
+            "description": "Hidden copied recipients.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
+            "maxItems": 50,
             "type": "array"
           },
           "cc": {
-            "description": "CC recipients.",
+            "description": "Visible copied recipients.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
+            "maxItems": 50,
             "type": "array"
           },
           "custom_headers": {
@@ -7370,7 +8627,8 @@
             "type": "array"
           },
           "subject": {
-            "description": "Subject line for the outgoing email.",
+            "description": "Subject line; defaults to empty.",
+            "maxLength": 998,
             "type": "string"
           },
           "text_body": {
@@ -7378,18 +8636,14 @@
             "type": "string"
           },
           "to": {
-            "description": "Primary recipients.",
+            "description": "Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.",
             "items": {
               "$ref": "#/components/schemas/MailboxAddress"
             },
-            "minItems": 1,
+            "maxItems": 50,
             "type": "array"
           }
         },
-        "required": [
-          "to",
-          "subject"
-        ],
         "type": "object"
       },
       "SendMailboxMessageResult": {
@@ -7899,6 +9153,233 @@
             "type": "object"
           }
         },
+        "type": "object"
+      },
+      "UpdateMailboxDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "description": "Attachments and inline images.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "blob_id": {
+                  "description": "An attachment uploaded to this mailbox.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "content_id": {
+                  "description": "Content ID referenced by an inline image.",
+                  "maxLength": 998,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "content_type": {
+                  "description": "Attachment media type.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "disposition": {
+                  "description": "Whether the attachment appears within the message.",
+                  "enum": [
+                    "attachment",
+                    "inline"
+                  ],
+                  "type": "string"
+                },
+                "filename": {
+                  "description": "Attachment filename.",
+                  "maxLength": 255,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "size_bytes": {
+                  "description": "Attachment size in bytes; verified when saved.",
+                  "maximum": 7500000,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "blob_id",
+                "filename",
+                "content_type",
+                "size_bytes"
+              ],
+              "type": "object"
+            },
+            "maxItems": 10,
+            "type": "array"
+          },
+          "bcc": {
+            "description": "Hidden copied recipients.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "cc": {
+            "description": "Visible copied recipients.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "custom_headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Custom X- headers preserved with this revision.",
+            "type": "object"
+          },
+          "expected_revision": {
+            "description": "The revision that was reviewed; a stale value returns conflict.",
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "from": {
+            "additionalProperties": false,
+            "description": "Authorised sender; defaults to this inbox.",
+            "properties": {
+              "email": {
+                "description": "Email address.",
+                "format": "email",
+                "maxLength": 254,
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name.",
+                "maxLength": 255,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "email"
+            ],
+            "type": "object"
+          },
+          "html_body": {
+            "description": "HTML body, preserved when saved.",
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "reply_to": {
+            "description": "Authorised reply addresses; defaults to this inbox.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "subject": {
+            "description": "Subject; may be empty.",
+            "maxLength": 998,
+            "type": "string"
+          },
+          "text_body": {
+            "description": "Plain-text body.",
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "to": {
+            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "email": {
+                  "description": "Email address.",
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Display name.",
+                  "maxLength": 255,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "type": "array"
+          }
+        },
+        "required": [
+          "expected_revision"
+        ],
         "type": "object"
       },
       "UpdateMailboxIdentityBody": {
@@ -8717,7 +10198,7 @@
             ]
           },
           "secret": {
-            "description": "Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
+            "description": "Signing secret for both webhook signature headers. X-Sendmux-Signature signs the exact body bytes. X-Sendmux-Signature-V2 contains v1=<hex HMAC-SHA256> and signs X-Sendmux-Timestamp (Unix seconds), a full stop, then the exact body bytes. Check timestamp freshness and compare signatures in constant time before parsing the body. Store this secret securely; it is returned only on creation and rotation. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
             "example": "whsec_a9f3c2…",
             "type": "string"
           },
@@ -8876,6 +10357,7 @@
               "mailbox.admin.delete": "Delete mailboxes (admin-level)",
               "mailbox.admin.manage": "Manage all mailbox settings",
               "mailbox.admin.read": "List/view mailboxes (admin-level)",
+              "mailbox.drafts.write": "Create and edit saved mailbox drafts",
               "mailbox.read": "Read mailbox contents (folders, messages)",
               "mailbox.settings.update": "Update own mailbox settings (signature, auto-reply)",
               "provider.*": "All provider operations",
@@ -10537,6 +12019,417 @@
         ]
       }
     },
+    "/mailbox-send-policies/{scope}/{public_id}": {
+      "get": {
+        "description": "Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies. Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies. Integration and mailbox keys cannot manage these policies.",
+        "operationId": "managementGetMailboxSendPolicy",
+        "parameters": [
+          {
+            "description": "Policy level to read or replace.",
+            "in": "path",
+            "name": "scope",
+            "required": true,
+            "schema": {
+              "description": "Policy level to read or replace.",
+              "enum": [
+                "team",
+                "mailbox",
+                "api_key",
+                "oauth_grant",
+                "agent_registration"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Public ID of the team, inbox, API key, connected-app grant or agent registration.",
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "description": "Public ID of the team, inbox, API key, connected-app grant or agent registration.",
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Return 304 when this ETag still matches.",
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "description": "Return 304 when this ETag still matches.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxSendPolicyResponse"
+                }
+              }
+            },
+            "description": "Current sending policy.",
+            "headers": {
+              "ETag": {
+                "description": "Exact version to use for conditional reads and replacement.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The policy is unchanged.",
+            "headers": {
+              "ETag": {
+                "description": "Current policy version.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "team.read"
+            ]
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.read"
+            ]
+          },
+          {
+            "oauth2": [
+              "key.read"
+            ]
+          }
+        ],
+        "summary": "Get a sending policy",
+        "tags": [
+          "Mailboxes"
+        ]
+      },
+      "put": {
+        "description": "Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies. Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies. Integration and mailbox keys cannot manage these policies.",
+        "operationId": "managementReplaceMailboxSendPolicy",
+        "parameters": [
+          {
+            "description": "Policy level to read or replace.",
+            "in": "path",
+            "name": "scope",
+            "required": true,
+            "schema": {
+              "description": "Policy level to read or replace.",
+              "enum": [
+                "team",
+                "mailbox",
+                "api_key",
+                "oauth_grant",
+                "agent_registration"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Public ID of the team, inbox, API key, connected-app grant or agent registration.",
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "description": "Public ID of the team, inbox, API key, connected-app grant or agent registration.",
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required exact ETag from the current policy. Wildcards are not accepted.",
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "description": "Required exact ETag from the current policy. Wildcards are not accepted.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Reuse with the same policy and ETag to replay a successful replacement.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "description": "Reuse with the same policy and ETag to replay a successful replacement.",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceMailboxSendPolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxSendPolicyResponse"
+                }
+              }
+            },
+            "description": "Current sending policy.",
+            "headers": {
+              "ETag": {
+                "description": "Exact version to use for conditional reads and replacement.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "team.update"
+            ]
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.manage"
+            ]
+          },
+          {
+            "oauth2": [
+              "key.*"
+            ]
+          }
+        ],
+        "summary": "Replace a sending policy",
+        "tags": [
+          "Mailboxes"
+        ]
+      }
+    },
     "/mailbox/attachment-uploads": {
       "post": {
         "description": "Creates a short-lived signed PUT URL for one attachment. The caller must be authenticated to mint the URL; the later PUT uses the signed URL, exact Content-Type, and exact Content-Length without sending a bearer token. The PUT returns a blob ID that can be supplied to `POST /mailbox/messages/send`.",
@@ -10610,6 +12503,15 @@
           {
             "oauth2": [
               "email.send"
+            ]
+          },
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "mailbox.drafts.write"
             ]
           }
         ],
@@ -10703,6 +12605,15 @@
           {
             "oauth2": [
               "email.send"
+            ]
+          },
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "mailbox.drafts.write"
             ]
           }
         ],
@@ -10991,6 +12902,1183 @@
           }
         ],
         "summary": "Get Mailbox connection",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/drafts": {
+      "get": {
+        "operationId": "mailboxListDrafts",
+        "parameters": [
+          {
+            "description": "Page size; default 50, maximum 100.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "description": "Page size; default 50, maximum 100.",
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Cursor returned by the previous page.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "description": "Cursor returned by the previous page.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftListResponse"
+                }
+              }
+            },
+            "description": "Saved drafts, newest first."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
+          }
+        ],
+        "summary": "List saved drafts",
+        "tags": [
+          "Mailbox API"
+        ]
+      },
+      "post": {
+        "operationId": "mailboxCreateDraft",
+        "parameters": [
+          {
+            "description": "Reuse this key when retrying the same create request.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "description": "Reuse this key when retrying the same create request.",
+              "maxLength": 255,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMailboxDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftResponse"
+                }
+              }
+            },
+            "description": "Saved draft and its revision.",
+            "headers": {
+              "Location": {
+                "description": "Canonical draft URL.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "mailbox.drafts.write"
+            ]
+          }
+        ],
+        "summary": "Create a saved draft",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/drafts/{draftId}": {
+      "delete": {
+        "operationId": "mailboxDeleteDraft",
+        "parameters": [
+          {
+            "description": "Stable draft ID.",
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "description": "Stable draft ID.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Delete only if this is still the current draft.",
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "description": "Delete only if this is still the current draft.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftDeleteResponse"
+                }
+              }
+            },
+            "description": "Deletion recorded; removal finishes in the background. A send already in progress cannot be deleted."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "mailbox.drafts.write"
+            ]
+          }
+        ],
+        "summary": "Delete a saved draft",
+        "tags": [
+          "Mailbox API"
+        ]
+      },
+      "get": {
+        "operationId": "mailboxGetDraft",
+        "parameters": [
+          {
+            "description": "Stable draft ID.",
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "description": "Stable draft ID.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Return 304 if this draft has not changed.",
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "description": "Return 304 if this draft has not changed.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftResponse"
+                }
+              }
+            },
+            "description": "Saved draft and its revision."
+          },
+          "304": {
+            "description": "Draft has not changed."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
+          }
+        ],
+        "summary": "Read a saved draft",
+        "tags": [
+          "Mailbox API"
+        ]
+      },
+      "patch": {
+        "operationId": "mailboxUpdateDraft",
+        "parameters": [
+          {
+            "description": "Stable draft ID.",
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "description": "Stable draft ID.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Current draft ETag; expected_revision is also required.",
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "description": "Current draft ETag; expected_revision is also required.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMailboxDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftResponse"
+                }
+              }
+            },
+            "description": "Saved draft and its revision."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "mailbox.drafts.write"
+            ]
+          }
+        ],
+        "summary": "Edit a saved draft",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/drafts/{draftId}/schedule": {
+      "patch": {
+        "operationId": "mailboxControlDraftSchedule",
+        "parameters": [
+          {
+            "description": "Stable draft ID.",
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "description": "Stable draft ID.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Current draft ETag; both revision and schedule version remain required.",
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "description": "Current draft ETag; both revision and schedule version remain required.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ControlMailboxDraftSchedule"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftResponse"
+                }
+              }
+            },
+            "description": "Saved draft and its revision."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "email.send"
+            ]
+          }
+        ],
+        "summary": "Reschedule or cancel a saved draft send",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/drafts/{draftId}/send": {
+      "post": {
+        "operationId": "mailboxSendDraft",
+        "parameters": [
+          {
+            "description": "Stable draft ID.",
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "description": "Stable draft ID.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Current draft ETag; expected_revision is required.",
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "description": "Current draft ETag; expected_revision is required.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMailboxDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxDraftResponse"
+                }
+              }
+            },
+            "description": "Saved draft and its revision."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read",
+              "email.send"
+            ]
+          }
+        ],
+        "summary": "Send a saved draft revision",
         "tags": [
           "Mailbox API"
         ]
@@ -13023,6 +16111,469 @@
         ]
       }
     },
+    "/mailbox/messages/{message_id}/attachments/{attachment_id}/text": {
+      "get": {
+        "description": "Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.",
+        "operationId": "mailboxGetAttachmentText",
+        "parameters": [
+          {
+            "description": "Message ID in the selected mailbox.",
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "description": "Message ID in the selected mailbox.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Attachment ID from that message.",
+            "in": "path",
+            "name": "attachment_id",
+            "required": true,
+            "schema": {
+              "description": "Attachment ID from that message.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.",
+            "in": "query",
+            "name": "max_bytes",
+            "required": false,
+            "schema": {
+              "description": "Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.",
+              "maximum": 1048576,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Return 304 when the authorised response is unchanged.",
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "description": "Return 304 when the authorised response is unchanged.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ready": {
+                    "value": {
+                      "data": {
+                        "expires_at": "2026-09-30T00:00:00.000Z",
+                        "format": "markdown",
+                        "id": "ext_example",
+                        "outcome": "ready",
+                        "status": "complete",
+                        "text": "# Invoice\nAmount: $25",
+                        "truncated": false
+                      },
+                      "meta": {
+                        "request_id": "req_example"
+                      },
+                      "ok": true
+                    }
+                  },
+                  "unsupported": {
+                    "value": {
+                      "data": {
+                        "expires_at": "2026-09-30T00:00:00.000Z",
+                        "format": "markdown",
+                        "id": "ext_example",
+                        "outcome": "unsupported",
+                        "status": "complete",
+                        "text": "",
+                        "truncated": false
+                      },
+                      "meta": {
+                        "request_id": "req_example"
+                      },
+                      "ok": true
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxAttachmentTextResponse"
+                }
+              }
+            },
+            "description": "Conversion completed. Check outcome before using text; original attachment downloads remain available.",
+            "headers": {
+              "ETag": {
+                "description": "Current response validator, returned by GET.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "expires_at": "2026-09-30T00:00:00.000Z",
+                    "format": "markdown",
+                    "id": "ext_example",
+                    "outcome": null,
+                    "status": "pending",
+                    "text": null,
+                    "truncated": false
+                  },
+                  "meta": {
+                    "request_id": "req_example"
+                  },
+                  "ok": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxAttachmentTextResponse"
+                }
+              }
+            },
+            "description": "Extraction is pending or running. Poll GET on this same URL.",
+            "headers": {
+              "ETag": {
+                "description": "Current response validator, returned by GET.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Extraction response has not changed.",
+            "headers": {
+              "ETag": {
+                "description": "Current response validator, returned by GET.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Source attachment or unexpired extraction not found."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
+          }
+        ],
+        "summary": "Read attachment text",
+        "tags": [
+          "Mailbox API"
+        ]
+      },
+      "post": {
+        "description": "Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.",
+        "operationId": "mailboxRequestAttachmentText",
+        "parameters": [
+          {
+            "description": "Message ID in the selected mailbox.",
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "description": "Message ID in the selected mailbox.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Attachment ID from that message.",
+            "in": "path",
+            "name": "attachment_id",
+            "required": true,
+            "schema": {
+              "description": "Attachment ID from that message.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.",
+            "in": "query",
+            "name": "max_bytes",
+            "required": false,
+            "schema": {
+              "description": "Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.",
+              "maximum": 1048576,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ready": {
+                    "value": {
+                      "data": {
+                        "expires_at": "2026-09-30T00:00:00.000Z",
+                        "format": "markdown",
+                        "id": "ext_example",
+                        "outcome": "ready",
+                        "status": "complete",
+                        "text": "# Invoice\nAmount: $25",
+                        "truncated": false
+                      },
+                      "meta": {
+                        "request_id": "req_example"
+                      },
+                      "ok": true
+                    }
+                  },
+                  "unsupported": {
+                    "value": {
+                      "data": {
+                        "expires_at": "2026-09-30T00:00:00.000Z",
+                        "format": "markdown",
+                        "id": "ext_example",
+                        "outcome": "unsupported",
+                        "status": "complete",
+                        "text": "",
+                        "truncated": false
+                      },
+                      "meta": {
+                        "request_id": "req_example"
+                      },
+                      "ok": true
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxAttachmentTextResponse"
+                }
+              }
+            },
+            "description": "Conversion completed. Check outcome before using text; original attachment downloads remain available.",
+            "headers": {
+              "ETag": {
+                "description": "Current response validator, returned by GET.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "expires_at": "2026-09-30T00:00:00.000Z",
+                    "format": "markdown",
+                    "id": "ext_example",
+                    "outcome": null,
+                    "status": "pending",
+                    "text": null,
+                    "truncated": false
+                  },
+                  "meta": {
+                    "request_id": "req_example"
+                  },
+                  "ok": true
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxAttachmentTextResponse"
+                }
+              }
+            },
+            "description": "Extraction is pending or running. Poll GET on this same URL.",
+            "headers": {
+              "ETag": {
+                "description": "Current response validator, returned by GET.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Source attachment or unexpired extraction not found."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request could not be completed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
+          }
+        ],
+        "summary": "Request attachment text",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
     "/mailbox/messages/{message_id}/body": {
       "get": {
         "description": "Returns raw message body content for the authenticated mailbox. This endpoint does not strip signatures, strip quoted replies, extract links, or clean the body into a structured content shape.",
@@ -13299,6 +16850,151 @@
           }
         ],
         "summary": "Get clean message content",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/messages/{message_id}/raw": {
+      "get": {
+        "description": "Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.",
+        "operationId": "mailboxDownloadRawMessage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "message_id",
+            "required": true,
+            "schema": {
+              "description": "Message ID.",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "description": "Weak ETag from a previous response. Returns 304 when unchanged.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "message/rfc822": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Original message file",
+            "headers": {
+              "Content-Disposition": {
+                "description": "Attachment filename.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "description": "Size of the stored message in bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Validator for the stored message.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Mailbox read permission required"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Message not found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Message download unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.read"
+            ]
+          }
+        ],
+        "summary": "Download the original message",
         "tags": [
           "Mailbox API"
         ]
@@ -15641,6 +19337,24 @@
               }
             },
             "description": "Mailbox not found"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Deletion is waiting for final usage. Retry after the interval in Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds before retrying.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -16465,6 +20179,181 @@
           }
         ],
         "summary": "Suspend a mailbox",
+        "tags": [
+          "Mailboxes"
+        ]
+      }
+    },
+    "/mailboxes/{public_id}/usage": {
+      "get": {
+        "description": "Read cumulative mailbox costs for a half-open window: start is included and end is excluded. Requires mailbox.admin.read and team-wide mailbox access. Retained usage remains readable after mailbox deletion while the team and credential remain active. Quantities and USD amounts are decimal strings. posted_amount includes only posted charges; incurred and unbillable amounts are reported separately. A pending result can change. Settle a window only when its state is final. This read does not start or complete settlement.",
+        "operationId": "managementGetMailboxCostUsage",
+        "parameters": [
+          {
+            "description": "Mailbox public ID.",
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "description": "Mailbox public ID.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive start. At most millisecond precision.",
+            "in": "query",
+            "name": "start",
+            "required": true,
+            "schema": {
+              "description": "Inclusive start. At most millisecond precision.",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.",
+            "in": "query",
+            "name": "end",
+            "required": true,
+            "schema": {
+              "description": "Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Return 304 when the authorised response is unchanged.",
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "description": "Return 304 when the authorised response is unchanged.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxCostUsageResponse"
+                }
+              }
+            },
+            "description": "Recorded mailbox costs and settlement state.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Current response validator.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Mailbox costs have not changed.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Current response validator.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid or revoked credential."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Required team-wide access or permission is missing."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Mailbox usage is unavailable to this team."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid, repeated or unsupported window boundaries."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Rate limit exceeded."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Usage cannot be read. Retry after the interval in Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds before retrying.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "mailbox.admin.read"
+            ]
+          }
+        ],
+        "summary": "Read mailbox costs",
         "tags": [
           "Mailboxes"
         ]

@@ -1,6 +1,19 @@
 {
   "version": 1,
   "sources": {
+    "mailboxDraftId": {
+      "env": "SENDMUX_LIVE_E2E_DRAFT_ID",
+      "operationId": "mailboxListDrafts",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": [
+        "data.0.id"
+      ],
+      "surface": "mailbox"
+    },
     "mailboxFolderId": {
       "env": "SENDMUX_LIVE_E2E_MAILBOX_FOLDER_ID",
       "operationId": "mailboxListFolders",
@@ -9,7 +22,9 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "mailbox"
     },
     "mailboxMessageId": {
@@ -20,13 +35,17 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "mailbox"
     },
     "mailboxSelfEmail": {
       "operationId": "mailboxGetMe",
       "request": {},
-      "selectors": ["data.email"],
+      "selectors": [
+        "data.email"
+      ],
       "surface": "mailbox"
     },
     "mailboxSubmissionId": {
@@ -37,9 +56,15 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "setup": {
-        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_STAGING_SEND=1", "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"],
+        "gates": [
+          "SENDMUX_LIVE_E2E_FIXTURE_SETUP=1",
+          "SENDMUX_STAGING_SEND=1",
+          "SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist"
+        ],
         "kind": "mailbox_send_message",
         "subjectPrefix": "Sendmux live E2E submission fixture",
         "to": {
@@ -56,7 +81,9 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "mailbox"
     },
     "managementDomainId": {
@@ -67,7 +94,9 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "management"
     },
     "managementEmailLogId": {
@@ -78,7 +107,9 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "management"
     },
     "managementInboxLogId": {
@@ -89,18 +120,9 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
-      "surface": "management"
-    },
-    "managementMailboxId": {
-      "env": "SENDMUX_LIVE_E2E_MANAGEMENT_MAILBOX_ID",
-      "operationId": "managementListMailboxes",
-      "request": {
-        "query": {
-          "limit": 1
-        }
-      },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "management"
     },
     "managementMailboxEmail": {
@@ -111,7 +133,22 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.email"],
+      "selectors": [
+        "data.0.email"
+      ],
+      "surface": "management"
+    },
+    "managementMailboxId": {
+      "env": "SENDMUX_LIVE_E2E_MANAGEMENT_MAILBOX_ID",
+      "operationId": "managementListMailboxes",
+      "request": {
+        "query": {
+          "limit": 1
+        }
+      },
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "management"
     },
     "managementProviderId": {
@@ -122,7 +159,9 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "surface": "management"
     },
     "managementWebhookDeliveryId": {
@@ -138,9 +177,14 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "setup": {
-        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist"],
+        "gates": [
+          "SENDMUX_LIVE_E2E_FIXTURE_SETUP=1",
+          "SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist"
+        ],
         "kind": "management_webhook_delivery",
         "webhook": {
           "source": "managementWebhookId"
@@ -156,9 +200,14 @@
           "limit": 1
         }
       },
-      "selectors": ["data.0.id"],
+      "selectors": [
+        "data.0.id"
+      ],
       "setup": {
-        "gates": ["SENDMUX_LIVE_E2E_FIXTURE_SETUP=1", "SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist"],
+        "gates": [
+          "SENDMUX_LIVE_E2E_FIXTURE_SETUP=1",
+          "SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist"
+        ],
         "kind": "management_webhook",
         "namePrefix": "Sendmux live E2E webhook fixture",
         "url": {
@@ -169,11 +218,11 @@
     }
   },
   "operations": {
-    "managementCheckMailboxAvailability": {
+    "mailboxGetDraft": {
       "inputs": {
-        "query": {
-          "email": {
-            "source": "managementMailboxEmail"
+        "path": {
+          "draftId": {
+            "source": "mailboxDraftId"
           }
         }
       },
@@ -269,6 +318,16 @@
       },
       "ownership": "discovered-read"
     },
+    "managementCheckMailboxAvailability": {
+      "inputs": {
+        "query": {
+          "email": {
+            "source": "managementMailboxEmail"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
     "managementGetDeliveryPayload": {
       "inputs": {
         "path": {
@@ -342,9 +401,40 @@
       },
       "ownership": "discovered-read"
     },
+    "managementGetMailboxCostUsage": {
+      "inputs": {
+        "path": {
+          "public_id": {
+            "source": "managementMailboxId"
+          }
+        },
+        "query": {
+          "start": {
+            "env": "SENDMUX_LIVE_E2E_USAGE_START"
+          },
+          "end": {
+            "env": "SENDMUX_LIVE_E2E_USAGE_END"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
     "managementGetMailboxFilters": {
       "inputs": {
         "path": {
+          "public_id": {
+            "source": "managementMailboxId"
+          }
+        }
+      },
+      "ownership": "discovered-read"
+    },
+    "managementGetMailboxSendPolicy": {
+      "inputs": {
+        "path": {
+          "scope": {
+            "literal": "mailbox"
+          },
           "public_id": {
             "source": "managementMailboxId"
           }

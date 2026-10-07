@@ -453,6 +453,7 @@ try {
   assertCliCommandCoverage();
   assertBinaryOperationRunnerGuard();
   await assertCliArrayParameterSupport();
+  await assertCliRfc822BinaryResponse();
   await assertAgentAuthNetworkBoundaries();
 
   const address = server.address();
@@ -1774,17 +1775,6 @@ function assertBinaryOperationRunnerGuard() {
   if (!operationBlock?.includes('"responseKind": "binary"')) {
     throw new Error("CLI operation manifest must classify mailboxGetMessageAttachment as a binary response");
   }
-
-  const branch = source.match(/if \(operation\.operationId === "mailboxGetMessageAttachment"\) \{[\s\S]*?\n  \}/)?.[0];
-  if (!branch) {
-    throw new Error("CLI operation runner must special-case mailboxGetMessageAttachment");
-  }
-  if (!branch.includes("return command.renderBinaryResult(data);")) {
-    throw new Error("CLI attachment branch must render binary results directly");
-  }
-  if (!branch.includes('throw new Error("SDK operation mailboxGetMessageAttachment did not return binary content");')) {
-    throw new Error("CLI attachment branch must reject non-binary data instead of falling through");
-  }
 }
 
 async function assertAgentAuthNetworkBoundaries() {
@@ -1977,6 +1967,84 @@ async function assertCliArrayParameterSupport() {
     rmSync(fixtureDir, { force: true, recursive: true });
     assertDeepEqual(existsSync(fixtureDir), false, "CLI array fixture must be removed after verification");
     console.log(JSON.stringify({ removed_workspace: fixtureDir }));
+  }
+}
+
+async function assertCliRfc822BinaryResponse() {
+  const fixtureDir = mkdtempSync(join(tmpdir(), "sendmux-cli-rfc822-spec-"));
+  const rawMessage = Buffer.from([0x46, 0x72, 0x6f, 0x6d, 0x3a, 0x20, 0xff, 0x00]);
+  const rawServer = createServer((_request, response) => {
+    response.writeHead(200, { "Content-Type": "message/rfc822" });
+    response.end(rawMessage);
+  });
+  try {
+    writeFileSync(join(fixtureDir, "openapi-app.json"), JSON.stringify({
+      openapi: "3.1.0",
+      info: { title: "Raw message fixture", version: "1.0.0" },
+      paths: {
+        "/mailbox/messages/{message_id}/raw": {
+          get: {
+            operationId: "mailboxDownloadRawMessage",
+            parameters: [{ in: "path", name: "message_id", required: true, schema: { type: "string" } }],
+            responses: { "200": { content: { "message/rfc822": { schema: { type: "string", format: "binary" } } } } },
+          },
+        },
+      },
+    }));
+    writeFileSync(join(fixtureDir, "openapi-sending.json"), JSON.stringify({
+      openapi: "3.1.0",
+      info: { title: "Empty Sending fixture", version: "1.0.0" },
+      paths: {},
+    }));
+    const generatedPath = join(fixtureDir, "operations.ts");
+    const generateResult = spawnSync(process.execPath, [
+      "scripts/generate-cli.mjs", "--input-dir", fixtureDir, "--output", generatedPath,
+      "--cli-source-dir", join(fixtureDir, "cli-src"), "--commands-dir", join(fixtureDir, "commands"),
+    ], { encoding: "utf8" });
+    if (generateResult.status !== 0) {
+      throw new Error(`CLI generator RFC822 fixture failed:\n${generateResult.stderr}`);
+    }
+    const generated = readFileSync(generatedPath, "utf8");
+    const rawOperation = generated.match(/mailboxDownloadRawMessage: \{[\s\S]*?\n  \}/)?.[0];
+    if (!rawOperation?.includes('"responseKind": "binary"')) {
+      throw new Error("CLI generator must classify message/rfc822 as binary");
+    }
+
+    rawServer.listen(0, "127.0.0.1");
+    await once(rawServer, "listening");
+    const address = rawServer.address();
+    if (!address || typeof address === "string") throw new Error("RFC822 fixture server did not bind");
+    const { SendmuxCommand } = await import("../packages/ts/cli/dist/base-command.js");
+    const { runSdkOperation } = await import("../packages/ts/cli/dist/operation-runner.js");
+    const command = {
+      jsonEnabled: () => true,
+      renderBinaryResult: SendmuxCommand.prototype.renderBinaryResult,
+      renderResult: (value) => value,
+    };
+    const result = await runSdkOperation(command, {
+      bodyKind: "none",
+      command: "sending:get-open-api-spec",
+      description: "Binary response probe",
+      headerParams: [],
+      method: "get",
+      operationId: "sendingGetOpenApiSpec",
+      path: "/openapi.json",
+      pathParams: [],
+      queryParams: [],
+      responseKind: "binary",
+      requestBodyRequired: false,
+      requiredKeyKind: "none",
+      surface: "sending",
+    }, { "base-url": `http://127.0.0.1:${address.port}` });
+    assertDeepEqual(result, {
+      base64: rawMessage.toString("base64"),
+      byte_length: rawMessage.byteLength,
+    }, "CLI binary responses must preserve every RFC822 byte");
+  } finally {
+    if (rawServer.listening) {
+      await new Promise((resolve) => rawServer.close(resolve));
+    }
+    rmSync(fixtureDir, { force: true, recursive: true });
   }
 }
 

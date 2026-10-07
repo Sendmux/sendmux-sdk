@@ -34,6 +34,7 @@ const surfaces = [
     // class: the alias is written once the name has left the generated requires
     // (scripts/deprecated-model-aliases.mjs). Remove an entry when that major ships.
     deprecatedModelAliases: [
+      { deprecated: "MailboxFolderDeletedResponseAllOfData", replacement: "MailboxDraftDeleteResponseAllOfData" },
       { deprecated: "MailboxRealtimeMessageAllOfBody", replacement: "MailboxRealtimeMessageBody" },
       // Dropped once the API publishes nullable references as anyOf: [{ $ref }, { type: "null" }].
       { deprecated: "MailboxMessageContentResponseAllOfData", replacement: "MailboxMessageContent" },
@@ -117,7 +118,11 @@ for (const surface of surfaces) {
     recursive: true,
   });
   patchGeneratedApiClientHeaders(join(packageDir, "lib", surface.generatedGemName, "api_client.rb"));
+  patchGeneratedModelTimestamps(join(packageDir, "lib", surface.generatedGemName, "api_model_base.rb"));
   if (surface.name === "management") {
+    patchGeneratedManagementCostUsageTimestamps(
+      join(packageDir, "lib", surface.generatedGemName, "api", "mailboxes_api.rb"),
+    );
     patchGeneratedManagementMailboxEmailAnchors(
       join(packageDir, "lib", surface.generatedGemName, "models", "management_create_mailbox_request.rb"),
     );
@@ -451,6 +456,40 @@ function patchGeneratedManagementMailboxEmailAnchors(modelPath) {
     modelPath,
     source.replace(anchoredPattern, (_match, body) => `Regexp.new(/\\A${body}\\z/)`),
   );
+}
+
+function patchGeneratedModelTimestamps(modelPath) {
+  const source = readFileSync(modelPath, "utf8");
+  const insertionPoint = "      elsif value.respond_to? :to_hash\n";
+  if (!source.includes(insertionPoint)) {
+    throw new Error(`Could not find generated Ruby model serializer in ${modelPath}`);
+  }
+  const timeSerializer = `      elsif value.is_a?(Time)
+        if (value.subsec * 1_000_000_000).denominator != 1
+          raise ArgumentError, "Timestamps must use at most nanosecond precision"
+        end
+        value = value.getutc
+        precision = value.nsec.zero? ? 0 : 9 - value.nsec.to_s[/0*\\z/].length
+        value.iso8601(precision)
+`;
+  writeFileSync(modelPath, source.replace(insertionPoint, timeSerializer + insertionPoint));
+}
+
+function patchGeneratedManagementCostUsageTimestamps(apiPath) {
+  const source = readFileSync(apiPath, "utf8");
+  const queryAssignment = "      query_params[:'start'] = start\n      query_params[:'end'] = _end\n";
+  if (!source.includes(queryAssignment)) {
+    throw new Error(`Could not find generated Ruby cost-usage query parameters in ${apiPath}`);
+  }
+  const timestampQueries = `      [['start', start], ['end', _end]].each do |name, value|
+        if value.is_a?(Time) && (value.subsec * 1000).denominator != 1
+          raise ArgumentError, "#{name} must use at most millisecond precision"
+        end
+      end
+      query_params[:'start'] = start.is_a?(Time) ? start.getutc.iso8601(3) : start
+      query_params[:'end'] = _end.is_a?(Time) ? _end.getutc.iso8601(3) : _end
+`;
+  writeFileSync(apiPath, source.replace(queryAssignment, timestampQueries));
 }
 
 function run(command, args) {

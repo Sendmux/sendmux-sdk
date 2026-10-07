@@ -95,7 +95,7 @@ export function validateRecoveryLedger(ledger, { runId, sourceSha } = {}) {
     if (resource.expected_count !== undefined) assert.ok(Number.isInteger(resource.expected_count) && resource.expected_count > 0, "Invalid delivery count");
     if (resource.received_ids !== undefined) assert.ok(Array.isArray(resource.received_ids) && resource.received_ids.every(id => typeof id === "string" && id.length > 0), "Invalid received-message IDs");
     if (resource.path) {
-      assertKnownFields(resource.path, ["public_id", "key_id", "folder_id", "message_id"]);
+      assertKnownFields(resource.path, ["public_id", "key_id", "folder_id", "message_id", "draftId"]);
       assert.ok(Object.values(resource.path).every(value => typeof value === "string"), "Invalid resource path");
     }
   }

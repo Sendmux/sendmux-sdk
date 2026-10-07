@@ -109,7 +109,7 @@ export async function run(command, args, { cwd = root, env = process.env, captur
       assert(!descendant, "Command left an owned descendant; tree terminated");
     }
   }
-  assert(!timedOut && status === 0, `${command} failed: exit ${status}, interrupted=${timedOut}`);
+  assert(!timedOut && status === 0, `${command} failed: exit ${status}, interrupted=${timedOut}${captureOutput ? `\n${output}` : ""}`);
   return output;
 }
 
@@ -198,7 +198,7 @@ export async function nodeConsumer() {
     const candidates = await packTypescript(directory, names);
     const consumer = join(directory, "consumer");
     newNodeConsumer(consumer, candidates);
-    await run("pnpm", ["add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer });
+    await run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...candidates.map(({ archive }) => archive)], { cwd: consumer });
     await nodeProvenance(consumer, names);
     await run("pnpm", ["exec", "sendmux", "--help"], { cwd: consumer });
   });
@@ -220,7 +220,7 @@ export async function aiConsumers(pairs = aiPairs) {
     const archives = candidates.map(({ archive }) => archive);
     const incompatible = join(directory, "incompatible-zod-3.24.0");
     newNodeConsumer(incompatible, candidates);
-    await run("pnpm", ["add", "--save-exact", ...archives, "ai@5.0.0", "zod@3.24.0", "semver@7.8.5"], { cwd: incompatible });
+    await run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...archives, "ai@5.0.0", "zod@3.24.0", "semver@7.8.5"], { cwd: incompatible });
     writeFileSync(join(incompatible, "reject-peer.mjs"), `import assert from 'node:assert/strict';
 import semver from 'semver'; import {readFileSync} from 'node:fs';
 const installed = name => JSON.parse(readFileSync('node_modules/' + name + '/package.json', 'utf8'));
@@ -231,7 +231,7 @@ assert(semver.satisfies(installed('zod').version, installed('@sendmux/ai-sdk').p
     for (const [ai, zod] of pairs) {
       const consumer = join(directory, `ai-${ai}-zod-${zod}`);
       newNodeConsumer(consumer, candidates);
-      await run("pnpm", ["add", "--save-exact", ...archives, `ai@${ai}`, `zod@${zod}`, "semver@7.8.5"], { cwd: consumer });
+      await run("pnpm", ["--ignore-workspace", "add", "--save-exact", ...archives, `ai@${ai}`, `zod@${zod}`, "semver@7.8.5"], { cwd: consumer });
       await nodeProvenance(consumer, names);
       writeFileSync(join(consumer, "peers.mjs"), `import assert from 'node:assert/strict';
 import semver from 'semver'; import {readFileSync} from 'node:fs';

@@ -84,13 +84,22 @@ class MailboxAPIApi
         'mailboxBatchUpdateMessages' => [
             'application/json',
         ],
+        'mailboxControlDraftSchedule' => [
+            'application/json',
+        ],
         'mailboxCountMessages' => [
             'application/json',
         ],
         'mailboxCreateAttachmentUpload' => [
             'application/json',
         ],
+        'mailboxCreateDraft' => [
+            'application/json',
+        ],
         'mailboxCreateFolder' => [
+            'application/json',
+        ],
+        'mailboxDeleteDraft' => [
             'application/json',
         ],
         'mailboxDeleteFolder' => [
@@ -99,10 +108,19 @@ class MailboxAPIApi
         'mailboxDeleteMessage' => [
             'application/json',
         ],
+        'mailboxDownloadRawMessage' => [
+            'application/json',
+        ],
+        'mailboxGetAttachmentText' => [
+            'application/json',
+        ],
         'mailboxGetChanges' => [
             'application/json',
         ],
         'mailboxGetConnection' => [
+            'application/json',
+        ],
+        'mailboxGetDraft' => [
             'application/json',
         ],
         'mailboxGetFolder' => [
@@ -147,6 +165,9 @@ class MailboxAPIApi
         'mailboxListContent' => [
             'application/json',
         ],
+        'mailboxListDrafts' => [
+            'application/json',
+        ],
         'mailboxListFolders' => [
             'application/json',
         ],
@@ -180,13 +201,22 @@ class MailboxAPIApi
         'mailboxQueryMessageChanges' => [
             'application/json',
         ],
+        'mailboxRequestAttachmentText' => [
+            'application/json',
+        ],
         'mailboxSearchMessageSnippets' => [
+            'application/json',
+        ],
+        'mailboxSendDraft' => [
             'application/json',
         ],
         'mailboxSendMessage' => [
             'application/json',
         ],
         'mailboxStreamEvents' => [
+            'application/json',
+        ],
+        'mailboxUpdateDraft' => [
             'application/json',
         ],
         'mailboxUpdateFolder' => [
@@ -1321,6 +1351,515 @@ class MailboxAPIApi
     }
 
     /**
+     * Operation mailboxControlDraftSchedule
+     *
+     * Reschedule or cancel a saved draft send
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule control_mailbox_draft_schedule (required)
+     * @param  string|null $if_match Current draft ETag; both revision and schedule version remain required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxControlDraftSchedule'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxControlDraftSchedule(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxControlDraftSchedule'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxControlDraftScheduleWithHttpInfo(
+            $draft_id,
+            $control_mailbox_draft_schedule,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxControlDraftScheduleWithHttpInfo
+     *
+     * Reschedule or cancel a saved draft send
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule control_mailbox_draft_schedule (required)
+     * @param  string|null $if_match Current draft ETag; both revision and schedule version remain required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxControlDraftSchedule'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxControlDraftScheduleWithHttpInfo(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxControlDraftSchedule'][0]
+    ): array {
+        $request = $this->mailboxControlDraftScheduleRequest(
+            $draft_id,
+            $control_mailbox_draft_schedule,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxControlDraftScheduleAsync
+     *
+     * Reschedule or cancel a saved draft send
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule control_mailbox_draft_schedule (required)
+     * @param  string|null $if_match Current draft ETag; both revision and schedule version remain required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxControlDraftSchedule'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxControlDraftScheduleAsync(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxControlDraftSchedule'][0]
+    ): PromiseInterface {
+        return $this->mailboxControlDraftScheduleAsyncWithHttpInfo(
+            $draft_id,
+            $control_mailbox_draft_schedule,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxControlDraftScheduleAsyncWithHttpInfo
+     *
+     * Reschedule or cancel a saved draft send
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule control_mailbox_draft_schedule (required)
+     * @param  string|null $if_match Current draft ETag; both revision and schedule version remain required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxControlDraftSchedule'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxControlDraftScheduleAsyncWithHttpInfo(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxControlDraftSchedule'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftResponse';
+        $request = $this->mailboxControlDraftScheduleRequest(
+            $draft_id,
+            $control_mailbox_draft_schedule,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxControlDraftSchedule'
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule control_mailbox_draft_schedule (required)
+     * @param  string|null $if_match Current draft ETag; both revision and schedule version remain required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxControlDraftSchedule'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxControlDraftScheduleRequest(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\ControlMailboxDraftSchedule $control_mailbox_draft_schedule,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxControlDraftSchedule'][0]
+    ): Request {
+
+        // verify the required parameter 'draft_id' is set
+        if ($draft_id === null || (is_array($draft_id) && count($draft_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $draft_id when calling mailboxControlDraftSchedule'
+            );
+        }
+
+        // verify the required parameter 'control_mailbox_draft_schedule' is set
+        if ($control_mailbox_draft_schedule === null || (is_array($control_mailbox_draft_schedule) && count($control_mailbox_draft_schedule) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $control_mailbox_draft_schedule when calling mailboxControlDraftSchedule'
+            );
+        }
+
+
+
+
+        $resourcePath = '/mailbox/drafts/{draftId}/schedule';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_match !== null) {
+            $headerParams['If-Match'] = ObjectSerializer::toHeaderValue($if_match);
+        }
+
+        // path params
+        if ($draft_id !== null) {
+            $resourcePath = str_replace(
+                '{draftId}',
+                ObjectSerializer::toPathValue($draft_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($control_mailbox_draft_schedule)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($control_mailbox_draft_schedule));
+            } else {
+                $httpBody = $control_mailbox_draft_schedule;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'PATCH',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation mailboxCountMessages
      *
      * Count mailbox messages
@@ -2447,6 +2986,489 @@ class MailboxAPIApi
     }
 
     /**
+     * Operation mailboxCreateDraft
+     *
+     * Create a saved draft
+     *
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft create_mailbox_draft (required)
+     * @param  string|null $idempotency_key Reuse this key when retrying the same create request. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxCreateDraft(
+        \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft,
+        ?string $idempotency_key = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateDraft'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxCreateDraftWithHttpInfo(
+            $create_mailbox_draft,
+            $idempotency_key,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxCreateDraftWithHttpInfo
+     *
+     * Create a saved draft
+     *
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft create_mailbox_draft (required)
+     * @param  string|null $idempotency_key Reuse this key when retrying the same create request. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxCreateDraftWithHttpInfo(
+        \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft,
+        ?string $idempotency_key = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateDraft'][0]
+    ): array {
+        $request = $this->mailboxCreateDraftRequest(
+            $create_mailbox_draft,
+            $idempotency_key,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 201:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 201:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxCreateDraftAsync
+     *
+     * Create a saved draft
+     *
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft create_mailbox_draft (required)
+     * @param  string|null $idempotency_key Reuse this key when retrying the same create request. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxCreateDraftAsync(
+        \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft,
+        ?string $idempotency_key = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateDraft'][0]
+    ): PromiseInterface {
+        return $this->mailboxCreateDraftAsyncWithHttpInfo(
+            $create_mailbox_draft,
+            $idempotency_key,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxCreateDraftAsyncWithHttpInfo
+     *
+     * Create a saved draft
+     *
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft create_mailbox_draft (required)
+     * @param  string|null $idempotency_key Reuse this key when retrying the same create request. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxCreateDraftAsyncWithHttpInfo(
+        \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft,
+        ?string $idempotency_key = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateDraft'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftResponse';
+        $request = $this->mailboxCreateDraftRequest(
+            $create_mailbox_draft,
+            $idempotency_key,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxCreateDraft'
+     *
+     * @param  \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft create_mailbox_draft (required)
+     * @param  string|null $idempotency_key Reuse this key when retrying the same create request. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxCreateDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxCreateDraftRequest(
+        \Sendmux\Mailbox\Model\CreateMailboxDraft $create_mailbox_draft,
+        ?string $idempotency_key = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxCreateDraft'][0]
+    ): Request {
+
+        // verify the required parameter 'create_mailbox_draft' is set
+        if ($create_mailbox_draft === null || (is_array($create_mailbox_draft) && count($create_mailbox_draft) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $create_mailbox_draft when calling mailboxCreateDraft'
+            );
+        }
+
+        if ($idempotency_key !== null && strlen($idempotency_key) > 255) {
+            throw new InvalidArgumentException('invalid length for "$idempotency_key" when calling MailboxAPIApi.mailboxCreateDraft, must be smaller than or equal to 255.');
+        }
+
+
+
+        $resourcePath = '/mailbox/drafts';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($idempotency_key !== null) {
+            $headerParams['Idempotency-Key'] = ObjectSerializer::toHeaderValue($idempotency_key);
+        }
+
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($create_mailbox_draft)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($create_mailbox_draft));
+            } else {
+                $httpBody = $create_mailbox_draft;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'POST',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation mailboxCreateFolder
      *
      * Create a mailbox folder
@@ -2797,6 +3819,487 @@ class MailboxAPIApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'POST',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxDeleteDraft
+     *
+     * Delete a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_match Delete only if this is still the current draft. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftDeleteResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxDeleteDraft(
+        string $draft_id,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDeleteDraft'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftDeleteResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxDeleteDraftWithHttpInfo(
+            $draft_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxDeleteDraftWithHttpInfo
+     *
+     * Delete a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_match Delete only if this is still the current draft. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftDeleteResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxDeleteDraftWithHttpInfo(
+        string $draft_id,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDeleteDraft'][0]
+    ): array {
+        $request = $this->mailboxDeleteDraftRequest(
+            $draft_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftDeleteResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftDeleteResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftDeleteResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxDeleteDraftAsync
+     *
+     * Delete a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_match Delete only if this is still the current draft. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxDeleteDraftAsync(
+        string $draft_id,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDeleteDraft'][0]
+    ): PromiseInterface {
+        return $this->mailboxDeleteDraftAsyncWithHttpInfo(
+            $draft_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxDeleteDraftAsyncWithHttpInfo
+     *
+     * Delete a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_match Delete only if this is still the current draft. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxDeleteDraftAsyncWithHttpInfo(
+        string $draft_id,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDeleteDraft'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftDeleteResponse';
+        $request = $this->mailboxDeleteDraftRequest(
+            $draft_id,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxDeleteDraft'
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_match Delete only if this is still the current draft. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDeleteDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxDeleteDraftRequest(
+        string $draft_id,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDeleteDraft'][0]
+    ): Request {
+
+        // verify the required parameter 'draft_id' is set
+        if ($draft_id === null || (is_array($draft_id) && count($draft_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $draft_id when calling mailboxDeleteDraft'
+            );
+        }
+
+
+
+
+        $resourcePath = '/mailbox/drafts/{draftId}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_match !== null) {
+            $headerParams['If-Match'] = ObjectSerializer::toHeaderValue($if_match);
+        }
+
+        // path params
+        if ($draft_id !== null) {
+            $resourcePath = str_replace(
+                '{draftId}',
+                ObjectSerializer::toPathValue($draft_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'DELETE',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody
@@ -3545,6 +5048,955 @@ class MailboxAPIApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'DELETE',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxDownloadRawMessage
+     *
+     * Download the original message
+     *
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDownloadRawMessage'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \SplFileObject|\Sendmux\Mailbox\Model\ApiError|null
+     */
+    public function mailboxDownloadRawMessage(
+        string $message_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDownloadRawMessage'][0]
+    ): \SplFileObject|\Sendmux\Mailbox\Model\ApiError|null {
+        list($response) = $this->mailboxDownloadRawMessageWithHttpInfo(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxDownloadRawMessageWithHttpInfo
+     *
+     * Download the original message
+     *
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDownloadRawMessage'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \SplFileObject|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxDownloadRawMessageWithHttpInfo(
+        string $message_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDownloadRawMessage'][0]
+    ): array {
+        $request = $this->mailboxDownloadRawMessageRequest(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\SplFileObject',
+                        $request,
+                        $response,
+                    );
+                case 304:
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\SplFileObject',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\SplFileObject',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxDownloadRawMessageAsync
+     *
+     * Download the original message
+     *
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDownloadRawMessage'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxDownloadRawMessageAsync(
+        string $message_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDownloadRawMessage'][0]
+    ): PromiseInterface {
+        return $this->mailboxDownloadRawMessageAsyncWithHttpInfo(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxDownloadRawMessageAsyncWithHttpInfo
+     *
+     * Download the original message
+     *
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDownloadRawMessage'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxDownloadRawMessageAsyncWithHttpInfo(
+        string $message_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDownloadRawMessage'][0]
+    ): PromiseInterface {
+        $returnType = '\SplFileObject';
+        $request = $this->mailboxDownloadRawMessageRequest(
+            $message_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    if ($response->getStatusCode() === 304) {
+                        return [null, $response->getStatusCode(), $response->getHeaders()];
+                    }
+
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxDownloadRawMessage'
+     *
+     * @param  string $message_id message_id (required)
+     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxDownloadRawMessage'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxDownloadRawMessageRequest(
+        string $message_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxDownloadRawMessage'][0]
+    ): Request {
+
+        // verify the required parameter 'message_id' is set
+        if ($message_id === null || (is_array($message_id) && count($message_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $message_id when calling mailboxDownloadRawMessage'
+            );
+        }
+
+
+
+
+        $resourcePath = '/mailbox/messages/{message_id}/raw';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_none_match !== null) {
+            $headerParams['If-None-Match'] = ObjectSerializer::toHeaderValue($if_none_match);
+        }
+
+        // path params
+        if ($message_id !== null) {
+            $resourcePath = str_replace(
+                '{message_id}',
+                ObjectSerializer::toPathValue($message_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['message/rfc822', 'application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxGetAttachmentText
+     *
+     * Read attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetAttachmentText'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\ApiError|null
+     */
+    public function mailboxGetAttachmentText(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetAttachmentText'][0]
+    ): \Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\ApiError|null {
+        list($response) = $this->mailboxGetAttachmentTextWithHttpInfo(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxGetAttachmentTextWithHttpInfo
+     *
+     * Read attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetAttachmentText'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxGetAttachmentTextWithHttpInfo(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetAttachmentText'][0]
+    ): array {
+        $request = $this->mailboxGetAttachmentTextRequest(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $request,
+                        $response,
+                    );
+                case 202:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $request,
+                        $response,
+                    );
+                case 304:
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 202:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxGetAttachmentTextAsync
+     *
+     * Read attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetAttachmentText'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxGetAttachmentTextAsync(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetAttachmentText'][0]
+    ): PromiseInterface {
+        return $this->mailboxGetAttachmentTextAsyncWithHttpInfo(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxGetAttachmentTextAsyncWithHttpInfo
+     *
+     * Read attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetAttachmentText'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxGetAttachmentTextAsyncWithHttpInfo(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetAttachmentText'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse';
+        $request = $this->mailboxGetAttachmentTextRequest(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    if ($response->getStatusCode() === 304) {
+                        return [null, $response->getStatusCode(), $response->getHeaders()];
+                    }
+
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxGetAttachmentText'
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetAttachmentText'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxGetAttachmentTextRequest(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetAttachmentText'][0]
+    ): Request {
+
+        // verify the required parameter 'message_id' is set
+        if ($message_id === null || (is_array($message_id) && count($message_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $message_id when calling mailboxGetAttachmentText'
+            );
+        }
+
+        // verify the required parameter 'attachment_id' is set
+        if ($attachment_id === null || (is_array($attachment_id) && count($attachment_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $attachment_id when calling mailboxGetAttachmentText'
+            );
+        }
+
+        if ($max_bytes !== null && $max_bytes > 1048576) {
+            throw new InvalidArgumentException('invalid value for "$max_bytes" when calling MailboxAPIApi.mailboxGetAttachmentText, must be smaller than or equal to 1048576.');
+        }
+        if ($max_bytes !== null && $max_bytes < 1) {
+            throw new InvalidArgumentException('invalid value for "$max_bytes" when calling MailboxAPIApi.mailboxGetAttachmentText, must be bigger than or equal to 1.');
+        }
+
+
+
+
+        $resourcePath = '/mailbox/messages/{message_id}/attachments/{attachment_id}/text';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $max_bytes,
+            'max_bytes', // param base name
+            'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_none_match !== null) {
+            $headerParams['If-None-Match'] = ObjectSerializer::toHeaderValue($if_none_match);
+        }
+
+        // path params
+        if ($message_id !== null) {
+            $resourcePath = str_replace(
+                '{message_id}',
+                ObjectSerializer::toPathValue($message_id),
+                $resourcePath
+            );
+        }
+        // path params
+        if ($attachment_id !== null) {
+            $resourcePath = str_replace(
+                '{attachment_id}',
+                ObjectSerializer::toPathValue($attachment_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody
@@ -4381,6 +6833,493 @@ class MailboxAPIApi
             $headerParams['If-None-Match'] = ObjectSerializer::toHeaderValue($if_none_match);
         }
 
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxGetDraft
+     *
+     * Read a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_none_match Return 304 if this draft has not changed. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|null
+     */
+    public function mailboxGetDraft(
+        string $draft_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetDraft'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|null {
+        list($response) = $this->mailboxGetDraftWithHttpInfo(
+            $draft_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxGetDraftWithHttpInfo
+     *
+     * Read a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_none_match Return 304 if this draft has not changed. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxGetDraftWithHttpInfo(
+        string $draft_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetDraft'][0]
+    ): array {
+        $request = $this->mailboxGetDraftRequest(
+            $draft_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $request,
+                        $response,
+                    );
+                case 304:
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxGetDraftAsync
+     *
+     * Read a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_none_match Return 304 if this draft has not changed. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxGetDraftAsync(
+        string $draft_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetDraft'][0]
+    ): PromiseInterface {
+        return $this->mailboxGetDraftAsyncWithHttpInfo(
+            $draft_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxGetDraftAsyncWithHttpInfo
+     *
+     * Read a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_none_match Return 304 if this draft has not changed. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxGetDraftAsyncWithHttpInfo(
+        string $draft_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetDraft'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftResponse';
+        $request = $this->mailboxGetDraftRequest(
+            $draft_id,
+            $if_none_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    if ($response->getStatusCode() === 304) {
+                        return [null, $response->getStatusCode(), $response->getHeaders()];
+                    }
+
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxGetDraft'
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  string|null $if_none_match Return 304 if this draft has not changed. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxGetDraftRequest(
+        string $draft_id,
+        ?string $if_none_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxGetDraft'][0]
+    ): Request {
+
+        // verify the required parameter 'draft_id' is set
+        if ($draft_id === null || (is_array($draft_id) && count($draft_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $draft_id when calling mailboxGetDraft'
+            );
+        }
+
+
+
+
+        $resourcePath = '/mailbox/drafts/{draftId}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_none_match !== null) {
+            $headerParams['If-None-Match'] = ObjectSerializer::toHeaderValue($if_none_match);
+        }
+
+        // path params
+        if ($draft_id !== null) {
+            $resourcePath = str_replace(
+                '{draftId}',
+                ObjectSerializer::toPathValue($draft_id),
+                $resourcePath
+            );
+        }
 
 
         $headers = $this->headerSelector->selectHeaders(
@@ -9992,6 +12931,493 @@ class MailboxAPIApi
                 $resourcePath
             );
         }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxListDrafts
+     *
+     * List saved drafts
+     *
+     * @param  int|null $limit Page size; default 50, maximum 100. (optional)
+     * @param  string|null $cursor Cursor returned by the previous page. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListDrafts'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftListResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxListDrafts(
+        ?int $limit = null,
+        ?string $cursor = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxListDrafts'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftListResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxListDraftsWithHttpInfo(
+            $limit,
+            $cursor,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxListDraftsWithHttpInfo
+     *
+     * List saved drafts
+     *
+     * @param  int|null $limit Page size; default 50, maximum 100. (optional)
+     * @param  string|null $cursor Cursor returned by the previous page. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListDrafts'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftListResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxListDraftsWithHttpInfo(
+        ?int $limit = null,
+        ?string $cursor = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxListDrafts'][0]
+    ): array {
+        $request = $this->mailboxListDraftsRequest(
+            $limit,
+            $cursor,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftListResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftListResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftListResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxListDraftsAsync
+     *
+     * List saved drafts
+     *
+     * @param  int|null $limit Page size; default 50, maximum 100. (optional)
+     * @param  string|null $cursor Cursor returned by the previous page. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListDrafts'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxListDraftsAsync(
+        ?int $limit = null,
+        ?string $cursor = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxListDrafts'][0]
+    ): PromiseInterface {
+        return $this->mailboxListDraftsAsyncWithHttpInfo(
+            $limit,
+            $cursor,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxListDraftsAsyncWithHttpInfo
+     *
+     * List saved drafts
+     *
+     * @param  int|null $limit Page size; default 50, maximum 100. (optional)
+     * @param  string|null $cursor Cursor returned by the previous page. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListDrafts'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxListDraftsAsyncWithHttpInfo(
+        ?int $limit = null,
+        ?string $cursor = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxListDrafts'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftListResponse';
+        $request = $this->mailboxListDraftsRequest(
+            $limit,
+            $cursor,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxListDrafts'
+     *
+     * @param  int|null $limit Page size; default 50, maximum 100. (optional)
+     * @param  string|null $cursor Cursor returned by the previous page. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxListDrafts'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxListDraftsRequest(
+        ?int $limit = null,
+        ?string $cursor = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxListDrafts'][0]
+    ): Request {
+
+        if ($limit !== null && $limit > 100) {
+            throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListDrafts, must be smaller than or equal to 100.');
+        }
+        if ($limit !== null && $limit < 1) {
+            throw new InvalidArgumentException('invalid value for "$limit" when calling MailboxAPIApi.mailboxListDrafts, must be bigger than or equal to 1.');
+        }
+
+
+
+
+        $resourcePath = '/mailbox/drafts';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $limit,
+            'limit', // param base name
+            'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $cursor,
+            'cursor', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+
 
 
         $headers = $this->headerSelector->selectHeaders(
@@ -15707,6 +19133,499 @@ class MailboxAPIApi
     }
 
     /**
+     * Operation mailboxRequestAttachmentText
+     *
+     * Request attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxRequestAttachmentText'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxRequestAttachmentText(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxRequestAttachmentText'][0]
+    ): \Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxRequestAttachmentTextWithHttpInfo(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxRequestAttachmentTextWithHttpInfo
+     *
+     * Request attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxRequestAttachmentText'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxRequestAttachmentTextWithHttpInfo(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxRequestAttachmentText'][0]
+    ): array {
+        $request = $this->mailboxRequestAttachmentTextRequest(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $request,
+                        $response,
+                    );
+                case 202:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 202:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxRequestAttachmentTextAsync
+     *
+     * Request attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxRequestAttachmentText'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxRequestAttachmentTextAsync(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxRequestAttachmentText'][0]
+    ): PromiseInterface {
+        return $this->mailboxRequestAttachmentTextAsyncWithHttpInfo(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxRequestAttachmentTextAsyncWithHttpInfo
+     *
+     * Request attachment text
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxRequestAttachmentText'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxRequestAttachmentTextAsyncWithHttpInfo(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxRequestAttachmentText'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxAttachmentTextResponse';
+        $request = $this->mailboxRequestAttachmentTextRequest(
+            $message_id,
+            $attachment_id,
+            $max_bytes,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxRequestAttachmentText'
+     *
+     * @param  string $message_id Message ID in the selected mailbox. (required)
+     * @param  string $attachment_id Attachment ID from that message. (required)
+     * @param  int|null $max_bytes Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxRequestAttachmentText'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxRequestAttachmentTextRequest(
+        string $message_id,
+        string $attachment_id,
+        ?int $max_bytes = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxRequestAttachmentText'][0]
+    ): Request {
+
+        // verify the required parameter 'message_id' is set
+        if ($message_id === null || (is_array($message_id) && count($message_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $message_id when calling mailboxRequestAttachmentText'
+            );
+        }
+
+        // verify the required parameter 'attachment_id' is set
+        if ($attachment_id === null || (is_array($attachment_id) && count($attachment_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $attachment_id when calling mailboxRequestAttachmentText'
+            );
+        }
+
+        if ($max_bytes !== null && $max_bytes > 1048576) {
+            throw new InvalidArgumentException('invalid value for "$max_bytes" when calling MailboxAPIApi.mailboxRequestAttachmentText, must be smaller than or equal to 1048576.');
+        }
+        if ($max_bytes !== null && $max_bytes < 1) {
+            throw new InvalidArgumentException('invalid value for "$max_bytes" when calling MailboxAPIApi.mailboxRequestAttachmentText, must be bigger than or equal to 1.');
+        }
+
+
+
+        $resourcePath = '/mailbox/messages/{message_id}/attachments/{attachment_id}/text';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $max_bytes,
+            'max_bytes', // param base name
+            'integer', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+
+        // path params
+        if ($message_id !== null) {
+            $resourcePath = str_replace(
+                '{message_id}',
+                ObjectSerializer::toPathValue($message_id),
+                $resourcePath
+            );
+        }
+        // path params
+        if ($attachment_id !== null) {
+            $resourcePath = str_replace(
+                '{attachment_id}',
+                ObjectSerializer::toPathValue($attachment_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'POST',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation mailboxSearchMessageSnippets
      *
      * Get message search snippets
@@ -16505,6 +20424,515 @@ class MailboxAPIApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxSendDraft
+     *
+     * Send a saved draft revision
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft send_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxSendDraft(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxSendDraft'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxSendDraftWithHttpInfo(
+            $draft_id,
+            $send_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxSendDraftWithHttpInfo
+     *
+     * Send a saved draft revision
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft send_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxSendDraftWithHttpInfo(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxSendDraft'][0]
+    ): array {
+        $request = $this->mailboxSendDraftRequest(
+            $draft_id,
+            $send_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxSendDraftAsync
+     *
+     * Send a saved draft revision
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft send_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxSendDraftAsync(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxSendDraft'][0]
+    ): PromiseInterface {
+        return $this->mailboxSendDraftAsyncWithHttpInfo(
+            $draft_id,
+            $send_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxSendDraftAsyncWithHttpInfo
+     *
+     * Send a saved draft revision
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft send_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxSendDraftAsyncWithHttpInfo(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxSendDraft'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftResponse';
+        $request = $this->mailboxSendDraftRequest(
+            $draft_id,
+            $send_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxSendDraft'
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft send_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxSendDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxSendDraftRequest(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\SendMailboxDraft $send_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxSendDraft'][0]
+    ): Request {
+
+        // verify the required parameter 'draft_id' is set
+        if ($draft_id === null || (is_array($draft_id) && count($draft_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $draft_id when calling mailboxSendDraft'
+            );
+        }
+
+        // verify the required parameter 'send_mailbox_draft' is set
+        if ($send_mailbox_draft === null || (is_array($send_mailbox_draft) && count($send_mailbox_draft) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $send_mailbox_draft when calling mailboxSendDraft'
+            );
+        }
+
+
+
+
+        $resourcePath = '/mailbox/drafts/{draftId}/send';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_match !== null) {
+            $headerParams['If-Match'] = ObjectSerializer::toHeaderValue($if_match);
+        }
+
+        // path params
+        if ($draft_id !== null) {
+            $resourcePath = str_replace(
+                '{draftId}',
+                ObjectSerializer::toPathValue($draft_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($send_mailbox_draft)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($send_mailbox_draft));
+            } else {
+                $httpBody = $send_mailbox_draft;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'POST',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody
@@ -17402,6 +21830,515 @@ class MailboxAPIApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation mailboxUpdateDraft
+     *
+     * Edit a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft update_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is also required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError
+     */
+    public function mailboxUpdateDraft(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxUpdateDraft'][0]
+    ): \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError {
+        list($response) = $this->mailboxUpdateDraftWithHttpInfo(
+            $draft_id,
+            $update_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation mailboxUpdateDraftWithHttpInfo
+     *
+     * Edit a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft update_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is also required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateDraft'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Mailbox\Model\MailboxDraftResponse|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError|\Sendmux\Mailbox\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function mailboxUpdateDraftWithHttpInfo(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxUpdateDraft'][0]
+    ): array {
+        $request = $this->mailboxUpdateDraftRequest(
+            $draft_id,
+            $update_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\MailboxDraftResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Mailbox\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation mailboxUpdateDraftAsync
+     *
+     * Edit a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft update_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is also required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxUpdateDraftAsync(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxUpdateDraft'][0]
+    ): PromiseInterface {
+        return $this->mailboxUpdateDraftAsyncWithHttpInfo(
+            $draft_id,
+            $update_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation mailboxUpdateDraftAsyncWithHttpInfo
+     *
+     * Edit a saved draft
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft update_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is also required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function mailboxUpdateDraftAsyncWithHttpInfo(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxUpdateDraft'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Mailbox\Model\MailboxDraftResponse';
+        $request = $this->mailboxUpdateDraftRequest(
+            $draft_id,
+            $update_mailbox_draft,
+            $if_match,
+            $mailbox_id,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'mailboxUpdateDraft'
+     *
+     * @param  string $draft_id Stable draft ID. (required)
+     * @param  \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft update_mailbox_draft (required)
+     * @param  string|null $if_match Current draft ETag; expected_revision is also required. (optional)
+     * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxUpdateDraft'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function mailboxUpdateDraftRequest(
+        string $draft_id,
+        \Sendmux\Mailbox\Model\UpdateMailboxDraft $update_mailbox_draft,
+        ?string $if_match = null,
+        ?string $mailbox_id = null,
+        string $contentType = self::contentTypes['mailboxUpdateDraft'][0]
+    ): Request {
+
+        // verify the required parameter 'draft_id' is set
+        if ($draft_id === null || (is_array($draft_id) && count($draft_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $draft_id when calling mailboxUpdateDraft'
+            );
+        }
+
+        // verify the required parameter 'update_mailbox_draft' is set
+        if ($update_mailbox_draft === null || (is_array($update_mailbox_draft) && count($update_mailbox_draft) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $update_mailbox_draft when calling mailboxUpdateDraft'
+            );
+        }
+
+
+
+
+        $resourcePath = '/mailbox/drafts/{draftId}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $mailbox_id,
+            'mailbox_id', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            false // required
+        ) ?? []);
+
+        // header params
+        if ($if_match !== null) {
+            $headerParams['If-Match'] = ObjectSerializer::toHeaderValue($if_match);
+        }
+
+        // path params
+        if ($draft_id !== null) {
+            $resourcePath = str_replace(
+                '{draftId}',
+                ObjectSerializer::toPathValue($draft_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($update_mailbox_draft)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($update_mailbox_draft));
+            } else {
+                $httpBody = $update_mailbox_draft;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'PATCH',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody

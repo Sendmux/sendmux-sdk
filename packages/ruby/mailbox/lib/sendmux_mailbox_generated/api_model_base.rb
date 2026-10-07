@@ -78,6 +78,13 @@ module Sendmux::Mailbox::Generated
         {}.tap do |hash|
           value.each { |k, v| hash[k] = _to_hash(v) }
         end
+      elsif value.is_a?(Time)
+        if (value.subsec * 1_000_000_000).denominator != 1
+          raise ArgumentError, "Timestamps must use at most nanosecond precision"
+        end
+        value = value.getutc
+        precision = value.nsec.zero? ? 0 : 9 - value.nsec.to_s[/0*\z/].length
+        value.iso8601(precision)
       elsif value.respond_to? :to_hash
         value.to_hash
       else

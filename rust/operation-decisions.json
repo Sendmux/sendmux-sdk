@@ -1,6 +1,6 @@
 {
   "sources": {
-    "openapi-app.json": "719639bbca7830d3291aed3540d0fa62a4ed56adfc00273966c0a7bb0a9d1c7e",
+    "openapi-app.json": "90143520564077283dddf9bcc7d11d73083befd7873107138cf64fa4d1a24bcf",
     "openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e"
   },
   "operations": [
@@ -29,6 +29,14 @@
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
+      "operationId": "mailboxControlDraftSchedule",
+      "method": "PATCH",
+      "path": "/mailbox/drafts/{draftId}/schedule",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
       "operationId": "mailboxCountMessages",
       "method": "GET",
       "path": "/mailbox/messages/count",
@@ -45,9 +53,25 @@
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
+      "operationId": "mailboxCreateDraft",
+      "method": "POST",
+      "path": "/mailbox/drafts",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
       "operationId": "mailboxCreateFolder",
       "method": "POST",
       "path": "/mailbox/folders",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxDeleteDraft",
+      "method": "DELETE",
+      "path": "/mailbox/drafts/{draftId}",
       "publicMethods": [],
       "decision": "raw-json-only",
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
@@ -69,6 +93,22 @@
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
+      "operationId": "mailboxDownloadRawMessage",
+      "method": "GET",
+      "path": "/mailbox/messages/{message_id}/raw",
+      "publicMethods": [],
+      "decision": "unsupported-transport",
+      "reason": "Original message bytes require a binary response transport, which is not implemented."
+    },
+    {
+      "operationId": "mailboxGetAttachmentText",
+      "method": "GET",
+      "path": "/mailbox/messages/{message_id}/attachments/{attachment_id}/text",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
       "operationId": "mailboxGetChanges",
       "method": "GET",
       "path": "/mailbox/changes",
@@ -85,6 +125,14 @@
       ],
       "decision": "named-partial",
       "reason": "No conditional GET/ETag or 304 representation."
+    },
+    {
+      "operationId": "mailboxGetDraft",
+      "method": "GET",
+      "path": "/mailbox/drafts/{draftId}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
       "operationId": "mailboxGetFolder",
@@ -203,6 +251,14 @@
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
+      "operationId": "mailboxListDrafts",
+      "method": "GET",
+      "path": "/mailbox/drafts",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
       "operationId": "mailboxListFolders",
       "method": "GET",
       "path": "/mailbox/folders",
@@ -297,9 +353,25 @@
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
+      "operationId": "mailboxRequestAttachmentText",
+      "method": "POST",
+      "path": "/mailbox/messages/{message_id}/attachments/{attachment_id}/text",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
       "operationId": "mailboxSearchMessageSnippets",
       "method": "GET",
       "path": "/mailbox/messages/search-snippets",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxSendDraft",
+      "method": "POST",
+      "path": "/mailbox/drafts/{draftId}/send",
       "publicMethods": [],
       "decision": "raw-json-only",
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
@@ -321,6 +393,14 @@
       "publicMethods": [],
       "decision": "unsupported-transport",
       "reason": "Event-stream responses are not supported by the JSON transport."
+    },
+    {
+      "operationId": "mailboxUpdateDraft",
+      "method": "PATCH",
+      "path": "/mailbox/drafts/{draftId}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
       "operationId": "mailboxUpdateFolder",
@@ -557,9 +637,25 @@
       "reason": "No conditional GET/ETag or 304 representation."
     },
     {
+      "operationId": "managementGetMailboxCostUsage",
+      "method": "GET",
+      "path": "/mailboxes/{public_id}/usage",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
       "operationId": "managementGetMailboxFilters",
       "method": "GET",
       "path": "/mailboxes/{public_id}/filters",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "managementGetMailboxSendPolicy",
+      "method": "GET",
+      "path": "/mailbox-send-policies/{scope}/{public_id}",
       "publicMethods": [],
       "decision": "raw-json-only",
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
@@ -705,6 +801,14 @@
       ],
       "decision": "named-partial",
       "reason": "Cursor progression is supported; other optional limit/filter/selector inputs are not exposed."
+    },
+    {
+      "operationId": "managementReplaceMailboxSendPolicy",
+      "method": "PUT",
+      "path": "/mailbox-send-policies/{scope}/{public_id}",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
     },
     {
       "operationId": "managementRequestSendingAccountLimitIncrease",

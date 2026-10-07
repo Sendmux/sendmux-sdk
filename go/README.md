@@ -194,7 +194,7 @@ Use a bare REST access token with the operation's required scopes and mailbox ac
 
 ## Version 3 migration
 
-`sendmux.ai/go/v3` is a new major module. Version 2 (`sendmux.ai/go/v2`, last release `go/v2.0.0`) and version 1 (`sendmux.ai/go`, last release `go/v1.6.1`) keep working unchanged and are not retracted. Every type name, constant, constructor and method of v2.0.0 still compiles: the names the regenerated packages no longer emit are declared as deprecated aliases and shims in `mailbox/deprecated_aliases.go` and `management/deprecated_aliases.go`. Beyond the import path, only the two changes in steps 2 and 3 can stop existing code from compiling.
+`sendmux.ai/go/v3` is a new major module. Version 2 (`sendmux.ai/go/v2`, last release `go/v2.0.0`) and version 1 (`sendmux.ai/go`, last release `go/v1.6.1`) keep working unchanged and are not retracted. Every type name, constant, constructor and method of v2.0.0 still compiles in v3.0.0: the names the regenerated packages no longer emit are declared as deprecated aliases and shims in `mailbox/deprecated_aliases.go` and `management/deprecated_aliases.go`. Beyond the import path, the two changes in steps 2 and 3 can stop existing code from compiling in v3.0.0. The agent-email API update below adds a further response-type change.
 
 1. Require the v3 module and change every Sendmux import in the same commit, then run `go mod tidy` to drop the v2 requirement:
 
@@ -231,6 +231,10 @@ Use a bare REST access token with the operation's required scopes and mailbox ac
 4. **Verify.** `go build ./... && go vet ./...` on the updated module, then `go list -m sendmux.ai/go/v3` (prints `sendmux.ai/go/v3 v3.0.0`) and `go list -m all | grep sendmux.ai/go/` (no `sendmux.ai/go/v2` line). `staticcheck ./...` reports each remaining alias or shim use as deprecated (`SA1019`), which is the list left to move to the current names before the next major release.
 
 To roll back, stay on `sendmux.ai/go/v2` v2.0.0: restore the v2 module requirement, imports and lock or vendor state together.
+
+### Agent-email API update
+
+The updated mailbox and management clients use operation-specific error responses, including 404 and 503 responses. Replace type switches on `*ApiErrorHeaders` with the matching operation type: for `ManagementDeleteMailbox`, use `*management.ManagementDeleteMailboxNotFound` and `*management.ManagementDeleteMailboxServiceUnavailable`. Convert a matched response to `management.ApiErrorHeaders` to read its `Response` and `RetryAfter` fields. Apply the same change to other operations that return these wrappers; pass `headers.Response` and the HTTP status to `core.APIErrorFromResponse` for shared error handling.
 
 ### Coming from v1
 

@@ -3,16 +3,23 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { booleanGates } from "./live-e2e-contract.mjs";
+
+const fixtureEnv = {
+  ...process.env,
+  ...Object.fromEntries(booleanGates.map((name) => [name, ""])),
+  SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
+  SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
+  SENDMUX_STAGING_ROOT_API_KEY: "",
+  SENDMUX_STAGING_MAILBOX_API_KEY: "",
+  SENDMUX_LIVE_E2E_DRAFT_ID: "",
+  SENDMUX_LIVE_E2E_USAGE_START: "",
+  SENDMUX_LIVE_E2E_USAGE_END: "",
+};
 
 const result = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--plan", "--json"], {
   encoding: "utf8",
-  env: {
-    ...process.env,
-    SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
-    SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
-    SENDMUX_STAGING_ROOT_API_KEY: "",
-    SENDMUX_STAGING_MAILBOX_API_KEY: "",
-  },
+  env: fixtureEnv,
 });
 
 assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -20,15 +27,28 @@ assert.equal(result.status, 0, result.stderr || result.stdout);
 const plan = JSON.parse(result.stdout);
 assert.equal(plan.ok, true);
 assert.deepEqual(plan.adapters, ["typescript", "python", "go", "php", "ruby", "cli", "mcp"]);
-assert.equal(plan.summary.total, 106);
-assert.equal(plan.summary.executable, 57);
-assert.equal(plan.summary.gated, 49);
+assert.equal(plan.summary.total, 119);
+assert.equal(plan.summary.executable, 59);
+assert.equal(plan.summary.gated, 60);
 assert.equal(plan.summary.blocked, 0);
-assert.equal(plan.summary.gatedByRisk.mutation, 29);
-assert.equal(plan.summary.gatedByRisk.destructive, 8);
-assert.equal(plan.summary.gatedByRisk.binary, 8);
-assert.equal(plan.summary.gatedByRisk.send, 3);
+assert.equal(plan.summary.gatedByRisk.mutation, 32);
+assert.equal(plan.summary.gatedByRisk.destructive, 9);
+assert.equal(plan.summary.gatedByRisk.binary, 11);
+assert.equal(plan.summary.gatedByRisk.send, 5);
 assert.equal(plan.summary.gatedByRisk.stream, 1);
+assert.equal(plan.summary.gatedByRisk.read, 2);
+
+const matrix = readFileSync("docs/live-e2e-matrix.md", "utf8");
+assert.equal(
+  Number(matrix.match(/^- Default executable live operations: (\d+)\.$/m)?.[1]),
+  plan.summary.executable,
+  "Generated matrix must count environment-gated reads consistently with the default runner plan",
+);
+assert.equal(
+  Number(matrix.match(/^- Blocked behind safety gates: (\d+)\.$/m)?.[1]),
+  plan.summary.gated,
+  "Generated matrix safety-gated count must match the default runner plan",
+);
 
 const byOperation = new Map(plan.operations.map((operation) => [operation.operationId, operation]));
 const bySource = new Map(plan.sources.map((source) => [source.name, source]));
@@ -70,12 +90,8 @@ assert.deepEqual(bySource.get("managementWebhookDeliveryId")?.setupGates, [
 const unsafeResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--operation", "sendingSendEmail"], {
   encoding: "utf8",
   env: {
-    ...process.env,
+    ...fixtureEnv,
     SENDMUX_LIVE_E2E: "1",
-    SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
-    SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
-    SENDMUX_STAGING_ROOT_API_KEY: "",
-    SENDMUX_STAGING_MAILBOX_API_KEY: "",
   },
 });
 
@@ -85,12 +101,15 @@ assert.match(unsafeResult.stderr, /sendingSendEmail is gated/);
 const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--plan", "--json"], {
   encoding: "utf8",
   env: {
-    ...process.env,
+    ...fixtureEnv,
     SENDMUX_LIVE_E2E_BINARY: "1",
     SENDMUX_LIVE_E2E_MAILBOX_API_KEY: "",
     SENDMUX_LIVE_E2E_MUTATIONS: "1",
     SENDMUX_LIVE_E2E_ROOT_API_KEY: "",
     SENDMUX_LIVE_E2E_STREAM: "1",
+    SENDMUX_LIVE_E2E_DRAFT_ID: "draft_existing",
+    SENDMUX_LIVE_E2E_USAGE_START: "2026-10-01T00:00:00.000Z",
+    SENDMUX_LIVE_E2E_USAGE_END: "2026-10-02T00:00:00.000Z",
     SENDMUX_STAGING_MAILBOX_API_KEY: "",
     SENDMUX_STAGING_ROOT_API_KEY: "",
     SENDMUX_STAGING_SEND: "1",
@@ -99,8 +118,8 @@ const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--
 
 assert.equal(gatedResult.status, 0, gatedResult.stderr || gatedResult.stdout);
 const gatedPlan = JSON.parse(gatedResult.stdout);
-assert.equal(gatedPlan.summary.total, 106);
-assert.equal(gatedPlan.summary.executable, 106);
+assert.equal(gatedPlan.summary.total, 119);
+assert.equal(gatedPlan.summary.executable, 119);
 assert.equal(gatedPlan.summary.gated, 0);
 assert.equal(gatedPlan.summary.blocked, 0);
 
@@ -308,8 +327,12 @@ assert.match(
   /const fixtureTeardownTimeoutMs = 30_000;/,
   "live E2E runner must bound fixture teardown cleanup calls",
 );
-const safety = spawnSync(process.execPath, ["--test", "scripts/test-live-e2e-safety.mjs"], { encoding: "utf8" });
+const safety = spawnSync(process.execPath, ["--test", "scripts/test-live-e2e-safety.mjs"], {
+  encoding: "utf8",
+  env: fixtureEnv,
+});
 assert.equal(safety.status, 0, safety.stderr || safety.stdout);
+assert.match(safety.stdout, /^# tests [1-9]\d*$/m, "Safety subprocess must execute its tests");
 assert.match(
   runnerSource,
   /function fetchWithTimeout\(input, label, init = \{\}\)[\s\S]*?withAbortSignal\([\s\S]*?fetch\(input, \{ \.\.\.init, signal \}\)[\s\S]*?presignedFetchTimeoutMs/,

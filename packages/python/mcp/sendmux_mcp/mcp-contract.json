@@ -27,7 +27,7 @@
   ],
   "provenance": {
     "build_inputs": {
-      "pyproject.toml": "d89a322dee7c1aae2d96e32b7896c9a2f4d0741e01ac3620e24ae83c13e0eaa2",
+      "pyproject.toml": "f6ddf639c450805939964c024be15a841b991c0cad77d7095e21ae28820e8d15",
       "scripts/mcp-conformance-required-checks.json": "c82a24f9f893f69c45ab31949e4089f80836230e913d95ca7a05f5933cb788e4"
     },
     "certified_protocols": "scripts/mcp-conformance-required-checks.json",
@@ -44,16 +44,16 @@
       "cli.py": "ed2b48ed6ee9a081ac40a1e8c5c29d032bb356eaee1f0a31713092a0558f1539",
       "config.py": "28f9fe9f396d707562fb119a75f3a92a27db78ade735cf3bf2f5d3039c6583df",
       "contract.py": "8be5dcf207fd771774beddf433cad3734a9250284a26e57d9d3f607c670395c3",
-      "curation.py": "9cd5abde6e0fc8abf97bde91c05f8954fef925be2df841776eddf7997608bb20",
+      "curation.py": "ad6673917b3c40ed84a0800b0720f5eb64e843824c490dbcbbf39ece05fced76",
       "hosted.py": "6ed9af8290311fb7ce34dd52fe234d003b28069bd63ee0d78ecdfd8dcba084b8",
       "hosted_auth.py": "a85c5c2e10dff2a5b92cb3e3713a3c95c53d04f6ed0e647ca88a7f059e9a8e25",
       "hosted_proxy.py": "10c51845ef393fbb75749cc8b9cbaedc2f0c5e43f650805842dad3c84f538493",
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "719639bbca7830d3291aed3540d0fa62a4ed56adfc00273966c0a7bb0a9d1c7e",
+      "openapi/openapi-app.json": "90143520564077283dddf9bcc7d11d73083befd7873107138cf64fa4d1a24bcf",
       "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
-      "permissions.py": "fe8f3ec91814552098fe8fa5c052b2ab0c73aea0db6b338a47cc41adcb6b7119",
+      "permissions.py": "08aeb04133a881d52545288a4a99e10aa68ac2cceaba6b68e1273c76a18f1dbd",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
       "retry.py": "e1454a54ffe1b5b558c820b6e9cff2d2c0f8c1ea501f63051dc9716bf1f67191",
       "security.py": "45f59d632995254dc8dc5acec41b6f0f5c583a7db3f9c50a143a8c48dffa4016",
@@ -427,6 +427,13 @@
                                         "body": {
                                           "additionalProperties": false,
                                           "properties": {
+                                            "cleaned_html": {
+                                              "description": "HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.",
+                                              "type": [
+                                                "string",
+                                                "null"
+                                              ]
+                                            },
                                             "extracted_links": {
                                               "items": {
                                                 "type": "string"
@@ -447,6 +454,35 @@
                                               "description": "HTML body when requested. Returned as a JSON string and not as rendered content.",
                                               "type": [
                                                 "string",
+                                                "null"
+                                              ]
+                                            },
+                                            "html_cleaning": {
+                                              "additionalProperties": false,
+                                              "description": "HTML cleaning outcome; null when HTML is absent or not requested. Cleaning accepts at most 20,000 elements and 128 nested elements. Unrecognised quote and signature formats remain unchanged.",
+                                              "properties": {
+                                                "quotes_stripped": {
+                                                  "type": "boolean"
+                                                },
+                                                "signature_stripped": {
+                                                  "type": "boolean"
+                                                },
+                                                "status": {
+                                                  "enum": [
+                                                    "complete",
+                                                    "source_truncated",
+                                                    "limit_exceeded"
+                                                  ],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "status",
+                                                "signature_stripped",
+                                                "quotes_stripped"
+                                              ],
+                                              "type": [
+                                                "object",
                                                 "null"
                                               ]
                                             },
@@ -476,6 +512,8 @@
                                             "format",
                                             "text",
                                             "html",
+                                            "cleaned_html",
+                                            "html_cleaning",
                                             "is_truncated",
                                             "truncated_at_chars",
                                             "signature_stripped",
@@ -1417,6 +1455,421 @@
             "destructive_hint": false,
             "idempotent_hint": true,
             "open_world_hint": true,
+            "read_only_hint": false
+          },
+          "description": "Reschedule or cancel a saved draft send only when the user asks. Requires mailbox.read and email.send. Pass the current expected_revision and expected_schedule_version; scheduled_for=null cancels. Cancellation fails once sending has begun.",
+          "input_schema": {
+            "properties": {
+              "If-Match": {
+                "description": "Current draft ETag; both revision and schedule version remain required.",
+                "type": "string"
+              },
+              "draftId": {
+                "description": "Stable draft ID.",
+                "type": "string"
+              },
+              "expected_revision": {
+                "description": "Exact saved content revision.",
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              "expected_schedule_version": {
+                "description": "Current schedule version; stale requests return conflict. Repeating the last identical request returns its current result.",
+                "maximum": 2147483647.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              },
+              "scheduled_for": {
+                "description": "New future time within 30 days, or null to cancel and make the draft editable. Cancellation fails once sending has begun.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "draftId",
+              "expected_revision",
+              "expected_schedule_version",
+              "scheduled_for"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_control_draft_schedule",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachments": {
+                            "description": "Attachments and inline images.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "blob_id": {
+                                  "description": "An attachment uploaded to this mailbox.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_id": {
+                                  "description": "Content ID referenced by an inline image.",
+                                  "maxLength": 998,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_type": {
+                                  "description": "Attachment media type.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "disposition": {
+                                  "description": "Whether the attachment appears within the message.",
+                                  "enum": [
+                                    "attachment",
+                                    "inline"
+                                  ],
+                                  "type": "string"
+                                },
+                                "filename": {
+                                  "description": "Attachment filename.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "size_bytes": {
+                                  "description": "Attachment size in bytes; verified when saved.",
+                                  "maximum": 7500000.0,
+                                  "minimum": 0.0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "blob_id",
+                                "filename",
+                                "content_type",
+                                "size_bytes"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 10,
+                            "type": "array"
+                          },
+                          "bcc": {
+                            "description": "Hidden copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "cc": {
+                            "description": "Visible copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "custom_headers": {
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "description": "Custom X- headers preserved with this revision.",
+                            "type": "object"
+                          },
+                          "failure_code": {
+                            "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+                            "enum": [
+                              "preparation_failed",
+                              "authorisation_revoked",
+                              "send_rejected"
+                            ],
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "from": {
+                            "additionalProperties": false,
+                            "description": "Authorised sender; defaults to this inbox.",
+                            "properties": {
+                              "email": {
+                                "description": "Email address.",
+                                "format": "email",
+                                "maxLength": 254,
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "Display name.",
+                                "maxLength": 255,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "email"
+                            ],
+                            "type": "object"
+                          },
+                          "html_body": {
+                            "description": "HTML body, preserved when saved.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Stable draft ID.",
+                            "type": "string"
+                          },
+                          "in_reply_to": {
+                            "description": "Snapshotted parent message identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "message_id": {
+                            "description": "Saved message ID; absent until saving finishes.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "references": {
+                            "description": "Snapshotted conversation identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "reply_to": {
+                            "description": "Authorised reply addresses; defaults to this inbox.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "reply_to_message_id": {
+                            "description": "Original message this draft replies to.",
+                            "type": "string"
+                          },
+                          "revision": {
+                            "description": "Current draft revision.",
+                            "exclusiveMinimum": 0.0,
+                            "type": "integer"
+                          },
+                          "schedule_version": {
+                            "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+                            "minimum": 0.0,
+                            "type": "integer"
+                          },
+                          "scheduled_for": {
+                            "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+                            "format": "date-time",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "description": "Saving or sending state.",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "scheduled",
+                              "sending",
+                              "queued",
+                              "uncertain",
+                              "failed",
+                              "deleted"
+                            ],
+                            "type": "string"
+                          },
+                          "subject": {
+                            "description": "Subject; may be empty.",
+                            "maxLength": 998,
+                            "type": "string"
+                          },
+                          "text_body": {
+                            "description": "Plain-text body.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "to": {
+                            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revision",
+                          "status",
+                          "message_id",
+                          "scheduled_for",
+                          "schedule_version",
+                          "failure_code",
+                          "in_reply_to",
+                          "references"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Change Draft Schedule"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
             "read_only_hint": true
           },
           "description": "Use this to count messages matching mailbox filters without listing every result. Follow with mailbox_list_messages only when examples are needed.",
@@ -1588,6 +2041,749 @@
             "x-fastmcp-wrap-result": true
           },
           "title": "Count Messages"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": false,
+            "open_world_hint": true,
+            "read_only_hint": false
+          },
+          "description": "Save a message for review without sending it. Requires mailbox.read and mailbox.drafts.write. Use source.action for reply, reply_all, forward or adopt; explicit content overrides prepared defaults. Adoption requires Idempotency-Key; reuse it when retrying the same create request.",
+          "input_schema": {
+            "properties": {
+              "Idempotency-Key": {
+                "description": "Reuse this key when retrying the same create request.",
+                "maxLength": 255,
+                "type": "string"
+              },
+              "attachments": {
+                "description": "Attachments and inline images.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "blob_id": {
+                      "description": "An attachment uploaded to this mailbox.",
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "content_id": {
+                      "description": "Content ID referenced by an inline image.",
+                      "maxLength": 998,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "description": "Attachment media type.",
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "disposition": {
+                      "description": "Whether the attachment appears within the message.",
+                      "enum": [
+                        "attachment",
+                        "inline"
+                      ],
+                      "type": "string"
+                    },
+                    "filename": {
+                      "description": "Attachment filename.",
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "size_bytes": {
+                      "description": "Attachment size in bytes; verified when saved.",
+                      "maximum": 7500000.0,
+                      "minimum": 0.0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "blob_id",
+                    "filename",
+                    "content_type",
+                    "size_bytes"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              "bcc": {
+                "description": "Hidden copied recipients.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              "cc": {
+                "description": "Visible copied recipients.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              "custom_headers": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom X- headers preserved with this revision.",
+                "type": "object"
+              },
+              "from": {
+                "additionalProperties": false,
+                "description": "Authorised sender; defaults to this inbox.",
+                "properties": {
+                  "email": {
+                    "description": "Email address.",
+                    "format": "email",
+                    "maxLength": 254,
+                    "type": "string"
+                  },
+                  "name": {
+                    "description": "Display name.",
+                    "maxLength": 255,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "type": "object"
+              },
+              "html_body": {
+                "description": "HTML body, preserved when saved.",
+                "maxLength": 1000000,
+                "type": "string"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              },
+              "reply_to": {
+                "description": "Authorised reply addresses; defaults to this inbox.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              "reply_to_message_id": {
+                "description": "Message in this inbox to reply to; thread headers are snapshotted.",
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              "source": {
+                "additionalProperties": false,
+                "description": "Source for this draft. Adoption requires Idempotency-Key. Explicit content fields override prepared defaults.",
+                "properties": {
+                  "action": {
+                    "description": "Prepare a reply, reply-all, forward or adopt an existing draft. Source content and attachments are saved with the draft.",
+                    "enum": [
+                      "reply",
+                      "reply_all",
+                      "forward",
+                      "adopt"
+                    ],
+                    "type": "string"
+                  },
+                  "message_id": {
+                    "description": "Source message in this inbox.",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "message_id",
+                  "action"
+                ],
+                "type": "object"
+              },
+              "subject": {
+                "description": "Subject; may be empty.",
+                "maxLength": 998,
+                "type": "string"
+              },
+              "text_body": {
+                "description": "Plain-text body.",
+                "maxLength": 1000000,
+                "type": "string"
+              },
+              "to": {
+                "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "type": "array"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "name": "mailbox_create_draft",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachments": {
+                            "description": "Attachments and inline images.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "blob_id": {
+                                  "description": "An attachment uploaded to this mailbox.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_id": {
+                                  "description": "Content ID referenced by an inline image.",
+                                  "maxLength": 998,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_type": {
+                                  "description": "Attachment media type.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "disposition": {
+                                  "description": "Whether the attachment appears within the message.",
+                                  "enum": [
+                                    "attachment",
+                                    "inline"
+                                  ],
+                                  "type": "string"
+                                },
+                                "filename": {
+                                  "description": "Attachment filename.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "size_bytes": {
+                                  "description": "Attachment size in bytes; verified when saved.",
+                                  "maximum": 7500000.0,
+                                  "minimum": 0.0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "blob_id",
+                                "filename",
+                                "content_type",
+                                "size_bytes"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 10,
+                            "type": "array"
+                          },
+                          "bcc": {
+                            "description": "Hidden copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "cc": {
+                            "description": "Visible copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "custom_headers": {
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "description": "Custom X- headers preserved with this revision.",
+                            "type": "object"
+                          },
+                          "failure_code": {
+                            "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+                            "enum": [
+                              "preparation_failed",
+                              "authorisation_revoked",
+                              "send_rejected"
+                            ],
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "from": {
+                            "additionalProperties": false,
+                            "description": "Authorised sender; defaults to this inbox.",
+                            "properties": {
+                              "email": {
+                                "description": "Email address.",
+                                "format": "email",
+                                "maxLength": 254,
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "Display name.",
+                                "maxLength": 255,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "email"
+                            ],
+                            "type": "object"
+                          },
+                          "html_body": {
+                            "description": "HTML body, preserved when saved.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Stable draft ID.",
+                            "type": "string"
+                          },
+                          "in_reply_to": {
+                            "description": "Snapshotted parent message identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "message_id": {
+                            "description": "Saved message ID; absent until saving finishes.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "references": {
+                            "description": "Snapshotted conversation identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "reply_to": {
+                            "description": "Authorised reply addresses; defaults to this inbox.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "reply_to_message_id": {
+                            "description": "Original message this draft replies to.",
+                            "type": "string"
+                          },
+                          "revision": {
+                            "description": "Current draft revision.",
+                            "exclusiveMinimum": 0.0,
+                            "type": "integer"
+                          },
+                          "schedule_version": {
+                            "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+                            "minimum": 0.0,
+                            "type": "integer"
+                          },
+                          "scheduled_for": {
+                            "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+                            "format": "date-time",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "description": "Saving or sending state.",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "scheduled",
+                              "sending",
+                              "queued",
+                              "uncertain",
+                              "failed",
+                              "deleted"
+                            ],
+                            "type": "string"
+                          },
+                          "subject": {
+                            "description": "Subject; may be empty.",
+                            "maxLength": 998,
+                            "type": "string"
+                          },
+                          "text_body": {
+                            "description": "Plain-text body.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "to": {
+                            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revision",
+                          "status",
+                          "message_id",
+                          "scheduled_for",
+                          "schedule_version",
+                          "failure_code",
+                          "in_reply_to",
+                          "references"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Create Saved Draft"
+        },
+        {
+          "annotations": {
+            "destructive_hint": true,
+            "idempotent_hint": false,
+            "open_world_hint": true,
+            "read_only_hint": false
+          },
+          "description": "Delete a saved draft only when the user asks. Requires mailbox.read and mailbox.drafts.write. Deletion finishes in the background; a send already in progress cannot be deleted.",
+          "input_schema": {
+            "properties": {
+              "If-Match": {
+                "description": "Delete only if this is still the current draft.",
+                "type": "string"
+              },
+              "draftId": {
+                "description": "Stable draft ID.",
+                "type": "string"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "draftId"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_delete_draft",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "deleted": {
+                            "enum": [
+                              true
+                            ],
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "deleted",
+                          "id"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftDeleteResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Delete Saved Draft"
         },
         {
           "annotations": {
@@ -1782,6 +2978,180 @@
             "type": "object"
           },
           "title": "Get Attachment Metadata"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
+            "read_only_hint": true
+          },
+          "description": "Read or poll a previously requested attachment extraction. Requires mailbox.read. This does not start conversion; cache expiry or source removal returns not_found. Check status and outcome before using text.",
+          "input_schema": {
+            "properties": {
+              "If-None-Match": {
+                "description": "Return 304 when the authorised response is unchanged.",
+                "type": "string"
+              },
+              "attachment_id": {
+                "description": "Attachment ID from that message.",
+                "type": "string"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              },
+              "max_bytes": {
+                "description": "Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.",
+                "maximum": 1048576.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              "message_id": {
+                "description": "Message ID in the selected mailbox.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "message_id",
+              "attachment_id"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_get_attachment_text",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "expires_at": {
+                            "description": "Cache expiry. A new POST is needed after expiry.",
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "format": {
+                            "description": "Extracted text format.",
+                            "enum": [
+                              "markdown"
+                            ],
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Extraction ID.",
+                            "example": "ext_example",
+                            "type": "string"
+                          },
+                          "outcome": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "ready",
+                                  "unsupported",
+                                  "encrypted",
+                                  "malformed",
+                                  "ocr_required",
+                                  "resource_limit",
+                                  "source_unavailable",
+                                  "failed"
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Null while pending or running. Only ready contains extracted text; other outcomes contain an empty string."
+                          },
+                          "status": {
+                            "description": "Poll until complete to read the outcome.",
+                            "enum": [
+                              "pending",
+                              "running",
+                              "complete"
+                            ],
+                            "type": "string"
+                          },
+                          "text": {
+                            "description": "Markdown text, or null until complete. Limited to max_bytes in UTF-8.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "truncated": {
+                            "description": "True when conversion or the requested output bound omitted text.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "status",
+                          "outcome",
+                          "text",
+                          "format",
+                          "truncated",
+                          "expires_at"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxAttachmentTextResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Read Attachment Text"
         },
         {
           "annotations": {
@@ -2512,6 +3882,399 @@
             "x-fastmcp-wrap-result": true
           },
           "title": "Get Mailbox Connection"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
+            "read_only_hint": true
+          },
+          "description": "Read a saved draft and its current revision before editing or sending. Requires mailbox.read. Keep the revision and schedule version for later changes.",
+          "input_schema": {
+            "properties": {
+              "If-None-Match": {
+                "description": "Return 304 if this draft has not changed.",
+                "type": "string"
+              },
+              "draftId": {
+                "description": "Stable draft ID.",
+                "type": "string"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "draftId"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_get_draft",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachments": {
+                            "description": "Attachments and inline images.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "blob_id": {
+                                  "description": "An attachment uploaded to this mailbox.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_id": {
+                                  "description": "Content ID referenced by an inline image.",
+                                  "maxLength": 998,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_type": {
+                                  "description": "Attachment media type.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "disposition": {
+                                  "description": "Whether the attachment appears within the message.",
+                                  "enum": [
+                                    "attachment",
+                                    "inline"
+                                  ],
+                                  "type": "string"
+                                },
+                                "filename": {
+                                  "description": "Attachment filename.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "size_bytes": {
+                                  "description": "Attachment size in bytes; verified when saved.",
+                                  "maximum": 7500000.0,
+                                  "minimum": 0.0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "blob_id",
+                                "filename",
+                                "content_type",
+                                "size_bytes"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 10,
+                            "type": "array"
+                          },
+                          "bcc": {
+                            "description": "Hidden copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "cc": {
+                            "description": "Visible copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "custom_headers": {
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "description": "Custom X- headers preserved with this revision.",
+                            "type": "object"
+                          },
+                          "failure_code": {
+                            "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+                            "enum": [
+                              "preparation_failed",
+                              "authorisation_revoked",
+                              "send_rejected"
+                            ],
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "from": {
+                            "additionalProperties": false,
+                            "description": "Authorised sender; defaults to this inbox.",
+                            "properties": {
+                              "email": {
+                                "description": "Email address.",
+                                "format": "email",
+                                "maxLength": 254,
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "Display name.",
+                                "maxLength": 255,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "email"
+                            ],
+                            "type": "object"
+                          },
+                          "html_body": {
+                            "description": "HTML body, preserved when saved.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Stable draft ID.",
+                            "type": "string"
+                          },
+                          "in_reply_to": {
+                            "description": "Snapshotted parent message identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "message_id": {
+                            "description": "Saved message ID; absent until saving finishes.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "references": {
+                            "description": "Snapshotted conversation identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "reply_to": {
+                            "description": "Authorised reply addresses; defaults to this inbox.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "reply_to_message_id": {
+                            "description": "Original message this draft replies to.",
+                            "type": "string"
+                          },
+                          "revision": {
+                            "description": "Current draft revision.",
+                            "exclusiveMinimum": 0.0,
+                            "type": "integer"
+                          },
+                          "schedule_version": {
+                            "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+                            "minimum": 0.0,
+                            "type": "integer"
+                          },
+                          "scheduled_for": {
+                            "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+                            "format": "date-time",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "description": "Saving or sending state.",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "scheduled",
+                              "sending",
+                              "queued",
+                              "uncertain",
+                              "failed",
+                              "deleted"
+                            ],
+                            "type": "string"
+                          },
+                          "subject": {
+                            "description": "Subject; may be empty.",
+                            "maxLength": 998,
+                            "type": "string"
+                          },
+                          "text_body": {
+                            "description": "Plain-text body.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "to": {
+                            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revision",
+                          "status",
+                          "message_id",
+                          "scheduled_for",
+                          "schedule_version",
+                          "failure_code",
+                          "in_reply_to",
+                          "references"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Read Saved Draft"
         },
         {
           "annotations": {
@@ -4721,6 +6484,13 @@
                           "body": {
                             "additionalProperties": false,
                             "properties": {
+                              "cleaned_html": {
+                                "description": "HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
                               "extracted_links": {
                                 "items": {
                                   "type": "string"
@@ -4741,6 +6511,35 @@
                                 "description": "HTML body when requested. Returned as a JSON string and not as rendered content.",
                                 "type": [
                                   "string",
+                                  "null"
+                                ]
+                              },
+                              "html_cleaning": {
+                                "additionalProperties": false,
+                                "description": "HTML cleaning outcome; null when HTML is absent or not requested. Cleaning accepts at most 20,000 elements and 128 nested elements. Unrecognised quote and signature formats remain unchanged.",
+                                "properties": {
+                                  "quotes_stripped": {
+                                    "type": "boolean"
+                                  },
+                                  "signature_stripped": {
+                                    "type": "boolean"
+                                  },
+                                  "status": {
+                                    "enum": [
+                                      "complete",
+                                      "source_truncated",
+                                      "limit_exceeded"
+                                    ],
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "status",
+                                  "signature_stripped",
+                                  "quotes_stripped"
+                                ],
+                                "type": [
+                                  "object",
                                   "null"
                                 ]
                               },
@@ -4770,6 +6569,8 @@
                               "format",
                               "text",
                               "html",
+                              "cleaned_html",
+                              "html_cleaning",
                               "is_truncated",
                               "truncated_at_chars",
                               "signature_stripped",
@@ -5122,6 +6923,418 @@
             "x-fastmcp-wrap-result": true
           },
           "title": "Read Message Content"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
+            "read_only_hint": true
+          },
+          "description": "List saved drafts in the selected inbox, newest first. Requires mailbox.read. Use a small limit and continue with the returned cursor.",
+          "input_schema": {
+            "properties": {
+              "cursor": {
+                "description": "Cursor returned by the previous page.",
+                "type": "string"
+              },
+              "limit": {
+                "description": "Page size; default 50, maximum 100.",
+                "maximum": 100.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "name": "mailbox_list_drafts",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "attachments": {
+                              "description": "Attachments and inline images.",
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "blob_id": {
+                                    "description": "An attachment uploaded to this mailbox.",
+                                    "maxLength": 255,
+                                    "minLength": 1,
+                                    "type": "string"
+                                  },
+                                  "content_id": {
+                                    "description": "Content ID referenced by an inline image.",
+                                    "maxLength": 998,
+                                    "minLength": 1,
+                                    "type": "string"
+                                  },
+                                  "content_type": {
+                                    "description": "Attachment media type.",
+                                    "maxLength": 255,
+                                    "minLength": 1,
+                                    "type": "string"
+                                  },
+                                  "disposition": {
+                                    "description": "Whether the attachment appears within the message.",
+                                    "enum": [
+                                      "attachment",
+                                      "inline"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "filename": {
+                                    "description": "Attachment filename.",
+                                    "maxLength": 255,
+                                    "minLength": 1,
+                                    "type": "string"
+                                  },
+                                  "size_bytes": {
+                                    "description": "Attachment size in bytes; verified when saved.",
+                                    "maximum": 7500000.0,
+                                    "minimum": 0.0,
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "blob_id",
+                                  "filename",
+                                  "content_type",
+                                  "size_bytes"
+                                ],
+                                "type": "object"
+                              },
+                              "maxItems": 10,
+                              "type": "array"
+                            },
+                            "bcc": {
+                              "description": "Hidden copied recipients.",
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "email": {
+                                    "description": "Email address.",
+                                    "format": "email",
+                                    "maxLength": 254,
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "description": "Display name.",
+                                    "maxLength": 255,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "email"
+                                ],
+                                "type": "object"
+                              },
+                              "maxItems": 50,
+                              "type": "array"
+                            },
+                            "cc": {
+                              "description": "Visible copied recipients.",
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "email": {
+                                    "description": "Email address.",
+                                    "format": "email",
+                                    "maxLength": 254,
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "description": "Display name.",
+                                    "maxLength": 255,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "email"
+                                ],
+                                "type": "object"
+                              },
+                              "maxItems": 50,
+                              "type": "array"
+                            },
+                            "custom_headers": {
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "description": "Custom X- headers preserved with this revision.",
+                              "type": "object"
+                            },
+                            "failure_code": {
+                              "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+                              "enum": [
+                                "preparation_failed",
+                                "authorisation_revoked",
+                                "send_rejected"
+                              ],
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "from": {
+                              "additionalProperties": false,
+                              "description": "Authorised sender; defaults to this inbox.",
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "html_body": {
+                              "description": "HTML body, preserved when saved.",
+                              "maxLength": 1000000,
+                              "type": "string"
+                            },
+                            "id": {
+                              "description": "Stable draft ID.",
+                              "type": "string"
+                            },
+                            "in_reply_to": {
+                              "description": "Snapshotted parent message identifiers.",
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "message_id": {
+                              "description": "Saved message ID; absent until saving finishes.",
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "references": {
+                              "description": "Snapshotted conversation identifiers.",
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "reply_to": {
+                              "description": "Authorised reply addresses; defaults to this inbox.",
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "email": {
+                                    "description": "Email address.",
+                                    "format": "email",
+                                    "maxLength": 254,
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "description": "Display name.",
+                                    "maxLength": 255,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "email"
+                                ],
+                                "type": "object"
+                              },
+                              "maxItems": 20,
+                              "type": "array"
+                            },
+                            "reply_to_message_id": {
+                              "description": "Original message this draft replies to.",
+                              "type": "string"
+                            },
+                            "revision": {
+                              "description": "Current draft revision.",
+                              "exclusiveMinimum": 0.0,
+                              "type": "integer"
+                            },
+                            "schedule_version": {
+                              "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+                              "minimum": 0.0,
+                              "type": "integer"
+                            },
+                            "scheduled_for": {
+                              "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+                              "format": "date-time",
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "status": {
+                              "description": "Saving or sending state.",
+                              "enum": [
+                                "preparing",
+                                "ready",
+                                "scheduled",
+                                "sending",
+                                "queued",
+                                "uncertain",
+                                "failed",
+                                "deleted"
+                              ],
+                              "type": "string"
+                            },
+                            "subject": {
+                              "description": "Subject; may be empty.",
+                              "maxLength": 998,
+                              "type": "string"
+                            },
+                            "text_body": {
+                              "description": "Plain-text body.",
+                              "maxLength": 1000000,
+                              "type": "string"
+                            },
+                            "to": {
+                              "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "email": {
+                                    "description": "Email address.",
+                                    "format": "email",
+                                    "maxLength": 254,
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "description": "Display name.",
+                                    "maxLength": 255,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "email"
+                                ],
+                                "type": "object"
+                              },
+                              "maxItems": 50,
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "revision",
+                            "status",
+                            "message_id",
+                            "scheduled_for",
+                            "schedule_version",
+                            "failure_code",
+                            "in_reply_to",
+                            "references"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      },
+                      "pagination": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "has_more": {
+                            "type": "boolean"
+                          },
+                          "next_cursor": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "has_more"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data",
+                      "pagination"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftListResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "List Saved Drafts"
         },
         {
           "annotations": {
@@ -7383,6 +9596,176 @@
             "destructive_hint": false,
             "idempotent_hint": true,
             "open_world_hint": true,
+            "read_only_hint": false
+          },
+          "description": "Extract readable text from an attachment up to 7500000 bytes at no extra charge. Requires mailbox.read. Repeated requests reuse the current extraction for 24 hours. OCR is unavailable; check status and outcome, and use the original download if extraction cannot complete.",
+          "input_schema": {
+            "properties": {
+              "attachment_id": {
+                "description": "Attachment ID from that message.",
+                "type": "string"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              },
+              "max_bytes": {
+                "description": "Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.",
+                "maximum": 1048576.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              "message_id": {
+                "description": "Message ID in the selected mailbox.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "message_id",
+              "attachment_id"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_request_attachment_text",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "expires_at": {
+                            "description": "Cache expiry. A new POST is needed after expiry.",
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "format": {
+                            "description": "Extracted text format.",
+                            "enum": [
+                              "markdown"
+                            ],
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Extraction ID.",
+                            "example": "ext_example",
+                            "type": "string"
+                          },
+                          "outcome": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "ready",
+                                  "unsupported",
+                                  "encrypted",
+                                  "malformed",
+                                  "ocr_required",
+                                  "resource_limit",
+                                  "source_unavailable",
+                                  "failed"
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Null while pending or running. Only ready contains extracted text; other outcomes contain an empty string."
+                          },
+                          "status": {
+                            "description": "Poll until complete to read the outcome.",
+                            "enum": [
+                              "pending",
+                              "running",
+                              "complete"
+                            ],
+                            "type": "string"
+                          },
+                          "text": {
+                            "description": "Markdown text, or null until complete. Limited to max_bytes in UTF-8.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "truncated": {
+                            "description": "True when conversion or the requested output bound omitted text.",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "status",
+                          "outcome",
+                          "text",
+                          "format",
+                          "truncated",
+                          "expires_at"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxAttachmentTextResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Request Attachment Text"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
             "read_only_hint": true
           },
           "description": "Use this to search message snippets by query text. Narrow with folder_id, keyword/not_keyword, dates, sender/recipient, unread state, or has_attachment; use returned message IDs with a read tool before making content-specific claims.",
@@ -7605,6 +9988,416 @@
             "open_world_hint": true,
             "read_only_hint": false
           },
+          "description": "Send only the saved revision the user approved. Requires mailbox.read and email.send. Pass expected_revision; to schedule within 30 days also pass scheduled_for and expected_schedule_version. After cancelling a schedule, include the current schedule version.",
+          "input_schema": {
+            "properties": {
+              "If-Match": {
+                "description": "Current draft ETag; expected_revision is required.",
+                "type": "string"
+              },
+              "draftId": {
+                "description": "Stable draft ID.",
+                "type": "string"
+              },
+              "expected_revision": {
+                "description": "Exact saved revision to send. A stale revision returns conflict.",
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              "expected_schedule_version": {
+                "description": "Current schedule version. Required for scheduling and after cancelling a schedule.",
+                "maximum": 2147483647.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              },
+              "scheduled_for": {
+                "description": "Send no earlier than this future time, within 30 days. Include a timezone and at most millisecond precision. Omit to send now.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "draftId",
+              "expected_revision"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_send_draft",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachments": {
+                            "description": "Attachments and inline images.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "blob_id": {
+                                  "description": "An attachment uploaded to this mailbox.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_id": {
+                                  "description": "Content ID referenced by an inline image.",
+                                  "maxLength": 998,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_type": {
+                                  "description": "Attachment media type.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "disposition": {
+                                  "description": "Whether the attachment appears within the message.",
+                                  "enum": [
+                                    "attachment",
+                                    "inline"
+                                  ],
+                                  "type": "string"
+                                },
+                                "filename": {
+                                  "description": "Attachment filename.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "size_bytes": {
+                                  "description": "Attachment size in bytes; verified when saved.",
+                                  "maximum": 7500000.0,
+                                  "minimum": 0.0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "blob_id",
+                                "filename",
+                                "content_type",
+                                "size_bytes"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 10,
+                            "type": "array"
+                          },
+                          "bcc": {
+                            "description": "Hidden copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "cc": {
+                            "description": "Visible copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "custom_headers": {
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "description": "Custom X- headers preserved with this revision.",
+                            "type": "object"
+                          },
+                          "failure_code": {
+                            "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+                            "enum": [
+                              "preparation_failed",
+                              "authorisation_revoked",
+                              "send_rejected"
+                            ],
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "from": {
+                            "additionalProperties": false,
+                            "description": "Authorised sender; defaults to this inbox.",
+                            "properties": {
+                              "email": {
+                                "description": "Email address.",
+                                "format": "email",
+                                "maxLength": 254,
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "Display name.",
+                                "maxLength": 255,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "email"
+                            ],
+                            "type": "object"
+                          },
+                          "html_body": {
+                            "description": "HTML body, preserved when saved.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Stable draft ID.",
+                            "type": "string"
+                          },
+                          "in_reply_to": {
+                            "description": "Snapshotted parent message identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "message_id": {
+                            "description": "Saved message ID; absent until saving finishes.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "references": {
+                            "description": "Snapshotted conversation identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "reply_to": {
+                            "description": "Authorised reply addresses; defaults to this inbox.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "reply_to_message_id": {
+                            "description": "Original message this draft replies to.",
+                            "type": "string"
+                          },
+                          "revision": {
+                            "description": "Current draft revision.",
+                            "exclusiveMinimum": 0.0,
+                            "type": "integer"
+                          },
+                          "schedule_version": {
+                            "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+                            "minimum": 0.0,
+                            "type": "integer"
+                          },
+                          "scheduled_for": {
+                            "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+                            "format": "date-time",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "description": "Saving or sending state.",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "scheduled",
+                              "sending",
+                              "queued",
+                              "uncertain",
+                              "failed",
+                              "deleted"
+                            ],
+                            "type": "string"
+                          },
+                          "subject": {
+                            "description": "Subject; may be empty.",
+                            "maxLength": 998,
+                            "type": "string"
+                          },
+                          "text_body": {
+                            "description": "Plain-text body.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "to": {
+                            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revision",
+                          "status",
+                          "message_id",
+                          "scheduled_for",
+                          "schedule_version",
+                          "failure_code",
+                          "in_reply_to",
+                          "references"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Send Saved Draft"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": false,
+            "open_world_hint": true,
+            "read_only_hint": false
+          },
           "description": "Use this to send a message from the authenticated mailbox. For attachments, call mailbox_upload_attachment first using presign_upload_url or tiny content_base64, then pass the returned blob_id. Include an Idempotency-Key for retries.",
           "input_schema": {
             "properties": {
@@ -7664,7 +10457,7 @@
                 "type": "array"
               },
               "bcc": {
-                "description": "BCC recipients.",
+                "description": "Hidden copied recipients.",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -7687,10 +10480,11 @@
                   ],
                   "type": "object"
                 },
+                "maxItems": 50,
                 "type": "array"
               },
               "cc": {
-                "description": "CC recipients.",
+                "description": "Visible copied recipients.",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -7713,6 +10507,7 @@
                   ],
                   "type": "object"
                 },
+                "maxItems": 50,
                 "type": "array"
               },
               "custom_headers": {
@@ -7787,7 +10582,8 @@
                 "type": "array"
               },
               "subject": {
-                "description": "Subject line for the outgoing email.",
+                "description": "Subject line; defaults to empty.",
+                "maxLength": 998,
                 "type": "string"
               },
               "text_body": {
@@ -7795,7 +10591,7 @@
                 "type": "string"
               },
               "to": {
-                "description": "Primary recipients.",
+                "description": "Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -7818,7 +10614,7 @@
                   ],
                   "type": "object"
                 },
-                "minItems": 1,
+                "maxItems": 50,
                 "type": "array"
               }
             },
@@ -7905,6 +10701,618 @@
             "x-fastmcp-wrap-result": true
           },
           "title": "Send Mailbox Message"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": false,
+            "open_world_hint": true,
+            "read_only_hint": false
+          },
+          "description": "Edit a saved draft without sending it. Requires mailbox.read and mailbox.drafts.write. Pass the reviewed expected_revision; reload after a conflict before making another edit.",
+          "input_schema": {
+            "properties": {
+              "If-Match": {
+                "description": "Current draft ETag; expected_revision is also required.",
+                "type": "string"
+              },
+              "attachments": {
+                "description": "Attachments and inline images.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "blob_id": {
+                      "description": "An attachment uploaded to this mailbox.",
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "content_id": {
+                      "description": "Content ID referenced by an inline image.",
+                      "maxLength": 998,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "description": "Attachment media type.",
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "disposition": {
+                      "description": "Whether the attachment appears within the message.",
+                      "enum": [
+                        "attachment",
+                        "inline"
+                      ],
+                      "type": "string"
+                    },
+                    "filename": {
+                      "description": "Attachment filename.",
+                      "maxLength": 255,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "size_bytes": {
+                      "description": "Attachment size in bytes; verified when saved.",
+                      "maximum": 7500000.0,
+                      "minimum": 0.0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "blob_id",
+                    "filename",
+                    "content_type",
+                    "size_bytes"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              "bcc": {
+                "description": "Hidden copied recipients.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              "cc": {
+                "description": "Visible copied recipients.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              "custom_headers": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Custom X- headers preserved with this revision.",
+                "type": "object"
+              },
+              "draftId": {
+                "description": "Stable draft ID.",
+                "type": "string"
+              },
+              "expected_revision": {
+                "description": "The revision that was reviewed; a stale value returns conflict.",
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              "from": {
+                "additionalProperties": false,
+                "description": "Authorised sender; defaults to this inbox.",
+                "properties": {
+                  "email": {
+                    "description": "Email address.",
+                    "format": "email",
+                    "maxLength": 254,
+                    "type": "string"
+                  },
+                  "name": {
+                    "description": "Display name.",
+                    "maxLength": 255,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "type": "object"
+              },
+              "html_body": {
+                "description": "HTML body, preserved when saved.",
+                "maxLength": 1000000,
+                "type": "string"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              },
+              "reply_to": {
+                "description": "Authorised reply addresses; defaults to this inbox.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              "subject": {
+                "description": "Subject; may be empty.",
+                "maxLength": 998,
+                "type": "string"
+              },
+              "text_body": {
+                "description": "Plain-text body.",
+                "maxLength": 1000000,
+                "type": "string"
+              },
+              "to": {
+                "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "description": "Email address.",
+                      "format": "email",
+                      "maxLength": 254,
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Display name.",
+                      "maxLength": 255,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 50,
+                "type": "array"
+              }
+            },
+            "required": [
+              "draftId",
+              "expected_revision"
+            ],
+            "type": "object"
+          },
+          "name": "mailbox_update_draft",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachments": {
+                            "description": "Attachments and inline images.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "blob_id": {
+                                  "description": "An attachment uploaded to this mailbox.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_id": {
+                                  "description": "Content ID referenced by an inline image.",
+                                  "maxLength": 998,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "content_type": {
+                                  "description": "Attachment media type.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "disposition": {
+                                  "description": "Whether the attachment appears within the message.",
+                                  "enum": [
+                                    "attachment",
+                                    "inline"
+                                  ],
+                                  "type": "string"
+                                },
+                                "filename": {
+                                  "description": "Attachment filename.",
+                                  "maxLength": 255,
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "size_bytes": {
+                                  "description": "Attachment size in bytes; verified when saved.",
+                                  "maximum": 7500000.0,
+                                  "minimum": 0.0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "blob_id",
+                                "filename",
+                                "content_type",
+                                "size_bytes"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 10,
+                            "type": "array"
+                          },
+                          "bcc": {
+                            "description": "Hidden copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "cc": {
+                            "description": "Visible copied recipients.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          },
+                          "custom_headers": {
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "description": "Custom X- headers preserved with this revision.",
+                            "type": "object"
+                          },
+                          "failure_code": {
+                            "description": "Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.",
+                            "enum": [
+                              "preparation_failed",
+                              "authorisation_revoked",
+                              "send_rejected"
+                            ],
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "from": {
+                            "additionalProperties": false,
+                            "description": "Authorised sender; defaults to this inbox.",
+                            "properties": {
+                              "email": {
+                                "description": "Email address.",
+                                "format": "email",
+                                "maxLength": 254,
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "Display name.",
+                                "maxLength": 255,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "email"
+                            ],
+                            "type": "object"
+                          },
+                          "html_body": {
+                            "description": "HTML body, preserved when saved.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "id": {
+                            "description": "Stable draft ID.",
+                            "type": "string"
+                          },
+                          "in_reply_to": {
+                            "description": "Snapshotted parent message identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "message_id": {
+                            "description": "Saved message ID; absent until saving finishes.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "references": {
+                            "description": "Snapshotted conversation identifiers.",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "reply_to": {
+                            "description": "Authorised reply addresses; defaults to this inbox.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "reply_to_message_id": {
+                            "description": "Original message this draft replies to.",
+                            "type": "string"
+                          },
+                          "revision": {
+                            "description": "Current draft revision.",
+                            "exclusiveMinimum": 0.0,
+                            "type": "integer"
+                          },
+                          "schedule_version": {
+                            "description": "Schedule control version. Changes whenever a schedule is created, moved or cancelled.",
+                            "minimum": 0.0,
+                            "type": "integer"
+                          },
+                          "scheduled_for": {
+                            "description": "Requested earliest send time, retained after sending. Null when no schedule is set.",
+                            "format": "date-time",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "description": "Saving or sending state.",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "scheduled",
+                              "sending",
+                              "queued",
+                              "uncertain",
+                              "failed",
+                              "deleted"
+                            ],
+                            "type": "string"
+                          },
+                          "subject": {
+                            "description": "Subject; may be empty.",
+                            "maxLength": 998,
+                            "type": "string"
+                          },
+                          "text_body": {
+                            "description": "Plain-text body.",
+                            "maxLength": 1000000,
+                            "type": "string"
+                          },
+                          "to": {
+                            "description": "Primary recipients; at most 50 total across To, Cc and Bcc.",
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "email": {
+                                  "description": "Email address.",
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "Display name.",
+                                  "maxLength": 255,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email"
+                              ],
+                              "type": "object"
+                            },
+                            "maxItems": 50,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revision",
+                          "status",
+                          "message_id",
+                          "scheduled_for",
+                          "schedule_version",
+                          "failure_code",
+                          "in_reply_to",
+                          "references"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxDraftResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Edit Saved Draft"
         },
         {
           "annotations": {
@@ -9842,7 +13250,7 @@
                             ]
                           },
                           "secret": {
-                            "description": "Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret \u2014 store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
+                            "description": "Signing secret for both webhook signature headers. X-Sendmux-Signature signs the exact body bytes. X-Sendmux-Signature-V2 contains v1=<hex HMAC-SHA256> and signs X-Sendmux-Timestamp (Unix seconds), a full stop, then the exact body bytes. Check timestamp freshness and compare signatures in constant time before parsing the body. Store this secret securely; it is returned only on creation and rotation. Use POST /webhooks/{id}/rotate-secret to issue a new one.",
                             "example": "whsec_a9f3c2\u2026",
                             "type": "string"
                           },
@@ -11304,6 +14712,288 @@
             "x-fastmcp-wrap-result": true
           },
           "title": "Get Mailbox"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
+            "read_only_hint": true
+          },
+          "description": "Read inbox costs for a window including start and excluding end. Requires mailbox.admin.read and team-wide mailbox access. Quantities and USD amounts are decimal strings; posted, incurred and unbillable amounts differ. Settle only a final window; this read does not start settlement. Retained usage can remain readable after inbox deletion.",
+          "input_schema": {
+            "properties": {
+              "If-None-Match": {
+                "description": "Return 304 when the authorised response is unchanged.",
+                "type": "string"
+              },
+              "end": {
+                "description": "Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "public_id": {
+                "description": "Mailbox public ID.",
+                "type": "string"
+              },
+              "start": {
+                "description": "Inclusive start. At most millisecond precision.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "public_id",
+              "start",
+              "end"
+            ],
+            "type": "object"
+          },
+          "name": "management_get_mailbox_cost_usage",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "currency": {
+                            "enum": [
+                              "USD"
+                            ],
+                            "type": "string"
+                          },
+                          "end": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "incoming": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "coverage_started_at": {
+                                "format": "date-time",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "incurred_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "posted_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "posted_quantity": {
+                                "pattern": "^\\d+$",
+                                "type": "string"
+                              },
+                              "quantity": {
+                                "pattern": "^\\d+$",
+                                "type": "string"
+                              },
+                              "state": {
+                                "enum": [
+                                  "pending",
+                                  "final"
+                                ],
+                                "type": "string"
+                              },
+                              "unbillable_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "unbillable_quantity": {
+                                "pattern": "^\\d+$",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "quantity",
+                              "incurred_amount",
+                              "posted_quantity",
+                              "posted_amount",
+                              "unbillable_quantity",
+                              "unbillable_amount",
+                              "coverage_started_at",
+                              "state"
+                            ],
+                            "type": "object"
+                          },
+                          "mailbox_id": {
+                            "type": "string"
+                          },
+                          "outgoing": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "coverage_started_at": {
+                                "format": "date-time",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "incurred_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "posted_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "posted_quantity": {
+                                "pattern": "^\\d+$",
+                                "type": "string"
+                              },
+                              "quantity": {
+                                "pattern": "^\\d+$",
+                                "type": "string"
+                              },
+                              "state": {
+                                "enum": [
+                                  "pending",
+                                  "final"
+                                ],
+                                "type": "string"
+                              },
+                              "unbillable_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "unbillable_quantity": {
+                                "pattern": "^\\d+$",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "quantity",
+                              "incurred_amount",
+                              "posted_quantity",
+                              "posted_amount",
+                              "unbillable_quantity",
+                              "unbillable_amount",
+                              "coverage_started_at",
+                              "state"
+                            ],
+                            "type": "object"
+                          },
+                          "posted_amount": {
+                            "pattern": "^\\d+\\.\\d{6}$",
+                            "type": "string"
+                          },
+                          "start": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "state": {
+                            "enum": [
+                              "pending",
+                              "final"
+                            ],
+                            "type": "string"
+                          },
+                          "storage": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "allocated_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "posted_amount": {
+                                "pattern": "^\\d+\\.\\d{6}$",
+                                "type": "string"
+                              },
+                              "raw_amount": {
+                                "pattern": "^\\d+\\.\\d{18}$",
+                                "type": "string"
+                              },
+                              "state": {
+                                "enum": [
+                                  "pending",
+                                  "final"
+                                ],
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "raw_amount",
+                              "allocated_amount",
+                              "posted_amount",
+                              "state"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "mailbox_id",
+                          "start",
+                          "end",
+                          "currency",
+                          "state",
+                          "posted_amount",
+                          "incoming",
+                          "outgoing",
+                          "storage"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxCostUsageResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Read Mailbox Costs"
         },
         {
           "annotations": {
@@ -14824,7 +18514,7 @@
         }
       ]
     },
-    "count": 54
+    "count": 64
   },
   "uploads": {
     "inline_decoded_max_bytes": 32768,

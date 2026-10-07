@@ -71,6 +71,20 @@ func encodeMailboxBatchUpdateMessagesRequest(
 	return nil
 }
 
+func encodeMailboxControlDraftScheduleRequest(
+	req *ControlMailboxDraftSchedule,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeMailboxCreateAttachmentUploadRequest(
 	req OptMailboxAttachmentUploadIntentBody,
 	r *http.Request,
@@ -85,6 +99,20 @@ func encodeMailboxCreateAttachmentUploadRequest(
 		if req.Set {
 			req.Encode(e)
 		}
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeMailboxCreateDraftRequest(
+	req *CreateMailboxDraft,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
 	}
 	encoded := e.Bytes()
 	ht.SetBody(r, bytes.NewReader(encoded), contentType)
@@ -111,6 +139,20 @@ func encodeMailboxCreateFolderRequest(
 	return nil
 }
 
+func encodeMailboxSendDraftRequest(
+	req *SendMailboxDraft,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeMailboxSendMessageRequest(
 	req OptSendMailboxMessageBody,
 	r *http.Request,
@@ -125,6 +167,20 @@ func encodeMailboxSendMessageRequest(
 		if req.Set {
 			req.Encode(e)
 		}
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeMailboxUpdateDraftRequest(
+	req *UpdateMailboxDraft,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
 	}
 	encoded := e.Bytes()
 	ht.SetBody(r, bytes.NewReader(encoded), contentType)

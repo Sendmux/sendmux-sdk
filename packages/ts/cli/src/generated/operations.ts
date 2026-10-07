@@ -72,6 +72,45 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxControlDraftSchedule: {
+    "bodyKind": "json",
+    "command": "mailbox:control-draft-schedule",
+    "description": "Reschedule or cancel a saved draft send",
+    "headerParams": [
+      {
+        "name": "If-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "patch",
+    "operationId": "mailboxControlDraftSchedule",
+    "path": "/mailbox/drafts/{draftId}/schedule",
+    "pathParams": [
+      {
+        "name": "draftId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": true,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxCountMessages: {
     "bodyKind": "none",
     "command": "mailbox:count-messages",
@@ -253,6 +292,38 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxCreateDraft: {
+    "bodyKind": "json",
+    "command": "mailbox:create-draft",
+    "description": "Create a saved draft",
+    "headerParams": [
+      {
+        "name": "Idempotency-Key",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    ],
+    "method": "post",
+    "operationId": "mailboxCreateDraft",
+    "path": "/mailbox/drafts",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": true,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxCreateFolder: {
     "bodyKind": "json",
     "command": "mailbox:create-folder",
@@ -262,6 +333,45 @@ export const operations = {
     "operationId": "mailboxCreateFolder",
     "path": "/mailbox/folders",
     "pathParams": [],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxDeleteDraft: {
+    "bodyKind": "none",
+    "command": "mailbox:delete-draft",
+    "description": "Delete a saved draft",
+    "headerParams": [
+      {
+        "name": "If-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "delete",
+    "operationId": "mailboxDeleteDraft",
+    "path": "/mailbox/drafts/{draftId}",
+    "pathParams": [
+      {
+        "name": "draftId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "queryParams": [
       {
         "name": "mailbox_id",
@@ -346,6 +456,100 @@ export const operations = {
         "required": false,
         "schema": {
           "type": "boolean"
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxDownloadRawMessage: {
+    "bodyKind": "none",
+    "command": "mailbox:download-raw-message",
+    "description": "Download the original message",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "mailboxDownloadRawMessage",
+    "path": "/mailbox/messages/{message_id}/raw",
+    "pathParams": [
+      {
+        "name": "message_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "binary",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxGetAttachmentText: {
+    "bodyKind": "none",
+    "command": "mailbox:get-attachment-text",
+    "description": "Read attachment text",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "mailboxGetAttachmentText",
+    "path": "/mailbox/messages/{message_id}/attachments/{attachment_id}/text",
+    "pathParams": [
+      {
+        "name": "message_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "attachment_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "max_bytes",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
         }
       },
       {
@@ -467,6 +671,45 @@ export const operations = {
     "path": "/mailbox/connection",
     "pathParams": [],
     "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxGetDraft: {
+    "bodyKind": "none",
+    "command": "mailbox:get-draft",
+    "description": "Read a saved draft",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "mailboxGetDraft",
+    "path": "/mailbox/drafts/{draftId}",
+    "pathParams": [
+      {
+        "name": "draftId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
     "responseKind": "json",
     "requestBodyRequired": false,
     "requiredKeyKind": "mailbox",
@@ -1177,6 +1420,45 @@ export const operations = {
             "none",
             "metadata"
           ]
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxListDrafts: {
+    "bodyKind": "none",
+    "command": "mailbox:list-drafts",
+    "description": "List saved drafts",
+    "headerParams": [],
+    "method": "get",
+    "operationId": "mailboxListDrafts",
+    "path": "/mailbox/drafts",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "cursor",
+        "required": false,
+        "schema": {
+          "type": "string"
         }
       },
       {
@@ -2150,6 +2432,53 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxRequestAttachmentText: {
+    "bodyKind": "none",
+    "command": "mailbox:request-attachment-text",
+    "description": "Request attachment text",
+    "headerParams": [],
+    "method": "post",
+    "operationId": "mailboxRequestAttachmentText",
+    "path": "/mailbox/messages/{message_id}/attachments/{attachment_id}/text",
+    "pathParams": [
+      {
+        "name": "message_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "attachment_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "max_bytes",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxSearchMessageSnippets: {
     "bodyKind": "none",
     "command": "mailbox:search-message-snippets",
@@ -2317,6 +2646,45 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxSendDraft: {
+    "bodyKind": "json",
+    "command": "mailbox:send-draft",
+    "description": "Send a saved draft revision",
+    "headerParams": [
+      {
+        "name": "If-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "post",
+    "operationId": "mailboxSendDraft",
+    "path": "/mailbox/drafts/{draftId}/send",
+    "pathParams": [
+      {
+        "name": "draftId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": true,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxSendMessage: {
     "bodyKind": "json",
     "command": "mailbox:send-message",
@@ -2409,6 +2777,45 @@ export const operations = {
     ],
     "responseKind": "json",
     "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
+  mailboxUpdateDraft: {
+    "bodyKind": "json",
+    "command": "mailbox:update-draft",
+    "description": "Edit a saved draft",
+    "headerParams": [
+      {
+        "name": "If-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "patch",
+    "operationId": "mailboxUpdateDraft",
+    "path": "/mailbox/drafts/{draftId}",
+    "pathParams": [
+      {
+        "name": "draftId",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": true,
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
@@ -3210,6 +3617,52 @@ export const operations = {
     "requiredKeyKind": "root",
     "surface": "management"
   },
+  managementGetMailboxCostUsage: {
+    "bodyKind": "none",
+    "command": "management:get-mailbox-cost-usage",
+    "description": "Read mailbox costs",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "managementGetMailboxCostUsage",
+    "path": "/mailboxes/{public_id}/usage",
+    "pathParams": [
+      {
+        "name": "public_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "start",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "end",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
   managementGetMailboxFilters: {
     "bodyKind": "none",
     "command": "management:get-mailbox-filters",
@@ -3232,6 +3685,53 @@ export const operations = {
         "required": true,
         "schema": {
           "type": "string"
+        }
+      }
+    ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
+  managementGetMailboxSendPolicy: {
+    "bodyKind": "none",
+    "command": "management:get-mailbox-send-policy",
+    "description": "Get a sending policy",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "managementGetMailboxSendPolicy",
+    "path": "/mailbox-send-policies/{scope}/{public_id}",
+    "pathParams": [
+      {
+        "name": "scope",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "team",
+            "mailbox",
+            "api_key",
+            "oauth_grant",
+            "agent_registration"
+          ]
+        }
+      },
+      {
+        "name": "public_id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
         }
       }
     ],
@@ -3827,6 +4327,60 @@ export const operations = {
     ],
     "responseKind": "json",
     "requestBodyRequired": false,
+    "requiredKeyKind": "root",
+    "surface": "management"
+  },
+  managementReplaceMailboxSendPolicy: {
+    "bodyKind": "json",
+    "command": "management:replace-mailbox-send-policy",
+    "description": "Replace a sending policy",
+    "headerParams": [
+      {
+        "name": "If-Match",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "Idempotency-Key",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "put",
+    "operationId": "managementReplaceMailboxSendPolicy",
+    "path": "/mailbox-send-policies/{scope}/{public_id}",
+    "pathParams": [
+      {
+        "name": "scope",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "team",
+            "mailbox",
+            "api_key",
+            "oauth_grant",
+            "agent_registration"
+          ]
+        }
+      },
+      {
+        "name": "public_id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    ],
+    "queryParams": [],
+    "responseKind": "json",
+    "requestBodyRequired": true,
     "requiredKeyKind": "root",
     "surface": "management"
   },

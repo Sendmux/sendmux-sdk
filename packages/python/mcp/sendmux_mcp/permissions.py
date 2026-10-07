@@ -12,6 +12,16 @@ PermissionRequirement = tuple[str, ...]
 
 TOOL_PERMISSION_REQUIREMENTS: Mapping[str, PermissionRequirement] = MappingProxyType(
     {
+        "mailbox_list_drafts": ("mailbox.read",),
+        "mailbox_get_draft": ("mailbox.read",),
+        "mailbox_create_draft": ("mailbox.read", "mailbox.drafts.write"),
+        "mailbox_update_draft": ("mailbox.read", "mailbox.drafts.write"),
+        "mailbox_delete_draft": ("mailbox.read", "mailbox.drafts.write"),
+        "mailbox_send_draft": ("mailbox.read", "email.send"),
+        "mailbox_control_draft_schedule": ("mailbox.read", "email.send"),
+        "mailbox_request_attachment_text": ("mailbox.read",),
+        "mailbox_get_attachment_text": ("mailbox.read",),
+        "management_get_mailbox_cost_usage": ("mailbox.admin.read",),
         "management_get_connection": (),
         "mailbox_get_connection": (),
         "sending_get_connection": ("email.send",),

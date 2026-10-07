@@ -604,7 +604,7 @@ class WebhookSubscriptionWithSecret implements ModelInterface, ArrayAccess, Json
     /**
      * Sets secret
      *
-     * @param string $secret Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
+     * @param string $secret Signing secret for both webhook signature headers. X-Sendmux-Signature signs the exact body bytes. X-Sendmux-Signature-V2 contains v1=<hex HMAC-SHA256> and signs X-Sendmux-Timestamp (Unix seconds), a full stop, then the exact body bytes. Check timestamp freshness and compare signatures in constant time before parsing the body. Store this secret securely; it is returned only on creation and rotation. Use POST /webhooks/{id}/rotate-secret to issue a new one.
      *
      * @return $this
      */

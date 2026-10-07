@@ -35,7 +35,7 @@ class WebhookSubscriptionWithSecret(BaseModel):
     filters: WebhookFilters
     id: StrictStr = Field(description="Webhook public ID")
     name: Optional[StrictStr] = Field(description="Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions created without a name.")
-    secret: StrictStr = Field(description="Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.")
+    secret: StrictStr = Field(description="Signing secret for both webhook signature headers. X-Sendmux-Signature signs the exact body bytes. X-Sendmux-Signature-V2 contains v1=<hex HMAC-SHA256> and signs X-Sendmux-Timestamp (Unix seconds), a full stop, then the exact body bytes. Check timestamp freshness and compare signatures in constant time before parsing the body. Store this secret securely; it is returned only on creation and rotation. Use POST /webhooks/{id}/rotate-secret to issue a new one.")
     updated_at: StrictStr = Field(description="ISO 8601 last-modified timestamp")
     url: StrictStr = Field(description="HTTPS endpoint that receives signed event POSTs.")
     __properties: ClassVar[List[str]] = ["created_at", "enabled", "event_types", "failing", "filters", "id", "name", "secret", "updated_at", "url"]

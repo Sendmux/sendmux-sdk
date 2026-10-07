@@ -93,7 +93,16 @@ class MailboxesApi
         'managementGetMailbox' => [
             'application/json',
         ],
+        'managementGetMailboxCostUsage' => [
+            'application/json',
+        ],
+        'managementGetMailboxSendPolicy' => [
+            'application/json',
+        ],
         'managementListMailboxes' => [
+            'application/json',
+        ],
+        'managementReplaceMailboxSendPolicy' => [
             'application/json',
         ],
         'managementResumeMailbox' => [
@@ -1322,7 +1331,7 @@ class MailboxesApi
      *
      * @throws ApiException on non-2xx response or if the response body is not in the expected format
      * @throws InvalidArgumentException
-     * @return array of \Sendmux\Management\Model\MailboxDeletedResponse|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     * @return array of \Sendmux\Management\Model\MailboxDeletedResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
      */
     public function managementDeleteMailboxWithHttpInfo(
         string $public_id,
@@ -1368,6 +1377,12 @@ class MailboxesApi
                         $request,
                         $response,
                     );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
             }
 
 
@@ -1400,6 +1415,14 @@ class MailboxesApi
                     $e->setResponseObject($data);
                     throw $e;
                 case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
                     $data = ObjectSerializer::deserialize(
                         $e->getResponseBody(),
                         '\Sendmux\Management\Model\ApiError',
@@ -2280,6 +2303,971 @@ class MailboxesApi
     }
 
     /**
+     * Operation managementGetMailboxCostUsage
+     *
+     * Read mailbox costs
+     *
+     * @param  string $public_id Mailbox public ID. (required)
+     * @param  \DateTime $start Inclusive start. At most millisecond precision. (required)
+     * @param  \DateTime $end Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision. (required)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxCostUsage'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Management\Model\MailboxCostUsageResponse|\Sendmux\Management\Model\ApiError|null
+     */
+    public function managementGetMailboxCostUsage(
+        string $public_id,
+        \DateTime $start,
+        \DateTime $end,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxCostUsage'][0]
+    ): \Sendmux\Management\Model\MailboxCostUsageResponse|\Sendmux\Management\Model\ApiError|null {
+        list($response) = $this->managementGetMailboxCostUsageWithHttpInfo(
+            $public_id,
+            $start,
+            $end,
+            $if_none_match,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation managementGetMailboxCostUsageWithHttpInfo
+     *
+     * Read mailbox costs
+     *
+     * @param  string $public_id Mailbox public ID. (required)
+     * @param  \DateTime $start Inclusive start. At most millisecond precision. (required)
+     * @param  \DateTime $end Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision. (required)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxCostUsage'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Management\Model\MailboxCostUsageResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function managementGetMailboxCostUsageWithHttpInfo(
+        string $public_id,
+        \DateTime $start,
+        \DateTime $end,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxCostUsage'][0]
+    ): array {
+        $request = $this->managementGetMailboxCostUsageRequest(
+            $public_id,
+            $start,
+            $end,
+            $if_none_match,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\MailboxCostUsageResponse',
+                        $request,
+                        $response,
+                    );
+                case 304:
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Management\Model\MailboxCostUsageResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\MailboxCostUsageResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation managementGetMailboxCostUsageAsync
+     *
+     * Read mailbox costs
+     *
+     * @param  string $public_id Mailbox public ID. (required)
+     * @param  \DateTime $start Inclusive start. At most millisecond precision. (required)
+     * @param  \DateTime $end Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision. (required)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxCostUsage'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementGetMailboxCostUsageAsync(
+        string $public_id,
+        \DateTime $start,
+        \DateTime $end,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxCostUsage'][0]
+    ): PromiseInterface {
+        return $this->managementGetMailboxCostUsageAsyncWithHttpInfo(
+            $public_id,
+            $start,
+            $end,
+            $if_none_match,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation managementGetMailboxCostUsageAsyncWithHttpInfo
+     *
+     * Read mailbox costs
+     *
+     * @param  string $public_id Mailbox public ID. (required)
+     * @param  \DateTime $start Inclusive start. At most millisecond precision. (required)
+     * @param  \DateTime $end Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision. (required)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxCostUsage'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementGetMailboxCostUsageAsyncWithHttpInfo(
+        string $public_id,
+        \DateTime $start,
+        \DateTime $end,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxCostUsage'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Management\Model\MailboxCostUsageResponse';
+        $request = $this->managementGetMailboxCostUsageRequest(
+            $public_id,
+            $start,
+            $end,
+            $if_none_match,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    if ($response->getStatusCode() === 304) {
+                        return [null, $response->getStatusCode(), $response->getHeaders()];
+                    }
+
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'managementGetMailboxCostUsage'
+     *
+     * @param  string $public_id Mailbox public ID. (required)
+     * @param  \DateTime $start Inclusive start. At most millisecond precision. (required)
+     * @param  \DateTime $end Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision. (required)
+     * @param  string|null $if_none_match Return 304 when the authorised response is unchanged. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxCostUsage'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function managementGetMailboxCostUsageRequest(
+        string $public_id,
+        \DateTime $start,
+        \DateTime $end,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxCostUsage'][0]
+    ): Request {
+
+        // verify the required parameter 'public_id' is set
+        if ($public_id === null || (is_array($public_id) && count($public_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $public_id when calling managementGetMailboxCostUsage'
+            );
+        }
+
+        // verify the required parameter 'start' is set
+        if ($start === null || (is_array($start) && count($start) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $start when calling managementGetMailboxCostUsage'
+            );
+        }
+
+        // verify the required parameter 'end' is set
+        if ($end === null || (is_array($end) && count($end) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $end when calling managementGetMailboxCostUsage'
+            );
+        }
+
+
+
+        $resourcePath = '/mailboxes/{public_id}/usage';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $start,
+            'start', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            true // required
+        ) ?? []);
+        // query params
+        $queryParams = array_merge($queryParams, ObjectSerializer::toQueryValue(
+            $end,
+            'end', // param base name
+            'string', // openApiType
+            'form', // style
+            true, // explode
+            true // required
+        ) ?? []);
+
+        // header params
+        if ($if_none_match !== null) {
+            $headerParams['If-None-Match'] = ObjectSerializer::toHeaderValue($if_none_match);
+        }
+
+        // path params
+        if ($public_id !== null) {
+            $resourcePath = str_replace(
+                '{public_id}',
+                ObjectSerializer::toPathValue($public_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation managementGetMailboxSendPolicy
+     *
+     * Get a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Management\Model\MailboxSendPolicyResponse|\Sendmux\Management\Model\ApiError|null
+     */
+    public function managementGetMailboxSendPolicy(
+        string $scope,
+        string $public_id,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxSendPolicy'][0]
+    ): \Sendmux\Management\Model\MailboxSendPolicyResponse|\Sendmux\Management\Model\ApiError|null {
+        list($response) = $this->managementGetMailboxSendPolicyWithHttpInfo(
+            $scope,
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation managementGetMailboxSendPolicyWithHttpInfo
+     *
+     * Get a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Management\Model\MailboxSendPolicyResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function managementGetMailboxSendPolicyWithHttpInfo(
+        string $scope,
+        string $public_id,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxSendPolicy'][0]
+    ): array {
+        $request = $this->managementGetMailboxSendPolicyRequest(
+            $scope,
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\MailboxSendPolicyResponse',
+                        $request,
+                        $response,
+                    );
+                case 304:
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Management\Model\MailboxSendPolicyResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\MailboxSendPolicyResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation managementGetMailboxSendPolicyAsync
+     *
+     * Get a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementGetMailboxSendPolicyAsync(
+        string $scope,
+        string $public_id,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxSendPolicy'][0]
+    ): PromiseInterface {
+        return $this->managementGetMailboxSendPolicyAsyncWithHttpInfo(
+            $scope,
+            $public_id,
+            $if_none_match,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation managementGetMailboxSendPolicyAsyncWithHttpInfo
+     *
+     * Get a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementGetMailboxSendPolicyAsyncWithHttpInfo(
+        string $scope,
+        string $public_id,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxSendPolicy'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Management\Model\MailboxSendPolicyResponse';
+        $request = $this->managementGetMailboxSendPolicyRequest(
+            $scope,
+            $public_id,
+            $if_none_match,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    if ($response->getStatusCode() === 304) {
+                        return [null, $response->getStatusCode(), $response->getHeaders()];
+                    }
+
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'managementGetMailboxSendPolicy'
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementGetMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function managementGetMailboxSendPolicyRequest(
+        string $scope,
+        string $public_id,
+        ?string $if_none_match = null,
+        string $contentType = self::contentTypes['managementGetMailboxSendPolicy'][0]
+    ): Request {
+
+        // verify the required parameter 'scope' is set
+        if ($scope === null || (is_array($scope) && count($scope) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $scope when calling managementGetMailboxSendPolicy'
+            );
+        }
+
+        // verify the required parameter 'public_id' is set
+        if ($public_id === null || (is_array($public_id) && count($public_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $public_id when calling managementGetMailboxSendPolicy'
+            );
+        }
+        if (strlen($public_id) > 128) {
+            throw new InvalidArgumentException('invalid length for "$public_id" when calling MailboxesApi.managementGetMailboxSendPolicy, must be smaller than or equal to 128.');
+        }
+        if (strlen($public_id) < 1) {
+            throw new InvalidArgumentException('invalid length for "$public_id" when calling MailboxesApi.managementGetMailboxSendPolicy, must be bigger than or equal to 1.');
+        }
+
+
+
+        $resourcePath = '/mailbox-send-policies/{scope}/{public_id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+        // header params
+        if ($if_none_match !== null) {
+            $headerParams['If-None-Match'] = ObjectSerializer::toHeaderValue($if_none_match);
+        }
+
+        // path params
+        if ($scope !== null) {
+            $resourcePath = str_replace(
+                '{scope}',
+                ObjectSerializer::toPathValue($scope),
+                $resourcePath
+            );
+        }
+        // path params
+        if ($public_id !== null) {
+            $resourcePath = str_replace(
+                '{public_id}',
+                ObjectSerializer::toPathValue($public_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
      * Operation managementListMailboxes
      *
      * List mailboxes
@@ -2648,6 +3636,551 @@ class MailboxesApi
         $query = ObjectSerializer::buildQuery($queryParams);
         return new Request(
             'GET',
+            $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
+            $headers,
+            $httpBody
+        );
+    }
+
+    /**
+     * Operation managementReplaceMailboxSendPolicy
+     *
+     * Replace a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string $if_match Required exact ETag from the current policy. Wildcards are not accepted. (required)
+     * @param  \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy replace_mailbox_send_policy (required)
+     * @param  string|null $idempotency_key Reuse with the same policy and ETag to replay a successful replacement. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementReplaceMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return \Sendmux\Management\Model\MailboxSendPolicyResponse|\Sendmux\Management\Model\ApiError
+     */
+    public function managementReplaceMailboxSendPolicy(
+        string $scope,
+        string $public_id,
+        string $if_match,
+        \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy,
+        ?string $idempotency_key = null,
+        string $contentType = self::contentTypes['managementReplaceMailboxSendPolicy'][0]
+    ): \Sendmux\Management\Model\MailboxSendPolicyResponse|\Sendmux\Management\Model\ApiError {
+        list($response) = $this->managementReplaceMailboxSendPolicyWithHttpInfo(
+            $scope,
+            $public_id,
+            $if_match,
+            $replace_mailbox_send_policy,
+            $idempotency_key,
+            $contentType
+        );
+        return $response;
+    }
+
+    /**
+     * Operation managementReplaceMailboxSendPolicyWithHttpInfo
+     *
+     * Replace a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string $if_match Required exact ETag from the current policy. Wildcards are not accepted. (required)
+     * @param  \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy replace_mailbox_send_policy (required)
+     * @param  string|null $idempotency_key Reuse with the same policy and ETag to replay a successful replacement. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementReplaceMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws InvalidArgumentException
+     * @return array of \Sendmux\Management\Model\MailboxSendPolicyResponse|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError|\Sendmux\Management\Model\ApiError, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function managementReplaceMailboxSendPolicyWithHttpInfo(
+        string $scope,
+        string $public_id,
+        string $if_match,
+        \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy,
+        ?string $idempotency_key = null,
+        string $contentType = self::contentTypes['managementReplaceMailboxSendPolicy'][0]
+    ): array {
+        $request = $this->managementReplaceMailboxSendPolicyRequest(
+            $scope,
+            $public_id,
+            $if_match,
+            $replace_mailbox_send_policy,
+            $idempotency_key,
+            $contentType
+        );
+
+        try {
+            $options = $this->createHttpClientOption();
+            try {
+                $response = $this->client->send($request, $options);
+            } catch (RequestException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                    $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (ConnectException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    (int) $e->getCode(),
+                    null,
+                    null
+                );
+            }
+
+            $statusCode = $response->getStatusCode();
+
+            switch ($statusCode) {
+                case 200:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\MailboxSendPolicyResponse',
+                        $request,
+                        $response,
+                    );
+                case 400:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 401:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 403:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 404:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 409:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 413:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 422:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 429:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 500:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+                case 503:
+                    return $this->handleResponseWithDataType(
+                        '\Sendmux\Management\Model\ApiError',
+                        $request,
+                        $response,
+                    );
+            }
+
+
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        (string) $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+
+            return $this->handleResponseWithDataType(
+                '\Sendmux\Management\Model\MailboxSendPolicyResponse',
+                $request,
+                $response,
+            );
+        } catch (ApiException $e) {
+            switch ($e->getCode()) {
+                case 200:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\MailboxSendPolicyResponse',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 400:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 401:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 403:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 404:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 409:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 413:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 422:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 429:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 500:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+                case 503:
+                    $data = ObjectSerializer::deserialize(
+                        $e->getResponseBody(),
+                        '\Sendmux\Management\Model\ApiError',
+                        $e->getResponseHeaders()
+                    );
+                    $e->setResponseObject($data);
+                    throw $e;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Operation managementReplaceMailboxSendPolicyAsync
+     *
+     * Replace a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string $if_match Required exact ETag from the current policy. Wildcards are not accepted. (required)
+     * @param  \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy replace_mailbox_send_policy (required)
+     * @param  string|null $idempotency_key Reuse with the same policy and ETag to replay a successful replacement. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementReplaceMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementReplaceMailboxSendPolicyAsync(
+        string $scope,
+        string $public_id,
+        string $if_match,
+        \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy,
+        ?string $idempotency_key = null,
+        string $contentType = self::contentTypes['managementReplaceMailboxSendPolicy'][0]
+    ): PromiseInterface {
+        return $this->managementReplaceMailboxSendPolicyAsyncWithHttpInfo(
+            $scope,
+            $public_id,
+            $if_match,
+            $replace_mailbox_send_policy,
+            $idempotency_key,
+            $contentType
+        )
+            ->then(
+                function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation managementReplaceMailboxSendPolicyAsyncWithHttpInfo
+     *
+     * Replace a sending policy
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string $if_match Required exact ETag from the current policy. Wildcards are not accepted. (required)
+     * @param  \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy replace_mailbox_send_policy (required)
+     * @param  string|null $idempotency_key Reuse with the same policy and ETag to replay a successful replacement. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementReplaceMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
+     */
+    public function managementReplaceMailboxSendPolicyAsyncWithHttpInfo(
+        string $scope,
+        string $public_id,
+        string $if_match,
+        \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy,
+        ?string $idempotency_key = null,
+        string $contentType = self::contentTypes['managementReplaceMailboxSendPolicy'][0]
+    ): PromiseInterface {
+        $returnType = '\Sendmux\Management\Model\MailboxSendPolicyResponse';
+        $request = $this->managementReplaceMailboxSendPolicyRequest(
+            $scope,
+            $public_id,
+            $if_match,
+            $replace_mailbox_send_policy,
+            $idempotency_key,
+            $contentType
+        );
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                function ($response) use ($returnType, $request) {
+                    return $this->handleResponseWithDataType($returnType, $request, $response);
+                },
+                function ($exception) {
+                    if ($exception instanceof RequestException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            $exception->getResponse() ? $exception->getResponse()->getHeaders() : null,
+                            $exception->getResponse() ? (string) $exception->getResponse()->getBody() : null
+                        );
+                    }
+
+                    if ($exception instanceof ConnectException) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    if ($exception instanceof \Throwable) {
+                        throw new ApiException(
+                            "[{$exception->getCode()}] {$exception->getMessage()}",
+                            (int) $exception->getCode(),
+                            null,
+                            null
+                        );
+                    }
+
+                    throw new ApiException('[0] Unknown API error', 0, null, null);
+                }
+            );
+    }
+
+    /**
+     * Create request for operation 'managementReplaceMailboxSendPolicy'
+     *
+     * @param  string $scope Policy level to read or replace. (required)
+     * @param  string $public_id Public ID of the team, inbox, API key, connected-app grant or agent registration. (required)
+     * @param  string $if_match Required exact ETag from the current policy. Wildcards are not accepted. (required)
+     * @param  \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy replace_mailbox_send_policy (required)
+     * @param  string|null $idempotency_key Reuse with the same policy and ETag to replay a successful replacement. (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['managementReplaceMailboxSendPolicy'] to see the possible values for this operation
+     *
+     * @throws InvalidArgumentException
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function managementReplaceMailboxSendPolicyRequest(
+        string $scope,
+        string $public_id,
+        string $if_match,
+        \Sendmux\Management\Model\ReplaceMailboxSendPolicy $replace_mailbox_send_policy,
+        ?string $idempotency_key = null,
+        string $contentType = self::contentTypes['managementReplaceMailboxSendPolicy'][0]
+    ): Request {
+
+        // verify the required parameter 'scope' is set
+        if ($scope === null || (is_array($scope) && count($scope) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $scope when calling managementReplaceMailboxSendPolicy'
+            );
+        }
+
+        // verify the required parameter 'public_id' is set
+        if ($public_id === null || (is_array($public_id) && count($public_id) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $public_id when calling managementReplaceMailboxSendPolicy'
+            );
+        }
+        if (strlen($public_id) > 128) {
+            throw new InvalidArgumentException('invalid length for "$public_id" when calling MailboxesApi.managementReplaceMailboxSendPolicy, must be smaller than or equal to 128.');
+        }
+        if (strlen($public_id) < 1) {
+            throw new InvalidArgumentException('invalid length for "$public_id" when calling MailboxesApi.managementReplaceMailboxSendPolicy, must be bigger than or equal to 1.');
+        }
+
+        // verify the required parameter 'if_match' is set
+        if ($if_match === null || (is_array($if_match) && count($if_match) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $if_match when calling managementReplaceMailboxSendPolicy'
+            );
+        }
+
+        // verify the required parameter 'replace_mailbox_send_policy' is set
+        if ($replace_mailbox_send_policy === null || (is_array($replace_mailbox_send_policy) && count($replace_mailbox_send_policy) === 0)) {
+            throw new InvalidArgumentException(
+                'Missing the required parameter $replace_mailbox_send_policy when calling managementReplaceMailboxSendPolicy'
+            );
+        }
+
+
+
+        $resourcePath = '/mailbox-send-policies/{scope}/{public_id}';
+        $formParams = [];
+        $queryParams = [];
+        $headerParams = [];
+        $httpBody = '';
+        $multipart = false;
+
+
+        // header params
+        if ($if_match !== null) {
+            $headerParams['If-Match'] = ObjectSerializer::toHeaderValue($if_match);
+        }
+        // header params
+        if ($idempotency_key !== null) {
+            $headerParams['Idempotency-Key'] = ObjectSerializer::toHeaderValue($idempotency_key);
+        }
+
+        // path params
+        if ($scope !== null) {
+            $resourcePath = str_replace(
+                '{scope}',
+                ObjectSerializer::toPathValue($scope),
+                $resourcePath
+            );
+        }
+        // path params
+        if ($public_id !== null) {
+            $resourcePath = str_replace(
+                '{public_id}',
+                ObjectSerializer::toPathValue($public_id),
+                $resourcePath
+            );
+        }
+
+
+        $headers = $this->headerSelector->selectHeaders(
+            ['application/json', ],
+            $contentType,
+            $multipart
+        );
+
+        // for model (json/xml)
+        if (isset($replace_mailbox_send_policy)) {
+            if (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the body
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($replace_mailbox_send_policy));
+            } else {
+                $httpBody = $replace_mailbox_send_policy;
+            }
+        } elseif (count($formParams) > 0) {
+            if ($multipart) {
+                $multipartContents = [];
+                foreach ($formParams as $formParamName => $formParamValue) {
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $multipartContents[] = [
+                            'name' => $formParamName,
+                            'contents' => $formParamValueItem
+                        ];
+                    }
+                }
+                // for HTTP post (form)
+                $httpBody = new MultipartStream($multipartContents);
+            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
+                # if Content-Type contains "application/json", json_encode the form parameters
+                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
+            } else {
+                // for HTTP post (form)
+                $httpBody = ObjectSerializer::buildQuery($formParams);
+            }
+        }
+
+        // this endpoint requires OAuth (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        // this endpoint requires Bearer (API Key) authentication (access token)
+        if (!empty($this->config->getAccessToken())) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+
+        $defaultHeaders = [];
+        if ($this->config->getUserAgent()) {
+            $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
+        }
+
+        $headers = array_merge(
+            $defaultHeaders,
+            $headerParams,
+            $headers
+        );
+
+        $operationHost = $this->config->getHost();
+        $query = ObjectSerializer::buildQuery($queryParams);
+        return new Request(
+            'PUT',
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
             $httpBody

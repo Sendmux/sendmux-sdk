@@ -429,6 +429,176 @@ module Sendmux::Management::Generated
       return data, status_code, headers
     end
 
+    # Read mailbox costs
+    # Read cumulative mailbox costs for a half-open window: start is included and end is excluded. Requires mailbox.admin.read and team-wide mailbox access. Retained usage remains readable after mailbox deletion while the team and credential remain active. Quantities and USD amounts are decimal strings. posted_amount includes only posted charges; incurred and unbillable amounts are reported separately. A pending result can change. Settle a window only when its state is final. This read does not start or complete settlement.
+    # @param public_id [String] Mailbox public ID.
+    # @param start [Time] Inclusive start. At most millisecond precision.
+    # @param _end [Time] Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match Return 304 when the authorised response is unchanged.
+    # @return [MailboxCostUsageResponse]
+    def management_get_mailbox_cost_usage(public_id, start, _end, opts = {})
+      data, _status_code, _headers = management_get_mailbox_cost_usage_with_http_info(public_id, start, _end, opts)
+      data
+    end
+
+    # Read mailbox costs
+    # Read cumulative mailbox costs for a half-open window: start is included and end is excluded. Requires mailbox.admin.read and team-wide mailbox access. Retained usage remains readable after mailbox deletion while the team and credential remain active. Quantities and USD amounts are decimal strings. posted_amount includes only posted charges; incurred and unbillable amounts are reported separately. A pending result can change. Settle a window only when its state is final. This read does not start or complete settlement.
+    # @param public_id [String] Mailbox public ID.
+    # @param start [Time] Inclusive start. At most millisecond precision.
+    # @param _end [Time] Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match Return 304 when the authorised response is unchanged.
+    # @return [Array<(MailboxCostUsageResponse, Integer, Hash)>] MailboxCostUsageResponse data, response status code and response headers
+    def management_get_mailbox_cost_usage_with_http_info(public_id, start, _end, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxesApi.management_get_mailbox_cost_usage ...'
+      end
+      # verify the required parameter 'public_id' is set
+      if @api_client.config.client_side_validation && public_id.nil?
+        fail ArgumentError, "Missing the required parameter 'public_id' when calling MailboxesApi.management_get_mailbox_cost_usage"
+      end
+      # verify the required parameter 'start' is set
+      if @api_client.config.client_side_validation && start.nil?
+        fail ArgumentError, "Missing the required parameter 'start' when calling MailboxesApi.management_get_mailbox_cost_usage"
+      end
+      # verify the required parameter '_end' is set
+      if @api_client.config.client_side_validation && _end.nil?
+        fail ArgumentError, "Missing the required parameter '_end' when calling MailboxesApi.management_get_mailbox_cost_usage"
+      end
+      # resource path
+      local_var_path = '/mailboxes/{public_id}/usage'.sub('{public_id}', CGI.escape(public_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      [['start', start], ['end', _end]].each do |name, value|
+        if value.is_a?(Time) && (value.subsec * 1000).denominator != 1
+          raise ArgumentError, "#{name} must use at most millisecond precision"
+        end
+      end
+      query_params[:'start'] = start.is_a?(Time) ? start.getutc.iso8601(3) : start
+      query_params[:'end'] = _end.is_a?(Time) ? _end.getutc.iso8601(3) : _end
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxCostUsageResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxesApi.management_get_mailbox_cost_usage",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxesApi#management_get_mailbox_cost_usage\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Get a sending policy
+    # Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies. Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies. Integration and mailbox keys cannot manage these policies.
+    # @param scope [String] Policy level to read or replace.
+    # @param public_id [String] Public ID of the team, inbox, API key, connected-app grant or agent registration.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match Return 304 when this ETag still matches.
+    # @return [MailboxSendPolicyResponse]
+    def management_get_mailbox_send_policy(scope, public_id, opts = {})
+      data, _status_code, _headers = management_get_mailbox_send_policy_with_http_info(scope, public_id, opts)
+      data
+    end
+
+    # Get a sending policy
+    # Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies. Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies. Integration and mailbox keys cannot manage these policies.
+    # @param scope [String] Policy level to read or replace.
+    # @param public_id [String] Public ID of the team, inbox, API key, connected-app grant or agent registration.
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :if_none_match Return 304 when this ETag still matches.
+    # @return [Array<(MailboxSendPolicyResponse, Integer, Hash)>] MailboxSendPolicyResponse data, response status code and response headers
+    def management_get_mailbox_send_policy_with_http_info(scope, public_id, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxesApi.management_get_mailbox_send_policy ...'
+      end
+      # verify the required parameter 'scope' is set
+      if @api_client.config.client_side_validation && scope.nil?
+        fail ArgumentError, "Missing the required parameter 'scope' when calling MailboxesApi.management_get_mailbox_send_policy"
+      end
+      # verify enum value
+      allowable_values = ["team", "mailbox", "api_key", "oauth_grant", "agent_registration", "unknown_default_open_api"]
+      if @api_client.config.client_side_validation && !allowable_values.include?(scope)
+        fail ArgumentError, "invalid value for \"scope\", must be one of #{allowable_values}"
+      end
+      # verify the required parameter 'public_id' is set
+      if @api_client.config.client_side_validation && public_id.nil?
+        fail ArgumentError, "Missing the required parameter 'public_id' when calling MailboxesApi.management_get_mailbox_send_policy"
+      end
+      if @api_client.config.client_side_validation && public_id.to_s.length > 128
+        fail ArgumentError, 'invalid value for "public_id" when calling MailboxesApi.management_get_mailbox_send_policy, the character length must be smaller than or equal to 128.'
+      end
+
+      if @api_client.config.client_side_validation && public_id.to_s.length < 1
+        fail ArgumentError, 'invalid value for "public_id" when calling MailboxesApi.management_get_mailbox_send_policy, the character length must be greater than or equal to 1.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox-send-policies/{scope}/{public_id}'.sub('{scope}', CGI.escape(scope.to_s)).sub('{public_id}', CGI.escape(public_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxSendPolicyResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxesApi.management_get_mailbox_send_policy",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxesApi#management_get_mailbox_send_policy\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # List mailboxes
     # Returns a cursor-paginated list of mailboxes configured for the team, ordered by `created_at` descending. Pass `cursor=<next_cursor>` from the previous response to fetch the next page.
     # @param [Hash] opts the optional parameters
@@ -503,6 +673,109 @@ module Sendmux::Management::Generated
       data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
       if @api_client.config.debugging
         @api_client.config.logger.debug "API called: MailboxesApi#management_list_mailboxes\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
+    # Replace a sending policy
+    # Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies. Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies. Integration and mailbox keys cannot manage these policies.
+    # @param scope [String] Policy level to read or replace.
+    # @param public_id [String] Public ID of the team, inbox, API key, connected-app grant or agent registration.
+    # @param if_match [String] Required exact ETag from the current policy. Wildcards are not accepted.
+    # @param replace_mailbox_send_policy [ReplaceMailboxSendPolicy]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :idempotency_key Reuse with the same policy and ETag to replay a successful replacement.
+    # @return [MailboxSendPolicyResponse]
+    def management_replace_mailbox_send_policy(scope, public_id, if_match, replace_mailbox_send_policy, opts = {})
+      data, _status_code, _headers = management_replace_mailbox_send_policy_with_http_info(scope, public_id, if_match, replace_mailbox_send_policy, opts)
+      data
+    end
+
+    # Replace a sending policy
+    # Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies. Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies. Integration and mailbox keys cannot manage these policies.
+    # @param scope [String] Policy level to read or replace.
+    # @param public_id [String] Public ID of the team, inbox, API key, connected-app grant or agent registration.
+    # @param if_match [String] Required exact ETag from the current policy. Wildcards are not accepted.
+    # @param replace_mailbox_send_policy [ReplaceMailboxSendPolicy]
+    # @param [Hash] opts the optional parameters
+    # @option opts [String] :idempotency_key Reuse with the same policy and ETag to replay a successful replacement.
+    # @return [Array<(MailboxSendPolicyResponse, Integer, Hash)>] MailboxSendPolicyResponse data, response status code and response headers
+    def management_replace_mailbox_send_policy_with_http_info(scope, public_id, if_match, replace_mailbox_send_policy, opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxesApi.management_replace_mailbox_send_policy ...'
+      end
+      # verify the required parameter 'scope' is set
+      if @api_client.config.client_side_validation && scope.nil?
+        fail ArgumentError, "Missing the required parameter 'scope' when calling MailboxesApi.management_replace_mailbox_send_policy"
+      end
+      # verify enum value
+      allowable_values = ["team", "mailbox", "api_key", "oauth_grant", "agent_registration", "unknown_default_open_api"]
+      if @api_client.config.client_side_validation && !allowable_values.include?(scope)
+        fail ArgumentError, "invalid value for \"scope\", must be one of #{allowable_values}"
+      end
+      # verify the required parameter 'public_id' is set
+      if @api_client.config.client_side_validation && public_id.nil?
+        fail ArgumentError, "Missing the required parameter 'public_id' when calling MailboxesApi.management_replace_mailbox_send_policy"
+      end
+      if @api_client.config.client_side_validation && public_id.to_s.length > 128
+        fail ArgumentError, 'invalid value for "public_id" when calling MailboxesApi.management_replace_mailbox_send_policy, the character length must be smaller than or equal to 128.'
+      end
+
+      if @api_client.config.client_side_validation && public_id.to_s.length < 1
+        fail ArgumentError, 'invalid value for "public_id" when calling MailboxesApi.management_replace_mailbox_send_policy, the character length must be greater than or equal to 1.'
+      end
+
+      # verify the required parameter 'if_match' is set
+      if @api_client.config.client_side_validation && if_match.nil?
+        fail ArgumentError, "Missing the required parameter 'if_match' when calling MailboxesApi.management_replace_mailbox_send_policy"
+      end
+      # verify the required parameter 'replace_mailbox_send_policy' is set
+      if @api_client.config.client_side_validation && replace_mailbox_send_policy.nil?
+        fail ArgumentError, "Missing the required parameter 'replace_mailbox_send_policy' when calling MailboxesApi.management_replace_mailbox_send_policy"
+      end
+      # resource path
+      local_var_path = '/mailbox-send-policies/{scope}/{public_id}'.sub('{scope}', CGI.escape(scope.to_s)).sub('{public_id}', CGI.escape(public_id.to_s))
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      # HTTP header 'Content-Type'
+      content_type = @api_client.select_header_content_type(['application/json'])
+      if !content_type.nil?
+          header_params['Content-Type'] = content_type
+      end
+      header_params[:'If-Match'] = if_match
+      header_params[:'Idempotency-Key'] = opts[:'idempotency_key'] if !opts[:'idempotency_key'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body] || @api_client.object_to_http_body(replace_mailbox_send_policy)
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxSendPolicyResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxesApi.management_replace_mailbox_send_policy",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:PUT, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxesApi#management_replace_mailbox_send_policy\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end

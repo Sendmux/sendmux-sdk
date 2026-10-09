@@ -27,8 +27,8 @@ assert.equal(result.status, 0, result.stderr || result.stdout);
 const plan = JSON.parse(result.stdout);
 assert.equal(plan.ok, true);
 assert.deepEqual(plan.adapters, ["typescript", "python", "go", "php", "ruby", "cli", "mcp"]);
-assert.equal(plan.summary.total, 119);
-assert.equal(plan.summary.executable, 59);
+assert.equal(plan.summary.total, 120);
+assert.equal(plan.summary.executable, 60);
 assert.equal(plan.summary.gated, 60);
 assert.equal(plan.summary.blocked, 0);
 assert.equal(plan.summary.gatedByRisk.mutation, 32);
@@ -118,8 +118,8 @@ const gatedResult = spawnSync(process.execPath, ["scripts/run-live-e2e.mjs", "--
 
 assert.equal(gatedResult.status, 0, gatedResult.stderr || gatedResult.stdout);
 const gatedPlan = JSON.parse(gatedResult.stdout);
-assert.equal(gatedPlan.summary.total, 119);
-assert.equal(gatedPlan.summary.executable, 119);
+assert.equal(gatedPlan.summary.total, 120);
+assert.equal(gatedPlan.summary.executable, 120);
 assert.equal(gatedPlan.summary.gated, 0);
 assert.equal(gatedPlan.summary.blocked, 0);
 
@@ -327,7 +327,7 @@ assert.match(
   /const fixtureTeardownTimeoutMs = 30_000;/,
   "live E2E runner must bound fixture teardown cleanup calls",
 );
-const safety = spawnSync(process.execPath, ["--test", "scripts/test-live-e2e-safety.mjs"], {
+const safety = spawnSync(process.execPath, ["--test", "--test-reporter=tap", "scripts/test-live-e2e-safety.mjs"], {
   encoding: "utf8",
   env: fixtureEnv,
 });

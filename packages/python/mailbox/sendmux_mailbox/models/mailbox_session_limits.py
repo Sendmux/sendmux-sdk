@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, StrictInt, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,13 +31,21 @@ class MailboxSessionLimits(BaseModel):
     batch_ids_max: StrictInt
     body_chars_max: StrictInt
     changes_limit_max: StrictInt
+    draft_schedule_days_max: StrictInt
     inline_attachment_bytes_max: StrictInt
     keywords_per_update_max: StrictInt
     list_limit_max: StrictInt
     message_body_chars_default: StrictInt
     outbound_raw_message_bytes_max: StrictInt
     thread_body_chars_default: StrictInt
-    __properties: ClassVar[List[str]] = ["attachment_upload_bytes_max", "batch_ids_max", "body_chars_max", "changes_limit_max", "inline_attachment_bytes_max", "keywords_per_update_max", "list_limit_max", "message_body_chars_default", "outbound_raw_message_bytes_max", "thread_body_chars_default"]
+    __properties: ClassVar[List[str]] = ["attachment_upload_bytes_max", "batch_ids_max", "body_chars_max", "changes_limit_max", "draft_schedule_days_max", "inline_attachment_bytes_max", "keywords_per_update_max", "list_limit_max", "message_body_chars_default", "outbound_raw_message_bytes_max", "thread_body_chars_default"]
+
+    @field_validator('draft_schedule_days_max')
+    def draft_schedule_days_max_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set([30]):
+            raise ValueError("must be one of enum values (30)")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -94,6 +102,7 @@ class MailboxSessionLimits(BaseModel):
             "batch_ids_max": obj.get("batch_ids_max"),
             "body_chars_max": obj.get("body_chars_max"),
             "changes_limit_max": obj.get("changes_limit_max"),
+            "draft_schedule_days_max": obj.get("draft_schedule_days_max"),
             "inline_attachment_bytes_max": obj.get("inline_attachment_bytes_max"),
             "keywords_per_update_max": obj.get("keywords_per_update_max"),
             "list_limit_max": obj.get("list_limit_max"),

@@ -666,6 +666,7 @@ export type MailboxSession = {
         batch_ids_max: number;
         body_chars_max: number;
         changes_limit_max: number;
+        draft_schedule_days_max: 30;
         inline_attachment_bytes_max: number;
         keywords_per_update_max: number;
         list_limit_max: number;

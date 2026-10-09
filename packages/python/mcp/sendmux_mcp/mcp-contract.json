@@ -51,7 +51,7 @@
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "90143520564077283dddf9bcc7d11d73083befd7873107138cf64fa4d1a24bcf",
+      "openapi/openapi-app.json": "419315e369f499b767579b6a53db9e82fec2cb1e14e4ffb040f9e7e4157de81d",
       "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
       "permissions.py": "08aeb04133a881d52545288a4a99e10aa68ac2cceaba6b68e1273c76a18f1dbd",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
@@ -5530,6 +5530,12 @@
                               "changes_limit_max": {
                                 "type": "integer"
                               },
+                              "draft_schedule_days_max": {
+                                "enum": [
+                                  30
+                                ],
+                                "type": "integer"
+                              },
                               "inline_attachment_bytes_max": {
                                 "type": "integer"
                               },
@@ -5550,6 +5556,7 @@
                               }
                             },
                             "required": [
+                              "draft_schedule_days_max",
                               "list_limit_max",
                               "changes_limit_max",
                               "batch_ids_max",

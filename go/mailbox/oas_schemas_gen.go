@@ -11512,16 +11512,17 @@ func (s *MailboxSessionGated) SetVacationResponse(val bool) {
 }
 
 type MailboxSessionLimits struct {
-	AttachmentUploadBytesMax   int `json:"attachment_upload_bytes_max"`
-	BatchIdsMax                int `json:"batch_ids_max"`
-	BodyCharsMax               int `json:"body_chars_max"`
-	ChangesLimitMax            int `json:"changes_limit_max"`
-	InlineAttachmentBytesMax   int `json:"inline_attachment_bytes_max"`
-	KeywordsPerUpdateMax       int `json:"keywords_per_update_max"`
-	ListLimitMax               int `json:"list_limit_max"`
-	MessageBodyCharsDefault    int `json:"message_body_chars_default"`
-	OutboundRawMessageBytesMax int `json:"outbound_raw_message_bytes_max"`
-	ThreadBodyCharsDefault     int `json:"thread_body_chars_default"`
+	AttachmentUploadBytesMax   int                                      `json:"attachment_upload_bytes_max"`
+	BatchIdsMax                int                                      `json:"batch_ids_max"`
+	BodyCharsMax               int                                      `json:"body_chars_max"`
+	ChangesLimitMax            int                                      `json:"changes_limit_max"`
+	DraftScheduleDaysMax       MailboxSessionLimitsDraftScheduleDaysMax `json:"draft_schedule_days_max"`
+	InlineAttachmentBytesMax   int                                      `json:"inline_attachment_bytes_max"`
+	KeywordsPerUpdateMax       int                                      `json:"keywords_per_update_max"`
+	ListLimitMax               int                                      `json:"list_limit_max"`
+	MessageBodyCharsDefault    int                                      `json:"message_body_chars_default"`
+	OutboundRawMessageBytesMax int                                      `json:"outbound_raw_message_bytes_max"`
+	ThreadBodyCharsDefault     int                                      `json:"thread_body_chars_default"`
 }
 
 // GetAttachmentUploadBytesMax returns the value of AttachmentUploadBytesMax.
@@ -11542,6 +11543,11 @@ func (s *MailboxSessionLimits) GetBodyCharsMax() int {
 // GetChangesLimitMax returns the value of ChangesLimitMax.
 func (s *MailboxSessionLimits) GetChangesLimitMax() int {
 	return s.ChangesLimitMax
+}
+
+// GetDraftScheduleDaysMax returns the value of DraftScheduleDaysMax.
+func (s *MailboxSessionLimits) GetDraftScheduleDaysMax() MailboxSessionLimitsDraftScheduleDaysMax {
+	return s.DraftScheduleDaysMax
 }
 
 // GetInlineAttachmentBytesMax returns the value of InlineAttachmentBytesMax.
@@ -11594,6 +11600,11 @@ func (s *MailboxSessionLimits) SetChangesLimitMax(val int) {
 	s.ChangesLimitMax = val
 }
 
+// SetDraftScheduleDaysMax sets the value of DraftScheduleDaysMax.
+func (s *MailboxSessionLimits) SetDraftScheduleDaysMax(val MailboxSessionLimitsDraftScheduleDaysMax) {
+	s.DraftScheduleDaysMax = val
+}
+
 // SetInlineAttachmentBytesMax sets the value of InlineAttachmentBytesMax.
 func (s *MailboxSessionLimits) SetInlineAttachmentBytesMax(val int) {
 	s.InlineAttachmentBytesMax = val
@@ -11622,6 +11633,19 @@ func (s *MailboxSessionLimits) SetOutboundRawMessageBytesMax(val int) {
 // SetThreadBodyCharsDefault sets the value of ThreadBodyCharsDefault.
 func (s *MailboxSessionLimits) SetThreadBodyCharsDefault(val int) {
 	s.ThreadBodyCharsDefault = val
+}
+
+type MailboxSessionLimitsDraftScheduleDaysMax int
+
+const (
+	MailboxSessionLimitsDraftScheduleDaysMax30 MailboxSessionLimitsDraftScheduleDaysMax = 30
+)
+
+// AllValues returns all MailboxSessionLimitsDraftScheduleDaysMax values.
+func (MailboxSessionLimitsDraftScheduleDaysMax) AllValues() []MailboxSessionLimitsDraftScheduleDaysMax {
+	return []MailboxSessionLimitsDraftScheduleDaysMax{
+		MailboxSessionLimitsDraftScheduleDaysMax30,
+	}
 }
 
 type MailboxSessionMailbox struct {

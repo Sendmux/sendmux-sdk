@@ -6198,6 +6198,12 @@
               "changes_limit_max": {
                 "type": "integer"
               },
+              "draft_schedule_days_max": {
+                "enum": [
+                  30
+                ],
+                "type": "integer"
+              },
               "inline_attachment_bytes_max": {
                 "type": "integer"
               },
@@ -6218,6 +6224,7 @@
               }
             },
             "required": [
+              "draft_schedule_days_max",
               "list_limit_max",
               "changes_limit_max",
               "batch_ids_max",

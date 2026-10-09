@@ -91,6 +91,8 @@ jobs:
         run: pnpm verify:core
       - name: Mailbox session discovery consumers
         run: node --test scripts/test-session-discovery.mjs
+      - name: Mailbox sender choices consumers
+        run: node --test scripts/test-sender-choices.mjs
       # The live E2E harness loads the PHP (vendor/), Ruby (bundle) and Python SDKs; check:python
       # installs the native Python packages into the .tmp/python-venv that drift:check created for MCP.
       - name: Prepare live E2E harness runtimes

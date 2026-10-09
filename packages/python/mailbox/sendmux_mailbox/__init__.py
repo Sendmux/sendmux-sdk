@@ -125,6 +125,10 @@ __all__ = [
     "MailboxSearchSnippetsResultResponse",
     "MailboxSendResultResponse",
     "MailboxSendScope",
+    "MailboxSenderChoices",
+    "MailboxSenderChoicesFrom",
+    "MailboxSenderChoicesReplyTo",
+    "MailboxSenderChoicesResponse",
     "MailboxSession",
     "MailboxSessionCapabilities",
     "MailboxSessionCapabilitiesAttachments",
@@ -291,6 +295,10 @@ from sendmux_mailbox.models.mailbox_search_snippets_result import MailboxSearchS
 from sendmux_mailbox.models.mailbox_search_snippets_result_response import MailboxSearchSnippetsResultResponse as MailboxSearchSnippetsResultResponse
 from sendmux_mailbox.models.mailbox_send_result_response import MailboxSendResultResponse as MailboxSendResultResponse
 from sendmux_mailbox.models.mailbox_send_scope import MailboxSendScope as MailboxSendScope
+from sendmux_mailbox.models.mailbox_sender_choices import MailboxSenderChoices as MailboxSenderChoices
+from sendmux_mailbox.models.mailbox_sender_choices_from import MailboxSenderChoicesFrom as MailboxSenderChoicesFrom
+from sendmux_mailbox.models.mailbox_sender_choices_reply_to import MailboxSenderChoicesReplyTo as MailboxSenderChoicesReplyTo
+from sendmux_mailbox.models.mailbox_sender_choices_response import MailboxSenderChoicesResponse as MailboxSenderChoicesResponse
 from sendmux_mailbox.models.mailbox_session import MailboxSession as MailboxSession
 from sendmux_mailbox.models.mailbox_session_capabilities import MailboxSessionCapabilities as MailboxSessionCapabilities
 from sendmux_mailbox.models.mailbox_session_capabilities_attachments import MailboxSessionCapabilitiesAttachments as MailboxSessionCapabilitiesAttachments

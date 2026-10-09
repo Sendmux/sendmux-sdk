@@ -6151,6 +6151,51 @@ type MailboxGetMessageNotModified struct{}
 
 func (*MailboxGetMessageNotModified) mailboxGetMessageRes() {}
 
+type MailboxGetSenderChoicesBadRequest ApiError
+
+func (*MailboxGetSenderChoicesBadRequest) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesForbidden ApiError
+
+func (*MailboxGetSenderChoicesForbidden) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesInternalServerError ApiError
+
+func (*MailboxGetSenderChoicesInternalServerError) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesNotFound ApiError
+
+func (*MailboxGetSenderChoicesNotFound) mailboxGetSenderChoicesRes() {}
+
+// MailboxGetSenderChoicesNotModified is response for MailboxGetSenderChoices operation.
+type MailboxGetSenderChoicesNotModified struct {
+	ETag OptString
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxGetSenderChoicesNotModified) GetETag() OptString {
+	return s.ETag
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxGetSenderChoicesNotModified) SetETag(val OptString) {
+	s.ETag = val
+}
+
+func (*MailboxGetSenderChoicesNotModified) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesServiceUnavailable ApiError
+
+func (*MailboxGetSenderChoicesServiceUnavailable) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesTooManyRequests ApiError
+
+func (*MailboxGetSenderChoicesTooManyRequests) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesUnauthorized ApiError
+
+func (*MailboxGetSenderChoicesUnauthorized) mailboxGetSenderChoicesRes() {}
+
 type MailboxGetSessionForbidden ApiError
 
 func (*MailboxGetSessionForbidden) mailboxGetSessionRes() {}
@@ -10420,6 +10465,219 @@ func (s *MailboxSendScopeType) UnmarshalText(data []byte) error {
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/MailboxSenderChoices
+type MailboxSenderChoices struct {
+	// Permitted exact From addresses and verified domains. Domains allow any localpart on that exact
+	// domain.
+	From MailboxSenderChoicesFrom `json:"from"`
+	// Originating inbox address; authorisation and billing remain attached to this inbox.
+	OriginAddress string `json:"origin_address"`
+	// Permitted exact Reply-To addresses and domains. The originating inbox is the default when
+	// permitted.
+	ReplyTo MailboxSenderChoicesReplyTo `json:"reply_to"`
+}
+
+// GetFrom returns the value of From.
+func (s *MailboxSenderChoices) GetFrom() MailboxSenderChoicesFrom {
+	return s.From
+}
+
+// GetOriginAddress returns the value of OriginAddress.
+func (s *MailboxSenderChoices) GetOriginAddress() string {
+	return s.OriginAddress
+}
+
+// GetReplyTo returns the value of ReplyTo.
+func (s *MailboxSenderChoices) GetReplyTo() MailboxSenderChoicesReplyTo {
+	return s.ReplyTo
+}
+
+// SetFrom sets the value of From.
+func (s *MailboxSenderChoices) SetFrom(val MailboxSenderChoicesFrom) {
+	s.From = val
+}
+
+// SetOriginAddress sets the value of OriginAddress.
+func (s *MailboxSenderChoices) SetOriginAddress(val string) {
+	s.OriginAddress = val
+}
+
+// SetReplyTo sets the value of ReplyTo.
+func (s *MailboxSenderChoices) SetReplyTo(val MailboxSenderChoicesReplyTo) {
+	s.ReplyTo = val
+}
+
+// Permitted exact From addresses and verified domains. Domains allow any localpart on that exact
+// domain.
+type MailboxSenderChoicesFrom struct {
+	Addresses []string `json:"addresses"`
+	Domains   []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSenderChoicesFrom) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSenderChoicesFrom) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSenderChoicesFrom) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSenderChoicesFrom) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Permitted exact Reply-To addresses and domains. The originating inbox is the default when
+// permitted.
+type MailboxSenderChoicesReplyTo struct {
+	Addresses []string `json:"addresses"`
+	Domains   []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSenderChoicesReplyTo) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSenderChoicesReplyTo) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSenderChoicesReplyTo) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSenderChoicesReplyTo) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxSenderChoicesResponse
+type MailboxSenderChoicesResponse struct {
+	// Merged property.
+	Meta MailboxSenderChoicesResponseMeta `json:"meta"`
+	Ok   MailboxSenderChoicesResponseOk   `json:"ok"`
+	Data MailboxSenderChoices             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxSenderChoicesResponse) GetMeta() MailboxSenderChoicesResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxSenderChoicesResponse) GetOk() MailboxSenderChoicesResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxSenderChoicesResponse) GetData() MailboxSenderChoices {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxSenderChoicesResponse) SetMeta(val MailboxSenderChoicesResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxSenderChoicesResponse) SetOk(val MailboxSenderChoicesResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxSenderChoicesResponse) SetData(val MailboxSenderChoices) {
+	s.Data = val
+}
+
+// MailboxSenderChoicesResponseHeaders wraps MailboxSenderChoicesResponse with response headers.
+type MailboxSenderChoicesResponseHeaders struct {
+	ETag     OptString
+	Response MailboxSenderChoicesResponse
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxSenderChoicesResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxSenderChoicesResponseHeaders) GetResponse() MailboxSenderChoicesResponse {
+	return s.Response
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxSenderChoicesResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxSenderChoicesResponseHeaders) SetResponse(val MailboxSenderChoicesResponse) {
+	s.Response = val
+}
+
+func (*MailboxSenderChoicesResponseHeaders) mailboxGetSenderChoicesRes() {}
+
+// Merged schema.
+type MailboxSenderChoicesResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxSenderChoicesResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxSenderChoicesResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxSenderChoicesResponseMeta) GetAdditionalProps() MailboxSenderChoicesResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxSenderChoicesResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxSenderChoicesResponseMeta) SetAdditionalProps(val MailboxSenderChoicesResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxSenderChoicesResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxSenderChoicesResponseMetaAdditional) init() MailboxSenderChoicesResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxSenderChoicesResponseOk bool
+
+const (
+	MailboxSenderChoicesResponseOkTrue MailboxSenderChoicesResponseOk = true
+)
+
+// AllValues returns all MailboxSenderChoicesResponseOk values.
+func (MailboxSenderChoicesResponseOk) AllValues() []MailboxSenderChoicesResponseOk {
+	return []MailboxSenderChoicesResponseOk{
+		MailboxSenderChoicesResponseOkTrue,
 	}
 }
 

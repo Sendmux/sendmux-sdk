@@ -99,6 +99,28 @@ impl Server {
 }
 
 #[tokio::test]
+async fn raw_sender_choices_preserve_policy_payload_and_repeated_group_query() {
+    let choices = json!({
+        "origin_address": "origin@example.com",
+        "from": {"addresses": ["sender@example.com"], "domains": ["example.com"]},
+        "reply_to": {"addresses": ["reply@example.com"], "domains": ["example.org"]}
+    });
+    let mut server = Server::new(json!({"ok":true,"meta":{"request_id":"req_choices"},"data":choices}));
+    let client = MailboxClient::new("smx_mbx_fixture")
+        .unwrap()
+        .with_base_url(server.base())
+        .unwrap();
+    let response = client
+        .raw_get("/mailbox/sender-choices?delivery_group_id=group-one&delivery_group_id=group-two")
+        .await
+        .unwrap();
+    let requests = server.finish();
+    assert_eq!(response.data, choices);
+    assert_eq!(requests.len(), 1);
+    assert!(requests[0].starts_with("GET /api/v1/mailbox/sender-choices?delivery_group_id=group-one&delivery_group_id=group-two HTTP/1.1\r\n"));
+}
+
+#[tokio::test]
 async fn cursor_lists_preserve_pagination_and_advance_to_next_page() {
     let pages = (0..6).flat_map(|_| [
         (200, json!({"ok":true,"data":[{"id":"first"}],"meta":{"request_id":"req_first"},"pagination":{"has_more":true,"next_cursor":"next/a+b"}})),

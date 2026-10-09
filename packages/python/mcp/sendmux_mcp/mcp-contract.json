@@ -44,16 +44,16 @@
       "cli.py": "ed2b48ed6ee9a081ac40a1e8c5c29d032bb356eaee1f0a31713092a0558f1539",
       "config.py": "28f9fe9f396d707562fb119a75f3a92a27db78ade735cf3bf2f5d3039c6583df",
       "contract.py": "8be5dcf207fd771774beddf433cad3734a9250284a26e57d9d3f607c670395c3",
-      "curation.py": "ad6673917b3c40ed84a0800b0720f5eb64e843824c490dbcbbf39ece05fced76",
+      "curation.py": "ba8e91c99cf203654e25a766db3bb02d1fa2bfa5768ad6a3edb69df03ad9774f",
       "hosted.py": "6ed9af8290311fb7ce34dd52fe234d003b28069bd63ee0d78ecdfd8dcba084b8",
       "hosted_auth.py": "a85c5c2e10dff2a5b92cb3e3713a3c95c53d04f6ed0e647ca88a7f059e9a8e25",
       "hosted_proxy.py": "10c51845ef393fbb75749cc8b9cbaedc2f0c5e43f650805842dad3c84f538493",
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "419315e369f499b767579b6a53db9e82fec2cb1e14e4ffb040f9e7e4157de81d",
+      "openapi/openapi-app.json": "2b378d522d3b97b83582c49a9235553c1c44a951c63d52d1f5b3e65dcb441e95",
       "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
-      "permissions.py": "08aeb04133a881d52545288a4a99e10aa68ac2cceaba6b68e1273c76a18f1dbd",
+      "permissions.py": "aa27f177b17871d954327a8a6d063dfb5b1f87d1a77d661893739137a1d5e2ca",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
       "retry.py": "e1454a54ffe1b5b558c820b6e9cff2d2c0f8c1ea501f63051dc9716bf1f67191",
       "security.py": "45f59d632995254dc8dc5acec41b6f0f5c583a7db3f9c50a143a8c48dffa4016",
@@ -5049,6 +5049,171 @@
             "x-fastmcp-wrap-result": true
           },
           "title": "Get Message"
+        },
+        {
+          "annotations": {
+            "destructive_hint": false,
+            "idempotent_hint": true,
+            "open_world_hint": true,
+            "read_only_hint": true
+          },
+          "description": "Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.",
+          "input_schema": {
+            "properties": {
+              "If-None-Match": {
+                "type": "string"
+              },
+              "delivery_group_id": {
+                "description": "Restrict choices to these delivery groups.",
+                "items": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              "mailbox_id": {
+                "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "name": "mailbox_get_sender_choices",
+          "output_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "result": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "meta": {
+                        "additionalProperties": {},
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "ok": {
+                        "enum": [
+                          true
+                        ],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "ok",
+                      "meta"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "data": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "additionalProperties": false,
+                            "description": "Permitted exact From addresses and verified domains. Domains allow any localpart on that exact domain.",
+                            "properties": {
+                              "addresses": {
+                                "items": {
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "maxItems": 1702,
+                                "type": "array"
+                              },
+                              "domains": {
+                                "items": {
+                                  "maxLength": 253,
+                                  "type": "string"
+                                },
+                                "maxItems": 100,
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "addresses",
+                              "domains"
+                            ],
+                            "type": "object"
+                          },
+                          "origin_address": {
+                            "description": "Originating inbox address; authorisation and billing remain attached to this inbox.",
+                            "format": "email",
+                            "type": "string"
+                          },
+                          "reply_to": {
+                            "additionalProperties": false,
+                            "description": "Permitted exact Reply-To addresses and domains. The originating inbox is the default when permitted.",
+                            "properties": {
+                              "addresses": {
+                                "items": {
+                                  "format": "email",
+                                  "maxLength": 254,
+                                  "type": "string"
+                                },
+                                "maxItems": 1702,
+                                "type": "array"
+                              },
+                              "domains": {
+                                "items": {
+                                  "maxLength": 253,
+                                  "type": "string"
+                                },
+                                "maxItems": 100,
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "addresses",
+                              "domains"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "origin_address",
+                          "from",
+                          "reply_to"
+                        ],
+                        "type": "object"
+                      },
+                      "meta": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "request_id": {
+                            "example": "req_clxxxxxxxxxxxxxxxxxxxxxxxxx",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "request_id"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "unevaluatedProperties": {
+                  "not": {}
+                },
+                "x-fastmcp-top-level-schema": "MailboxSenderChoicesResponse"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "type": "object",
+            "x-fastmcp-wrap-result": true
+          },
+          "title": "Get permitted sender choices"
         },
         {
           "annotations": {
@@ -18521,7 +18686,7 @@
         }
       ]
     },
-    "count": 64
+    "count": 65
   },
   "uploads": {
     "inline_decoded_max_bytes": 32768,

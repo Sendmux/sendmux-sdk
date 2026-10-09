@@ -1705,6 +1705,76 @@ module Sendmux::Mailbox::Generated
       return data, status_code, headers
     end
 
+    # Get permitted sender choices
+    # Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Array<String>] :delivery_group_id Restrict choices to these delivery groups.
+    # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [MailboxSenderChoicesResponse]
+    def mailbox_get_sender_choices(opts = {})
+      data, _status_code, _headers = mailbox_get_sender_choices_with_http_info(opts)
+      data
+    end
+
+    # Get permitted sender choices
+    # Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Array<String>] :delivery_group_id Restrict choices to these delivery groups.
+    # @option opts [String] :if_none_match
+    # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+    # @return [Array<(MailboxSenderChoicesResponse, Integer, Hash)>] MailboxSenderChoicesResponse data, response status code and response headers
+    def mailbox_get_sender_choices_with_http_info(opts = {})
+      if @api_client.config.debugging
+        @api_client.config.logger.debug 'Calling API: MailboxAPIApi.mailbox_get_sender_choices ...'
+      end
+      if @api_client.config.client_side_validation && !opts[:'delivery_group_id'].nil? && opts[:'delivery_group_id'].length > 50
+        fail ArgumentError, 'invalid value for "opts[:"delivery_group_id"]" when calling MailboxAPIApi.mailbox_get_sender_choices, number of items must be less than or equal to 50.'
+      end
+
+      # resource path
+      local_var_path = '/mailbox/sender-choices'
+
+      # query parameters
+      query_params = opts[:query_params] || {}
+      query_params[:'delivery_group_id'] = @api_client.build_collection_param(opts[:'delivery_group_id'], :multi) if !opts[:'delivery_group_id'].nil?
+      query_params[:'mailbox_id'] = opts[:'mailbox_id'] if !opts[:'mailbox_id'].nil?
+
+      # header parameters
+      header_params = opts[:header_params] || {}
+      # HTTP header 'Accept' (if needed)
+      header_params['Accept'] = @api_client.select_header_accept(['application/json']) unless header_params['Accept']
+      header_params[:'If-None-Match'] = opts[:'if_none_match'] if !opts[:'if_none_match'].nil?
+
+      # form parameters
+      form_params = opts[:form_params] || {}
+
+      # http body (model)
+      post_body = opts[:debug_body]
+
+      # return_type
+      return_type = opts[:debug_return_type] || 'MailboxSenderChoicesResponse'
+
+      # auth_names
+      auth_names = opts[:debug_auth_names] || ['oauth2', 'bearerAuth']
+
+      new_options = opts.merge(
+        :operation => :"MailboxAPIApi.mailbox_get_sender_choices",
+        :header_params => header_params,
+        :query_params => query_params,
+        :form_params => form_params,
+        :body => post_body,
+        :auth_names => auth_names,
+        :return_type => return_type
+      )
+
+      data, status_code, headers = @api_client.call_api(:GET, local_var_path, new_options)
+      if @api_client.config.debugging
+        @api_client.config.logger.debug "API called: MailboxAPIApi#mailbox_get_sender_choices\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+      end
+      return data, status_code, headers
+    end
+
     # Get mailbox API session
     # Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for the authenticated mailbox.
     # @param [Hash] opts the optional parameters

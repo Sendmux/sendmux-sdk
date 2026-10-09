@@ -5513,6 +5513,100 @@
         ],
         "unevaluatedProperties": false
       },
+      "MailboxSenderChoices": {
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "additionalProperties": false,
+            "description": "Permitted exact From addresses and verified domains. Domains allow any localpart on that exact domain.",
+            "properties": {
+              "addresses": {
+                "items": {
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "maxItems": 1702,
+                "type": "array"
+              },
+              "domains": {
+                "items": {
+                  "maxLength": 253,
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "type": "array"
+              }
+            },
+            "required": [
+              "addresses",
+              "domains"
+            ],
+            "type": "object"
+          },
+          "origin_address": {
+            "description": "Originating inbox address; authorisation and billing remain attached to this inbox.",
+            "format": "email",
+            "type": "string"
+          },
+          "reply_to": {
+            "additionalProperties": false,
+            "description": "Permitted exact Reply-To addresses and domains. The originating inbox is the default when permitted.",
+            "properties": {
+              "addresses": {
+                "items": {
+                  "format": "email",
+                  "maxLength": 254,
+                  "type": "string"
+                },
+                "maxItems": 1702,
+                "type": "array"
+              },
+              "domains": {
+                "items": {
+                  "maxLength": 253,
+                  "type": "string"
+                },
+                "maxItems": 100,
+                "type": "array"
+              }
+            },
+            "required": [
+              "addresses",
+              "domains"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "origin_address",
+          "from",
+          "reply_to"
+        ],
+        "type": "object"
+      },
+      "MailboxSenderChoicesResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SuccessEnvelope"
+          },
+          {
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/MailboxSenderChoices"
+              },
+              "meta": {
+                "$ref": "#/components/schemas/ResponseMeta"
+              }
+            },
+            "required": [
+              "data"
+            ],
+            "type": "object"
+          }
+        ],
+        "unevaluatedProperties": false
+      },
       "MailboxSendPolicy": {
         "additionalProperties": false,
         "properties": {
@@ -18063,6 +18157,162 @@
           }
         ],
         "summary": "Get quota changes",
+        "tags": [
+          "Mailbox API"
+        ]
+      }
+    },
+    "/mailbox/sender-choices": {
+      "get": {
+        "description": "Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.",
+        "operationId": "mailboxGetSenderChoices",
+        "parameters": [
+          {
+            "description": "Restrict choices to these delivery groups.",
+            "in": "query",
+            "name": "delivery_group_id",
+            "required": false,
+            "schema": {
+              "description": "Restrict choices to these delivery groups.",
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              "maxItems": 50,
+              "type": "array"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-None-Match",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.",
+            "in": "query",
+            "name": "mailbox_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxSenderChoicesResponse"
+                }
+              }
+            },
+            "description": "Current permitted choices.",
+            "headers": {
+              "ETag": {
+                "description": "Current choices version.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Choices are unchanged.",
+            "headers": {
+              "ETag": {
+                "description": "Current choices version.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request failed."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "oauth2": [
+              "email.send"
+            ]
+          }
+        ],
+        "summary": "Get permitted sender choices",
         "tags": [
           "Mailbox API"
         ]

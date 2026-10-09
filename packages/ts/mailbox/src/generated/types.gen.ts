@@ -4198,6 +4198,9 @@ export type MailboxGetQuotaChangesResponse = MailboxGetQuotaChangesResponses[key
 export type MailboxGetSenderChoicesData = {
     body?: never;
     headers?: {
+        /**
+         * Return 304 when this ETag still matches.
+         */
         'If-None-Match'?: string;
     };
     path?: never;

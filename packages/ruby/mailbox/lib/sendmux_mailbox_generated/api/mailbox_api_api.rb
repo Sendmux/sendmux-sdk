@@ -1709,7 +1709,7 @@ module Sendmux::Mailbox::Generated
     # Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
     # @param [Hash] opts the optional parameters
     # @option opts [Array<String>] :delivery_group_id Restrict choices to these delivery groups.
-    # @option opts [String] :if_none_match
+    # @option opts [String] :if_none_match Return 304 when this ETag still matches.
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [MailboxSenderChoicesResponse]
     def mailbox_get_sender_choices(opts = {})
@@ -1721,7 +1721,7 @@ module Sendmux::Mailbox::Generated
     # Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
     # @param [Hash] opts the optional parameters
     # @option opts [Array<String>] :delivery_group_id Restrict choices to these delivery groups.
-    # @option opts [String] :if_none_match
+    # @option opts [String] :if_none_match Return 304 when this ETag still matches.
     # @option opts [String] :mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
     # @return [Array<(MailboxSenderChoicesResponse, Integer, Hash)>] MailboxSenderChoicesResponse data, response status code and response headers
     def mailbox_get_sender_choices_with_http_info(opts = {})

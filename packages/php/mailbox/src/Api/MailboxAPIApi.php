@@ -9907,7 +9907,7 @@ class MailboxAPIApi
      * Get permitted sender choices
      *
      * @param  string[]|null $delivery_group_id Restrict choices to these delivery groups. (optional)
-     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSenderChoices'] to see the possible values for this operation
      *
@@ -9936,7 +9936,7 @@ class MailboxAPIApi
      * Get permitted sender choices
      *
      * @param  string[]|null $delivery_group_id Restrict choices to these delivery groups. (optional)
-     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSenderChoices'] to see the possible values for this operation
      *
@@ -10129,7 +10129,7 @@ class MailboxAPIApi
      * Get permitted sender choices
      *
      * @param  string[]|null $delivery_group_id Restrict choices to these delivery groups. (optional)
-     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSenderChoices'] to see the possible values for this operation
      *
@@ -10161,7 +10161,7 @@ class MailboxAPIApi
      * Get permitted sender choices
      *
      * @param  string[]|null $delivery_group_id Restrict choices to these delivery groups. (optional)
-     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSenderChoices'] to see the possible values for this operation
      *
@@ -10229,7 +10229,7 @@ class MailboxAPIApi
      * Create request for operation 'mailboxGetSenderChoices'
      *
      * @param  string[]|null $delivery_group_id Restrict choices to these delivery groups. (optional)
-     * @param  string|null $if_none_match if_none_match (optional)
+     * @param  string|null $if_none_match Return 304 when this ETag still matches. (optional)
      * @param  string|null $mailbox_id Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox. (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['mailboxGetSenderChoices'] to see the possible values for this operation
      *

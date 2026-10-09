@@ -18184,10 +18184,12 @@
             }
           },
           {
+            "description": "Return 304 when this ETag still matches.",
             "in": "header",
             "name": "If-None-Match",
             "required": false,
             "schema": {
+              "description": "Return 304 when this ETag still matches.",
               "type": "string"
             }
           },

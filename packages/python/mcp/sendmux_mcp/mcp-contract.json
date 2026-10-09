@@ -46,12 +46,12 @@
       "contract.py": "8be5dcf207fd771774beddf433cad3734a9250284a26e57d9d3f607c670395c3",
       "curation.py": "ba8e91c99cf203654e25a766db3bb02d1fa2bfa5768ad6a3edb69df03ad9774f",
       "hosted.py": "6ed9af8290311fb7ce34dd52fe234d003b28069bd63ee0d78ecdfd8dcba084b8",
-      "hosted_auth.py": "a85c5c2e10dff2a5b92cb3e3713a3c95c53d04f6ed0e647ca88a7f059e9a8e25",
+      "hosted_auth.py": "3e7e8452d02e764b3e4f680948c2215254a5372692429bb3a2946a6401254ffe",
       "hosted_proxy.py": "10c51845ef393fbb75749cc8b9cbaedc2f0c5e43f650805842dad3c84f538493",
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "2b378d522d3b97b83582c49a9235553c1c44a951c63d52d1f5b3e65dcb441e95",
+      "openapi/openapi-app.json": "a77bad34243ba73746f526a80ac7a334ff6d1e5dd7d3408db3c71f9d49562caa",
       "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
       "permissions.py": "aa27f177b17871d954327a8a6d063dfb5b1f87d1a77d661893739137a1d5e2ca",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
@@ -5061,6 +5061,7 @@
           "input_schema": {
             "properties": {
               "If-None-Match": {
+                "description": "Return 304 when this ETag still matches.",
                 "type": "string"
               },
               "delivery_group_id": {

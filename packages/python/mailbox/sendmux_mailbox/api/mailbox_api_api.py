@@ -7601,7 +7601,7 @@ class MailboxAPIApi:
     def mailbox_get_sender_choices(
         self,
         delivery_group_id: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]], Field(description="Restrict choices to these delivery groups.")] = None,
-        if_none_match: Optional[StrictStr] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when this ETag still matches.")] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
@@ -7622,7 +7622,7 @@ class MailboxAPIApi:
 
         :param delivery_group_id: Restrict choices to these delivery groups.
         :type delivery_group_id: List[str]
-        :param if_none_match:
+        :param if_none_match: Return 304 when this ETag still matches.
         :type if_none_match: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
@@ -7684,7 +7684,7 @@ class MailboxAPIApi:
     def mailbox_get_sender_choices_with_http_info(
         self,
         delivery_group_id: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]], Field(description="Restrict choices to these delivery groups.")] = None,
-        if_none_match: Optional[StrictStr] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when this ETag still matches.")] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
@@ -7705,7 +7705,7 @@ class MailboxAPIApi:
 
         :param delivery_group_id: Restrict choices to these delivery groups.
         :type delivery_group_id: List[str]
-        :param if_none_match:
+        :param if_none_match: Return 304 when this ETag still matches.
         :type if_none_match: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str
@@ -7767,7 +7767,7 @@ class MailboxAPIApi:
     def mailbox_get_sender_choices_without_preload_content(
         self,
         delivery_group_id: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]], Field(description="Restrict choices to these delivery groups.")] = None,
-        if_none_match: Optional[StrictStr] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when this ETag still matches.")] = None,
         mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
         _request_timeout: Union[
             None,
@@ -7788,7 +7788,7 @@ class MailboxAPIApi:
 
         :param delivery_group_id: Restrict choices to these delivery groups.
         :type delivery_group_id: List[str]
-        :param if_none_match:
+        :param if_none_match: Return 304 when this ETag still matches.
         :type if_none_match: str
         :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
         :type mailbox_id: str

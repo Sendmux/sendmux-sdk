@@ -4734,7 +4734,8 @@ func decodeMailboxGetQuotaChangesParams(args [0]string, argsEscaped bool, r *htt
 type MailboxGetSenderChoicesParams struct {
 	// Restrict choices to these delivery groups.
 	DeliveryGroupID []string
-	IfNoneMatch     OptString
+	// Return 304 when this ETag still matches.
+	IfNoneMatch OptString
 	// Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when
 	// the credential is scoped to exactly one mailbox.
 	MailboxID OptString

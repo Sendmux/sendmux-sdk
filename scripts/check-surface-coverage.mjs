@@ -11,6 +11,7 @@ const specs = [
 const httpMethods = new Set(["delete", "get", "patch", "post", "put"]);
 const binaryResponseOperationIds = new Set(["mailboxGetMessageAttachment"]);
 const writeMatrix = process.argv.includes("--write");
+const writeProvenance = process.argv.includes("--write-provenance");
 const inputDir = resolve(process.env.OPENAPI_INPUT_DIR ?? findDefaultInputDir());
 const matrixPath = resolve("docs/surface-coverage.md");
 
@@ -18,7 +19,8 @@ const operations = loadOperations(inputDir);
 const cliOperations = loadCliOperations();
 const curatedMcp = loadMcpCuration();
 const failures = [];
-const rustDecisions = loadRustDecisions();
+const rust = loadRustDecisions();
+const rustDecisions = rust.decisions;
 const rows = [];
 
 for (const operation of operations) {
@@ -67,10 +69,7 @@ for (const [operationId, tool] of curatedMcp.entries()) {
 }
 
 const matrix = renderMatrix(rows);
-if (writeMatrix) {
-  mkdirSync(dirname(matrixPath), { recursive: true });
-  writeFileSync(matrixPath, matrix);
-} else if (!existsSync(matrixPath) || readFileSync(matrixPath, "utf8") !== matrix) {
+if (!writeMatrix && (!existsSync(matrixPath) || readFileSync(matrixPath, "utf8") !== matrix)) {
   failures.push(`Coverage matrix is stale. Run node scripts/check-surface-coverage.mjs --write`);
 }
 
@@ -78,16 +77,35 @@ if (failures.length > 0) {
   throw new Error(`Surface coverage checks failed:\n${failures.join("\n")}`);
 }
 
+if (writeMatrix) {
+  mkdirSync(dirname(matrixPath), { recursive: true });
+  writeFileSync(matrixPath, matrix);
+}
+if (writeProvenance) {
+  rust.manifest.sources = { ...rust.manifest.sources, ...rust.hashes };
+  const provenance = rust.provenance.replace(
+    /((APP|SENDING)_OPENAPI_SHA256: &str =\s*")[^"]+(")/g,
+    (_match, prefix, surface, suffix) => `${prefix}${rust.hashes[surface === "APP" ? "openapi-app.json" : "openapi-sending.json"]}${suffix}`,
+  );
+  writeFileSync("rust/operation-decisions.json", `${JSON.stringify(rust.manifest, null, 2)}\n`);
+  writeFileSync("rust/src/generated/mod.rs", provenance);
+}
+
 console.log(`Surface coverage checks passed for ${operations.length} OpenAPI operations.`);
 
 function loadRustDecisions() {
   const manifest = readJson("rust/operation-decisions.json");
   const provenance = readFileSync("rust/src/generated/mod.rs", "utf8");
+  const hashes = {};
   for (const { file } of specs) {
     const hash = createHash("sha256").update(readFileSync(join(inputDir, file))).digest("hex");
+    hashes[file] = hash;
     const surface = file === "openapi-app.json" ? "APP" : "SENDING";
     const recorded = provenance.match(new RegExp(`${surface}_OPENAPI_SHA256: &str =\\s*"([^"]+)"`))?.[1];
-    if (manifest.sources?.[file] !== hash || recorded !== hash) failures.push(`Rust ${file} provenance hash drift`);
+    if (writeProvenance) {
+      const constants = [...provenance.matchAll(new RegExp(`${surface}_OPENAPI_SHA256: &str =\\s*"([^"]+)"`, "g"))];
+      if (constants.length !== 1 || !/^[a-f0-9]{64}$/.test(recorded ?? "") || !/^[a-f0-9]{64}$/.test(manifest.sources?.[file] ?? "")) failures.push(`Rust ${file} provenance is malformed`);
+    } else if (manifest.sources?.[file] !== hash || recorded !== hash) failures.push(`Rust ${file} provenance hash drift`);
   }
   const entries = new Map();
   const states = new Set(["named-complete", "named-partial", "raw-json-only", "unsupported-transport"]);
@@ -111,7 +129,7 @@ function loadRustDecisions() {
     const recorded = [...entries.values()].filter((entry) => entry.operationId.startsWith(surface)).flatMap((entry) => entry.publicMethods ?? []);
     if (new Set(recorded).size !== recorded.length || stableJson([...actual].sort()) !== stableJson([...recorded].sort())) failures.push(`Rust ${surface} public method inventory drift`);
   }
-  return entries;
+  return { decisions: entries, manifest, provenance, hashes };
 }
 
 function findDefaultInputDir() {

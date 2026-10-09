@@ -740,6 +740,36 @@
       "mode": "read",
       "risk": "read"
     },
+    "mailboxGetSenderChoices": {
+      "adapters": {
+        "cli": true,
+        "mcp": "mailbox_get_sender_choices",
+        "sdk": [
+          "typescript",
+          "python",
+          "go",
+          "php",
+          "ruby"
+        ]
+      },
+      "assertions": [
+        "ok-envelope",
+        "request-id",
+        "read-response-shape"
+      ],
+      "fixture": {
+        "body": "none",
+        "headers": [
+          "If-None-Match"
+        ],
+        "pathParams": [],
+        "queryParams": [],
+        "resourceOwnership": "fixture"
+      },
+      "gates": [],
+      "mode": "read",
+      "risk": "read"
+    },
     "mailboxGetSession": {
       "adapters": {
         "cli": true,

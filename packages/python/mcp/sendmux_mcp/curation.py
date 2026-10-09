@@ -100,6 +100,12 @@ OPENAPI_MAILBOX_TOOLS: tuple[ToolSpec, ...] = (
         description="Use this before complex mailbox work to discover supported mailbox capabilities, limits, and endpoint metadata. Do not use it for message search.",
     ),
     ToolSpec(
+        operation_id="mailboxGetSenderChoices",
+        name="mailbox_get_sender_choices",
+        title="Get permitted sender choices",
+        description="Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.",
+    ),
+    ToolSpec(
         operation_id="mailboxGetIdentity",
         name="mailbox_get_identity",
         title="Get Mailbox Identity",
@@ -483,6 +489,7 @@ READ_ONLY_OPERATION_IDS = frozenset(
         "mailboxListGrantedMailboxes",
         "mailboxGetMe",
         "mailboxGetSession",
+        "mailboxGetSenderChoices",
         "mailboxGetIdentity",
         "mailboxListIdentities",
         "mailboxListMessages",

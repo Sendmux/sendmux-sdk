@@ -244,6 +244,17 @@ func (UnimplementedHandler) MailboxGetQuotaChanges(ctx context.Context, params M
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxGetSenderChoices implements mailboxGetSenderChoices operation.
+//
+// Intersects current team, inbox and credential policies with provider restrictions and selected
+// delivery groups. Subdomains require separate authorisation. Sending checks these permissions again
+// before submission.
+//
+// GET /mailbox/sender-choices
+func (UnimplementedHandler) MailboxGetSenderChoices(ctx context.Context, params MailboxGetSenderChoicesParams) (r MailboxGetSenderChoicesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxGetSession implements mailboxGetSession operation.
 //
 // Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for

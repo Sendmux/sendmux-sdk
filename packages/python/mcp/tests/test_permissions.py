@@ -64,6 +64,7 @@ def test_authorised_tools_are_filtered_per_surface() -> None:
         "mailbox_get_me",
         "mailbox_list_granted_mailboxes",
         "mailbox_get_session",
+        "mailbox_get_sender_choices",
         "mailbox_get_identity",
         "mailbox_list_identities",
         "mailbox_list_messages",

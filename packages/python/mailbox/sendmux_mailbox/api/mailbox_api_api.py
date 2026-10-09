@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictBool, StrictBytes, StrictStr, field_validator
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 from typing_extensions import Annotated
 from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDeleteMailboxMessagesBody
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
@@ -56,6 +56,7 @@ from sendmux_mailbox.models.mailbox_raw_body_response import MailboxRawBodyRespo
 from sendmux_mailbox.models.mailbox_realtime_event import MailboxRealtimeEvent
 from sendmux_mailbox.models.mailbox_search_snippets_result_response import MailboxSearchSnippetsResultResponse
 from sendmux_mailbox.models.mailbox_send_result_response import MailboxSendResultResponse
+from sendmux_mailbox.models.mailbox_sender_choices_response import MailboxSenderChoicesResponse
 from sendmux_mailbox.models.mailbox_session_response import MailboxSessionResponse
 from sendmux_mailbox.models.mailbox_submission_cursor_list_response import MailboxSubmissionCursorListResponse
 from sendmux_mailbox.models.mailbox_submission_response import MailboxSubmissionResponse
@@ -7581,6 +7582,327 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/mailbox/quotas/changes',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_get_sender_choices(
+        self,
+        delivery_group_id: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]], Field(description="Restrict choices to these delivery groups.")] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when this ETag still matches.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxSenderChoicesResponse:
+        """Get permitted sender choices
+
+        Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
+
+        :param delivery_group_id: Restrict choices to these delivery groups.
+        :type delivery_group_id: List[str]
+        :param if_none_match: Return 304 when this ETag still matches.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_sender_choices_serialize(
+            delivery_group_id=delivery_group_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxSenderChoicesResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_get_sender_choices_with_http_info(
+        self,
+        delivery_group_id: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]], Field(description="Restrict choices to these delivery groups.")] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when this ETag still matches.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxSenderChoicesResponse]:
+        """Get permitted sender choices
+
+        Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
+
+        :param delivery_group_id: Restrict choices to these delivery groups.
+        :type delivery_group_id: List[str]
+        :param if_none_match: Return 304 when this ETag still matches.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_sender_choices_serialize(
+            delivery_group_id=delivery_group_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxSenderChoicesResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_get_sender_choices_without_preload_content(
+        self,
+        delivery_group_id: Annotated[Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]], Field(description="Restrict choices to these delivery groups.")] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when this ETag still matches.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get permitted sender choices
+
+        Intersects current team, inbox and credential policies with provider restrictions and selected delivery groups. Subdomains require separate authorisation. Sending checks these permissions again before submission.
+
+        :param delivery_group_id: Restrict choices to these delivery groups.
+        :type delivery_group_id: List[str]
+        :param if_none_match: Return 304 when this ETag still matches.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_sender_choices_serialize(
+            delivery_group_id=delivery_group_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxSenderChoicesResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_get_sender_choices_serialize(
+        self,
+        delivery_group_id,
+        if_none_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+            'delivery_group_id': 'multi',
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if delivery_group_id is not None:
+
+            _query_params.append(('delivery_group_id', delivery_group_id))
+
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_none_match is not None:
+            _header_params['If-None-Match'] = if_none_match
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/sender-choices',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

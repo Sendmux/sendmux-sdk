@@ -32,16 +32,16 @@ Available successful CLI JSON records selective resource ownership even when int
 
 ## Summary
 
-- Operations: 119 total; 117 OpenAPI operations and 2 custom MCP operation.
-- OpenAPI operations by surface: management 57, mailbox 52, sending 8.
+- Operations: 120 total; 118 OpenAPI operations and 2 custom MCP operation.
+- OpenAPI operations by surface: management 57, mailbox 53, sending 8.
 - SDK adapters required per operation: typescript, python, go, php, ruby.
 - CLI adapters required per operation: generated command for every OpenAPI operation.
-- Applicable MCP operation pairs: 65 (not a unique tool count).
-- Default executable live operations: 59.
+- Applicable MCP operation pairs: 66 (not a unique tool count).
+- Default executable live operations: 60.
 - Blocked behind safety gates: 60.
 - Fixture setup sources: mailboxSubmissionId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_STAGING_SEND=1; SENDMUX_LIVE_E2E_FIXTURE_SEND_TO allowlist), managementWebhookDeliveryId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist), managementWebhookId (SENDMUX_LIVE_E2E_FIXTURE_SETUP=1; SENDMUX_LIVE_E2E_WEBHOOK_URL allowlist).
-- Risks: binary 11, destructive 9, mutation 32, read 61, send 5, stream 1.
-- Modes: binary_fixture 11, create_cleanup 8, destructive_cleanup_only 9, mutation_fixture 14, read 37, read_fixture 24, send 5, stream 1, update_restore 10.
+- Risks: binary 11, destructive 9, mutation 32, read 62, send 5, stream 1.
+- Modes: binary_fixture 11, create_cleanup 8, destructive_cleanup_only 9, mutation_fixture 14, read 38, read_fixture 24, send 5, stream 1, update_restore 10.
 
 ## Matrix
 
@@ -70,6 +70,7 @@ Available successful CLI JSON records selective resource ownership even when int
 | mailbox | `mailboxGetMessage` | GET | `/mailbox/messages/{message_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | mailbox_get_message | none | fixture |
 | mailbox | `mailboxGetMessageAttachment` | GET | `/mailbox/messages/{message_id}/attachments/{attachment_id}` | binary_fixture | binary | typescript, python, go, php, ruby | yes | mailbox_get_attachment | SENDMUX_LIVE_E2E_BINARY=1; E2E resource ownership registry; SENDMUX_STAGING_SEND=1 | fixture |
 | mailbox | `mailboxGetQuotaChanges` | GET | `/mailbox/quotas/changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
+| mailbox | `mailboxGetSenderChoices` | GET | `/mailbox/sender-choices` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_sender_choices | none | fixture |
 | mailbox | `mailboxGetSession` | GET | `/mailbox/session` | read | read | typescript, python, go, php, ruby | yes | mailbox_get_session | none | fixture |
 | mailbox | `mailboxGetSubmission` | GET | `/mailbox/submissions/{submission_id}` | read_fixture | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |
 | mailbox | `mailboxGetSubmissionChanges` | GET | `/mailbox/submissions/changes` | read | read | typescript, python, go, php, ruby | yes | not curated | none | fixture |

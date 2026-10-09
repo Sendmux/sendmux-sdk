@@ -28,6 +28,7 @@ TOOL_PERMISSION_REQUIREMENTS: Mapping[str, PermissionRequirement] = MappingProxy
         "mailbox_list_granted_mailboxes": ("mailbox.read",),
         "mailbox_get_me": ("mailbox.read",),
         "mailbox_get_session": ("mailbox.read",),
+        "mailbox_get_sender_choices": ("email.send",),
         "mailbox_get_identity": ("mailbox.read",),
         "mailbox_list_identities": ("mailbox.read",),
         "mailbox_update_identity": ("mailbox.settings.update",),

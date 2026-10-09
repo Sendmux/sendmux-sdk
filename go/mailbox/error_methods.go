@@ -500,6 +500,48 @@ func (r *MailboxGetMessageAttachmentNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxGetSenderChoicesBadRequest into the shared typed API error.
+func (r *MailboxGetSenderChoicesBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxGetSenderChoicesForbidden into the shared typed API error.
+func (r *MailboxGetSenderChoicesForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxGetSenderChoicesInternalServerError into the shared typed API error.
+func (r *MailboxGetSenderChoicesInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxGetSenderChoicesNotFound into the shared typed API error.
+func (r *MailboxGetSenderChoicesNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxGetSenderChoicesServiceUnavailable into the shared typed API error.
+func (r *MailboxGetSenderChoicesServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxGetSenderChoicesTooManyRequests into the shared typed API error.
+func (r *MailboxGetSenderChoicesTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxGetSenderChoicesUnauthorized into the shared typed API error.
+func (r *MailboxGetSenderChoicesUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
 // APIError maps MailboxGetSessionForbidden into the shared typed API error.
 func (r *MailboxGetSessionForbidden) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 403)

@@ -961,24 +961,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case 'e': // Prefix: "ession"
+				case 'e': // Prefix: "e"
 
-					if l := len("ession"); len(elem) >= l && elem[0:l] == "ession" {
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "GET":
-							s.handleMailboxGetSessionRequest([0]string{}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "GET")
+						break
+					}
+					switch elem[0] {
+					case 'n': // Prefix: "nder-choices"
+
+						if l := len("nder-choices"); len(elem) >= l && elem[0:l] == "nder-choices" {
+							elem = elem[l:]
+						} else {
+							break
 						}
 
-						return
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleMailboxGetSenderChoicesRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					case 's': // Prefix: "ssion"
+
+						if l := len("ssion"); len(elem) >= l && elem[0:l] == "ssion" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleMailboxGetSessionRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
 					}
 
 				case 'u': // Prefix: "ubmissions"
@@ -2341,28 +2375,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case 'e': // Prefix: "ession"
+				case 'e': // Prefix: "e"
 
-					if l := len("ession"); len(elem) >= l && elem[0:l] == "ession" {
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "GET":
-							r.name = MailboxGetSessionOperation
-							r.summary = "Get mailbox API session"
-							r.operationID = "mailboxGetSession"
-							r.pathPattern = "/mailbox/session"
-							r.args = args
-							r.count = 0
-							return r, true
-						default:
-							return
+						break
+					}
+					switch elem[0] {
+					case 'n': // Prefix: "nder-choices"
+
+						if l := len("nder-choices"); len(elem) >= l && elem[0:l] == "nder-choices" {
+							elem = elem[l:]
+						} else {
+							break
 						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = MailboxGetSenderChoicesOperation
+								r.summary = "Get permitted sender choices"
+								r.operationID = "mailboxGetSenderChoices"
+								r.pathPattern = "/mailbox/sender-choices"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 's': // Prefix: "ssion"
+
+						if l := len("ssion"); len(elem) >= l && elem[0:l] == "ssion" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = MailboxGetSessionOperation
+								r.summary = "Get mailbox API session"
+								r.operationID = "mailboxGetSession"
+								r.pathPattern = "/mailbox/session"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				case 'u': // Prefix: "ubmissions"

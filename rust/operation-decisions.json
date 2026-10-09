@@ -1,6 +1,6 @@
 {
   "sources": {
-    "openapi-app.json": "90143520564077283dddf9bcc7d11d73083befd7873107138cf64fa4d1a24bcf",
+    "openapi-app.json": "a77bad34243ba73746f526a80ac7a334ff6d1e5dd7d3408db3c71f9d49562caa",
     "openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e"
   },
   "operations": [
@@ -190,6 +190,14 @@
       "operationId": "mailboxGetQuotaChanges",
       "method": "GET",
       "path": "/mailbox/quotas/changes",
+      "publicMethods": [],
+      "decision": "raw-json-only",
+      "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."
+    },
+    {
+      "operationId": "mailboxGetSenderChoices",
+      "method": "GET",
+      "path": "/mailbox/sender-choices",
       "publicMethods": [],
       "decision": "raw-json-only",
       "reason": "No named operation-specific API or certification; manual relative-path JSON calls only."

@@ -63,6 +63,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         'batch_ids_max' => 'int',
         'body_chars_max' => 'int',
         'changes_limit_max' => 'int',
+        'draft_schedule_days_max' => 'int',
         'inline_attachment_bytes_max' => 'int',
         'keywords_per_update_max' => 'int',
         'list_limit_max' => 'int',
@@ -81,6 +82,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         'batch_ids_max' => null,
         'body_chars_max' => null,
         'changes_limit_max' => null,
+        'draft_schedule_days_max' => null,
         'inline_attachment_bytes_max' => null,
         'keywords_per_update_max' => null,
         'list_limit_max' => null,
@@ -99,6 +101,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         'batch_ids_max' => false,
         'body_chars_max' => false,
         'changes_limit_max' => false,
+        'draft_schedule_days_max' => false,
         'inline_attachment_bytes_max' => false,
         'keywords_per_update_max' => false,
         'list_limit_max' => false,
@@ -187,6 +190,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         'batch_ids_max' => 'batch_ids_max',
         'body_chars_max' => 'body_chars_max',
         'changes_limit_max' => 'changes_limit_max',
+        'draft_schedule_days_max' => 'draft_schedule_days_max',
         'inline_attachment_bytes_max' => 'inline_attachment_bytes_max',
         'keywords_per_update_max' => 'keywords_per_update_max',
         'list_limit_max' => 'list_limit_max',
@@ -205,6 +209,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         'batch_ids_max' => 'setBatchIdsMax',
         'body_chars_max' => 'setBodyCharsMax',
         'changes_limit_max' => 'setChangesLimitMax',
+        'draft_schedule_days_max' => 'setDraftScheduleDaysMax',
         'inline_attachment_bytes_max' => 'setInlineAttachmentBytesMax',
         'keywords_per_update_max' => 'setKeywordsPerUpdateMax',
         'list_limit_max' => 'setListLimitMax',
@@ -223,6 +228,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         'batch_ids_max' => 'getBatchIdsMax',
         'body_chars_max' => 'getBodyCharsMax',
         'changes_limit_max' => 'getChangesLimitMax',
+        'draft_schedule_days_max' => 'getDraftScheduleDaysMax',
         'inline_attachment_bytes_max' => 'getInlineAttachmentBytesMax',
         'keywords_per_update_max' => 'getKeywordsPerUpdateMax',
         'list_limit_max' => 'getListLimitMax',
@@ -263,6 +269,21 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         return self::$openAPIModelName;
     }
 
+    public const DRAFT_SCHEDULE_DAYS_MAX_NUMBER_30 = 30;
+    public const DRAFT_SCHEDULE_DAYS_MAX_UNKNOWN_DEFAULT_OPEN_API = 11184809;
+
+    /**
+     * Gets allowable values of the enum
+     *
+     * @return string[]
+     */
+    public static function getDraftScheduleDaysMaxAllowableValues()
+    {
+        return [
+            self::DRAFT_SCHEDULE_DAYS_MAX_NUMBER_30,
+            self::DRAFT_SCHEDULE_DAYS_MAX_UNKNOWN_DEFAULT_OPEN_API,
+        ];
+    }
 
     /**
      * Associative array for storing property values
@@ -282,6 +303,7 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         $this->setIfExists('batch_ids_max', $data ?? [], null);
         $this->setIfExists('body_chars_max', $data ?? [], null);
         $this->setIfExists('changes_limit_max', $data ?? [], null);
+        $this->setIfExists('draft_schedule_days_max', $data ?? [], null);
         $this->setIfExists('inline_attachment_bytes_max', $data ?? [], null);
         $this->setIfExists('keywords_per_update_max', $data ?? [], null);
         $this->setIfExists('list_limit_max', $data ?? [], null);
@@ -327,6 +349,18 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
         if ($this->container['changes_limit_max'] === null) {
             $invalidProperties[] = "'changes_limit_max' can't be null";
         }
+        if ($this->container['draft_schedule_days_max'] === null) {
+            $invalidProperties[] = "'draft_schedule_days_max' can't be null";
+        }
+        $allowedValues = self::getDraftScheduleDaysMaxAllowableValues();
+        if (!is_null($this->container['draft_schedule_days_max']) && !in_array($this->container['draft_schedule_days_max'], $allowedValues, true)) {
+            $invalidProperties[] = sprintf(
+                "invalid value '%s' for 'draft_schedule_days_max', must be one of '%s'",
+                $this->container['draft_schedule_days_max'],
+                implode("', '", $allowedValues)
+            );
+        }
+
         if ($this->container['inline_attachment_bytes_max'] === null) {
             $invalidProperties[] = "'inline_attachment_bytes_max' can't be null";
         }
@@ -461,6 +495,37 @@ class MailboxSessionLimits implements ModelInterface, ArrayAccess, JsonSerializa
             throw new InvalidArgumentException('non-nullable changes_limit_max cannot be null');
         }
         $this->container['changes_limit_max'] = $changes_limit_max;
+
+        return $this;
+    }
+
+    /**
+     * Gets draft_schedule_days_max
+     *
+     * @return int
+     */
+    public function getDraftScheduleDaysMax(): int
+    {
+        return $this->container['draft_schedule_days_max'];
+    }
+
+    /**
+     * Sets draft_schedule_days_max
+     *
+     * @param int $draft_schedule_days_max draft_schedule_days_max
+     *
+     * @return $this
+     */
+    public function setDraftScheduleDaysMax(int $draft_schedule_days_max): static
+    {
+        if (is_null($draft_schedule_days_max)) {
+            throw new InvalidArgumentException('non-nullable draft_schedule_days_max cannot be null');
+        }
+        $allowedValues = self::getDraftScheduleDaysMaxAllowableValues();
+        if (!in_array($draft_schedule_days_max, $allowedValues, true)) {
+            $draft_schedule_days_max = self::DRAFT_SCHEDULE_DAYS_MAX_UNKNOWN_DEFAULT_OPEN_API;
+        }
+        $this->container['draft_schedule_days_max'] = $draft_schedule_days_max;
 
         return $this;
     }

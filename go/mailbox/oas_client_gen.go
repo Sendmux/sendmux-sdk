@@ -182,6 +182,14 @@ type Invoker interface {
 	//
 	// GET /mailbox/quotas/changes
 	MailboxGetQuotaChanges(ctx context.Context, params MailboxGetQuotaChangesParams) (MailboxGetQuotaChangesRes, error)
+	// MailboxGetSenderChoices invokes mailboxGetSenderChoices operation.
+	//
+	// Intersects current team, inbox and credential policies with provider restrictions and selected
+	// delivery groups. Subdomains require separate authorisation. Sending checks these permissions again
+	// before submission.
+	//
+	// GET /mailbox/sender-choices
+	MailboxGetSenderChoices(ctx context.Context, params MailboxGetSenderChoicesParams) (MailboxGetSenderChoicesRes, error)
 	// MailboxGetSession invokes mailboxGetSession operation.
 	//
 	// Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for
@@ -4381,6 +4389,177 @@ func (c *Client) sendMailboxGetQuotaChanges(ctx context.Context, params MailboxG
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxGetQuotaChangesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxGetSenderChoices invokes mailboxGetSenderChoices operation.
+//
+// Intersects current team, inbox and credential policies with provider restrictions and selected
+// delivery groups. Subdomains require separate authorisation. Sending checks these permissions again
+// before submission.
+//
+// GET /mailbox/sender-choices
+func (c *Client) MailboxGetSenderChoices(ctx context.Context, params MailboxGetSenderChoicesParams) (MailboxGetSenderChoicesRes, error) {
+	res, err := c.sendMailboxGetSenderChoices(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxGetSenderChoices(ctx context.Context, params MailboxGetSenderChoicesParams) (res MailboxGetSenderChoicesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxGetSenderChoices"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/sender-choices"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxGetSenderChoicesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/mailbox/sender-choices"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "delivery_group_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "delivery_group_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if params.DeliveryGroupID != nil {
+				return e.EncodeArray(func(e uri.Encoder) error {
+					for i, item := range params.DeliveryGroupID {
+						if err := func() error {
+							return e.EncodeValue(conv.StringToString(item))
+						}(); err != nil {
+							return errors.Wrapf(err, "[%d]", i)
+						}
+					}
+					return nil
+				})
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfNoneMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxGetSenderChoicesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxGetSenderChoicesResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

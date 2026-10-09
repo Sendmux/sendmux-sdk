@@ -666,6 +666,7 @@ export type MailboxSession = {
         batch_ids_max: number;
         body_chars_max: number;
         changes_limit_max: number;
+        draft_schedule_days_max: 30;
         inline_attachment_bytes_max: number;
         keywords_per_update_max: number;
         list_limit_max: number;
@@ -709,6 +710,32 @@ export type MailboxSendScope = {
 export type MailboxSendResultResponse = SuccessEnvelope & {
     data: SendMailboxMessageResult;
     meta?: ResponseMeta;
+};
+
+export type MailboxSenderChoicesResponse = SuccessEnvelope & {
+    data: MailboxSenderChoices;
+    meta?: ResponseMeta;
+};
+
+export type MailboxSenderChoices = {
+    /**
+     * Permitted exact From addresses and verified domains. Domains allow any localpart on that exact domain.
+     */
+    from: {
+        addresses: Array<string>;
+        domains: Array<string>;
+    };
+    /**
+     * Originating inbox address; authorisation and billing remain attached to this inbox.
+     */
+    origin_address: string;
+    /**
+     * Permitted exact Reply-To addresses and domains. The originating inbox is the default when permitted.
+     */
+    reply_to: {
+        addresses: Array<string>;
+        domains: Array<string>;
+    };
 };
 
 export type MailboxSearchSnippetsResultResponse = SuccessEnvelope & {
@@ -4167,6 +4194,70 @@ export type MailboxGetQuotaChangesResponses = {
 };
 
 export type MailboxGetQuotaChangesResponse = MailboxGetQuotaChangesResponses[keyof MailboxGetQuotaChangesResponses];
+
+export type MailboxGetSenderChoicesData = {
+    body?: never;
+    headers?: {
+        /**
+         * Return 304 when this ETag still matches.
+         */
+        'If-None-Match'?: string;
+    };
+    path?: never;
+    query?: {
+        /**
+         * Restrict choices to these delivery groups.
+         */
+        delivery_group_id?: Array<string>;
+        /**
+         * Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+         */
+        mailbox_id?: string;
+    };
+    url: '/mailbox/sender-choices';
+};
+
+export type MailboxGetSenderChoicesErrors = {
+    /**
+     * Request failed.
+     */
+    400: ApiError;
+    /**
+     * Request failed.
+     */
+    401: ApiError;
+    /**
+     * Request failed.
+     */
+    403: ApiError;
+    /**
+     * Request failed.
+     */
+    404: ApiError;
+    /**
+     * Request failed.
+     */
+    429: ApiError;
+    /**
+     * Request failed.
+     */
+    500: ApiError;
+    /**
+     * Request failed.
+     */
+    503: ApiError;
+};
+
+export type MailboxGetSenderChoicesError = MailboxGetSenderChoicesErrors[keyof MailboxGetSenderChoicesErrors];
+
+export type MailboxGetSenderChoicesResponses = {
+    /**
+     * Current permitted choices.
+     */
+    200: MailboxSenderChoicesResponse;
+};
+
+export type MailboxGetSenderChoicesResponse = MailboxGetSenderChoicesResponses[keyof MailboxGetSenderChoicesResponses];
 
 export type MailboxGetSessionData = {
     body?: never;

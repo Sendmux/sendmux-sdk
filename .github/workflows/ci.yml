@@ -22,10 +22,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Resolve OpenAPI snapshot ref
+        id: docs-ref
+        env:
+          CANDIDATE_DOCS_REF: ${{ github.head_ref }}
+          SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          CURRENT_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          docs_ref="main"
+          if [ "$SOURCE_REPOSITORY" = "$CURRENT_REPOSITORY" ] &&
+            [ -n "$CANDIDATE_DOCS_REF" ] &&
+            git ls-remote --exit-code --heads https://github.com/Sendmux/docs.git \
+              "refs/heads/$CANDIDATE_DOCS_REF" >/dev/null 2>&1; then
+            docs_ref="$CANDIDATE_DOCS_REF"
+          fi
+          echo "ref=$docs_ref" >> "$GITHUB_OUTPUT"
+
       - name: Check out OpenAPI snapshots
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: Sendmux/docs
+          ref: ${{ steps.docs-ref.outputs.ref }}
           path: sendmux-docs
 
       - name: Set up pnpm
@@ -71,6 +89,10 @@ jobs:
 
       - name: Build and verify core
         run: pnpm verify:core
+      - name: Mailbox session discovery consumers
+        run: node --test scripts/test-session-discovery.mjs
+      - name: Mailbox sender choices consumers
+        run: node --test scripts/test-sender-choices.mjs
       # The live E2E harness loads the PHP (vendor/), Ruby (bundle) and Python SDKs; check:python
       # installs the native Python packages into the .tmp/python-venv that drift:check created for MCP.
       - name: Prepare live E2E harness runtimes
@@ -109,10 +131,28 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+      - name: Resolve OpenAPI snapshot ref
+        id: docs-ref
+        env:
+          CANDIDATE_DOCS_REF: ${{ github.head_ref }}
+          SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          CURRENT_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          docs_ref="main"
+          if [ "$SOURCE_REPOSITORY" = "$CURRENT_REPOSITORY" ] &&
+            [ -n "$CANDIDATE_DOCS_REF" ] &&
+            git ls-remote --exit-code --heads https://github.com/Sendmux/docs.git \
+              "refs/heads/$CANDIDATE_DOCS_REF" >/dev/null 2>&1; then
+            docs_ref="$CANDIDATE_DOCS_REF"
+          fi
+          echo "ref=$docs_ref" >> "$GITHUB_OUTPUT"
+
       - name: Check out OpenAPI snapshots
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: Sendmux/docs
+          ref: ${{ steps.docs-ref.outputs.ref }}
           path: sendmux-docs
       - name: Set up pnpm
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8

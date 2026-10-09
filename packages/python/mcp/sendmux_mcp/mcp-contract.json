@@ -46,7 +46,7 @@
       "contract.py": "8be5dcf207fd771774beddf433cad3734a9250284a26e57d9d3f607c670395c3",
       "curation.py": "ad6673917b3c40ed84a0800b0720f5eb64e843824c490dbcbbf39ece05fced76",
       "hosted.py": "6ed9af8290311fb7ce34dd52fe234d003b28069bd63ee0d78ecdfd8dcba084b8",
-      "hosted_auth.py": "a85c5c2e10dff2a5b92cb3e3713a3c95c53d04f6ed0e647ca88a7f059e9a8e25",
+      "hosted_auth.py": "3e7e8452d02e764b3e4f680948c2215254a5372692429bb3a2946a6401254ffe",
       "hosted_proxy.py": "10c51845ef393fbb75749cc8b9cbaedc2f0c5e43f650805842dad3c84f538493",
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",

@@ -6751,6 +6751,17 @@ func (s *MailboxSession) Validate() error {
 		})
 	}
 	if err := func() error {
+		if err := s.Limits.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "limits",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if err := s.Mailbox.Validate(); err != nil {
 			return err
 		}
@@ -7039,6 +7050,38 @@ func (s *MailboxSessionEndpoints) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s *MailboxSessionLimits) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.DraftScheduleDaysMax.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "draft_schedule_days_max",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s MailboxSessionLimitsDraftScheduleDaysMax) Validate() error {
+	switch s {
+	case 30:
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *MailboxSessionMailbox) Validate() error {

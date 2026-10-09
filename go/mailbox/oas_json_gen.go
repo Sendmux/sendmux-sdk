@@ -31584,6 +31584,10 @@ func (s *MailboxSessionLimits) encodeFields(e *jx.Encoder) {
 		e.Int(s.ChangesLimitMax)
 	}
 	{
+		e.FieldStart("draft_schedule_days_max")
+		s.DraftScheduleDaysMax.Encode(e)
+	}
+	{
 		e.FieldStart("inline_attachment_bytes_max")
 		e.Int(s.InlineAttachmentBytesMax)
 	}
@@ -31609,17 +31613,18 @@ func (s *MailboxSessionLimits) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfMailboxSessionLimits = [10]string{
-	0: "attachment_upload_bytes_max",
-	1: "batch_ids_max",
-	2: "body_chars_max",
-	3: "changes_limit_max",
-	4: "inline_attachment_bytes_max",
-	5: "keywords_per_update_max",
-	6: "list_limit_max",
-	7: "message_body_chars_default",
-	8: "outbound_raw_message_bytes_max",
-	9: "thread_body_chars_default",
+var jsonFieldsNameOfMailboxSessionLimits = [11]string{
+	0:  "attachment_upload_bytes_max",
+	1:  "batch_ids_max",
+	2:  "body_chars_max",
+	3:  "changes_limit_max",
+	4:  "draft_schedule_days_max",
+	5:  "inline_attachment_bytes_max",
+	6:  "keywords_per_update_max",
+	7:  "list_limit_max",
+	8:  "message_body_chars_default",
+	9:  "outbound_raw_message_bytes_max",
+	10: "thread_body_chars_default",
 }
 
 // Decode decodes MailboxSessionLimits from json.
@@ -31679,8 +31684,18 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"changes_limit_max\"")
 			}
-		case "inline_attachment_bytes_max":
+		case "draft_schedule_days_max":
 			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.DraftScheduleDaysMax.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"draft_schedule_days_max\"")
+			}
+		case "inline_attachment_bytes_max":
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Int()
 				s.InlineAttachmentBytesMax = int(v)
@@ -31692,7 +31707,7 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"inline_attachment_bytes_max\"")
 			}
 		case "keywords_per_update_max":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Int()
 				s.KeywordsPerUpdateMax = int(v)
@@ -31704,7 +31719,7 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"keywords_per_update_max\"")
 			}
 		case "list_limit_max":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Int()
 				s.ListLimitMax = int(v)
@@ -31716,7 +31731,7 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"list_limit_max\"")
 			}
 		case "message_body_chars_default":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				v, err := d.Int()
 				s.MessageBodyCharsDefault = int(v)
@@ -31728,7 +31743,7 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"message_body_chars_default\"")
 			}
 		case "outbound_raw_message_bytes_max":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := d.Int()
 				s.OutboundRawMessageBytesMax = int(v)
@@ -31740,7 +31755,7 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"outbound_raw_message_bytes_max\"")
 			}
 		case "thread_body_chars_default":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Int()
 				s.ThreadBodyCharsDefault = int(v)
@@ -31762,7 +31777,7 @@ func (s *MailboxSessionLimits) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11111111,
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -31804,6 +31819,38 @@ func (s *MailboxSessionLimits) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *MailboxSessionLimits) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes MailboxSessionLimitsDraftScheduleDaysMax as json.
+func (s MailboxSessionLimitsDraftScheduleDaysMax) Encode(e *jx.Encoder) {
+	e.Int(int(s))
+}
+
+// Decode decodes MailboxSessionLimitsDraftScheduleDaysMax from json.
+func (s *MailboxSessionLimitsDraftScheduleDaysMax) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode MailboxSessionLimitsDraftScheduleDaysMax to nil")
+	}
+	v, err := d.Int()
+	if err != nil {
+		return err
+	}
+	*s = MailboxSessionLimitsDraftScheduleDaysMax(v)
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s MailboxSessionLimitsDraftScheduleDaysMax) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *MailboxSessionLimitsDraftScheduleDaysMax) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

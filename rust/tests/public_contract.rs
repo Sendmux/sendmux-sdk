@@ -105,7 +105,8 @@ async fn raw_sender_choices_preserve_policy_payload_and_repeated_group_query() {
         "from": {"addresses": ["sender@example.com"], "domains": ["example.com"]},
         "reply_to": {"addresses": ["reply@example.com"], "domains": ["example.org"]}
     });
-    let mut server = Server::new(json!({"ok":true,"meta":{"request_id":"req_choices"},"data":choices}));
+    let mut server =
+        Server::new(json!({"ok":true,"meta":{"request_id":"req_choices"},"data":choices}));
     let client = MailboxClient::new("smx_mbx_fixture")
         .unwrap()
         .with_base_url(server.base())

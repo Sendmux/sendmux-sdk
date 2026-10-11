@@ -19,7 +19,7 @@
   },
   "package": {
     "identity": "sendmux-mcp",
-    "version": "2.2.0"
+    "version": "2.3.0"
   },
   "protocols": [
     "2025-11-25",
@@ -27,7 +27,7 @@
   ],
   "provenance": {
     "build_inputs": {
-      "pyproject.toml": "f6ddf639c450805939964c024be15a841b991c0cad77d7095e21ae28820e8d15",
+      "pyproject.toml": "ba9910f35a79e1d722430bb934edcba9a3de573c1ad4948165a3bb573de89710",
       "scripts/mcp-conformance-required-checks.json": "c82a24f9f893f69c45ab31949e4089f80836230e913d95ca7a05f5933cb788e4"
     },
     "certified_protocols": "scripts/mcp-conformance-required-checks.json",

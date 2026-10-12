@@ -92,7 +92,7 @@ export type UpdateMailboxDraft = {
         name?: string | null;
     }>;
     /**
-     * Custom X- headers preserved with this revision.
+     * Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.
      */
     custom_headers?: {
         [key: string]: string;
@@ -187,7 +187,7 @@ export type SendMailboxMessageBody = {
      */
     cc?: Array<MailboxAddress>;
     /**
-     * Custom headers to include.
+     * Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively.
      */
     custom_headers?: {
         [key: string]: string;
@@ -1139,7 +1139,7 @@ export type MailboxDraft = {
         name?: string | null;
     }>;
     /**
-     * Custom X- headers preserved with this revision.
+     * Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.
      */
     custom_headers?: {
         [key: string]: string;
@@ -1534,7 +1534,7 @@ export type CreateMailboxDraft = {
         name?: string | null;
     }>;
     /**
-     * Custom X- headers preserved with this revision.
+     * Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.
      */
     custom_headers?: {
         [key: string]: string;

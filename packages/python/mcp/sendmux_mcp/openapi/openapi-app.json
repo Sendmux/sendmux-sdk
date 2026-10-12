@@ -533,7 +533,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Custom X- headers preserved with this revision.",
+            "description": "Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.",
             "type": "object"
           },
           "from": {
@@ -3432,7 +3432,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Custom X- headers preserved with this revision.",
+            "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
             "type": "object"
           },
           "failure_code": {
@@ -8703,7 +8703,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Custom headers to include.",
+            "description": "Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively.",
             "type": "object"
           },
           "from": {
@@ -9374,7 +9374,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Custom X- headers preserved with this revision.",
+            "description": "Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.",
             "type": "object"
           },
           "expected_revision": {

@@ -636,7 +636,7 @@ class MailboxDraft implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets custom_headers
      *
-     * @param array<string,string>|null $custom_headers Custom X- headers preserved with this revision.
+     * @param array<string,string>|null $custom_headers Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.
      *
      * @return $this
      */

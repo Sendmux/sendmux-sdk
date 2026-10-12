@@ -51,7 +51,7 @@
       "live_e2e.py": "714b1ad5a70d694f0c8907037e937f24354ee12c9eb42bde13ed070cd38ce93b",
       "observability.py": "c15ac702f237bdf4f00b46a431e97d3e5d4ed41a0a1c20643bd7c07805728427",
       "openapi/__init__.py": "04a300726f2d3f551c88591fa171ed8bd7c7caa6f3257f438e52884ba782fdb1",
-      "openapi/openapi-app.json": "a77bad34243ba73746f526a80ac7a334ff6d1e5dd7d3408db3c71f9d49562caa",
+      "openapi/openapi-app.json": "dd39d2329fc51098455f499e551ad3e33f14bc9243c793dfa47fc353a57f62ea",
       "openapi/openapi-sending.json": "c1f82f9b8944026571d9e66ae84d4bef90e6c575cc8a57127afcdc6e90aa7b0e",
       "permissions.py": "aa27f177b17871d954327a8a6d063dfb5b1f87d1a77d661893739137a1d5e2ca",
       "response_ownership.py": "eff042d51d3d158438e05fd131e0e993fa76706a2895838e84114fb0c488ef83",
@@ -1646,7 +1646,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "description": "Custom X- headers preserved with this revision.",
+                            "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
                             "type": "object"
                           },
                           "failure_code": {
@@ -2172,7 +2172,7 @@
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Custom X- headers preserved with this revision.",
+                "description": "Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.",
                 "type": "object"
               },
               "from": {
@@ -2457,7 +2457,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "description": "Custom X- headers preserved with this revision.",
+                            "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
                             "type": "object"
                           },
                           "failure_code": {
@@ -4057,7 +4057,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "description": "Custom X- headers preserved with this revision.",
+                            "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
                             "type": "object"
                           },
                           "failure_code": {
@@ -7272,7 +7272,7 @@
                               "additionalProperties": {
                                 "type": "string"
                               },
-                              "description": "Custom X- headers preserved with this revision.",
+                              "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
                               "type": "object"
                             },
                             "failure_code": {
@@ -10345,7 +10345,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "description": "Custom X- headers preserved with this revision.",
+                            "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
                             "type": "object"
                           },
                           "failure_code": {
@@ -10687,7 +10687,7 @@
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Custom headers to include.",
+                "description": "Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively.",
                 "type": "object"
               },
               "from": {
@@ -11004,7 +11004,7 @@
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Custom X- headers preserved with this revision.",
+                "description": "Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.",
                 "type": "object"
               },
               "draftId": {
@@ -11268,7 +11268,7 @@
                             "additionalProperties": {
                               "type": "string"
                             },
-                            "description": "Custom X- headers preserved with this revision.",
+                            "description": "Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.",
                             "type": "object"
                           },
                           "failure_code": {

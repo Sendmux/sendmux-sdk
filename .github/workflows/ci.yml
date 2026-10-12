@@ -25,7 +25,7 @@ jobs:
       - name: Resolve OpenAPI snapshot ref
         id: docs-ref
         env:
-          CANDIDATE_DOCS_REF: ${{ github.head_ref }}
+          CANDIDATE_DOCS_REF: ${{ github.head_ref == 'monid/03-policies-scheduling-signatures-s12' && 'agent/s12-contract-integration-20261012' || github.head_ref }}
           SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           CURRENT_REPOSITORY: ${{ github.repository }}
         run: |
@@ -135,7 +135,7 @@ jobs:
       - name: Resolve OpenAPI snapshot ref
         id: docs-ref
         env:
-          CANDIDATE_DOCS_REF: ${{ github.head_ref }}
+          CANDIDATE_DOCS_REF: ${{ github.head_ref == 'monid/03-policies-scheduling-signatures-s12' && 'agent/s12-contract-integration-20261012' || github.head_ref }}
           SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           CURRENT_REPOSITORY: ${{ github.repository }}
         run: |

@@ -1136,7 +1136,9 @@ type CreateMailboxDraft struct {
 	Bcc []CreateMailboxDraftBccItem `json:"bcc"`
 	// Visible copied recipients.
 	Cc []CreateMailboxDraftCcItem `json:"cc"`
-	// Custom X- headers preserved with this revision.
+	// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+	// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+	// them.
 	CustomHeaders OptCreateMailboxDraftCustomHeaders `json:"custom_headers"`
 	// Authorised sender; defaults to this inbox.
 	From OptCreateMailboxDraftFrom `json:"from"`
@@ -1448,7 +1450,9 @@ func (s *CreateMailboxDraftCcItem) SetName(val OptNilString) {
 	s.Name = val
 }
 
-// Custom X- headers preserved with this revision.
+// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+// them.
 type CreateMailboxDraftCustomHeaders map[string]string
 
 func (s *CreateMailboxDraftCustomHeaders) init() CreateMailboxDraftCustomHeaders {
@@ -4255,7 +4259,8 @@ type MailboxDraft struct {
 	Bcc []MailboxDraftBccItem `json:"bcc"`
 	// Visible copied recipients.
 	Cc []MailboxDraftCcItem `json:"cc"`
-	// Custom X- headers preserved with this revision.
+	// Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain
+	// readable.
 	CustomHeaders OptMailboxDraftCustomHeaders `json:"custom_headers"`
 	// Safe failure reason. Correct failed draft content or current permissions before retrying. Never
 	// retry an uncertain send as a new message.
@@ -4663,7 +4668,8 @@ func (s *MailboxDraftCcItem) SetName(val OptNilString) {
 	s.Name = val
 }
 
-// Custom X- headers preserved with this revision.
+// Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain
+// readable.
 type MailboxDraftCustomHeaders map[string]string
 
 func (s *MailboxDraftCustomHeaders) init() MailboxDraftCustomHeaders {
@@ -17091,7 +17097,8 @@ type SendMailboxMessageBody struct {
 	Bcc []MailboxAddress `json:"bcc"`
 	// Visible copied recipients.
 	Cc []MailboxAddress `json:"cc"`
-	// Custom headers to include.
+	// Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and
+	// X-SES-MESSAGE-TAGS case-insensitively.
 	CustomHeaders OptSendMailboxMessageBodyCustomHeaders `json:"custom_headers"`
 	From          OptSendMailboxMessageBodyFrom          `json:"from"`
 	// HTML body.
@@ -17256,7 +17263,8 @@ func (s *SendMailboxMessageBodyAttachmentsItem) SetBlobID(val OptString) {
 	s.BlobID = val
 }
 
-// Custom headers to include.
+// Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and
+// X-SES-MESSAGE-TAGS case-insensitively.
 type SendMailboxMessageBodyCustomHeaders map[string]string
 
 func (s *SendMailboxMessageBodyCustomHeaders) init() SendMailboxMessageBodyCustomHeaders {
@@ -17361,7 +17369,9 @@ type UpdateMailboxDraft struct {
 	Bcc []UpdateMailboxDraftBccItem `json:"bcc"`
 	// Visible copied recipients.
 	Cc []UpdateMailboxDraftCcItem `json:"cc"`
-	// Custom X- headers preserved with this revision.
+	// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+	// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+	// them.
 	CustomHeaders OptUpdateMailboxDraftCustomHeaders `json:"custom_headers"`
 	// The revision that was reviewed; a stale value returns conflict.
 	ExpectedRevision int `json:"expected_revision"`
@@ -17660,7 +17670,9 @@ func (s *UpdateMailboxDraftCcItem) SetName(val OptNilString) {
 	s.Name = val
 }
 
-// Custom X- headers preserved with this revision.
+// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+// them.
 type UpdateMailboxDraftCustomHeaders map[string]string
 
 func (s *UpdateMailboxDraftCustomHeaders) init() UpdateMailboxDraftCustomHeaders {

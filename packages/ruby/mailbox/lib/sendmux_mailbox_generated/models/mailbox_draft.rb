@@ -24,7 +24,7 @@ module Sendmux::Mailbox::Generated
     # Visible copied recipients.
     attr_accessor :cc
 
-    # Custom X- headers preserved with this revision.
+    # Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.
     attr_accessor :custom_headers
 
     # Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.

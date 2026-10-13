@@ -29,6 +29,7 @@ const (
 	MailboxGetMessageOperation             OperationName = "MailboxGetMessage"
 	MailboxGetMessageAttachmentOperation   OperationName = "MailboxGetMessageAttachment"
 	MailboxGetQuotaChangesOperation        OperationName = "MailboxGetQuotaChanges"
+	MailboxGetSenderChoicesOperation       OperationName = "MailboxGetSenderChoices"
 	MailboxGetSessionOperation             OperationName = "MailboxGetSession"
 	MailboxGetSubmissionOperation          OperationName = "MailboxGetSubmission"
 	MailboxGetSubmissionChangesOperation   OperationName = "MailboxGetSubmissionChanges"

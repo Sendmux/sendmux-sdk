@@ -24,7 +24,7 @@ module Sendmux::Mailbox::Generated
     # Visible copied recipients.
     attr_accessor :cc
 
-    # Custom X- headers preserved with this revision.
+    # Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.
     attr_accessor :custom_headers
 
     attr_accessor :from

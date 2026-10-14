@@ -43,7 +43,7 @@ const surfaces = [
   },
   {
     name: "management",
-    artifactVersion: "2.1.1",
+    artifactVersion: "2.2.0",
     composerName: "sendmux/management",
     namespace: "Sendmux\\Management",
     spec: ".codegen/openapi-app.openapi-generator.codegen.json",

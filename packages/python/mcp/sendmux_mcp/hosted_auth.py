@@ -9,7 +9,7 @@ from pydantic import AnyHttpUrl, TypeAdapter, UrlConstraints
 
 
 AuthorizationServerUrl = Annotated[AnyHttpUrl, UrlConstraints(preserve_empty_path=True)]
-AUTHORIZATION_SERVER_URL_ADAPTER = TypeAdapter(AuthorizationServerUrl)
+AUTHORIZATION_SERVER_URL_ADAPTER: TypeAdapter[AnyHttpUrl] = TypeAdapter(AuthorizationServerUrl)
 HOSTED_MCP_DISCOVERY_SCOPES = (
     "analytics.read",
     "billing.read",

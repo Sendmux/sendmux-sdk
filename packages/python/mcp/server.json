@@ -29,7 +29,7 @@
     {
       "registryType": "pypi",
       "identifier": "sendmux-mcp",
-      "version": "2.3.0",
+      "version": "2.2.0",
       "transport": {
         "type": "stdio"
       },

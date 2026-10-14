@@ -1136,7 +1136,9 @@ type CreateMailboxDraft struct {
 	Bcc []CreateMailboxDraftBccItem `json:"bcc"`
 	// Visible copied recipients.
 	Cc []CreateMailboxDraftCcItem `json:"cc"`
-	// Custom X- headers preserved with this revision.
+	// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+	// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+	// them.
 	CustomHeaders OptCreateMailboxDraftCustomHeaders `json:"custom_headers"`
 	// Authorised sender; defaults to this inbox.
 	From OptCreateMailboxDraftFrom `json:"from"`
@@ -1448,7 +1450,9 @@ func (s *CreateMailboxDraftCcItem) SetName(val OptNilString) {
 	s.Name = val
 }
 
-// Custom X- headers preserved with this revision.
+// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+// them.
 type CreateMailboxDraftCustomHeaders map[string]string
 
 func (s *CreateMailboxDraftCustomHeaders) init() CreateMailboxDraftCustomHeaders {
@@ -4255,7 +4259,8 @@ type MailboxDraft struct {
 	Bcc []MailboxDraftBccItem `json:"bcc"`
 	// Visible copied recipients.
 	Cc []MailboxDraftCcItem `json:"cc"`
-	// Custom X- headers preserved with this revision.
+	// Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain
+	// readable.
 	CustomHeaders OptMailboxDraftCustomHeaders `json:"custom_headers"`
 	// Safe failure reason. Correct failed draft content or current permissions before retrying. Never
 	// retry an uncertain send as a new message.
@@ -4663,7 +4668,8 @@ func (s *MailboxDraftCcItem) SetName(val OptNilString) {
 	s.Name = val
 }
 
-// Custom X- headers preserved with this revision.
+// Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain
+// readable.
 type MailboxDraftCustomHeaders map[string]string
 
 func (s *MailboxDraftCustomHeaders) init() MailboxDraftCustomHeaders {
@@ -6150,6 +6156,51 @@ func (*MailboxGetMessageAttachmentPartialContent) mailboxGetMessageAttachmentRes
 type MailboxGetMessageNotModified struct{}
 
 func (*MailboxGetMessageNotModified) mailboxGetMessageRes() {}
+
+type MailboxGetSenderChoicesBadRequest ApiError
+
+func (*MailboxGetSenderChoicesBadRequest) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesForbidden ApiError
+
+func (*MailboxGetSenderChoicesForbidden) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesInternalServerError ApiError
+
+func (*MailboxGetSenderChoicesInternalServerError) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesNotFound ApiError
+
+func (*MailboxGetSenderChoicesNotFound) mailboxGetSenderChoicesRes() {}
+
+// MailboxGetSenderChoicesNotModified is response for MailboxGetSenderChoices operation.
+type MailboxGetSenderChoicesNotModified struct {
+	ETag OptString
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxGetSenderChoicesNotModified) GetETag() OptString {
+	return s.ETag
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxGetSenderChoicesNotModified) SetETag(val OptString) {
+	s.ETag = val
+}
+
+func (*MailboxGetSenderChoicesNotModified) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesServiceUnavailable ApiError
+
+func (*MailboxGetSenderChoicesServiceUnavailable) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesTooManyRequests ApiError
+
+func (*MailboxGetSenderChoicesTooManyRequests) mailboxGetSenderChoicesRes() {}
+
+type MailboxGetSenderChoicesUnauthorized ApiError
+
+func (*MailboxGetSenderChoicesUnauthorized) mailboxGetSenderChoicesRes() {}
 
 type MailboxGetSessionForbidden ApiError
 
@@ -10423,6 +10474,219 @@ func (s *MailboxSendScopeType) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/MailboxSenderChoices
+type MailboxSenderChoices struct {
+	// Permitted exact From addresses and verified domains. Domains allow any localpart on that exact
+	// domain.
+	From MailboxSenderChoicesFrom `json:"from"`
+	// Originating inbox address; authorisation and billing remain attached to this inbox.
+	OriginAddress string `json:"origin_address"`
+	// Permitted exact Reply-To addresses and domains. The originating inbox is the default when
+	// permitted.
+	ReplyTo MailboxSenderChoicesReplyTo `json:"reply_to"`
+}
+
+// GetFrom returns the value of From.
+func (s *MailboxSenderChoices) GetFrom() MailboxSenderChoicesFrom {
+	return s.From
+}
+
+// GetOriginAddress returns the value of OriginAddress.
+func (s *MailboxSenderChoices) GetOriginAddress() string {
+	return s.OriginAddress
+}
+
+// GetReplyTo returns the value of ReplyTo.
+func (s *MailboxSenderChoices) GetReplyTo() MailboxSenderChoicesReplyTo {
+	return s.ReplyTo
+}
+
+// SetFrom sets the value of From.
+func (s *MailboxSenderChoices) SetFrom(val MailboxSenderChoicesFrom) {
+	s.From = val
+}
+
+// SetOriginAddress sets the value of OriginAddress.
+func (s *MailboxSenderChoices) SetOriginAddress(val string) {
+	s.OriginAddress = val
+}
+
+// SetReplyTo sets the value of ReplyTo.
+func (s *MailboxSenderChoices) SetReplyTo(val MailboxSenderChoicesReplyTo) {
+	s.ReplyTo = val
+}
+
+// Permitted exact From addresses and verified domains. Domains allow any localpart on that exact
+// domain.
+type MailboxSenderChoicesFrom struct {
+	Addresses []string `json:"addresses"`
+	Domains   []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSenderChoicesFrom) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSenderChoicesFrom) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSenderChoicesFrom) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSenderChoicesFrom) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Permitted exact Reply-To addresses and domains. The originating inbox is the default when
+// permitted.
+type MailboxSenderChoicesReplyTo struct {
+	Addresses []string `json:"addresses"`
+	Domains   []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSenderChoicesReplyTo) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSenderChoicesReplyTo) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSenderChoicesReplyTo) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSenderChoicesReplyTo) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxSenderChoicesResponse
+type MailboxSenderChoicesResponse struct {
+	// Merged property.
+	Meta MailboxSenderChoicesResponseMeta `json:"meta"`
+	Ok   MailboxSenderChoicesResponseOk   `json:"ok"`
+	Data MailboxSenderChoices             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxSenderChoicesResponse) GetMeta() MailboxSenderChoicesResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxSenderChoicesResponse) GetOk() MailboxSenderChoicesResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxSenderChoicesResponse) GetData() MailboxSenderChoices {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxSenderChoicesResponse) SetMeta(val MailboxSenderChoicesResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxSenderChoicesResponse) SetOk(val MailboxSenderChoicesResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxSenderChoicesResponse) SetData(val MailboxSenderChoices) {
+	s.Data = val
+}
+
+// MailboxSenderChoicesResponseHeaders wraps MailboxSenderChoicesResponse with response headers.
+type MailboxSenderChoicesResponseHeaders struct {
+	ETag     OptString
+	Response MailboxSenderChoicesResponse
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxSenderChoicesResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxSenderChoicesResponseHeaders) GetResponse() MailboxSenderChoicesResponse {
+	return s.Response
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxSenderChoicesResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxSenderChoicesResponseHeaders) SetResponse(val MailboxSenderChoicesResponse) {
+	s.Response = val
+}
+
+func (*MailboxSenderChoicesResponseHeaders) mailboxGetSenderChoicesRes() {}
+
+// Merged schema.
+type MailboxSenderChoicesResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxSenderChoicesResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxSenderChoicesResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxSenderChoicesResponseMeta) GetAdditionalProps() MailboxSenderChoicesResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxSenderChoicesResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxSenderChoicesResponseMeta) SetAdditionalProps(val MailboxSenderChoicesResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxSenderChoicesResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxSenderChoicesResponseMetaAdditional) init() MailboxSenderChoicesResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxSenderChoicesResponseOk bool
+
+const (
+	MailboxSenderChoicesResponseOkTrue MailboxSenderChoicesResponseOk = true
+)
+
+// AllValues returns all MailboxSenderChoicesResponseOk values.
+func (MailboxSenderChoicesResponseOk) AllValues() []MailboxSenderChoicesResponseOk {
+	return []MailboxSenderChoicesResponseOk{
+		MailboxSenderChoicesResponseOkTrue,
+	}
+}
+
 // Ref: #/components/schemas/MailboxSession
 type MailboxSession struct {
 	Capabilities MailboxSessionCapabilities `json:"capabilities"`
@@ -11512,16 +11776,17 @@ func (s *MailboxSessionGated) SetVacationResponse(val bool) {
 }
 
 type MailboxSessionLimits struct {
-	AttachmentUploadBytesMax   int `json:"attachment_upload_bytes_max"`
-	BatchIdsMax                int `json:"batch_ids_max"`
-	BodyCharsMax               int `json:"body_chars_max"`
-	ChangesLimitMax            int `json:"changes_limit_max"`
-	InlineAttachmentBytesMax   int `json:"inline_attachment_bytes_max"`
-	KeywordsPerUpdateMax       int `json:"keywords_per_update_max"`
-	ListLimitMax               int `json:"list_limit_max"`
-	MessageBodyCharsDefault    int `json:"message_body_chars_default"`
-	OutboundRawMessageBytesMax int `json:"outbound_raw_message_bytes_max"`
-	ThreadBodyCharsDefault     int `json:"thread_body_chars_default"`
+	AttachmentUploadBytesMax   int                                      `json:"attachment_upload_bytes_max"`
+	BatchIdsMax                int                                      `json:"batch_ids_max"`
+	BodyCharsMax               int                                      `json:"body_chars_max"`
+	ChangesLimitMax            int                                      `json:"changes_limit_max"`
+	DraftScheduleDaysMax       MailboxSessionLimitsDraftScheduleDaysMax `json:"draft_schedule_days_max"`
+	InlineAttachmentBytesMax   int                                      `json:"inline_attachment_bytes_max"`
+	KeywordsPerUpdateMax       int                                      `json:"keywords_per_update_max"`
+	ListLimitMax               int                                      `json:"list_limit_max"`
+	MessageBodyCharsDefault    int                                      `json:"message_body_chars_default"`
+	OutboundRawMessageBytesMax int                                      `json:"outbound_raw_message_bytes_max"`
+	ThreadBodyCharsDefault     int                                      `json:"thread_body_chars_default"`
 }
 
 // GetAttachmentUploadBytesMax returns the value of AttachmentUploadBytesMax.
@@ -11542,6 +11807,11 @@ func (s *MailboxSessionLimits) GetBodyCharsMax() int {
 // GetChangesLimitMax returns the value of ChangesLimitMax.
 func (s *MailboxSessionLimits) GetChangesLimitMax() int {
 	return s.ChangesLimitMax
+}
+
+// GetDraftScheduleDaysMax returns the value of DraftScheduleDaysMax.
+func (s *MailboxSessionLimits) GetDraftScheduleDaysMax() MailboxSessionLimitsDraftScheduleDaysMax {
+	return s.DraftScheduleDaysMax
 }
 
 // GetInlineAttachmentBytesMax returns the value of InlineAttachmentBytesMax.
@@ -11594,6 +11864,11 @@ func (s *MailboxSessionLimits) SetChangesLimitMax(val int) {
 	s.ChangesLimitMax = val
 }
 
+// SetDraftScheduleDaysMax sets the value of DraftScheduleDaysMax.
+func (s *MailboxSessionLimits) SetDraftScheduleDaysMax(val MailboxSessionLimitsDraftScheduleDaysMax) {
+	s.DraftScheduleDaysMax = val
+}
+
 // SetInlineAttachmentBytesMax sets the value of InlineAttachmentBytesMax.
 func (s *MailboxSessionLimits) SetInlineAttachmentBytesMax(val int) {
 	s.InlineAttachmentBytesMax = val
@@ -11622,6 +11897,19 @@ func (s *MailboxSessionLimits) SetOutboundRawMessageBytesMax(val int) {
 // SetThreadBodyCharsDefault sets the value of ThreadBodyCharsDefault.
 func (s *MailboxSessionLimits) SetThreadBodyCharsDefault(val int) {
 	s.ThreadBodyCharsDefault = val
+}
+
+type MailboxSessionLimitsDraftScheduleDaysMax int
+
+const (
+	MailboxSessionLimitsDraftScheduleDaysMax30 MailboxSessionLimitsDraftScheduleDaysMax = 30
+)
+
+// AllValues returns all MailboxSessionLimitsDraftScheduleDaysMax values.
+func (MailboxSessionLimitsDraftScheduleDaysMax) AllValues() []MailboxSessionLimitsDraftScheduleDaysMax {
+	return []MailboxSessionLimitsDraftScheduleDaysMax{
+		MailboxSessionLimitsDraftScheduleDaysMax30,
+	}
 }
 
 type MailboxSessionMailbox struct {
@@ -16809,7 +17097,8 @@ type SendMailboxMessageBody struct {
 	Bcc []MailboxAddress `json:"bcc"`
 	// Visible copied recipients.
 	Cc []MailboxAddress `json:"cc"`
-	// Custom headers to include.
+	// Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and
+	// X-SES-MESSAGE-TAGS case-insensitively.
 	CustomHeaders OptSendMailboxMessageBodyCustomHeaders `json:"custom_headers"`
 	From          OptSendMailboxMessageBodyFrom          `json:"from"`
 	// HTML body.
@@ -16974,7 +17263,8 @@ func (s *SendMailboxMessageBodyAttachmentsItem) SetBlobID(val OptString) {
 	s.BlobID = val
 }
 
-// Custom headers to include.
+// Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and
+// X-SES-MESSAGE-TAGS case-insensitively.
 type SendMailboxMessageBodyCustomHeaders map[string]string
 
 func (s *SendMailboxMessageBodyCustomHeaders) init() SendMailboxMessageBodyCustomHeaders {
@@ -17079,7 +17369,9 @@ type UpdateMailboxDraft struct {
 	Bcc []UpdateMailboxDraftBccItem `json:"bcc"`
 	// Visible copied recipients.
 	Cc []UpdateMailboxDraftCcItem `json:"cc"`
-	// Custom X- headers preserved with this revision.
+	// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+	// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+	// them.
 	CustomHeaders OptUpdateMailboxDraftCustomHeaders `json:"custom_headers"`
 	// The revision that was reviewed; a stale value returns conflict.
 	ExpectedRevision int `json:"expected_revision"`
@@ -17378,7 +17670,9 @@ func (s *UpdateMailboxDraftCcItem) SetName(val OptNilString) {
 	s.Name = val
 }
 
-// Custom X- headers preserved with this revision.
+// Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS
+// case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear
+// them.
 type UpdateMailboxDraftCustomHeaders map[string]string
 
 func (s *UpdateMailboxDraftCustomHeaders) init() UpdateMailboxDraftCustomHeaders {

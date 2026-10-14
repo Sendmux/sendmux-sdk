@@ -23,6 +23,8 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :changes_limit_max
 
+    attr_accessor :draft_schedule_days_max
+
     attr_accessor :inline_attachment_bytes_max
 
     attr_accessor :keywords_per_update_max
@@ -35,6 +37,28 @@ module Sendmux::Mailbox::Generated
 
     attr_accessor :thread_body_chars_default
 
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
+
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
@@ -42,6 +66,7 @@ module Sendmux::Mailbox::Generated
         :'batch_ids_max' => :'batch_ids_max',
         :'body_chars_max' => :'body_chars_max',
         :'changes_limit_max' => :'changes_limit_max',
+        :'draft_schedule_days_max' => :'draft_schedule_days_max',
         :'inline_attachment_bytes_max' => :'inline_attachment_bytes_max',
         :'keywords_per_update_max' => :'keywords_per_update_max',
         :'list_limit_max' => :'list_limit_max',
@@ -68,6 +93,7 @@ module Sendmux::Mailbox::Generated
         :'batch_ids_max' => :'Integer',
         :'body_chars_max' => :'Integer',
         :'changes_limit_max' => :'Integer',
+        :'draft_schedule_days_max' => :'Integer',
         :'inline_attachment_bytes_max' => :'Integer',
         :'keywords_per_update_max' => :'Integer',
         :'list_limit_max' => :'Integer',
@@ -121,6 +147,12 @@ module Sendmux::Mailbox::Generated
         self.changes_limit_max = attributes[:'changes_limit_max']
       else
         self.changes_limit_max = nil
+      end
+
+      if attributes.key?(:'draft_schedule_days_max')
+        self.draft_schedule_days_max = attributes[:'draft_schedule_days_max']
+      else
+        self.draft_schedule_days_max = nil
       end
 
       if attributes.key?(:'inline_attachment_bytes_max')
@@ -181,6 +213,10 @@ module Sendmux::Mailbox::Generated
         invalid_properties.push('invalid value for "changes_limit_max", changes_limit_max cannot be nil.')
       end
 
+      if @draft_schedule_days_max.nil?
+        invalid_properties.push('invalid value for "draft_schedule_days_max", draft_schedule_days_max cannot be nil.')
+      end
+
       if @inline_attachment_bytes_max.nil?
         invalid_properties.push('invalid value for "inline_attachment_bytes_max", inline_attachment_bytes_max cannot be nil.')
       end
@@ -216,6 +252,9 @@ module Sendmux::Mailbox::Generated
       return false if @batch_ids_max.nil?
       return false if @body_chars_max.nil?
       return false if @changes_limit_max.nil?
+      return false if @draft_schedule_days_max.nil?
+      draft_schedule_days_max_validator = EnumAttributeValidator.new('Integer', [30, 11184809])
+      return false unless draft_schedule_days_max_validator.valid?(@draft_schedule_days_max)
       return false if @inline_attachment_bytes_max.nil?
       return false if @keywords_per_update_max.nil?
       return false if @list_limit_max.nil?
@@ -263,6 +302,16 @@ module Sendmux::Mailbox::Generated
       end
 
       @changes_limit_max = changes_limit_max
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] draft_schedule_days_max Object to be assigned
+    def draft_schedule_days_max=(draft_schedule_days_max)
+      validator = EnumAttributeValidator.new('Integer', [30, 11184809])
+      unless validator.valid?(draft_schedule_days_max)
+        fail ArgumentError, "invalid value for \"draft_schedule_days_max\", must be one of #{validator.allowable_values}."
+      end
+      @draft_schedule_days_max = draft_schedule_days_max
     end
 
     # Custom attribute writer method with validation
@@ -334,6 +383,7 @@ module Sendmux::Mailbox::Generated
           batch_ids_max == o.batch_ids_max &&
           body_chars_max == o.body_chars_max &&
           changes_limit_max == o.changes_limit_max &&
+          draft_schedule_days_max == o.draft_schedule_days_max &&
           inline_attachment_bytes_max == o.inline_attachment_bytes_max &&
           keywords_per_update_max == o.keywords_per_update_max &&
           list_limit_max == o.list_limit_max &&
@@ -351,7 +401,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [attachment_upload_bytes_max, batch_ids_max, body_chars_max, changes_limit_max, inline_attachment_bytes_max, keywords_per_update_max, list_limit_max, message_body_chars_default, outbound_raw_message_bytes_max, thread_body_chars_default].hash
+      [attachment_upload_bytes_max, batch_ids_max, body_chars_max, changes_limit_max, draft_schedule_days_max, inline_attachment_bytes_max, keywords_per_update_max, list_limit_max, message_body_chars_default, outbound_raw_message_bytes_max, thread_body_chars_default].hash
     end
 
     # Builds the object from hash

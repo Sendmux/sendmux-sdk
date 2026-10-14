@@ -24,6 +24,8 @@ const generatedPackageDirs = [
   "packages/ts/management/src/generated",
   "packages/ts/sending/src/generated",
   "packages/ts/cli/src/generated",
+  "rust/operation-decisions.json",
+  "rust/src/generated/mod.rs",
 ];
 
 const unstagedDiff = execFileSync("git", ["diff", "--name-status", "--", ...generatedPackageDirs], {

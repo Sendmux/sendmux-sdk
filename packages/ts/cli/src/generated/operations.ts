@@ -978,6 +978,50 @@ export const operations = {
     "requiredKeyKind": "mailbox",
     "surface": "mailbox"
   },
+  mailboxGetSenderChoices: {
+    "bodyKind": "none",
+    "command": "mailbox:get-sender-choices",
+    "description": "Get permitted sender choices",
+    "headerParams": [
+      {
+        "name": "If-None-Match",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "method": "get",
+    "operationId": "mailboxGetSenderChoices",
+    "path": "/mailbox/sender-choices",
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "delivery_group_id",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 50
+        }
+      },
+      {
+        "name": "mailbox_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responseKind": "json",
+    "requestBodyRequired": false,
+    "requiredKeyKind": "mailbox",
+    "surface": "mailbox"
+  },
   mailboxGetSession: {
     "bodyKind": "none",
     "command": "mailbox:get-session",

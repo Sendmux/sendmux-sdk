@@ -271,7 +271,7 @@ test("draft and usage reads require explicit existing fixtures before selection"
 test("all-gates default selects custom MCP operations with mailbox credential requirements", async () => {
   await withEnv({ SENDMUX_STAGING_SEND: "1", SENDMUX_LIVE_E2E_MUTATIONS: "1", SENDMUX_LIVE_E2E_BINARY: "1", SENDMUX_LIVE_E2E_STREAM: "1", SENDMUX_LIVE_E2E_DRAFT_ID: "draft_existing", SENDMUX_LIVE_E2E_USAGE_START: "2026-10-01T00:00:00.000Z", SENDMUX_LIVE_E2E_USAGE_END: "2026-10-02T00:00:00.000Z" }, () => {
     const selected = selectOperations(buildOperationPlan(operations, scenarios, fixtures), []);
-    assert.equal(selected.length, 119);
+    assert.equal(selected.length, 120);
     for (const id of ["mailboxReadAttachment", "mailboxWaitForMessage"]) assert.equal(selected.find(item => item.operationId === id)?.requiredKeyKind, "mailbox");
   });
 });
@@ -1314,7 +1314,7 @@ test("JSON plans bind explicit selection to exactly its applicable pairs", () =>
   const plan = JSON.parse(result.stdout);
   assert.deepEqual(plan.selectedOperationIds, ["managementGetConnection"]);
   assert.deepEqual(plan.applicablePairs, [{ adapter: "typescript", operationId: "managementGetConnection" }]);
-  assert.equal(plan.summary.total, 119);
+  assert.equal(plan.summary.total, 120);
 });
 
 test("mailbox key cleanup verifies the exact revocation receipt without inventing a read endpoint", async () => {

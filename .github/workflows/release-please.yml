@@ -63,7 +63,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           package-manager-cache: false
 
       - name: Install pinned read-only release constructor
@@ -145,14 +145,14 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.27.x"
+          go-version-file: .publication-guard/go/go.mod
           cache-dependency-path: go/go.sum
 
       - name: Set up Ruby
@@ -334,14 +334,14 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.27.x"
+          go-version-file: .publication-guard/go/go.mod
           cache-dependency-path: go/go.sum
 
       - name: Set up Ruby
@@ -465,14 +465,14 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.27.x"
+          go-version-file: .publication-guard/go/go.mod
           cache-dependency-path: go/go.sum
 
       - name: Set up Ruby
@@ -548,7 +548,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           package-manager-cache: false
 
       - name: Set up Python
@@ -723,7 +723,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           package-manager-cache: false
 
       - name: Set up Python
@@ -734,7 +734,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.27.x"
+          go-version-file: .publication-guard/go/go.mod
           cache-dependency-path: go/go.sum
 
       - name: Install dependencies
@@ -819,7 +819,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           package-manager-cache: false
 
       - name: Set up Python
@@ -830,7 +830,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.27.x"
+          go-version-file: .publication-guard/go/go.mod
           cache-dependency-path: go/go.sum
 
       - name: Install dependencies
@@ -912,7 +912,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           package-manager-cache: false
 
       - name: Set up Python
@@ -1102,7 +1102,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 22
+          node-version-file: .publication-guard/.nvmrc
           package-manager-cache: false
 
       - name: Set up Ruby

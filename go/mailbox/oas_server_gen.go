@@ -161,6 +161,14 @@ type Handler interface {
 	//
 	// GET /mailbox/quotas/changes
 	MailboxGetQuotaChanges(ctx context.Context, params MailboxGetQuotaChangesParams) (MailboxGetQuotaChangesRes, error)
+	// MailboxGetSenderChoices implements mailboxGetSenderChoices operation.
+	//
+	// Intersects current team, inbox and credential policies with provider restrictions and selected
+	// delivery groups. Subdomains require separate authorisation. Sending checks these permissions again
+	// before submission.
+	//
+	// GET /mailbox/sender-choices
+	MailboxGetSenderChoices(ctx context.Context, params MailboxGetSenderChoicesParams) (MailboxGetSenderChoicesRes, error)
 	// MailboxGetSession implements mailboxGetSession operation.
 	//
 	// Returns mailbox API capabilities, resource state tokens, limits, and disabled feature flags for

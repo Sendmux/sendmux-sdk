@@ -105,6 +105,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: Sendmux/docs
+          ref: ${{ github.head_ref == 'monid/03-policies-scheduling-signatures-s12' && 'agent/s12-contract-integration-20261012' || 'main' }}
           path: sendmux-docs
 
       - name: Set up pnpm
@@ -115,7 +116,8 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 22
+          # A publishing candidate checkout may predate .nvmrc; take the guard source's pin.
+          node-version-file: ${{ (github.event_name == 'release' || inputs.push == true) && '.publication-guard/.nvmrc' || '.nvmrc' }}
           cache: pnpm
 
       - name: Install dependencies
@@ -467,7 +469,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install diagnostic dependencies

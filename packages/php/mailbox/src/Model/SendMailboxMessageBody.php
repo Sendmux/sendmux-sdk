@@ -445,7 +445,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets custom_headers
      *
-     * @param array<string,string>|null $custom_headers Custom headers to include.
+     * @param array<string,string>|null $custom_headers Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively.
      *
      * @return $this
      */

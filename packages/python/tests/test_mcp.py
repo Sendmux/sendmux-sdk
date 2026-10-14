@@ -56,6 +56,7 @@ EXPECTED_TOOL_NAMES_BY_SURFACE = {
         "mailbox_get_me",
         "mailbox_get_message",
         "mailbox_get_session",
+        "mailbox_get_sender_choices",
         "mailbox_get_thread",
         "mailbox_list_body",
         "mailbox_list_content",
@@ -151,6 +152,7 @@ READ_ONLY_TOOL_NAMES = {
     "mailbox_get_me",
     "mailbox_get_message",
     "mailbox_get_session",
+    "mailbox_get_sender_choices",
     "mailbox_get_thread",
     "mailbox_list_body",
     "mailbox_list_content",
@@ -255,7 +257,7 @@ def test_curated_tools_have_complete_mcp_quality_metadata() -> None:
             async with Client(server) as client:
                 tools.extend(await client.list_tools())
 
-        assert len(tools) == 64
+        assert len(tools) == 65
         assert {tool.name for tool in tools if tool.output_schema is None} == NO_OUTPUT_SCHEMA_TOOL_NAMES
 
         for tool in tools:

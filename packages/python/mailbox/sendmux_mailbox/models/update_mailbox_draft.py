@@ -34,7 +34,7 @@ class UpdateMailboxDraft(BaseModel):
     attachments: Optional[Annotated[List[CreateMailboxDraftAttachmentsInner], Field(max_length=10)]] = Field(default=None, description="Attachments and inline images.")
     bcc: Optional[Annotated[List[CreateMailboxDraftBccInner], Field(max_length=50)]] = Field(default=None, description="Hidden copied recipients.")
     cc: Optional[Annotated[List[CreateMailboxDraftBccInner], Field(max_length=50)]] = Field(default=None, description="Visible copied recipients.")
-    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom X- headers preserved with this revision.")
+    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.")
     expected_revision: Annotated[int, Field(strict=True, gt=0)] = Field(description="The revision that was reviewed; a stale value returns conflict.")
     var_from: Optional[CreateMailboxDraftFrom] = Field(default=None, alias="from")
     html_body: Optional[Annotated[str, Field(strict=True, max_length=1000000)]] = Field(default=None, description="HTML body, preserved when saved.")

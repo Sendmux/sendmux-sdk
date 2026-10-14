@@ -2,7 +2,7 @@ module sendmux.ai/go/v3
 
 go 1.23.0
 
-toolchain go1.23.4
+toolchain go1.27.2
 
 require (
 	github.com/go-faster/errors v0.7.1

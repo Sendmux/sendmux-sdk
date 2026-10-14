@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "meta": { "request_id": "req_session_discovery_test" },
+  "data": {
+    "mailbox": { "id": "mbx_test", "email": "agent@example.com", "display_name": null },
+    "states": { "messages": "test", "folders": "test", "threads": "test", "submissions": "test", "identities": "test", "quotas": "test" },
+    "capabilities": {
+      "attachments": { "upload": true, "download": true, "range_download": true, "metadata": true, "parsing": false, "send_with_uploaded_blob": true },
+      "folders": { "list": true, "detail": true, "changes": true, "query_changes": true, "create": true, "update": true, "delete": true },
+      "identities": { "list": true, "changes": true, "create": false, "update": false, "delete": false },
+      "messages": { "list": true, "detail": true, "raw_body": true, "clean_content": true, "batch_get": true, "count": true, "search_snippets": true, "changes": true, "query_changes": true, "update_fields": ["seen", "flagged", "keywords"], "keywords": true, "batch_update": true, "delete": true, "permanent_delete": true },
+      "quotas": { "list": true, "usage": true, "changes": true, "update": false },
+      "submissions": { "list": true, "detail": true, "changes": true, "send": true },
+      "sync": { "typed_changes": true, "types": ["messages", "folders", "threads", "submissions", "identities", "quotas"], "query_changes": ["messages", "folders"] },
+      "threads": { "list": true, "detail": true, "messages": true, "clean_content": true, "changes": true }
+    },
+    "limits": { "list_limit_max": 100, "changes_limit_max": 100, "batch_ids_max": 100, "message_body_chars_default": 100, "thread_body_chars_default": 100, "body_chars_max": 100, "inline_attachment_bytes_max": 100, "attachment_upload_bytes_max": 100, "outbound_raw_message_bytes_max": 100, "keywords_per_update_max": 100, "draft_schedule_days_max": 30 },
+    "gated": { "identity_mutation": true, "quota_mutation": true, "vacation_response": true, "filter_script_writes": true, "events": true, "raw_protocol": true, "attachment_parsing": true, "message_copy": true, "message_import": true, "message_parse": true, "blob_lookup": true, "blob_copy": true },
+    "endpoints": { "mailbox": ["/mailbox/session"], "messages": [], "threads": [], "folders": [], "submissions": [], "usage": [], "sync": [] }
+  }
+}

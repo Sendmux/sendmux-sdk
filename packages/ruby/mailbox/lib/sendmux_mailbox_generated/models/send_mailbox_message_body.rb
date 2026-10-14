@@ -24,7 +24,7 @@ module Sendmux::Mailbox::Generated
     # Visible copied recipients.
     attr_accessor :cc
 
-    # Custom headers to include.
+    # Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively.
     attr_accessor :custom_headers
 
     # Sender address. Defaults to mailbox identity.

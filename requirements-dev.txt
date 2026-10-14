@@ -2,6 +2,7 @@ build==1.2.2.post1
 fastmcp[tasks]==4.0.3
 mypy==1.16.1
 posthog==7.21.0
+pydantic==2.14.1
 pytest==8.4.1
 twine==6.1.0
 types-jsonschema==4.26.0.20260518

@@ -33,7 +33,7 @@ class SendMailboxMessageBody(BaseModel):
     attachments: Optional[List[SendMailboxMessageBodyAttachmentsInner]] = Field(default=None, description="Attachments to send with the message.")
     bcc: Optional[Annotated[List[MailboxAddress], Field(max_length=50)]] = Field(default=None, description="Hidden copied recipients.")
     cc: Optional[Annotated[List[MailboxAddress], Field(max_length=50)]] = Field(default=None, description="Visible copied recipients.")
-    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers to include.")
+    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom X-* headers to include. Mailbox writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively.")
     var_from: Optional[MailboxAddress] = Field(default=None, description="Sender address. Defaults to mailbox identity.", alias="from")
     html_body: Optional[StrictStr] = Field(default=None, description="HTML body.")
     reply_to: Optional[List[MailboxAddress]] = Field(default=None, description="Reply-To recipients.")

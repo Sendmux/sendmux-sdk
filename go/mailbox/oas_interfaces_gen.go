@@ -93,6 +93,10 @@ type MailboxGetQuotaChangesRes interface {
 	mailboxGetQuotaChangesRes()
 }
 
+type MailboxGetSenderChoicesRes interface {
+	mailboxGetSenderChoicesRes()
+}
+
 type MailboxGetSessionRes interface {
 	mailboxGetSessionRes()
 }

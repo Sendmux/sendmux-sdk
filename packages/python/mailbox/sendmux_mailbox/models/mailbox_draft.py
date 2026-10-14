@@ -35,7 +35,7 @@ class MailboxDraft(BaseModel):
     attachments: Optional[Annotated[List[CreateMailboxDraftAttachmentsInner], Field(max_length=10)]] = Field(default=None, description="Attachments and inline images.")
     bcc: Optional[Annotated[List[CreateMailboxDraftBccInner], Field(max_length=50)]] = Field(default=None, description="Hidden copied recipients.")
     cc: Optional[Annotated[List[CreateMailboxDraftBccInner], Field(max_length=50)]] = Field(default=None, description="Visible copied recipients.")
-    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom X- headers preserved with this revision.")
+    custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom X-* headers preserved with this revision. Older drafts containing reserved headers remain readable.")
     failure_code: Optional[StrictStr] = Field(description="Safe failure reason. Correct failed draft content or current permissions before retrying. Never retry an uncertain send as a new message.")
     var_from: Optional[CreateMailboxDraftFrom] = Field(default=None, alias="from")
     html_body: Optional[Annotated[str, Field(strict=True, max_length=1000000)]] = Field(default=None, description="HTML body, preserved when saved.")

@@ -487,7 +487,7 @@ class CreateMailboxDraft implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets custom_headers
      *
-     * @param array<string,string>|null $custom_headers Custom X- headers preserved with this revision.
+     * @param array<string,string>|null $custom_headers Custom X-* headers. Writes reject X-SES-TENANT, X-SES-CONFIGURATION-SET and X-SES-MESSAGE-TAGS case-insensitively. On updates, omit this field to preserve saved headers, or pass {} to clear them.
      *
      * @return $this
      */

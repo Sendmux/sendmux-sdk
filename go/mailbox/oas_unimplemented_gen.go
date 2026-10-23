@@ -43,6 +43,15 @@ func (UnimplementedHandler) MailboxBatchUpdateMessages(ctx context.Context, req 
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxControlDraftSchedule implements mailboxControlDraftSchedule operation.
+//
+// Reschedule or cancel a saved draft send.
+//
+// PATCH /mailbox/drafts/{draftId}/schedule
+func (UnimplementedHandler) MailboxControlDraftSchedule(ctx context.Context, req *ControlMailboxDraftSchedule, params MailboxControlDraftScheduleParams) (r MailboxControlDraftScheduleRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxCountMessages implements mailboxCountMessages operation.
 //
 // Returns a count for the supplied mailbox message filters without returning message rows.
@@ -64,12 +73,30 @@ func (UnimplementedHandler) MailboxCreateAttachmentUpload(ctx context.Context, r
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxCreateDraft implements mailboxCreateDraft operation.
+//
+// Create a saved draft.
+//
+// POST /mailbox/drafts
+func (UnimplementedHandler) MailboxCreateDraft(ctx context.Context, req *CreateMailboxDraft, params MailboxCreateDraftParams) (r MailboxCreateDraftRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxCreateFolder implements mailboxCreateFolder operation.
 //
 // Creates a folder in the authenticated mailbox.
 //
 // POST /mailbox/folders
 func (UnimplementedHandler) MailboxCreateFolder(ctx context.Context, req OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (r MailboxCreateFolderRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MailboxDeleteDraft implements mailboxDeleteDraft operation.
+//
+// Delete a saved draft.
+//
+// DELETE /mailbox/drafts/{draftId}
+func (UnimplementedHandler) MailboxDeleteDraft(ctx context.Context, params MailboxDeleteDraftParams) (r MailboxDeleteDraftRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -94,6 +121,28 @@ func (UnimplementedHandler) MailboxDeleteMessage(ctx context.Context, params Mai
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxDownloadRawMessage implements mailboxDownloadRawMessage operation.
+//
+// Downloads the stored message as an .eml file, including its original headers, body and attachments.
+//
+//	Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+//
+// GET /mailbox/messages/{message_id}/raw
+func (UnimplementedHandler) MailboxDownloadRawMessage(ctx context.Context, params MailboxDownloadRawMessageParams) (r MailboxDownloadRawMessageRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MailboxGetAttachmentText implements mailboxGetAttachmentText operation.
+//
+// Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current
+// access and source availability are checked even with If-None-Match. This request does not start a
+// conversion.
+//
+// GET /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+func (UnimplementedHandler) MailboxGetAttachmentText(ctx context.Context, params MailboxGetAttachmentTextParams) (r MailboxGetAttachmentTextRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxGetChanges implements mailboxGetChanges operation.
 //
 // Returns message changes in the legacy shape when `types` is omitted. Pass a comma-separated
@@ -112,6 +161,15 @@ func (UnimplementedHandler) MailboxGetChanges(ctx context.Context, params Mailbo
 //
 // GET /mailbox/connection
 func (UnimplementedHandler) MailboxGetConnection(ctx context.Context, params MailboxGetConnectionParams) (r MailboxGetConnectionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MailboxGetDraft implements mailboxGetDraft operation.
+//
+// Read a saved draft.
+//
+// GET /mailbox/drafts/{draftId}
+func (UnimplementedHandler) MailboxGetDraft(ctx context.Context, params MailboxGetDraftParams) (r MailboxGetDraftRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -254,6 +312,15 @@ func (UnimplementedHandler) MailboxListContent(ctx context.Context, params Mailb
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxListDrafts implements mailboxListDrafts operation.
+//
+// List saved drafts.
+//
+// GET /mailbox/drafts
+func (UnimplementedHandler) MailboxListDrafts(ctx context.Context, params MailboxListDraftsParams) (r MailboxListDraftsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxListFolders implements mailboxListFolders operation.
 //
 // Returns a cursor-paginated list of folders for the authenticated mailbox.
@@ -361,6 +428,19 @@ func (UnimplementedHandler) MailboxQueryMessageChanges(ctx context.Context, para
 	return r, ht.ErrNotImplemented
 }
 
+// MailboxRequestAttachmentText implements mailboxRequestAttachmentText operation.
+//
+// Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this
+// request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key
+// is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and
+// the source attachment are checked before serving cached text. If extraction cannot complete, use
+// the original attachment download.
+//
+// POST /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+func (UnimplementedHandler) MailboxRequestAttachmentText(ctx context.Context, params MailboxRequestAttachmentTextParams) (r MailboxRequestAttachmentTextRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // MailboxSearchMessageSnippets implements mailboxSearchMessageSnippets operation.
 //
 // Returns subject and preview snippets for a text search. Provide `message_ids` to snippet exact
@@ -368,6 +448,15 @@ func (UnimplementedHandler) MailboxQueryMessageChanges(ctx context.Context, para
 //
 // GET /mailbox/messages/search-snippets
 func (UnimplementedHandler) MailboxSearchMessageSnippets(ctx context.Context, params MailboxSearchMessageSnippetsParams) (r MailboxSearchMessageSnippetsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MailboxSendDraft implements mailboxSendDraft operation.
+//
+// Send a saved draft revision.
+//
+// POST /mailbox/drafts/{draftId}/send
+func (UnimplementedHandler) MailboxSendDraft(ctx context.Context, req *SendMailboxDraft, params MailboxSendDraftParams) (r MailboxSendDraftRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -390,6 +479,15 @@ func (UnimplementedHandler) MailboxSendMessage(ctx context.Context, req OptSendM
 //
 // GET /mailbox/events
 func (UnimplementedHandler) MailboxStreamEvents(ctx context.Context, params MailboxStreamEventsParams) (r MailboxStreamEventsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MailboxUpdateDraft implements mailboxUpdateDraft operation.
+//
+// Edit a saved draft.
+//
+// PATCH /mailbox/drafts/{draftId}
+func (UnimplementedHandler) MailboxUpdateDraft(ctx context.Context, req *UpdateMailboxDraft, params MailboxUpdateDraftParams) (r MailboxUpdateDraftRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

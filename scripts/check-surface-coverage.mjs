@@ -331,7 +331,7 @@ function responseKindForOperation(operation) {
   if (contentTypes.includes("text/plain")) {
     return "text";
   }
-  if (contentTypes.includes("application/octet-stream")) {
+  if (contentTypes.includes("application/octet-stream") || contentTypes.includes("message/rfc822")) {
     return "binary";
   }
   return "json";
@@ -425,6 +425,10 @@ function mcpDecision(operation, curatedMcp) {
 function mcpExclusionReason(operation) {
   const id = operation.operationId;
 
+  if (/^management(Get|Replace)MailboxSendPolicy$/.test(id)) {
+    return "Sending policy administration requires scope-dependent administrative permissions; use SDK or CLI with an administrative connection.";
+  }
+
   if (id === "sendingGetOpenApiSpec") {
     return "Meta endpoint; SDK and CLI need it, but MCP tools are generated from the spec snapshot and should not expose spec download as an agent action.";
   }
@@ -435,6 +439,10 @@ function mcpExclusionReason(operation) {
 
   if (id === "mailboxGetMessageAttachment") {
     return "Binary payload endpoint; MCP exposes mailbox_get_attachment for metadata/link refresh and mailbox_read_attachment for agent content reads.";
+  }
+
+  if (id === "mailboxDownloadRawMessage") {
+    return "Binary raw-message download stays outside the MCP toolset.";
   }
 
   if (id === "mailboxUploadAttachment") {

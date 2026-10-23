@@ -89,7 +89,7 @@ export async function runSdkOperation(
     return command.renderResult(await firstStreamEvent(response, controller));
   }
 
-  if (operation.operationId === "mailboxGetMessageAttachment") {
+  if (operation.responseKind === "binary") {
     const response = await sdkOperation({
       ...baseRequestOptions,
       parseAs: "arrayBuffer",
@@ -98,7 +98,7 @@ export async function runSdkOperation(
     if (typeof data === "string" || data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
       return command.renderBinaryResult(data);
     }
-    throw new Error("SDK operation mailboxGetMessageAttachment did not return binary content");
+    throw new Error(`SDK operation ${operation.operationId} did not return binary content`);
   }
 
   const response = await sdkOperation(baseRequestOptions);

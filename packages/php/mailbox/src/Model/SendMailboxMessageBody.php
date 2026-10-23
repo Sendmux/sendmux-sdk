@@ -315,14 +315,20 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     {
         $invalidProperties = [];
 
-        if ($this->container['subject'] === null) {
-            $invalidProperties[] = "'subject' can't be null";
+        if (!is_null($this->container['bcc']) && (count($this->container['bcc']) > 50)) {
+            $invalidProperties[] = "invalid value for 'bcc', number of items must be less than or equal to 50.";
         }
-        if ($this->container['to'] === null) {
-            $invalidProperties[] = "'to' can't be null";
+
+        if (!is_null($this->container['cc']) && (count($this->container['cc']) > 50)) {
+            $invalidProperties[] = "invalid value for 'cc', number of items must be less than or equal to 50.";
         }
-        if (!is_null($this->container['to']) && (count($this->container['to']) < 1)) {
-            $invalidProperties[] = "invalid value for 'to', number of items must be greater than or equal to 1.";
+
+        if (!is_null($this->container['subject']) && (mb_strlen($this->container['subject']) > 998)) {
+            $invalidProperties[] = "invalid value for 'subject', the character length must be smaller than or equal to 998.";
+        }
+
+        if (!is_null($this->container['to']) && (count($this->container['to']) > 50)) {
+            $invalidProperties[] = "invalid value for 'to', number of items must be less than or equal to 50.";
         }
 
         return $invalidProperties;
@@ -377,7 +383,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets bcc
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $bcc BCC recipients.
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $bcc Hidden copied recipients.
      *
      * @return $this
      */
@@ -385,6 +391,10 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     {
         if (is_null($bcc)) {
             throw new InvalidArgumentException('non-nullable bcc cannot be null');
+        }
+
+        if ((count($bcc) > 50)) {
+            throw new InvalidArgumentException('invalid value for $bcc when calling SendMailboxMessageBody., number of items must be less than or equal to 50.');
         }
         $this->container['bcc'] = $bcc;
 
@@ -404,7 +414,7 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets cc
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $cc CC recipients.
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $cc Visible copied recipients.
      *
      * @return $this
      */
@@ -412,6 +422,10 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     {
         if (is_null($cc)) {
             throw new InvalidArgumentException('non-nullable cc cannot be null');
+        }
+
+        if ((count($cc) > 50)) {
+            throw new InvalidArgumentException('invalid value for $cc when calling SendMailboxMessageBody., number of items must be less than or equal to 50.');
         }
         $this->container['cc'] = $cc;
 
@@ -529,9 +543,9 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets subject
      *
-     * @return string
+     * @return string|null
      */
-    public function getSubject(): string
+    public function getSubject(): ?string
     {
         return $this->container['subject'];
     }
@@ -539,15 +553,19 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets subject
      *
-     * @param string $subject Subject line for the outgoing email.
+     * @param string|null $subject Subject line; defaults to empty.
      *
      * @return $this
      */
-    public function setSubject(string $subject): static
+    public function setSubject(?string $subject): static
     {
         if (is_null($subject)) {
             throw new InvalidArgumentException('non-nullable subject cannot be null');
         }
+        if ((mb_strlen($subject) > 998)) {
+            throw new InvalidArgumentException('invalid length for $subject when calling SendMailboxMessageBody., must be smaller than or equal to 998.');
+        }
+
         $this->container['subject'] = $subject;
 
         return $this;
@@ -583,9 +601,9 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Gets to
      *
-     * @return \Sendmux\Mailbox\Model\MailboxAddress[]
+     * @return \Sendmux\Mailbox\Model\MailboxAddress[]|null
      */
-    public function getTo(): array
+    public function getTo(): ?array
     {
         return $this->container['to'];
     }
@@ -593,19 +611,18 @@ class SendMailboxMessageBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets to
      *
-     * @param \Sendmux\Mailbox\Model\MailboxAddress[] $to Primary recipients.
+     * @param \Sendmux\Mailbox\Model\MailboxAddress[]|null $to Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.
      *
      * @return $this
      */
-    public function setTo(array $to): static
+    public function setTo(?array $to): static
     {
         if (is_null($to)) {
             throw new InvalidArgumentException('non-nullable to cannot be null');
         }
 
-
-        if ((count($to) < 1)) {
-            throw new InvalidArgumentException('invalid length for $to when calling SendMailboxMessageBody., number of items must be greater than or equal to 1.');
+        if ((count($to) > 50)) {
+            throw new InvalidArgumentException('invalid value for $to when calling SendMailboxMessageBody., number of items must be less than or equal to 50.');
         }
         $this->container['to'] = $to;
 

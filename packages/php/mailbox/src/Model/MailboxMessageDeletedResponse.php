@@ -61,7 +61,7 @@ class MailboxMessageDeletedResponse implements ModelInterface, ArrayAccess, Json
     protected static array $openAPITypes = [
         'meta' => '\Sendmux\Mailbox\Model\ResponseMeta',
         'ok' => 'bool',
-        'data' => '\Sendmux\Mailbox\Model\MailboxFolderDeletedResponseAllOfData'
+        'data' => '\Sendmux\Mailbox\Model\MailboxDraftDeleteResponseAllOfData'
     ];
 
     /**
@@ -344,9 +344,9 @@ class MailboxMessageDeletedResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Gets data
      *
-     * @return \Sendmux\Mailbox\Model\MailboxFolderDeletedResponseAllOfData
+     * @return \Sendmux\Mailbox\Model\MailboxDraftDeleteResponseAllOfData
      */
-    public function getData(): \Sendmux\Mailbox\Model\MailboxFolderDeletedResponseAllOfData
+    public function getData(): \Sendmux\Mailbox\Model\MailboxDraftDeleteResponseAllOfData
     {
         return $this->container['data'];
     }
@@ -354,11 +354,11 @@ class MailboxMessageDeletedResponse implements ModelInterface, ArrayAccess, Json
     /**
      * Sets data
      *
-     * @param \Sendmux\Mailbox\Model\MailboxFolderDeletedResponseAllOfData $data data
+     * @param \Sendmux\Mailbox\Model\MailboxDraftDeleteResponseAllOfData $data data
      *
      * @return $this
      */
-    public function setData(\Sendmux\Mailbox\Model\MailboxFolderDeletedResponseAllOfData $data): static
+    public function setData(\Sendmux\Mailbox\Model\MailboxDraftDeleteResponseAllOfData $data): static
     {
         if (is_null($data)) {
             throw new InvalidArgumentException('non-nullable data cannot be null');

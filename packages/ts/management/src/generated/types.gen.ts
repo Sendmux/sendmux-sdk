@@ -77,7 +77,7 @@ export type WebhookSubscriptionWithSecret = {
      */
     name: string | null;
     /**
-     * Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY response containing the raw secret — store it securely; it cannot be retrieved later. Use POST /webhooks/{id}/rotate-secret to issue a new one.
+     * Signing secret for both webhook signature headers. X-Sendmux-Signature signs the exact body bytes. X-Sendmux-Signature-V2 contains v1=<hex HMAC-SHA256> and signs X-Sendmux-Timestamp (Unix seconds), a full stop, then the exact body bytes. Check timestamp freshness and compare signatures in constant time before parsing the body. Store this secret securely; it is returned only on creation and rotation. Use POST /webhooks/{id}/rotate-secret to issue a new one.
      */
     secret: string;
     /**
@@ -537,6 +537,82 @@ export type SendingAccountLimitRequest = {
     request_id: string;
 };
 
+export type ReplaceMailboxSendPolicy = {
+    policy: MailboxSendPolicy & unknown;
+};
+
+export type MailboxSendPolicy = {
+    /**
+     * Allowed From addresses at this policy level.
+     */
+    allowed_from?: {
+        /**
+         * Exact email addresses matched by this rule.
+         */
+        addresses?: Array<string>;
+        /**
+         * Exact domains; subdomains are not included automatically.
+         */
+        domains?: Array<string>;
+        /**
+         * Allow the originating inbox address.
+         */
+        own_address?: boolean;
+    };
+    /**
+     * Allowed Reply-To addresses at this policy level.
+     */
+    allowed_reply_to?: {
+        /**
+         * Exact email addresses matched by this rule.
+         */
+        addresses?: Array<string>;
+        /**
+         * Exact domains; subdomains are not included automatically.
+         */
+        domains?: Array<string>;
+        /**
+         * Allow the originating inbox address.
+         */
+        own_address?: boolean;
+    };
+    /**
+     * Ordered fallback From addresses; every policy level must explicitly allow each alternative.
+     */
+    alternate_from?: Array<string>;
+    /**
+     * Recipient restrictions applied to every To, Cc and Bcc address.
+     */
+    recipients?: {
+        /**
+         * Allowed recipients, or null for no allow-list restriction. An empty rule allows no recipients.
+         */
+        allow?: {
+            /**
+             * Exact email addresses matched by this rule.
+             */
+            addresses?: Array<string>;
+            /**
+             * Exact domains; subdomains are not included automatically.
+             */
+            domains?: Array<string>;
+        } | null;
+        /**
+         * Blocked recipients; deny rules always take precedence.
+         */
+        deny?: {
+            /**
+             * Exact email addresses matched by this rule.
+             */
+            addresses?: Array<string>;
+            /**
+             * Exact domains; subdomains are not included automatically.
+             */
+            domains?: Array<string>;
+        };
+    };
+};
+
 /**
  * Per-account string variables. PATCH omission preserves the current map, a supplied map replaces it, and an empty map clears it. Detail responses return an empty map when no variables are set.
  */
@@ -984,6 +1060,19 @@ export type MailboxSendScope = {
     type: 'all' | 'providers' | 'group';
 } | null;
 
+export type MailboxSendPolicySnapshot = {
+    policy: MailboxSendPolicy;
+    /**
+     * Current policy version; also returned in ETag.
+     */
+    version: string;
+};
+
+export type MailboxSendPolicyResponse = SuccessEnvelope & {
+    data: MailboxSendPolicySnapshot;
+    meta?: ResponseMeta;
+};
+
 export type MailboxKeyDeletedResponse = SuccessEnvelope & {
     data: {
         deleted: true;
@@ -1243,6 +1332,46 @@ export type MailboxCreateResult = {
      * Optional warning string when the mailbox was created without an initial credential
      */
     warning: string | null;
+};
+
+export type MailboxCostUsageResponse = SuccessEnvelope & {
+    data: MailboxCostUsage;
+    meta?: ResponseMeta;
+};
+
+export type MailboxCostUsage = {
+    currency: 'USD';
+    end: string;
+    incoming: {
+        coverage_started_at: string | null;
+        incurred_amount: string;
+        posted_amount: string;
+        posted_quantity: string;
+        quantity: string;
+        state: 'pending' | 'final';
+        unbillable_amount: string;
+        unbillable_quantity: string;
+    };
+    mailbox_id: string;
+    outgoing: {
+        coverage_started_at: string | null;
+        incurred_amount: string;
+        posted_amount: string;
+        posted_quantity: string;
+        quantity: string;
+        state: 'pending' | 'final';
+        unbillable_amount: string;
+        unbillable_quantity: string;
+    };
+    posted_amount: string;
+    start: string;
+    state: 'pending' | 'final';
+    storage: {
+        allocated_amount: string;
+        posted_amount: string;
+        raw_amount: string;
+        state: 'pending' | 'final';
+    };
 };
 
 export type MailboxAvailabilityResult = {
@@ -2388,6 +2517,162 @@ export type ManagementGetInboxLogResponses = {
 
 export type ManagementGetInboxLogResponse = ManagementGetInboxLogResponses[keyof ManagementGetInboxLogResponses];
 
+export type ManagementGetMailboxSendPolicyData = {
+    body?: never;
+    headers?: {
+        /**
+         * Return 304 when this ETag still matches.
+         */
+        'If-None-Match'?: string;
+    };
+    path: {
+        /**
+         * Policy level to read or replace.
+         */
+        scope: 'team' | 'mailbox' | 'api_key' | 'oauth_grant' | 'agent_registration';
+        /**
+         * Public ID of the team, inbox, API key, connected-app grant or agent registration.
+         */
+        public_id: string;
+    };
+    query?: never;
+    url: '/mailbox-send-policies/{scope}/{public_id}';
+};
+
+export type ManagementGetMailboxSendPolicyErrors = {
+    /**
+     * Request failed.
+     */
+    400: ApiError;
+    /**
+     * Request failed.
+     */
+    401: ApiError;
+    /**
+     * Request failed.
+     */
+    403: ApiError;
+    /**
+     * Request failed.
+     */
+    404: ApiError;
+    /**
+     * Request failed.
+     */
+    409: ApiError;
+    /**
+     * Request failed.
+     */
+    413: ApiError;
+    /**
+     * Request failed.
+     */
+    422: ApiError;
+    /**
+     * Request failed.
+     */
+    429: ApiError;
+    /**
+     * Request failed.
+     */
+    500: ApiError;
+    /**
+     * Request failed.
+     */
+    503: ApiError;
+};
+
+export type ManagementGetMailboxSendPolicyError = ManagementGetMailboxSendPolicyErrors[keyof ManagementGetMailboxSendPolicyErrors];
+
+export type ManagementGetMailboxSendPolicyResponses = {
+    /**
+     * Current sending policy.
+     */
+    200: MailboxSendPolicyResponse;
+};
+
+export type ManagementGetMailboxSendPolicyResponse = ManagementGetMailboxSendPolicyResponses[keyof ManagementGetMailboxSendPolicyResponses];
+
+export type ManagementReplaceMailboxSendPolicyData = {
+    body: ReplaceMailboxSendPolicy;
+    headers: {
+        /**
+         * Required exact ETag from the current policy. Wildcards are not accepted.
+         */
+        'If-Match': string;
+        /**
+         * Reuse with the same policy and ETag to replay a successful replacement.
+         */
+        'Idempotency-Key'?: string;
+    };
+    path: {
+        /**
+         * Policy level to read or replace.
+         */
+        scope: 'team' | 'mailbox' | 'api_key' | 'oauth_grant' | 'agent_registration';
+        /**
+         * Public ID of the team, inbox, API key, connected-app grant or agent registration.
+         */
+        public_id: string;
+    };
+    query?: never;
+    url: '/mailbox-send-policies/{scope}/{public_id}';
+};
+
+export type ManagementReplaceMailboxSendPolicyErrors = {
+    /**
+     * Request failed.
+     */
+    400: ApiError;
+    /**
+     * Request failed.
+     */
+    401: ApiError;
+    /**
+     * Request failed.
+     */
+    403: ApiError;
+    /**
+     * Request failed.
+     */
+    404: ApiError;
+    /**
+     * Request failed.
+     */
+    409: ApiError;
+    /**
+     * Request failed.
+     */
+    413: ApiError;
+    /**
+     * Request failed.
+     */
+    422: ApiError;
+    /**
+     * Request failed.
+     */
+    429: ApiError;
+    /**
+     * Request failed.
+     */
+    500: ApiError;
+    /**
+     * Request failed.
+     */
+    503: ApiError;
+};
+
+export type ManagementReplaceMailboxSendPolicyError = ManagementReplaceMailboxSendPolicyErrors[keyof ManagementReplaceMailboxSendPolicyErrors];
+
+export type ManagementReplaceMailboxSendPolicyResponses = {
+    /**
+     * Current sending policy.
+     */
+    200: MailboxSendPolicyResponse;
+};
+
+export type ManagementReplaceMailboxSendPolicyResponse = ManagementReplaceMailboxSendPolicyResponses[keyof ManagementReplaceMailboxSendPolicyResponses];
+
 export type ManagementListMailboxesData = {
     body?: never;
     path?: never;
@@ -2524,6 +2809,10 @@ export type ManagementDeleteMailboxErrors = {
      * Mailbox not found
      */
     404: ApiError;
+    /**
+     * Deletion is waiting for final usage. Retry after the interval in Retry-After.
+     */
+    503: ApiError;
 };
 
 export type ManagementDeleteMailboxError = ManagementDeleteMailboxErrors[keyof ManagementDeleteMailboxErrors];
@@ -2911,6 +3200,71 @@ export type ManagementSuspendMailboxResponses = {
 };
 
 export type ManagementSuspendMailboxResponse = ManagementSuspendMailboxResponses[keyof ManagementSuspendMailboxResponses];
+
+export type ManagementGetMailboxCostUsageData = {
+    body?: never;
+    headers?: {
+        /**
+         * Return 304 when the authorised response is unchanged.
+         */
+        'If-None-Match'?: string;
+    };
+    path: {
+        /**
+         * Mailbox public ID.
+         */
+        public_id: string;
+    };
+    query: {
+        /**
+         * Inclusive start. At most millisecond precision.
+         */
+        start: string;
+        /**
+         * Exclusive end. Must be at or after start and at most 366 days later. At most millisecond precision.
+         */
+        end: string;
+    };
+    url: '/mailboxes/{public_id}/usage';
+};
+
+export type ManagementGetMailboxCostUsageErrors = {
+    /**
+     * Invalid or revoked credential.
+     */
+    401: ApiError;
+    /**
+     * Required team-wide access or permission is missing.
+     */
+    403: ApiError;
+    /**
+     * Mailbox usage is unavailable to this team.
+     */
+    404: ApiError;
+    /**
+     * Invalid, repeated or unsupported window boundaries.
+     */
+    422: ApiError;
+    /**
+     * Rate limit exceeded.
+     */
+    429: ApiError;
+    /**
+     * Usage cannot be read. Retry after the interval in Retry-After.
+     */
+    503: ApiError;
+};
+
+export type ManagementGetMailboxCostUsageError = ManagementGetMailboxCostUsageErrors[keyof ManagementGetMailboxCostUsageErrors];
+
+export type ManagementGetMailboxCostUsageResponses = {
+    /**
+     * Recorded mailbox costs and settlement state.
+     */
+    200: MailboxCostUsageResponse;
+};
+
+export type ManagementGetMailboxCostUsageResponse = ManagementGetMailboxCostUsageResponses[keyof ManagementGetMailboxCostUsageResponses];
 
 export type ManagementCheckMailboxAvailabilityData = {
     body?: never;

@@ -331,7 +331,7 @@ function responseKindForOperation(operation) {
   if (contentTypes.includes("text/plain")) {
     return "text";
   }
-  if (contentTypes.includes("application/octet-stream")) {
+  if (contentTypes.includes("application/octet-stream") || contentTypes.includes("message/rfc822")) {
     return "binary";
   }
   return "json";
@@ -363,7 +363,7 @@ function buildExpectedScenarios(operations, cliOperations, curatedMcp) {
       },
       assertions: assertionsFor(operation),
       fixture: fixtureFor(operation),
-      gates: [...gatesFor(classification), ...(["mailboxBatchGetMessages", "mailboxBatchUpdateMessages", "mailboxBatchDeleteMessages", "mailboxUpdateMessage", "mailboxDeleteMessage", "mailboxGetMessageAttachment"].includes(operation.operationId) ? ["SENDMUX_STAGING_SEND=1"] : [])],
+      gates: [...gatesFor(classification), ...(["mailboxBatchGetMessages", "mailboxBatchUpdateMessages", "mailboxBatchDeleteMessages", "mailboxUpdateMessage", "mailboxDeleteMessage", "mailboxGetMessageAttachment", "mailboxDownloadRawMessage", "mailboxGetAttachmentText", "mailboxRequestAttachmentText"].includes(operation.operationId) ? ["SENDMUX_STAGING_SEND=1"] : [])],
       mode: classification.mode,
       risk: classification.risk,
     };
@@ -378,11 +378,11 @@ function classifyScenario(operation) {
     return { mode: "stream", risk: "stream" };
   }
 
-  if (operation.bodyKind === "binary" || id.includes("Attachment")) {
+  if (operation.bodyKind === "binary" || operation.responseKind === "binary" || id.includes("Attachment")) {
     return { mode: "binary_fixture", risk: "binary" };
   }
 
-  if (id.startsWith("sendingSend") || id === "mailboxSendMessage") {
+  if (id.startsWith("sendingSend") || ["mailboxSendMessage", "mailboxSendDraft", "mailboxControlDraftSchedule"].includes(id)) {
     return { mode: "send", risk: "send" };
   }
 

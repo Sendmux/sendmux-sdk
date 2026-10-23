@@ -31,15 +31,15 @@ class SendMailboxMessageBody(BaseModel):
     SendMailboxMessageBody
     """ # noqa: E501
     attachments: Optional[List[SendMailboxMessageBodyAttachmentsInner]] = Field(default=None, description="Attachments to send with the message.")
-    bcc: Optional[List[MailboxAddress]] = Field(default=None, description="BCC recipients.")
-    cc: Optional[List[MailboxAddress]] = Field(default=None, description="CC recipients.")
+    bcc: Optional[Annotated[List[MailboxAddress], Field(max_length=50)]] = Field(default=None, description="Hidden copied recipients.")
+    cc: Optional[Annotated[List[MailboxAddress], Field(max_length=50)]] = Field(default=None, description="Visible copied recipients.")
     custom_headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Custom headers to include.")
     var_from: Optional[MailboxAddress] = Field(default=None, description="Sender address. Defaults to mailbox identity.", alias="from")
     html_body: Optional[StrictStr] = Field(default=None, description="HTML body.")
     reply_to: Optional[List[MailboxAddress]] = Field(default=None, description="Reply-To recipients.")
-    subject: StrictStr = Field(description="Subject line for the outgoing email.")
+    subject: Optional[Annotated[str, Field(strict=True, max_length=998)]] = Field(default=None, description="Subject line; defaults to empty.")
     text_body: Optional[StrictStr] = Field(default=None, description="Plain text body.")
-    to: Annotated[List[MailboxAddress], Field(min_length=1)] = Field(description="Primary recipients.")
+    to: Optional[Annotated[List[MailboxAddress], Field(max_length=50)]] = Field(default=None, description="Primary recipients. Supply 1 to 50 recipients in total across To, Cc and Bcc.")
     __properties: ClassVar[List[str]] = ["attachments", "bcc", "cc", "custom_headers", "from", "html_body", "reply_to", "subject", "text_body", "to"]
 
     model_config = ConfigDict(

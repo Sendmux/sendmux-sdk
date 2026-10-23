@@ -191,6 +191,17 @@ type Handler interface {
 	//
 	// GET /mailboxes/{public_id}
 	ManagementGetMailbox(ctx context.Context, params ManagementGetMailboxParams) (ManagementGetMailboxRes, error)
+	// ManagementGetMailboxCostUsage implements managementGetMailboxCostUsage operation.
+	//
+	// Read cumulative mailbox costs for a half-open window: start is included and end is excluded.
+	// Requires mailbox.admin.read and team-wide mailbox access. Retained usage remains readable after
+	// mailbox deletion while the team and credential remain active. Quantities and USD amounts are
+	// decimal strings. posted_amount includes only posted charges; incurred and unbillable amounts are
+	// reported separately. A pending result can change. Settle a window only when its state is final.
+	// This read does not start or complete settlement.
+	//
+	// GET /mailboxes/{public_id}/usage
+	ManagementGetMailboxCostUsage(ctx context.Context, params ManagementGetMailboxCostUsageParams) (ManagementGetMailboxCostUsageRes, error)
 	// ManagementGetMailboxFilters implements managementGetMailboxFilters operation.
 	//
 	// Returns the current sender-filter mode and rule set for a mailbox. Mailbox-scoped rules override
@@ -201,6 +212,15 @@ type Handler interface {
 	//
 	// GET /mailboxes/{public_id}/filters
 	ManagementGetMailboxFilters(ctx context.Context, params ManagementGetMailboxFiltersParams) (ManagementGetMailboxFiltersRes, error)
+	// ManagementGetMailboxSendPolicy implements managementGetMailboxSendPolicy operation.
+	//
+	// Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies.
+	// Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.
+	// read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies.
+	// Integration and mailbox keys cannot manage these policies.
+	//
+	// GET /mailbox-send-policies/{scope}/{public_id}
+	ManagementGetMailboxSendPolicy(ctx context.Context, params ManagementGetMailboxSendPolicyParams) (ManagementGetMailboxSendPolicyRes, error)
 	// ManagementGetProvider implements managementGetProvider operation.
 	//
 	// Returns one sending account. Responses include an ETag for conditional GET and optimistic PATCH.
@@ -311,6 +331,15 @@ type Handler interface {
 	//
 	// GET /webhooks
 	ManagementListWebhooks(ctx context.Context, params ManagementListWebhooksParams) (ManagementListWebhooksRes, error)
+	// ManagementReplaceMailboxSendPolicy implements managementReplaceMailboxSendPolicy operation.
+	//
+	// Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies.
+	// Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.
+	// read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies.
+	// Integration and mailbox keys cannot manage these policies.
+	//
+	// PUT /mailbox-send-policies/{scope}/{public_id}
+	ManagementReplaceMailboxSendPolicy(ctx context.Context, req *ReplaceMailboxSendPolicy, params ManagementReplaceMailboxSendPolicyParams) (ManagementReplaceMailboxSendPolicyRes, error)
 	// ManagementRequestSendingAccountLimitIncrease implements managementRequestSendingAccountLimitIncrease operation.
 	//
 	// Creates a request to increase the number of custom or connected sending accounts allowed for the

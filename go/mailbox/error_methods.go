@@ -56,6 +56,66 @@ func (r *MailboxBatchUpdateMessagesRequestEntityTooLarge) APIError() *core.APIEr
 	return err
 }
 
+// APIError maps MailboxControlDraftScheduleBadRequest into the shared typed API error.
+func (r *MailboxControlDraftScheduleBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleConflict into the shared typed API error.
+func (r *MailboxControlDraftScheduleConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleForbidden into the shared typed API error.
+func (r *MailboxControlDraftScheduleForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleInternalServerError into the shared typed API error.
+func (r *MailboxControlDraftScheduleInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleNotFound into the shared typed API error.
+func (r *MailboxControlDraftScheduleNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxControlDraftScheduleRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleServiceUnavailable into the shared typed API error.
+func (r *MailboxControlDraftScheduleServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleTooManyRequests into the shared typed API error.
+func (r *MailboxControlDraftScheduleTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleUnauthorized into the shared typed API error.
+func (r *MailboxControlDraftScheduleUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxControlDraftScheduleUnprocessableEntity into the shared typed API error.
+func (r *MailboxControlDraftScheduleUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
+	return err
+}
+
 // APIError maps MailboxCreateAttachmentUploadBadRequest into the shared typed API error.
 func (r *MailboxCreateAttachmentUploadBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
@@ -71,6 +131,66 @@ func (r *MailboxCreateAttachmentUploadRequestEntityTooLarge) APIError() *core.AP
 // APIError maps MailboxCreateAttachmentUploadServiceUnavailable into the shared typed API error.
 func (r *MailboxCreateAttachmentUploadServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxCreateDraftBadRequest into the shared typed API error.
+func (r *MailboxCreateDraftBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxCreateDraftConflict into the shared typed API error.
+func (r *MailboxCreateDraftConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxCreateDraftForbidden into the shared typed API error.
+func (r *MailboxCreateDraftForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxCreateDraftInternalServerError into the shared typed API error.
+func (r *MailboxCreateDraftInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxCreateDraftNotFound into the shared typed API error.
+func (r *MailboxCreateDraftNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxCreateDraftRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxCreateDraftRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxCreateDraftServiceUnavailable into the shared typed API error.
+func (r *MailboxCreateDraftServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxCreateDraftTooManyRequests into the shared typed API error.
+func (r *MailboxCreateDraftTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxCreateDraftUnauthorized into the shared typed API error.
+func (r *MailboxCreateDraftUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxCreateDraftUnprocessableEntity into the shared typed API error.
+func (r *MailboxCreateDraftUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
 	return err
 }
 
@@ -92,6 +212,66 @@ func (r *MailboxCreateFolderUnprocessableEntity) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxDeleteDraftBadRequest into the shared typed API error.
+func (r *MailboxDeleteDraftBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftConflict into the shared typed API error.
+func (r *MailboxDeleteDraftConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftForbidden into the shared typed API error.
+func (r *MailboxDeleteDraftForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftInternalServerError into the shared typed API error.
+func (r *MailboxDeleteDraftInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftNotFound into the shared typed API error.
+func (r *MailboxDeleteDraftNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxDeleteDraftRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftServiceUnavailable into the shared typed API error.
+func (r *MailboxDeleteDraftServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftTooManyRequests into the shared typed API error.
+func (r *MailboxDeleteDraftTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftUnauthorized into the shared typed API error.
+func (r *MailboxDeleteDraftUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxDeleteDraftUnprocessableEntity into the shared typed API error.
+func (r *MailboxDeleteDraftUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
+	return err
+}
+
 // APIError maps MailboxDeleteMessageConflict into the shared typed API error.
 func (r *MailboxDeleteMessageConflict) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 409)
@@ -101,6 +281,84 @@ func (r *MailboxDeleteMessageConflict) APIError() *core.APIError {
 // APIError maps MailboxDeleteMessageNotFound into the shared typed API error.
 func (r *MailboxDeleteMessageNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxDownloadRawMessageForbidden into the shared typed API error.
+func (r *MailboxDownloadRawMessageForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxDownloadRawMessageInternalServerError into the shared typed API error.
+func (r *MailboxDownloadRawMessageInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxDownloadRawMessageNotFound into the shared typed API error.
+func (r *MailboxDownloadRawMessageNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxDownloadRawMessageServiceUnavailable into the shared typed API error.
+func (r *MailboxDownloadRawMessageServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxDownloadRawMessageTooManyRequests into the shared typed API error.
+func (r *MailboxDownloadRawMessageTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxDownloadRawMessageUnauthorized into the shared typed API error.
+func (r *MailboxDownloadRawMessageUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextBadRequest into the shared typed API error.
+func (r *MailboxGetAttachmentTextBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextForbidden into the shared typed API error.
+func (r *MailboxGetAttachmentTextForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextInternalServerError into the shared typed API error.
+func (r *MailboxGetAttachmentTextInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextNotFound into the shared typed API error.
+func (r *MailboxGetAttachmentTextNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextServiceUnavailable into the shared typed API error.
+func (r *MailboxGetAttachmentTextServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextTooManyRequests into the shared typed API error.
+func (r *MailboxGetAttachmentTextTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxGetAttachmentTextUnauthorized into the shared typed API error.
+func (r *MailboxGetAttachmentTextUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
 	return err
 }
 
@@ -131,6 +389,66 @@ func (r *MailboxGetConnectionTooManyRequests) APIError() *core.APIError {
 // APIError maps MailboxGetConnectionUnauthorized into the shared typed API error.
 func (r *MailboxGetConnectionUnauthorized) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
+// APIError maps MailboxGetDraftBadRequest into the shared typed API error.
+func (r *MailboxGetDraftBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxGetDraftConflict into the shared typed API error.
+func (r *MailboxGetDraftConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxGetDraftForbidden into the shared typed API error.
+func (r *MailboxGetDraftForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxGetDraftInternalServerError into the shared typed API error.
+func (r *MailboxGetDraftInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxGetDraftNotFound into the shared typed API error.
+func (r *MailboxGetDraftNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxGetDraftRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxGetDraftRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxGetDraftServiceUnavailable into the shared typed API error.
+func (r *MailboxGetDraftServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxGetDraftTooManyRequests into the shared typed API error.
+func (r *MailboxGetDraftTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxGetDraftUnauthorized into the shared typed API error.
+func (r *MailboxGetDraftUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxGetDraftUnprocessableEntity into the shared typed API error.
+func (r *MailboxGetDraftUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
 	return err
 }
 
@@ -236,6 +554,66 @@ func (r *MailboxListContentNotFound) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxListDraftsBadRequest into the shared typed API error.
+func (r *MailboxListDraftsBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxListDraftsConflict into the shared typed API error.
+func (r *MailboxListDraftsConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxListDraftsForbidden into the shared typed API error.
+func (r *MailboxListDraftsForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxListDraftsInternalServerError into the shared typed API error.
+func (r *MailboxListDraftsInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxListDraftsNotFound into the shared typed API error.
+func (r *MailboxListDraftsNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxListDraftsRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxListDraftsRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxListDraftsServiceUnavailable into the shared typed API error.
+func (r *MailboxListDraftsServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxListDraftsTooManyRequests into the shared typed API error.
+func (r *MailboxListDraftsTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxListDraftsUnauthorized into the shared typed API error.
+func (r *MailboxListDraftsUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxListDraftsUnprocessableEntity into the shared typed API error.
+func (r *MailboxListDraftsUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
+	return err
+}
+
 // APIError maps MailboxListGrantedMailboxesForbidden into the shared typed API error.
 func (r *MailboxListGrantedMailboxesForbidden) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 403)
@@ -314,6 +692,108 @@ func (r *MailboxListThreadsUnauthorized) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps MailboxRequestAttachmentTextBadRequest into the shared typed API error.
+func (r *MailboxRequestAttachmentTextBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxRequestAttachmentTextForbidden into the shared typed API error.
+func (r *MailboxRequestAttachmentTextForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxRequestAttachmentTextInternalServerError into the shared typed API error.
+func (r *MailboxRequestAttachmentTextInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxRequestAttachmentTextNotFound into the shared typed API error.
+func (r *MailboxRequestAttachmentTextNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxRequestAttachmentTextServiceUnavailable into the shared typed API error.
+func (r *MailboxRequestAttachmentTextServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxRequestAttachmentTextTooManyRequests into the shared typed API error.
+func (r *MailboxRequestAttachmentTextTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxRequestAttachmentTextUnauthorized into the shared typed API error.
+func (r *MailboxRequestAttachmentTextUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxSendDraftBadRequest into the shared typed API error.
+func (r *MailboxSendDraftBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxSendDraftConflict into the shared typed API error.
+func (r *MailboxSendDraftConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxSendDraftForbidden into the shared typed API error.
+func (r *MailboxSendDraftForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxSendDraftInternalServerError into the shared typed API error.
+func (r *MailboxSendDraftInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxSendDraftNotFound into the shared typed API error.
+func (r *MailboxSendDraftNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxSendDraftRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxSendDraftRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxSendDraftServiceUnavailable into the shared typed API error.
+func (r *MailboxSendDraftServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxSendDraftTooManyRequests into the shared typed API error.
+func (r *MailboxSendDraftTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxSendDraftUnauthorized into the shared typed API error.
+func (r *MailboxSendDraftUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxSendDraftUnprocessableEntity into the shared typed API error.
+func (r *MailboxSendDraftUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
+	return err
+}
+
 // APIError maps MailboxSendMessageBadRequest into the shared typed API error.
 func (r *MailboxSendMessageBadRequest) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 400)
@@ -371,6 +851,66 @@ func (r *MailboxStreamEventsTooManyRequests) APIError() *core.APIError {
 // APIError maps MailboxStreamEventsUnauthorized into the shared typed API error.
 func (r *MailboxStreamEventsUnauthorized) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftBadRequest into the shared typed API error.
+func (r *MailboxUpdateDraftBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 400)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftConflict into the shared typed API error.
+func (r *MailboxUpdateDraftConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 409)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftForbidden into the shared typed API error.
+func (r *MailboxUpdateDraftForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 403)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftInternalServerError into the shared typed API error.
+func (r *MailboxUpdateDraftInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 500)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftNotFound into the shared typed API error.
+func (r *MailboxUpdateDraftNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 404)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftRequestEntityTooLarge into the shared typed API error.
+func (r *MailboxUpdateDraftRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 413)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftServiceUnavailable into the shared typed API error.
+func (r *MailboxUpdateDraftServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 503)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftTooManyRequests into the shared typed API error.
+func (r *MailboxUpdateDraftTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 429)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftUnauthorized into the shared typed API error.
+func (r *MailboxUpdateDraftUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 401)
+	return err
+}
+
+// APIError maps MailboxUpdateDraftUnprocessableEntity into the shared typed API error.
+func (r *MailboxUpdateDraftUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(r, 422)
 	return err
 }
 

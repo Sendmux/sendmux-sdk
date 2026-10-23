@@ -21,8 +21,11 @@ from typing_extensions import Annotated
 from sendmux_mailbox.models.batch_delete_mailbox_messages_body import BatchDeleteMailboxMessagesBody
 from sendmux_mailbox.models.batch_update_mailbox_messages_body import BatchUpdateMailboxMessagesBody
 from sendmux_mailbox.models.connection_response import ConnectionResponse
+from sendmux_mailbox.models.control_mailbox_draft_schedule import ControlMailboxDraftSchedule
+from sendmux_mailbox.models.create_mailbox_draft import CreateMailboxDraft
 from sendmux_mailbox.models.create_mailbox_folder_body import CreateMailboxFolderBody
 from sendmux_mailbox.models.granted_mailbox_list_response import GrantedMailboxListResponse
+from sendmux_mailbox.models.mailbox_attachment_text_response import MailboxAttachmentTextResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_body import MailboxAttachmentUploadIntentBody
 from sendmux_mailbox.models.mailbox_attachment_upload_intent_result_response import MailboxAttachmentUploadIntentResultResponse
 from sendmux_mailbox.models.mailbox_attachment_upload_result_response import MailboxAttachmentUploadResultResponse
@@ -31,6 +34,9 @@ from sendmux_mailbox.models.mailbox_batch_get_body import MailboxBatchGetBody
 from sendmux_mailbox.models.mailbox_batch_get_result_response import MailboxBatchGetResultResponse
 from sendmux_mailbox.models.mailbox_batch_update_messages_result_response import MailboxBatchUpdateMessagesResultResponse
 from sendmux_mailbox.models.mailbox_changes_response import MailboxChangesResponse
+from sendmux_mailbox.models.mailbox_draft_delete_response import MailboxDraftDeleteResponse
+from sendmux_mailbox.models.mailbox_draft_list_response import MailboxDraftListResponse
+from sendmux_mailbox.models.mailbox_draft_response import MailboxDraftResponse
 from sendmux_mailbox.models.mailbox_folder_cursor_list_response import MailboxFolderCursorListResponse
 from sendmux_mailbox.models.mailbox_folder_deleted_response import MailboxFolderDeletedResponse
 from sendmux_mailbox.models.mailbox_folder_query_changes_response import MailboxFolderQueryChangesResponse
@@ -60,7 +66,9 @@ from sendmux_mailbox.models.mailbox_thread_summary_cursor_list_response import M
 from sendmux_mailbox.models.mailbox_usage_response import MailboxUsageResponse
 from sendmux_mailbox.models.patch_mailbox_folder_body import PatchMailboxFolderBody
 from sendmux_mailbox.models.patch_mailbox_message_body import PatchMailboxMessageBody
+from sendmux_mailbox.models.send_mailbox_draft import SendMailboxDraft
 from sendmux_mailbox.models.send_mailbox_message_body import SendMailboxMessageBody
+from sendmux_mailbox.models.update_mailbox_draft import UpdateMailboxDraft
 from sendmux_mailbox.models.update_mailbox_identity_body import UpdateMailboxIdentityBody
 
 from sendmux_mailbox.api_client import ApiClient, RequestSerialized
@@ -985,6 +993,355 @@ class MailboxAPIApi:
 
 
     @validate_call
+    def mailbox_control_draft_schedule(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        control_mailbox_draft_schedule: ControlMailboxDraftSchedule,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; both revision and schedule version remain required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftResponse:
+        """Reschedule or cancel a saved draft send
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param control_mailbox_draft_schedule: (required)
+        :type control_mailbox_draft_schedule: ControlMailboxDraftSchedule
+        :param if_match: Current draft ETag; both revision and schedule version remain required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_control_draft_schedule_serialize(
+            draft_id=draft_id,
+            control_mailbox_draft_schedule=control_mailbox_draft_schedule,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_control_draft_schedule_with_http_info(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        control_mailbox_draft_schedule: ControlMailboxDraftSchedule,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; both revision and schedule version remain required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftResponse]:
+        """Reschedule or cancel a saved draft send
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param control_mailbox_draft_schedule: (required)
+        :type control_mailbox_draft_schedule: ControlMailboxDraftSchedule
+        :param if_match: Current draft ETag; both revision and schedule version remain required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_control_draft_schedule_serialize(
+            draft_id=draft_id,
+            control_mailbox_draft_schedule=control_mailbox_draft_schedule,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_control_draft_schedule_without_preload_content(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        control_mailbox_draft_schedule: ControlMailboxDraftSchedule,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; both revision and schedule version remain required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Reschedule or cancel a saved draft send
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param control_mailbox_draft_schedule: (required)
+        :type control_mailbox_draft_schedule: ControlMailboxDraftSchedule
+        :param if_match: Current draft ETag; both revision and schedule version remain required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_control_draft_schedule_serialize(
+            draft_id=draft_id,
+            control_mailbox_draft_schedule=control_mailbox_draft_schedule,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_control_draft_schedule_serialize(
+        self,
+        draft_id,
+        control_mailbox_draft_schedule,
+        if_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if draft_id is not None:
+            _path_params['draftId'] = draft_id
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_match is not None:
+            _header_params['If-Match'] = if_match
+        # process the form parameters
+        # process the body parameter
+        if control_mailbox_draft_schedule is not None:
+            _body_params = control_mailbox_draft_schedule
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/mailbox/drafts/{draftId}/schedule',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def mailbox_count_messages(
         self,
         folder_id: Optional[StrictStr] = None,
@@ -1876,6 +2233,340 @@ class MailboxAPIApi:
 
 
     @validate_call
+    def mailbox_create_draft(
+        self,
+        create_mailbox_draft: CreateMailboxDraft,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Reuse this key when retrying the same create request.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftResponse:
+        """Create a saved draft
+
+
+        :param create_mailbox_draft: (required)
+        :type create_mailbox_draft: CreateMailboxDraft
+        :param idempotency_key: Reuse this key when retrying the same create request.
+        :type idempotency_key: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_create_draft_serialize(
+            create_mailbox_draft=create_mailbox_draft,
+            idempotency_key=idempotency_key,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_create_draft_with_http_info(
+        self,
+        create_mailbox_draft: CreateMailboxDraft,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Reuse this key when retrying the same create request.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftResponse]:
+        """Create a saved draft
+
+
+        :param create_mailbox_draft: (required)
+        :type create_mailbox_draft: CreateMailboxDraft
+        :param idempotency_key: Reuse this key when retrying the same create request.
+        :type idempotency_key: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_create_draft_serialize(
+            create_mailbox_draft=create_mailbox_draft,
+            idempotency_key=idempotency_key,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_create_draft_without_preload_content(
+        self,
+        create_mailbox_draft: CreateMailboxDraft,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(strict=True, max_length=255)]], Field(description="Reuse this key when retrying the same create request.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create a saved draft
+
+
+        :param create_mailbox_draft: (required)
+        :type create_mailbox_draft: CreateMailboxDraft
+        :param idempotency_key: Reuse this key when retrying the same create request.
+        :type idempotency_key: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_create_draft_serialize(
+            create_mailbox_draft=create_mailbox_draft,
+            idempotency_key=idempotency_key,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_create_draft_serialize(
+        self,
+        create_mailbox_draft,
+        idempotency_key,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if create_mailbox_draft is not None:
+            _body_params = create_mailbox_draft
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/mailbox/drafts',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def mailbox_create_folder(
         self,
         create_mailbox_folder_body: Optional[CreateMailboxFolderBody] = None,
@@ -2161,6 +2852,327 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/mailbox/folders',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_delete_draft(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        if_match: Annotated[Optional[StrictStr], Field(description="Delete only if this is still the current draft.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftDeleteResponse:
+        """Delete a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param if_match: Delete only if this is still the current draft.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_delete_draft_serialize(
+            draft_id=draft_id,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftDeleteResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_delete_draft_with_http_info(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        if_match: Annotated[Optional[StrictStr], Field(description="Delete only if this is still the current draft.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftDeleteResponse]:
+        """Delete a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param if_match: Delete only if this is still the current draft.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_delete_draft_serialize(
+            draft_id=draft_id,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftDeleteResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_delete_draft_without_preload_content(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        if_match: Annotated[Optional[StrictStr], Field(description="Delete only if this is still the current draft.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param if_match: Delete only if this is still the current draft.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_delete_draft_serialize(
+            draft_id=draft_id,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftDeleteResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_delete_draft_serialize(
+        self,
+        draft_id,
+        if_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if draft_id is not None:
+            _path_params['draftId'] = draft_id
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_match is not None:
+            _header_params['If-Match'] = if_match
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/mailbox/drafts/{draftId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2775,6 +3787,675 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='DELETE',
             resource_path='/mailbox/messages/{message_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_download_raw_message(
+        self,
+        message_id: StrictStr,
+        if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> bytes:
+        """Download the original message
+
+        Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+
+        :param message_id: (required)
+        :type message_id: str
+        :param if_none_match:
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_download_raw_message_serialize(
+            message_id=message_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "bytes",
+            '304': None,
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_download_raw_message_with_http_info(
+        self,
+        message_id: StrictStr,
+        if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[bytes]:
+        """Download the original message
+
+        Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+
+        :param message_id: (required)
+        :type message_id: str
+        :param if_none_match:
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_download_raw_message_serialize(
+            message_id=message_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "bytes",
+            '304': None,
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_download_raw_message_without_preload_content(
+        self,
+        message_id: StrictStr,
+        if_none_match: Optional[StrictStr] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Download the original message
+
+        Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+
+        :param message_id: (required)
+        :type message_id: str
+        :param if_none_match:
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_download_raw_message_serialize(
+            message_id=message_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "bytes",
+            '304': None,
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_download_raw_message_serialize(
+        self,
+        message_id,
+        if_none_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if message_id is not None:
+            _path_params['message_id'] = message_id
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_none_match is not None:
+            _header_params['If-None-Match'] = if_none_match
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'message/rfc822',
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/messages/{message_id}/raw',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_get_attachment_text(
+        self,
+        message_id: Annotated[StrictStr, Field(description="Message ID in the selected mailbox.")],
+        attachment_id: Annotated[StrictStr, Field(description="Attachment ID from that message.")],
+        max_bytes: Annotated[Optional[Annotated[int, Field(le=1048576, strict=True, ge=1)]], Field(description="Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.")] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when the authorised response is unchanged.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxAttachmentTextResponse:
+        """Read attachment text
+
+        Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.
+
+        :param message_id: Message ID in the selected mailbox. (required)
+        :type message_id: str
+        :param attachment_id: Attachment ID from that message. (required)
+        :type attachment_id: str
+        :param max_bytes: Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+        :type max_bytes: int
+        :param if_none_match: Return 304 when the authorised response is unchanged.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_attachment_text_serialize(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            max_bytes=max_bytes,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentTextResponse",
+            '202': "MailboxAttachmentTextResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_get_attachment_text_with_http_info(
+        self,
+        message_id: Annotated[StrictStr, Field(description="Message ID in the selected mailbox.")],
+        attachment_id: Annotated[StrictStr, Field(description="Attachment ID from that message.")],
+        max_bytes: Annotated[Optional[Annotated[int, Field(le=1048576, strict=True, ge=1)]], Field(description="Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.")] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when the authorised response is unchanged.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxAttachmentTextResponse]:
+        """Read attachment text
+
+        Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.
+
+        :param message_id: Message ID in the selected mailbox. (required)
+        :type message_id: str
+        :param attachment_id: Attachment ID from that message. (required)
+        :type attachment_id: str
+        :param max_bytes: Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+        :type max_bytes: int
+        :param if_none_match: Return 304 when the authorised response is unchanged.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_attachment_text_serialize(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            max_bytes=max_bytes,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentTextResponse",
+            '202': "MailboxAttachmentTextResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_get_attachment_text_without_preload_content(
+        self,
+        message_id: Annotated[StrictStr, Field(description="Message ID in the selected mailbox.")],
+        attachment_id: Annotated[StrictStr, Field(description="Attachment ID from that message.")],
+        max_bytes: Annotated[Optional[Annotated[int, Field(le=1048576, strict=True, ge=1)]], Field(description="Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.")] = None,
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 when the authorised response is unchanged.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Read attachment text
+
+        Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.
+
+        :param message_id: Message ID in the selected mailbox. (required)
+        :type message_id: str
+        :param attachment_id: Attachment ID from that message. (required)
+        :type attachment_id: str
+        :param max_bytes: Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+        :type max_bytes: int
+        :param if_none_match: Return 304 when the authorised response is unchanged.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_attachment_text_serialize(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            max_bytes=max_bytes,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentTextResponse",
+            '202': "MailboxAttachmentTextResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_get_attachment_text_serialize(
+        self,
+        message_id,
+        attachment_id,
+        max_bytes,
+        if_none_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if message_id is not None:
+            _path_params['message_id'] = message_id
+        if attachment_id is not None:
+            _path_params['attachment_id'] = attachment_id
+        # process the query parameters
+        if max_bytes is not None:
+
+            _query_params.append(('max_bytes', max_bytes))
+
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_none_match is not None:
+            _header_params['If-None-Match'] = if_none_match
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/messages/{message_id}/attachments/{attachment_id}/text',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -3475,6 +5156,330 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/mailbox/connection',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_get_draft(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 if this draft has not changed.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftResponse:
+        """Read a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param if_none_match: Return 304 if this draft has not changed.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_draft_serialize(
+            draft_id=draft_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_get_draft_with_http_info(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 if this draft has not changed.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftResponse]:
+        """Read a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param if_none_match: Return 304 if this draft has not changed.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_draft_serialize(
+            draft_id=draft_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_get_draft_without_preload_content(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        if_none_match: Annotated[Optional[StrictStr], Field(description="Return 304 if this draft has not changed.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Read a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param if_none_match: Return 304 if this draft has not changed.
+        :type if_none_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_get_draft_serialize(
+            draft_id=draft_id,
+            if_none_match=if_none_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '304': None,
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_get_draft_serialize(
+        self,
+        draft_id,
+        if_none_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if draft_id is not None:
+            _path_params['draftId'] = draft_id
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_none_match is not None:
+            _header_params['If-None-Match'] = if_none_match
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/drafts/{draftId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -8050,6 +10055,331 @@ class MailboxAPIApi:
 
 
     @validate_call
+    def mailbox_list_drafts(
+        self,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size; default 50, maximum 100.")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Cursor returned by the previous page.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftListResponse:
+        """List saved drafts
+
+
+        :param limit: Page size; default 50, maximum 100.
+        :type limit: int
+        :param cursor: Cursor returned by the previous page.
+        :type cursor: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_list_drafts_serialize(
+            limit=limit,
+            cursor=cursor,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftListResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_list_drafts_with_http_info(
+        self,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size; default 50, maximum 100.")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Cursor returned by the previous page.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftListResponse]:
+        """List saved drafts
+
+
+        :param limit: Page size; default 50, maximum 100.
+        :type limit: int
+        :param cursor: Cursor returned by the previous page.
+        :type cursor: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_list_drafts_serialize(
+            limit=limit,
+            cursor=cursor,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftListResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_list_drafts_without_preload_content(
+        self,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size; default 50, maximum 100.")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Cursor returned by the previous page.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List saved drafts
+
+
+        :param limit: Page size; default 50, maximum 100.
+        :type limit: int
+        :param cursor: Cursor returned by the previous page.
+        :type cursor: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_list_drafts_serialize(
+            limit=limit,
+            cursor=cursor,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftListResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_list_drafts_serialize(
+        self,
+        limit,
+        cursor,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if limit is not None:
+
+            _query_params.append(('limit', limit))
+
+        if cursor is not None:
+
+            _query_params.append(('cursor', cursor))
+
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/mailbox/drafts',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def mailbox_list_folders(
         self,
         cursor: Optional[StrictStr] = None,
@@ -12500,6 +14830,341 @@ class MailboxAPIApi:
 
 
     @validate_call
+    def mailbox_request_attachment_text(
+        self,
+        message_id: Annotated[StrictStr, Field(description="Message ID in the selected mailbox.")],
+        attachment_id: Annotated[StrictStr, Field(description="Attachment ID from that message.")],
+        max_bytes: Annotated[Optional[Annotated[int, Field(le=1048576, strict=True, ge=1)]], Field(description="Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxAttachmentTextResponse:
+        """Request attachment text
+
+        Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.
+
+        :param message_id: Message ID in the selected mailbox. (required)
+        :type message_id: str
+        :param attachment_id: Attachment ID from that message. (required)
+        :type attachment_id: str
+        :param max_bytes: Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+        :type max_bytes: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_request_attachment_text_serialize(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            max_bytes=max_bytes,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentTextResponse",
+            '202': "MailboxAttachmentTextResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_request_attachment_text_with_http_info(
+        self,
+        message_id: Annotated[StrictStr, Field(description="Message ID in the selected mailbox.")],
+        attachment_id: Annotated[StrictStr, Field(description="Attachment ID from that message.")],
+        max_bytes: Annotated[Optional[Annotated[int, Field(le=1048576, strict=True, ge=1)]], Field(description="Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxAttachmentTextResponse]:
+        """Request attachment text
+
+        Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.
+
+        :param message_id: Message ID in the selected mailbox. (required)
+        :type message_id: str
+        :param attachment_id: Attachment ID from that message. (required)
+        :type attachment_id: str
+        :param max_bytes: Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+        :type max_bytes: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_request_attachment_text_serialize(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            max_bytes=max_bytes,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentTextResponse",
+            '202': "MailboxAttachmentTextResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_request_attachment_text_without_preload_content(
+        self,
+        message_id: Annotated[StrictStr, Field(description="Message ID in the selected mailbox.")],
+        attachment_id: Annotated[StrictStr, Field(description="Attachment ID from that message.")],
+        max_bytes: Annotated[Optional[Annotated[int, Field(le=1048576, strict=True, ge=1)]], Field(description="Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Request attachment text
+
+        Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.
+
+        :param message_id: Message ID in the selected mailbox. (required)
+        :type message_id: str
+        :param attachment_id: Attachment ID from that message. (required)
+        :type attachment_id: str
+        :param max_bytes: Maximum UTF-8 text bytes returned. Default 262144; maximum 1048576. Applies to cached results too.
+        :type max_bytes: int
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_request_attachment_text_serialize(
+            message_id=message_id,
+            attachment_id=attachment_id,
+            max_bytes=max_bytes,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxAttachmentTextResponse",
+            '202': "MailboxAttachmentTextResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_request_attachment_text_serialize(
+        self,
+        message_id,
+        attachment_id,
+        max_bytes,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if message_id is not None:
+            _path_params['message_id'] = message_id
+        if attachment_id is not None:
+            _path_params['attachment_id'] = attachment_id
+        # process the query parameters
+        if max_bytes is not None:
+
+            _query_params.append(('max_bytes', max_bytes))
+
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/mailbox/messages/{message_id}/attachments/{attachment_id}/text',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def mailbox_search_message_snippets(
         self,
         q: StrictStr,
@@ -13091,6 +15756,355 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/mailbox/messages/search-snippets',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_send_draft(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        send_mailbox_draft: SendMailboxDraft,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; expected_revision is required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftResponse:
+        """Send a saved draft revision
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param send_mailbox_draft: (required)
+        :type send_mailbox_draft: SendMailboxDraft
+        :param if_match: Current draft ETag; expected_revision is required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_send_draft_serialize(
+            draft_id=draft_id,
+            send_mailbox_draft=send_mailbox_draft,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_send_draft_with_http_info(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        send_mailbox_draft: SendMailboxDraft,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; expected_revision is required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftResponse]:
+        """Send a saved draft revision
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param send_mailbox_draft: (required)
+        :type send_mailbox_draft: SendMailboxDraft
+        :param if_match: Current draft ETag; expected_revision is required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_send_draft_serialize(
+            draft_id=draft_id,
+            send_mailbox_draft=send_mailbox_draft,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_send_draft_without_preload_content(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        send_mailbox_draft: SendMailboxDraft,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; expected_revision is required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Send a saved draft revision
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param send_mailbox_draft: (required)
+        :type send_mailbox_draft: SendMailboxDraft
+        :param if_match: Current draft ETag; expected_revision is required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_send_draft_serialize(
+            draft_id=draft_id,
+            send_mailbox_draft=send_mailbox_draft,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_send_draft_serialize(
+        self,
+        draft_id,
+        send_mailbox_draft,
+        if_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if draft_id is not None:
+            _path_params['draftId'] = draft_id
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_match is not None:
+            _header_params['If-Match'] = if_match
+        # process the form parameters
+        # process the body parameter
+        if send_mailbox_draft is not None:
+            _body_params = send_mailbox_draft
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/mailbox/drafts/{draftId}/send',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -13776,6 +16790,355 @@ class MailboxAPIApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/mailbox/events',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def mailbox_update_draft(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        update_mailbox_draft: UpdateMailboxDraft,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; expected_revision is also required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> MailboxDraftResponse:
+        """Edit a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param update_mailbox_draft: (required)
+        :type update_mailbox_draft: UpdateMailboxDraft
+        :param if_match: Current draft ETag; expected_revision is also required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_update_draft_serialize(
+            draft_id=draft_id,
+            update_mailbox_draft=update_mailbox_draft,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def mailbox_update_draft_with_http_info(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        update_mailbox_draft: UpdateMailboxDraft,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; expected_revision is also required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[MailboxDraftResponse]:
+        """Edit a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param update_mailbox_draft: (required)
+        :type update_mailbox_draft: UpdateMailboxDraft
+        :param if_match: Current draft ETag; expected_revision is also required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_update_draft_serialize(
+            draft_id=draft_id,
+            update_mailbox_draft=update_mailbox_draft,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def mailbox_update_draft_without_preload_content(
+        self,
+        draft_id: Annotated[StrictStr, Field(description="Stable draft ID.")],
+        update_mailbox_draft: UpdateMailboxDraft,
+        if_match: Annotated[Optional[StrictStr], Field(description="Current draft ETag; expected_revision is also required.")] = None,
+        mailbox_id: Annotated[Optional[StrictStr], Field(description="Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Edit a saved draft
+
+
+        :param draft_id: Stable draft ID. (required)
+        :type draft_id: str
+        :param update_mailbox_draft: (required)
+        :type update_mailbox_draft: UpdateMailboxDraft
+        :param if_match: Current draft ETag; expected_revision is also required.
+        :type if_match: str
+        :param mailbox_id: Mailbox public ID to target when the credential grants access to more than one mailbox. Omit when the credential is scoped to exactly one mailbox.
+        :type mailbox_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._mailbox_update_draft_serialize(
+            draft_id=draft_id,
+            update_mailbox_draft=update_mailbox_draft,
+            if_match=if_match,
+            mailbox_id=mailbox_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "MailboxDraftResponse",
+            '400': "ApiError",
+            '401': "ApiError",
+            '403': "ApiError",
+            '404': "ApiError",
+            '409': "ApiError",
+            '413': "ApiError",
+            '422': "ApiError",
+            '429': "ApiError",
+            '500': "ApiError",
+            '503': "ApiError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _mailbox_update_draft_serialize(
+        self,
+        draft_id,
+        update_mailbox_draft,
+        if_match,
+        mailbox_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if draft_id is not None:
+            _path_params['draftId'] = draft_id
+        # process the query parameters
+        if mailbox_id is not None:
+
+            _query_params.append(('mailbox_id', mailbox_id))
+
+        # process the header parameters
+        if if_match is not None:
+            _header_params['If-Match'] = if_match
+        # process the form parameters
+        # process the body parameter
+        if update_mailbox_draft is not None:
+            _body_params = update_mailbox_draft
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'oauth2',
+            'bearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/mailbox/drafts/{draftId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

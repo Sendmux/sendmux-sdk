@@ -17,19 +17,22 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List
+from sendmux_mailbox.models.mailbox_draft import MailboxDraft
+from sendmux_mailbox.models.response_meta import ResponseMeta
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class MailboxFolderDeletedResponseAllOfData(BaseModel):
+class MailboxDraftResponse(BaseModel):
     """
-    MailboxFolderDeletedResponseAllOfData
+    MailboxDraftResponse
     """ # noqa: E501
-    deleted: StrictBool
-    id: StrictStr
-    __properties: ClassVar[List[str]] = ["deleted", "id"]
+    meta: ResponseMeta
+    ok: StrictBool
+    data: MailboxDraft
+    __properties: ClassVar[List[str]] = ["meta", "ok", "data"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +52,7 @@ class MailboxFolderDeletedResponseAllOfData(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MailboxFolderDeletedResponseAllOfData from a JSON string"""
+        """Create an instance of MailboxDraftResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,11 +73,17 @@ class MailboxFolderDeletedResponseAllOfData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of meta
+        if self.meta:
+            _dict['meta'] = self.meta.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of data
+        if self.data:
+            _dict['data'] = self.data.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MailboxFolderDeletedResponseAllOfData from a dict"""
+        """Create an instance of MailboxDraftResponse from a dict"""
         if obj is None:
             return None
 
@@ -82,7 +91,8 @@ class MailboxFolderDeletedResponseAllOfData(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "deleted": obj.get("deleted"),
-            "id": obj.get("id")
+            "meta": ResponseMeta.from_dict(obj["meta"]) if obj.get("meta") is not None else None,
+            "ok": obj.get("ok"),
+            "data": MailboxDraft.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj

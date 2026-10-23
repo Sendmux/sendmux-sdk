@@ -279,6 +279,20 @@ func (UnimplementedHandler) ManagementGetMailbox(ctx context.Context, params Man
 	return r, ht.ErrNotImplemented
 }
 
+// ManagementGetMailboxCostUsage implements managementGetMailboxCostUsage operation.
+//
+// Read cumulative mailbox costs for a half-open window: start is included and end is excluded.
+// Requires mailbox.admin.read and team-wide mailbox access. Retained usage remains readable after
+// mailbox deletion while the team and credential remain active. Quantities and USD amounts are
+// decimal strings. posted_amount includes only posted charges; incurred and unbillable amounts are
+// reported separately. A pending result can change. Settle a window only when its state is final.
+// This read does not start or complete settlement.
+//
+// GET /mailboxes/{public_id}/usage
+func (UnimplementedHandler) ManagementGetMailboxCostUsage(ctx context.Context, params ManagementGetMailboxCostUsageParams) (r ManagementGetMailboxCostUsageRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ManagementGetMailboxFilters implements managementGetMailboxFilters operation.
 //
 // Returns the current sender-filter mode and rule set for a mailbox. Mailbox-scoped rules override
@@ -289,6 +303,18 @@ func (UnimplementedHandler) ManagementGetMailbox(ctx context.Context, params Man
 //
 // GET /mailboxes/{public_id}/filters
 func (UnimplementedHandler) ManagementGetMailboxFilters(ctx context.Context, params ManagementGetMailboxFiltersParams) (r ManagementGetMailboxFiltersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ManagementGetMailboxSendPolicy implements managementGetMailboxSendPolicy operation.
+//
+// Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies.
+// Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.
+// read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies.
+// Integration and mailbox keys cannot manage these policies.
+//
+// GET /mailbox-send-policies/{scope}/{public_id}
+func (UnimplementedHandler) ManagementGetMailboxSendPolicy(ctx context.Context, params ManagementGetMailboxSendPolicyParams) (r ManagementGetMailboxSendPolicyRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -447,6 +473,18 @@ func (UnimplementedHandler) ManagementListTransactions(ctx context.Context, para
 //
 // GET /webhooks
 func (UnimplementedHandler) ManagementListWebhooks(ctx context.Context, params ManagementListWebhooksParams) (r ManagementListWebhooksRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ManagementReplaceMailboxSendPolicy implements managementReplaceMailboxSendPolicy operation.
+//
+// Sender, Reply-To and recipient restrictions intersect across team, inbox and credential policies.
+// Requires an administrative connection: team.read/team.update for team policies, mailbox.admin.
+// read/mailbox.admin.manage for inbox policies, or key.read/key.* for credential policies.
+// Integration and mailbox keys cannot manage these policies.
+//
+// PUT /mailbox-send-policies/{scope}/{public_id}
+func (UnimplementedHandler) ManagementReplaceMailboxSendPolicy(ctx context.Context, req *ReplaceMailboxSendPolicy, params ManagementReplaceMailboxSendPolicyParams) (r ManagementReplaceMailboxSendPolicyRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

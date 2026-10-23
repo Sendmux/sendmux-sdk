@@ -50,6 +50,12 @@ type Invoker interface {
 	//
 	// POST /mailbox/messages:batch-update
 	MailboxBatchUpdateMessages(ctx context.Context, request OptBatchUpdateMailboxMessagesBody, params MailboxBatchUpdateMessagesParams) (MailboxBatchUpdateMessagesRes, error)
+	// MailboxControlDraftSchedule invokes mailboxControlDraftSchedule operation.
+	//
+	// Reschedule or cancel a saved draft send.
+	//
+	// PATCH /mailbox/drafts/{draftId}/schedule
+	MailboxControlDraftSchedule(ctx context.Context, request *ControlMailboxDraftSchedule, params MailboxControlDraftScheduleParams) (MailboxControlDraftScheduleRes, error)
 	// MailboxCountMessages invokes mailboxCountMessages operation.
 	//
 	// Returns a count for the supplied mailbox message filters without returning message rows.
@@ -65,12 +71,24 @@ type Invoker interface {
 	//
 	// POST /mailbox/attachment-uploads
 	MailboxCreateAttachmentUpload(ctx context.Context, request OptMailboxAttachmentUploadIntentBody, params MailboxCreateAttachmentUploadParams) (MailboxCreateAttachmentUploadRes, error)
+	// MailboxCreateDraft invokes mailboxCreateDraft operation.
+	//
+	// Create a saved draft.
+	//
+	// POST /mailbox/drafts
+	MailboxCreateDraft(ctx context.Context, request *CreateMailboxDraft, params MailboxCreateDraftParams) (MailboxCreateDraftRes, error)
 	// MailboxCreateFolder invokes mailboxCreateFolder operation.
 	//
 	// Creates a folder in the authenticated mailbox.
 	//
 	// POST /mailbox/folders
 	MailboxCreateFolder(ctx context.Context, request OptCreateMailboxFolderBody, params MailboxCreateFolderParams) (MailboxCreateFolderRes, error)
+	// MailboxDeleteDraft invokes mailboxDeleteDraft operation.
+	//
+	// Delete a saved draft.
+	//
+	// DELETE /mailbox/drafts/{draftId}
+	MailboxDeleteDraft(ctx context.Context, params MailboxDeleteDraftParams) (MailboxDeleteDraftRes, error)
 	// MailboxDeleteFolder invokes mailboxDeleteFolder operation.
 	//
 	// Deletes an empty custom folder unconditionally unless `If-Match` is supplied. Built-in folders and
@@ -86,6 +104,21 @@ type Invoker interface {
 	//
 	// DELETE /mailbox/messages/{message_id}
 	MailboxDeleteMessage(ctx context.Context, params MailboxDeleteMessageParams) (MailboxDeleteMessageRes, error)
+	// MailboxDownloadRawMessage invokes mailboxDownloadRawMessage operation.
+	//
+	// Downloads the stored message as an .eml file, including its original headers, body and attachments.
+	//  Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+	//
+	// GET /mailbox/messages/{message_id}/raw
+	MailboxDownloadRawMessage(ctx context.Context, params MailboxDownloadRawMessageParams) (MailboxDownloadRawMessageRes, error)
+	// MailboxGetAttachmentText invokes mailboxGetAttachmentText operation.
+	//
+	// Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current
+	// access and source availability are checked even with If-None-Match. This request does not start a
+	// conversion.
+	//
+	// GET /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+	MailboxGetAttachmentText(ctx context.Context, params MailboxGetAttachmentTextParams) (MailboxGetAttachmentTextRes, error)
 	// MailboxGetChanges invokes mailboxGetChanges operation.
 	//
 	// Returns message changes in the legacy shape when `types` is omitted. Pass a comma-separated
@@ -93,6 +126,12 @@ type Invoker interface {
 	//
 	// GET /mailbox/changes
 	MailboxGetChanges(ctx context.Context, params MailboxGetChangesParams) (MailboxGetChangesRes, error)
+	// MailboxGetDraft invokes mailboxGetDraft operation.
+	//
+	// Read a saved draft.
+	//
+	// GET /mailbox/drafts/{draftId}
+	MailboxGetDraft(ctx context.Context, params MailboxGetDraftParams) (MailboxGetDraftRes, error)
 	// MailboxGetFolder invokes mailboxGetFolder operation.
 	//
 	// Returns one folder from the authenticated mailbox. Responses include a weak `ETag` header.
@@ -190,6 +229,12 @@ type Invoker interface {
 	//
 	// GET /mailbox/messages/{message_id}/content
 	MailboxListContent(ctx context.Context, params MailboxListContentParams) (MailboxListContentRes, error)
+	// MailboxListDrafts invokes mailboxListDrafts operation.
+	//
+	// List saved drafts.
+	//
+	// GET /mailbox/drafts
+	MailboxListDrafts(ctx context.Context, params MailboxListDraftsParams) (MailboxListDraftsRes, error)
 	// MailboxListFolders invokes mailboxListFolders operation.
 	//
 	// Returns a cursor-paginated list of folders for the authenticated mailbox.
@@ -264,6 +309,16 @@ type Invoker interface {
 	//
 	// GET /mailbox/messages/query-changes
 	MailboxQueryMessageChanges(ctx context.Context, params MailboxQueryMessageChangesParams) (MailboxQueryMessageChangesRes, error)
+	// MailboxRequestAttachmentText invokes mailboxRequestAttachmentText operation.
+	//
+	// Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this
+	// request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key
+	// is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and
+	// the source attachment are checked before serving cached text. If extraction cannot complete, use
+	// the original attachment download.
+	//
+	// POST /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+	MailboxRequestAttachmentText(ctx context.Context, params MailboxRequestAttachmentTextParams) (MailboxRequestAttachmentTextRes, error)
 	// MailboxSearchMessageSnippets invokes mailboxSearchMessageSnippets operation.
 	//
 	// Returns subject and preview snippets for a text search. Provide `message_ids` to snippet exact
@@ -271,6 +326,12 @@ type Invoker interface {
 	//
 	// GET /mailbox/messages/search-snippets
 	MailboxSearchMessageSnippets(ctx context.Context, params MailboxSearchMessageSnippetsParams) (MailboxSearchMessageSnippetsRes, error)
+	// MailboxSendDraft invokes mailboxSendDraft operation.
+	//
+	// Send a saved draft revision.
+	//
+	// POST /mailbox/drafts/{draftId}/send
+	MailboxSendDraft(ctx context.Context, request *SendMailboxDraft, params MailboxSendDraftParams) (MailboxSendDraftRes, error)
 	// MailboxSendMessage invokes mailboxSendMessage operation.
 	//
 	// Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
@@ -287,6 +348,12 @@ type Invoker interface {
 	//
 	// GET /mailbox/events
 	MailboxStreamEvents(ctx context.Context, params MailboxStreamEventsParams) (MailboxStreamEventsRes, error)
+	// MailboxUpdateDraft invokes mailboxUpdateDraft operation.
+	//
+	// Edit a saved draft.
+	//
+	// PATCH /mailbox/drafts/{draftId}
+	MailboxUpdateDraft(ctx context.Context, request *UpdateMailboxDraft, params MailboxUpdateDraftParams) (MailboxUpdateDraftRes, error)
 	// MailboxUpdateFolder invokes mailboxUpdateFolder operation.
 	//
 	// Updates a folder unconditionally unless `If-Match` is supplied. Send `If-Match` with a prior ETag
@@ -745,6 +812,171 @@ func (c *Client) sendMailboxBatchUpdateMessages(ctx context.Context, request Opt
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxBatchUpdateMessagesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxControlDraftSchedule invokes mailboxControlDraftSchedule operation.
+//
+// Reschedule or cancel a saved draft send.
+//
+// PATCH /mailbox/drafts/{draftId}/schedule
+func (c *Client) MailboxControlDraftSchedule(ctx context.Context, request *ControlMailboxDraftSchedule, params MailboxControlDraftScheduleParams) (MailboxControlDraftScheduleRes, error) {
+	res, err := c.sendMailboxControlDraftSchedule(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxControlDraftSchedule(ctx context.Context, request *ControlMailboxDraftSchedule, params MailboxControlDraftScheduleParams) (res MailboxControlDraftScheduleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxControlDraftSchedule"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts/{draftId}/schedule"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxControlDraftScheduleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/mailbox/drafts/"
+	{
+		// Encode "draftId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "draftId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DraftId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/schedule"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeMailboxControlDraftScheduleRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxControlDraftScheduleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxControlDraftScheduleResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1333,6 +1565,152 @@ func (c *Client) sendMailboxCreateAttachmentUpload(ctx context.Context, request 
 	return result, nil
 }
 
+// MailboxCreateDraft invokes mailboxCreateDraft operation.
+//
+// Create a saved draft.
+//
+// POST /mailbox/drafts
+func (c *Client) MailboxCreateDraft(ctx context.Context, request *CreateMailboxDraft, params MailboxCreateDraftParams) (MailboxCreateDraftRes, error) {
+	res, err := c.sendMailboxCreateDraft(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxCreateDraft(ctx context.Context, request *CreateMailboxDraft, params MailboxCreateDraftParams) (res MailboxCreateDraftRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxCreateDraft"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxCreateDraftOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/mailbox/drafts"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeMailboxCreateDraftRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "Idempotency-Key",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IdempotencyKey.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxCreateDraftOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxCreateDraftResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // MailboxCreateFolder invokes mailboxCreateFolder operation.
 //
 // Creates a folder in the authenticated mailbox.
@@ -1455,6 +1833,167 @@ func (c *Client) sendMailboxCreateFolder(ctx context.Context, request OptCreateM
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxCreateFolderResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxDeleteDraft invokes mailboxDeleteDraft operation.
+//
+// Delete a saved draft.
+//
+// DELETE /mailbox/drafts/{draftId}
+func (c *Client) MailboxDeleteDraft(ctx context.Context, params MailboxDeleteDraftParams) (MailboxDeleteDraftRes, error) {
+	res, err := c.sendMailboxDeleteDraft(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxDeleteDraft(ctx context.Context, params MailboxDeleteDraftParams) (res MailboxDeleteDraftRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxDeleteDraft"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts/{draftId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxDeleteDraftOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/mailbox/drafts/"
+	{
+		// Encode "draftId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "draftId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DraftId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxDeleteDraftOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxDeleteDraftResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1797,6 +2336,370 @@ func (c *Client) sendMailboxDeleteMessage(ctx context.Context, params MailboxDel
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxDeleteMessageResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxDownloadRawMessage invokes mailboxDownloadRawMessage operation.
+//
+// Downloads the stored message as an .eml file, including its original headers, body and attachments.
+//
+//	Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+//
+// GET /mailbox/messages/{message_id}/raw
+func (c *Client) MailboxDownloadRawMessage(ctx context.Context, params MailboxDownloadRawMessageParams) (MailboxDownloadRawMessageRes, error) {
+	res, err := c.sendMailboxDownloadRawMessage(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxDownloadRawMessage(ctx context.Context, params MailboxDownloadRawMessageParams) (res MailboxDownloadRawMessageRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxDownloadRawMessage"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/messages/{message_id}/raw"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxDownloadRawMessageOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/mailbox/messages/"
+	{
+		// Encode "message_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "message_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.MessageID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/raw"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfNoneMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxDownloadRawMessageOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxDownloadRawMessageResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxGetAttachmentText invokes mailboxGetAttachmentText operation.
+//
+// Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current
+// access and source availability are checked even with If-None-Match. This request does not start a
+// conversion.
+//
+// GET /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+func (c *Client) MailboxGetAttachmentText(ctx context.Context, params MailboxGetAttachmentTextParams) (MailboxGetAttachmentTextRes, error) {
+	res, err := c.sendMailboxGetAttachmentText(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxGetAttachmentText(ctx context.Context, params MailboxGetAttachmentTextParams) (res MailboxGetAttachmentTextRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxGetAttachmentText"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/messages/{message_id}/attachments/{attachment_id}/text"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxGetAttachmentTextOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/mailbox/messages/"
+	{
+		// Encode "message_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "message_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.MessageID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/attachments/"
+	{
+		// Encode "attachment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "attachment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.AttachmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/text"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "max_bytes" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "max_bytes",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MaxBytes.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfNoneMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxGetAttachmentTextOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxGetAttachmentTextResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -2201,6 +3104,167 @@ func (c *Client) sendMailboxGetConnection(ctx context.Context, params MailboxGet
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxGetConnectionResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxGetDraft invokes mailboxGetDraft operation.
+//
+// Read a saved draft.
+//
+// GET /mailbox/drafts/{draftId}
+func (c *Client) MailboxGetDraft(ctx context.Context, params MailboxGetDraftParams) (MailboxGetDraftRes, error) {
+	res, err := c.sendMailboxGetDraft(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxGetDraft(ctx context.Context, params MailboxGetDraftParams) (res MailboxGetDraftRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxGetDraft"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts/{draftId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxGetDraftOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/mailbox/drafts/"
+	{
+		// Encode "draftId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "draftId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DraftId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-None-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfNoneMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxGetDraftOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxGetDraftResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -4790,6 +5854,166 @@ func (c *Client) sendMailboxListContent(ctx context.Context, params MailboxListC
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxListContentResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxListDrafts invokes mailboxListDrafts operation.
+//
+// List saved drafts.
+//
+// GET /mailbox/drafts
+func (c *Client) MailboxListDrafts(ctx context.Context, params MailboxListDraftsParams) (MailboxListDraftsRes, error) {
+	res, err := c.sendMailboxListDrafts(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxListDrafts(ctx context.Context, params MailboxListDraftsParams) (res MailboxListDraftsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxListDrafts"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxListDraftsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/mailbox/drafts"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "limit" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "limit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Limit.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "cursor" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "cursor",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Cursor.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxListDraftsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxListDraftsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -7689,6 +8913,191 @@ func (c *Client) sendMailboxQueryMessageChanges(ctx context.Context, params Mail
 	return result, nil
 }
 
+// MailboxRequestAttachmentText invokes mailboxRequestAttachmentText operation.
+//
+// Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this
+// request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key
+// is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and
+// the source attachment are checked before serving cached text. If extraction cannot complete, use
+// the original attachment download.
+//
+// POST /mailbox/messages/{message_id}/attachments/{attachment_id}/text
+func (c *Client) MailboxRequestAttachmentText(ctx context.Context, params MailboxRequestAttachmentTextParams) (MailboxRequestAttachmentTextRes, error) {
+	res, err := c.sendMailboxRequestAttachmentText(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxRequestAttachmentText(ctx context.Context, params MailboxRequestAttachmentTextParams) (res MailboxRequestAttachmentTextRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxRequestAttachmentText"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/mailbox/messages/{message_id}/attachments/{attachment_id}/text"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxRequestAttachmentTextOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/mailbox/messages/"
+	{
+		// Encode "message_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "message_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.MessageID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/attachments/"
+	{
+		// Encode "attachment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "attachment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.AttachmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/text"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "max_bytes" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "max_bytes",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MaxBytes.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxRequestAttachmentTextOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxRequestAttachmentTextResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // MailboxSearchMessageSnippets invokes mailboxSearchMessageSnippets operation.
 //
 // Returns subject and preview snippets for a text search. Provide `message_ids` to snippet exact
@@ -8153,6 +9562,171 @@ func (c *Client) sendMailboxSearchMessageSnippets(ctx context.Context, params Ma
 	return result, nil
 }
 
+// MailboxSendDraft invokes mailboxSendDraft operation.
+//
+// Send a saved draft revision.
+//
+// POST /mailbox/drafts/{draftId}/send
+func (c *Client) MailboxSendDraft(ctx context.Context, request *SendMailboxDraft, params MailboxSendDraftParams) (MailboxSendDraftRes, error) {
+	res, err := c.sendMailboxSendDraft(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxSendDraft(ctx context.Context, request *SendMailboxDraft, params MailboxSendDraftParams) (res MailboxSendDraftRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxSendDraft"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts/{draftId}/send"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxSendDraftOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/mailbox/drafts/"
+	{
+		// Encode "draftId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "draftId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DraftId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/send"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeMailboxSendDraftRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxSendDraftOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxSendDraftResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // MailboxSendMessage invokes mailboxSendMessage operation.
 //
 // Creates and queues a message from the authenticated mailbox. Supply an `Idempotency-Key` header to
@@ -8507,6 +10081,170 @@ func (c *Client) sendMailboxStreamEvents(ctx context.Context, params MailboxStre
 
 	stage = "DecodeResponse"
 	result, err := decodeMailboxStreamEventsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// MailboxUpdateDraft invokes mailboxUpdateDraft operation.
+//
+// Edit a saved draft.
+//
+// PATCH /mailbox/drafts/{draftId}
+func (c *Client) MailboxUpdateDraft(ctx context.Context, request *UpdateMailboxDraft, params MailboxUpdateDraftParams) (MailboxUpdateDraftRes, error) {
+	res, err := c.sendMailboxUpdateDraft(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendMailboxUpdateDraft(ctx context.Context, request *UpdateMailboxDraft, params MailboxUpdateDraftParams) (res MailboxUpdateDraftRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("mailboxUpdateDraft"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/mailbox/drafts/{draftId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, MailboxUpdateDraftOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/mailbox/drafts/"
+	{
+		// Encode "draftId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "draftId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.DraftId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "mailbox_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "mailbox_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.MailboxID.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeMailboxUpdateDraftRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "EncodeHeaderParams"
+	h := uri.NewHeaderEncoder(r.Header)
+	{
+		cfg := uri.HeaderParameterEncodingConfig{
+			Name:    "If-Match",
+			Explode: false,
+		}
+		if err := h.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.IfMatch.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode header")
+		}
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, MailboxUpdateDraftOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeMailboxUpdateDraftResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

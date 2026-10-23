@@ -15,12 +15,17 @@ require 'time'
 
 module Sendmux::Mailbox::Generated
   class MailboxMessageContentBody < ApiModelBase
+    # HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.
+    attr_accessor :cleaned_html
+
     attr_accessor :extracted_links
 
     attr_accessor :format
 
     # HTML body when requested. Returned as a JSON string and not as rendered content.
     attr_accessor :html
+
+    attr_accessor :html_cleaning
 
     attr_accessor :is_truncated
 
@@ -57,9 +62,11 @@ module Sendmux::Mailbox::Generated
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
+        :'cleaned_html' => :'cleaned_html',
         :'extracted_links' => :'extracted_links',
         :'format' => :'format',
         :'html' => :'html',
+        :'html_cleaning' => :'html_cleaning',
         :'is_truncated' => :'is_truncated',
         :'quotes_stripped' => :'quotes_stripped',
         :'signature_stripped' => :'signature_stripped',
@@ -81,9 +88,11 @@ module Sendmux::Mailbox::Generated
     # Attribute type mapping.
     def self.openapi_types
       {
+        :'cleaned_html' => :'String',
         :'extracted_links' => :'Array<String>',
         :'format' => :'String',
         :'html' => :'String',
+        :'html_cleaning' => :'MailboxMessageContentBodyHtmlCleaning',
         :'is_truncated' => :'Boolean',
         :'quotes_stripped' => :'Boolean',
         :'signature_stripped' => :'Boolean',
@@ -95,8 +104,10 @@ module Sendmux::Mailbox::Generated
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
+        :'cleaned_html',
         :'format',
         :'html',
+        :'html_cleaning',
         :'text',
         :'truncated_at_chars'
       ])
@@ -118,6 +129,12 @@ module Sendmux::Mailbox::Generated
         h[k.to_sym] = v
       }
 
+      if attributes.key?(:'cleaned_html')
+        self.cleaned_html = attributes[:'cleaned_html']
+      else
+        self.cleaned_html = nil
+      end
+
       if attributes.key?(:'extracted_links')
         if (value = attributes[:'extracted_links']).is_a?(Array)
           self.extracted_links = value
@@ -136,6 +153,12 @@ module Sendmux::Mailbox::Generated
         self.html = attributes[:'html']
       else
         self.html = nil
+      end
+
+      if attributes.key?(:'html_cleaning')
+        self.html_cleaning = attributes[:'html_cleaning']
+      else
+        self.html_cleaning = nil
       end
 
       if attributes.key?(:'is_truncated')
@@ -261,9 +284,11 @@ module Sendmux::Mailbox::Generated
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
+          cleaned_html == o.cleaned_html &&
           extracted_links == o.extracted_links &&
           format == o.format &&
           html == o.html &&
+          html_cleaning == o.html_cleaning &&
           is_truncated == o.is_truncated &&
           quotes_stripped == o.quotes_stripped &&
           signature_stripped == o.signature_stripped &&
@@ -280,7 +305,7 @@ module Sendmux::Mailbox::Generated
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [extracted_links, format, html, is_truncated, quotes_stripped, signature_stripped, text, truncated_at_chars].hash
+      [cleaned_html, extracted_links, format, html, html_cleaning, is_truncated, quotes_stripped, signature_stripped, text, truncated_at_chars].hash
     end
 
     # Builds the object from hash

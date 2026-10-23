@@ -242,6 +242,18 @@ func (r *ManagementDeleteDomainServiceUnavailable) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementDeleteMailboxNotFound into the shared typed API error.
+func (r *ManagementDeleteMailboxNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 404)
+	return err
+}
+
+// APIError maps ManagementDeleteMailboxServiceUnavailable into the shared typed API error.
+func (r *ManagementDeleteMailboxServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
 // APIError maps ManagementDeleteProviderNotFound into the shared typed API error.
 func (r *ManagementDeleteProviderNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 404)
@@ -368,6 +380,42 @@ func (r *ManagementGetInboxLogUnauthorized) APIError() *core.APIError {
 	return err
 }
 
+// APIError maps ManagementGetMailboxCostUsageForbidden into the shared typed API error.
+func (r *ManagementGetMailboxCostUsageForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
+// APIError maps ManagementGetMailboxCostUsageNotFound into the shared typed API error.
+func (r *ManagementGetMailboxCostUsageNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 404)
+	return err
+}
+
+// APIError maps ManagementGetMailboxCostUsageServiceUnavailable into the shared typed API error.
+func (r *ManagementGetMailboxCostUsageServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps ManagementGetMailboxCostUsageTooManyRequests into the shared typed API error.
+func (r *ManagementGetMailboxCostUsageTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 429)
+	return err
+}
+
+// APIError maps ManagementGetMailboxCostUsageUnauthorized into the shared typed API error.
+func (r *ManagementGetMailboxCostUsageUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
+// APIError maps ManagementGetMailboxCostUsageUnprocessableEntity into the shared typed API error.
+func (r *ManagementGetMailboxCostUsageUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 422)
+	return err
+}
+
 // APIError maps ManagementGetMailboxFiltersNotFound into the shared typed API error.
 func (r *ManagementGetMailboxFiltersNotFound) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 404)
@@ -377,6 +425,66 @@ func (r *ManagementGetMailboxFiltersNotFound) APIError() *core.APIError {
 // APIError maps ManagementGetMailboxFiltersServiceUnavailable into the shared typed API error.
 func (r *ManagementGetMailboxFiltersServiceUnavailable) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyBadRequest into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 400)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyConflict into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 409)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyForbidden into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyInternalServerError into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 500)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyNotFound into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 404)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 413)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyServiceUnavailable into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyTooManyRequests into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 429)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyUnauthorized into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
+// APIError maps ManagementGetMailboxSendPolicyUnprocessableEntity into the shared typed API error.
+func (r *ManagementGetMailboxSendPolicyUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 422)
 	return err
 }
 
@@ -521,6 +629,66 @@ func (r *ManagementListWebhooksForbidden) APIError() *core.APIError {
 // APIError maps ManagementListWebhooksUnauthorized into the shared typed API error.
 func (r *ManagementListWebhooksUnauthorized) APIError() *core.APIError {
 	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyBadRequest into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyBadRequest) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 400)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyConflict into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyConflict) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 409)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyForbidden into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyForbidden) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 403)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyInternalServerError into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyInternalServerError) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 500)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyNotFound into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyNotFound) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 404)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyRequestEntityTooLarge into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyRequestEntityTooLarge) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 413)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyServiceUnavailable into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyServiceUnavailable) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 503)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyTooManyRequests into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyTooManyRequests) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 429)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyUnauthorized into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyUnauthorized) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 401)
+	return err
+}
+
+// APIError maps ManagementReplaceMailboxSendPolicyUnprocessableEntity into the shared typed API error.
+func (r *ManagementReplaceMailboxSendPolicyUnprocessableEntity) APIError() *core.APIError {
+	err, _ := core.APIErrorFromResponse(&r.Response, 422)
 	return err
 }
 

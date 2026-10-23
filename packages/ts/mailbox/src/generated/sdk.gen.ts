@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { MailboxBatchDeleteMessagesData, MailboxBatchDeleteMessagesErrors, MailboxBatchDeleteMessagesResponses, MailboxBatchGetMessagesData, MailboxBatchGetMessagesErrors, MailboxBatchGetMessagesResponses, MailboxBatchUpdateMessagesData, MailboxBatchUpdateMessagesErrors, MailboxBatchUpdateMessagesResponses, MailboxCountMessagesData, MailboxCountMessagesErrors, MailboxCountMessagesResponses, MailboxCreateAttachmentUploadData, MailboxCreateAttachmentUploadErrors, MailboxCreateAttachmentUploadResponses, MailboxCreateFolderData, MailboxCreateFolderErrors, MailboxCreateFolderResponses, MailboxDeleteFolderData, MailboxDeleteFolderErrors, MailboxDeleteFolderResponses, MailboxDeleteMessageData, MailboxDeleteMessageErrors, MailboxDeleteMessageResponses, MailboxGetChangesData, MailboxGetChangesErrors, MailboxGetChangesResponses, MailboxGetConnectionData, MailboxGetConnectionErrors, MailboxGetConnectionResponses, MailboxGetFolderChangesData, MailboxGetFolderChangesErrors, MailboxGetFolderChangesResponses, MailboxGetFolderData, MailboxGetFolderErrors, MailboxGetFolderResponses, MailboxGetIdentityData, MailboxGetIdentityErrors, MailboxGetIdentityResponses, MailboxGetMeData, MailboxGetMeErrors, MailboxGetMeResponses, MailboxGetMessageAttachmentData, MailboxGetMessageAttachmentErrors, MailboxGetMessageAttachmentResponses, MailboxGetMessageData, MailboxGetMessageErrors, MailboxGetMessageResponses, MailboxGetQuotaChangesData, MailboxGetQuotaChangesErrors, MailboxGetQuotaChangesResponses, MailboxGetSessionData, MailboxGetSessionErrors, MailboxGetSessionResponses, MailboxGetSubmissionChangesData, MailboxGetSubmissionChangesErrors, MailboxGetSubmissionChangesResponses, MailboxGetSubmissionData, MailboxGetSubmissionErrors, MailboxGetSubmissionResponses, MailboxGetThreadContentData, MailboxGetThreadContentErrors, MailboxGetThreadContentResponses, MailboxGetThreadData, MailboxGetThreadErrors, MailboxGetThreadResponses, MailboxListBodyData, MailboxListBodyErrors, MailboxListBodyResponses, MailboxListContentData, MailboxListContentErrors, MailboxListContentResponses, MailboxListFoldersData, MailboxListFoldersResponses, MailboxListGrantedMailboxesData, MailboxListGrantedMailboxesErrors, MailboxListGrantedMailboxesResponses, MailboxListIdentitiesData, MailboxListIdentitiesErrors, MailboxListIdentitiesResponses, MailboxListMessagesData, MailboxListMessagesErrors, MailboxListMessagesResponses, MailboxListQuotasData, MailboxListQuotasErrors, MailboxListQuotasResponses, MailboxListSubmissionsData, MailboxListSubmissionsErrors, MailboxListSubmissionsResponses, MailboxListThreadMessagesData, MailboxListThreadMessagesErrors, MailboxListThreadMessagesResponses, MailboxListThreadsData, MailboxListThreadsErrors, MailboxListThreadsResponses, MailboxListUsageData, MailboxListUsageResponses, MailboxQueryFolderChangesData, MailboxQueryFolderChangesErrors, MailboxQueryFolderChangesResponses, MailboxQueryMessageChangesData, MailboxQueryMessageChangesErrors, MailboxQueryMessageChangesResponses, MailboxSearchMessageSnippetsData, MailboxSearchMessageSnippetsErrors, MailboxSearchMessageSnippetsResponses, MailboxSendMessageData, MailboxSendMessageErrors, MailboxSendMessageResponses, MailboxStreamEventsData, MailboxStreamEventsErrors, MailboxStreamEventsResponse, MailboxStreamEventsResponses, MailboxUpdateFolderData, MailboxUpdateFolderErrors, MailboxUpdateFolderResponses, MailboxUpdateIdentityData, MailboxUpdateIdentityErrors, MailboxUpdateIdentityResponses, MailboxUpdateMessageData, MailboxUpdateMessageErrors, MailboxUpdateMessageResponses, MailboxUploadAttachmentData, MailboxUploadAttachmentErrors, MailboxUploadAttachmentResponses } from './types.gen.js';
+import type { MailboxBatchDeleteMessagesData, MailboxBatchDeleteMessagesErrors, MailboxBatchDeleteMessagesResponses, MailboxBatchGetMessagesData, MailboxBatchGetMessagesErrors, MailboxBatchGetMessagesResponses, MailboxBatchUpdateMessagesData, MailboxBatchUpdateMessagesErrors, MailboxBatchUpdateMessagesResponses, MailboxControlDraftScheduleData, MailboxControlDraftScheduleErrors, MailboxControlDraftScheduleResponses, MailboxCountMessagesData, MailboxCountMessagesErrors, MailboxCountMessagesResponses, MailboxCreateAttachmentUploadData, MailboxCreateAttachmentUploadErrors, MailboxCreateAttachmentUploadResponses, MailboxCreateDraftData, MailboxCreateDraftErrors, MailboxCreateDraftResponses, MailboxCreateFolderData, MailboxCreateFolderErrors, MailboxCreateFolderResponses, MailboxDeleteDraftData, MailboxDeleteDraftErrors, MailboxDeleteDraftResponses, MailboxDeleteFolderData, MailboxDeleteFolderErrors, MailboxDeleteFolderResponses, MailboxDeleteMessageData, MailboxDeleteMessageErrors, MailboxDeleteMessageResponses, MailboxDownloadRawMessageData, MailboxDownloadRawMessageErrors, MailboxDownloadRawMessageResponses, MailboxGetAttachmentTextData, MailboxGetAttachmentTextErrors, MailboxGetAttachmentTextResponses, MailboxGetChangesData, MailboxGetChangesErrors, MailboxGetChangesResponses, MailboxGetConnectionData, MailboxGetConnectionErrors, MailboxGetConnectionResponses, MailboxGetDraftData, MailboxGetDraftErrors, MailboxGetDraftResponses, MailboxGetFolderChangesData, MailboxGetFolderChangesErrors, MailboxGetFolderChangesResponses, MailboxGetFolderData, MailboxGetFolderErrors, MailboxGetFolderResponses, MailboxGetIdentityData, MailboxGetIdentityErrors, MailboxGetIdentityResponses, MailboxGetMeData, MailboxGetMeErrors, MailboxGetMeResponses, MailboxGetMessageAttachmentData, MailboxGetMessageAttachmentErrors, MailboxGetMessageAttachmentResponses, MailboxGetMessageData, MailboxGetMessageErrors, MailboxGetMessageResponses, MailboxGetQuotaChangesData, MailboxGetQuotaChangesErrors, MailboxGetQuotaChangesResponses, MailboxGetSessionData, MailboxGetSessionErrors, MailboxGetSessionResponses, MailboxGetSubmissionChangesData, MailboxGetSubmissionChangesErrors, MailboxGetSubmissionChangesResponses, MailboxGetSubmissionData, MailboxGetSubmissionErrors, MailboxGetSubmissionResponses, MailboxGetThreadContentData, MailboxGetThreadContentErrors, MailboxGetThreadContentResponses, MailboxGetThreadData, MailboxGetThreadErrors, MailboxGetThreadResponses, MailboxListBodyData, MailboxListBodyErrors, MailboxListBodyResponses, MailboxListContentData, MailboxListContentErrors, MailboxListContentResponses, MailboxListDraftsData, MailboxListDraftsErrors, MailboxListDraftsResponses, MailboxListFoldersData, MailboxListFoldersResponses, MailboxListGrantedMailboxesData, MailboxListGrantedMailboxesErrors, MailboxListGrantedMailboxesResponses, MailboxListIdentitiesData, MailboxListIdentitiesErrors, MailboxListIdentitiesResponses, MailboxListMessagesData, MailboxListMessagesErrors, MailboxListMessagesResponses, MailboxListQuotasData, MailboxListQuotasErrors, MailboxListQuotasResponses, MailboxListSubmissionsData, MailboxListSubmissionsErrors, MailboxListSubmissionsResponses, MailboxListThreadMessagesData, MailboxListThreadMessagesErrors, MailboxListThreadMessagesResponses, MailboxListThreadsData, MailboxListThreadsErrors, MailboxListThreadsResponses, MailboxListUsageData, MailboxListUsageResponses, MailboxQueryFolderChangesData, MailboxQueryFolderChangesErrors, MailboxQueryFolderChangesResponses, MailboxQueryMessageChangesData, MailboxQueryMessageChangesErrors, MailboxQueryMessageChangesResponses, MailboxRequestAttachmentTextData, MailboxRequestAttachmentTextErrors, MailboxRequestAttachmentTextResponses, MailboxSearchMessageSnippetsData, MailboxSearchMessageSnippetsErrors, MailboxSearchMessageSnippetsResponses, MailboxSendDraftData, MailboxSendDraftErrors, MailboxSendDraftResponses, MailboxSendMessageData, MailboxSendMessageErrors, MailboxSendMessageResponses, MailboxStreamEventsData, MailboxStreamEventsErrors, MailboxStreamEventsResponse, MailboxStreamEventsResponses, MailboxUpdateDraftData, MailboxUpdateDraftErrors, MailboxUpdateDraftResponses, MailboxUpdateFolderData, MailboxUpdateFolderErrors, MailboxUpdateFolderResponses, MailboxUpdateIdentityData, MailboxUpdateIdentityErrors, MailboxUpdateIdentityResponses, MailboxUpdateMessageData, MailboxUpdateMessageErrors, MailboxUpdateMessageResponses, MailboxUploadAttachmentData, MailboxUploadAttachmentErrors, MailboxUploadAttachmentResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -69,6 +69,85 @@ export const mailboxGetConnection = <ThrowOnError extends boolean = false>(optio
     security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/connection',
     ...options
+});
+
+/**
+ * List saved drafts
+ */
+export const mailboxListDrafts = <ThrowOnError extends boolean = false>(options?: Options<MailboxListDraftsData, ThrowOnError>) => (options?.client ?? client).get<MailboxListDraftsResponses, MailboxListDraftsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts',
+    ...options
+});
+
+/**
+ * Create a saved draft
+ */
+export const mailboxCreateDraft = <ThrowOnError extends boolean = false>(options: Options<MailboxCreateDraftData, ThrowOnError>) => (options.client ?? client).post<MailboxCreateDraftResponses, MailboxCreateDraftErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a saved draft
+ */
+export const mailboxDeleteDraft = <ThrowOnError extends boolean = false>(options: Options<MailboxDeleteDraftData, ThrowOnError>) => (options.client ?? client).delete<MailboxDeleteDraftResponses, MailboxDeleteDraftErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts/{draftId}',
+    ...options
+});
+
+/**
+ * Read a saved draft
+ */
+export const mailboxGetDraft = <ThrowOnError extends boolean = false>(options: Options<MailboxGetDraftData, ThrowOnError>) => (options.client ?? client).get<MailboxGetDraftResponses, MailboxGetDraftErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts/{draftId}',
+    ...options
+});
+
+/**
+ * Edit a saved draft
+ */
+export const mailboxUpdateDraft = <ThrowOnError extends boolean = false>(options: Options<MailboxUpdateDraftData, ThrowOnError>) => (options.client ?? client).patch<MailboxUpdateDraftResponses, MailboxUpdateDraftErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts/{draftId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Reschedule or cancel a saved draft send
+ */
+export const mailboxControlDraftSchedule = <ThrowOnError extends boolean = false>(options: Options<MailboxControlDraftScheduleData, ThrowOnError>) => (options.client ?? client).patch<MailboxControlDraftScheduleResponses, MailboxControlDraftScheduleErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts/{draftId}/schedule',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Send a saved draft revision
+ */
+export const mailboxSendDraft = <ThrowOnError extends boolean = false>(options: Options<MailboxSendDraftData, ThrowOnError>) => (options.client ?? client).post<MailboxSendDraftResponses, MailboxSendDraftErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/drafts/{draftId}/send',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**
@@ -333,6 +412,28 @@ export const mailboxGetMessageAttachment = <ThrowOnError extends boolean = false
 });
 
 /**
+ * Read attachment text
+ *
+ * Read or poll a requested extraction. Returns 404 after cache expiry or source removal. Current access and source availability are checked even with If-None-Match. This request does not start a conversion.
+ */
+export const mailboxGetAttachmentText = <ThrowOnError extends boolean = false>(options: Options<MailboxGetAttachmentTextData, ThrowOnError>) => (options.client ?? client).get<MailboxGetAttachmentTextResponses, MailboxGetAttachmentTextErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/messages/{message_id}/attachments/{attachment_id}/text',
+    ...options
+});
+
+/**
+ * Request attachment text
+ *
+ * Extract readable text from an attachment up to 7500000 bytes, at no extra charge. Repeating this request reuses the same current source extraction for 24 hours; no request body or Idempotency-Key is needed. Conversion runs for at most 30 seconds. OCR is unavailable. Current mailbox access and the source attachment are checked before serving cached text. If extraction cannot complete, use the original attachment download.
+ */
+export const mailboxRequestAttachmentText = <ThrowOnError extends boolean = false>(options: Options<MailboxRequestAttachmentTextData, ThrowOnError>) => (options.client ?? client).post<MailboxRequestAttachmentTextResponses, MailboxRequestAttachmentTextErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/messages/{message_id}/attachments/{attachment_id}/text',
+    ...options
+});
+
+/**
  * Get raw message body
  *
  * Returns raw message body content for the authenticated mailbox. This endpoint does not strip signatures, strip quoted replies, extract links, or clean the body into a structured content shape.
@@ -351,6 +452,17 @@ export const mailboxListBody = <ThrowOnError extends boolean = false>(options: O
 export const mailboxListContent = <ThrowOnError extends boolean = false>(options: Options<MailboxListContentData, ThrowOnError>) => (options.client ?? client).get<MailboxListContentResponses, MailboxListContentErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
     url: '/mailbox/messages/{message_id}/content',
+    ...options
+});
+
+/**
+ * Download the original message
+ *
+ * Downloads the stored message as an .eml file, including its original headers, body and attachments. Requires access to the selected inbox. Supports conditional requests with If-None-Match.
+ */
+export const mailboxDownloadRawMessage = <ThrowOnError extends boolean = false>(options: Options<MailboxDownloadRawMessageData, ThrowOnError>) => (options.client ?? client).get<MailboxDownloadRawMessageResponses, MailboxDownloadRawMessageErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }, { scheme: 'bearer', type: 'http' }],
+    url: '/mailbox/messages/{message_id}/raw',
     ...options
 });
 

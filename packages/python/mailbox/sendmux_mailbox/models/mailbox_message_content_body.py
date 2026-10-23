@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from sendmux_mailbox.models.mailbox_message_content_body_html_cleaning import MailboxMessageContentBodyHtmlCleaning
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,15 +28,17 @@ class MailboxMessageContentBody(BaseModel):
     """
     MailboxMessageContentBody
     """ # noqa: E501
+    cleaned_html: Optional[StrictStr] = Field(description="HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.")
     extracted_links: List[StrictStr]
     format: Optional[StrictStr]
     html: Optional[StrictStr] = Field(description="HTML body when requested. Returned as a JSON string and not as rendered content.")
+    html_cleaning: Optional[MailboxMessageContentBodyHtmlCleaning]
     is_truncated: StrictBool
     quotes_stripped: StrictBool
     signature_stripped: StrictBool
     text: Optional[StrictStr]
     truncated_at_chars: Optional[StrictInt]
-    __properties: ClassVar[List[str]] = ["extracted_links", "format", "html", "is_truncated", "quotes_stripped", "signature_stripped", "text", "truncated_at_chars"]
+    __properties: ClassVar[List[str]] = ["cleaned_html", "extracted_links", "format", "html", "html_cleaning", "is_truncated", "quotes_stripped", "signature_stripped", "text", "truncated_at_chars"]
 
     @field_validator('format')
     def format_validate_enum(cls, value):
@@ -86,6 +89,14 @@ class MailboxMessageContentBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of html_cleaning
+        if self.html_cleaning:
+            _dict['html_cleaning'] = self.html_cleaning.to_dict()
+        # set to None if cleaned_html (nullable) is None
+        # and model_fields_set contains the field
+        if self.cleaned_html is None and "cleaned_html" in self.model_fields_set:
+            _dict['cleaned_html'] = None
+
         # set to None if format (nullable) is None
         # and model_fields_set contains the field
         if self.format is None and "format" in self.model_fields_set:
@@ -95,6 +106,11 @@ class MailboxMessageContentBody(BaseModel):
         # and model_fields_set contains the field
         if self.html is None and "html" in self.model_fields_set:
             _dict['html'] = None
+
+        # set to None if html_cleaning (nullable) is None
+        # and model_fields_set contains the field
+        if self.html_cleaning is None and "html_cleaning" in self.model_fields_set:
+            _dict['html_cleaning'] = None
 
         # set to None if text (nullable) is None
         # and model_fields_set contains the field
@@ -118,9 +134,11 @@ class MailboxMessageContentBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "cleaned_html": obj.get("cleaned_html"),
             "extracted_links": obj.get("extracted_links"),
             "format": obj.get("format"),
             "html": obj.get("html"),
+            "html_cleaning": MailboxMessageContentBodyHtmlCleaning.from_dict(obj["html_cleaning"]) if obj.get("html_cleaning") is not None else None,
             "is_truncated": obj.get("is_truncated"),
             "quotes_stripped": obj.get("quotes_stripped"),
             "signature_stripped": obj.get("signature_stripped"),

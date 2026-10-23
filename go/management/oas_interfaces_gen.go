@@ -93,12 +93,20 @@ type ManagementGetInboxLogRes interface {
 	managementGetInboxLogRes()
 }
 
+type ManagementGetMailboxCostUsageRes interface {
+	managementGetMailboxCostUsageRes()
+}
+
 type ManagementGetMailboxFiltersRes interface {
 	managementGetMailboxFiltersRes()
 }
 
 type ManagementGetMailboxRes interface {
 	managementGetMailboxRes()
+}
+
+type ManagementGetMailboxSendPolicyRes interface {
+	managementGetMailboxSendPolicyRes()
 }
 
 type ManagementGetProviderRes interface {
@@ -151,6 +159,10 @@ type ManagementListTransactionsRes interface {
 
 type ManagementListWebhooksRes interface {
 	managementListWebhooksRes()
+}
+
+type ManagementReplaceMailboxSendPolicyRes interface {
+	managementReplaceMailboxSendPolicyRes()
 }
 
 type ManagementRequestSendingAccountLimitIncreaseRes interface {

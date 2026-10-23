@@ -5,6 +5,7 @@ package management
 import (
 	"io"
 	"net/url"
+	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
@@ -309,7 +310,6 @@ func (s *ApiErrorHeaders) SetResponse(val ApiError) {
 }
 
 func (*ApiErrorHeaders) managementDeleteMailboxKeyRes()  {}
-func (*ApiErrorHeaders) managementDeleteMailboxRes()     {}
 func (*ApiErrorHeaders) managementDeleteWebhookRes()     {}
 func (*ApiErrorHeaders) managementGetDomainRes()         {}
 func (*ApiErrorHeaders) managementGetDomainZoneFileRes() {}
@@ -4117,6 +4117,664 @@ func (s *MailboxAvailabilityResult) SetReason(val MailboxAvailabilityReason) {
 	s.Reason = val
 }
 
+// Ref: #/components/schemas/MailboxCostUsage
+type MailboxCostUsage struct {
+	Currency     MailboxCostUsageCurrency `json:"currency"`
+	End          time.Time                `json:"end"`
+	Incoming     MailboxCostUsageIncoming `json:"incoming"`
+	MailboxID    string                   `json:"mailbox_id"`
+	Outgoing     MailboxCostUsageOutgoing `json:"outgoing"`
+	PostedAmount string                   `json:"posted_amount"`
+	Start        time.Time                `json:"start"`
+	State        MailboxCostUsageState    `json:"state"`
+	Storage      MailboxCostUsageStorage  `json:"storage"`
+}
+
+// GetCurrency returns the value of Currency.
+func (s *MailboxCostUsage) GetCurrency() MailboxCostUsageCurrency {
+	return s.Currency
+}
+
+// GetEnd returns the value of End.
+func (s *MailboxCostUsage) GetEnd() time.Time {
+	return s.End
+}
+
+// GetIncoming returns the value of Incoming.
+func (s *MailboxCostUsage) GetIncoming() MailboxCostUsageIncoming {
+	return s.Incoming
+}
+
+// GetMailboxID returns the value of MailboxID.
+func (s *MailboxCostUsage) GetMailboxID() string {
+	return s.MailboxID
+}
+
+// GetOutgoing returns the value of Outgoing.
+func (s *MailboxCostUsage) GetOutgoing() MailboxCostUsageOutgoing {
+	return s.Outgoing
+}
+
+// GetPostedAmount returns the value of PostedAmount.
+func (s *MailboxCostUsage) GetPostedAmount() string {
+	return s.PostedAmount
+}
+
+// GetStart returns the value of Start.
+func (s *MailboxCostUsage) GetStart() time.Time {
+	return s.Start
+}
+
+// GetState returns the value of State.
+func (s *MailboxCostUsage) GetState() MailboxCostUsageState {
+	return s.State
+}
+
+// GetStorage returns the value of Storage.
+func (s *MailboxCostUsage) GetStorage() MailboxCostUsageStorage {
+	return s.Storage
+}
+
+// SetCurrency sets the value of Currency.
+func (s *MailboxCostUsage) SetCurrency(val MailboxCostUsageCurrency) {
+	s.Currency = val
+}
+
+// SetEnd sets the value of End.
+func (s *MailboxCostUsage) SetEnd(val time.Time) {
+	s.End = val
+}
+
+// SetIncoming sets the value of Incoming.
+func (s *MailboxCostUsage) SetIncoming(val MailboxCostUsageIncoming) {
+	s.Incoming = val
+}
+
+// SetMailboxID sets the value of MailboxID.
+func (s *MailboxCostUsage) SetMailboxID(val string) {
+	s.MailboxID = val
+}
+
+// SetOutgoing sets the value of Outgoing.
+func (s *MailboxCostUsage) SetOutgoing(val MailboxCostUsageOutgoing) {
+	s.Outgoing = val
+}
+
+// SetPostedAmount sets the value of PostedAmount.
+func (s *MailboxCostUsage) SetPostedAmount(val string) {
+	s.PostedAmount = val
+}
+
+// SetStart sets the value of Start.
+func (s *MailboxCostUsage) SetStart(val time.Time) {
+	s.Start = val
+}
+
+// SetState sets the value of State.
+func (s *MailboxCostUsage) SetState(val MailboxCostUsageState) {
+	s.State = val
+}
+
+// SetStorage sets the value of Storage.
+func (s *MailboxCostUsage) SetStorage(val MailboxCostUsageStorage) {
+	s.Storage = val
+}
+
+type MailboxCostUsageCurrency string
+
+const (
+	MailboxCostUsageCurrencyUSD MailboxCostUsageCurrency = "USD"
+)
+
+// AllValues returns all MailboxCostUsageCurrency values.
+func (MailboxCostUsageCurrency) AllValues() []MailboxCostUsageCurrency {
+	return []MailboxCostUsageCurrency{
+		MailboxCostUsageCurrencyUSD,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxCostUsageCurrency) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxCostUsageCurrencyUSD:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxCostUsageCurrency) UnmarshalText(data []byte) error {
+	switch MailboxCostUsageCurrency(data) {
+	case MailboxCostUsageCurrencyUSD:
+		*s = MailboxCostUsageCurrencyUSD
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type MailboxCostUsageIncoming struct {
+	CoverageStartedAt  NilDateTime                   `json:"coverage_started_at"`
+	IncurredAmount     string                        `json:"incurred_amount"`
+	PostedAmount       string                        `json:"posted_amount"`
+	PostedQuantity     string                        `json:"posted_quantity"`
+	Quantity           string                        `json:"quantity"`
+	State              MailboxCostUsageIncomingState `json:"state"`
+	UnbillableAmount   string                        `json:"unbillable_amount"`
+	UnbillableQuantity string                        `json:"unbillable_quantity"`
+}
+
+// GetCoverageStartedAt returns the value of CoverageStartedAt.
+func (s *MailboxCostUsageIncoming) GetCoverageStartedAt() NilDateTime {
+	return s.CoverageStartedAt
+}
+
+// GetIncurredAmount returns the value of IncurredAmount.
+func (s *MailboxCostUsageIncoming) GetIncurredAmount() string {
+	return s.IncurredAmount
+}
+
+// GetPostedAmount returns the value of PostedAmount.
+func (s *MailboxCostUsageIncoming) GetPostedAmount() string {
+	return s.PostedAmount
+}
+
+// GetPostedQuantity returns the value of PostedQuantity.
+func (s *MailboxCostUsageIncoming) GetPostedQuantity() string {
+	return s.PostedQuantity
+}
+
+// GetQuantity returns the value of Quantity.
+func (s *MailboxCostUsageIncoming) GetQuantity() string {
+	return s.Quantity
+}
+
+// GetState returns the value of State.
+func (s *MailboxCostUsageIncoming) GetState() MailboxCostUsageIncomingState {
+	return s.State
+}
+
+// GetUnbillableAmount returns the value of UnbillableAmount.
+func (s *MailboxCostUsageIncoming) GetUnbillableAmount() string {
+	return s.UnbillableAmount
+}
+
+// GetUnbillableQuantity returns the value of UnbillableQuantity.
+func (s *MailboxCostUsageIncoming) GetUnbillableQuantity() string {
+	return s.UnbillableQuantity
+}
+
+// SetCoverageStartedAt sets the value of CoverageStartedAt.
+func (s *MailboxCostUsageIncoming) SetCoverageStartedAt(val NilDateTime) {
+	s.CoverageStartedAt = val
+}
+
+// SetIncurredAmount sets the value of IncurredAmount.
+func (s *MailboxCostUsageIncoming) SetIncurredAmount(val string) {
+	s.IncurredAmount = val
+}
+
+// SetPostedAmount sets the value of PostedAmount.
+func (s *MailboxCostUsageIncoming) SetPostedAmount(val string) {
+	s.PostedAmount = val
+}
+
+// SetPostedQuantity sets the value of PostedQuantity.
+func (s *MailboxCostUsageIncoming) SetPostedQuantity(val string) {
+	s.PostedQuantity = val
+}
+
+// SetQuantity sets the value of Quantity.
+func (s *MailboxCostUsageIncoming) SetQuantity(val string) {
+	s.Quantity = val
+}
+
+// SetState sets the value of State.
+func (s *MailboxCostUsageIncoming) SetState(val MailboxCostUsageIncomingState) {
+	s.State = val
+}
+
+// SetUnbillableAmount sets the value of UnbillableAmount.
+func (s *MailboxCostUsageIncoming) SetUnbillableAmount(val string) {
+	s.UnbillableAmount = val
+}
+
+// SetUnbillableQuantity sets the value of UnbillableQuantity.
+func (s *MailboxCostUsageIncoming) SetUnbillableQuantity(val string) {
+	s.UnbillableQuantity = val
+}
+
+type MailboxCostUsageIncomingState string
+
+const (
+	MailboxCostUsageIncomingStatePending MailboxCostUsageIncomingState = "pending"
+	MailboxCostUsageIncomingStateFinal   MailboxCostUsageIncomingState = "final"
+)
+
+// AllValues returns all MailboxCostUsageIncomingState values.
+func (MailboxCostUsageIncomingState) AllValues() []MailboxCostUsageIncomingState {
+	return []MailboxCostUsageIncomingState{
+		MailboxCostUsageIncomingStatePending,
+		MailboxCostUsageIncomingStateFinal,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxCostUsageIncomingState) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxCostUsageIncomingStatePending:
+		return []byte(s), nil
+	case MailboxCostUsageIncomingStateFinal:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxCostUsageIncomingState) UnmarshalText(data []byte) error {
+	switch MailboxCostUsageIncomingState(data) {
+	case MailboxCostUsageIncomingStatePending:
+		*s = MailboxCostUsageIncomingStatePending
+		return nil
+	case MailboxCostUsageIncomingStateFinal:
+		*s = MailboxCostUsageIncomingStateFinal
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type MailboxCostUsageOutgoing struct {
+	CoverageStartedAt  NilDateTime                   `json:"coverage_started_at"`
+	IncurredAmount     string                        `json:"incurred_amount"`
+	PostedAmount       string                        `json:"posted_amount"`
+	PostedQuantity     string                        `json:"posted_quantity"`
+	Quantity           string                        `json:"quantity"`
+	State              MailboxCostUsageOutgoingState `json:"state"`
+	UnbillableAmount   string                        `json:"unbillable_amount"`
+	UnbillableQuantity string                        `json:"unbillable_quantity"`
+}
+
+// GetCoverageStartedAt returns the value of CoverageStartedAt.
+func (s *MailboxCostUsageOutgoing) GetCoverageStartedAt() NilDateTime {
+	return s.CoverageStartedAt
+}
+
+// GetIncurredAmount returns the value of IncurredAmount.
+func (s *MailboxCostUsageOutgoing) GetIncurredAmount() string {
+	return s.IncurredAmount
+}
+
+// GetPostedAmount returns the value of PostedAmount.
+func (s *MailboxCostUsageOutgoing) GetPostedAmount() string {
+	return s.PostedAmount
+}
+
+// GetPostedQuantity returns the value of PostedQuantity.
+func (s *MailboxCostUsageOutgoing) GetPostedQuantity() string {
+	return s.PostedQuantity
+}
+
+// GetQuantity returns the value of Quantity.
+func (s *MailboxCostUsageOutgoing) GetQuantity() string {
+	return s.Quantity
+}
+
+// GetState returns the value of State.
+func (s *MailboxCostUsageOutgoing) GetState() MailboxCostUsageOutgoingState {
+	return s.State
+}
+
+// GetUnbillableAmount returns the value of UnbillableAmount.
+func (s *MailboxCostUsageOutgoing) GetUnbillableAmount() string {
+	return s.UnbillableAmount
+}
+
+// GetUnbillableQuantity returns the value of UnbillableQuantity.
+func (s *MailboxCostUsageOutgoing) GetUnbillableQuantity() string {
+	return s.UnbillableQuantity
+}
+
+// SetCoverageStartedAt sets the value of CoverageStartedAt.
+func (s *MailboxCostUsageOutgoing) SetCoverageStartedAt(val NilDateTime) {
+	s.CoverageStartedAt = val
+}
+
+// SetIncurredAmount sets the value of IncurredAmount.
+func (s *MailboxCostUsageOutgoing) SetIncurredAmount(val string) {
+	s.IncurredAmount = val
+}
+
+// SetPostedAmount sets the value of PostedAmount.
+func (s *MailboxCostUsageOutgoing) SetPostedAmount(val string) {
+	s.PostedAmount = val
+}
+
+// SetPostedQuantity sets the value of PostedQuantity.
+func (s *MailboxCostUsageOutgoing) SetPostedQuantity(val string) {
+	s.PostedQuantity = val
+}
+
+// SetQuantity sets the value of Quantity.
+func (s *MailboxCostUsageOutgoing) SetQuantity(val string) {
+	s.Quantity = val
+}
+
+// SetState sets the value of State.
+func (s *MailboxCostUsageOutgoing) SetState(val MailboxCostUsageOutgoingState) {
+	s.State = val
+}
+
+// SetUnbillableAmount sets the value of UnbillableAmount.
+func (s *MailboxCostUsageOutgoing) SetUnbillableAmount(val string) {
+	s.UnbillableAmount = val
+}
+
+// SetUnbillableQuantity sets the value of UnbillableQuantity.
+func (s *MailboxCostUsageOutgoing) SetUnbillableQuantity(val string) {
+	s.UnbillableQuantity = val
+}
+
+type MailboxCostUsageOutgoingState string
+
+const (
+	MailboxCostUsageOutgoingStatePending MailboxCostUsageOutgoingState = "pending"
+	MailboxCostUsageOutgoingStateFinal   MailboxCostUsageOutgoingState = "final"
+)
+
+// AllValues returns all MailboxCostUsageOutgoingState values.
+func (MailboxCostUsageOutgoingState) AllValues() []MailboxCostUsageOutgoingState {
+	return []MailboxCostUsageOutgoingState{
+		MailboxCostUsageOutgoingStatePending,
+		MailboxCostUsageOutgoingStateFinal,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxCostUsageOutgoingState) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxCostUsageOutgoingStatePending:
+		return []byte(s), nil
+	case MailboxCostUsageOutgoingStateFinal:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxCostUsageOutgoingState) UnmarshalText(data []byte) error {
+	switch MailboxCostUsageOutgoingState(data) {
+	case MailboxCostUsageOutgoingStatePending:
+		*s = MailboxCostUsageOutgoingStatePending
+		return nil
+	case MailboxCostUsageOutgoingStateFinal:
+		*s = MailboxCostUsageOutgoingStateFinal
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxCostUsageResponse
+type MailboxCostUsageResponse struct {
+	// Merged property.
+	Meta MailboxCostUsageResponseMeta `json:"meta"`
+	Ok   MailboxCostUsageResponseOk   `json:"ok"`
+	Data MailboxCostUsage             `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxCostUsageResponse) GetMeta() MailboxCostUsageResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxCostUsageResponse) GetOk() MailboxCostUsageResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxCostUsageResponse) GetData() MailboxCostUsage {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxCostUsageResponse) SetMeta(val MailboxCostUsageResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxCostUsageResponse) SetOk(val MailboxCostUsageResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxCostUsageResponse) SetData(val MailboxCostUsage) {
+	s.Data = val
+}
+
+// MailboxCostUsageResponseHeaders wraps MailboxCostUsageResponse with response headers.
+type MailboxCostUsageResponseHeaders struct {
+	CacheControl OptString
+	ETag         OptString
+	Response     MailboxCostUsageResponse
+}
+
+// GetCacheControl returns the value of CacheControl.
+func (s *MailboxCostUsageResponseHeaders) GetCacheControl() OptString {
+	return s.CacheControl
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxCostUsageResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxCostUsageResponseHeaders) GetResponse() MailboxCostUsageResponse {
+	return s.Response
+}
+
+// SetCacheControl sets the value of CacheControl.
+func (s *MailboxCostUsageResponseHeaders) SetCacheControl(val OptString) {
+	s.CacheControl = val
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxCostUsageResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxCostUsageResponseHeaders) SetResponse(val MailboxCostUsageResponse) {
+	s.Response = val
+}
+
+func (*MailboxCostUsageResponseHeaders) managementGetMailboxCostUsageRes() {}
+
+// Merged schema.
+type MailboxCostUsageResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxCostUsageResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxCostUsageResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxCostUsageResponseMeta) GetAdditionalProps() MailboxCostUsageResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxCostUsageResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxCostUsageResponseMeta) SetAdditionalProps(val MailboxCostUsageResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxCostUsageResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxCostUsageResponseMetaAdditional) init() MailboxCostUsageResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxCostUsageResponseOk bool
+
+const (
+	MailboxCostUsageResponseOkTrue MailboxCostUsageResponseOk = true
+)
+
+// AllValues returns all MailboxCostUsageResponseOk values.
+func (MailboxCostUsageResponseOk) AllValues() []MailboxCostUsageResponseOk {
+	return []MailboxCostUsageResponseOk{
+		MailboxCostUsageResponseOkTrue,
+	}
+}
+
+type MailboxCostUsageState string
+
+const (
+	MailboxCostUsageStatePending MailboxCostUsageState = "pending"
+	MailboxCostUsageStateFinal   MailboxCostUsageState = "final"
+)
+
+// AllValues returns all MailboxCostUsageState values.
+func (MailboxCostUsageState) AllValues() []MailboxCostUsageState {
+	return []MailboxCostUsageState{
+		MailboxCostUsageStatePending,
+		MailboxCostUsageStateFinal,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxCostUsageState) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxCostUsageStatePending:
+		return []byte(s), nil
+	case MailboxCostUsageStateFinal:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxCostUsageState) UnmarshalText(data []byte) error {
+	switch MailboxCostUsageState(data) {
+	case MailboxCostUsageStatePending:
+		*s = MailboxCostUsageStatePending
+		return nil
+	case MailboxCostUsageStateFinal:
+		*s = MailboxCostUsageStateFinal
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type MailboxCostUsageStorage struct {
+	AllocatedAmount string                       `json:"allocated_amount"`
+	PostedAmount    string                       `json:"posted_amount"`
+	RawAmount       string                       `json:"raw_amount"`
+	State           MailboxCostUsageStorageState `json:"state"`
+}
+
+// GetAllocatedAmount returns the value of AllocatedAmount.
+func (s *MailboxCostUsageStorage) GetAllocatedAmount() string {
+	return s.AllocatedAmount
+}
+
+// GetPostedAmount returns the value of PostedAmount.
+func (s *MailboxCostUsageStorage) GetPostedAmount() string {
+	return s.PostedAmount
+}
+
+// GetRawAmount returns the value of RawAmount.
+func (s *MailboxCostUsageStorage) GetRawAmount() string {
+	return s.RawAmount
+}
+
+// GetState returns the value of State.
+func (s *MailboxCostUsageStorage) GetState() MailboxCostUsageStorageState {
+	return s.State
+}
+
+// SetAllocatedAmount sets the value of AllocatedAmount.
+func (s *MailboxCostUsageStorage) SetAllocatedAmount(val string) {
+	s.AllocatedAmount = val
+}
+
+// SetPostedAmount sets the value of PostedAmount.
+func (s *MailboxCostUsageStorage) SetPostedAmount(val string) {
+	s.PostedAmount = val
+}
+
+// SetRawAmount sets the value of RawAmount.
+func (s *MailboxCostUsageStorage) SetRawAmount(val string) {
+	s.RawAmount = val
+}
+
+// SetState sets the value of State.
+func (s *MailboxCostUsageStorage) SetState(val MailboxCostUsageStorageState) {
+	s.State = val
+}
+
+type MailboxCostUsageStorageState string
+
+const (
+	MailboxCostUsageStorageStatePending MailboxCostUsageStorageState = "pending"
+	MailboxCostUsageStorageStateFinal   MailboxCostUsageStorageState = "final"
+)
+
+// AllValues returns all MailboxCostUsageStorageState values.
+func (MailboxCostUsageStorageState) AllValues() []MailboxCostUsageStorageState {
+	return []MailboxCostUsageStorageState{
+		MailboxCostUsageStorageStatePending,
+		MailboxCostUsageStorageStateFinal,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s MailboxCostUsageStorageState) MarshalText() ([]byte, error) {
+	switch s {
+	case MailboxCostUsageStorageStatePending:
+		return []byte(s), nil
+	case MailboxCostUsageStorageStateFinal:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *MailboxCostUsageStorageState) UnmarshalText(data []byte) error {
+	switch MailboxCostUsageStorageState(data) {
+	case MailboxCostUsageStorageStatePending:
+		*s = MailboxCostUsageStorageStatePending
+		return nil
+	case MailboxCostUsageStorageStateFinal:
+		*s = MailboxCostUsageStorageStateFinal
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/MailboxCreateResult
 type MailboxCreateResult struct {
 	// Initial credential for the mailbox. `null` if credential generation failed — call POST
@@ -5609,6 +6267,367 @@ func (MailboxKeyDeletedResponseOk) AllValues() []MailboxKeyDeletedResponseOk {
 	}
 }
 
+// Ref: #/components/schemas/MailboxSendPolicy
+type MailboxSendPolicy struct {
+	// Allowed From addresses at this policy level.
+	AllowedFrom OptMailboxSendPolicyAllowedFrom `json:"allowed_from"`
+	// Allowed Reply-To addresses at this policy level.
+	AllowedReplyTo OptMailboxSendPolicyAllowedReplyTo `json:"allowed_reply_to"`
+	// Ordered fallback From addresses; every policy level must explicitly allow each alternative.
+	AlternateFrom []string `json:"alternate_from"`
+	// Recipient restrictions applied to every To, Cc and Bcc address.
+	Recipients OptMailboxSendPolicyRecipients `json:"recipients"`
+}
+
+// GetAllowedFrom returns the value of AllowedFrom.
+func (s *MailboxSendPolicy) GetAllowedFrom() OptMailboxSendPolicyAllowedFrom {
+	return s.AllowedFrom
+}
+
+// GetAllowedReplyTo returns the value of AllowedReplyTo.
+func (s *MailboxSendPolicy) GetAllowedReplyTo() OptMailboxSendPolicyAllowedReplyTo {
+	return s.AllowedReplyTo
+}
+
+// GetAlternateFrom returns the value of AlternateFrom.
+func (s *MailboxSendPolicy) GetAlternateFrom() []string {
+	return s.AlternateFrom
+}
+
+// GetRecipients returns the value of Recipients.
+func (s *MailboxSendPolicy) GetRecipients() OptMailboxSendPolicyRecipients {
+	return s.Recipients
+}
+
+// SetAllowedFrom sets the value of AllowedFrom.
+func (s *MailboxSendPolicy) SetAllowedFrom(val OptMailboxSendPolicyAllowedFrom) {
+	s.AllowedFrom = val
+}
+
+// SetAllowedReplyTo sets the value of AllowedReplyTo.
+func (s *MailboxSendPolicy) SetAllowedReplyTo(val OptMailboxSendPolicyAllowedReplyTo) {
+	s.AllowedReplyTo = val
+}
+
+// SetAlternateFrom sets the value of AlternateFrom.
+func (s *MailboxSendPolicy) SetAlternateFrom(val []string) {
+	s.AlternateFrom = val
+}
+
+// SetRecipients sets the value of Recipients.
+func (s *MailboxSendPolicy) SetRecipients(val OptMailboxSendPolicyRecipients) {
+	s.Recipients = val
+}
+
+// Allowed From addresses at this policy level.
+type MailboxSendPolicyAllowedFrom struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+	// Allow the originating inbox address.
+	OwnAddress OptBool `json:"own_address"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSendPolicyAllowedFrom) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSendPolicyAllowedFrom) GetDomains() []string {
+	return s.Domains
+}
+
+// GetOwnAddress returns the value of OwnAddress.
+func (s *MailboxSendPolicyAllowedFrom) GetOwnAddress() OptBool {
+	return s.OwnAddress
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSendPolicyAllowedFrom) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSendPolicyAllowedFrom) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// SetOwnAddress sets the value of OwnAddress.
+func (s *MailboxSendPolicyAllowedFrom) SetOwnAddress(val OptBool) {
+	s.OwnAddress = val
+}
+
+// Allowed Reply-To addresses at this policy level.
+type MailboxSendPolicyAllowedReplyTo struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+	// Allow the originating inbox address.
+	OwnAddress OptBool `json:"own_address"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSendPolicyAllowedReplyTo) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSendPolicyAllowedReplyTo) GetDomains() []string {
+	return s.Domains
+}
+
+// GetOwnAddress returns the value of OwnAddress.
+func (s *MailboxSendPolicyAllowedReplyTo) GetOwnAddress() OptBool {
+	return s.OwnAddress
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSendPolicyAllowedReplyTo) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSendPolicyAllowedReplyTo) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// SetOwnAddress sets the value of OwnAddress.
+func (s *MailboxSendPolicyAllowedReplyTo) SetOwnAddress(val OptBool) {
+	s.OwnAddress = val
+}
+
+// Recipient restrictions applied to every To, Cc and Bcc address.
+type MailboxSendPolicyRecipients struct {
+	// Allowed recipients, or null for no allow-list restriction. An empty rule allows no recipients.
+	Allow OptNilMailboxSendPolicyRecipientsAllow `json:"allow"`
+	// Blocked recipients; deny rules always take precedence.
+	Deny OptMailboxSendPolicyRecipientsDeny `json:"deny"`
+}
+
+// GetAllow returns the value of Allow.
+func (s *MailboxSendPolicyRecipients) GetAllow() OptNilMailboxSendPolicyRecipientsAllow {
+	return s.Allow
+}
+
+// GetDeny returns the value of Deny.
+func (s *MailboxSendPolicyRecipients) GetDeny() OptMailboxSendPolicyRecipientsDeny {
+	return s.Deny
+}
+
+// SetAllow sets the value of Allow.
+func (s *MailboxSendPolicyRecipients) SetAllow(val OptNilMailboxSendPolicyRecipientsAllow) {
+	s.Allow = val
+}
+
+// SetDeny sets the value of Deny.
+func (s *MailboxSendPolicyRecipients) SetDeny(val OptMailboxSendPolicyRecipientsDeny) {
+	s.Deny = val
+}
+
+// Allowed recipients, or null for no allow-list restriction. An empty rule allows no recipients.
+type MailboxSendPolicyRecipientsAllow struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSendPolicyRecipientsAllow) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSendPolicyRecipientsAllow) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSendPolicyRecipientsAllow) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSendPolicyRecipientsAllow) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Blocked recipients; deny rules always take precedence.
+type MailboxSendPolicyRecipientsDeny struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *MailboxSendPolicyRecipientsDeny) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *MailboxSendPolicyRecipientsDeny) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *MailboxSendPolicyRecipientsDeny) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *MailboxSendPolicyRecipientsDeny) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/MailboxSendPolicyResponse
+type MailboxSendPolicyResponse struct {
+	// Merged property.
+	Meta MailboxSendPolicyResponseMeta `json:"meta"`
+	Ok   MailboxSendPolicyResponseOk   `json:"ok"`
+	Data MailboxSendPolicySnapshot     `json:"data"`
+}
+
+// GetMeta returns the value of Meta.
+func (s *MailboxSendPolicyResponse) GetMeta() MailboxSendPolicyResponseMeta {
+	return s.Meta
+}
+
+// GetOk returns the value of Ok.
+func (s *MailboxSendPolicyResponse) GetOk() MailboxSendPolicyResponseOk {
+	return s.Ok
+}
+
+// GetData returns the value of Data.
+func (s *MailboxSendPolicyResponse) GetData() MailboxSendPolicySnapshot {
+	return s.Data
+}
+
+// SetMeta sets the value of Meta.
+func (s *MailboxSendPolicyResponse) SetMeta(val MailboxSendPolicyResponseMeta) {
+	s.Meta = val
+}
+
+// SetOk sets the value of Ok.
+func (s *MailboxSendPolicyResponse) SetOk(val MailboxSendPolicyResponseOk) {
+	s.Ok = val
+}
+
+// SetData sets the value of Data.
+func (s *MailboxSendPolicyResponse) SetData(val MailboxSendPolicySnapshot) {
+	s.Data = val
+}
+
+// MailboxSendPolicyResponseHeaders wraps MailboxSendPolicyResponse with response headers.
+type MailboxSendPolicyResponseHeaders struct {
+	ETag     OptString
+	Response MailboxSendPolicyResponse
+}
+
+// GetETag returns the value of ETag.
+func (s *MailboxSendPolicyResponseHeaders) GetETag() OptString {
+	return s.ETag
+}
+
+// GetResponse returns the value of Response.
+func (s *MailboxSendPolicyResponseHeaders) GetResponse() MailboxSendPolicyResponse {
+	return s.Response
+}
+
+// SetETag sets the value of ETag.
+func (s *MailboxSendPolicyResponseHeaders) SetETag(val OptString) {
+	s.ETag = val
+}
+
+// SetResponse sets the value of Response.
+func (s *MailboxSendPolicyResponseHeaders) SetResponse(val MailboxSendPolicyResponse) {
+	s.Response = val
+}
+
+func (*MailboxSendPolicyResponseHeaders) managementGetMailboxSendPolicyRes()     {}
+func (*MailboxSendPolicyResponseHeaders) managementReplaceMailboxSendPolicyRes() {}
+
+// Merged schema.
+type MailboxSendPolicyResponseMeta struct {
+	RequestID       string `json:"request_id"`
+	AdditionalProps MailboxSendPolicyResponseMetaAdditional
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *MailboxSendPolicyResponseMeta) GetRequestID() string {
+	return s.RequestID
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *MailboxSendPolicyResponseMeta) GetAdditionalProps() MailboxSendPolicyResponseMetaAdditional {
+	return s.AdditionalProps
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *MailboxSendPolicyResponseMeta) SetRequestID(val string) {
+	s.RequestID = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *MailboxSendPolicyResponseMeta) SetAdditionalProps(val MailboxSendPolicyResponseMetaAdditional) {
+	s.AdditionalProps = val
+}
+
+type MailboxSendPolicyResponseMetaAdditional map[string]jx.Raw
+
+func (s *MailboxSendPolicyResponseMetaAdditional) init() MailboxSendPolicyResponseMetaAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type MailboxSendPolicyResponseOk bool
+
+const (
+	MailboxSendPolicyResponseOkTrue MailboxSendPolicyResponseOk = true
+)
+
+// AllValues returns all MailboxSendPolicyResponseOk values.
+func (MailboxSendPolicyResponseOk) AllValues() []MailboxSendPolicyResponseOk {
+	return []MailboxSendPolicyResponseOk{
+		MailboxSendPolicyResponseOkTrue,
+	}
+}
+
+// Ref: #/components/schemas/MailboxSendPolicySnapshot
+type MailboxSendPolicySnapshot struct {
+	Policy MailboxSendPolicy `json:"policy"`
+	// Current policy version; also returned in ETag.
+	Version string `json:"version"`
+}
+
+// GetPolicy returns the value of Policy.
+func (s *MailboxSendPolicySnapshot) GetPolicy() MailboxSendPolicy {
+	return s.Policy
+}
+
+// GetVersion returns the value of Version.
+func (s *MailboxSendPolicySnapshot) GetVersion() string {
+	return s.Version
+}
+
+// SetPolicy sets the value of Policy.
+func (s *MailboxSendPolicySnapshot) SetPolicy(val MailboxSendPolicy) {
+	s.Policy = val
+}
+
+// SetVersion sets the value of Version.
+func (s *MailboxSendPolicySnapshot) SetVersion(val string) {
+	s.Version = val
+}
+
 // Ref: #/components/schemas/MailboxSendScope
 type MailboxSendScope struct {
 	// Delivery group public IDs (only when type=group).
@@ -6092,6 +7111,14 @@ type ManagementDeleteDomainServiceUnavailable ApiErrorHeaders
 
 func (*ManagementDeleteDomainServiceUnavailable) managementDeleteDomainRes() {}
 
+type ManagementDeleteMailboxNotFound ApiErrorHeaders
+
+func (*ManagementDeleteMailboxNotFound) managementDeleteMailboxRes() {}
+
+type ManagementDeleteMailboxServiceUnavailable ApiErrorHeaders
+
+func (*ManagementDeleteMailboxServiceUnavailable) managementDeleteMailboxRes() {}
+
 type ManagementDeleteProviderNotFound ApiErrorHeaders
 
 func (*ManagementDeleteProviderNotFound) managementDeleteProviderRes() {}
@@ -6388,6 +7415,58 @@ type ManagementGetInboxLogUnauthorized ApiErrorHeaders
 
 func (*ManagementGetInboxLogUnauthorized) managementGetInboxLogRes() {}
 
+type ManagementGetMailboxCostUsageForbidden ApiErrorHeaders
+
+func (*ManagementGetMailboxCostUsageForbidden) managementGetMailboxCostUsageRes() {}
+
+type ManagementGetMailboxCostUsageNotFound ApiErrorHeaders
+
+func (*ManagementGetMailboxCostUsageNotFound) managementGetMailboxCostUsageRes() {}
+
+// ManagementGetMailboxCostUsageNotModified is response for ManagementGetMailboxCostUsage operation.
+type ManagementGetMailboxCostUsageNotModified struct {
+	CacheControl OptString
+	ETag         OptString
+}
+
+// GetCacheControl returns the value of CacheControl.
+func (s *ManagementGetMailboxCostUsageNotModified) GetCacheControl() OptString {
+	return s.CacheControl
+}
+
+// GetETag returns the value of ETag.
+func (s *ManagementGetMailboxCostUsageNotModified) GetETag() OptString {
+	return s.ETag
+}
+
+// SetCacheControl sets the value of CacheControl.
+func (s *ManagementGetMailboxCostUsageNotModified) SetCacheControl(val OptString) {
+	s.CacheControl = val
+}
+
+// SetETag sets the value of ETag.
+func (s *ManagementGetMailboxCostUsageNotModified) SetETag(val OptString) {
+	s.ETag = val
+}
+
+func (*ManagementGetMailboxCostUsageNotModified) managementGetMailboxCostUsageRes() {}
+
+type ManagementGetMailboxCostUsageServiceUnavailable ApiErrorHeaders
+
+func (*ManagementGetMailboxCostUsageServiceUnavailable) managementGetMailboxCostUsageRes() {}
+
+type ManagementGetMailboxCostUsageTooManyRequests ApiErrorHeaders
+
+func (*ManagementGetMailboxCostUsageTooManyRequests) managementGetMailboxCostUsageRes() {}
+
+type ManagementGetMailboxCostUsageUnauthorized ApiErrorHeaders
+
+func (*ManagementGetMailboxCostUsageUnauthorized) managementGetMailboxCostUsageRes() {}
+
+type ManagementGetMailboxCostUsageUnprocessableEntity ApiErrorHeaders
+
+func (*ManagementGetMailboxCostUsageUnprocessableEntity) managementGetMailboxCostUsageRes() {}
+
 type ManagementGetMailboxFiltersNotFound ApiErrorHeaders
 
 func (*ManagementGetMailboxFiltersNotFound) managementGetMailboxFiltersRes() {}
@@ -6429,6 +7508,126 @@ func (s *ManagementGetMailboxNotModified) SetETag(val OptString) {
 }
 
 func (*ManagementGetMailboxNotModified) managementGetMailboxRes() {}
+
+type ManagementGetMailboxSendPolicyBadRequest ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyBadRequest) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyConflict ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyConflict) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyForbidden ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyForbidden) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyInternalServerError ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyInternalServerError) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyNotFound ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyNotFound) managementGetMailboxSendPolicyRes() {}
+
+// ManagementGetMailboxSendPolicyNotModified is response for ManagementGetMailboxSendPolicy operation.
+type ManagementGetMailboxSendPolicyNotModified struct {
+	ETag OptString
+}
+
+// GetETag returns the value of ETag.
+func (s *ManagementGetMailboxSendPolicyNotModified) GetETag() OptString {
+	return s.ETag
+}
+
+// SetETag sets the value of ETag.
+func (s *ManagementGetMailboxSendPolicyNotModified) SetETag(val OptString) {
+	s.ETag = val
+}
+
+func (*ManagementGetMailboxSendPolicyNotModified) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyRequestEntityTooLarge ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyRequestEntityTooLarge) managementGetMailboxSendPolicyRes() {}
+
+// Policy level to read or replace.
+type ManagementGetMailboxSendPolicyScope string
+
+const (
+	ManagementGetMailboxSendPolicyScopeTeam              ManagementGetMailboxSendPolicyScope = "team"
+	ManagementGetMailboxSendPolicyScopeMailbox           ManagementGetMailboxSendPolicyScope = "mailbox"
+	ManagementGetMailboxSendPolicyScopeAPIKey            ManagementGetMailboxSendPolicyScope = "api_key"
+	ManagementGetMailboxSendPolicyScopeOAuthGrant        ManagementGetMailboxSendPolicyScope = "oauth_grant"
+	ManagementGetMailboxSendPolicyScopeAgentRegistration ManagementGetMailboxSendPolicyScope = "agent_registration"
+)
+
+// AllValues returns all ManagementGetMailboxSendPolicyScope values.
+func (ManagementGetMailboxSendPolicyScope) AllValues() []ManagementGetMailboxSendPolicyScope {
+	return []ManagementGetMailboxSendPolicyScope{
+		ManagementGetMailboxSendPolicyScopeTeam,
+		ManagementGetMailboxSendPolicyScopeMailbox,
+		ManagementGetMailboxSendPolicyScopeAPIKey,
+		ManagementGetMailboxSendPolicyScopeOAuthGrant,
+		ManagementGetMailboxSendPolicyScopeAgentRegistration,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ManagementGetMailboxSendPolicyScope) MarshalText() ([]byte, error) {
+	switch s {
+	case ManagementGetMailboxSendPolicyScopeTeam:
+		return []byte(s), nil
+	case ManagementGetMailboxSendPolicyScopeMailbox:
+		return []byte(s), nil
+	case ManagementGetMailboxSendPolicyScopeAPIKey:
+		return []byte(s), nil
+	case ManagementGetMailboxSendPolicyScopeOAuthGrant:
+		return []byte(s), nil
+	case ManagementGetMailboxSendPolicyScopeAgentRegistration:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ManagementGetMailboxSendPolicyScope) UnmarshalText(data []byte) error {
+	switch ManagementGetMailboxSendPolicyScope(data) {
+	case ManagementGetMailboxSendPolicyScopeTeam:
+		*s = ManagementGetMailboxSendPolicyScopeTeam
+		return nil
+	case ManagementGetMailboxSendPolicyScopeMailbox:
+		*s = ManagementGetMailboxSendPolicyScopeMailbox
+		return nil
+	case ManagementGetMailboxSendPolicyScopeAPIKey:
+		*s = ManagementGetMailboxSendPolicyScopeAPIKey
+		return nil
+	case ManagementGetMailboxSendPolicyScopeOAuthGrant:
+		*s = ManagementGetMailboxSendPolicyScopeOAuthGrant
+		return nil
+	case ManagementGetMailboxSendPolicyScopeAgentRegistration:
+		*s = ManagementGetMailboxSendPolicyScopeAgentRegistration
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type ManagementGetMailboxSendPolicyServiceUnavailable ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyServiceUnavailable) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyTooManyRequests ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyTooManyRequests) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyUnauthorized ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyUnauthorized) managementGetMailboxSendPolicyRes() {}
+
+type ManagementGetMailboxSendPolicyUnprocessableEntity ApiErrorHeaders
+
+func (*ManagementGetMailboxSendPolicyUnprocessableEntity) managementGetMailboxSendPolicyRes() {}
 
 // ManagementGetProviderNotModified is response for ManagementGetProvider operation.
 type ManagementGetProviderNotModified struct{}
@@ -7042,6 +8241,113 @@ type ManagementListWebhooksUnauthorized ApiErrorHeaders
 
 func (*ManagementListWebhooksUnauthorized) managementListWebhooksRes() {}
 
+type ManagementReplaceMailboxSendPolicyBadRequest ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyBadRequest) managementReplaceMailboxSendPolicyRes() {}
+
+type ManagementReplaceMailboxSendPolicyConflict ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyConflict) managementReplaceMailboxSendPolicyRes() {}
+
+type ManagementReplaceMailboxSendPolicyForbidden ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyForbidden) managementReplaceMailboxSendPolicyRes() {}
+
+type ManagementReplaceMailboxSendPolicyInternalServerError ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyInternalServerError) managementReplaceMailboxSendPolicyRes() {
+}
+
+type ManagementReplaceMailboxSendPolicyNotFound ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyNotFound) managementReplaceMailboxSendPolicyRes() {}
+
+type ManagementReplaceMailboxSendPolicyRequestEntityTooLarge ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyRequestEntityTooLarge) managementReplaceMailboxSendPolicyRes() {
+}
+
+// Policy level to read or replace.
+type ManagementReplaceMailboxSendPolicyScope string
+
+const (
+	ManagementReplaceMailboxSendPolicyScopeTeam              ManagementReplaceMailboxSendPolicyScope = "team"
+	ManagementReplaceMailboxSendPolicyScopeMailbox           ManagementReplaceMailboxSendPolicyScope = "mailbox"
+	ManagementReplaceMailboxSendPolicyScopeAPIKey            ManagementReplaceMailboxSendPolicyScope = "api_key"
+	ManagementReplaceMailboxSendPolicyScopeOAuthGrant        ManagementReplaceMailboxSendPolicyScope = "oauth_grant"
+	ManagementReplaceMailboxSendPolicyScopeAgentRegistration ManagementReplaceMailboxSendPolicyScope = "agent_registration"
+)
+
+// AllValues returns all ManagementReplaceMailboxSendPolicyScope values.
+func (ManagementReplaceMailboxSendPolicyScope) AllValues() []ManagementReplaceMailboxSendPolicyScope {
+	return []ManagementReplaceMailboxSendPolicyScope{
+		ManagementReplaceMailboxSendPolicyScopeTeam,
+		ManagementReplaceMailboxSendPolicyScopeMailbox,
+		ManagementReplaceMailboxSendPolicyScopeAPIKey,
+		ManagementReplaceMailboxSendPolicyScopeOAuthGrant,
+		ManagementReplaceMailboxSendPolicyScopeAgentRegistration,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ManagementReplaceMailboxSendPolicyScope) MarshalText() ([]byte, error) {
+	switch s {
+	case ManagementReplaceMailboxSendPolicyScopeTeam:
+		return []byte(s), nil
+	case ManagementReplaceMailboxSendPolicyScopeMailbox:
+		return []byte(s), nil
+	case ManagementReplaceMailboxSendPolicyScopeAPIKey:
+		return []byte(s), nil
+	case ManagementReplaceMailboxSendPolicyScopeOAuthGrant:
+		return []byte(s), nil
+	case ManagementReplaceMailboxSendPolicyScopeAgentRegistration:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ManagementReplaceMailboxSendPolicyScope) UnmarshalText(data []byte) error {
+	switch ManagementReplaceMailboxSendPolicyScope(data) {
+	case ManagementReplaceMailboxSendPolicyScopeTeam:
+		*s = ManagementReplaceMailboxSendPolicyScopeTeam
+		return nil
+	case ManagementReplaceMailboxSendPolicyScopeMailbox:
+		*s = ManagementReplaceMailboxSendPolicyScopeMailbox
+		return nil
+	case ManagementReplaceMailboxSendPolicyScopeAPIKey:
+		*s = ManagementReplaceMailboxSendPolicyScopeAPIKey
+		return nil
+	case ManagementReplaceMailboxSendPolicyScopeOAuthGrant:
+		*s = ManagementReplaceMailboxSendPolicyScopeOAuthGrant
+		return nil
+	case ManagementReplaceMailboxSendPolicyScopeAgentRegistration:
+		*s = ManagementReplaceMailboxSendPolicyScopeAgentRegistration
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type ManagementReplaceMailboxSendPolicyServiceUnavailable ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyServiceUnavailable) managementReplaceMailboxSendPolicyRes() {
+}
+
+type ManagementReplaceMailboxSendPolicyTooManyRequests ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyTooManyRequests) managementReplaceMailboxSendPolicyRes() {}
+
+type ManagementReplaceMailboxSendPolicyUnauthorized ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyUnauthorized) managementReplaceMailboxSendPolicyRes() {}
+
+type ManagementReplaceMailboxSendPolicyUnprocessableEntity ApiErrorHeaders
+
+func (*ManagementReplaceMailboxSendPolicyUnprocessableEntity) managementReplaceMailboxSendPolicyRes() {
+}
+
 type ManagementRequestSendingAccountLimitIncreaseConflict ApiErrorHeaders
 
 func (*ManagementRequestSendingAccountLimitIncreaseConflict) managementRequestSendingAccountLimitIncreaseRes() {
@@ -7444,6 +8750,51 @@ func (o NilBool) Get() (v bool, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o NilBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewNilDateTime returns new NilDateTime with value set to v.
+func NewNilDateTime(v time.Time) NilDateTime {
+	return NilDateTime{
+		Value: v,
+	}
+}
+
+// NilDateTime is nullable time.Time.
+type NilDateTime struct {
+	Value time.Time
+	Null  bool
+}
+
+// SetTo sets value to v.
+func (o *NilDateTime) SetTo(v time.Time) {
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o NilDateTime) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *NilDateTime) SetToNull() {
+	o.Null = true
+	var v time.Time
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o NilDateTime) Get() (v time.Time, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o NilDateTime) Or(d time.Time) time.Time {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -7986,6 +9337,190 @@ func (o OptInt) Get() (v int, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxSendPolicyAllowedFrom returns new OptMailboxSendPolicyAllowedFrom with value set to v.
+func NewOptMailboxSendPolicyAllowedFrom(v MailboxSendPolicyAllowedFrom) OptMailboxSendPolicyAllowedFrom {
+	return OptMailboxSendPolicyAllowedFrom{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxSendPolicyAllowedFrom is optional MailboxSendPolicyAllowedFrom.
+type OptMailboxSendPolicyAllowedFrom struct {
+	Value MailboxSendPolicyAllowedFrom
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxSendPolicyAllowedFrom was set.
+func (o OptMailboxSendPolicyAllowedFrom) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxSendPolicyAllowedFrom) Reset() {
+	var v MailboxSendPolicyAllowedFrom
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxSendPolicyAllowedFrom) SetTo(v MailboxSendPolicyAllowedFrom) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxSendPolicyAllowedFrom) Get() (v MailboxSendPolicyAllowedFrom, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxSendPolicyAllowedFrom) Or(d MailboxSendPolicyAllowedFrom) MailboxSendPolicyAllowedFrom {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxSendPolicyAllowedReplyTo returns new OptMailboxSendPolicyAllowedReplyTo with value set to v.
+func NewOptMailboxSendPolicyAllowedReplyTo(v MailboxSendPolicyAllowedReplyTo) OptMailboxSendPolicyAllowedReplyTo {
+	return OptMailboxSendPolicyAllowedReplyTo{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxSendPolicyAllowedReplyTo is optional MailboxSendPolicyAllowedReplyTo.
+type OptMailboxSendPolicyAllowedReplyTo struct {
+	Value MailboxSendPolicyAllowedReplyTo
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxSendPolicyAllowedReplyTo was set.
+func (o OptMailboxSendPolicyAllowedReplyTo) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxSendPolicyAllowedReplyTo) Reset() {
+	var v MailboxSendPolicyAllowedReplyTo
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxSendPolicyAllowedReplyTo) SetTo(v MailboxSendPolicyAllowedReplyTo) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxSendPolicyAllowedReplyTo) Get() (v MailboxSendPolicyAllowedReplyTo, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxSendPolicyAllowedReplyTo) Or(d MailboxSendPolicyAllowedReplyTo) MailboxSendPolicyAllowedReplyTo {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxSendPolicyRecipients returns new OptMailboxSendPolicyRecipients with value set to v.
+func NewOptMailboxSendPolicyRecipients(v MailboxSendPolicyRecipients) OptMailboxSendPolicyRecipients {
+	return OptMailboxSendPolicyRecipients{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxSendPolicyRecipients is optional MailboxSendPolicyRecipients.
+type OptMailboxSendPolicyRecipients struct {
+	Value MailboxSendPolicyRecipients
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxSendPolicyRecipients was set.
+func (o OptMailboxSendPolicyRecipients) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxSendPolicyRecipients) Reset() {
+	var v MailboxSendPolicyRecipients
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxSendPolicyRecipients) SetTo(v MailboxSendPolicyRecipients) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxSendPolicyRecipients) Get() (v MailboxSendPolicyRecipients, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxSendPolicyRecipients) Or(d MailboxSendPolicyRecipients) MailboxSendPolicyRecipients {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptMailboxSendPolicyRecipientsDeny returns new OptMailboxSendPolicyRecipientsDeny with value set to v.
+func NewOptMailboxSendPolicyRecipientsDeny(v MailboxSendPolicyRecipientsDeny) OptMailboxSendPolicyRecipientsDeny {
+	return OptMailboxSendPolicyRecipientsDeny{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptMailboxSendPolicyRecipientsDeny is optional MailboxSendPolicyRecipientsDeny.
+type OptMailboxSendPolicyRecipientsDeny struct {
+	Value MailboxSendPolicyRecipientsDeny
+	Set   bool
+}
+
+// IsSet returns true if OptMailboxSendPolicyRecipientsDeny was set.
+func (o OptMailboxSendPolicyRecipientsDeny) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptMailboxSendPolicyRecipientsDeny) Reset() {
+	var v MailboxSendPolicyRecipientsDeny
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptMailboxSendPolicyRecipientsDeny) SetTo(v MailboxSendPolicyRecipientsDeny) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptMailboxSendPolicyRecipientsDeny) Get() (v MailboxSendPolicyRecipientsDeny, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptMailboxSendPolicyRecipientsDeny) Or(d MailboxSendPolicyRecipientsDeny) MailboxSendPolicyRecipientsDeny {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -8774,6 +10309,132 @@ func (o OptManagementUpdateDomainReq) Or(d ManagementUpdateDomainReq) Management
 	return d
 }
 
+// NewOptNilMailboxSendPolicyRecipientsAllow returns new OptNilMailboxSendPolicyRecipientsAllow with value set to v.
+func NewOptNilMailboxSendPolicyRecipientsAllow(v MailboxSendPolicyRecipientsAllow) OptNilMailboxSendPolicyRecipientsAllow {
+	return OptNilMailboxSendPolicyRecipientsAllow{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilMailboxSendPolicyRecipientsAllow is optional nullable MailboxSendPolicyRecipientsAllow.
+type OptNilMailboxSendPolicyRecipientsAllow struct {
+	Value MailboxSendPolicyRecipientsAllow
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilMailboxSendPolicyRecipientsAllow was set.
+func (o OptNilMailboxSendPolicyRecipientsAllow) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilMailboxSendPolicyRecipientsAllow) Reset() {
+	var v MailboxSendPolicyRecipientsAllow
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilMailboxSendPolicyRecipientsAllow) SetTo(v MailboxSendPolicyRecipientsAllow) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilMailboxSendPolicyRecipientsAllow) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilMailboxSendPolicyRecipientsAllow) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v MailboxSendPolicyRecipientsAllow
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilMailboxSendPolicyRecipientsAllow) Get() (v MailboxSendPolicyRecipientsAllow, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilMailboxSendPolicyRecipientsAllow) Or(d MailboxSendPolicyRecipientsAllow) MailboxSendPolicyRecipientsAllow {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilReplaceMailboxSendPolicyPolicyRecipientsAllow returns new OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow with value set to v.
+func NewOptNilReplaceMailboxSendPolicyPolicyRecipientsAllow(v ReplaceMailboxSendPolicyPolicyRecipientsAllow) OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow {
+	return OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow is optional nullable ReplaceMailboxSendPolicyPolicyRecipientsAllow.
+type OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow struct {
+	Value ReplaceMailboxSendPolicyPolicyRecipientsAllow
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow was set.
+func (o OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) Reset() {
+	var v ReplaceMailboxSendPolicyPolicyRecipientsAllow
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) SetTo(v ReplaceMailboxSendPolicyPolicyRecipientsAllow) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v ReplaceMailboxSendPolicyPolicyRecipientsAllow
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) Get() (v ReplaceMailboxSendPolicyPolicyRecipientsAllow, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) Or(d ReplaceMailboxSendPolicyPolicyRecipientsAllow) ReplaceMailboxSendPolicyPolicyRecipientsAllow {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilString returns new OptNilString with value set to v.
 func NewOptNilString(v string) OptNilString {
 	return OptNilString{
@@ -9475,6 +11136,190 @@ func (o OptProviderVariables) Get() (v ProviderVariables, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptProviderVariables) Or(d ProviderVariables) ProviderVariables {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceMailboxSendPolicyPolicyAllowedFrom returns new OptReplaceMailboxSendPolicyPolicyAllowedFrom with value set to v.
+func NewOptReplaceMailboxSendPolicyPolicyAllowedFrom(v ReplaceMailboxSendPolicyPolicyAllowedFrom) OptReplaceMailboxSendPolicyPolicyAllowedFrom {
+	return OptReplaceMailboxSendPolicyPolicyAllowedFrom{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceMailboxSendPolicyPolicyAllowedFrom is optional ReplaceMailboxSendPolicyPolicyAllowedFrom.
+type OptReplaceMailboxSendPolicyPolicyAllowedFrom struct {
+	Value ReplaceMailboxSendPolicyPolicyAllowedFrom
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceMailboxSendPolicyPolicyAllowedFrom was set.
+func (o OptReplaceMailboxSendPolicyPolicyAllowedFrom) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceMailboxSendPolicyPolicyAllowedFrom) Reset() {
+	var v ReplaceMailboxSendPolicyPolicyAllowedFrom
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceMailboxSendPolicyPolicyAllowedFrom) SetTo(v ReplaceMailboxSendPolicyPolicyAllowedFrom) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceMailboxSendPolicyPolicyAllowedFrom) Get() (v ReplaceMailboxSendPolicyPolicyAllowedFrom, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceMailboxSendPolicyPolicyAllowedFrom) Or(d ReplaceMailboxSendPolicyPolicyAllowedFrom) ReplaceMailboxSendPolicyPolicyAllowedFrom {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceMailboxSendPolicyPolicyAllowedReplyTo returns new OptReplaceMailboxSendPolicyPolicyAllowedReplyTo with value set to v.
+func NewOptReplaceMailboxSendPolicyPolicyAllowedReplyTo(v ReplaceMailboxSendPolicyPolicyAllowedReplyTo) OptReplaceMailboxSendPolicyPolicyAllowedReplyTo {
+	return OptReplaceMailboxSendPolicyPolicyAllowedReplyTo{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceMailboxSendPolicyPolicyAllowedReplyTo is optional ReplaceMailboxSendPolicyPolicyAllowedReplyTo.
+type OptReplaceMailboxSendPolicyPolicyAllowedReplyTo struct {
+	Value ReplaceMailboxSendPolicyPolicyAllowedReplyTo
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceMailboxSendPolicyPolicyAllowedReplyTo was set.
+func (o OptReplaceMailboxSendPolicyPolicyAllowedReplyTo) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceMailboxSendPolicyPolicyAllowedReplyTo) Reset() {
+	var v ReplaceMailboxSendPolicyPolicyAllowedReplyTo
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceMailboxSendPolicyPolicyAllowedReplyTo) SetTo(v ReplaceMailboxSendPolicyPolicyAllowedReplyTo) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceMailboxSendPolicyPolicyAllowedReplyTo) Get() (v ReplaceMailboxSendPolicyPolicyAllowedReplyTo, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceMailboxSendPolicyPolicyAllowedReplyTo) Or(d ReplaceMailboxSendPolicyPolicyAllowedReplyTo) ReplaceMailboxSendPolicyPolicyAllowedReplyTo {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceMailboxSendPolicyPolicyRecipients returns new OptReplaceMailboxSendPolicyPolicyRecipients with value set to v.
+func NewOptReplaceMailboxSendPolicyPolicyRecipients(v ReplaceMailboxSendPolicyPolicyRecipients) OptReplaceMailboxSendPolicyPolicyRecipients {
+	return OptReplaceMailboxSendPolicyPolicyRecipients{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceMailboxSendPolicyPolicyRecipients is optional ReplaceMailboxSendPolicyPolicyRecipients.
+type OptReplaceMailboxSendPolicyPolicyRecipients struct {
+	Value ReplaceMailboxSendPolicyPolicyRecipients
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceMailboxSendPolicyPolicyRecipients was set.
+func (o OptReplaceMailboxSendPolicyPolicyRecipients) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceMailboxSendPolicyPolicyRecipients) Reset() {
+	var v ReplaceMailboxSendPolicyPolicyRecipients
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceMailboxSendPolicyPolicyRecipients) SetTo(v ReplaceMailboxSendPolicyPolicyRecipients) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceMailboxSendPolicyPolicyRecipients) Get() (v ReplaceMailboxSendPolicyPolicyRecipients, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceMailboxSendPolicyPolicyRecipients) Or(d ReplaceMailboxSendPolicyPolicyRecipients) ReplaceMailboxSendPolicyPolicyRecipients {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptReplaceMailboxSendPolicyPolicyRecipientsDeny returns new OptReplaceMailboxSendPolicyPolicyRecipientsDeny with value set to v.
+func NewOptReplaceMailboxSendPolicyPolicyRecipientsDeny(v ReplaceMailboxSendPolicyPolicyRecipientsDeny) OptReplaceMailboxSendPolicyPolicyRecipientsDeny {
+	return OptReplaceMailboxSendPolicyPolicyRecipientsDeny{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptReplaceMailboxSendPolicyPolicyRecipientsDeny is optional ReplaceMailboxSendPolicyPolicyRecipientsDeny.
+type OptReplaceMailboxSendPolicyPolicyRecipientsDeny struct {
+	Value ReplaceMailboxSendPolicyPolicyRecipientsDeny
+	Set   bool
+}
+
+// IsSet returns true if OptReplaceMailboxSendPolicyPolicyRecipientsDeny was set.
+func (o OptReplaceMailboxSendPolicyPolicyRecipientsDeny) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptReplaceMailboxSendPolicyPolicyRecipientsDeny) Reset() {
+	var v ReplaceMailboxSendPolicyPolicyRecipientsDeny
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptReplaceMailboxSendPolicyPolicyRecipientsDeny) SetTo(v ReplaceMailboxSendPolicyPolicyRecipientsDeny) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptReplaceMailboxSendPolicyPolicyRecipientsDeny) Get() (v ReplaceMailboxSendPolicyPolicyRecipientsDeny, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptReplaceMailboxSendPolicyPolicyRecipientsDeny) Or(d ReplaceMailboxSendPolicyPolicyRecipientsDeny) ReplaceMailboxSendPolicyPolicyRecipientsDeny {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -13355,6 +15200,236 @@ func (s *ProviderVariables) init() ProviderVariables {
 	return m
 }
 
+// Ref: #/components/schemas/ReplaceMailboxSendPolicy
+type ReplaceMailboxSendPolicy struct {
+	Policy ReplaceMailboxSendPolicyPolicy `json:"policy"`
+}
+
+// GetPolicy returns the value of Policy.
+func (s *ReplaceMailboxSendPolicy) GetPolicy() ReplaceMailboxSendPolicyPolicy {
+	return s.Policy
+}
+
+// SetPolicy sets the value of Policy.
+func (s *ReplaceMailboxSendPolicy) SetPolicy(val ReplaceMailboxSendPolicyPolicy) {
+	s.Policy = val
+}
+
+type ReplaceMailboxSendPolicyPolicy struct {
+	// Allowed From addresses at this policy level.
+	AllowedFrom OptReplaceMailboxSendPolicyPolicyAllowedFrom `json:"allowed_from"`
+	// Allowed Reply-To addresses at this policy level.
+	AllowedReplyTo OptReplaceMailboxSendPolicyPolicyAllowedReplyTo `json:"allowed_reply_to"`
+	// Ordered fallback From addresses; every policy level must explicitly allow each alternative.
+	AlternateFrom []string `json:"alternate_from"`
+	// Recipient restrictions applied to every To, Cc and Bcc address.
+	Recipients OptReplaceMailboxSendPolicyPolicyRecipients `json:"recipients"`
+}
+
+// GetAllowedFrom returns the value of AllowedFrom.
+func (s *ReplaceMailboxSendPolicyPolicy) GetAllowedFrom() OptReplaceMailboxSendPolicyPolicyAllowedFrom {
+	return s.AllowedFrom
+}
+
+// GetAllowedReplyTo returns the value of AllowedReplyTo.
+func (s *ReplaceMailboxSendPolicyPolicy) GetAllowedReplyTo() OptReplaceMailboxSendPolicyPolicyAllowedReplyTo {
+	return s.AllowedReplyTo
+}
+
+// GetAlternateFrom returns the value of AlternateFrom.
+func (s *ReplaceMailboxSendPolicyPolicy) GetAlternateFrom() []string {
+	return s.AlternateFrom
+}
+
+// GetRecipients returns the value of Recipients.
+func (s *ReplaceMailboxSendPolicyPolicy) GetRecipients() OptReplaceMailboxSendPolicyPolicyRecipients {
+	return s.Recipients
+}
+
+// SetAllowedFrom sets the value of AllowedFrom.
+func (s *ReplaceMailboxSendPolicyPolicy) SetAllowedFrom(val OptReplaceMailboxSendPolicyPolicyAllowedFrom) {
+	s.AllowedFrom = val
+}
+
+// SetAllowedReplyTo sets the value of AllowedReplyTo.
+func (s *ReplaceMailboxSendPolicyPolicy) SetAllowedReplyTo(val OptReplaceMailboxSendPolicyPolicyAllowedReplyTo) {
+	s.AllowedReplyTo = val
+}
+
+// SetAlternateFrom sets the value of AlternateFrom.
+func (s *ReplaceMailboxSendPolicyPolicy) SetAlternateFrom(val []string) {
+	s.AlternateFrom = val
+}
+
+// SetRecipients sets the value of Recipients.
+func (s *ReplaceMailboxSendPolicyPolicy) SetRecipients(val OptReplaceMailboxSendPolicyPolicyRecipients) {
+	s.Recipients = val
+}
+
+// Allowed From addresses at this policy level.
+type ReplaceMailboxSendPolicyPolicyAllowedFrom struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+	// Allow the originating inbox address.
+	OwnAddress OptBool `json:"own_address"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedFrom) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedFrom) GetDomains() []string {
+	return s.Domains
+}
+
+// GetOwnAddress returns the value of OwnAddress.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedFrom) GetOwnAddress() OptBool {
+	return s.OwnAddress
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedFrom) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedFrom) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// SetOwnAddress sets the value of OwnAddress.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedFrom) SetOwnAddress(val OptBool) {
+	s.OwnAddress = val
+}
+
+// Allowed Reply-To addresses at this policy level.
+type ReplaceMailboxSendPolicyPolicyAllowedReplyTo struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+	// Allow the originating inbox address.
+	OwnAddress OptBool `json:"own_address"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedReplyTo) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedReplyTo) GetDomains() []string {
+	return s.Domains
+}
+
+// GetOwnAddress returns the value of OwnAddress.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedReplyTo) GetOwnAddress() OptBool {
+	return s.OwnAddress
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedReplyTo) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedReplyTo) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// SetOwnAddress sets the value of OwnAddress.
+func (s *ReplaceMailboxSendPolicyPolicyAllowedReplyTo) SetOwnAddress(val OptBool) {
+	s.OwnAddress = val
+}
+
+// Recipient restrictions applied to every To, Cc and Bcc address.
+type ReplaceMailboxSendPolicyPolicyRecipients struct {
+	// Allowed recipients, or null for no allow-list restriction. An empty rule allows no recipients.
+	Allow OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow `json:"allow"`
+	// Blocked recipients; deny rules always take precedence.
+	Deny OptReplaceMailboxSendPolicyPolicyRecipientsDeny `json:"deny"`
+}
+
+// GetAllow returns the value of Allow.
+func (s *ReplaceMailboxSendPolicyPolicyRecipients) GetAllow() OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow {
+	return s.Allow
+}
+
+// GetDeny returns the value of Deny.
+func (s *ReplaceMailboxSendPolicyPolicyRecipients) GetDeny() OptReplaceMailboxSendPolicyPolicyRecipientsDeny {
+	return s.Deny
+}
+
+// SetAllow sets the value of Allow.
+func (s *ReplaceMailboxSendPolicyPolicyRecipients) SetAllow(val OptNilReplaceMailboxSendPolicyPolicyRecipientsAllow) {
+	s.Allow = val
+}
+
+// SetDeny sets the value of Deny.
+func (s *ReplaceMailboxSendPolicyPolicyRecipients) SetDeny(val OptReplaceMailboxSendPolicyPolicyRecipientsDeny) {
+	s.Deny = val
+}
+
+// Allowed recipients, or null for no allow-list restriction. An empty rule allows no recipients.
+type ReplaceMailboxSendPolicyPolicyRecipientsAllow struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsAllow) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsAllow) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsAllow) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsAllow) SetDomains(val []string) {
+	s.Domains = val
+}
+
+// Blocked recipients; deny rules always take precedence.
+type ReplaceMailboxSendPolicyPolicyRecipientsDeny struct {
+	// Exact email addresses matched by this rule.
+	Addresses []string `json:"addresses"`
+	// Exact domains; subdomains are not included automatically.
+	Domains []string `json:"domains"`
+}
+
+// GetAddresses returns the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsDeny) GetAddresses() []string {
+	return s.Addresses
+}
+
+// GetDomains returns the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsDeny) GetDomains() []string {
+	return s.Domains
+}
+
+// SetAddresses sets the value of Addresses.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsDeny) SetAddresses(val []string) {
+	s.Addresses = val
+}
+
+// SetDomains sets the value of Domains.
+func (s *ReplaceMailboxSendPolicyPolicyRecipientsDeny) SetDomains(val []string) {
+	s.Domains = val
+}
+
 // Ref: #/components/schemas/ResourceLimitSnapshot
 type ResourceLimitSnapshot struct {
 	CanRequestIncrease bool      `json:"can_request_increase"`
@@ -16696,9 +18771,11 @@ type WebhookSubscriptionWithSecret struct {
 	// Optional human-friendly label used in dashboard list/detail pages. May be `null` for subscriptions
 	// created without a name.
 	Name NilString `json:"name"`
-	// Signing secret used to verify the HMAC-SHA256 signature on every event POST. This is the ONLY
-	// response containing the raw secret — store it securely; it cannot be retrieved later. Use POST
-	// /webhooks/{id}/rotate-secret to issue a new one.
+	// Signing secret for both webhook signature headers. X-Sendmux-Signature signs the exact body bytes.
+	// X-Sendmux-Signature-V2 contains v1=<hex HMAC-SHA256> and signs X-Sendmux-Timestamp (Unix seconds),
+	// a full stop, then the exact body bytes. Check timestamp freshness and compare signatures in
+	// constant time before parsing the body. Store this secret securely; it is returned only on creation
+	// and rotation. Use POST /webhooks/{id}/rotate-secret to issue a new one.
 	Secret string `json:"secret"`
 	// ISO 8601 last-modified timestamp.
 	UpdatedAt string `json:"updated_at"`

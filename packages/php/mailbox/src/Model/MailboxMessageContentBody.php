@@ -59,9 +59,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $openAPITypes = [
+        'cleaned_html' => 'string',
         'extracted_links' => 'string[]',
         'format' => 'string',
         'html' => 'string',
+        'html_cleaning' => '\Sendmux\Mailbox\Model\MailboxMessageContentBodyHtmlCleaning',
         'is_truncated' => 'bool',
         'quotes_stripped' => 'bool',
         'signature_stripped' => 'bool',
@@ -75,9 +77,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string|null>
      */
     protected static array $openAPIFormats = [
+        'cleaned_html' => null,
         'extracted_links' => null,
         'format' => null,
         'html' => null,
+        'html_cleaning' => null,
         'is_truncated' => null,
         'quotes_stripped' => null,
         'signature_stripped' => null,
@@ -91,9 +95,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, bool>
      */
     protected static array $openAPINullables = [
+        'cleaned_html' => true,
         'extracted_links' => false,
         'format' => true,
         'html' => true,
+        'html_cleaning' => true,
         'is_truncated' => false,
         'quotes_stripped' => false,
         'signature_stripped' => false,
@@ -177,9 +183,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $attributeMap = [
+        'cleaned_html' => 'cleaned_html',
         'extracted_links' => 'extracted_links',
         'format' => 'format',
         'html' => 'html',
+        'html_cleaning' => 'html_cleaning',
         'is_truncated' => 'is_truncated',
         'quotes_stripped' => 'quotes_stripped',
         'signature_stripped' => 'signature_stripped',
@@ -193,9 +201,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $setters = [
+        'cleaned_html' => 'setCleanedHtml',
         'extracted_links' => 'setExtractedLinks',
         'format' => 'setFormat',
         'html' => 'setHtml',
+        'html_cleaning' => 'setHtmlCleaning',
         'is_truncated' => 'setIsTruncated',
         'quotes_stripped' => 'setQuotesStripped',
         'signature_stripped' => 'setSignatureStripped',
@@ -209,9 +219,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      * @var array<string, string>
      */
     protected static array $getters = [
+        'cleaned_html' => 'getCleanedHtml',
         'extracted_links' => 'getExtractedLinks',
         'format' => 'getFormat',
         'html' => 'getHtml',
+        'html_cleaning' => 'getHtmlCleaning',
         'is_truncated' => 'getIsTruncated',
         'quotes_stripped' => 'getQuotesStripped',
         'signature_stripped' => 'getSignatureStripped',
@@ -283,9 +295,11 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
      */
     public function __construct(?array $data = null)
     {
+        $this->setIfExists('cleaned_html', $data ?? [], null);
         $this->setIfExists('extracted_links', $data ?? [], null);
         $this->setIfExists('format', $data ?? [], null);
         $this->setIfExists('html', $data ?? [], null);
+        $this->setIfExists('html_cleaning', $data ?? [], null);
         $this->setIfExists('is_truncated', $data ?? [], null);
         $this->setIfExists('quotes_stripped', $data ?? [], null);
         $this->setIfExists('signature_stripped', $data ?? [], null);
@@ -318,6 +332,9 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
     {
         $invalidProperties = [];
 
+        if ($this->container['cleaned_html'] === null && !$this->isNullableSetToNull('cleaned_html')) {
+            $invalidProperties[] = "'cleaned_html' is required";
+        }
         if ($this->container['extracted_links'] === null) {
             $invalidProperties[] = "'extracted_links' can't be null";
         }
@@ -335,6 +352,9 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
 
         if ($this->container['html'] === null && !$this->isNullableSetToNull('html')) {
             $invalidProperties[] = "'html' is required";
+        }
+        if ($this->container['html_cleaning'] === null && !$this->isNullableSetToNull('html_cleaning')) {
+            $invalidProperties[] = "'html_cleaning' is required";
         }
         if ($this->container['is_truncated'] === null) {
             $invalidProperties[] = "'is_truncated' can't be null";
@@ -362,6 +382,40 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
         return count($this->listInvalidProperties()) === 0;
     }
 
+
+    /**
+     * Gets cleaned_html
+     *
+     * @return string|null
+     */
+    public function getCleanedHtml(): ?string
+    {
+        return $this->container['cleaned_html'];
+    }
+
+    /**
+     * Sets cleaned_html
+     *
+     * @param string|null $cleaned_html HTML with recognised quotes and signatures removed according to the stripping options. Original HTML remains in html. This is not sanitised content. Null when HTML is absent, not requested, truncated, or exceeds cleaning limits.
+     *
+     * @return $this
+     */
+    public function setCleanedHtml(?string $cleaned_html): static
+    {
+        if (is_null($cleaned_html)) {
+            array_push($this->openAPINullablesSetToNull, 'cleaned_html');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('cleaned_html', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['cleaned_html'] = $cleaned_html;
+
+        return $this;
+    }
 
     /**
      * Gets extracted_links
@@ -458,6 +512,40 @@ class MailboxMessageContentBody implements ModelInterface, ArrayAccess, JsonSeri
             }
         }
         $this->container['html'] = $html;
+
+        return $this;
+    }
+
+    /**
+     * Gets html_cleaning
+     *
+     * @return \Sendmux\Mailbox\Model\MailboxMessageContentBodyHtmlCleaning|null
+     */
+    public function getHtmlCleaning(): ?\Sendmux\Mailbox\Model\MailboxMessageContentBodyHtmlCleaning
+    {
+        return $this->container['html_cleaning'];
+    }
+
+    /**
+     * Sets html_cleaning
+     *
+     * @param \Sendmux\Mailbox\Model\MailboxMessageContentBodyHtmlCleaning|null $html_cleaning html_cleaning
+     *
+     * @return $this
+     */
+    public function setHtmlCleaning(?\Sendmux\Mailbox\Model\MailboxMessageContentBodyHtmlCleaning $html_cleaning): static
+    {
+        if (is_null($html_cleaning)) {
+            array_push($this->openAPINullablesSetToNull, 'html_cleaning');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('html_cleaning', $nullablesSetToNull);
+            if ($index !== false) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['html_cleaning'] = $html_cleaning;
 
         return $this;
     }

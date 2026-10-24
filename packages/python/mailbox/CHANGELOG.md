@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.2...python-mailbox-v2.1.0) (2026-10-24)
+
+
+### Features
+
+* **mailbox:** expose durable drafts and agent-email workflows ([bb2f462](https://github.com/Sendmux/sendmux-sdk/commit/bb2f462447affd43b3b175b9625068f1a02e3172))
+* **mailbox:** expose durable drafts and agent-email workflows ([7e867c5](https://github.com/Sendmux/sendmux-sdk/commit/7e867c5bd7b7c85add27c7c04e036997ae57dbc4))
+* **mailbox:** expose permitted sender choices to consumers ([#317](https://github.com/Sendmux/sendmux-sdk/issues/317)) ([7ac3dc1](https://github.com/Sendmux/sendmux-sdk/commit/7ac3dc1c08915ec12477171a49edb87b3d482f39))
+
+
+### Bug Fixes
+
+* **sdk:** preserve timestamps and fixture prerequisites ([894ee58](https://github.com/Sendmux/sendmux-sdk/commit/894ee580c8331ac19f80a3778300f265a1a39300))
+
 ## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/python-mailbox-v2.0.1...python-mailbox-v2.0.2) (2026-09-21)
 
 

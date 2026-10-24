@@ -94,7 +94,7 @@
       "form-data": "4.0.6",
       "js-yaml": "4.3.2",
       "protobufjs": "7.6.5",
-      "shell-quote": "1.9.0",
+      "shell-quote": "1.11.0",
       "undici": "6.28.0",
       "mcp-remote>undici": "7.30.1"
     },

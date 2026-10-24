@@ -6,6 +6,18 @@
 
 * Add one delivery group or a list of `delivery_group` IDs to email send requests.
 
+## [1.6.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.5.0...ruby-sending/v1.6.0) (2026-10-24)
+
+
+### Features
+
+* **mailbox:** expose durable drafts and agent-email workflows ([bb2f462](https://github.com/Sendmux/sendmux-sdk/commit/bb2f462447affd43b3b175b9625068f1a02e3172))
+
+
+### Bug Fixes
+
+* **sdk:** preserve timestamps and fixture prerequisites ([894ee58](https://github.com/Sendmux/sendmux-sdk/commit/894ee580c8331ac19f80a3778300f265a1a39300))
+
 ## [1.5.0](https://github.com/Sendmux/sendmux-sdk/compare/ruby-sending/v1.4.0...ruby-sending/v1.5.0) (2026-09-19)
 
 

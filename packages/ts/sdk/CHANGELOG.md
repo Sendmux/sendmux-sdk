@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.3](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v2.0.2...ts-sdk-v2.0.3) (2026-10-24)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @sendmux/mailbox bumped to 2.1.0
+    * @sendmux/management bumped to 2.1.0
+
 ## [2.0.2](https://github.com/Sendmux/sendmux-sdk/compare/ts-sdk-v2.0.1...ts-sdk-v2.0.2) (2026-09-21)
 
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.3.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.2.0...python-mcp-v2.3.0) (2026-10-24)
+
+
+### Features
+
+* **mailbox:** expose durable drafts and agent-email workflows ([bb2f462](https://github.com/Sendmux/sendmux-sdk/commit/bb2f462447affd43b3b175b9625068f1a02e3172))
+* **mailbox:** expose durable drafts and agent-email workflows ([7e867c5](https://github.com/Sendmux/sendmux-sdk/commit/7e867c5bd7b7c85add27c7c04e036997ae57dbc4))
+* **mailbox:** expose permitted sender choices to consumers ([#317](https://github.com/Sendmux/sendmux-sdk/issues/317)) ([7ac3dc1](https://github.com/Sendmux/sendmux-sdk/commit/7ac3dc1c08915ec12477171a49edb87b3d482f39))
+
+
+### Bug Fixes
+
+* **mcp:** pin Python runtime used by certified contract ([66289f1](https://github.com/Sendmux/sendmux-sdk/commit/66289f1bb5d73fba2096dfa26d57ea5639035468))
+
 ## [2.2.0](https://github.com/Sendmux/sendmux-sdk/compare/python-mcp-v2.1.3...python-mcp-v2.2.0) (2026-09-30)
 
 

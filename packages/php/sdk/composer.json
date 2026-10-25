@@ -7,7 +7,7 @@
     "php": "^8.2",
     "sendmux/core": "^2.1.1",
     "sendmux/mailbox": "^3.0",
-    "sendmux/management": "^2.1.1",
+    "sendmux/management": "^2.2.0",
     "sendmux/sending": "^2.1.1"
   },
   "autoload": {
